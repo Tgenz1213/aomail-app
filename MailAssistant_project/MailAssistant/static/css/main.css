@@ -1,0 +1,157 @@
+body{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #b7b7b7;
+    width: 30%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 10px 10px 0px 3px rgba(0,0,0,0.52);
+}
+
+form input{
+    margin: 10px;
+    padding: 10px;
+    width: 85%;
+}
+
+form a{
+    width: 90%;
+    text-align: right;
+}
+
+#logo_login{
+    width: 125px;
+    height: 125px;
+    margin-bottom: 20px;
+}
+
+nav button:hover {
+    background-color: darkgrey;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f1f1;
+    width: 80px;
+}
+  
+
+nav button {
+    display: block;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    margin: 10px;
+    border-radius: 50%;
+    background-color: white;
+}
+
+#logo{
+    position: absolute;
+    bottom: 0;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 20px;
+
+}
+
+#choice{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: #b7b7b7;
+    width: 80%;
+    height: 80px;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+#choice button{
+    width: 100%;
+    height: 100%;
+    margin: 10px;
+    font-size: 25px;
+    border-radius: 10px;
+    background-color: #b7b7b7;
+}
+
+#choice button:hover{
+    background-color: #a7a7a7;
+}
+
+#send_manual form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #b7b7b7;
+    width: 80%;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top : 20px;
+}
+
+@media (max-device-width : 750px){
+    form{
+        width: 70%;
+    }
+
+    form input{
+        width: 90%;
+        height: 40px;
+        margin-bottom: 20px;
+        font-size: 20px;
+    }
+
+    form input[type="submit"]{
+        width: 50%;
+        height: 60px;
+        margin: 10px;
+        font-size: 25px;
+    }
+
+    form label{
+        align-items: center;
+        font-size: 30px;
+    }
+} 
+
+@media (max-device-width : 500px){
+    nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 80px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        background-color: #f1f1f1;
+    }
+
+    /* logo mal placé */
+    #logo{
+        position: absolute;
+        left: 0;
+        width: 80px;
+        height: 80px;
+        margin : 10px;
+    }
+
+
+}

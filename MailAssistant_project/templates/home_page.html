@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>MailAssistant</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script src="{% static 'js/main.js' %}"></script>
+</head>
+<body>
+    <nav>
+        <button id="home_page"><img src="{% static 'pictures/house-solid.svg' %}" alt="Accueil" title="Accueil"></button>
+        <button id="new_mail"onclick=window.location.href="{% url 'MailAssistant:send_mails' %}"><img src="{% static 'pictures/plus-solid.svg' %}" alt="Envoyer un mail" title="Envoyer un mail"></button>
+        <button id="edit_mail"><img src="{% static 'pictures/pen-to-square-solid.svg' %}" alt="Édition mail" title="Édition mail"></button>
+        <button id="logout" onclick=window.location.href="{% url 'MailAssistant:logout' %}"><img src="{% static 'pictures/right-from-bracket-solid.svg' %}" alt="Déconnexion" title="Déconnexion"></button>
+        <img id="logo" src="{% static 'pictures/logo.png' %}" alt="Logo">
+    </nav>
+
+    <div id="choice">
+        <button onclick="print_mail_manual()">Assistant IA</button>
+        <button onclick="print_mail_IA()">Assistant manuel</button>
+    </div>
+
+    <div id="div_IA">
+        <p> Titre : {{ sujet}}</p>
+        {% autoescape off %}
+        {{ text }}
+        {% endautoescape %}
+    </div>
+
+    <div id="div_manual" style="display: none;">
+        <p>Manuel ici</p>
+    </div>
+    
+</body>
+</html>

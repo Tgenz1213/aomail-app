@@ -75,7 +75,7 @@ CALENDAR_READONLY_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
 
 # device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 
-category_list = {'To answer': 'Mails where an answer is needed','Subscriptions': 'Pertaining to periodic payment plans for services or products.', 'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'}
+category_list = {'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",'Subscriptions': 'Pertaining to periodic payment plans for services or products.', 'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'}
 importance_list = {'Important': 'Items or messages that are of high priority and require immediate attention or action.','Answer Required': 'Queries or topics that specifically need a response or feedback.','Information': 'General updates, data, or details that are informative but may not require immediate action.','Useless': 'Items or messages that are not relevant, redundant, or do not provide any significant value.'}
 
 # loading landing page
@@ -84,7 +84,7 @@ def home_page(request):
     services = authenticate_service()
     subject, from_name, decoded_data = get_mail(services,0)
     if decoded_data: decoded_data = format_mail(decoded_data)
-    # print("decoded_data: ",decoded_data)
+    print("decoded_data: ",decoded_data)
 
     # # chain = llama_langchain_chain(0.75,1,500,1)
     # chain = llama_langchain_chain(0.6,0.9,300,1.2)
@@ -94,7 +94,7 @@ def home_page(request):
     # print(response)
     # translated_response = llama_langchain_response(translation,response)
     # prompt = "Summarize with bullets points in French the following email. Key parts only: "
-    topic, importance, summary = gpt_langchain_response(decoded_data,category_list)
+    topic, importance, summary = gpt_langchain_response(subject,decoded_data,category_list)
 
     print('topic: ',topic)
     print('importance: ',importance)
@@ -235,7 +235,7 @@ def chatgpt(pre_prompt,prompt_mail):
 #     return response.content.strip()
 
 
-def gpt_langchain_response(decoded_data,category_list):
+def gpt_langchain_response(subject,decoded_data,category_list):
     # prompt = "Summarize with bullets points in French the following email. Key parts only: "
     template = (
         """Given the following topic categories and their descriptions:
@@ -243,7 +243,9 @@ def gpt_langchain_response(decoded_data,category_list):
         And the following importance/action categories:
         {importance}
 
-        Please categorize and summarize the following message:
+        Email subject: {subject}
+
+        Please categorize and summarize the following message in French:
 
         {text}
 
@@ -266,7 +268,7 @@ def gpt_langchain_response(decoded_data,category_list):
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
     chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
-    response = chat(chat_prompt.format_prompt(category=category_list,importance=importance_list,text=decoded_data).to_messages())
+    response = chat(chat_prompt.format_prompt(category=category_list,importance=importance_list,subject=subject,text=decoded_data).to_messages())
 
     clear_response = response.content.strip()
     # print('response: ',response)
@@ -359,17 +361,21 @@ def get_text_from_mail(mime_type,part,decoded_data_temp):
 # if email is structured in "multiparts", goes through all to get the email body
 def process_part(part,plaintext_var):
     mime_type = part['mimeType']
-    # print("mime_type: ",mime_type,plaintext_var[0])
+    print("mime_type: ",mime_type,plaintext_var[0])
     decoded_data = None
 
     if mime_type == "text/plain":
         decoded_data = get_text_from_mail(mime_type,part,decoded_data)
-        if decoded_data != None and decoded_data != "" and decoded_data != b'':
+        # if decoded_data != None and decoded_data != "" and decoded_data != b'':
+        if decoded_data and decoded_data.strip() not in ["", "\r\n", b'\r\n']:
             plaintext_var[0] = 1
+        # else:
+        #     decoded_data = None
     elif mime_type == "text/html" and plaintext_var[0]==0:
+    # if mime_type == "text/html" or (mime_type == "text/plain" and not decoded_data):
         decoded_data = get_text_from_mail(mime_type,part,decoded_data)
     elif "multipart/" in mime_type:
-        # FOr every subpart, call this function
+        # For every subpart, call this function
         subpart_datas = {'html':None,'plain':None}
         for subpart in part['parts']:
             subpart_data = process_part(subpart,plaintext_var)
@@ -390,7 +396,7 @@ def process_part(part,plaintext_var):
             if plaintext_var[0]==1 and decoded_data:
                 decoded_data = re.sub(r'\[image[^\]]+\]\s*<\S+>','',decoded_data)
                 decoded_data = re.sub(r'\[image[^\]]+\]','',decoded_data)
-    # print("decoded_data_process: ",decoded_data)
+    print("decoded_data_process: ",decoded_data)
     return decoded_data
 
 # used to get mail number "int_mail" (minus one as lists starts from 0) and returns subject, expeditor and body 

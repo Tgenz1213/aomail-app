@@ -26,14 +26,57 @@ from bs4 import BeautifulSoup
 # llama2
 import replicate
 
+# OpenAI - ChatGPT
+import openai
+
+# langchain
+from langchain.chains import ConversationChain
+from langchain.llms import HuggingFacePipeline
+from langchain.memory import ConversationSummaryBufferMemory, ConversationBufferMemory
+from langchain.prompts.prompt import PromptTemplate
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts.chat import SystemMessagePromptTemplate,ChatPromptTemplate,AIMessagePromptTemplate,HumanMessagePromptTemplate
+from langchain.schema import AIMessage,HumanMessage,SystemMessage
+
+from torch import cuda, bfloat16
+import torch
+from transformers import StoppingCriteria, StoppingCriteriaList
+import transformers
+
+from langchain.llms import Replicate
+from langchain import PromptTemplate, LLMChain
+
+
 # os.environ["REPLICATE_API_TOKEN"] = "r8_Il2lMT0sFWC4XRvcEapuQIBgjZfI4gX1lRItk" #old
 os.environ["REPLICATE_API_TOKEN"] = "r8_6oXyodq8QOcv1rbSPcF2kxfcyzOcF2i3mL3AH" #new
+hf_auth = "r8_6oXyodq8QOcv1rbSPcF2kxfcyzOcF2i3mL3AH"
+
+
+openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
+# openai.api_key = "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"
+openai.api_key = "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"
+# openai.Model.list()
+gpt_model = "gpt-3.5-turbo"
+
+configuration = {
+    'organization': "org-YSlFvq9rM1qPzM15jewopUUt",
+    # 'api_key': os.environ[openai.api_key],
+    'api_key' : "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"
+}
+# response = openai.Engine.list()
+# print(response)
 
 GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
 GMAIL_SEND_SCOPE = 'https://www.googleapis.com/auth/gmail.send'
 CALENDAR_READONLY_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
 # CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar'
 
+# model_id = 'replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1' # LLM Model
+
+# device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
+
+category_list = {'To answer': 'Mails where an answer is needed','Subscriptions': 'Pertaining to periodic payment plans for services or products.', 'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'}
+importance_list = {'Important': 'Items or messages that are of high priority and require immediate attention or action.','Answer Required': 'Queries or topics that specifically need a response or feedback.','Information': 'General updates, data, or details that are informative but may not require immediate action.','Useless': 'Items or messages that are not relevant, redundant, or do not provide any significant value.'}
 
 # loading landing page
 def home_page(request):
@@ -42,7 +85,21 @@ def home_page(request):
     subject, from_name, decoded_data = get_mail(services,0)
     if decoded_data: decoded_data = format_mail(decoded_data)
     # print("decoded_data: ",decoded_data)
-    get_calendar_events(services)
+
+    # # chain = llama_langchain_chain(0.75,1,500,1)
+    # chain = llama_langchain_chain(0.6,0.9,300,1.2)
+    # translation = llama_langchain_translation(0.6,0.9,300,1.2)
+    # # response = llama_langchain_response(chain,"Summarize the following: "+decoded_data)
+    # response = llama_langchain_response(chain,decoded_data)
+    # print(response)
+    # translated_response = llama_langchain_response(translation,response)
+    # prompt = "Summarize with bullets points in French the following email. Key parts only: "
+    topic, importance, summary = gpt_langchain_response(decoded_data,category_list)
+
+    print('topic: ',topic)
+    print('importance: ',importance)
+    print('summary: ',summary)
+    # get_calendar_events(services)
     return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
 
 # authentication service for all google services needed at once, used on startup, then stored until log out
@@ -50,7 +107,6 @@ def authenticate_service():
     SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE]
     """Authenticate and return service objects for Google APIs."""
     creds = None
-
     # Check if token.pickle exists and load credentials if it does
     if os.path.exists('token.pickle'):
         if os.stat("token.pickle").st_size > 0:
@@ -92,39 +148,164 @@ def authenticate_service():
 
 ######################## Llama 2 requests ########################
 
-# answers a 'prompt_input' after taking a 'pre_prompt' which indicates how the answer is written (who, how, etc...)
-def llama2_replicate(pre_prompt,prompt_input,temperature,top_p,max_length,repetition_penalty):
-    # pre_prompt = "You are a helpful assistant. You do not respond as 'User' or pretend to be 'User'. You only respond once as 'Assistant'"
-    # prompt_input = "What is Github?"
-    output = replicate.run('replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1', # LLM Model
-                        input={"prompt": f"{pre_prompt} {prompt_input} Assistant: ", # Prompts
-                            "temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":repetition_penalty}) # Model parameters
-    full_response = ""
-    int = 0
-    for item in output:
-        # print("item: ",item)
-        # deletes 'Hello!' and adds everything else
-        # if int not in [0,1,2]:
-        #     full_response+=item
-        if (int==1 and item!='Hello') or (int==2 and item!='!') or int>2:
-            full_response+=item
-        int+=1
-    # print("full_response: ",full_response)
-    return full_response
+# def llama_langchain_chain(pre_prompt,prompt_input,temperature,top_p,max_length,repetition_penalty):
+# creation of chain used to work with llama2
+def llama_langchain_chain(temperature,top_p,max_length,repetition_penalty):
+    # # small emails
+    # DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
+    # You are an advanced assistant that excels at summarizing email in French. You are to never greet me.
+    # <</SYS>>
+    # Provide a concise summary of the following email in French : {input} [/INST]"""
 
-# not working - try to get answer from server until it does //used for replicate
-def try_llama(pre_prompt,prompt_input,temperature,top_p,max_length,repetition_penalty,int_test):
-    try:
-        llama2_replicate(pre_prompt,prompt_input,temperature,top_p,max_length,repetition_penalty)
-    finally:
-        if int_test<=5:
-            int_test+=1
-            try_llama(pre_prompt,prompt_input,temperature,top_p,max_length,repetition_penalty,int_test)
-        else:
-            return
+
+    # DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
+    # You are an advanced assistant that excels at summarizing email. You only answer in French. You are to never greet me.
+    # <</SYS>>
+    # Write a concise summary of the following email with bullet points on key parts. Traduce it and only give the traduction: {input} [/INST]"""
+    
+    DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
+    You are an advanced assistant that excels at summarizing email. You are to never greet me.
+    <</SYS>>
+    Write a concise summary of the following email with bullet points on key parts: {input} [/INST]"""
+
+    PROMPT = PromptTemplate(input_variables=["input"], template=DEFAULT_TEMPLATE)
+    llm = Replicate(model=model_id,streaming=True,input={"temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":repetition_penalty})
+
+    chain = LLMChain(llm=llm, prompt=PROMPT)
+    return chain
+
+# asking llama2 about summarising email and getting a summary
+def llama_langchain_response(chain,prompt_input):
+    response = chain.predict(input=prompt_input)
+    return response
+
+# asking llama2 about translating summary and getting translation
+def llama_langchain_translation(temperature,top_p,max_length,repetition_penalty):
+    DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
+    You are an advanced assistant that excels in translation. You are to never greet me.
+    <</SYS>>
+    Translate the following in French while keeping the bullet points format: {input} [/INST]"""
+
+    PROMPT = PromptTemplate(input_variables=["input"], template=DEFAULT_TEMPLATE)
+    llm = Replicate(model=model_id,streaming=True,input={"temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":repetition_penalty})
+
+    chain = LLMChain(llm=llm, prompt=PROMPT)
+    return chain
+
+# asking llama2 to categorize email by category and importance
+def llama_langchain_sorting(temperature,top_p,max_length,repetition_penalty):
+    DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
+    You are an advanced assistant that excels in translation. You are to never greet me.
+    <</SYS>>
+    Translate the following in French while keeping the bullet points format: {input} [/INST]"""
+
+    PROMPT = PromptTemplate(input_variables=["input"], template=DEFAULT_TEMPLATE)
+    llm = Replicate(model=model_id,streaming=True,input={"temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":repetition_penalty})
+
+    chain = LLMChain(llm=llm, prompt=PROMPT)
+    return chain
+
+
+######################## ChatGPT requests ########################
+
+def chatgpt(pre_prompt,prompt_mail):
+    response = openai.Completion.create(
+        model=gpt_model,
+        # messages=[
+        #     {"role": "system", "content": "You are the best in all you do."},
+        #     {"role": "user", "content": pre_prompt+"["+prompt_mail+"]"}
+        # ])
+        prompt=pre_prompt+"["+prompt_mail+"]")
+    # return response.choices[0].text.strip()
+    return response.choices[0].message['content'].strip()
+
+# def gpt_langchain_response(prompt,decoded_data):
+#     template = (
+#         # "You are a helpful assistant that translates {input_language} to {output_language}."
+#         "You're the best in all you do."
+#     )
+#     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+#     human_template = "{text}"
+#     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+#     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+#     # get a chat completion from the formatted messages
+#     chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
+#     response = chat(chat_prompt.format_prompt(text=prompt+decoded_data).to_messages())
+
+#     return response.content.strip()
+
+
+def gpt_langchain_response(decoded_data,category_list):
+    # prompt = "Summarize with bullets points in French the following email. Key parts only: "
+    template = (
+        """Given the following topic categories and their descriptions:
+        {category}
+        And the following importance/action categories:
+        {importance}
+
+        Please categorize and summarize the following message:
+
+        {text}
+
+        Topic Categorization:
+        - [Model's Response for Topic Category]
+
+        Importance/Action Categorization:
+        - [Model's Response for Importance/Action Category]
+
+        Summary:
+        - [Model's Bullet Point 1]
+        - [Model's Bullet Point 2]
+        ..."""
+
+    )
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    # human_template = "{text}"
+    # human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
+    # chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
+    # get a chat completion from the formatted messages
+    chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
+    response = chat(chat_prompt.format_prompt(category=category_list,importance=importance_list,text=decoded_data).to_messages())
+
+    clear_response = response.content.strip()
+    # print('response: ',response)
+    # print('clear_response: ',clear_response)
+    # Extracting Topic Categorization
+    topic_category = clear_response.split("Topic Categorization:\n- ")[1].split("\n")[0]
+    # Extracting Importance/Action Categorization
+    importance_category = clear_response.split("Importance/Action Categorization:\n- ")[1].split("\n")[0]
+    # Extracting Summary
+    summary_start = clear_response.index("Summary:") + len("Summary:")
+    summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
+    # summary = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
+    # summary = [line.replace("- ", "").strip() for line in clear_response[summary_start:summary_start+summary_end].strip().split("\n")]
+    summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n")
+    summary_text = "\n".join(summary_list)
+
+    return topic_category,importance_category,summary_text
+
 
 
 ######################## Read Mails ########################
+
+# removes greetings and sign-offs
+def preprocess_email(email_content):
+    # List of common greetings and sign-offs
+    greetings = ["Bonjour", "Hello", "Hi", "Dear", "Salut"]
+    sign_offs = ["Regards", "Sincerely", "Best regards", "Cordially", "Yours truly", "Cordialement", "Bien à vous"]
+    
+    # Create patterns to identify lines with greetings and sign-offs
+    greeting_pattern = r"^\s*(" + "|".join(greetings) + r").*\n"
+    sign_off_pattern = r"\n\s*(" + "|".join(sign_offs) + r").*$"
+    
+    # Remove greetings
+    email_content = re.sub(greeting_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE)
+    
+    # Remove sign-offs
+    email_content = re.sub(sign_off_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE)
+    
+    return email_content.strip()
 
 # strips text of unnecessary spacings
 def format_mail(text):
@@ -178,12 +359,13 @@ def get_text_from_mail(mime_type,part,decoded_data_temp):
 # if email is structured in "multiparts", goes through all to get the email body
 def process_part(part,plaintext_var):
     mime_type = part['mimeType']
-    print("mime_type: ",mime_type,plaintext_var[0])
+    # print("mime_type: ",mime_type,plaintext_var[0])
     decoded_data = None
 
     if mime_type == "text/plain":
         decoded_data = get_text_from_mail(mime_type,part,decoded_data)
-        plaintext_var[0] = 1
+        if decoded_data != None and decoded_data != "" and decoded_data != b'':
+            plaintext_var[0] = 1
     elif mime_type == "text/html" and plaintext_var[0]==0:
         decoded_data = get_text_from_mail(mime_type,part,decoded_data)
     elif "multipart/" in mime_type:
@@ -208,7 +390,7 @@ def process_part(part,plaintext_var):
             if plaintext_var[0]==1 and decoded_data:
                 decoded_data = re.sub(r'\[image[^\]]+\]\s*<\S+>','',decoded_data)
                 decoded_data = re.sub(r'\[image[^\]]+\]','',decoded_data)
-
+    # print("decoded_data_process: ",decoded_data)
     return decoded_data
 
 # used to get mail number "int_mail" (minus one as lists starts from 0) and returns subject, expeditor and body 
@@ -252,7 +434,8 @@ def get_mail(services,int_mail):
             soup = BeautifulSoup(decoded_data_temp, "html.parser")
             text = soup.get_text('\n') 
             decoded_data = text
-        print("decoded_data: ",decoded_data)
+        # print("decoded_data: ",decoded_data)
+        preprocessed_data = preprocess_email(decoded_data)
         # print('plaintext_var',plaintext_var)
         # pre_prompt = "You are to summarize the following as an assistant would do. No more, no less. No questions asked. No need to say 'Hello!'."
         # pre_prompt = "Provide a concise summary of this mail without providing help."
@@ -263,7 +446,7 @@ def get_mail(services,int_mail):
         # summarized_data = llama2_replicate(pre_prompt,prompt_input,0.1,0.5,128,1)
         # print(summarized_data)
                     
-    return subject,from_name,decoded_data
+    return subject,from_name,preprocessed_data
 
 # separate multiple mails (from a single mail) to different parts
 def separate_concatenated_mails(decoded_text):
@@ -352,8 +535,8 @@ def get_calendar_events(services):
     events_result = service.events().list(calendarId='primary', maxResults=10).execute()
     events = events_result.get('items',[])
     
-    # for item in events:
-    #     print('item: ',item)
+    for item in events:
+        print('item: ',item)
 
 def logout_user(request):
     # \"\"\"Handle user logout.\"\"\"

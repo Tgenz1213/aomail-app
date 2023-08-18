@@ -75,8 +75,22 @@ CALENDAR_READONLY_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
 
 # device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 
-category_list = {'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",'Subscriptions': 'Pertaining to periodic payment plans for services or products.', 'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'}
-importance_list = {'Important': 'Items or messages that are of high priority and require immediate attention or action.','Answer Required': 'Queries or topics that specifically need a response or feedback.','Information': 'General updates, data, or details that are informative but may not require immediate action.','Useless': 'Items or messages that are not relevant, redundant, or do not provide any significant value.'}
+category_list = {
+    'Esaip':"Ecole d'ingénieur",
+    'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",
+    'Subscriptions': 'Pertaining to periodic payment plans for services or products.',
+    'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'
+}
+importance_list = {
+    'Important': 'Items or messages that are of high priority and require immediate attention or action.',
+    'Information': 'General updates, data, or details that are informative but may not require immediate action.',
+    'Useless': 'Items or messages that are not relevant, redundant, or do not provide any significant value.'
+}
+response_list = {
+    'Answer Required': 'Message requires an answer.',
+    'Might Require Answer': 'Message might require an answer.',
+    'No Answer Required': 'No answer is required.'
+}
 
 # loading landing page
 def home_page(request):
@@ -94,11 +108,16 @@ def home_page(request):
     # print(response)
     # translated_response = llama_langchain_response(translation,response)
     # prompt = "Summarize with bullets points in French the following email. Key parts only: "
-    topic, importance, summary = gpt_langchain_response(subject,decoded_data,category_list)
+    topic, importance, answer, summary = gpt_langchain_response(subject,decoded_data,category_list)
 
     print('topic: ',topic)
     print('importance: ',importance)
+    print('answer: ',answer)
     print('summary: ',summary)
+    # print('draft: ',response)
+    if answer!='No Answer Required':
+        draft = gpt_langchain_answer(subject,decoded_data)
+        print('draft: ',draft)
     # get_calendar_events(services)
     return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
 
@@ -219,47 +238,116 @@ def chatgpt(pre_prompt,prompt_mail):
     # return response.choices[0].text.strip()
     return response.choices[0].message['content'].strip()
 
-# def gpt_langchain_response(prompt,decoded_data):
-#     template = (
-#         # "You are a helpful assistant that translates {input_language} to {output_language}."
-#         "You're the best in all you do."
-#     )
-#     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-#     human_template = "{text}"
-#     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
-#     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
-#     # get a chat completion from the formatted messages
-#     chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
-#     response = chat(chat_prompt.format_prompt(text=prompt+decoded_data).to_messages())
-
-#     return response.content.strip()
-
 
 def gpt_langchain_response(subject,decoded_data,category_list):
     # prompt = "Summarize with bullets points in French the following email. Key parts only: "
+    # template = (
+    #     """Given the following topic categories and their descriptions:
+    #     {category}
+    #     The following importance/action categories:
+    #     {importance}
+
+    #     Email subject: {subject}
+
+    #     Please categorize and summarize the following message in French:
+
+    #     {text}
+
+    #     Topic Categorization:
+    #     - [Model's Response for Topic Category]
+
+    #     Importance/Action Categorization:
+    #     - [Model's Response for Importance/Action Category]
+
+    #     Summary:
+    #     - [Model's Bullet Point 1]
+    #     - [Model's Bullet Point 2]
+    #     ..."""
+
+    # )
+    # template = (
+    #     """Given the following email:
+
+    #     Subject:
+    #     {subject}
+
+    #     Text:
+    #     {text}
+
+    #     Using the provided categories:
+
+    #     Topic Categories:
+    #     {category}
+
+    #     Importance Categories:
+    #     {importance}
+
+    #     Response Categories:
+    #     {answer}
+
+    #     1. Please categorize the email by topic, importance, and response.
+    #     2. Summarize in French the following message
+    #     3. Draft a really short and appropriate informal response based on the subject and text of the email in French.
+
+    #     ---
+
+    #     Topic Categorization:
+    #     - [Model's Response for Topic Category]
+
+    #     Importance Categorization:
+    #     - [Model's Response for Importance Category]
+
+    #     Response Categorization:
+    #     - [Model's Response for Response Category]
+
+    #     Summary:
+    #     - [Model's Bullet Point 1]
+    #     - [Model's Bullet Point 2]
+    #     ...
+
+    #     Drafted Response:
+    #     [Model's drafted response to the email]
+    #     """
+    # )    
     template = (
-        """Given the following topic categories and their descriptions:
+        """Given the following email:
+
+        Subject:
+        {subject}
+
+        Text:
+        {text}
+
+        Using the provided categories:
+
+        Topic Categories:
         {category}
-        And the following importance/action categories:
+
+        Importance Categories:
         {importance}
 
-        Email subject: {subject}
+        Response Categories:
+        {answer}
 
-        Please categorize and summarize the following message in French:
+        1. Please categorize the email by topic, importance, and response.
+        2. Summarize in French the following message
 
-        {text}
+        ---
 
         Topic Categorization:
         - [Model's Response for Topic Category]
 
-        Importance/Action Categorization:
-        - [Model's Response for Importance/Action Category]
+        Importance Categorization:
+        - [Model's Response for Importance Category]
+
+        Response Categorization:
+        - [Model's Response for Response Category]
 
         Summary:
         - [Model's Bullet Point 1]
         - [Model's Bullet Point 2]
-        ..."""
-
+        ...
+        """
     )
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     # human_template = "{text}"
@@ -268,7 +356,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
     chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
-    response = chat(chat_prompt.format_prompt(category=category_list,importance=importance_list,subject=subject,text=decoded_data).to_messages())
+    response = chat(chat_prompt.format_prompt(category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data).to_messages())
 
     clear_response = response.content.strip()
     # print('response: ',response)
@@ -276,17 +364,21 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     # Extracting Topic Categorization
     topic_category = clear_response.split("Topic Categorization:\n- ")[1].split("\n")[0]
     # Extracting Importance/Action Categorization
-    importance_category = clear_response.split("Importance/Action Categorization:\n- ")[1].split("\n")[0]
+    importance_category = clear_response.split("Importance Categorization:\n- ")[1].split("\n")[0]
+    # Extracting Importance/Action Categorization
+    response_category = clear_response.split("Response Categorization:\n- ")[1].split("\n")[0]
     # Extracting Summary
     summary_start = clear_response.index("Summary:") + len("Summary:")
     summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
+    # Extracting Drafted Response
+    # response_start = clear_response.index("Drafted Response:") + len("Drafted Response:")
+    # drafted_response = clear_response[response_start:].strip()
     # summary = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
     # summary = [line.replace("- ", "").strip() for line in clear_response[summary_start:summary_start+summary_end].strip().split("\n")]
     summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n")
     summary_text = "\n".join(summary_list)
 
-    return topic_category,importance_category,summary_text
-
+    return topic_category,importance_category,response_category,summary_text
 
 
 ######################## Read Mails ########################
@@ -358,6 +450,22 @@ def get_text_from_mail(mime_type,part,decoded_data_temp):
         # print("get_text_from_mail: ",decoded_data_temp)
     return decoded_data_temp
 
+# True/False from text input if html is present
+def contains_html(text):
+    if isinstance(text, bytes):
+        text = text.decode('utf-8', 'ignore')
+    html_patterns = [
+        r'<[a-z]+>',         # Opening tags
+        r'</[a-z]+>',        # Closing tags
+        r'&[a-z]+;',         # HTML entities
+        r'<!DOCTYPE html>'   # DOCTYPE declaration
+    ]
+    
+    for pattern in html_patterns:
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+
 # if email is structured in "multiparts", goes through all to get the email body
 def process_part(part,plaintext_var):
     mime_type = part['mimeType']
@@ -367,7 +475,9 @@ def process_part(part,plaintext_var):
     if mime_type == "text/plain":
         decoded_data = get_text_from_mail(mime_type,part,decoded_data)
         # if decoded_data != None and decoded_data != "" and decoded_data != b'':
-        if decoded_data and decoded_data.strip() not in ["", "\r\n", b'\r\n']:
+        if contains_html(decoded_data):
+            decoded_data = get_text_from_mail('text/html',part,decoded_data.decode('utf-8'))
+        elif decoded_data and decoded_data.strip() not in ["", "\r\n", b'\r\n']:
             plaintext_var[0] = 1
         # else:
         #     decoded_data = None
@@ -467,9 +577,9 @@ def separate_concatenated_mails(decoded_text):
 
 ######################## Answers to Mails ########################
 
-# gets a template for llama 2 to answer in that form
+# gets a template to answer in that form
 def get_answer_template(mail_size):
-    # samples for Llama 2 to get work done as intended
+    # samples to get work done as intended
     if mail_size<50:
         path = 'chemin_fichier_txt_small.txt'
     elif mail_size<100:
@@ -486,6 +596,69 @@ def get_size(text):
     text_size = len(text.split())
     return text_size
 
+
+def gpt_langchain_answer(subject, decoded_data):
+    # prompt = "Summarize with bullets points in French the following email. Key parts only: "
+    # template = (
+    #     # """Given the following email subject: 
+    #     # {subject}
+
+    #     # And the following message:
+
+    #     # {text}
+
+    #     # Write a possible answer"""
+    #     """Given the following email:
+
+    #     Subject:
+    #     {subject}
+
+    #     Text:
+    #     {text}
+
+    #     Please draft an appropriate response based on the subject and text of the email.
+
+    #     ---
+
+    #     Response:
+    #     [Model's drafted response to the email]
+    #     """
+
+    # )
+    template = (
+        """Given the following email:
+
+        Subject:
+        {subject}
+
+        Text:
+        {text}
+
+        Draft a {length} and appropriate {formality} response based on the subject and text of the email in French.
+
+        ---
+
+        Response:
+        [Model's drafted response to the email]
+        """
+    )    
+    length = 'really short'
+    formality = 'very informal'
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
+    # get a chat completion from the formatted messages
+    chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
+    response = chat(chat_prompt.format_prompt(subject=subject,text=decoded_data,length=length,formality=formality).to_messages())
+
+    clear_response = response.content.strip()
+    # print('clear_response: ',clear_response)
+    # Extracting Response
+    # response_start = clear_response.index("Response:") + len("Response:")
+    # response_end = clear_response[response_start:].index("\n\n") if "\n\n" in clear_response[response_start:] else len(clear_response)
+    # response_list = clear_response[response_start:response_start+response_end].strip().split("\n")
+    # response_text = "\n".join(response_list)
+
+    return clear_response
 
 
 ######################## Other ########################

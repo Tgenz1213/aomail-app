@@ -46,21 +46,16 @@ import transformers
 from langchain.llms import Replicate
 from langchain import PromptTemplate, LLMChain
 
-
-# os.environ["REPLICATE_API_TOKEN"] = "r8_Il2lMT0sFWC4XRvcEapuQIBgjZfI4gX1lRItk" #old
-os.environ["REPLICATE_API_TOKEN"] = "r8_6oXyodq8QOcv1rbSPcF2kxfcyzOcF2i3mL3AH" #new
-hf_auth = "r8_6oXyodq8QOcv1rbSPcF2kxfcyzOcF2i3mL3AH"
+from django.db import models
 
 
 openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 # openai.api_key = "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"
 openai.api_key = "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"
-# openai.Model.list()
 gpt_model = "gpt-3.5-turbo"
 
 configuration = {
     'organization': "org-YSlFvq9rM1qPzM15jewopUUt",
-    # 'api_key': os.environ[openai.api_key],
     'api_key' : "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"
 }
 # response = openai.Engine.list()
@@ -70,10 +65,6 @@ GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
 GMAIL_SEND_SCOPE = 'https://www.googleapis.com/auth/gmail.send'
 CALENDAR_READONLY_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
 # CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar'
-
-# model_id = 'replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1' # LLM Model
-
-# device = f'cuda:{cuda.current_device()}' if cuda.is_available() else 'cpu'
 
 category_list = {
     'Esaip':"Ecole d'ingénieur",
@@ -98,26 +89,24 @@ def home_page(request):
     services = authenticate_service()
     subject, from_name, decoded_data = get_mail(services,0)
     if decoded_data: decoded_data = format_mail(decoded_data)
-    print("decoded_data: ",decoded_data)
+    # print("decoded_data: ",decoded_data)
 
-    # # chain = llama_langchain_chain(0.75,1,500,1)
-    # chain = llama_langchain_chain(0.6,0.9,300,1.2)
-    # translation = llama_langchain_translation(0.6,0.9,300,1.2)
-    # # response = llama_langchain_response(chain,"Summarize the following: "+decoded_data)
-    # response = llama_langchain_response(chain,decoded_data)
-    # print(response)
-    # translated_response = llama_langchain_response(translation,response)
-    # prompt = "Summarize with bullets points in French the following email. Key parts only: "
-    topic, importance, answer, summary = gpt_langchain_response(subject,decoded_data,category_list)
+    # topic, importance, answer, summary = gpt_langchain_response(subject,decoded_data,category_list)
 
-    print('topic: ',topic)
-    print('importance: ',importance)
-    print('answer: ',answer)
-    print('summary: ',summary)
-    # print('draft: ',response)
-    if answer!='No Answer Required':
-        draft = gpt_langchain_answer(subject,decoded_data)
-        print('draft: ',draft)
+    # print('topic: ',topic)
+    # print('importance: ',importance)
+    # print('answer: ',answer)
+    # print('summary: ',summary)
+    # # print('draft: ',response)
+    # if answer!='No Answer Required':
+    #     draft = gpt_langchain_answer(subject,decoded_data)
+    #     print('draft: ',draft)
+    search_emails("test")
+    # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
+    # # subject_test = None
+    # subject,new_mail = gpt_langchain_redaction(input)
+    # print('subject: ',subject)
+    # print('new_mail: ',new_mail)
     # get_calendar_events(services)
     return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
 
@@ -165,80 +154,9 @@ def authenticate_service():
     return service
 
 
-######################## Llama 2 requests ########################
-
-# def llama_langchain_chain(pre_prompt,prompt_input,temperature,top_p,max_length,repetition_penalty):
-# creation of chain used to work with llama2
-def llama_langchain_chain(temperature,top_p,max_length,repetition_penalty):
-    # # small emails
-    # DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
-    # You are an advanced assistant that excels at summarizing email in French. You are to never greet me.
-    # <</SYS>>
-    # Provide a concise summary of the following email in French : {input} [/INST]"""
-
-
-    # DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
-    # You are an advanced assistant that excels at summarizing email. You only answer in French. You are to never greet me.
-    # <</SYS>>
-    # Write a concise summary of the following email with bullet points on key parts. Traduce it and only give the traduction: {input} [/INST]"""
-    
-    DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
-    You are an advanced assistant that excels at summarizing email. You are to never greet me.
-    <</SYS>>
-    Write a concise summary of the following email with bullet points on key parts: {input} [/INST]"""
-
-    PROMPT = PromptTemplate(input_variables=["input"], template=DEFAULT_TEMPLATE)
-    llm = Replicate(model=model_id,streaming=True,input={"temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":repetition_penalty})
-
-    chain = LLMChain(llm=llm, prompt=PROMPT)
-    return chain
-
-# asking llama2 about summarising email and getting a summary
-def llama_langchain_response(chain,prompt_input):
-    response = chain.predict(input=prompt_input)
-    return response
-
-# asking llama2 about translating summary and getting translation
-def llama_langchain_translation(temperature,top_p,max_length,repetition_penalty):
-    DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
-    You are an advanced assistant that excels in translation. You are to never greet me.
-    <</SYS>>
-    Translate the following in French while keeping the bullet points format: {input} [/INST]"""
-
-    PROMPT = PromptTemplate(input_variables=["input"], template=DEFAULT_TEMPLATE)
-    llm = Replicate(model=model_id,streaming=True,input={"temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":repetition_penalty})
-
-    chain = LLMChain(llm=llm, prompt=PROMPT)
-    return chain
-
-# asking llama2 to categorize email by category and importance
-def llama_langchain_sorting(temperature,top_p,max_length,repetition_penalty):
-    DEFAULT_TEMPLATE = """<s>[INST]<<SYS>>
-    You are an advanced assistant that excels in translation. You are to never greet me.
-    <</SYS>>
-    Translate the following in French while keeping the bullet points format: {input} [/INST]"""
-
-    PROMPT = PromptTemplate(input_variables=["input"], template=DEFAULT_TEMPLATE)
-    llm = Replicate(model=model_id,streaming=True,input={"temperature":temperature, "top_p":top_p, "max_length":max_length, "repetition_penalty":repetition_penalty})
-
-    chain = LLMChain(llm=llm, prompt=PROMPT)
-    return chain
-
-
 ######################## ChatGPT requests ########################
 
-def chatgpt(pre_prompt,prompt_mail):
-    response = openai.Completion.create(
-        model=gpt_model,
-        # messages=[
-        #     {"role": "system", "content": "You are the best in all you do."},
-        #     {"role": "user", "content": pre_prompt+"["+prompt_mail+"]"}
-        # ])
-        prompt=pre_prompt+"["+prompt_mail+"]")
-    # return response.choices[0].text.strip()
-    return response.choices[0].message['content'].strip()
-
-
+# Summarize and categorize an email
 def gpt_langchain_response(subject,decoded_data,category_list):
     # prompt = "Summarize with bullets points in French the following email. Key parts only: "
     # template = (
@@ -330,7 +248,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
         {answer}
 
         1. Please categorize the email by topic, importance, and response.
-        2. Summarize in French the following message
+        2. In French: Summarize the following message
 
         ---
 
@@ -343,9 +261,9 @@ def gpt_langchain_response(subject,decoded_data,category_list):
         Response Categorization:
         - [Model's Response for Response Category]
 
-        Summary:
-        - [Model's Bullet Point 1]
-        - [Model's Bullet Point 2]
+        Résumé en français:
+        - [Model's Bullet Point 1 en français]
+        - [Model's Bullet Point 2 en français]
         ...
         """
     )
@@ -368,7 +286,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     # Extracting Importance/Action Categorization
     response_category = clear_response.split("Response Categorization:\n- ")[1].split("\n")[0]
     # Extracting Summary
-    summary_start = clear_response.index("Summary:") + len("Summary:")
+    summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
     summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
     # Extracting Drafted Response
     # response_start = clear_response.index("Drafted Response:") + len("Drafted Response:")
@@ -382,6 +300,13 @@ def gpt_langchain_response(subject,decoded_data,category_list):
 
 
 ######################## Read Mails ########################
+
+# uses BeautifulSoup to clear html from text
+def html_clear(text):
+    # Utiliser BeautifulSoup pour parser le HTML et extraire le texte
+    soup = BeautifulSoup(text, "html.parser")
+    text = soup.get_text('\n') 
+    return text
 
 # removes greetings and sign-offs
 def preprocess_email(email_content):
@@ -407,10 +332,10 @@ def format_mail(text):
     text = re.sub(r'<http[^>]+>', '', text)
     # Delete patterns like "[image: ...]"
     text = re.sub(r'\[image:[^\]]+\]', '', text)
-    # Delete multiple spaces
-    text = re.sub(r' +', ' ', text)
     # Convert Windows line endings to Unix line endings
     text = text.replace('\r\n', '\n')
+    # Remove spaces at the start and end of each line
+    text = '\n'.join(line.strip() for line in text.split('\n'))
     # Delete multiple spaces
     text = re.sub(r' +', ' ', text)
     # Reduce multiple consecutive newlines to two newlines
@@ -443,10 +368,11 @@ def get_text_from_mail(mime_type,part,decoded_data_temp):
     decoded_data_temp = base64.b64decode(data)
     if mime_type== "text/html":
         # Utiliser BeautifulSoup pour parser le HTML et extraire le texte
-        soup = BeautifulSoup(decoded_data_temp, "html.parser")
-        text = soup.get_text('\n') 
+        # soup = BeautifulSoup(decoded_data_temp, "html.parser")
+        # text = soup.get_text('\n') 
         # print("HTML content: ", text)
-        decoded_data_temp = text
+        # decoded_data_temp = text
+        decoded_data_temp = html_clear(decoded_data_temp)
         # print("get_text_from_mail: ",decoded_data_temp)
     return decoded_data_temp
 
@@ -477,7 +403,9 @@ def process_part(part,plaintext_var):
         # if decoded_data != None and decoded_data != "" and decoded_data != b'':
         if contains_html(decoded_data):
             decoded_data = get_text_from_mail('text/html',part,decoded_data.decode('utf-8'))
-        elif decoded_data and decoded_data.strip() not in ["", "\r\n", b'\r\n']:
+        # elif decoded_data and decoded_data.strip() not in ["", " ", " b'' ",b'']:
+        elif decoded_data and decoded_data.strip() not in ["",b'']:
+            print('decoded_data_test: ',decoded_data,'___',decoded_data.strip())
             plaintext_var[0] = 1
         # else:
         #     decoded_data = None
@@ -547,9 +475,10 @@ def get_mail(services,int_mail):
             data = data.replace("-","+").replace("_","/")
             decoded_data_temp = base64.b64decode(data).decode('utf-8')
             # Utiliser BeautifulSoup pour parser le HTML et extraire le texte
-            soup = BeautifulSoup(decoded_data_temp, "html.parser")
-            text = soup.get_text('\n') 
-            decoded_data = text
+            # soup = BeautifulSoup(decoded_data_temp, "html.parser")
+            # text = soup.get_text('\n') 
+            # decoded_data = text
+            decoded_data = html_clear(decoded_data_temp)
         # print("decoded_data: ",decoded_data)
         preprocessed_data = preprocess_email(decoded_data)
         # print('plaintext_var',plaintext_var)
@@ -596,7 +525,7 @@ def get_size(text):
     text_size = len(text.split())
     return text_size
 
-
+# suggests an answer from parameters and email data
 def gpt_langchain_answer(subject, decoded_data):
     # prompt = "Summarize with bullets points in French the following email. Key parts only: "
     # template = (
@@ -659,6 +588,128 @@ def gpt_langchain_answer(subject, decoded_data):
     # response_text = "\n".join(response_list)
 
     return clear_response
+
+
+######################## Redaction ########################
+
+# Writes a email based on a draft
+# def gpt_langchain_redaction(subject, input_data, parameters):
+def gpt_langchain_redaction(input_data):
+    # if (subject!=None):
+    template = (
+        """Given the following draft:
+
+        {input}
+        
+        1. Write a subject to the email based on the draft in French
+        2. Write a {length} and appropriate {formality} mail based on the draft in French.
+
+        ---
+
+        Subject:
+        [Model's drafted subject]
+
+        Draft:
+        [Model's drafted email]
+        """
+    )    
+    # else:
+    # template = (
+    #     """Given the following subject:
+        
+    #     {subject}
+        
+    #     And following draft:
+
+    #     {input}
+        
+    #     1. Write a subject to the email based on the draft in French
+    #     2. Write a {length} and appropriate {formality} mail based on the draft in French.
+
+    #     ---
+
+    #     Subject:
+    #     [Model's drafted subject]
+
+    #     Draft:
+    #     [Model's drafted email]
+    #     """
+    # )    
+    length = 'really short'
+    formality = 'formal'
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
+    # get a chat completion from the formatted messages
+    chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
+    text = chat(chat_prompt.format_prompt(input=input_data,length=length,formality=formality).to_messages())
+
+    clear_text = text.content.strip()
+    print('clear_text: ',clear_text)
+    # if subject==None:
+    # Extracting Subject
+    subject_start = clear_text.index("Subject:") + len("Subject:")
+    subject_end = clear_text[subject_start:].index("\n\n") if "\n\n" in clear_text[subject_start:] else len(clear_text)
+    subject_list = clear_text[subject_start:subject_start+subject_end].strip().split("\n")
+    subject_text = "\n".join(subject_list)
+    # Extracting Email
+    mail_start = clear_text.index("Draft:") + len("Draft:")
+    # mail_end = clear_text[mail_start:].index("\n\n") if "\n\n" in clear_text[mail_start:] else len(clear_text)
+    mail_list = clear_text[mail_start:len(clear_text)].strip().split("\n")
+    mail_text = "\n".join(mail_list)
+    # else:
+    #     subject_text=subject
+    #     mail_text=clear_text
+    # return clear_text
+    return subject_text,mail_text
+
+
+######################## Search bar ########################
+
+def decode_email_data(data):
+    byte_code = base64.urlsafe_b64decode(data)
+    return byte_code.decode("utf-8")
+
+def parse_parts(parts, from_name):
+    for part in parts:
+        # Check for nested parts
+        if 'parts' in part:
+            parse_parts(part['parts'], from_name)
+        # Check for data in part
+        data = part.get('data')
+        if data:
+            text = decode_email_data(data)
+            print(f"From: {from_name}\nMessage: {text}\n")
+
+# Search for emails
+def search_emails(query):
+    services = authenticate_service()
+    service = services['gmail.readonly']
+    results = service.users().messages().list(userId='me', q=query).execute()
+    messages = results.get('messages', [])
+    shown_mails = 0
+
+    if not messages:
+        print('No new messages found.')
+    else:
+        print('Messages:')
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id']).execute()
+            email_data = msg['payload']['headers']
+            from_name = next((header['value'] for header in email_data if header['name'] == 'From'), None)
+            
+            # Check if 'parts' key exists
+            if 'parts' in msg['payload']:
+                parse_parts(msg['payload']['parts'], from_name)
+            # Check for direct body data
+            elif 'body' in msg['payload'] and 'data' in msg['payload']['body']:
+                shown_mails+=1
+                data = msg['payload']['body']['data']
+                text = format_mail(html_clear(decode_email_data(data)))
+                print(f"From: {from_name}\nMessage: {text}\n")
+    print('shown_mails: ',shown_mails)
+
+
+
 
 
 ######################## Other ########################

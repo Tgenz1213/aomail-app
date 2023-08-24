@@ -22,6 +22,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from bs4 import BeautifulSoup
+import datetime
+import requests
+from oauthlib.oauth2.rfc6749.errors import OAuth2Error
+
 
 # llama2
 import replicate
@@ -54,6 +58,8 @@ openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 openai.api_key = "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"
 gpt_model = "gpt-3.5-turbo"
 
+# os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
+
 configuration = {
     'organization': "org-YSlFvq9rM1qPzM15jewopUUt",
     'api_key' : "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"
@@ -64,6 +70,14 @@ configuration = {
 GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
 GMAIL_SEND_SCOPE = 'https://www.googleapis.com/auth/gmail.send'
 CALENDAR_READONLY_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
+CONTACT_READONLY_SCOPE = 'https://www.googleapis.com/auth/contacts.readonly'
+# PROFILE_SCOPE = 'https://www.googleapis.com/auth/userinfo.email'
+# PROFILE_SCOPE = 'profile'
+PROFILE_SCOPE = 'https://www.googleapis.com/auth/userinfo.profile'
+EMAIL_SCOPE = 'https://www.googleapis.com/auth/userinfo.email'
+OPENID_SCOPE = 'openid'
+
+
 # CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar'
 
 category_list = {
@@ -101,18 +115,40 @@ def home_page(request):
     # if answer!='No Answer Required':
     #     draft = gpt_langchain_answer(subject,decoded_data)
     #     print('draft: ',draft)
-    search_emails("test")
+    # search_emails("test")
     # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
     # # subject_test = None
     # subject,new_mail = gpt_langchain_redaction(input)
     # print('subject: ',subject)
     # print('new_mail: ',new_mail)
     # get_calendar_events(services)
+    input_text = "Jean m'a écrit un mail concernant un étudiant entrepreneur il y a deux mois"
+    from_who, to_who, key_words, starting_date, ending_date = gpt_langchain_decompose_search(input_text)
+    print('from_who: ',from_who)
+    print('to_who: ',to_who)
+    print('key_words: ',key_words)
+    print('starting_date: ',starting_date)
+    print('ending_date: ',ending_date)
+    if from_who == 'me':
+        email_list_from = get_user_email()
+    else:
+        email_list_from = get_contacts(from_who)
+    if to_who == 'me':
+        email_list_to = get_user_email()
+    else:
+        email_list_to = get_contacts(to_who)
+    print('email_list_from: ',email_list_from)
+    print('email_list_to: ',email_list_to)
+    emailist = 'gmail'
+    full_emailist = get_contacts(emailist)
+    print('full_emailist: ',full_emailist)
+
+    
     return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
 
 # authentication service for all google services needed at once, used on startup, then stored until log out
 def authenticate_service():
-    SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE]
+    SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE,OPENID_SCOPE]
     """Authenticate and return service objects for Google APIs."""
     creds = None
     # Check if token.pickle exists and load credentials if it does
@@ -138,6 +174,22 @@ def authenticate_service():
         else:
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
             creds = flow.run_local_server(port=8080)
+            # try:
+            #     creds = flow.run_local_server(port=8080)
+            # except Warning as w:
+            #     if "Scope has changed" in str(w):
+            #         print("Warning: Scopes have changed. Proceeding with authentication.")
+            #         auth_url, _ = flow.authorization_url(prompt='consent')
+            #         print(f"Please go to this URL: {auth_url}")
+            #         auth_code = input("Enter the authorization code you received: ")
+            #         try:
+            #             creds = flow.fetch_token(code=auth_code)
+            #         except OAuth2Error as e:
+            #             print(f"OAuth2Error: {e}")
+            #             return None
+            # except OAuth2Error as e:
+            #     print(f"OAuth2Error: {e}")
+            #     return None
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
@@ -149,10 +201,55 @@ def authenticate_service():
         service['gmail.send'] = build('gmail', 'v1', credentials=creds)
     if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
         service['calendar'] = build('calendar', 'v3', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
+        service['contacts'] = build('people', 'v1', credentials=creds)
+    # if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
+    #     service['profile'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
+        service['profile'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
+        service['email'] = build('people', 'v1', credentials=creds)
+
 
     # return services
     return service
 
+def authenticate_service_manual():
+    SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE]
+
+    # Step 1: Generate the authorization URL and prompt the user
+    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+    auth_url, _ = flow.authorization_url(prompt='consent')
+    
+    print(f"Please go to this URL: {auth_url}")
+    auth_code = input("Enter the authorization code you received: ")
+
+    # Step 2: Exchange the authorization code for tokens
+    flow.fetch_token(code=auth_code)
+    creds = flow.credentials
+
+    # Save the credentials for future use
+    with open('token.pickle', 'wb') as token:
+        pickle.dump(flow.credentials, token)
+
+    # Build services for Gmail and Calendar based on the passed SCOPES
+    service = {}
+    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
+        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
+        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
+        service['calendar'] = build('calendar', 'v3', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
+        service['contacts'] = build('people', 'v1', credentials=creds)
+    # if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
+    #     service['profile'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
+        service['profile'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
+        service['email'] = build('people', 'v1', credentials=creds)
+
+    return service
 
 ######################## ChatGPT requests ########################
 
@@ -395,7 +492,7 @@ def contains_html(text):
 # if email is structured in "multiparts", goes through all to get the email body
 def process_part(part,plaintext_var):
     mime_type = part['mimeType']
-    print("mime_type: ",mime_type,plaintext_var[0])
+    # print("mime_type: ",mime_type,plaintext_var[0])
     decoded_data = None
 
     if mime_type == "text/plain":
@@ -405,7 +502,7 @@ def process_part(part,plaintext_var):
             decoded_data = get_text_from_mail('text/html',part,decoded_data.decode('utf-8'))
         # elif decoded_data and decoded_data.strip() not in ["", " ", " b'' ",b'']:
         elif decoded_data and decoded_data.strip() not in ["",b'']:
-            print('decoded_data_test: ',decoded_data,'___',decoded_data.strip())
+            # print('decoded_data_test: ',decoded_data,'___',decoded_data.strip())
             plaintext_var[0] = 1
         # else:
         #     decoded_data = None
@@ -434,7 +531,7 @@ def process_part(part,plaintext_var):
             if plaintext_var[0]==1 and decoded_data:
                 decoded_data = re.sub(r'\[image[^\]]+\]\s*<\S+>','',decoded_data)
                 decoded_data = re.sub(r'\[image[^\]]+\]','',decoded_data)
-    print("decoded_data_process: ",decoded_data)
+    # print("decoded_data_process: ",decoded_data)
     return decoded_data
 
 # used to get mail number "int_mail" (minus one as lists starts from 0) and returns subject, expeditor and body 
@@ -684,15 +781,50 @@ def parse_parts(parts, from_name):
 def search_emails(query):
     services = authenticate_service()
     service = services['gmail.readonly']
-    results = service.users().messages().list(userId='me', q=query).execute()
-    messages = results.get('messages', [])
     shown_mails = 0
+    # results = service.users().messages().list(userId='me', q=query).execute()
+    # messages = results.get('messages', [])
 
-    if not messages:
+    # if not messages:
+    #     print('No new messages found.')
+    # else:
+    #     print('Messages:')
+    #     for message in messages:
+    #         msg = service.users().messages().get(userId='me', id=message['id']).execute()
+    #         email_data = msg['payload']['headers']
+    #         from_name = next((header['value'] for header in email_data if header['name'] == 'From'), None)
+            
+    #         # Check if 'parts' key exists
+    #         if 'parts' in msg['payload']:
+    #             parse_parts(msg['payload']['parts'], from_name)
+    #         # Check for direct body data
+    #         elif 'body' in msg['payload'] and 'data' in msg['payload']['body']:
+    #             shown_mails+=1
+    #             data = msg['payload']['body']['data']
+    #             text = format_mail(html_clear(decode_email_data(data)))
+    #             print(f"From: {from_name}\nMessage: {text}\n")
+    # Initialize an empty list to store all messages
+    all_messages = []
+    
+    # Initial API request
+    response = service.users().messages().list(userId='me', q=query).execute()
+    
+    while 'messages' in response:
+        all_messages.extend(response['messages'])
+        
+        # Check if there are more pages of results
+        if 'nextPageToken' in response:
+            # time.sleep(1)  # Introduce a delay
+            response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+        else:
+            break
+
+    if not all_messages:
         print('No new messages found.')
     else:
         print('Messages:')
-        for message in messages:
+        for message in all_messages:
+            # time.sleep(0.5)  # Introduce a delay
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
             email_data = msg['payload']['headers']
             from_name = next((header['value'] for header in email_data if header['name'] == 'From'), None)
@@ -710,7 +842,157 @@ def search_emails(query):
 
 
 
+# decompose text from user to key words for API (Google)
+def gpt_langchain_decompose_search(input_data):
+    today = datetime.date.today()
+    template = (
+        """Given the following draft:
 
+        {input}
+
+        And current date:
+
+        {date}
+        
+        If possible else 'None':
+        1. Extract who wrote to whom.
+        2. Extract key words.
+        3. Extract starting and ending dates.
+
+        ---
+
+        From:
+        [Model's drafted name]
+
+        To:
+        [Model's drafted name]
+
+        Key words:
+        [Model's drafted key words]
+
+        Starting date:
+        [Model's drafted starting date]
+
+        Ending date:
+        [Model's drafted ending date]
+
+        """
+    )
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
+    # get a chat completion from the formatted messages
+    chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
+    text = chat(chat_prompt.format_prompt(input=input_data,date=today).to_messages())
+
+    clear_text = text.content.strip()
+
+    # # Extracting required fields
+    # from_start = clear_text.index("From:") + len("From:")
+    # to_start = clear_text.index("To:")
+    # key_words_start = clear_text.index("Key words:")
+    # starting_date_start = clear_text.index("Starting date:")
+    # ending_date_start = clear_text.index("Ending date:")
+    
+    # from_text = clear_text[from_start:to_start].strip()
+    # to_text = clear_text[to_start:key_words_start].strip()
+    # key_words_text = clear_text[key_words_start:starting_date_start].strip()
+    # starting_date_text = clear_text[starting_date_start:ending_date_start].strip()
+    # ending_date_text = clear_text[ending_date_start:].strip()
+
+    # Function to extract value after colon for a given field
+    def extract_value(field):
+        start = clear_text.index(field) + len(field)
+        end = clear_text[start:].index("\n") if "\n" in clear_text[start:] else len(clear_text)
+        return clear_text[start:start+end].strip()
+    
+    from_text = extract_value("From:\n")
+    to_text = extract_value("To:\n")
+    key_words_text = extract_value("Key words:\n")
+    starting_date_text = extract_value("Starting date:\n")
+    ending_date_text = extract_value("Ending date:\n")
+    
+    return from_text, to_text, key_words_text, starting_date_text, ending_date_text
+
+# gets list of contact based on name
+def get_contacts_name(name):
+    services = authenticate_service()
+    service = services['contacts']
+
+    # Call the People API
+    results = service.people().connections().list(
+        resourceName='people/me',
+        pageSize=1000,
+        personFields='names,emailAddresses').execute()
+    connections = results.get('connections', [])
+
+    matching_contacts = []
+    for person in connections:
+        names = person.get('names', [])
+        if names:
+            full_name = names[0].get('displayName')
+            if name.lower() in full_name.lower():
+                matching_contacts.append(full_name)
+
+    return matching_contacts
+
+# gets list of emails based on names
+def get_contacts(name):
+    services = authenticate_service()
+    service = services['contacts']
+
+    # Call the People API
+    results = service.people().connections().list(
+        resourceName='people/me',
+        pageSize=1000,
+        personFields='names,emailAddresses').execute()
+    connections = results.get('connections', [])
+
+    # print("Retrieved contacts:", connections)  # Debugging line
+
+    # matching_contacts = {}
+    # for person in connections:
+    #     names = person.get('names', [])
+    #     email_addresses = person.get('emailAddresses', [])
+    #     if names and email_addresses:
+    #         full_name = names[0].get('displayName')
+    #         email = email_addresses[0].get('value')  # get the primary email address
+    #         if name.lower() in full_name.lower():
+    #             matching_contacts[full_name] = email  # map the name to the email address
+    matching_contacts = []
+
+    for person in connections:
+        names = person.get('names', [])
+        email_addresses = person.get('emailAddresses', [])
+        if email_addresses:  # checking if there's an email address
+            email = email_addresses[0].get('value')  # get the primary email address
+            
+            # If there's a display name and it matches the search, add it
+            if names and name.lower() in names[0].get('displayName', '').lower():
+                full_name = names[0].get('displayName')
+                matching_contacts.append((full_name, email))
+            # If there's no display name, still add the email
+            elif not names:
+                matching_contacts.append((None, email))
+                
+    return matching_contacts
+
+
+
+
+#gets the user email
+def get_user_email():
+    services = authenticate_service()
+    service = services['contacts']
+
+    # Retrieve user's profile information
+    results = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+
+    # Extract the email address from the response
+    email_addresses = results.get('emailAddresses', [])
+    if email_addresses:
+        email = email_addresses[0].get('value')
+    
+    return email
 
 ######################## Other ########################
 

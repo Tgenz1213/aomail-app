@@ -85,22 +85,66 @@ OTHER_CONTACT_READONLY_SCOPE = 'https://www.googleapis.com/auth/contacts.other.r
 
 # CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar'
 
-category_list = {
-    'Esaip':"Ecole d'ingénieur",
-    'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",
-    'Subscriptions': 'Pertaining to periodic payment plans for services or products.',
-    'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'
-}
+# category_list = {
+#     'Esaip':"Ecole d'ingénieur",
+#     'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",
+#     'Subscriptions': 'Pertaining to periodic payment plans for services or products.',
+#     'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'
+# }
 importance_list = {
-    'Important': 'Items or messages that are of high priority and require immediate attention or action.',
-    'Information': 'General updates, data, or details that are informative but may not require immediate action.',
-    'Useless': 'Items or messages that are not relevant, redundant, or do not provide any significant value.'
+    'Important': 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
+    'Information' : 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
+    'Useless': 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.'
 }
+
+# importance_list = {
+#     'Important': 'Items or messages that are of high priority and require immediate attention or action.',
+#     'Information': 'General updates, data, or details that are informative but may not require immediate action.',
+#     'Useless': 'Items or messages that are not relevant, redundant, or do not provide any significant value.'
+# }
+# importance_list = {
+#     'Highly Important': {
+#         'Description': 'Items or messages that are of high priority, concern the user directly, and require immediate attention or action.'
+#     },
+#     'Informational': {
+#         'Description': 'General updates, data, or details that are informative and may concern the user but do not require immediate action.'
+#     },
+#     'Neutral/Unconcerned': {
+#         'Description': "Items or messages that might not directly concern the user but aren't necessarily irrelevant.",
+#         'Examples': [
+#             'Newsletter: Regular communications, often informational or promotional, which might not concern the user directly.',
+#             'Mail de démarchage commerciale: Unsolicited emails promoting products or services, not particularly targeted to the user’s interests.'
+#         ]
+#     },
+#     'Useless/Not Concerning': {
+#         'Description': 'Items or messages that do not concern the user, are not relevant, redundant, or do not provide any significant value.',
+#         'Examples': [
+#             'Spams: Unwanted and unsolicited emails, often with irrelevant or inappropriate content.',
+#             'Mail non personnalisé qui semble être envoyé par un robot: Non-personalized emails that appear to be automated or sent by a bot.',
+#             'Mail publicitaire: Generic advertising or promotional emails not tailored to the user’s preferences.'
+#         ]
+#     }
+# }
+
+user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+
+example = """Bonjour,
+            [...]
+            Cordialement,
+            Antoine
+            """
+
 response_list = {
     'Answer Required': 'Message requires an answer.',
     'Might Require Answer': 'Message might require an answer.',
     'No Answer Required': 'No answer is required.'
 }
+relevance_list = {
+    'Highly Relevant': 'Message is highly relevant to the recipient.',
+    'Possibly Relevant': 'Message might be relevant to the recipient.',
+    'Not Relevant': 'Message is not relevant to the recipient.'
+}
+
 
 # loading landing page
 def home_page(request):
@@ -113,17 +157,21 @@ def home_page(request):
     if decoded_data: decoded_data = format_mail(decoded_data)
     print("decoded_data: ",decoded_data)
 
-    # topic, importance, answer, summary, sentence = gpt_langchain_response(subject,decoded_data,category_list)
+    category_list = get_db_categories()
+    topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject,decoded_data,category_list)
 
     # print('topic: ',topic)
     # print('importance: ',importance)
     # print('answer: ',answer)
     # print('summary: ',summary)
     # print('sentence: ',sentence)
+    # print('relevance: ',relevance)
+    # print('importance_explain: ',importance_explain)
     # # print('draft: ',response)
-    # if answer!='No Answer Required':
-    #     draft = gpt_langchain_answer(subject,decoded_data)
-    #     print('draft: ',draft)
+    answer_list = ['No Answer Required: "No answer is required."','No Answer Required']
+    if answer not in answer_list:
+        draft = gpt_langchain_answer(subject,decoded_data)
+        print('draft: ',draft)
     # search_emails("test")
     # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
     # # subject_test = None
@@ -240,81 +288,210 @@ def authenticate_service():
 
 ######################## Read Mails ########################
 
+# get categories from database (no data base set)
+def get_db_categories():
+    # access database
+    category_list = {
+    'Esaip':"Ecole d'ingénieur",
+    'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",
+    'Subscriptions': 'Pertaining to periodic payment plans for services or products.',
+    'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'
+    }
+    return category_list
+
 # Summarize and categorize an email
 def gpt_langchain_response(subject,decoded_data,category_list):
+    # template = (
+    #     """Given the following email:
+
+    #     Subject:
+    #     {subject}
+
+    #     Text:
+    #     {text}
+
+    #     And user description:
+
+    #     Description:
+    #     {user}
+
+    #     Using the provided categories:
+
+    #     Topic Categories:
+    #     {category}
+
+    #     Importance Categories:
+    #     {importance}
+
+    #     Response Categories:
+    #     {answer}
+
+    #     Relevance Categories:
+    #     {relevance}
+
+    #     1. Please categorize the email by topic, importance, response and relevance corresponding to the user description.
+    #     2. In French: Summarize the following message
+    #     3. In French: Provide a short sentence summarizing the email.
+
+    #     ---
+
+    #     Topic Categorization:
+    #     - [Model's Response for Topic Category]
+
+    #     Importance Categorization (Taking User Description into account):
+    #     - [Model's Response for Importance Category]
+    #     - [Model's Second Response for Importance Category]
+    #     - [Model's Third Response for Importance Category]
+
+
+    #     Importance Categorization Percentage:
+    #     - [Model's Response for Importance Percentage]
+    #     - [Model's Second Response for Importance Percentage]
+    #     - [Model's Third Response for Importance Percentage]
+
+    #     Response Categorization:
+    #     - [Model's Response for Response Category]
+
+    #     Relevance Categorization:
+    #     - [Model's Response for Response Category]
+
+    #     Résumé court en français:
+    #     - [Model's One-Sentence Summary en français]
+
+    #     Résumé en français:
+    #     - [Model's Bullet Point 1 en français]
+    #     - [Model's Bullet Point 2 en français]
+    #     ...
+    #     """
+    # )
     template = (
-        """Given the following email:
+    """Given the following email:
 
-        Subject:
-        {subject}
+    Subject:
+    {subject}
 
-        Text:
-        {text}
+    Text:
+    {text}
 
-        Using the provided categories:
+    And user description:
 
-        Topic Categories:
-        {category}
+    Description:
+    {user}
 
-        Importance Categories:
-        {importance}
+    Using the provided categories:
 
-        Response Categories:
-        {answer}
+    Topic Categories:
+    {category}
 
-        1. Please categorize the email by topic, importance, and response.
-        2. In French: Summarize the following message
-        3. In French: Provide a short sentence summarizing the email.
+    Importance Categories:
+    {importance}
 
-        ---
+    Response Categories:
+    {answer}
 
-        Topic Categorization:
-        - [Model's Response for Topic Category]
+    Relevance Categories:
+    {relevance}
 
-        Importance Categorization:
-        - [Model's Response for Importance Category]
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
+    2. In French: Summarize the following message
+    3. In French: Provide a short sentence summarizing the email.
 
-        Response Categorization:
-        - [Model's Response for Response Category]
+    ---
 
-        Résumé court en français:
-        - [Model's One-Sentence Summary en français]
+    Topic Categorization: [Model's Response for Topic Category]
 
-        Résumé en français:
-        - [Model's Bullet Point 1 en français]
-        - [Model's Bullet Point 2 en français]
-        ...
-        """
+    Importance Categorization (Taking User Description into account):
+    - Category 1: [Model's Response for Importance Category 1]
+    - Percentage 1: [Model's Percentage for Importance Category 1]
+    - Category 2: [Model's Response for Importance Category 2]
+    - Percentage 2: [Model's Percentage for Importance Category 2]
+    - Category 3: [Model's Response for Importance Category 3]
+    - Percentage 3: [Model's Percentage for Importance Category 3]
+
+    Response Categorization: [Model's Response for Response Category]
+
+    Relevance Categorization: [Model's Response for Relevance Category]
+
+    Résumé court en français: [Model's One-Sentence Summary en français]
+
+    Résumé en français:
+    - [Model's Bullet Point 1 en français]
+    - [Model's Bullet Point 2 en français]
+    ...
+    """
     )
+
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
     chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
-    response = chat(chat_prompt.format_prompt(category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data).to_messages())
+    response = chat(chat_prompt.format_prompt(user=user_description,category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data,relevance=relevance_list).to_messages())
 
     clear_response = response.content.strip()
-    # print('response: ',response)
-    # print('clear_response: ',clear_response)
+    # # print('response: ',response)
+    # # print('clear_response: ',clear_response)
+    # # Extracting Topic Categorization
+    # topic_category = clear_response.split("Topic Categorization:\n- ")[1].split("\n")[0]
+    # # Extracting Importance/Action Categorization
+    # importance_category = clear_response.split("Importance Categorization (Taking User Description into account):\n- ")[1].split("\n")[0]
+    # # Extracting Importance/Action Categorization
+    # importance_explanation = clear_response.split("Importance Categorization Percentage:\n- ")[1].split("\n")[0]
+    # # Extracting Importance/Action Categorization
+    # response_category = clear_response.split("Response Categorization:\n- ")[1].split("\n")[0]
+    # # Extracting Importance/Action Categorization
+    # relevance_category = clear_response.split("Relevance Categorization:\n- ")[1].split("\n")[0]
+    # # Extracting one sentence summary
+    # short_sentence = clear_response.split("Résumé court en français:\n- ")[1].split("\n")[0]
+    # # Extracting Summary
+    # summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
+    # summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
+    # # Extracting Drafted Response
+    # # response_start = clear_response.index("Drafted Response:") + len("Drafted Response:")
+    # # drafted_response = clear_response[response_start:].strip()
+    # # summary = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
+    # # summary = [line.replace("- ", "").strip() for line in clear_response[summary_start:summary_start+summary_end].strip().split("\n")]
+    # summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n")
+    # summary_text = "\n".join(summary_list)
+
     # Extracting Topic Categorization
-    topic_category = clear_response.split("Topic Categorization:\n- ")[1].split("\n")[0]
+    topic_category = clear_response.split("Topic Categorization: ")[1].split("\n")[0]
+
     # Extracting Importance/Action Categorization
-    importance_category = clear_response.split("Importance Categorization:\n- ")[1].split("\n")[0]
-    # Extracting Importance/Action Categorization
-    response_category = clear_response.split("Response Categorization:\n- ")[1].split("\n")[0]
+    importance_categories = []
+    importance_percentages = []
+    for i in range(1, 4):
+        cat_str = f"Category {i}: "
+        perc_str = f"Percentage {i}: "
+        importance_categories.append(clear_response.split(cat_str)[1].split("\n")[0])
+        importance_percentages.append(clear_response.split(perc_str)[1].split("\n")[0])
+
+    # Extracting Response Categorization
+    response_category = clear_response.split("Response Categorization: ")[1].split("\n")[0]
+
+    # Extracting Relevance Categorization
+    relevance_category = clear_response.split("Relevance Categorization: ")[1].split("\n")[0]
+
     # Extracting one sentence summary
-    short_sentence = clear_response.split("Résumé court en français:\n- ")[1].split("\n")[0]
+    short_sentence = clear_response.split("Résumé court en français: ")[1].split("\n")[0]
+
     # Extracting Summary
     summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
     summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
-    # Extracting Drafted Response
-    # response_start = clear_response.index("Drafted Response:") + len("Drafted Response:")
-    # drafted_response = clear_response[response_start:].strip()
-    # summary = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
-    # summary = [line.replace("- ", "").strip() for line in clear_response[summary_start:summary_start+summary_end].strip().split("\n")]
-    summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n")
+    summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
     summary_text = "\n".join(summary_list)
 
-    return topic_category,importance_category,response_category,summary_text,short_sentence
+    # Output results
+    print("Topic Category:", topic_category)
+    print("Importance Categories:", importance_categories)
+    print("Importance Percentages:", importance_percentages)
+    print("Response Category:", response_category)
+    print("Relevance Category:", relevance_category)
+    print("Short Sentence:", short_sentence)
+    print("Summary Text:", summary_text)
+
+
+    return topic_category,importance_categories,response_category,summary_text,short_sentence,relevance_category,importance_percentages
+
 
 # uses BeautifulSoup to clear html from text
 def html_clear(text):
@@ -608,7 +785,8 @@ def gpt_langchain_answer(subject, decoded_data):
         Text:
         {text}
 
-        Draft a {length} and appropriate {formality} response based on the subject and text of the email in French.
+        Draft a {length} and appropriate {formality} response based on the subject and text of the email in French based on the following:
+        {example}
 
         ---
 
@@ -622,7 +800,7 @@ def gpt_langchain_answer(subject, decoded_data):
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
     chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
-    response = chat(chat_prompt.format_prompt(subject=subject,text=decoded_data,length=length,formality=formality).to_messages())
+    response = chat(chat_prompt.format_prompt(example=example,subject=subject,text=decoded_data,length=length,formality=formality).to_messages())
 
     clear_response = response.content.strip()
     # print('clear_response: ',clear_response)

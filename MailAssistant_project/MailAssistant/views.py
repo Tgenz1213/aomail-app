@@ -25,6 +25,10 @@ from bs4 import BeautifulSoup
 import datetime
 import requests
 from oauthlib.oauth2.rfc6749.errors import OAuth2Error
+from googleapiclient.errors import HttpError
+import random
+import email
+from email import message_from_string
 
 
 # llama2
@@ -76,6 +80,7 @@ CONTACT_READONLY_SCOPE = 'https://www.googleapis.com/auth/contacts.readonly'
 PROFILE_SCOPE = 'https://www.googleapis.com/auth/userinfo.profile'
 EMAIL_SCOPE = 'https://www.googleapis.com/auth/userinfo.email'
 OPENID_SCOPE = 'openid'
+OTHER_CONTACT_READONLY_SCOPE = 'https://www.googleapis.com/auth/contacts.other.readonly'
 
 
 # CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar'
@@ -101,16 +106,20 @@ response_list = {
 def home_page(request):
     # connection to google
     services = authenticate_service()
-    subject, from_name, decoded_data = get_mail(services,0)
-    if decoded_data: decoded_data = format_mail(decoded_data)
-    # print("decoded_data: ",decoded_data)
+    subject, from_name, decoded_data = get_mail(services,0,None)
 
-    # topic, importance, answer, summary = gpt_langchain_response(subject,decoded_data,category_list)
+    # subject, from_name, decoded_data = extract_body_from_email(services,0,None) #doesn't work
+    
+    if decoded_data: decoded_data = format_mail(decoded_data)
+    print("decoded_data: ",decoded_data)
+
+    # topic, importance, answer, summary, sentence = gpt_langchain_response(subject,decoded_data,category_list)
 
     # print('topic: ',topic)
     # print('importance: ',importance)
     # print('answer: ',answer)
     # print('summary: ',summary)
+    # print('sentence: ',sentence)
     # # print('draft: ',response)
     # if answer!='No Answer Required':
     #     draft = gpt_langchain_answer(subject,decoded_data)
@@ -122,33 +131,45 @@ def home_page(request):
     # print('subject: ',subject)
     # print('new_mail: ',new_mail)
     # get_calendar_events(services)
-    input_text = "Jean m'a écrit un mail concernant un étudiant entrepreneur il y a deux mois"
-    from_who, to_who, key_words, starting_date, ending_date = gpt_langchain_decompose_search(input_text)
-    print('from_who: ',from_who)
-    print('to_who: ',to_who)
-    print('key_words: ',key_words)
-    print('starting_date: ',starting_date)
-    print('ending_date: ',ending_date)
-    if from_who == 'me':
-        email_list_from = get_user_email()
-    else:
-        email_list_from = get_contacts(from_who)
-    if to_who == 'me':
-        email_list_to = get_user_email()
-    else:
-        email_list_to = get_contacts(to_who)
-    print('email_list_from: ',email_list_from)
-    print('email_list_to: ',email_list_to)
-    emailist = 'gmail'
-    full_emailist = get_contacts(emailist)
-    print('full_emailist: ',full_emailist)
+    input_ai = "Que recherchez-vous ?"
+    input_text = "Théo Hubert m'a écrit un mail concernant un étudiant entrepreneur en juillet"
+    # emails_id = search_emails(email_query(*gpt_langchain_decompose_search([input_ai,input_text])))
+
+    query,query_list = email_query(*gpt_langchain_decompose_search([input_ai,input_text]))
+
+    # email_list_from, email_list_to, starting_date, ending_date, key_words = gpt_langchain_decompose_search([input_ai,input_text])
+    # query = email_query(email_list_from,email_list_to,starting_date,ending_date,key_words)
+    emails_id = search_emails(query)
+    
+    # print('from_who: ',from_who)
+    # print('to_who: ',to_who)
+    # print('key_words: ',key_words)
+    # print('starting_date: ',starting_date)
+    # print('ending_date: ',ending_date)
+    # print("query: ",query)
+    # emails_id = search_emails(query)
+    # print('emails_id: ',emails_id)
+    if emails_id:
+        for email_id in emails_id:
+            # print('email found: ',get_mail(services,None,email_id))
+            subject, from_name, decoded_data = get_mail(services,None,email_id)
+            if decoded_data: decoded_data = format_mail(decoded_data)
+            # print('email found: ',decoded_data)
+            # print('email found: ',get_email_by_id(email_id)) #doesn't work
+
+
+    # emailist = 'gmail'
+    # full_emailist = get_contacts(emailist,'contacts','connections')
+    # print('full_emailist: ',full_emailist)
+    # full_emailist = get_contacts(emailist,'other.contacts','otherContacts')
+    # print('full_emailist: ',full_emailist)
 
     
     return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
 
 # authentication service for all google services needed at once, used on startup, then stored until log out
 def authenticate_service():
-    SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE,OPENID_SCOPE]
+    SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE,OPENID_SCOPE,OTHER_CONTACT_READONLY_SCOPE]
     """Authenticate and return service objects for Google APIs."""
     creds = None
     # Check if token.pickle exists and load credentials if it does
@@ -209,121 +230,18 @@ def authenticate_service():
         service['profile'] = build('people', 'v1', credentials=creds)
     if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
         service['email'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
+        service['other.contacts'] = build('people', 'v1', credentials=creds)
 
 
     # return services
     return service
 
-def authenticate_service_manual():
-    SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE]
 
-    # Step 1: Generate the authorization URL and prompt the user
-    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-    auth_url, _ = flow.authorization_url(prompt='consent')
-    
-    print(f"Please go to this URL: {auth_url}")
-    auth_code = input("Enter the authorization code you received: ")
-
-    # Step 2: Exchange the authorization code for tokens
-    flow.fetch_token(code=auth_code)
-    creds = flow.credentials
-
-    # Save the credentials for future use
-    with open('token.pickle', 'wb') as token:
-        pickle.dump(flow.credentials, token)
-
-    # Build services for Gmail and Calendar based on the passed SCOPES
-    service = {}
-    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
-        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
-        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
-        service['calendar'] = build('calendar', 'v3', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
-        service['contacts'] = build('people', 'v1', credentials=creds)
-    # if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
-    #     service['profile'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
-        service['profile'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
-        service['email'] = build('people', 'v1', credentials=creds)
-
-    return service
-
-######################## ChatGPT requests ########################
+######################## Read Mails ########################
 
 # Summarize and categorize an email
 def gpt_langchain_response(subject,decoded_data,category_list):
-    # prompt = "Summarize with bullets points in French the following email. Key parts only: "
-    # template = (
-    #     """Given the following topic categories and their descriptions:
-    #     {category}
-    #     The following importance/action categories:
-    #     {importance}
-
-    #     Email subject: {subject}
-
-    #     Please categorize and summarize the following message in French:
-
-    #     {text}
-
-    #     Topic Categorization:
-    #     - [Model's Response for Topic Category]
-
-    #     Importance/Action Categorization:
-    #     - [Model's Response for Importance/Action Category]
-
-    #     Summary:
-    #     - [Model's Bullet Point 1]
-    #     - [Model's Bullet Point 2]
-    #     ..."""
-
-    # )
-    # template = (
-    #     """Given the following email:
-
-    #     Subject:
-    #     {subject}
-
-    #     Text:
-    #     {text}
-
-    #     Using the provided categories:
-
-    #     Topic Categories:
-    #     {category}
-
-    #     Importance Categories:
-    #     {importance}
-
-    #     Response Categories:
-    #     {answer}
-
-    #     1. Please categorize the email by topic, importance, and response.
-    #     2. Summarize in French the following message
-    #     3. Draft a really short and appropriate informal response based on the subject and text of the email in French.
-
-    #     ---
-
-    #     Topic Categorization:
-    #     - [Model's Response for Topic Category]
-
-    #     Importance Categorization:
-    #     - [Model's Response for Importance Category]
-
-    #     Response Categorization:
-    #     - [Model's Response for Response Category]
-
-    #     Summary:
-    #     - [Model's Bullet Point 1]
-    #     - [Model's Bullet Point 2]
-    #     ...
-
-    #     Drafted Response:
-    #     [Model's drafted response to the email]
-    #     """
-    # )    
     template = (
         """Given the following email:
 
@@ -346,6 +264,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
 
         1. Please categorize the email by topic, importance, and response.
         2. In French: Summarize the following message
+        3. In French: Provide a short sentence summarizing the email.
 
         ---
 
@@ -358,6 +277,9 @@ def gpt_langchain_response(subject,decoded_data,category_list):
         Response Categorization:
         - [Model's Response for Response Category]
 
+        Résumé court en français:
+        - [Model's One-Sentence Summary en français]
+
         Résumé en français:
         - [Model's Bullet Point 1 en français]
         - [Model's Bullet Point 2 en français]
@@ -365,9 +287,6 @@ def gpt_langchain_response(subject,decoded_data,category_list):
         """
     )
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-    # human_template = "{text}"
-    # human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
-    # chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt, human_message_prompt])
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
     chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
@@ -382,6 +301,8 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     importance_category = clear_response.split("Importance Categorization:\n- ")[1].split("\n")[0]
     # Extracting Importance/Action Categorization
     response_category = clear_response.split("Response Categorization:\n- ")[1].split("\n")[0]
+    # Extracting one sentence summary
+    short_sentence = clear_response.split("Résumé court en français:\n- ")[1].split("\n")[0]
     # Extracting Summary
     summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
     summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
@@ -393,10 +314,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n")
     summary_text = "\n".join(summary_list)
 
-    return topic_category,importance_category,response_category,summary_text
-
-
-######################## Read Mails ########################
+    return topic_category,importance_category,response_category,summary_text,short_sentence
 
 # uses BeautifulSoup to clear html from text
 def html_clear(text):
@@ -464,11 +382,6 @@ def get_text_from_mail(mime_type,part,decoded_data_temp):
     data = data.replace("-","+").replace("_","/")
     decoded_data_temp = base64.b64decode(data)
     if mime_type== "text/html":
-        # Utiliser BeautifulSoup pour parser le HTML et extraire le texte
-        # soup = BeautifulSoup(decoded_data_temp, "html.parser")
-        # text = soup.get_text('\n') 
-        # print("HTML content: ", text)
-        # decoded_data_temp = text
         decoded_data_temp = html_clear(decoded_data_temp)
         # print("get_text_from_mail: ",decoded_data_temp)
     return decoded_data_temp
@@ -535,58 +448,46 @@ def process_part(part,plaintext_var):
     return decoded_data
 
 # used to get mail number "int_mail" (minus one as lists starts from 0) and returns subject, expeditor and body 
-def get_mail(services,int_mail):
-    # \"\"\"Render the home page and interact with emails.\"\"\"
-    # service = authenticate_service(GMAIL_READONLY_SCOPE)
-    # service = authenticate_service()
+def get_mail(services,int_mail,id_mail):
     service = services['gmail.readonly']
     plaintext_var = [0]
     plaintext_var[0] = 0
 
-    # Call the Gmail API to fetch INBOX
-    results = service.users().messages().list(userId='me',labelIds=['INBOX']).execute()
-    messages = results.get('messages', [])
-    if not messages:
-        print('No new messages.')
-    else:
-        message = messages[int_mail]
-        msg = service.users().messages().get(userId='me', id=message['id']).execute()
-        email_data = msg['payload']['headers']
-        for values in email_data:
-            name = values['name']
-            if name == 'Subject':
-                subject = values['value']
-            if name == 'From':
-                from_name = values['value']
-                print("From: ", from_name)
-        decoded_data=None
-        if 'parts' in msg['payload']:
-            for part in msg['payload']['parts']:
-                decoded_data_temp = process_part(part,plaintext_var)
-                if decoded_data_temp:
-                    decoded_data = concat_text(decoded_data,decoded_data_temp)
-        
-        # If there's no 'parts' field, the body of the email could be in the 'body' field
-        elif 'body' in msg['payload']:
-            data = msg['payload']['body']["data"]
-            data = data.replace("-","+").replace("_","/")
-            decoded_data_temp = base64.b64decode(data).decode('utf-8')
-            # Utiliser BeautifulSoup pour parser le HTML et extraire le texte
-            # soup = BeautifulSoup(decoded_data_temp, "html.parser")
-            # text = soup.get_text('\n') 
-            # decoded_data = text
-            decoded_data = html_clear(decoded_data_temp)
-        # print("decoded_data: ",decoded_data)
-        preprocessed_data = preprocess_email(decoded_data)
-        # print('plaintext_var',plaintext_var)
-        # pre_prompt = "You are to summarize the following as an assistant would do. No more, no less. No questions asked. No need to say 'Hello!'."
-        # pre_prompt = "Provide a concise summary of this mail without providing help."
-        # pre_prompt = "Donne un résumé concis de ce mail sans proposer d'aide."
-        # pre_prompt = "Résumé concis du texte suivant:"
-        # prompt_input = decoded_data
-        # int_test = 0
-        # summarized_data = llama2_replicate(pre_prompt,prompt_input,0.1,0.5,128,1)
-        # print(summarized_data)
+    if int_mail!=None:
+        # Call the Gmail API to fetch INBOX
+        results = service.users().messages().list(userId='me',labelIds=['INBOX']).execute()
+        messages = results.get('messages', [])
+        if not messages:
+            print('No new messages.')
+        else:
+            message = messages[int_mail]
+            msg = service.users().messages().get(userId='me', id=message['id']).execute()
+    # 2 lines added to make it work for id as well
+    elif id_mail!=None:
+        msg = service.users().messages().get(userId='me', id=id_mail).execute()
+    # lines idented back to work as intended
+    email_data = msg['payload']['headers']
+    for values in email_data:
+        name = values['name']
+        if name == 'Subject':
+            subject = values['value']
+        if name == 'From':
+            from_name = values['value']
+            print("From: ", from_name)
+    decoded_data=None
+    if 'parts' in msg['payload']:
+        for part in msg['payload']['parts']:
+            decoded_data_temp = process_part(part,plaintext_var)
+            if decoded_data_temp:
+                decoded_data = concat_text(decoded_data,decoded_data_temp)
+
+    # If there's no 'parts' field, the body of the email could be in the 'body' field
+    elif 'body' in msg['payload']:
+        data = msg['payload']['body']["data"]
+        data = data.replace("-","+").replace("_","/")
+        decoded_data_temp = base64.b64decode(data).decode('utf-8')
+        decoded_data = html_clear(decoded_data_temp)
+    preprocessed_data = preprocess_email(decoded_data)
                     
     return subject,from_name,preprocessed_data
 
@@ -600,6 +501,80 @@ def separate_concatenated_mails(decoded_text):
     mails = [mail.strip() for mail in mails if mail.strip()]
     
     return mails
+
+
+
+
+def raw_to_string(raw_data):
+    # Decode the base64-encoded raw email
+    decoded_bytes = base64.urlsafe_b64decode(raw_data.encode('ASCII'))
+    # Convert the decoded bytes to a string using utf-8 encoding
+    return decoded_bytes.decode('utf-8')
+
+def extract_body_from_email(services,int_mail,id_mail):
+    service = services['gmail.readonly']
+
+    if int_mail!=None:
+        # Call the Gmail API to fetch INBOX
+        results = service.users().messages().list(userId='me',labelIds=['INBOX']).execute()
+        messages = results.get('messages', [])
+        if not messages:
+            print('No new messages.')
+            return
+        else:
+            message = messages[int_mail]
+            msg_raw = service.users().messages().get(userId='me', id=message['id'], format='raw').execute()
+    # 2 lines added to make it work for id as well
+    elif id_mail!=None:
+        msg_raw = service.users().messages().get(userId='me', id=id_mail, format='raw').execute()
+
+
+    # Convert the raw data to a string
+    email_str = raw_to_string(msg_raw)
+    
+    # Parse the email string
+    msg = message_from_string(email_str)
+    
+    # Function to extract text/plain or text/html content from a given part
+    def extract_content(part, content_type):
+        if part.get_content_type() == content_type:
+            return part.get_payload(decode=True).decode('utf-8')
+        return None
+
+    # Extract the body based on the email type
+    if msg.is_multipart():
+        # Handle multipart emails
+        plain_text = None
+        html_text = None
+        
+        for part in msg.walk():
+            content_disposition = str(part.get('Content-Disposition'))
+            
+            # Skip any part that is an attachment
+            if "attachment" in content_disposition:
+                continue
+            
+            # Look for text/plain parts first
+            if not plain_text:
+                plain_text = extract_content(part, "text/plain")
+            
+            # If not found, then look for text/html parts
+            if not html_text:
+                html_text = extract_content(part, "text/html")
+        
+        # Return text/plain content if found, otherwise return text/html content
+        return plain_text or html_text or ""  # Return an empty string if no body content was found
+    else:
+        # Handle single-part emails
+        return msg.get_payload(decode=True).decode('utf-8')
+
+# Usage example:
+# raw_email_data = msg['raw']  # Assuming you've fetched the raw email using the Gmail API
+# email_body = extract_body_from_email(raw_email_data)
+
+
+
+
 
 ######################## Answers to Mails ########################
 
@@ -624,33 +599,6 @@ def get_size(text):
 
 # suggests an answer from parameters and email data
 def gpt_langchain_answer(subject, decoded_data):
-    # prompt = "Summarize with bullets points in French the following email. Key parts only: "
-    # template = (
-    #     # """Given the following email subject: 
-    #     # {subject}
-
-    #     # And the following message:
-
-    #     # {text}
-
-    #     # Write a possible answer"""
-    #     """Given the following email:
-
-    #     Subject:
-    #     {subject}
-
-    #     Text:
-    #     {text}
-
-    #     Please draft an appropriate response based on the subject and text of the email.
-
-    #     ---
-
-    #     Response:
-    #     [Model's drafted response to the email]
-    #     """
-
-    # )
     template = (
         """Given the following email:
 
@@ -678,11 +626,6 @@ def gpt_langchain_answer(subject, decoded_data):
 
     clear_response = response.content.strip()
     # print('clear_response: ',clear_response)
-    # Extracting Response
-    # response_start = clear_response.index("Response:") + len("Response:")
-    # response_end = clear_response[response_start:].index("\n\n") if "\n\n" in clear_response[response_start:] else len(clear_response)
-    # response_list = clear_response[response_start:response_start+response_end].strip().split("\n")
-    # response_text = "\n".join(response_list)
 
     return clear_response
 
@@ -709,29 +652,7 @@ def gpt_langchain_redaction(input_data):
         Draft:
         [Model's drafted email]
         """
-    )    
-    # else:
-    # template = (
-    #     """Given the following subject:
-        
-    #     {subject}
-        
-    #     And following draft:
-
-    #     {input}
-        
-    #     1. Write a subject to the email based on the draft in French
-    #     2. Write a {length} and appropriate {formality} mail based on the draft in French.
-
-    #     ---
-
-    #     Subject:
-    #     [Model's drafted subject]
-
-    #     Draft:
-    #     [Model's drafted email]
-    #     """
-    # )    
+    )
     length = 'really short'
     formality = 'formal'
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
@@ -762,6 +683,31 @@ def gpt_langchain_redaction(input_data):
 
 ######################## Search bar ########################
 
+def get_email_by_id(email_id):
+    services = authenticate_service()
+    service = services['gmail.readonly']
+    
+    # Fetch the email by its ID
+    # msg = service.users().messages().get(userId='me', id=email_id, format='raw').execute()
+    msg = service.users().messages().get(userId='me', id=email_id, format='full').execute()
+    print("msg :",msg)
+
+    msg_raw = base64.urlsafe_b64decode(msg['raw'].encode('ASCII'))
+    mime_msg = email.message_from_bytes(msg_raw)
+
+    payload = msg['payload']
+    email_body = process_part(payload, 0)
+
+    # Parsing email content based on your requirements
+    email_subject = mime_msg['subject']
+    email_from = mime_msg['from']
+
+    return {
+        'subject': email_subject,
+        'from': email_from,
+        'body': email_body
+    }
+
 def decode_email_data(data):
     byte_code = base64.urlsafe_b64decode(data)
     return byte_code.decode("utf-8")
@@ -777,107 +723,135 @@ def parse_parts(parts, from_name):
             text = decode_email_data(data)
             print(f"From: {from_name}\nMessage: {text}\n")
 
+# constructs query for searching through emails
+def email_query(from_list,to_list,after,before,keywords):
+    # print("_",from_list,"_")
+    # print("_",to_list,"_")
+    # print("_",after,"_")
+    # print("_",before,"_")
+    # print("_",keywords,"_")
+    query = ""
+    query_list = [0,0,0,0,0]
+    if from_list:
+        query_list[0]=1
+        int_from = 0
+        for email_int in range(len(from_list)):
+            query+="from:"+from_list[email_int]+" "
+            if int_from < len(from_list)-1:
+                query+= "OR "
+                int_from+=1
+    if to_list:
+        query_list[1]=1
+        # for email in to_list:
+        #     query+="from:"+email+" "
+        int_to = 0
+        for email_int in range(len(to_list)):
+            query+="to:"+to_list[email_int]+" "
+            if int_to < len(to_list)-1:
+                query+= "OR "
+                int_to+=1
+    if after:
+        query_list[2]=1
+        query+='after:'+after+" "
+    if before:
+        query_list[3]=1
+        query+='before:'+before+" "
+    if keywords:
+        query_list[4]=1
+        query+=keywords
+    # print(len(to_list))
+    return query, query_list
+
 # Search for emails
 def search_emails(query):
     services = authenticate_service()
     service = services['gmail.readonly']
-    shown_mails = 0
-    # results = service.users().messages().list(userId='me', q=query).execute()
-    # messages = results.get('messages', [])
-
-    # if not messages:
-    #     print('No new messages found.')
-    # else:
-    #     print('Messages:')
-    #     for message in messages:
-    #         msg = service.users().messages().get(userId='me', id=message['id']).execute()
-    #         email_data = msg['payload']['headers']
-    #         from_name = next((header['value'] for header in email_data if header['name'] == 'From'), None)
-            
-    #         # Check if 'parts' key exists
-    #         if 'parts' in msg['payload']:
-    #             parse_parts(msg['payload']['parts'], from_name)
-    #         # Check for direct body data
-    #         elif 'body' in msg['payload'] and 'data' in msg['payload']['body']:
-    #             shown_mails+=1
-    #             data = msg['payload']['body']['data']
-    #             text = format_mail(html_clear(decode_email_data(data)))
-    #             print(f"From: {from_name}\nMessage: {text}\n")
-    # Initialize an empty list to store all messages
-    all_messages = []
+    # print('query: ',query)
+    email_ids = []
     
     # Initial API request
     response = service.users().messages().list(userId='me', q=query).execute()
     
     while 'messages' in response:
-        all_messages.extend(response['messages'])
-        
-        # Check if there are more pages of results
-        if 'nextPageToken' in response:
-            # time.sleep(1)  # Introduce a delay
-            response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
-        else:
-            break
-
-    if not all_messages:
-        print('No new messages found.')
-    else:
-        print('Messages:')
-        for message in all_messages:
-            # time.sleep(0.5)  # Introduce a delay
-            msg = service.users().messages().get(userId='me', id=message['id']).execute()
-            email_data = msg['payload']['headers']
-            from_name = next((header['value'] for header in email_data if header['name'] == 'From'), None)
+        while 'messages' in response:
+            for message in response['messages']:
+                email_ids.append(message['id'])
             
-            # Check if 'parts' key exists
-            if 'parts' in msg['payload']:
-                parse_parts(msg['payload']['parts'], from_name)
-            # Check for direct body data
-            elif 'body' in msg['payload'] and 'data' in msg['payload']['body']:
-                shown_mails+=1
-                data = msg['payload']['body']['data']
-                text = format_mail(html_clear(decode_email_data(data)))
-                print(f"From: {from_name}\nMessage: {text}\n")
-    print('shown_mails: ',shown_mails)
+            # Check if there are more pages of results
+            if 'nextPageToken' in response:
+                response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+            else:
+                break
 
+        # If you want to print out the IDs
+        for email_id in email_ids:
+            print(email_id)
+        print("Number of mails: ",len(email_ids))
 
+        return email_ids
+
+# Function to extract value after colon for a given field
+def extract_value(field,clear_text):
+    start = clear_text.index(field) + len(field)
+    end = clear_text[start:].index("\n") if "\n" in clear_text[start:] else len(clear_text)
+    final_text = re.sub(r"\[Model's drafted .+?\]", '', clear_text[start:start+end].strip())
+    final_text = re.sub(r"\[Unknown .+?\]", '', final_text.strip())
+    return final_text.strip()
+
+# from text get corresponding email addresses
+def get_email_address(from_who,to_who):
+    myself_list = ['me','[Your Name]']
+    if from_who in myself_list:
+        email_list_from = get_user_email()
+    else:
+        email_list_from_in = get_contacts(from_who,'contacts','connections')
+        email_list_from_ext = get_contacts(from_who,'other.contacts','otherContacts')
+        email_list_from = email_list_from_in+email_list_from_ext
+    if to_who in myself_list:
+        email_list_to = get_user_email()
+    else:
+        email_list_to_in = get_contacts(to_who,'contacts','connections')
+        email_list_to_ext = get_contacts(to_who,'other.contacts','otherContacts')
+        email_list_to = email_list_to_in+email_list_to_ext
+    return email_list_from,email_list_to
 
 # decompose text from user to key words for API (Google)
-def gpt_langchain_decompose_search(input_data):
+def gpt_langchain_decompose_search_old(input_data):
     today = datetime.date.today()
     template = (
-        """Given the following draft:
+    """Given the following draft:
 
-        {input}
+    {input}
 
-        And current date:
+    And current date:
 
-        {date}
-        
-        If possible else 'None':
-        1. Extract who wrote to whom.
-        2. Extract key words.
-        3. Extract starting and ending dates.
+    {date}
+    
+    Based on the draft:
+    1. Identify the sender (For example, if the text says 'John wrote to me', 'From:' should be 'John').
+    2. Identify the recipient (If the draft implies it was written to the reader, fill in with 'me').
+    3. Extract key details avoiding words from 'From' and 'To' fields or the word 'mail'.
+    4. Determine the timing of the mail based on the provided date, and present it in the format 'yyyy-mm-dd'.
 
-        ---
+    ---
 
-        From:
-        [Model's drafted name]
+    From:
+    [Model's drafted sender]
 
-        To:
-        [Model's drafted name]
+    To:
+    [Model's drafted recipient]
 
-        Key words:
-        [Model's drafted key words]
+    Key words:
+    [Model's drafted key details]
 
-        Starting date:
-        [Model's drafted starting date]
+    Starting date:
+    [Model's drafted starting date in yyyy-mm-dd format]
 
-        Ending date:
-        [Model's drafted ending date]
+    Ending date:
+    [Model's drafted ending date in yyyy-mm-dd format]
 
-        """
-    )
+    """
+)
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
@@ -885,25 +859,14 @@ def gpt_langchain_decompose_search(input_data):
     text = chat(chat_prompt.format_prompt(input=input_data,date=today).to_messages())
 
     clear_text = text.content.strip()
-
-    # # Extracting required fields
-    # from_start = clear_text.index("From:") + len("From:")
-    # to_start = clear_text.index("To:")
-    # key_words_start = clear_text.index("Key words:")
-    # starting_date_start = clear_text.index("Starting date:")
-    # ending_date_start = clear_text.index("Ending date:")
-    
-    # from_text = clear_text[from_start:to_start].strip()
-    # to_text = clear_text[to_start:key_words_start].strip()
-    # key_words_text = clear_text[key_words_start:starting_date_start].strip()
-    # starting_date_text = clear_text[starting_date_start:ending_date_start].strip()
-    # ending_date_text = clear_text[ending_date_start:].strip()
+    # print("clear_text: ",clear_text)
 
     # Function to extract value after colon for a given field
     def extract_value(field):
         start = clear_text.index(field) + len(field)
         end = clear_text[start:].index("\n") if "\n" in clear_text[start:] else len(clear_text)
-        return clear_text[start:start+end].strip()
+        final_text = re.sub(r"\[Model's drafted .+?\]",'',clear_text[start:start+end].strip())
+        return final_text
     
     from_text = extract_value("From:\n")
     to_text = extract_value("To:\n")
@@ -912,6 +875,102 @@ def gpt_langchain_decompose_search(input_data):
     ending_date_text = extract_value("Ending date:\n")
     
     return from_text, to_text, key_words_text, starting_date_text, ending_date_text
+
+# decompose text from user to key words for API (Google)
+def gpt_langchain_decompose_search(chat_data):
+    # Ensure chat_data is a list of chat messages
+    if not isinstance(chat_data, list):
+        raise ValueError("chat_data must be a list of chat messages")
+
+    today = datetime.date.today()
+    chat_string = '\n'.join(chat_data)  # Convert chat messages to a string
+
+#     template = (
+#     """Given the following chat:
+
+#     {chat}
+
+#     And current date:
+
+#     {date}
+    
+#     From the chat:
+#     1. Identify the sender of the mail being referred to.
+#     2. Identify the recipient of the mail.
+#     3. Extract key details or keywords mentioned about the mail.
+#     4. Determine the starting date of the mail search range.
+#     5. Determine the ending date of the mail search range.
+
+#     ---
+
+#     From:
+#     [Model's drafted sender]
+
+#     To:
+#     [Model's drafted recipient]
+
+#     Key words:
+#     [Model's drafted key details]
+
+#     Starting date:
+#     [Model's drafted starting date in yyyy-mm-dd format]
+
+#     Ending date:
+#     [Model's drafted ending date in yyyy-mm-dd format]
+#     """
+# )
+    template = (
+    """Given the following chat:
+
+    {chat}
+
+    And current date:
+
+    {date}
+    
+    From the chat:
+    1. Identify the sender of the mail being referred to.
+    2. Identify the recipient of the mail.
+    3. Extract key details or keywords mentioned about the mail. These keywords should strictly relate to the content or subject of the mail and should not include names of the sender, recipient, or any date-related terms.
+    4. Determine the starting date of the mail search range.
+    5. Determine the ending date of the mail search range.
+
+    ---
+
+    From:
+    [Model's drafted sender]
+
+    To:
+    [Model's drafted recipient]
+
+    Key words (excluding sender, recipient, and date-related terms):
+    [Model's drafted key details]
+
+    Starting date:
+    [Model's drafted starting date in yyyy-mm-dd format]
+
+    Ending date:
+    [Model's drafted ending date in yyyy-mm-dd format]
+    """
+    )
+
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
+    chat_completion = ChatOpenAI(temperature=0, openai_api_key=openai.api_key, openai_organization=openai.organization)
+    text = chat_completion(chat_prompt.format_prompt(chat=chat_string, date=today).to_messages())
+
+    clear_text = text.content.strip()
+    print("clear_text: ",clear_text)
+    
+    from_text = extract_value("From:\n",clear_text)
+    to_text = extract_value("To:\n",clear_text)
+    key_words_text = extract_value("Key words (excluding sender, recipient, and date-related terms):\n",clear_text)
+    starting_date_text = extract_value("Starting date:\n",clear_text)
+    ending_date_text = extract_value("Ending date:\n",clear_text)
+
+    from_email,to_email = get_email_address(from_text,to_text)
+    
+    return from_email, to_email, starting_date_text, ending_date_text, key_words_text
 
 # gets list of contact based on name
 def get_contacts_name(name):
@@ -936,50 +995,63 @@ def get_contacts_name(name):
     return matching_contacts
 
 # gets list of emails based on names
-def get_contacts(name):
+def _get_contacts(name, service_name,resource_name):
     services = authenticate_service()
-    service = services['contacts']
+    service = services[service_name]
+    # print("_"+name+"_")
+    if name:
+        # Call the People API
+        if service_name=='contacts':
+            results = service.people().connections().list(
+                resourceName='people/me',
+                pageSize=1000,
+                personFields='names,emailAddresses').execute()
+        else:
+            results = service.otherContacts().list(
+                pageSize=1000,
+                readMask='names,emailAddresses').execute()
+        # if resource_name == 'otherContacts':print('results: ',results)
+        connections = results.get(resource_name, [])
+        matching_contacts = []
 
-    # Call the People API
-    results = service.people().connections().list(
-        resourceName='people/me',
-        pageSize=1000,
-        personFields='names,emailAddresses').execute()
-    connections = results.get('connections', [])
-
-    # print("Retrieved contacts:", connections)  # Debugging line
-
-    # matching_contacts = {}
-    # for person in connections:
-    #     names = person.get('names', [])
-    #     email_addresses = person.get('emailAddresses', [])
-    #     if names and email_addresses:
-    #         full_name = names[0].get('displayName')
-    #         email = email_addresses[0].get('value')  # get the primary email address
-    #         if name.lower() in full_name.lower():
-    #             matching_contacts[full_name] = email  # map the name to the email address
-    matching_contacts = []
-
-    for person in connections:
-        names = person.get('names', [])
-        email_addresses = person.get('emailAddresses', [])
-        if email_addresses:  # checking if there's an email address
-            email = email_addresses[0].get('value')  # get the primary email address
-            
-            # If there's a display name and it matches the search, add it
-            if names and name.lower() in names[0].get('displayName', '').lower():
-                full_name = names[0].get('displayName')
-                matching_contacts.append((full_name, email))
-            # If there's no display name, still add the email
-            elif not names:
-                matching_contacts.append((None, email))
+        for person in connections:
+            names = person.get('names', [])
+            email_addresses = person.get('emailAddresses', [])
+            if email_addresses:  # checking if there's an email address
+                email = email_addresses[0].get('value')  # get the primary email address
                 
-    return matching_contacts
+                # If there's a display name and it matches the search, add it
+                if names and name.lower() in names[0].get('displayName', '').lower():
+                    full_name = names[0].get('displayName')
+                    # matching_contacts.append((full_name, email))
+                    matching_contacts.append(email)
+                elif name.lower() in email.lower():
+                    if names:
+                        full_name = names[0].get('displayName')
+                    else:
+                        full_name = None
+                    # matching_contacts.append((full_name, email))
+                    matching_contacts.append(email)
 
+        return matching_contacts
+    else:
+        return []
 
+# delays retries after error 429 sync quota exceeded
+def get_contacts(name,service_name,resource_name, max_retries=5):
+    for attempt in range(max_retries):
+        try:
+            return _get_contacts(name,service_name,resource_name)
+        except HttpError as e:
+            if e.resp.status == 429 and attempt < max_retries - 1:
+                # Exponential backoff with jitter.
+                sleep_time = (2 ** attempt) + random.uniform(0, 0.1 * (2 ** attempt))
+                time.sleep(sleep_time)
+            else:
+                raise
+    return []
 
-
-#gets the user email
+# gets the user's email
 def get_user_email():
     services = authenticate_service()
     service = services['contacts']
@@ -992,7 +1064,21 @@ def get_user_email():
     if email_addresses:
         email = email_addresses[0].get('value')
     
-    return email
+    return [email]
+
+# Questions asked for more details
+def search_chat_reply(query_list):
+    if query_list[0]==0: # from who
+        assistant_question = ""
+    elif query_list[1]==0: # to who
+        assistant_question = ""
+    elif query_list[2]==0: # start date
+        assistant_question = ""
+    elif query_list[3]==0: # end date
+        assistant_question = ""
+    elif query_list[4]==0: # key words
+        assistant_question = ""
+    return assistant_question
 
 ######################## Other ########################
 

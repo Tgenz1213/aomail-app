@@ -194,42 +194,68 @@ def email_query(from_list,to_list,after,before,keywords,int_attachement):
     if before:
         query_list[3]=1
         query+='before:'+before+" "
+    if int_attachement==1:
+        query+='has:attachement '
     if keywords:
         query_list[4]=1
         query+=keywords
-    if int_attachement==1:
-        query+='has:attachement'
         # 
     # print(len(to_list))
     return query, query_list
 
-# GOOGLE # Search for emails
+# # GOOGLE # Search for emails
+# def search_emails(query):
+#     services = authenticate_service()
+#     service = services['gmail.readonly']
+#     # print('query: ',query)
+#     email_ids = []
+    
+#     # Initial API request
+#     response = service.users().messages().list(userId='me', q=query).execute()
+    
+#     while 'messages' in response:
+#         while 'messages' in response:
+#             for message in response['messages']:
+#                 email_ids.append(message['id'])
+            
+#             # Check if there are more pages of results
+#             if 'nextPageToken' in response:
+#                 response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+#             else:
+#                 break
+
+#         # If you want to print out the IDs
+#         for email_id in email_ids:
+#             print(email_id)
+#         print("Number of mails: ",len(email_ids))
+
+#         return email_ids
 def search_emails(query):
     services = authenticate_service()
     service = services['gmail.readonly']
-    # print('query: ',query)
+    
     email_ids = []
     
     # Initial API request
     response = service.users().messages().list(userId='me', q=query).execute()
     
     while 'messages' in response:
-        while 'messages' in response:
-            for message in response['messages']:
-                email_ids.append(message['id'])
-            
-            # Check if there are more pages of results
-            if 'nextPageToken' in response:
-                response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
-            else:
-                break
+        for message in response['messages']:
+            email_ids.append(message['id'])
+        
+        # Check if there are more pages of results
+        if 'nextPageToken' in response:
+            response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+        else:
+            break
 
-        # If you want to print out the IDs
-        for email_id in email_ids:
-            print(email_id)
-        print("Number of mails: ",len(email_ids))
+    # If you want to print out the IDs
+    for email_id in email_ids:
+        print(email_id)
+    print("Number of mails: ", len(email_ids))
 
-        return email_ids
+    return email_ids
+
 
 # delays retries after error 429 sync quota exceeded
 def get_contacts(name,service_name,resource_name, max_retries=5):
@@ -343,13 +369,47 @@ def get_user_email():
     return [email]
 
 # GOOGLE # Search attachement
+# def search_attachments(query):
+#     """
+#     Search for attachments in Gmail.
+
+#     :param service: the Gmail API service instance.
+#     :param user_id: the user's email address. Use "me" to indicate the authenticated user.
+#     :param query: the search query string (same as in Gmail search box).
+#     :return: a list of attachment filenames and their data.
+#     """
+#     services = authenticate_service()
+#     service = services['gmail.readonly']
+
+#     # Step 1: List Emails
+#     results = service.users().messages().list(userId='me', q=query).execute()
+#     messages = results.get('messages', [])
+
+#     attachments = []
+
+#     for message in messages:
+#         # Step 2: Fetch Individual Email
+#         msg = service.users().messages().get(userId='me', id=message['id']).execute()
+
+#         for part in msg['payload']['parts']:
+#             # Step 3: Examine Attachments
+#             if 'filename' in part and part['filename']:
+#                 data = part['body'].get('data')
+#                 file_data = base64.urlsafe_b64decode(data.encode('UTF-8')) if data else None
+#                 attachments.append({
+#                     'filename': part['filename'],
+#                     'data': file_data,
+#                     'mail_id': message['id']
+#                 })
+
+#     return attachments
+
 def search_attachments(query):
     """
     Search for attachments in Gmail.
 
-    :param service: the Gmail API service instance.
-    :param user_id: the user's email address. Use "me" to indicate the authenticated user.
     :param query: the search query string (same as in Gmail search box).
+    :param user_id: the user's email address. Use "me" to indicate the authenticated user.
     :return: a list of attachment filenames and their data.
     """
     services = authenticate_service()
@@ -377,6 +437,7 @@ def search_attachments(query):
                 })
 
     return attachments
+
 
 ######################## Other ########################
 

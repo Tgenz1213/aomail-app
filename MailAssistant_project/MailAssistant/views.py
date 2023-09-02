@@ -97,20 +97,25 @@ def home_page(request):
     # emails_id = search_emails(email_query(*gpt_langchain_decompose_search([input_ai,input_text])))
 
     query,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),0)
+    print('query: ',query)
     question = search_chat_reply(query_list)
     print('question:',question)
 
     input_ai = "Que recherchez-vous ?"
-    input_text = "pôle emploi"
+    # input_text = "pôle emploi"
+    input_text = 'offres_du_bassin'
 
     # query_attachement = 'offres_du_bassin'
     query_attachement,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),1)
-    attachements = api_list[api_var].search_attachments(query_attachement)
+    print('query_attachement: ',query_attachement)
+    # attachements = api_list[api_var].search_attachments(query_attachement)
+    attachements = api_list[api_var].search_emails(query_attachement)
+
     print('attachements: ',attachements)
 
     # email_list_from, email_list_to, starting_date, ending_date, key_words = gpt_langchain_decompose_search([input_ai,input_text])
     # query = email_query(email_list_from,email_list_to,starting_date,ending_date,key_words)
-    emails_id = api_list[api_var].search_emails(query)
+    # emails_id = api_list[api_var].search_emails(query)
     
     # print('from_who: ',from_who)
     # print('to_who: ',to_who)
@@ -120,11 +125,12 @@ def home_page(request):
     # print("query: ",query)
     # emails_id = search_emails(query)
     # print('emails_id: ',emails_id)
-    if emails_id:
-        for email_id in emails_id:
-            # print('email found: ',get_mail(services,None,email_id))
-            subject, from_name, decoded_data = api_list[api_var].get_mail(services,None,email_id)
-            if decoded_data: decoded_data = format_mail(decoded_data)
+
+    # if emails_id:
+    #     for email_id in emails_id:
+    #         # print('email found: ',google_api.get_mail(services,None,email_id))
+    #         subject, from_name, decoded_data = api_list[api_var].get_mail(services,None,email_id)
+    #         if decoded_data: decoded_data = format_mail(decoded_data)
             # print('email found: ',decoded_data)
             # print('email found: ',get_email_by_id(email_id)) #doesn't work
 
@@ -503,18 +509,40 @@ def parse_parts(parts, from_name):
 
 # Function to extract value after colon for a given field
 def extract_value(field,clear_text):
-    start = clear_text.index(field) + len(field)
-    end = clear_text[start:].index("\n") if "\n" in clear_text[start:] else len(clear_text)
+    # start = clear_text.index(field) + len(field)
+    # end = clear_text[start:].index("\n") if "\n" in clear_text[start:] else len(clear_text)
+    start = clear_text.find(field)
+    if start == -1:  # if field is not found in clear_text
+        return ""  # or return any default value you want
+    
+    start += len(field)
+    end = clear_text[start:].find("\n")
+    if end == -1:
+        end = len(clear_text)
     final_text = re.sub(r"\[Model's drafted .+?\]", '', clear_text[start:start+end].strip())
-    final_text = re.sub(r"\[Unknown .+?\]", '', final_text.strip())
+    final_text = re.sub(r"\[Unknown\]", '', final_text.strip())
+    final_text = re.sub(r"\[blank\]", '', final_text.strip())
+    final_text = re.sub(r"Unknown", '', final_text.strip())
+    final_text = re.sub(r"blank", '', final_text.strip())
     return final_text.strip()
 
 # Function to extract value after colon for a given field
 def extract_value_2(field,clear_text):
-    start = clear_text.index(field) + len(field)
-    end = clear_text[start:].index("\n") if "\n" in clear_text[start:] else len(clear_text)
+    # start = clear_text.index(field) + len(field)
+    # end = clear_text[start:].index("\n") if "\n" in clear_text[start:] else len(clear_text)
+    start = clear_text.find(field)
+    if start == -1:  # if field is not found in clear_text
+        return ""  # or return any default value you want
+    
+    start += len(field)
+    end = clear_text[start:].find("\n")
+    if end == -1:
+        end = len(clear_text)
     final_text = re.sub(r"\[Model's drafted .+?\]", '', clear_text[start:start+end].strip())
-    final_text = re.sub(r"\[Unknown .+?\]", '', final_text.strip())
+    final_text = re.sub(r"\[Unknown\]", '', final_text.strip())
+    final_text = re.sub(r"\[Blank\]", '', final_text.strip())
+    final_text = re.sub(r"Unknown", '', final_text.strip())
+    final_text = re.sub(r"Blank", '', final_text.strip())
     return final_text.strip()
 
 # decompose text from user to key words for API (Google)
@@ -526,19 +554,51 @@ def gpt_langchain_decompose_search(chat_data):
     today = datetime.date.today()
     chat_string = '\n'.join(chat_data)  # Convert chat messages to a string
 
+    # template = (
+    # """Given the following chat:
+    # {chat}
+
+    # And current date:
+    # {date}
+    
+    # From the chat:
+    # 1. Identify the sender of the mail being referred to.
+    # 2. Identify the recipient of the mail.
+    # 3. Extract key details or keywords mentioned about the mail. These keywords should strictly relate to the content or subject of the mail and should not include names of the sender, recipient, or any date-related terms.
+    # 4. Determine the starting date of the mail search range if mentioned. If not, leave it blank.
+    # 5. Determine the ending date of the mail search range if mentioned. If not, leave it blank.
+
+    # ---
+
+    # From:
+    # [Model's drafted sender]
+
+    # To:
+    # [Model's drafted recipient]
+
+    # Key words (excluding sender, recipient, and date-related terms):
+    # [Model's drafted key details]
+
+    # Starting date:
+    # [Model's drafted starting date in yyyy-mm-dd format]
+
+    # Ending date:
+    # [Model's drafted ending date in yyyy-mm-dd format]
+    # """
+    # )
     template = (
     """Given the following chat:
     {chat}
 
-    And current date:
-    {date}
+    Note: The current date is {date}. If no specific date is mentioned in the chat, leave the date fields blank.
     
-    From the chat:
-    1. Identify the sender of the mail being referred to.
-    2. Identify the recipient of the mail.
-    3. Extract key details or keywords mentioned about the mail. These keywords should strictly relate to the content or subject of the mail and should not include names of the sender, recipient, or any date-related terms.
-    4. Determine the starting date of the mail search range.
-    5. Determine the ending date of the mail search range.
+    Using the details from the chat, provide the following information in the format described below:
+    
+    1. Sender of the mail being referred to.
+    2. Recipient of the mail.
+    3. Key details or keywords mentioned about the mail. These keywords should strictly relate to the content or subject of the mail and should not include names of the sender, recipient, or any date-related terms.
+    4. The starting date of the mail search range if mentioned (leave blank if not specified).
+    5. The ending date of the mail search range if mentioned (leave blank if not specified).
 
     ---
 
@@ -551,13 +611,14 @@ def gpt_langchain_decompose_search(chat_data):
     Key words (excluding sender, recipient, and date-related terms):
     [Model's drafted key details]
 
-    Starting date:
+    Starting date (if not mentioned, leave this blank):
     [Model's drafted starting date in yyyy-mm-dd format]
 
-    Ending date:
+    Ending date (if not mentioned, leave this blank):
     [Model's drafted ending date in yyyy-mm-dd format]
     """
     )
+
 
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
@@ -571,14 +632,14 @@ def gpt_langchain_decompose_search(chat_data):
         from_text = extract_value("From:\n",clear_text)
         to_text = extract_value("To:\n",clear_text)
         key_words_text = extract_value("Key words (excluding sender, recipient, and date-related terms):\n",clear_text)
-        starting_date_text = extract_value("Starting date:\n",clear_text)
-        ending_date_text = extract_value("Ending date:\n",clear_text)
+        starting_date_text = extract_value("Starting date (if not mentioned, leave this blank):\n",clear_text)
+        ending_date_text = extract_value("Ending date (if not mentioned, leave this blank):\n",clear_text)
     except:
         from_text = extract_value_2("From: ",clear_text)
         to_text = extract_value_2("To: ",clear_text)
         key_words_text = extract_value_2("Key words (excluding sender, recipient, and date-related terms): ",clear_text)
-        starting_date_text = extract_value_2("Starting date: ",clear_text)
-        ending_date_text = extract_value_2("Ending date: ",clear_text)
+        starting_date_text = extract_value_2("Starting date (if not mentioned, leave this blank): ",clear_text)
+        ending_date_text = extract_value_2("Ending date (if not mentioned, leave this blank): ",clear_text)
 
     from_email,to_email = api_list[api_var].get_email_address(from_text,to_text)
     

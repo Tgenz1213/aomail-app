@@ -35,7 +35,7 @@ OTHER_CONTACT_READONLY_SCOPE = 'https://www.googleapis.com/auth/contacts.other.r
 
 ######################## Authentification ########################
 
-# GOOGLE # authentication service for all google services needed at once, used on startup, then stored until log out
+# authentication service for all google services needed at once, used on startup, then stored until log out
 def authenticate_service():
     SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE,OPENID_SCOPE,OTHER_CONTACT_READONLY_SCOPE]
     """Authenticate and return service objects for Google APIs."""
@@ -88,7 +88,7 @@ def authenticate_service():
 
 ######################## Read Mails ########################
 
-# GOOGLE # used to get mail number "int_mail" (minus one as lists starts from 0) and returns subject, expeditor and body 
+ # used to get mail number "int_mail" (minus one as lists starts from 0) or mail ID 'id_mail' and returns subject, expeditor and body 
 def get_mail(services,int_mail,id_mail):
     service = services['gmail.readonly']
     plaintext_var = [0]

@@ -14,7 +14,7 @@ import random
 from email import message_from_string
 
 # from .google_api import * 
-from . import google_api
+from . import google_api, microsoft_api
 
 # OpenAI - ChatGPT
 import openai
@@ -27,10 +27,10 @@ openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 openai.api_key = "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"
 gpt_model = "gpt-3.5-turbo"
 
-configuration = {
-    'organization': "org-YSlFvq9rM1qPzM15jewopUUt",
-    'api_key' : "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"
-}
+# configuration = {
+#     'organization': "org-YSlFvq9rM1qPzM15jewopUUt",
+#     'api_key' : "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"
+# }
 
 importance_list = {
     'Important': 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
@@ -56,62 +56,68 @@ relevance_list = {
     'Not Relevant': 'Message is not relevant to the recipient.'
 }
 
-api_list = [google_api]
-api_var = 0
+api_list = [google_api,microsoft_api]
+api_var = 1
 
 # loading landing page
 def home_page(request):
     # connection to google
-    services = api_list[api_var].authenticate_service()
+    if api_var==0:
+        services = api_list[api_var].authenticate_service()
+    elif api_var==1:
+        services = api_list[api_var].authenticate_service(request)
+        # services = api_list[api_var].silent_authentication()
+        print('services: ',services)
+        
     subject, from_name, decoded_data = api_list[api_var].get_mail(services,0,None)
 
     # subject, from_name, decoded_data = extract_body_from_email(services,0,None) #doesn't work
     
-    if decoded_data: decoded_data = format_mail(decoded_data)
+    # if decoded_data: decoded_data = format_mail(decoded_data)
     # print("decoded_data: ",decoded_data)
 
-    category_list = get_db_categories()
-    topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject,decoded_data,category_list)
+    # category_list = get_db_categories()
+    # topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject,decoded_data,category_list)
 
-    # print('topic: ',topic)
-    # print('importance: ',importance)
-    # print('answer: ',answer)
-    # print('summary: ',summary)
-    # print('sentence: ',sentence)
-    # print('relevance: ',relevance)
-    # print('importance_explain: ',importance_explain)
-    # # print('draft: ',response)
-    answer_list = ['No Answer Required: "No answer is required."','No Answer Required']
-    if answer not in answer_list:
-        draft = gpt_langchain_answer(subject,decoded_data)
-        # print('draft: ',draft)
-    # search_emails("test")
-    # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
-    # # subject_test = None
-    # subject,new_mail = gpt_langchain_redaction(input)
-    # print('subject: ',subject)
-    # print('new_mail: ',new_mail)
-    # get_calendar_events(services)
-    input_ai = "Que recherchez-vous ?"
-    input_text = "Théo Hubert m'a écrit un mail concernant un étudiant entrepreneur en juillet"
-    # emails_id = search_emails(email_query(*gpt_langchain_decompose_search([input_ai,input_text])))
+    # # print('topic: ',topic)
+    # # print('importance: ',importance)
+    # # print('answer: ',answer)
+    # # print('summary: ',summary)
+    # # print('sentence: ',sentence)
+    # # print('relevance: ',relevance)
+    # # print('importance_explain: ',importance_explain)
+    # # # print('draft: ',response)
+    # answer_list = ['No Answer Required: "No answer is required."','No Answer Required']
+    # if answer not in answer_list:
+    #     draft = gpt_langchain_answer(subject,decoded_data)
+    #     # print('draft: ',draft)
+    # # search_emails("test")
+    # # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
+    # # # subject_test = None
+    # # subject,new_mail = gpt_langchain_redaction(input)
+    # # print('subject: ',subject)
+    # # print('new_mail: ',new_mail)
+    # # get_calendar_events(services)
+    # input_ai = "Que recherchez-vous ?"
+    # input_text = "J'ai reçu un mail de sécurité concernant Google"
+    # # emails_id = search_emails(email_query(*gpt_langchain_decompose_search([input_ai,input_text])))
 
-    query,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),0)
-    print('query: ',query)
-    question = search_chat_reply(query_list)
-    print('question:',question)
+    # query,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),0)
+    # print('query: ',query)
+    # question = search_chat_reply(query_list)
+    # print('question (number between 0/4 for test):',question)
 
-    input_ai = "Que recherchez-vous ?"
-    # input_text = "pôle emploi"
-    input_text = 'offres_du_bassin'
+    # input_ai = "Que recherchez-vous ?"
+    # # input_text = "pôle emploi"
+    # input_text = 'offres_du_bassin'
 
-    # query_attachement = 'offres_du_bassin'
-    query_attachement,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),1)
-    print('query_attachement: ',query_attachement)
-    # attachements = api_list[api_var].search_attachments(query_attachement)
-    attachements = api_list[api_var].search_emails(query_attachement)
+    # # query_attachement = 'offres_du_bassin'
+    # query_attachement,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),1)
+    # print('query_attachement: ',query_attachement)
+    # # attachements = api_list[api_var].search_attachments(query_attachement)
+    # attachements = api_list[api_var].search_emails(query_attachement)
 
-    print('attachements: ',attachements)
+    # print('attachements: ',attachements)
 
     # email_list_from, email_list_to, starting_date, ending_date, key_words = gpt_langchain_decompose_search([input_ai,input_text])
     # query = email_query(email_list_from,email_list_to,starting_date,ending_date,key_words)
@@ -663,12 +669,12 @@ def search_chat_reply(query_list):
 ######################## Other ########################
 
 def send_mail(request):
-    api_list[api_var].send_mail(request)
+    return api_list[api_var].send_mail(request)
 
 def logout_user(request):
     # \"\"\"Handle user logout.\"\"\"
     logout(request)
-    return redirect('MailAssistant:login_page')
+    return redirect('MailAssistant:login')
 
 def login_page(request):
     # \"\"\"Render the login page and handle user authentication.\"\"\"

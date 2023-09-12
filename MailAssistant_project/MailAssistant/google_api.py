@@ -14,6 +14,8 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from .forms import MailForm
 from googleapiclient.errors import HttpError
+from google.auth.exceptions import RefreshError
+
 
 # from .library import *
 from . import library
@@ -31,13 +33,85 @@ PROFILE_SCOPE = 'https://www.googleapis.com/auth/userinfo.profile'
 EMAIL_SCOPE = 'https://www.googleapis.com/auth/userinfo.email'
 OPENID_SCOPE = 'openid'
 OTHER_CONTACT_READONLY_SCOPE = 'https://www.googleapis.com/auth/contacts.other.readonly'
+SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE,OPENID_SCOPE,OTHER_CONTACT_READONLY_SCOPE]
 
-
+test_int = 0
 ######################## Authentification ########################
+
+def check_token_pickle():
+    print('check_token_pickle')
+    creds = None
+    # Check if token.pickle exists and load credentials if it does
+    if os.path.exists('token.pickle'):
+        if os.stat("token.pickle").st_size > 0:
+            with open('token.pickle', 'rb') as token:
+                try:
+                    creds = pickle.load(token)
+                except EOFError:
+                    print("EOFError: The file 'token.pickle' is empty or corrupted. Please regenerate the token.")
+                    creds = None
+        else:
+            print("The file 'token.pickle' is empty. Please regenerate the token.")
+            creds = None
+    else:
+        print("The file 'token.pickle' does not exist. Please generate the token.")
+        creds = None
+    return creds
+
+def check_creds(creds):
+    print('check_creds')
+    # If there are no valid credentials, create them
+    if not creds or not creds.valid:
+        # if creds and creds.expired and creds.refresh_token:
+        #     creds.refresh(Request())
+        try:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+        except RefreshError:
+            creds = None  # set creds to None to force reauthentication
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=8080)
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+    return creds
+
+def build_services(creds):
+    print('build_services')
+    # Build services for Gmail and Calendar based on the passed SCOPES
+    service = {}
+    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
+        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
+        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
+        service['calendar'] = build('calendar', 'v3', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
+        service['contacts'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
+        service['profile'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
+        service['email'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
+        service['other.contacts'] = build('people', 'v1', credentials=creds)
+    # return services
+    return service
 
 # authentication service for all google services needed at once, used on startup, then stored until log out
 def authenticate_service():
-    SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE,OPENID_SCOPE,OTHER_CONTACT_READONLY_SCOPE]
+    creds = check_token_pickle()
+    creds = check_creds(creds)
+    if creds:
+        service = build_services(creds)
+    else:
+        global test_int
+        test_int+=1
+        print('coucou ',test_int)
+        authenticate_service()
+    return service
+
+
+def authenticate_service_old():
     """Authenticate and return service objects for Google APIs."""
     creds = None
     # Check if token.pickle exists and load credentials if it does

@@ -57,9 +57,8 @@ def authenticate_service(request):
         SCOPES,
         redirect_uri=request.build_absolute_uri(reverse('MailAssistant:handle_callback'))
     )
-    HttpResponseRedirect(authorization_url)
     # redirect(authorization_url)
-    return
+    return HttpResponseRedirect(authorization_url)
 
 def handle_callback(request):
     app = create_app()

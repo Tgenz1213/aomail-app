@@ -63,17 +63,31 @@ relevance_list = {
 }
 
 api_list = [google_api,microsoft_api]
-api_var = 1
+api_var = 0
 
 # loading landing page
 def home_page(request):
     # connection to google
+    get_message(request)
     if api_var==0:
         services = api_list[api_var].authenticate_service()
     elif api_var==1:
-        services = api_list[api_var].authenticate_service(request)
+        # services = api_list[api_var].authenticate_service(request)
+
+        # services = api_list[api_var].authenticate_service(request)
+        # api_list[api_var].callback(request)
         # services = api_list[api_var].silent_authentication()
-        print('services: ',services)
+        # print('services: ',services)
+        # return redirect('MailAssistant:callback')
+        # Retrieve the access_token from session
+        access_token = request.session.get('access_token')
+
+        if not access_token:
+            # Redirect to login or handle this case
+            return api_list[api_var].authenticate_service(request)
+
+        # Initialize the GraphAPI object
+        services = api_list[api_var].GraphAPI(request.session['token']['access_token'])
         
     subject, from_name, decoded_data = api_list[api_var].get_mail(services,0,None)
 

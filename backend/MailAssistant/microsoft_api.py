@@ -40,7 +40,6 @@ class GraphAPI:
 ######################## Authentification ########################
 
 # authentication service for all microsoft services needed at once, used on startup, then stored until log out
-
 def create_app():
     """Create and return a ConfidentialClientApplication."""
     return msal.ConfidentialClientApplication(
@@ -49,28 +48,192 @@ def create_app():
         client_credential=CONFIG['client_secret']
     )
 
+def get_msal_token():
+    print('get_msal_token')
+    try:
+        with open('msal_token.pickle', 'rb') as token_file:
+            token = pickle.load(token_file)
+        return token
+    except (FileNotFoundError, pickle.UnpicklingError, AttributeError):
+        return None
+
+def is_user_connected():
+    print('is_user_connected')
+    token = get_msal_token()
+    if not token:
+        return False
+    # Additional logic to check the validity of the token, if desired
+    return True
+
 def authenticate_service(request):
-    global request_test
-    request_test = request
+    print('authenticate_service')
+    if not is_user_connected():
+        # Direct the user to login view which will handle the redirection to Microsoft's authentication page.
+        return login(request)
+    else:
+        # If the user is already connected (has a token), redirect them to the home_page.
+        return redirect('MailAssistant:home_page')
+
+def login(request):
+    print('login')
     app = create_app()
     authorization_url = app.get_authorization_request_url(
         SCOPES,
         redirect_uri=request.build_absolute_uri(reverse('MailAssistant:handle_callback'))
     )
-    # redirect(authorization_url)
+    print(request.build_absolute_uri(reverse('MailAssistant:handle_callback')))
     return HttpResponseRedirect(authorization_url)
+    # return redirect(authorization_url)
 
 def handle_callback(request):
+    print('handle_callback')
     app = create_app()
     code = request.GET.get('code')
-    auth_result = app.acquire_token_by_authorization_code(code, SCOPES, redirect_uri=request.build_absolute_uri(reverse('MailAssistant:handle_callback')))
+    
+    if not code:
+        return JsonResponse({"error": "No code provided."})
 
-    # Save the token (using sessions here, but could also be a database model)
-    request.session['token'] = auth_result
-    request.session['account'] = auth_result.get('account')
+    auth_result = app.acquire_token_by_authorization_code(
+        code, 
+        SCOPES, 
+        redirect_uri=request.build_absolute_uri(reverse('MailAssistant:handle_callback'))
+    )
 
-    # Redirect to a success page or handle further
-    return JsonResponse(auth_result)
+    if 'access_token' in auth_result:
+        # Save the token to a pickle file
+        with open('msal_token.pickle', 'wb') as token_file:
+            pickle.dump(auth_result, token_file)
+
+        # Store access_token in session
+        request.session['access_token'] = auth_result['access_token']
+
+        return redirect('MailAssistant:home_page')
+    else:
+        error_msg = str(auth_result)
+        return render(request, 'error_page.html', {'error_msg': error_msg})
+
+
+# def silent_authentication():
+#     print('silent_authentication')
+#     app = create_app()
+
+#     token_cache = None
+#     # Load token from pickle
+#     with open('msal_token.pickle', 'rb') as f:
+#         token_cache = pickle.load(f)
+
+#     auth_result = app.acquire_token_silent(SCOPES, account=token_cache.get('account'))
+
+#     return GraphAPI(auth_result['access_token'])
+
+# def login(request):
+#     print('login')
+#     # authorization_base_url = f"{settings.AUTHORITY}/oauth2/v2.0/authorize"
+#     # authorization_url = f"{authorization_base_url}?client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&response_type=code&scope={' '.join(settings.SCOPES)}"
+#     if not is_user_connected():
+#         # app = create_app()
+#         # # print('app: ',app)
+#         # authorization_url = app.get_authorization_request_url(SCOPES)
+        
+#         # return HttpResponseRedirect(authorization_url)
+#         callback(request)
+#         # return redirect('MailAssistant:home_page')
+#     else:
+#         return silent_authentication()
+
+
+# def callback(request):
+#     print('callback')
+#     code = request.GET.get('code')
+#     if not code:
+#         return JsonResponse({"error": "No code provided."})
+#     app = create_app()
+#     # token_url = f"{settings.AUTHORITY}/oauth2/v2.0/token"
+#     # token_data = {
+#     #     'grant_type': 'authorization_code',
+#     #     'code': code,
+#     #     'redirect_uri': settings.REDIRECT_URI,
+#     #     'client_id': settings.CLIENT_ID,
+#     #     'client_secret': settings.CLIENT_SECRET,
+#     #     'scope': ' '.join(settings.SCOPES)
+#     # }
+#     # response = requests.post(token_url, data=token_data)
+#     # token = response.json().get('access_token')
+#     # Use the acquire_token_by_authorization_code method to get the token
+#     result = app.acquire_token_by_authorization_code(
+#         code, 
+#         scopes=SCOPES,
+#         redirect_uri='MailAssistant:handle_callback'
+#     )
+#     token = result.get('access_token')
+
+#     if not token:
+#         return JsonResponse({"error": "Error fetching token."})
+
+#     headers = {
+#         'Authorization': f'Bearer {token}',
+#         'Content-Type': 'application/json'
+#     }
+#     response = requests.get('https://graph.microsoft.com/v1.0/me', headers=headers)
+#     return JsonResponse(response.json())  # Display user data for example purposes.
+
+
+
+# def authenticate_service(request):
+#     global request_test
+#     request_test = request
+#     app = create_app()
+#     authorization_url = app.get_authorization_request_url(
+#         SCOPES,
+#         redirect_uri=request.build_absolute_uri(reverse('MailAssistant:handle_callback'))
+#     )
+#     # redirect(authorization_url)
+#     return HttpResponseRedirect(authorization_url)
+
+# def handle_callback(request):
+#     print('handle_callback')
+#     app = create_app()
+#     print('request: ',request)
+#     code = request.GET.get('code')
+#     auth_result = app.acquire_token_by_authorization_code(code, SCOPES, redirect_uri=request.build_absolute_uri(reverse('MailAssistant:handle_callback')))
+
+#     # Check if the authentication was successful by looking for an access token
+#     if 'access_token' in auth_result:
+#         # Save the token to a pickle file
+#         with open('msal_token.pickle', 'wb') as token_file:
+#             pickle.dump(auth_result, token_file)
+
+#         # Optionally, if you still want to use sessions alongside
+#         request.session['token'] = auth_result
+#         request.session['account'] = auth_result.get('account')
+
+#         # Redirect to a success page
+#         return redirect('MailAssistant:home_page')
+#     else:
+#         # Extract the full error message from the auth_result
+#         error_msg = str(auth_result)
+#         print('error_msg: ',error_msg)
+
+#         # Render an error page and pass the error message as context
+#         # return render(request, 'error_page.html', {'error_msg': error_msg})
+    
+# def handle_callback(request):
+#     print('handle_callback')
+#     app = create_app()
+#     code = request.GET.get('code')
+#     auth_result = app.acquire_token_by_authorization_code(code, SCOPES, redirect_uri=request.build_absolute_uri(reverse('MailAssistant:handle_callback')))
+
+#     # Save the token to a pickle file
+#     with open('msal_token.pickle', 'wb') as token_file:
+#         pickle.dump(auth_result, token_file)
+
+#     # Save the token (using sessions here, but could also be a database model)
+#     request.session['token'] = auth_result
+#     request.session['account'] = auth_result.get('account')
+
+#     # Redirect to a success page or handle further
+#     # return JsonResponse(auth_result)
+#     return redirect('MailAssistant:home_page') 
 
 # def authenticate_service():
 #     app = create_app()
@@ -98,17 +261,6 @@ def handle_callback(request):
 #     print('auth_result: ', auth_result)
 #     return GraphAPI(auth_result['access_token'])
 
-def silent_authentication():
-    app = create_app()
-
-    token_cache = None
-    # Load token from pickle
-    with open('msal_token.pickle', 'rb') as f:
-        token_cache = pickle.load(f)
-
-    auth_result = app.acquire_token_silent(SCOPES, account=token_cache.get('account'))
-
-    return GraphAPI(auth_result['access_token'])
 
 # def authenticate_service():
 #     # SCOPES = [

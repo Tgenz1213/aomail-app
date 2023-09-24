@@ -297,32 +297,33 @@
 </template>
 
 <script>
-import Navbar from './components/Navbar8.vue';
-import ModalSeeMail from './components/SeeMail.vue';
-import { ref } from 'vue';
+import Navbar from '../components/AppNavbar8.vue';
+import ModalSeeMail from '../components/SeeMail.vue';
+//import { ref } from 'vue';
 import {
-  ChatBubbleOvalLeftEllipsisIcon,
+  //ChatBubbleOvalLeftEllipsisIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
   TrashIcon,
   ArrowUturnLeftIcon,
   CheckIcon,
   EllipsisHorizontalIcon,
-  HandRaisedIcon,
+  //HandRaisedIcon,
   EyeIcon,
 } from '@heroicons/vue/24/outline'
 
 export default {
+  name: 'UserHome',
   components: {
     Navbar,
-    ChatBubbleOvalLeftEllipsisIcon,
+    //ChatBubbleOvalLeftEllipsisIcon,
     ExclamationTriangleIcon,
     InformationCircleIcon,
     TrashIcon,
     ArrowUturnLeftIcon,
     CheckIcon,
     EllipsisHorizontalIcon,
-    HandRaisedIcon,
+    //HandRaisedIcon,
     EyeIcon,
     ModalSeeMail
   },

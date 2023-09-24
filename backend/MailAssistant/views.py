@@ -4,7 +4,13 @@ import base64
 import re
 import time
 
+#### FOR AUTH TO THE API
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect, get_object_or_404
+####
+
 from django.shortcuts import render, redirect
 from .forms import LoginForm, RegisterForm
 from django.contrib.auth.models import User
@@ -15,9 +21,12 @@ from email import message_from_string
 
 # THEO IMPORT For API and test Postgres
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .models import Message
-from .serializers import MessageSerializer
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
+from .models import Message, Categories, Email, BulletPoints, Rules, Preferences
+from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer
 
 # from .google_api import * 
 from . import google_api, microsoft_api
@@ -734,3 +743,192 @@ def get_message(request):
     message = Message.objects.first()  # Just getting the first message for simplicity.
     serializer = MessageSerializer(message)
     return Response(serializer.data)
+
+# Connexion API
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    print("Login function called") # TO DEBUG
+    # Print the received data
+    #print(request.data)
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
+    if user:
+        print("Login Successfull") # TO DEBUG
+        refresh = RefreshToken.for_user(user)
+        return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
+    return Response({'error': 'Invalid Credentials'}, status=400)
+
+######################## Home Page ########################
+
+
+# GET
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def get_user_categories(request):
+    user = request.user
+    categories = Categories.objects.filter(id_user=user)
+    serializer = CategoryNameSerializer(categories, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def get_user_emails(request):
+    user = request.user
+    emails = Email.objects.filter(id_user=user)
+    serializer = UserEmailSerializer(emails, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def get_email_bullet_points(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, id_user=user, id=email_id)
+
+    bullet_points = BulletPoints.objects.filter(id_email=email)
+    serializer = BulletPointSerializer(bullet_points, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# POST
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def set_email_read(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, id_user=user, id=email_id)
+
+    # Update the read field
+    email.read = True
+    email.save()
+
+    # Serialize the data to return
+    serializer = EmailReadUpdateSerializer(email)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def set_email_reply_later(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, id_user=user, id=email_id)
+
+    # Update the reply_later field
+    email.reply_later = True
+    email.save()
+
+    # Serialize the data to return
+    serializer = EmailReplyLaterUpdateSerializer(email)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def set_rule_block_for_sender(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, id_user=user, id=email_id)
+    
+    # Check if there's a rule for this sender and user
+    rule, created = Rules.objects.get_or_create(id_sender=email.id_sender, id_user=user)
+
+    # Update the block field
+    rule.block = True
+    rule.save()
+
+    # Serialize the data to return
+    serializer = RuleBlockUpdateSerializer(rule)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+######################## New Mail ########################
+
+
+# GET
+
+
+# class UserContactsView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+
+#         # Mock example.
+#         mock_contacts_data = {
+#             "alice": ["bob@example.com", "charlie@example.com"],
+#             "bob": ["alice@example.com"]
+#         }
+
+#         user_contacts = mock_contacts_data.get(user.username, [])
+
+#         return Response(user_contacts)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_contacts(request):
+
+    if api_var==0:
+        full_emailist_1 = api_list[api_var].get_contacts('@','contacts','connections')
+        full_emailist_2 = api_list[api_var].get_contacts('@','other.contacts','otherContacts')
+        user_contacts = full_emailist_1 + full_emailist_2
+    else:
+        user_contacts = []
+
+    return Response(user_contacts)
+
+
+# POST
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_email(request):
+
+    serializer = EmailDataSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        data = serializer.validated_data
+        # Use data for your email sending function.
+        # send_email_function(data['receiver_email'], data['cc'], ...)
+        return Response({"message": "Email sent successfully!"}, status=200)
+    
+    return Response(serializer.errors, status=400)
+
+
+######################## Settings ########################
+
+
+# GET
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_bg_color(request):
+    try:
+        preferences = Preferences.objects.get(id_user=request.user)
+        serializer = PreferencesSerializer(preferences)
+        return Response(serializer.data)
+    except Preferences.DoesNotExist:
+        return Response({"error": "Preferences not found for the user."}, status=404)
+
+# TO UPDATE
+'''
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_login(request):
+    try:
+        user = Users.objects.get(id_user=request.user.id)
+        serializer = UserLoginSerializer(user)
+        return Response(serializer.data)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found."}, status=404)'''

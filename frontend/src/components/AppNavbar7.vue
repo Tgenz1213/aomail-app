@@ -79,17 +79,17 @@ import { ref } from 'vue'
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
   Bars3Icon,
-  CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
+  //CalendarIcon,
+  //ChartPieIcon,
+  //DocumentDuplicateIcon,
+  //FolderIcon,
   HomeIcon,
   UsersIcon,
   XMarkIcon,
   PlusIcon,
   CogIcon,
   MagnifyingGlassIcon,
-  InboxStackIcon,
+  //InboxStackIcon,
   ArrowUturnLeftIcon
 } from '@heroicons/vue/24/outline'
 

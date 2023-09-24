@@ -71,34 +71,35 @@
   </template>
   
 <script setup>
-  import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-  import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+  //import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+  //import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 </script>
 <script>
 import {
-  ChatBubbleOvalLeftEllipsisIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  TrashIcon,
+  //ChatBubbleOvalLeftEllipsisIcon,
+  //ExclamationTriangleIcon,
+  //InformationCircleIcon,
+  //TrashIcon,
   ArrowUturnLeftIcon,
   CheckIcon,
   EllipsisHorizontalIcon,
-  HandRaisedIcon,
-  EyeIcon,
-  UserGroupIcon
+  //HandRaisedIcon,
+  //EyeIcon,
+  UserGroupIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 
 export default {
     components: {
-        ChatBubbleOvalLeftEllipsisIcon,
-        ExclamationTriangleIcon,
-        InformationCircleIcon,
-        TrashIcon,
+        //ChatBubbleOvalLeftEllipsisIcon,
+        //ExclamationTriangleIcon,
+        //InformationCircleIcon,
+        //TrashIcon,
         ArrowUturnLeftIcon,
         CheckIcon,
         EllipsisHorizontalIcon,
-        HandRaisedIcon,
-        EyeIcon,
+        //HandRaisedIcon,
+        //EyeIcon,
         UserGroupIcon
   },
   props: {

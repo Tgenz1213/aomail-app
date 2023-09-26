@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Message, Categories, Email, BulletPoints, Rules, Preferences
+from .models import Message, Category, Email, BulletPoint, Rule, Preference
 
 # link between data and API
 class MessageSerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
 # Get categories name (GET)
 class CategoryNameSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Categories
+        model = Category
         fields = ('name',)  # We only want the name field
 
 # Get data from email (GET)
@@ -29,7 +29,7 @@ class UserEmailSerializer(serializers.ModelSerializer):
 # Get all bullet points (GET)
 class BulletPointSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BulletPoints
+        model = BulletPoint
         fields = '__all__'  # This will get all fields of BulletPoints
 
 # Mark as read (POST)
@@ -47,7 +47,7 @@ class EmailReplyLaterUpdateSerializer(serializers.ModelSerializer):
 # Mark as blocked (POST)
 class RuleBlockUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Rules
+        model = Rule
         fields = ('block',)  # We only want the block field
 
 # Send mails (POST)
@@ -62,7 +62,7 @@ class EmailDataSerializer(serializers.Serializer):
 # GET background color
 class PreferencesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Preferences
+        model = Preference
         fields = ['bg_color']
 
 # GET login from Users

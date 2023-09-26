@@ -25,7 +25,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
-from .models import Message, Categories, Email, BulletPoints, Rules, Preferences
+from .models import Message, Category, Email, BulletPoint, Rule, Preference
 from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer
 
 # from .google_api import * 
@@ -77,7 +77,7 @@ api_var = 0
 # loading landing page
 def home_page(request):
     # connection to google
-    get_message(request)
+    # get_message(request)
     if api_var==0:
         services = api_list[api_var].authenticate_service()
     elif api_var==1:
@@ -748,14 +748,14 @@ def get_message(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
-    print("Login function called") # TO DEBUG
+    # print("Login function called") # TO DEBUG
     # Print the received data
     #print(request.data)
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
     if user:
-        print("Login Successfull") # TO DEBUG
+        # print("Login Successfull") # TO DEBUG
         refresh = RefreshToken.for_user(user)
         return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
     return Response({'error': 'Invalid Credentials'}, status=400)
@@ -766,13 +766,27 @@ def login(request):
 # GET
 
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+# def get_user_categories(request):
+#     current_user = request.user
+#     categories = Category.objects.filter(user=current_user)
+#     serializer = CategoryNameSerializer(categories, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
 def get_user_categories(request):
-    user = request.user
-    categories = Categories.objects.filter(id_user=user)
-    serializer = CategoryNameSerializer(categories, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    username = request.user.username  # assuming the default User model's username field holds the 'login' for your custom User model
+    try:
+        current_user = User.objects.get(username=username)
+        categories = Category.objects.filter(user=current_user)
+        serializer = CategoryNameSerializer(categories, many=True)
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
@@ -790,7 +804,7 @@ def get_email_bullet_points(request, email_id):
     # Check if the email belongs to the authenticated user
     email = get_object_or_404(Email, id_user=user, id=email_id)
 
-    bullet_points = BulletPoints.objects.filter(id_email=email)
+    bullet_points = BulletPoint.objects.filter(id_email=email)
     serializer = BulletPointSerializer(bullet_points, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -839,7 +853,7 @@ def set_rule_block_for_sender(request, email_id):
     email = get_object_or_404(Email, id_user=user, id=email_id)
     
     # Check if there's a rule for this sender and user
-    rule, created = Rules.objects.get_or_create(id_sender=email.id_sender, id_user=user)
+    rule, created = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
 
     # Update the block field
     rule.block = True
@@ -915,10 +929,10 @@ def send_email(request):
 @permission_classes([IsAuthenticated])
 def get_user_bg_color(request):
     try:
-        preferences = Preferences.objects.get(id_user=request.user)
+        preferences = Preference.objects.get(id_user=request.user)
         serializer = PreferencesSerializer(preferences)
         return Response(serializer.data)
-    except Preferences.DoesNotExist:
+    except Preference.DoesNotExist:
         return Response({"error": "Preferences not found for the user."}, status=404)
 
 # TO UPDATE

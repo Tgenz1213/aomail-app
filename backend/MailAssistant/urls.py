@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from MailAssistant import microsoft_api
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 
 app_name = 'MailAssistant'
 
@@ -21,4 +23,8 @@ urlpatterns = [
     path('user/emails/<int:email_id>/block-sender/', views.set_rule_block_for_sender, name='block-sender-via-email'),
     path('user/preferences/bg_color/', views.get_user_bg_color, name='get_user_bg_color'),
     path('api/login/', views.login, name='login'), # MADE BY THEO
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+
 ]

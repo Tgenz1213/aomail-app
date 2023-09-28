@@ -71,7 +71,7 @@ def check_creds(creds):
             creds = None  # set creds to None to force reauthentication
         else:
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8080)
+            creds = flow.run_local_server(port=8081)
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
     return creds
@@ -176,9 +176,11 @@ def get_mail(services,int_mail,id_mail):
             print('No new messages.')
         else:
             message = messages[int_mail]
+            email_id = message['id']
             msg = service.users().messages().get(userId='me', id=message['id']).execute()
     # 2 lines added to make it work for id as well
     elif id_mail!=None:
+        email_id = id_mail
         msg = service.users().messages().get(userId='me', id=id_mail).execute()
     # lines idented back to work as intended
     email_data = msg['payload']['headers']
@@ -204,7 +206,7 @@ def get_mail(services,int_mail,id_mail):
         decoded_data = library.html_clear(decoded_data_temp)
     preprocessed_data = library.preprocess_email(decoded_data)
                     
-    return subject,from_name,preprocessed_data
+    return subject,from_name,preprocessed_data, email_id
 
 
 ######################## Search bar ########################

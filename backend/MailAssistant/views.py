@@ -25,8 +25,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
-from .models import Message, Category, Email, BulletPoint, Rule, Preference
+from .models import Message, Category, Email, BulletPoint, Rule, Preference, Sender
 from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer
+from django.db import IntegrityError
 
 # from .google_api import * 
 from . import google_api, microsoft_api
@@ -98,23 +99,28 @@ def home_page(request):
         # Initialize the GraphAPI object
         services = api_list[api_var].GraphAPI(request.session['token']['access_token'])
         
-    subject, from_name, decoded_data = api_list[api_var].get_mail(services,0,None)
 
-    # subject, from_name, decoded_data = extract_body_from_email(services,0,None) #doesn't work
+    processed_email_to_bdd(request,services)
+    # subject, from_name, decoded_data = api_list[api_var].get_mail(services,0,None)
+
+    # # subject, from_name, decoded_data = extract_body_from_email(services,0,None) #doesn't work
     
     # if decoded_data: decoded_data = format_mail(decoded_data)
-    # print("decoded_data: ",decoded_data)
+    # # print("decoded_data: ",decoded_data)
 
-    # category_list = get_db_categories()
+    # category_list = get_db_categories(request.user)
     # topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject,decoded_data,category_list)
 
-    # # print('topic: ',topic)
-    # # print('importance: ',importance)
-    # # print('answer: ',answer)
-    # # print('summary: ',summary)
-    # # print('sentence: ',sentence)
-    # # print('relevance: ',relevance)
-    # # print('importance_explain: ',importance_explain)
+    # print('topic: ',topic) #Category
+    # print('importance: ',importance) #priority
+    # print('answer: ',answer) #########
+    # print('summary: ',summary) #BulletPoint - Content
+    # print('sentence: ',sentence) #email_short_summary
+    # print('relevance: ',relevance) #DEBUG
+    # print('importance_explain: ',importance_explain) #DEBUG
+
+
+
     # # # print('draft: ',response)
     # answer_list = ['No Answer Required: "No answer is required."','No Answer Required']
     # if answer not in answer_list:
@@ -177,21 +183,121 @@ def home_page(request):
     # print('full_emailist: ',full_emailist)
 
     
-    return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
+    # return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
+    return render(request, 'home_page.html')
 
 
 ######################## Read Mails ########################
 
-# get categories from database (no data base set)
-def get_db_categories():
-    # access database
-    category_list = {
-    'Esaip':"Ecole d'ingénieur",
-    'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",
-    'Subscriptions': 'Pertaining to periodic payment plans for services or products.',
-    'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'
-    }
+# # get categories from database (no data base set)
+# def get_db_categories():
+#     # access database
+#     category_list = {
+#     'Esaip':"Ecole d'ingénieur",
+#     'Entreprenariat':"Tout ce qui est en lien avec l'entreprenariat",
+#     'Subscriptions': 'Pertaining to periodic payment plans for services or products.',
+#     'Miscellaneous': 'Items, topics, or subjects that do not fall under any other specific category or for which a dedicated category has not been established.'
+#     }
+#     return category_list
+
+def get_db_categories(current_user):
+    # Query categories specific to the current user from the database.
+    categories = Category.objects.filter(user=current_user)
+    
+    # Construct the category_list dictionary from the queried data.
+    category_list = {category.name: category.description for category in categories}
+
     return category_list
+
+def separate_name_email(s):
+    """
+    Separate "Name <email>" or "<email>" into name and email.
+    
+    Args:
+    - s (str): Input string of format "Name <email>" or "<email>"
+    
+    Returns:
+    - (str, str): (name, email). If name is not present, it returns (None, email)
+    """
+    
+    # Regex pattern to capture Name and Email separately
+    match = re.match(r"(?:(.*)\s)?<(.+@.+)>", s)
+    if match:
+        name, email = match.groups()
+        return name.strip() if name else None, email
+    else:
+        return None, None
+
+def processed_email_to_bdd(request, services):
+    subject, from_name, decoded_data, email_id = api_list[api_var].get_mail(services, 0, None) #microsoft non fonctionnel
+
+    if not Email.objects.filter(provider_id=email_id).exists():
+
+        # Check if data is decoded, then format it
+        if decoded_data:
+            decoded_data = format_mail(decoded_data)
+
+        # Get user categories
+        category_list = get_db_categories(request.user)
+
+        # Process the email data with AI/NLP
+        topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject, decoded_data, category_list)
+
+        sender_name, sender_email = separate_name_email(from_name)
+
+        # Fetch or create the sender
+        sender, created = Sender.objects.get_or_create(name=sender_name, email=sender_email)  # assuming from_name contains the sender's name
+
+        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
+        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
+
+        provider_list = ['Gmail','Outlook']
+        provider = provider_list[api_var]
+
+        try:
+            # Create a new email record
+            email_entry = Email.objects.create(
+                provider_id=email_id,
+                email_provider=provider,
+                email_short_summary=sentence,
+                content=decoded_data,
+                subject=subject,
+                priority=importance[0],
+                read=False,  # Default value; adjust as necessary
+                answer_later=False,  # Default value; adjust as necessary
+                sender=sender,
+                category=category,
+                user=request.user
+            )
+
+            # If the email has a summary, save it in the BulletPoint table
+            if summary:
+                # Split summary by line breaks
+                lines = summary.split("\n")
+                
+                # Filter lines that start with '- ' which indicates a bullet point
+                bullet_points = [line[2:].strip() for line in lines if line.strip().startswith("- ")]
+
+                for point in bullet_points:
+                    BulletPoint.objects.create(content=point, email=email_entry)
+        except IntegrityError:
+            print(f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist.")
+
+        # Debug prints
+        print('topic:', topic)
+        print('importance:', importance)
+        print('answer:', answer)
+        print('summary:', summary)
+        print('sentence:', sentence)
+        print('relevance:', relevance)
+        print('importance_explain:', importance_explain)
+    
+    else:
+        print(f"Email with provider_id {email_id} already exists.")
+
+    # return email_entry  # Return the created email object, if needed
+    return
+
 
 def fill_lists(categories, percentages):
     base_categories = ['Important', 'Information', 'Useless']
@@ -248,7 +354,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
 
     Topic Categorization: [Model's Response for Topic Category]
 
-    Importance Categorization (Taking User Description into account):
+    Importance Categorization (Taking User Description into account and only using Importance Categories):
     - Category 1: [Model's Response for Importance Category 1]
     - Percentage 1: [Model's Percentage for Importance Category 1]
     - Category 2: [Model's Response for Importance Category 2]
@@ -260,9 +366,9 @@ def gpt_langchain_response(subject,decoded_data,category_list):
 
     Relevance Categorization: [Model's Response for Relevance Category]
 
-    Résumé court en français: [Model's One-Sentence Summary en français]
+    Résumé court en français: [Model's One-Sentence Summary en français without using response/relevance categorization]
 
-    Résumé en français:
+    Résumé en français (without using importance, response or relevance categorization):
     - [Model's Bullet Point 1 en français]
     - [Model's Bullet Point 2 en français]
     ...
@@ -276,6 +382,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     response = chat(chat_prompt.format_prompt(user=user_description,category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data,relevance=relevance_list).to_messages())
 
     clear_response = response.content.strip()
+    print("full response: ",clear_response)
 
     # Extracting Topic Categorization
     topic_category = clear_response.split("Topic Categorization: ")[1].split("\n")[0]
@@ -300,11 +407,24 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     # Extracting one sentence summary
     short_sentence = clear_response.split("Résumé court en français: ")[1].split("\n")[0]
 
-    # Extracting Summary
-    summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
-    summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
-    summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
-    summary_text = "\n".join(summary_list)
+    # # Extracting Summary
+    # summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
+    # summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
+    # summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
+    # summary_text = "\n".join(summary_list)
+
+    # Finding start of the summary
+    summary_start = clear_response.find("Résumé en français:") + len("Résumé en français:")
+
+    # Finding the end of the summary
+    summary_end = clear_response.find("\n\n", summary_start)
+    if summary_end == -1:  # If there's no double newline after the start, consider till the end of the string
+        summary_end = len(clear_response)
+
+    # Extracting the summary
+    summary_text = clear_response[summary_start:summary_end].strip()
+    # if summary_text.startswith("- "):  # Remove any leading "- " from the extracted text
+    #     summary_text = summary_text[2:].strip()
 
     # Output results
     # print("Topic Category:", topic_category)

@@ -31,6 +31,8 @@ class Rule(models.Model):
     sender = models.ForeignKey(Sender, on_delete=models.CASCADE)
 
 class Email(models.Model):
+    provider_id = models.CharField(max_length=200, unique=True)
+    email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=200)
     content = models.TextField()
     subject = models.CharField(max_length=50)

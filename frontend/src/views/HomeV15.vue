@@ -1,4 +1,8 @@
 <template>
+    <div v-if="loading">
+        <Loading class=""></Loading>
+    </div>
+    <div v-else>
     <!--
     <div class="pb-1 lg:pl-20 bg-gray-100">
         <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
@@ -52,7 +56,7 @@
                                         <div class="sm:hidden">
                                             <label for="tabs" class="sr-only">Select a tab</label>
                                             <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-                                            <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                                            <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" v-model="selectedTopic">
                                                 <option v-for="category in categories" :key="category">{{ category }}</option>
                                             </select>
                                         </div>
@@ -82,22 +86,24 @@
                                         <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                     </div>
                                     <div class="ml-6 flex-grow">
-                                        <div class="overflow-hidden border-l-4 border-red-500  hover:rounded-l-xl dark:border-red-300" @click="toggleHiddenParagraph(0)">
+                                        <div class="overflow-hidden border-l-4 border-red-500  hover:rounded-l-xl dark:border-red-300">
                                             <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
-                                                <li class="px-6 py-4 dark:bg-red-500 hover:bg-opacity-70 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
-                                                    <div class="col-span-8">
-                                                        <div class="flex-auto">
-                                                            <div class="flex items-baseline justify-between gap-x-4">
-                                                                <p class="text-sm font-semibold leading-6 text-red-700">Christophe Rouvrais</p>
+                                                <li v-if=emails[selectedTopic] v-for="item in emails[selectedTopic]['Important']" :key="item.id" class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(item.id)">
+                                                    <div >
+                                                        <div class="col-span-8">
+                                                            <div class="flex-auto">
+                                                                <div class="flex items-baseline justify-between gap-x-4">
+                                                                    <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item.name }}</p>
+                                                                </div>
+                                                                <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-red-50">{{ item.description }}</p>
                                                             </div>
-                                                            <p class="mt-1 text-md text-gray-700 leading-relaxed">Mettre en place un dispositif d'accompagnement pour Malcom MOREL, qui est impliqué dans un projet entrepreneurial.</p>
+                                                            <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
+                                                                <li v-for="detail in item.details" :key="detail.id" class="pl-8" :ref="'hiddenText' + item.id" :data-text="detail.text">
+                                                                </li>
+                                                            </ul>
                                                         </div>
-                                                        <ul role="list" v-show="showHiddenParagraphs[0]" class="text-gray-800 text-sm/6 pt-2" ref="parentElement0">
-                                                            <li class="pl-8" ref="hiddenText0" data-text="- Malcom MOREL, un futur étudiant de l'IR4, participe à une aventure entrepreneuriale sur le territoire."></li>
-                                                            <li class="pl-8" ref="hiddenText0" data-text="- Il est demandé de mettre en place un dispositif d'accompagnement et d'aménagement adapté pour lui."></li>
-                                                        </ul>
                                                     </div>
-                                                    <div class="col-span-2">
+                                                    <!-- <div class="col-span-2">
                                                         <span class="isolate inline-flex rounded-2xl">
                                                             <div class="group">
                                                                 <button @click="showModal = true" type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
@@ -120,7 +126,7 @@
                                                                 </button>
                                                             </div>
                                                         </span> 
-                                                        <!--
+                                                        
                                                         <span class="isolate inline-flex rounded-2xl">
                                                             <button type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 border-r border-red-300 hover:bg-gray-50 focus:z-10">
                                                                 <span class="sr-only">Previous</span>
@@ -136,8 +142,8 @@
                                                                 <ellipsis-horizontal-icon class="w-5 h-5 text-red-500" />                                                        
                                                             </button>
                                                         </span>
-                                                        -->
-                                                    </div>
+                                                        
+                                                    </div> -->
                                                 </li>
                                             </ul>
                                         </div>
@@ -158,88 +164,22 @@
                                         <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-blue-800" />-->
                                     </div>
                                     <div class="ml-6 flex-grow">
-                                        <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-500 dark:bg-blue-500">
+                                        <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300 dark:bg-blue-500">
                                             <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
-                                                <li class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(1)">
-                                                    <div class="col-span-8">
-                                                        <div class="flex-auto">
-                                                            <div class="flex items-baseline justify-between gap-x-4">
-                                                                <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">Fabien Huet</p>
+                                                <li v-if=emails[selectedTopic] v-for="item in emails[selectedTopic]['Information']" :key="item.id" class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(item.id)">
+                                                    <div >
+                                                        <div class="col-span-8">
+                                                            <div class="flex-auto">
+                                                                <div class="flex items-baseline justify-between gap-x-4">
+                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{ item.name }}</p>
+                                                                </div>
+                                                                <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{ item.description }}</p>
                                                             </div>
-                                                            <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">Parle de ses vacances et son projet d'enteprise</p>
+                                                            <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
+                                                                <li v-for="detail in item.details" :key="detail.id" class="pl-8" :ref="'hiddenText' + item.id" :data-text="detail.text">
+                                                                </li>
+                                                            </ul>
                                                         </div>
-                                                        <ul role="list" v-show="showHiddenParagraphs[1]" class="text-black text-sm/6 pt-2" ref="parentElement1">
-                                                            <li class="pl-8" ref="hiddenText1" data-text="- Fabien Huet est en vacances dans les Alpes."></li>
-                                                            <li class="pl-8" ref="hiddenText1" data-text="- Il demande à recevoir les différentes informations pour le BP afin d'avancer rapidement sur le sujet."></li>
-                                                            <li class="pl-8" ref="hiddenText1" data-text="- Il souhaite également prendre rendez-vous avec son expert-comptable d'ici la fin du mois."></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-span-2">
-                                                        <span class="isolate inline-flex rounded-2xl">
-                                                            <div class="group">
-                                                                <button type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <eye-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <check-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <arrow-uturn-left-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <ellipsis-horizontal-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />                                                        
-                                                                </button>
-                                                            </div>
-                                                        </span> 
-                                                    </div>
-                                                </li>
-                                                <li class="px-6 py-4 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(2)">
-                                                    <div class="col-span-8">
-                                                        <div class="flex-auto">
-                                                            <div class="flex items-baseline justify-between gap-x-4">
-                                                                <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">Hannah Williams</p>
-                                                            </div>
-                                                            <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">Donne des conseils pour votre rapport d'étonnement</p>
-                                                        </div>
-                                                        <ul role="list" v-show="showHiddenParagraphs[2]" class="text-black text-sm/6 pt-2" ref="parentElement2">
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Le message concerne le rapport d'étonnement de Théo à l'Esaip."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- L'expéditeur conseille à Théo de s'éloigner d'un rapport d'étonnement traditionnel à la française."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- L'expéditeur souhaite lire des informations sur le contexte des stages, comment Théo a trouvé le partenaire/entreprise, leur emplacement et des faits sur l'endroit."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Théo doit également parler de ses tâches et projets, sans entrer dans les détails quotidiens."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- L'aspect humain et culturel est également important, en particulier pour la Belgique où il y a une forte identité culturelle séparant la Wallonie francophone et la Flandre néerlandophone."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Enfin, Théo doit faire un résumé et donner un bref retour d'expérience."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Des photos et illustrations sont les bienvenues, ainsi que des sources et références si pertinentes."></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-span-2">
-                                                        <span class="isolate inline-flex rounded-2xl">
-                                                            <div class="group">
-                                                                <button type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <eye-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <check-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <arrow-uturn-left-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <ellipsis-horizontal-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />                                                        
-                                                                </button>
-                                                            </div>
-                                                        </span> 
                                                     </div>
                                                 </li>
                                             </ul>
@@ -287,6 +227,7 @@
         </div>
     </div>
     <ModalSeeMail :isOpen="showModal" @update:isOpen="updateModalStatus" />
+    </div>
 </template>
 
 <script>
@@ -298,11 +239,11 @@ import {
     ExclamationTriangleIcon,
     InformationCircleIcon,
     TrashIcon,
-    ArrowUturnLeftIcon,
-    CheckIcon,
-    EllipsisHorizontalIcon,
+    // ArrowUturnLeftIcon,
+    // CheckIcon,
+    // EllipsisHorizontalIcon,
     //HandRaisedIcon,
-    EyeIcon,
+    // EyeIcon,
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -313,11 +254,11 @@ export default {
         ExclamationTriangleIcon,
         InformationCircleIcon,
         TrashIcon,
-        ArrowUturnLeftIcon,
-        CheckIcon,
-        EllipsisHorizontalIcon,
+        // ArrowUturnLeftIcon,
+        // CheckIcon,
+        // EllipsisHorizontalIcon,
         //HandRaisedIcon,
-        EyeIcon,
+        // EyeIcon,
         ModalSeeMail
     },
     methods: {
@@ -339,10 +280,19 @@ export default {
             }, 30);
         },
         toggleHiddenParagraph(index) {
+            console.log("Item ID:",index)
+            console.log("All refs:",this.$refs)
+            console.log('parentElement: ', this.$refs['parentElement' + index])
+            console.log("Test: ", this.$refs['parentElement' + index][0].children)
+            // if(this.$refs['parentElement' + index]) {
+            //     console.log("Ref for current index:", this.$refs['parentElement' + index]);
+            // } else {
+            //     console.log(`Ref for index ${index} does not exist.`);
+            // }
             this.showHiddenParagraphs[index] = !this.showHiddenParagraphs[index];
             this.$nextTick(() => {
                 if (this.showHiddenParagraphs[index] && !this.animationTriggered[index]) {
-                    const parentElement = this.$refs['parentElement' + index];
+                    const parentElement = this.$refs['parentElement' + index][0];
                     const elements = parentElement.children;
                     console.log("Elements:", elements)
 
@@ -371,12 +321,10 @@ export default {
                 }, 5);
             }, delay);
             return duration;
-        }
+        },
     },
     async mounted() {
         this.animateText();
-
-        // const token = 'YOUR_USER_AUTHENTICATION_TOKEN';  // Replace this with the actual token
         // Fetch the token. This can be from a Vue data property, VueX store, or local storage
         const token = localStorage.getItem('userToken');
 
@@ -385,48 +333,118 @@ export default {
                 'Authorization': `Bearer ${token}`,
             },
         };
-
-        
         try {
             // Fetch the message
             const messageResponse = await fetch('http://localhost:9000/MailAssistant/message/', requestOptions);
-
             // If Unauthorized, handle accordingly
             if (messageResponse.status === 401) {
                 // Handle token expiration or invalid token
                 // Possibly refresh the token or redirect to login page
                 return; // exit early or throw an error, based on your desired flow
             }
-
             const messageData = await messageResponse.json();
             this.messageText = messageData.text;
 
             // Fetch the categories
             const categoryResponse = await fetch(`http://localhost:9000/MailAssistant/user/categories/`, requestOptions);
-
             // Again, check for Unauthorized
             if (categoryResponse.status === 401) {
                 // Handle token expiration or invalid token
                 return; // exit early or throw an error
             }
-
-
             const categoryData = await categoryResponse.json();
             this.categories = categoryData.map(category => category.name);
-            console.log("Assigned categories:", this.categories);
+            // console.log("Assigned categories:", this.categories);
 
-            
+            // Fetch emails
+            const emailResponse = await fetch(`http://localhost:9000/MailAssistant/user/emails/`, requestOptions);
+            if (emailResponse.status === 401) {
+                // Handle token expiration or invalid token
+                return; // exit early or throw an error
+            }
+            const emailData = await emailResponse.json();
+            console.log('fetchData: ',emailData)
+            this.emails = emailData;
+
         } catch (error) {
             console.error('Failed to fetch data:', error);
         }
     },
     data() {
         return {
-            showHiddenParagraphs: [false, false, false],
+            // showHiddenParagraphs: [false, false, false, false, false],
+            showHiddenParagraphs: {},
             animationTriggered: [false, false, false],
             showModal: false,
             messageText: '',
-            categories: []
+            categories: [],
+            selectedTopic: 'Autres',
+            // emails: { "": {
+            //     "Important": [],
+            //     "Information": [],
+            //     "Useless": []
+            //     }
+            // }
+            emails: {}
+            // items: [{id: 1, name: 'Jean', description: 'test', topic: 'ESAIP', importance: 'Information', details: [{id: 1, text: 'text'},{id: 3, text: 'bullet'},{id: 2, text: 'blabla'}]},
+            // {id: 23, name: 'Marc', description: 'Premier test', topic: 'ESAIP', importance: 'Important', details: [{id: 4, text: 'bonjour'},{id: 6, text: 'ok'},{id: 5, text: 'enfin'}]}
+            
+            // ],
+            // items: {
+            //     "ESAIP": {
+            //         "Important": [
+            //             {
+            //                 id: 1, 
+            //                 name: 'Jean', 
+            //                 description: 'test', 
+            //                 details: [
+            //                     {id: 1, text: 'text'},
+            //                     {id: 3, text: 'bullet'},
+            //                     {id: 2, text: 'blabla'}
+            //                 ]
+            //             }
+            //         ],
+            //         "Information": [
+            //             {
+            //                 id: 2, 
+            //                 name: 'Marc', 
+            //                 description: 'Premier test', 
+            //                 details: [
+            //                     {id: 4, text: 'bonjour'},
+            //                     {id: 6, text: 'ok'},
+            //                     {id: 5, text: 'enfin'}
+            //                 ]
+            //             }
+            //         ]
+            //     },
+            //     "Autres": {
+            //         "Important": [
+            //             {
+            //                 id: 3, 
+            //                 name: 'Banque', 
+            //                 description: 'test', 
+            //                 details: [
+            //                     {id: 7, text: 'prêt'},
+            //                     {id: 8, text: 'argent'},
+            //                     {id: 9, text: 'euro'}
+            //                 ]
+            //             }
+            //         ],
+            //         "Information": [
+            //             {
+            //                 id: 4, 
+            //                 name: 'Avocat', 
+            //                 description: 'Premier test', 
+            //                 details: [
+            //                     {id: 10, text: 'contrat'},
+            //                     {id: 11, text: 'frais'},
+            //                     {id: 12, text: 'fruit'}
+            //                 ]
+            //             }
+            //         ]
+            //     }
+            //     // ... potentially other topics
+            // }
         }
     }
 }

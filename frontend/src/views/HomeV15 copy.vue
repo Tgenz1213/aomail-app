@@ -52,7 +52,7 @@
                                         <div class="sm:hidden">
                                             <label for="tabs" class="sr-only">Select a tab</label>
                                             <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-                                            <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                                            <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" v-model="selectedTopic">
                                                 <option v-for="category in categories" :key="category">{{ category }}</option>
                                             </select>
                                         </div>
@@ -76,15 +76,15 @@
                                 <!-- Your content -->
                                 <div class="flex">
                                     <div class="flex">
-                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-red-400">
-                                            <span class="text-lg font-medium leading-none text-white ">AO</span>
+                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-red-400 dark:bg-red-200">
+                                            <span class="text-lg font-medium leading-none text-white dark:text-red-400">AO</span>
                                         </span>
                                         <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                     </div>
                                     <div class="ml-6 flex-grow">
-                                        <div class="overflow-hidden border-l-4 border-red-500  hover:rounded-l-xl" @click="toggleHiddenParagraph(0)">
-                                            <ul role="list" class="divide-y divide-gray-200">
-                                                <li class="px-6 py-4 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center">
+                                        <div class="overflow-hidden border-l-4 border-red-500  hover:rounded-l-xl dark:border-red-300" @click="toggleHiddenParagraph(0)">
+                                            <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
+                                                <li class="px-6 py-4 dark:bg-red-500 hover:bg-opacity-70 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
                                                     <div class="col-span-8">
                                                         <div class="flex-auto">
                                                             <div class="flex items-baseline justify-between gap-x-4">
@@ -152,94 +152,26 @@
                                 <!-- Your content -->
                                 <div class="flex">
                                     <div class="flex">
-                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-500">
-                                            <span class="text-lg font-medium leading-none text-white">AO</span>
+                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-200">
+                                            <span class="text-lg font-medium leading-none text-white dark:text-gray-800">AO</span>
                                         </span>
                                         <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-blue-800" />-->
                                     </div>
                                     <div class="ml-6 flex-grow">
-                                        <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-500">
-                                            <ul role="list" class="divide-y divide-gray-200">
-                                                <li class="px-6 py-4 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(1)">
+                                        <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300 dark:bg-blue-500">
+                                            <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
+                                                <li v-for="item in items" :key="item.id" class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(item.id)">
                                                     <div class="col-span-8">
                                                         <div class="flex-auto">
                                                             <div class="flex items-baseline justify-between gap-x-4">
-                                                                <p class="text-sm font-semibold leading-6 text-blue-800">Fabien Huet</p>
+                                                                <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{ item.name }}</p>
                                                             </div>
-                                                            <p class="mt-1 text-md text-gray-700 leading-relaxed">Parle de ses vacances et son projet d'enteprise</p>
+                                                            <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{ item.description }}</p>
                                                         </div>
-                                                        <ul role="list" v-show="showHiddenParagraphs[1]" class="text-black text-sm/6 pt-2" ref="parentElement1">
-                                                            <li class="pl-8" ref="hiddenText1" data-text="- Fabien Huet est en vacances dans les Alpes."></li>
-                                                            <li class="pl-8" ref="hiddenText1" data-text="- Il demande à recevoir les différentes informations pour le BP afin d'avancer rapidement sur le sujet."></li>
-                                                            <li class="pl-8" ref="hiddenText1" data-text="- Il souhaite également prendre rendez-vous avec son expert-comptable d'ici la fin du mois."></li>
+                                                        <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
+                                                            <li v-for="detail in item.details" :key="detail.id" class="pl-8" :ref="'hiddenText' + item.id" :data-text="detail.text">
+                                                            </li>
                                                         </ul>
-                                                    </div>
-                                                    <div class="col-span-2">
-                                                        <span class="isolate inline-flex rounded-2xl">
-                                                            <div class="group">
-                                                                <button type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <eye-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <check-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <arrow-uturn-left-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <ellipsis-horizontal-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />                                                        
-                                                                </button>
-                                                            </div>
-                                                        </span> 
-                                                    </div>
-                                                </li>
-                                                <li class="px-6 py-4 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(2)">
-                                                    <div class="col-span-8">
-                                                        <div class="flex-auto">
-                                                            <div class="flex items-baseline justify-between gap-x-4">
-                                                                <p class="text-sm font-semibold leading-6 text-blue-800">Hannah Williams</p>
-                                                            </div>
-                                                            <p class="mt-1 text-md text-gray-700 leading-relaxed">Donne des conseils pour votre rapport d'étonnement</p>
-                                                        </div>
-                                                        <ul role="list" v-show="showHiddenParagraphs[2]" class="text-black text-sm/6 pt-2" ref="parentElement2">
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Le message concerne le rapport d'étonnement de Théo à l'Esaip."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- L'expéditeur conseille à Théo de s'éloigner d'un rapport d'étonnement traditionnel à la française."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- L'expéditeur souhaite lire des informations sur le contexte des stages, comment Théo a trouvé le partenaire/entreprise, leur emplacement et des faits sur l'endroit."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Théo doit également parler de ses tâches et projets, sans entrer dans les détails quotidiens."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- L'aspect humain et culturel est également important, en particulier pour la Belgique où il y a une forte identité culturelle séparant la Wallonie francophone et la Flandre néerlandophone."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Enfin, Théo doit faire un résumé et donner un bref retour d'expérience."></li>
-                                                            <li class="pl-8" ref="hiddenText2" data-text="- Des photos et illustrations sont les bienvenues, ainsi que des sources et références si pertinentes."></li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="col-span-2">
-                                                        <span class="isolate inline-flex rounded-2xl">
-                                                            <div class="group">
-                                                                <button type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <eye-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <check-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <arrow-uturn-left-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />
-                                                                </button>
-                                                            </div>
-                                                            <div class="group">
-                                                                <button type="button" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                    <ellipsis-horizontal-icon class="w-5 h-5 text-blue-500 group-hover:text-white" />                                                        
-                                                                </button>
-                                                            </div>
-                                                        </span> 
                                                     </div>
                                                 </li>
                                             </ul>
@@ -255,17 +187,17 @@
                                     <!-- Your content -->
                                     <div class="flex">
                                         <div class="flex">
-                                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-400">
-                                                <span class="text-lg font-medium leading-none text-white">AO</span>
+                                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-400 dark:bg-red-200">
+                                                <span class="text-lg font-medium leading-none text-white dark:text-red-400">AO</span>
                                             </span>
                                             <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                         </div>
                                         <div class="ml-6 ">
-                                            <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-gray-500" @click="toggleHiddenParagraph(3)">
-                                                <ul role="list" class="divide-y divide-gray-200">
-                                                    <li class="px-6 py-4 hover:bg-opacity-70">
+                                            <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-gray-500 dark:border-red-300" @click="toggleHiddenParagraph(3)">
+                                                <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
+                                                    <li class="px-6 py-4 dark:bg-red-500 hover:bg-opacity-70 dark:hover:bg-opacity-100">
                                                         <div class="flex-auto">
-                                                            Vous avez reçu <span class="font-semibold text-gray-800 hover:text-gray-700">4</span> mails inutiles. Cliquez pour voir.
+                                                            Vous avez reçu <span class="font-semibold text-gray-800 dark:text-white hover:text-gray-700">4</span> mails inutiles. Cliquez pour voir.
                                                         </div>
                                                         <ul role="list" v-show="showHiddenParagraphs[3]" class="text-gray-800 text-sm/6 pt-2" ref="parentElement3">
                                                             <li class="pl-8" ref="hiddenText3" data-text="- Fabien Huet est en vacances dans les Alpes."></li>
@@ -290,32 +222,33 @@
 </template>
 
 <script>
-import Navbar from './components/Navbar8.vue';
-import ModalSeeMail from './components/SeeMail.vue';
-import { ref } from 'vue';
+import Navbar from '../components/AppNavbar8.vue';
+import ModalSeeMail from '../components/SeeMail.vue';
+//import { ref } from 'vue';
 import {
-    ChatBubbleOvalLeftEllipsisIcon,
+    //ChatBubbleOvalLeftEllipsisIcon,
     ExclamationTriangleIcon,
     InformationCircleIcon,
     TrashIcon,
     ArrowUturnLeftIcon,
     CheckIcon,
     EllipsisHorizontalIcon,
-    HandRaisedIcon,
+    //HandRaisedIcon,
     EyeIcon,
 } from '@heroicons/vue/24/outline'
 
 export default {
+    name: 'UserHome',
     components: {
         Navbar,
-        ChatBubbleOvalLeftEllipsisIcon,
+        //ChatBubbleOvalLeftEllipsisIcon,
         ExclamationTriangleIcon,
         InformationCircleIcon,
         TrashIcon,
         ArrowUturnLeftIcon,
         CheckIcon,
         EllipsisHorizontalIcon,
-        HandRaisedIcon,
+        //HandRaisedIcon,
         EyeIcon,
         ModalSeeMail
     },
@@ -330,10 +263,10 @@ export default {
             let currentIndex = 0;
             const interval = setInterval(() => {
                 if (currentIndex < characters.length) {
-                target.textContent += characters[currentIndex];
-                currentIndex++;
+                    target.textContent += characters[currentIndex];
+                    currentIndex++;
                 } else {
-                clearInterval(interval);
+                    clearInterval(interval);
                 }
             }, 30);
         },
@@ -341,16 +274,16 @@ export default {
             this.showHiddenParagraphs[index] = !this.showHiddenParagraphs[index];
             this.$nextTick(() => {
                 if (this.showHiddenParagraphs[index] && !this.animationTriggered[index]) {
-                const parentElement = this.$refs['parentElement' + index];
-                const elements = parentElement.children;
-                console.log("Elements:", elements)
+                    const parentElement = this.$refs['parentElement' + index][0];
+                    const elements = parentElement.children;
+                    console.log("Elements:", elements)
 
-                const delays = [0];
-                for (let i = 0; i < elements.length; i++) {
-                    const duration = this.animateHiddenText(elements[i], delays[i]);
-                    delays.push(delays[i] + duration + 20);
-                }
-                this.animationTriggered[index] = true;
+                    const delays = [0];
+                    for (let i = 0; i < elements.length; i++) {
+                        const duration = this.animateHiddenText(elements[i], delays[i]);
+                        delays.push(delays[i] + duration + 20);
+                    }
+                    this.animationTriggered[index] = true;
                 }
             });
         },
@@ -361,49 +294,72 @@ export default {
                 element.textContent = '';
                 let currentIndex = 0;
                 const interval = setInterval(() => {
-                if (currentIndex < characters.length) {
-                    element.textContent += characters[currentIndex];
-                    currentIndex++;
-                } else {
-                    clearInterval(interval);
-                }
+                    if (currentIndex < characters.length) {
+                        element.textContent += characters[currentIndex];
+                        currentIndex++;
+                    } else {
+                        clearInterval(interval);
+                    }
                 }, 5);
             }, delay);
             return duration;
-        }
+        },
     },
     async mounted() {
         this.animateText();
+        // Fetch the token. This can be from a Vue data property, VueX store, or local storage
+        const token = localStorage.getItem('userToken');
 
-        // const token = 'YOUR_USER_AUTHENTICATION_TOKEN';  // Replace this with the actual token
-        
+        const requestOptions = {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        };
         try {
             // Fetch the message
-            const messageResponse = await fetch('http://localhost:9000/MailAssistant/message/');
+            const messageResponse = await fetch('http://localhost:9000/MailAssistant/message/', requestOptions);
+            // If Unauthorized, handle accordingly
+            if (messageResponse.status === 401) {
+                // Handle token expiration or invalid token
+                // Possibly refresh the token or redirect to login page
+                return; // exit early or throw an error, based on your desired flow
+            }
             const messageData = await messageResponse.json();
             this.messageText = messageData.text;
 
             // Fetch the categories
-            const id_user = 'your_current_user_id';  // Replace this with the actual id_user
-            const categoryResponse = await fetch(`http://localhost:9000/api/user/categories/`, {
-                // headers: {
-                //     'Authorization': `Token ${token}`,
-                // },
-            });
+            const categoryResponse = await fetch(`http://localhost:9000/MailAssistant/user/categories/`, requestOptions);
+            // Again, check for Unauthorized
+            if (categoryResponse.status === 401) {
+                // Handle token expiration or invalid token
+                return; // exit early or throw an error
+            }
             const categoryData = await categoryResponse.json();
             this.categories = categoryData.map(category => category.name);
-            
+            // console.log("Assigned categories:", this.categories);
+
+            // Fetch emails
+            const emailResponse = await fetch(`http://localhost:9000/MailAssistant/user/emails/`, requestOptions);
+            if (emailResponse.status === 401) {
+                // Handle token expiration or invalid token
+                return; // exit early or throw an error
+            }
+            const emailData = await emailResponse.json();
+            this.emails = emailData;
+
         } catch (error) {
             console.error('Failed to fetch data:', error);
         }
     },
     data() {
         return {
-            showHiddenParagraphs: [false, false, false],
+            // showHiddenParagraphs: [false, false, false, false, false],
+            showHiddenParagraphs: {},
             animationTriggered: [false, false, false],
             showModal: false,
             messageText: '',
-            categories: []
+            categories: [],
+            items: [{id: 1, name: 'Jean', description: 'test', details: [{id: 1, text: 'text'},{id: 3, text: 'bullet'},{id: 2, text: 'blabla'}]}]
         }
     }
 }

@@ -3,6 +3,7 @@
 import base64
 import re
 import time
+import logging
 
 #### FOR AUTH TO THE API
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,6 +19,7 @@ import datetime
 from googleapiclient.errors import HttpError
 import random
 from email import message_from_string
+from collections import defaultdict
 
 # THEO IMPORT For API and test Postgres
 from rest_framework.response import Response
@@ -857,6 +859,10 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
+
+
+logger = logging.getLogger(__name__)
+
 # THEO API TEST
 @api_view(['GET'])
 def get_message(request):
@@ -907,30 +913,57 @@ def get_user_categories(request):
     except User.DoesNotExist:
         return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+# def get_user_emails(request):
+#     user = request.user
+#     emails = Email.objects.filter(id_user=user)
+#     serializer = UserEmailSerializer(emails, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+# def get_email_bullet_points(request, email_id):
+#     user = request.user
+
+#     # Check if the email belongs to the authenticated user
+#     email = get_object_or_404(Email, id_user=user, id=email_id)
+
+#     bullet_points = BulletPoint.objects.filter(id_email=email)
+#     serializer = BulletPointSerializer(bullet_points, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+@permission_classes([IsAuthenticated])
 def get_user_emails(request):
+    print("get_user_emails")
     user = request.user
-    emails = Email.objects.filter(id_user=user)
-    serializer = UserEmailSerializer(emails, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    emails = Email.objects.filter(user=user).prefetch_related('category', 'bulletpoint_set')
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
-def get_email_bullet_points(request, email_id):
-    user = request.user
+    # A set of all possible priorities. Adjust according to your needs.
+    all_priorities = {'Important', 'Information', 'Useless'}
 
-    # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, id_user=user, id=email_id)
+    formatted_data = defaultdict(lambda: defaultdict(list))
 
-    bullet_points = BulletPoint.objects.filter(id_email=email)
-    serializer = BulletPointSerializer(bullet_points, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    for email in emails:
+        email_data = {
+            "id": email.id,
+            "name": email.sender.name,
+            "description": email.email_short_summary,
+            "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
+        }
+        formatted_data[email.category.name][email.priority].append(email_data)
+    
+    # Ensuring all priorities are present for each category
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    logger.info(formatted_data)
+    return Response(formatted_data, status=status.HTTP_200_OK)
 
 
 # POST
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
@@ -938,7 +971,7 @@ def set_email_read(request, email_id):
     user = request.user
 
     # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, id_user=user, id=email_id)
+    email = get_object_or_404(Email, user=user, id=email_id)
 
     # Update the read field
     email.read = True
@@ -954,7 +987,7 @@ def set_email_reply_later(request, email_id):
     user = request.user
 
     # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, id_user=user, id=email_id)
+    email = get_object_or_404(Email, user=user, id=email_id)
 
     # Update the reply_later field
     email.reply_later = True
@@ -970,7 +1003,7 @@ def set_rule_block_for_sender(request, email_id):
     user = request.user
 
     # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, id_user=user, id=email_id)
+    email = get_object_or_404(Email, user=user, id=email_id)
     
     # Check if there's a rule for this sender and user
     rule, created = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)

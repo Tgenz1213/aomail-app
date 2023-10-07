@@ -73,7 +73,7 @@
                     <div class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5">
                         <!-- Content goes here -->
                         <ul role="list" class="flex flex-col w-full h-full">
-                            <li class="py-10 px-8 rounded-t-xl bg-red-100 bg-opacity-50 border border-red-700 border-opacity-20 w-full"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
+                            <li v-if=emails[selectedTopic] class="py-10 px-8 rounded-t-xl bg-red-100 bg-opacity-50 border border-red-700 border-opacity-20 w-full"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                 <div class="float-right mt-[-25px] mr-[-10px]">
                                     <exclamation-triangle-icon class="w-6 h-6 text-red-500" />
                                 </div>
@@ -88,7 +88,7 @@
                                     <div class="ml-6 flex-grow">
                                         <div class="overflow-hidden border-l-4 border-red-500  hover:rounded-l-xl dark:border-red-300">
                                             <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
-                                                <li v-if=emails[selectedTopic] v-for="item in emails[selectedTopic]['Important']" :key="item.id" class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(item.id)">
+                                                <li v-for="item in emails[selectedTopic]['Important']" :key="item.id" class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(item.id)">
                                                     <div >
                                                         <div class="col-span-8">
                                                             <div class="flex-auto">
@@ -151,7 +151,7 @@
                                 </div>
                             </li>
                             <!-- More items... -->
-                            <li class="py-10 px-8 bg-blue-100 bg-opacity-50 border-b border-l border-r border-blue-700 border-opacity-20 w-full"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
+                            <li v-if=emails[selectedTopic] class="py-10 px-8 bg-blue-100 bg-opacity-50 border-b border-l border-r border-blue-700 border-opacity-20 w-full"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
                                 <div class="float-right mt-[-25px] mr-[-10px]">
                                     <information-circle-icon class="w-6 h-6 text-blue-500" />
                                 </div>
@@ -166,7 +166,7 @@
                                     <div class="ml-6 flex-grow">
                                         <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300 dark:bg-blue-500">
                                             <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
-                                                <li v-if=emails[selectedTopic] v-for="item in emails[selectedTopic]['Information']" :key="item.id" class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(item.id)">
+                                                <li v-for="item in emails[selectedTopic]['Information']" :key="item.id" class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @click="toggleHiddenParagraph(item.id)">
                                                     <div >
                                                         <div class="col-span-8">
                                                             <div class="flex-auto">

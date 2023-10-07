@@ -207,3 +207,6 @@ xoscar==0.1.0
 xxhash==3.3.0
 yarl==1.9.2
 zipp==3.16.2
+djangorestframework==3.12.4
+django-cors-headers==3.7.0
+djangorestframework-simplejwt==4.7.0

@@ -17,7 +17,7 @@
 <template>
   <RadioGroup v-model="selectedColor">
     <div class="flex flex-wrap mt-1 justify-center">
-      <RadioGroupOption as="template" v-for="color in colors" :key="color.name" :value="color" v-slot="{ active, checked }">
+      <RadioGroupOption as="template" v-for="color in colors" :key="color.name" :value="color" v-slot="{ active, checked }" @click="$emit('colorSelected', color.bgColor)">
         <div :class="[color.selectedColor, active && checked ? 'ring ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 mt-3 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none mx-1 mb-2']">
           <RadioGroupLabel as="span" class="sr-only">{{ color.name }}</RadioGroupLabel>
           <span aria-hidden="true" :class="[color.bgColor, 'h-8 w-8 rounded-full border border-black border-opacity-10']"></span>

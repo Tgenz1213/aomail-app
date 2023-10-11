@@ -1,18 +1,50 @@
 <!-- V1 -->
 <template>
-  <div class="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8" :class="bgColor">
+  <div class="h-screen flex min-h-full flex-col justify-center items-center px-6 py-12 lg:px-8" :class="bgColor">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=black" alt="Your Company" />
       <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Inscrivez-vous</h2>
     </div>
 
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[580px]"><!-- 480px -->
-      <div class="flex flex-col h-full bg-slate-200 bg-opacity-80 rounded-lg"> 
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px -->
+      <div class="flex flex-col bg-slate-200 bg-opacity-80 rounded-lg"> 
         <div class="divide-y divide-slate-200">
           <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-lg bg-gray-400 bg-opacity-10"> 
             <nav aria-label="Progress">
               <!--<div class="absolute right-4 left-4">-->
-              <ol role="list" class="flex items-center">
+              <ol role="list" class="flex items-center" v-if="step === 0">
+                <li class="relative pr-6 sm:pr-32">
+                  <!-- Current Step -->
+                  <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="h-0.5 w-full bg-white"></div>
+                  </div>
+                  <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white" aria-current="step">
+                    <span class="h-2.5 w-2.5 rounded-full bg-gray-400" aria-hidden="true"></span>
+                    <span class="sr-only">Step 3</span>
+                  </a>
+                </li>
+                <li class="relative pr-6 sm:pr-32">
+                  <!-- Upcoming Step -->
+                  <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="h-0.5 w-full bg-white"></div>
+                  </div>
+                  <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                    <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                    <span class="sr-only">Step 5</span>
+                  </a>
+                </li>
+                <li class="relative">
+                  <!-- Upcoming Step -->
+                  <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="h-0.5 w-full bg-white"></div>
+                  </div>
+                  <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                    <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                    <span class="sr-only">Step 5</span>
+                  </a>
+                </li>
+              </ol>
+              <ol role="list" class="flex items-center" v-if="step === 1">
                 <li class="relative pr-6 sm:pr-32">
                   <!-- Completed Step -->
                   <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -51,7 +83,7 @@
           </div>
           <div class="bg-white px-6 py-10 shadow sm:rounded-b-lg sm:px-12 hover:shadow-lg">
             <form class="space-y-6">
-              <div v-if="step === 0">
+              <div class="flex flex-col gap-y-4" v-if="step === 0">
                 <div v-if="passwordError" class="mt-2 text-sm text-red-600">
                   {{ passwordError }}
                 </div>
@@ -65,14 +97,14 @@
                 <div>
                   <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Mot de passe</label>
                   <div class="mt-2">
-                    <input v-model="password" id="password" type="password" @input="passwordError = ''" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                    <input v-model="password" id="password" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                   </div>
                 </div>
 
                 <div>
                   <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot de passe</label>
                   <div class="mt-2">
-                    <input v-model="confirmPassword" id="confirm_password" type="password" autocomplete="current-password" @input="passwordError = ''" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                    <input v-model="confirmPassword" id="confirm_password" type="password" @input="clearError()" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                   </div>
                 </div>
 
@@ -111,7 +143,7 @@
                 </div>
                 <div>
                   <div class="pt-6">
-                    <button @click="nextStep" class="flex w-full justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
+                    <button @click="nextStep0" class="flex w-full justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
                   </div>
                 </div>
               </div>
@@ -152,7 +184,7 @@
       <p class="mt-10 text-center text-sm text-gray-500">
         Vous avez un compte?
         {{ ' ' }}
-        <a href="#" class="font-semibold leading-6 text-gray-900 hover:text-black">Connectez-vous</a>
+        <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">Connectez-vous</a>
       </p>
     </div>
   </div>
@@ -169,7 +201,7 @@ export default {
     Color
   },
   setup() {
-    const bgColor = ref('') // default background color
+    const bgColor = ref('#ffffff') // default background color
 
     const updateBgColor = (newBgColor) => {
       bgColor.value = newBgColor
@@ -185,17 +217,29 @@ export default {
       step: 0,
       login: "",
       password: "",
+      confirmPassword: "",
       passwordError: '',
       theme: "",
       color: "",
     }
   },
   methods: {
-    nextStep0() {
+    clearError() {
+      console.log(this.passwordError);
+      //this.passwordError = '';
+    },
+    nextStep0(event) {
+      event.preventDefault();
       if (this.password !== this.confirmPassword) {
-        this.passwordError = 'Passwords do not match. Please try again.';
+        this.passwordError = 'Les mots de passes ne correspondent pas';
+        console.log(this.passwordError);
         return; 
-      }  
+      }
+      else if (!this.password.trim() || !this.confirmPassword.trim()) {
+        this.passwordError = 'Veuillez saisir un mot de passe';
+        console.log(this.passwordError);
+        return; 
+      }    
       this.step++;
     },
     nextStep() {

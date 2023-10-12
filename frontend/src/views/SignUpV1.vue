@@ -147,6 +147,12 @@
                   </div>
                 </div>
               </div>
+              <div v-if="step === 2">
+                <GoogleLogin 
+                      @success="handleSuccess" 
+                      @error="handleError"
+                />
+              </div>
             </form>
             <!--<form class="space-y-6" action="#" method="POST">
               <div>
@@ -193,6 +199,7 @@
 import { ref } from 'vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
+import axios from 'axios';
 
 export default {
   name: 'UserSignUp',
@@ -221,6 +228,7 @@ export default {
       passwordError: '',
       theme: "",
       color: "",
+      googleToken: '',
     }
   },
   methods: {
@@ -244,6 +252,24 @@ export default {
     },
     nextStep() {
       this.step++;
+    },
+    handleSuccess(googleUser) {
+            const idToken = googleUser.getAuthResponse().id_token;
+            // Vous pouvez maintenant envoyer ce token à votre backend
+            this.authenticateWithDjango(idToken);
+    },
+    handleError(error) {
+        console.error("Erreur lors de la connexion avec Google:", error);
+    },
+    authenticateWithDjango(googleToken) {
+      axios.post('http://localhost:9000/dj-rest-auth/google/', { access_token: googleToken })
+        .then(response => {
+            const token = response.data.key;  // Your Django REST Token
+            localStorage.setItem('userToken', token);
+        })
+        .catch(error => {
+            console.error("Erreur d'authentification avec Django:", error);
+        });
     }
   }
 }

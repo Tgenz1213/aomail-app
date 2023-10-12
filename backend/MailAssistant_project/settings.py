@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'rest_framework.authtoken',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -76,6 +79,8 @@ SIMPLE_JWT = {
     'LEEWAY': 0,
     # ... other settings
 }
+
+DJ_REST_AUTH_JWT_SECRET_KEY = SECRET_KEY # conf of dj-rest-auth TO UPDATE FOR SAFETY REASON
 
 MIDDLEWARE = [
 #     'django.middleware.security.SecurityMiddleware',

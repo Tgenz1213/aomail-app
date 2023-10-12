@@ -148,10 +148,7 @@
                 </div>
               </div>
               <div v-if="step === 2">
-                <GoogleLogin 
-                      @success="handleSuccess" 
-                      @error="handleError"
-                />
+                <GoogleLogin :callback="callback"/>
               </div>
             </form>
             <!--<form class="space-y-6" action="#" method="POST">
@@ -214,9 +211,46 @@ export default {
       bgColor.value = newBgColor
     }
 
+    /*
+    const callback = (response) => {
+      // This callback will be triggered when the user selects or logs in to
+      // his Google account from the popup
+      console.log("Handle the response", response);
+    }*/
+    const handleSuccess = (googleUser) => {
+      const idToken = googleUser.credential;
+      authenticateWithDjango(idToken);
+    }
+
+    const handleError = (error) => {
+      console.error("Erreur lors de la connexion avec Google:", error);
+    }
+
+    const authenticateWithDjango = (googleToken) => {
+      console.log(googleToken);
+      axios.post('http://localhost:9000/dj-rest-auth/google/', { access_token: googleToken })
+        .then(response => {
+          const token = response.data.key;  // Your Django REST Token
+          localStorage.setItem('userToken', token);
+        })
+        .catch(error => {
+          console.error("Erreur d'authentification avec Django:", error);
+        });
+    }
+
+    const callback = (response) => {
+      if (response) {
+        console.log(response);
+        handleSuccess(response);
+      } else {
+        handleError(response);
+      }
+    }
+
     return {
       bgColor,
-      updateBgColor
+      updateBgColor,
+      callback
     }
   },
   data() {
@@ -252,24 +286,6 @@ export default {
     },
     nextStep() {
       this.step++;
-    },
-    handleSuccess(googleUser) {
-            const idToken = googleUser.getAuthResponse().id_token;
-            // Vous pouvez maintenant envoyer ce token à votre backend
-            this.authenticateWithDjango(idToken);
-    },
-    handleError(error) {
-        console.error("Erreur lors de la connexion avec Google:", error);
-    },
-    authenticateWithDjango(googleToken) {
-      axios.post('http://localhost:9000/dj-rest-auth/google/', { access_token: googleToken })
-        .then(response => {
-            const token = response.data.key;  // Your Django REST Token
-            localStorage.setItem('userToken', token);
-        })
-        .catch(error => {
-            console.error("Erreur d'authentification avec Django:", error);
-        });
     }
   }
 }

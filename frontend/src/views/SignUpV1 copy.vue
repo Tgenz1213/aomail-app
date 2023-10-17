@@ -228,10 +228,9 @@ export default {
 
     const authenticateWithDjango = (googleToken) => {
       console.log(googleToken);
-      axios.post('http://localhost:9000/google-login/', { credential: googleToken })
+      axios.post('http://localhost:9000/dj-rest-auth/google/', { access_token: googleToken })
         .then(response => {
           const token = response.data.key;  // Your Django REST Token
-          console.log("Successful Login");
           localStorage.setItem('userToken', token);
         })
         .catch(error => {

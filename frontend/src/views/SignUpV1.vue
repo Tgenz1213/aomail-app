@@ -1,11 +1,47 @@
 <!-- V1 -->
 <template>
+  <transition name="modal-fade">
+    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
+      <div class="bg-white rounded-lg relative w-[450px]">
+        <slot></slot>
+          <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+              <button @click="closeModal" type="button" class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                  <span class="sr-only">Close</span>
+                  <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+              </button>
+          </div>
+          <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+              <div class="ml-8 flex items-center space-x-1">
+                  <p class="block font-semibold leading-6 text-gray-900">Nouvelle catégorie</p>
+              </div>
+          </div>
+          <div class="flex flex-col gap-4 px-8 py-6">
+            <p class="text-red-500"  v-if="errorMessage">{{ errorMessage }}</p>
+            <div>
+              <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la catégorie</label>
+              <div class="mt-2">
+                <input v-model="categoryName" name="email" id="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6" placeholder="Administratifs">
+              </div>
+            </div>
+            <div>
+              <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description brève de la catégorie</label>
+              <div class="mt-2">
+                <textarea v-model="categoryDescription" id="about" name="about" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
+              </div>
+              <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à comprendre la catégorie</p>
+            </div>
+            <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
+              <button type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto" @click="addCategory">Créer</button>
+            </div>
+          </div>
+      </div>
+    </div>
+  </transition>
   <div class="h-screen flex min-h-full flex-col justify-center items-center px-6 py-12 lg:px-8" :class="bgColor">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=black" alt="Your Company" />
       <h2 class="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Inscrivez-vous</h2>
     </div>
-
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px -->
       <div class="flex flex-col bg-slate-200 bg-opacity-80 rounded-lg"> 
         <div class="divide-y divide-slate-200">
@@ -376,12 +412,28 @@
                       <div class="flex flex-col gap-y-4">
                         <p>Créer vos différentes catégories dans lesquelles vous souhaitez que l'assistant place automatiquement vos emails.</p>
                         <a href="#" class="underline text-gray-500">En savoir plus</a>
-                        <button type="button" class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                          <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
-                          </svg>
-                          <span class="mt-2 block text-sm font-semibold text-gray-900">Ajouter une catégorie</span>
-                        </button>
+                        <div v-if="categories.length === 0">
+                          <button @click="isOpen = !isOpen" type="button" class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
+                            </svg>
+                            <span class="mt-2 block text-sm font-semibold text-gray-900">Ajouter une catégorie</span>
+                          </button>
+                        </div>
+                        <div v-else class="max-h-64 overflow-y-auto flex flex-col gap-y-4">
+                          <ul role="list" class="space-y-3">
+                            <li v-for="category in categories" :key="category.name" class="overflow-hidden font-semibold rounded-md bg-gray-50 px-6 py-4 shadow hover:shadow-md text-gray-700">
+                                {{ category.name }}
+                            </li>
+                            <!-- More items... -->
+                          </ul>
+                          <button @click="isOpen = !isOpen" type="button"  class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Ajouter une autre catégorie</button>
+                          <!--<button @click="isOpen = !isOpen" type="button" class="h-[25px] w-full rounded-lg border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            <span class="text-sm font-semibold text-gray-900">Ajouter une autre catégorie</span>
+                          </button>-->
+                          <!--
+                          <button @click="isOpen = !isOpen" type="button"  class="flex w-full justify-center rounded-md bg-gray-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Ajouter une autre catégorie</button>-->
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -443,11 +495,16 @@ import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
 import axios from 'axios';
 
+import {
+  XMarkIcon
+} from '@heroicons/vue/24/outline'
+
 export default {
   name: 'UserSignUp',
   components: {
     Theme,
-    Color
+    Color,
+    XMarkIcon
   },
   setup() {
     const bgColor = ref('#ffffff') // default background color
@@ -509,6 +566,11 @@ export default {
       theme: "",
       color: "",
       googleToken: '',
+      isOpen: false,
+      categoryName: '',      // Pour le champ "Nom de la catégorie"
+      categoryDescription: '', // Pour le champ "Description brève de la catégorie"
+      categories: [],
+      errorMessage: '' 
     }
   },
   methods: {
@@ -532,7 +594,33 @@ export default {
     },
     nextStep() {
       this.step++;
-    }
+    },
+    closeModal() {
+      this.isOpen = false;
+    },
+    addCategory() {
+        // Vérification basique de la validité des champs
+        if (!this.categoryName.trim() || !this.categoryDescription.trim()) {
+            this.errorMessage = "Veuillez remplir tous les champs.";
+            return;
+        } else if (this.categories.some(cat => cat.name === this.categoryName)) {
+            this.errorMessage = "Le nom de la catégorie existe déjà.";
+            return;
+        } else {
+          this.categories.push({
+                name: this.categoryName,
+                description: this.categoryDescription
+            });
+            
+            // Réinitialiser les champs et le message d'erreur
+            this.categoryName = '';
+            this.categoryDescription = '';
+            this.errorMessage = '';
+            
+            // Fermer la modale
+            this.isOpen = false;
+        }
+    },
   }
 }
 </script>

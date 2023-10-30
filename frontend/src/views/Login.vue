@@ -51,20 +51,27 @@ export default {
     };
   },
   methods: {
-    async login() {
+    async login(event) {
+      event.preventDefault();
       try {
         const response = await axios.post('http://localhost:9000/MailAssistant/api/login/', {
           username: this.username,
           password: this.password
         });
-        const token = response.data.access;
-        localStorage.setItem('userToken', token);
-        
-        // Store the token in Vuex store or in-memory for later use
+        console.log(response);
+        console.log(response.data.access);
+        if (response.data && response.data.access) {
+          const token = response.data.access;
+          localStorage.setItem('userToken', token);
+          
+          // Store the token in Vuex store or in-memory for later use
 
-        // Redirect to home13 after successful login
-        this.$router.push({ name: 'home' });
-
+          // Redirect to home13 after successful login
+          this.$router.push({ name: 'home' });
+        } else {
+          console.error("Login failed: No access token received");
+          // Handle the case when login fails or no token is received
+        }
       } catch (error) {
         console.error("Error during login:", error.response ? error.response.data : error.message);
       }

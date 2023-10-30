@@ -27,31 +27,18 @@
 </template>
   
   <script setup>
-  import { ref } from 'vue'
+  /*import { ref } from 'vue'
   import {
-    Dialog,
-    DialogPanel,
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuItems,
-    TransitionChild,
-    TransitionRoot,
-  } from '@headlessui/vue'
-  import {
-    Bars3Icon,
-    BellIcon,
     CalendarIcon,
     ChartPieIcon,
-    Cog6ToothIcon,
     DocumentDuplicateIcon,
     FolderIcon,
     HomeIcon,
     UsersIcon,
-    XMarkIcon,
-  } from '@heroicons/vue/24/outline'
-  import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
+  } from '@heroicons/vue/24/outline'*/
+  import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
   
+  /*
   const navigation = [
     { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
     { name: 'Team', href: '#', icon: UsersIcon, current: false },
@@ -70,5 +57,5 @@
     { name: 'Sign out', href: '#' },
   ]
   
-  const sidebarOpen = ref(false)
+  const sidebarOpen = ref(false)*/
   </script>

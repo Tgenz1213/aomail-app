@@ -24,13 +24,18 @@
             </div>
         </div>
     </div>-->
-    <div class="flex flex-col justify-center items-center h-full">
-        <div class="grid grid-cols-10 2xl:grid-cols-6 gap-4 2xl:gap-6">
-            <div class="col-span-2 2xl:col-span-1">
-                <navbar></navbar>
+    <div class="flex flex-col justify-center items-center h-screen">
+        <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
+            <div class="col-span-1 2xl:col-span-1">
+                <div class="2xl:hidden h-full">
+                    <navbar></navbar>
+                </div>
+                <div class="hidden 2xl:block h-full">
+                    <navbar2></navbar2>
+                </div>
             </div>
-            <div class="col-span-8 2xl:col-span-5">
-                <div class="flex flex-col h-[750px] w-[1125px] 2xl:h-[850px] 2xl:w-[1424px]">
+            <div class="col-span-10 2xl:col-span-6">
+                <div class="flex flex-col xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
                     <main class="rounded-xl bg-gray-100 bg-opacity-75 ring-1 shadow-sm ring-black ring-opacity-5">
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div class="grid grid-cols-10 gap-6 items-center divide-x divide-gray-300">
@@ -231,7 +236,8 @@
 </template>
 
 <script>
-import Navbar from '../components/AppNavbar8.vue';
+import Navbar from '../components/AppNavbar7.vue';
+import Navbar2 from '../components/AppNavbar8.vue';
 import ModalSeeMail from '../components/SeeMail.vue';
 //import { ref } from 'vue';
 import {
@@ -250,6 +256,7 @@ export default {
     name: 'UserHome',
     components: {
         Navbar,
+        Navbar2,
         //ChatBubbleOvalLeftEllipsisIcon,
         ExclamationTriangleIcon,
         InformationCircleIcon,

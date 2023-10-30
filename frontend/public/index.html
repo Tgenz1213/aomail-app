@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <!--<link href="output.css" rel="stylesheet">-->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <!--<script src="https://accounts.google.com/gsi/client" onload="initClient()" async defer></script>-->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>Mail Assistant</title>
     <style>
       .ql-toolbar {
@@ -64,12 +68,30 @@
       ::-webkit-scrollbar-track {
           background-color: rgba(240, 240, 240, 0.5); /* 0.5 est l'opacité */
       }
+
+      /* Initial flex settings */
+      #firstMainColumn, #secondMainColumn {
+          flex: 1;
+          transition: flex 0.3s ease;  /* This line adds a transition effect to the flex property */
+      }
+
+      /* When hovering over the first main column, it expands more, while the second main column shrinks */
+      #firstMainColumn:hover {
+          flex: 1;
+      }
+
+      /* When hovering over the second main column, it expands more, while the first main column shrinks */
+      #secondMainColumn:hover {
+          flex: 1.5;
+      }
   </style>
   </head>
-  <body class="bg-gradient-to-r from-sky-300 to-blue-300 h-screen">
+  <body class="bg-gradient-to-r from-sky-300 to-blue-300">
     <noscript>
       <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
+    <!-- Main Quill library -->
+    <script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
   </body>
 </html>

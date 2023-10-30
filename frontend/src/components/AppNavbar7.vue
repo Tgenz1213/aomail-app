@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-full">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog as="div" class="relative z-50 lg:hidden" @close="sidebarOpen = false">
         <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="transition-opacity ease-linear duration-300" leave-from="opacity-100" leave-to="opacity-0">
@@ -46,7 +46,7 @@
         <nav class="h-5/6 flex items-center justify-center">
             <ul role="list" class="flex flex-col space-y-1">
                 <li v-for="item in navigation" :key="item.name">
-                    <a :href="item.href" :class="[item.current ? 'bg-white text-gray-900 lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow-sm' : 'text-gray-900 hover:text-black hover:shadow-sm hover:bg-white', 'group flex gap-x-3 rounded-lg p-3 text-sm leading-6 font-semibold']">
+                    <a :href="item.href" :class="[useRoute().path === item.href ? 'bg-white text-gray-900 lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow-sm' : 'text-gray-900 hover:text-black hover:shadow-sm hover:bg-white', 'group flex gap-x-3 rounded-lg p-3 text-sm leading-6 font-semibold']">
                         <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
                         <span class="sr-only">{{ item.name }}</span>
                     </a>
@@ -76,6 +76,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRoute } from 'vue-router';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
   Bars3Icon,
@@ -94,13 +95,14 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const navigation = [
-{ name: 'Acceuil', href: '#', icon: HomeIcon, current: false },
-  { name: 'Nouveau mail', href: '#', icon: PlusIcon, current: true },
-  { name: 'Recherche mail', href: '#', icon: MagnifyingGlassIcon, current: false },
-  { name: 'Règles', href: '#', icon: UsersIcon, current: false },
-  { name: 'Répondre plus tard', href: '#', icon: ArrowUturnLeftIcon, current: false },
-  { name: 'Paramètres', href: '#', icon: CogIcon, current: false },
+  { name: 'Acceuil', href: '/home', icon: HomeIcon },
+  { name: 'Nouveau mail', href: '/new', icon: PlusIcon },
+  { name: 'Recherche mail', href: '#', icon: MagnifyingGlassIcon },
+  { name: 'Règles', href: '/rules', icon: UsersIcon },
+  { name: 'Répondre plus tard', href: '#', icon: ArrowUturnLeftIcon },
+  { name: 'Paramètres', href: '/settings', icon: CogIcon },
 ]
+
 
 const sidebarOpen = ref(false)
 </script>

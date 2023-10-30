@@ -22,6 +22,11 @@ class Preference(models.Model):
     bg_color = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+class SocialAPI(models.Model):
+    type_api = models.CharField(max_length=50)
+    token = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
 class Rule(models.Model):
     info_AI = models.TextField()
     priority = models.CharField(max_length=50)

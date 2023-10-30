@@ -27,7 +27,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
-from .models import Message, Category, Email, BulletPoint, Rule, Preference, Sender
+from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
 from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer
 from django.db import IntegrityError
 
@@ -865,12 +865,139 @@ logger = logging.getLogger(__name__)
 
 # THEO API TEST
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_message(request):
     message = Message.objects.first()  # Just getting the first message for simplicity.
     serializer = MessageSerializer(message)
     return Response(serializer.data)
 
-# Connexion API
+# Register API
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+    # Extract user data from the request
+    username = request.data.get('login')
+    password = request.data.get('password')
+    #email = request.data.get('email')
+    theme = request.data.get('theme')
+    color = request.data.get('color')
+    categories = request.data.get('categories')
+    googleToken = request.data.get('googletoken')
+
+    # Check if user already exists
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    
+    #if User.objects.filter(email=email).exists():
+    #    return Response({'error': 'Email already registered'}, status=400)
+
+    # Create and save user
+    user = User.objects.create_user(username, '', password)
+    user.save()
+
+    # Save user preferences
+    preference = Preference(
+        theme=theme,
+        bg_color=color,
+        user=user
+    )
+    preference.save()
+
+    # Save user categories
+    for category_data in categories:
+        category_name = category_data.get('name')
+        category_description = category_data.get('description')
+
+        category = Category(
+            name=category_name,
+            description=category_description,
+            user=user
+        )
+        category.save()
+
+    # Save user social api
+    # FOR NOW : Just Google but will be uptdated
+    social_api = SocialAPI(
+        type_api="Google",
+        token=googleToken,
+        user=user
+    )
+    social_api.save()
+
+    # Save other user-related data like theme, color, and categories
+    # This assumes you have related models or user profile extensions in place.
+    # If not, you'll need to design your database schema to store this additional info.
+    # Here's a simple hypothetical example:
+    # user_profile = UserProfile(user=user, theme=theme, color=color)
+    # user_profile.save()
+
+    # For categories and Google token, you'd handle them similarly, adjusting to your data model.
+
+    #return Response({'success': 'User registered successfully'}, status=201)
+    return Response({'success': True}, status=201)
+
+'''
+def register(request):
+    # Extract user data from the request
+    username = request.data.get('login')
+    password = request.data.get('password')
+    email = request.data.get('email')
+    theme = request.data.get('theme')
+    color = request.data.get('color')
+    categories = request.data.get('categories')
+    googleToken = request.data.get('googletoken')
+
+    # Check if user already exists
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    if User.objects.filter(email=email).exists():
+        return Response({'error': 'Email already registered'}, status=400)
+
+    # Create and save user
+    user = User.objects.create_user(username, email, password)
+    user.save()
+
+    # Save user preferences
+    preference = Preference(
+        theme=theme,
+        bg_color=color,
+        user=user
+    )
+    preference.save()
+
+    # Save user categories
+    for category_data in categories:
+        category_name = category_data.get('name')
+        category_description = category_data.get('description')
+
+        category = Category(
+            name=category_name,
+            description=category_description,
+            user=user
+        )
+        category.save()
+
+    # Save user social api
+    # FOR NOW : Just Google but will be uptdated
+    social_api = SocialAPI(
+        type_api="Google",
+        token=googleToken,
+        user=user
+    )
+
+    # Save other user-related data like theme, color, and categories
+    # This assumes you have related models or user profile extensions in place.
+    # If not, you'll need to design your database schema to store this additional info.
+    # Here's a simple hypothetical example:
+    # user_profile = UserProfile(user=user, theme=theme, color=color)
+    # user_profile.save()
+
+    # For categories and Google token, you'd handle them similarly, adjusting to your data model.
+
+    return Response({'success': 'User registered successfully'}, status=201)
+'''
+
+# Authentication API
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):

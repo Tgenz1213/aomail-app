@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-full">
     <TransitionRoot as="template" :show="sidebarOpen">
       <Dialog as="div" class="relative z-50 lg:hidden" @close="sidebarOpen = false">
         <TransitionChild as="template" enter="transition-opacity ease-linear duration-300" enter-from="opacity-0" enter-to="opacity-100" leave="transition-opacity ease-linear duration-300" leave-from="opacity-100" leave-to="opacity-0">
@@ -39,6 +39,7 @@
       </Dialog>
     </TransitionRoot>
 
+    <!--
     <div class="flex flex-col items-center justify-center h-full">
         <div class="flex h-16 shrink-0 items-center justify-center">
             <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=black" alt="Your Company" />
@@ -54,11 +55,30 @@
             </ul>
         </nav>
         <div class="flex items-center justify-center">
-          <!--<img class="h-10 w-auto mb-4" src="../assets/icon_gdpr2.png" alt="Icon GDPR" />-->
+          <img class="h-10 w-auto mb-4" src="../assets/icon_gdpr2.png" alt="Icon GDPR" />
           <p class="text-gray-900 font-semibold">v 1.0.0</p>
         </div>
+    </div>-->
+    <div class="flex flex-col items-center justify-center h-full">
+      <div class="flex h-16 shrink-0 items-center justify-center">
+        <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=black" alt="Your Company" />
+      </div>
+      <nav class="h-5/6 flex items-center justify-center">
+        <ul role="list" class="flex flex-col space-y-1">
+          <li v-for="item in navigation" :key="item.name">
+            <a :href="item.href"
+              :class="[useRoute().path === item.href ? 'bg-white text-gray-900 lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow-sm' : 'text-gray-900 hover:text-black hover:shadow-sm hover:bg-white hover:ring-1 lg:ring-black lg:ring-opacity-5', 'group flex gap-x-3 rounded-lg p-3 text-sm leading-6 font-semibold']">
+              <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
+              <span>{{ item.name }}</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="flex items-center justify-center">
+        <!--<img class="h-10 w-auto mb-4" src="../assets/icon_gdpr2.png" alt="Icon GDPR" />-->
+        <p class="text-gray-900 font-semibold">v 1.0.0</p>
+      </div>
     </div>
-
 
     <div class="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
       <button type="button" class="-m-2.5 p-2.5 text-gray-400 lg:hidden" @click="sidebarOpen = true">
@@ -76,6 +96,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRoute } from 'vue-router';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {
   Bars3Icon,
@@ -94,12 +115,12 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const navigation = [
-  { name: 'Acceuil', href: '#', icon: HomeIcon, current: true },
-  { name: 'Nouveau mail', href: '#', icon: PlusIcon, current: false },
-  { name: 'Recherche mail', href: '#', icon: MagnifyingGlassIcon, current: false },
-  { name: 'Règles', href: '#', icon: UsersIcon, current: false },
-  { name: 'Répondre plus tard', href: '#', icon: ArrowUturnLeftIcon, current: false },
-  { name: 'Paramètres', href: '#', icon: CogIcon, current: false },
+  { name: 'Acceuil', href: '/home', icon: HomeIcon },
+  { name: 'Nouveau mail', href: '/new', icon: PlusIcon },
+  { name: 'Recherche mail', href: '#', icon: MagnifyingGlassIcon },
+  { name: 'Règles', href: '/rules', icon: UsersIcon },
+  { name: 'Répondre plus tard', href: '#', icon: ArrowUturnLeftIcon },
+  { name: 'Paramètres', href: '/settings', icon: CogIcon },
 ]
 
 const sidebarOpen = ref(false)

@@ -361,7 +361,7 @@
 
                 <div>
                   <div class="pt-6">
-                    <button @click="nextStep0" class="flex w-full justify-center rounded-md bg-slate-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
+                    <button @click="nextStep" class="flex w-full justify-center rounded-md bg-slate-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
                   </div>
                 </div>
               </div>
@@ -441,11 +441,109 @@
                 </div>
                 <div>
                   <div class="pt-6">
-                    <button @click="submitSignupData" class="flex w-full justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
+                    <button @click="nextStep" class="flex w-full justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
+                  </div>
+                </div>
+              </div>
+              <div v-if="step === 3">
+                <div class="flex flex-col">
+                  <div class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                      <span class="bg-white px-2 text-sm text-gray-500">Lier un compte Gmail</span>
+                    </div>
+                  </div>
+                  <div class="py-6">
+                    <div class="relative items-stretch mt-2">
+                      <!--<GoogleLogin :callback="callback"/>-->
+                    </div>
+                  </div>
+                  <div class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                      <span class="bg-white px-2 text-sm text-gray-500">Lier un compte Outlook</span>
+                    </div>
+                  </div>
+                  <div class="pt-4">
+                    <div class="relative items-stretch mt-2">
+                      <p class="font-semibold">En cours de construction</p>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pt-8">
+                      <button @click="nextStep3" class="flex w-full justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-if="step === 4">
+                <div class="flex flex-col">
+                  <div class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                      <span class="bg-white px-2 text-sm text-gray-500">Présentation de l'outil</span>
+                    </div>
+                  </div>
+                  <div class="py-6">
+                    <div class="relative items-stretch mt-2">
+                      <p class="font-semibold">En cours de construction</p> <!-- To add : A video that explain the tool -->
+                    </div>
+                  </div>
+                  <div class="relative">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                      <span class="bg-white px-2 text-sm text-gray-500">Un point sur la confidentialité des données</span>
+                    </div>
+                  </div>
+                  <div class="pt-4">
+                    <div class="relative items-stretch mt-2">
+                      <p class="font-semibold">En cours de construction</p> <!-- To add : A video that explain how data is saved and used -->
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pt-8">
+                      <button @click="submitSignupData" class="flex w-full justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Finaliser votre inscription</button>
+                    </div>
                   </div>
                 </div>
               </div>
             </form>
+            <!--<form class="space-y-6" action="#" method="POST">
+              <div>
+                <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Identifiant</label>
+                <div class="mt-2">
+                  <input id="email" name="email" type="email" autocomplete="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Mot de passe</label>
+                <div class="mt-2">
+                  <input id="password" name="password" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot de passe</label>
+                <div class="mt-2">
+                  <input id="password" name="password" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                </div>
+              </div>
+
+              <div>
+                <div class="pt-6">
+                  <button type="submit" class="flex w-full justify-center rounded-md bg-slate-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
+                </div>
+              </div>
+            </form>-->
             <div>
           </div>
         </div>
@@ -463,6 +561,7 @@
 import { ref } from 'vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
+import axios from 'axios';
 
 import {
   XMarkIcon
@@ -482,9 +581,51 @@ export default {
       bgColor.value = newBgColor;
     }
 
+    /*
+    const callback = (response) => {
+      // This callback will be triggered when the user selects or logs in to
+      // his Google account from the popup
+      console.log("Handle the response", response);
+    }*/
+    const handleSuccess = (googleUser) => {
+      const idToken = googleUser.credential;
+      authenticateWithDjango(idToken);
+    }
+
+    const handleError = (error) => {
+      console.error("Erreur lors de la connexion avec Google:", error);
+    }
+
+    const authenticateWithDjango = (googleToken) => {
+      console.log(googleToken);
+      axios.post('http://localhost:9000/google-login/', { credential: googleToken })
+        .then(response => {
+          console.log(response);
+          const receivedGoogleToken = response.data.googleToken; // Google Token received from the backend
+
+          console.log("Successful Login");
+          console.log("Google Token:", receivedGoogleToken);
+
+          localStorage.setItem('googleToken', receivedGoogleToken);
+        })
+        .catch(error => {
+          console.error("Erreur d'authentification avec Django:", error);
+        });
+    }
+
+    const callback = (response) => {
+      if (response) {
+        console.log(response);
+        handleSuccess(response);
+      } else {
+        handleError(response);
+      }
+    }
+
     return {
       bgColor,
       updateBgColor,
+      callback
     }
   },
   data() {
@@ -496,11 +637,12 @@ export default {
       passwordError: '',
       theme: "",
       color: "",
+      googleToken: '',
       isOpen: false,
       categoryName: '',      // Pour le champ "Nom de la catégorie"
       categoryDescription: '', // Pour le champ "Description brève de la catégorie"
       categories: [],
-      errorMessage: '',
+      errorMessage: '' 
     }
   },
   methods: {
@@ -519,17 +661,44 @@ export default {
         this.passwordError = 'Veuillez saisir un mot de passe';
         console.log(this.passwordError);
         return; 
-      }
-      
-      localStorage.setItem('login', this.login);  
-      localStorage.setItem('password', this.password);
-      
+      }    
       this.step++;
     },
     nextStep1() {
       this.color = this.bgColor;
-      localStorage.setItem('color', this.bgColor);  
-      localStorage.setItem('theme', 'light');
+      this.step++;
+    },
+    nextStep() {
+      console.log(`Step: ${this.step}`);
+      console.log(`Login: ${this.login}`);
+      console.log(`Password: ${this.password}`);
+      console.log(`Confirm Password: ${this.confirmPassword}`);
+      console.log(`Password Error: ${this.passwordError}`);
+      console.log(`Theme: ${this.theme}`);
+      console.log(`Color: ${this.color}`);
+      console.log(`Google Token: ${this.googleToken}`);
+      console.log(`Is Open: ${this.isOpen}`);
+      console.log(`Category Name: ${this.categoryName}`);
+      console.log(`Category Description: ${this.categoryDescription}`);
+      console.log(`Categories: ${JSON.stringify(this.categories)}`);
+      console.log(`Error Message: ${this.errorMessage}`);
+      this.step++;
+    },
+    nextStep3() {
+      this.googleToken = localStorage.getItem('userToken');
+      console.log(`Step: ${this.step}`);
+      console.log(`Login: ${this.login}`);
+      console.log(`Password: ${this.password}`);
+      console.log(`Confirm Password: ${this.confirmPassword}`);
+      console.log(`Password Error: ${this.passwordError}`);
+      console.log(`Theme: ${this.theme}`);
+      console.log(`Color: ${this.color}`);
+      console.log(`Google Token: ${this.googleToken}`);
+      console.log(`Is Open: ${this.isOpen}`);
+      console.log(`Category Name: ${this.categoryName}`);
+      console.log(`Category Description: ${this.categoryDescription}`);
+      console.log(`Categories: ${JSON.stringify(this.categories)}`);
+      console.log(`Error Message: ${this.errorMessage}`);
       this.step++;
     },
     closeModal() {
@@ -549,20 +718,37 @@ export default {
                 description: this.categoryDescription
             });
             
-          localStorage.setItem('categories', JSON.stringify(this.categories));
-          // Réinitialiser les champs et le message d'erreur
-          this.categoryName = '';
-          this.categoryDescription = '';
-          this.errorMessage = '';
-          
-          // Fermer la modale
-          this.isOpen = false;
+            // Réinitialiser les champs et le message d'erreur
+            this.categoryName = '';
+            this.categoryDescription = '';
+            this.errorMessage = '';
+            
+            // Fermer la modale
+            this.isOpen = false;
         }
     },
     async submitSignupData(event) {
       event.preventDefault();
-      this.$router.push({ name: 'signup_part2' });
-    },
+      try {
+          const response = await axios.post('http://localhost:9000/MailAssistant/register/', {
+              login: this.login,
+              password: this.password,
+              theme: this.theme,
+              color: this.color,
+              categories: this.categories,
+              googletoken: this.googleToken
+          });
+
+          if (response.data && 'success' in response.data) {
+              this.$router.push({ name: 'home' });
+          } else {
+            console.log("ERROR Signup No DATA"); // TO UPDATE : Display a screen to show the error to the user
+          }
+      } catch (error) {
+          // Handle other errors like network issues or server being down
+          console.error("Error during signup:", error);
+      }
+    }
   }
 }
 </script>

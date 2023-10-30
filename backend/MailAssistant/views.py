@@ -4,6 +4,7 @@ import base64
 import re
 import time
 import logging
+import json
 
 #### FOR AUTH TO THE API
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -882,7 +883,8 @@ def register(request):
     theme = request.data.get('theme')
     color = request.data.get('color')
     categories = request.data.get('categories')
-    googleToken = request.data.get('googletoken')
+    access_token = request.data.get('access_token')
+    refresh_token = request.data.get('refresh_token')
 
     # Check if user already exists
     if User.objects.filter(username=username).exists():
@@ -904,6 +906,12 @@ def register(request):
     preference.save()
 
     # Save user categories
+    categories_json = request.data.get('Categories', '[]')
+    try:
+        categories = json.loads(categories_json)
+    except json.JSONDecodeError:
+        return Response({'error': 'Invalid categories data'}, status=status.HTTP_400_BAD_REQUEST)
+
     for category_data in categories:
         category_name = category_data.get('name')
         category_description = category_data.get('description')
@@ -919,7 +927,8 @@ def register(request):
     # FOR NOW : Just Google but will be uptdated
     social_api = SocialAPI(
         type_api="Google",
-        token=googleToken,
+        access_token=access_token,
+        refresh_token=refresh_token,
         user=user
     )
     social_api.save()

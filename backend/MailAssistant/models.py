@@ -24,7 +24,8 @@ class Preference(models.Model):
 
 class SocialAPI(models.Model):
     type_api = models.CharField(max_length=50)
-    token = models.CharField(max_length=200)
+    access_token = models.CharField(max_length=500, null=True)
+    refresh_token = models.CharField(max_length=500, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Rule(models.Model):

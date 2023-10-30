@@ -62,8 +62,10 @@ export default {
         console.log(response.data.access);
         if (response.data && response.data.access) {
           const token = response.data.access;
+          const refresh_token = response.data.refresh;
           localStorage.setItem('userToken', token);
-          
+          localStorage.setItem('refreshToken', refresh_token);
+                  
           // Store the token in Vuex store or in-memory for later use
 
           // Redirect to home13 after successful login

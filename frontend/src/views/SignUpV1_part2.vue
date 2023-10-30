@@ -625,6 +625,16 @@ export default {
 
           const data = await response.json();
           console.log('Success:', data);
+
+          if (data.token && data.token.access_token && data.token.refresh_token) {
+              // Save tokens to localStorage
+              localStorage.setItem('access_token', data.token.access_token);
+              localStorage.setItem('refresh_token', data.token.refresh_token);
+              this.step++;
+          } else {
+              console.error('Tokens not found in response');
+          }
+
         } catch (error) {
           // Handle fetch or network errors
           console.error('Fetch Error:', error);
@@ -638,12 +648,13 @@ export default {
       event.preventDefault();
       try {
           const response = await axios.post('http://localhost:9000/MailAssistant/register/', {
-              login: this.login,
-              password: this.password,
-              theme: this.theme,
-              color: this.color,
-              categories: this.categories,
-              googletoken: this.googleToken
+              login: localStorage.getItem('login'),
+              password: localStorage.getItem('password'),
+              theme: localStorage.getItem('theme'),
+              color: localStorage.getItem('color'),
+              categories: localStorage.getItem('categories'),
+              access_token: localStorage.getItem('access_token'),
+              refresh_token: localStorage.getItem('refresh_token')
           });
 
           if (response.data && 'success' in response.data) {

@@ -3,7 +3,6 @@ from . import views
 from MailAssistant import microsoft_api
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-
 app_name = 'MailAssistant'
 
 urlpatterns = [

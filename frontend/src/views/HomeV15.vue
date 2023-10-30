@@ -269,6 +269,46 @@ export default {
         ModalSeeMail
     },
     methods: {
+        async refreshToken() {
+            // Get the refresh token from local storage
+            const refresh_token = localStorage.getItem('refreshToken');
+
+            if (!refresh_token) {
+                throw new Error('No refresh token found');
+            }
+
+            // Set up the request options for the fetch call
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refresh: refresh_token }),
+            };
+
+            try {
+                // Make the POST request to the refresh token endpoint
+                const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+
+                // Check if the response status is OK (200)
+                if (!response.ok) {
+                    throw new Error(`Failed to refresh token: ${response.statusText}`);
+                }
+
+                // Parse the JSON response to get the new access token
+                const data = await response.json();
+                const new_access_token = data.access;
+
+                // Save the new access token to local storage
+                localStorage.setItem('userToken', new_access_token);
+
+                return new_access_token;
+            } catch (error) {
+                console.error('Error refreshing token: ', error.message);
+                // Handle the error (e.g., by redirecting the user to a login page)
+                throw error;
+            }
+        },
         updateModalStatus(status) {
             this.showModal = status;
         },
@@ -334,6 +374,10 @@ export default {
         this.animateText();
         // Fetch the token. This can be from a Vue data property, VueX store, or local storage
         const token = localStorage.getItem('userToken');
+        const refresht = localStorage.getItem('refreshToken');
+
+        console.log("TOKEN", token);
+        console.log("TOKEN_r", refresht);
 
         const requestOptions = {
             headers: {
@@ -342,7 +386,7 @@ export default {
         };
         try {
             // Fetch the message
-            const messageResponse = await fetch('http://localhost:9000/MailAssistant/message/', requestOptions);
+            const messageResponse = await fetch('http://localhost:9000/MailAssistant/message/');
             // If Unauthorized, handle accordingly
             if (messageResponse.status === 401) {
                 // Handle token expiration or invalid token
@@ -351,17 +395,32 @@ export default {
             }
             const messageData = await messageResponse.json();
             this.messageText = messageData.text;
+            console.log("TEXT",this.messageText);
+
+            console.log("REQUEST OPTIONS", requestOptions);
 
             // Fetch the categories
             const categoryResponse = await fetch(`http://localhost:9000/MailAssistant/user/categories/`, requestOptions);
             // Again, check for Unauthorized
             if (categoryResponse.status === 401) {
+                console.log("ERROR 401 : user categories")
+                // Refresh the token
+                this.refreshToken();
+                // Update requestOptions with new token
+                requestOptions.headers['Authorization'] = `Bearer ${token}`;
+                // Retry the request
+                const categoryRetryResponse = await fetch(`http://localhost:9000/MailAssistant/user/categories/`, requestOptions);
+                const categoryData = await categoryRetryResponse.json();
+                console.log("CategoryData", categoryData);
+                this.categories = categoryData.map(category => category.name);
+                console.log("Assigned categories:", this.categories);
                 // Handle token expiration or invalid token
                 return; // exit early or throw an error
             }
             const categoryData = await categoryResponse.json();
+            console.log("CategoryData", categoryData);
             this.categories = categoryData.map(category => category.name);
-            // console.log("Assigned categories:", this.categories);
+            console.log("Assigned categories:", this.categories);
 
             // Fetch emails
             const emailResponse = await fetch(`http://localhost:9000/MailAssistant/user/emails/`, requestOptions);

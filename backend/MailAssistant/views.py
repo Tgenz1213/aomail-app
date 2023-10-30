@@ -906,13 +906,12 @@ def register(request):
     preference.save()
 
     # Save user categories
-    categories_json = request.data.get('Categories', '[]')
     try:
-        categories = json.loads(categories_json)
+        categories_j = json.loads(categories)
     except json.JSONDecodeError:
         return Response({'error': 'Invalid categories data'}, status=status.HTTP_400_BAD_REQUEST)
 
-    for category_data in categories:
+    for category_data in categories_j:
         category_name = category_data.get('name')
         category_description = category_data.get('description')
 

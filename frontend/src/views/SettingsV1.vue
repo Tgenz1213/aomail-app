@@ -49,21 +49,39 @@
                               <div class="hidden sm:block w-full">
                                   <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
                                       <!-- Current: "bg-gray-200 text-gray-800", Default: "text-gray-600 hover:text-gray-800" -->
-                                      <div class="flex space-x-2 items-center hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 rounded-md px-8 py-2 ">
-                                          <adjustments-vertical-icon class="w-4 h-4" />
-                                          <a href="#" class=" text-gray-600 text-sm font-medium">Préférences</a>
+                                      <div 
+                                        :class="['flex space-x-2 items-center rounded-md py-2', 
+                                                {'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'preferences', 
+                                                  'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'preferences'}]"
+                                        @click="setActiveSection('preferences')">
+                                        <adjustments-vertical-icon class="w-4 h-4" />
+                                        <a :class="{'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences'}" class="text-sm font-medium">Préférences</a>
                                       </div>
-                                      <div class="flex space-x-2 items-center hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 rounded-md px-8 py-2 ">
-                                          <user-icon class="w-4 h-4" />
-                                          <a href="#" class=" text-gray-600 text-sm font-medium">Mon Compte</a>
+
+                                      <div 
+                                        :class="['flex space-x-2 items-center rounded-md py-2', 
+                                                {'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'account', 
+                                                  'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'account'}]"
+                                        @click="setActiveSection('account')">
+                                        <user-icon class="w-4 h-4" />
+                                        <a :class="{'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account'}" class="text-sm font-medium">Mon Compte</a>
                                       </div>
-                                      <div class="flex space-x-2 items-center hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 rounded-md px-8 py-2 ">
-                                          <credit-card-icon class="w-4 h-4" />
-                                          <a href="#" class=" text-gray-600 text-sm font-medium">Abonnement</a>
+                                      <div 
+                                        :class="['flex space-x-2 items-center rounded-md py-2', 
+                                                {'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 
+                                                  'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription'}]"
+                                        @click="setActiveSection('subscription')">
+                                        <adjustments-vertical-icon class="w-4 h-4" />
+                                        <a :class="{'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription'}" class="text-sm font-medium">Abonnement</a>
                                       </div>
-                                      <div class="flex space-x-2 items-center bg-gray-500 bg-opacity-10 hover:text-gray-800 rounded-md px-12 py-2 ">
-                                          <circle-stack-icon class="w-4 h-4" />
-                                          <a href="#" class="text-gray-800 text-sm font-medium" aria-current="page">Mes données</a>
+
+                                      <div 
+                                        :class="['flex space-x-2 items-center rounded-md py-2', 
+                                                {'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'data', 
+                                                  'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'data'}]"
+                                        @click="setActiveSection('account')">
+                                        <user-icon class="w-4 h-4" />
+                                        <a :class="{'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data'}" class="text-sm font-medium">Mes données</a>
                                       </div>
                                   </nav>
                               </div>
@@ -71,7 +89,7 @@
                       </div>
                       </div>
                   </main>
-                  <div class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 hidden"> <!-- DESACTIVATE HIDDEN TO DISPLAY-->
+                  <div v-if="activeSection === 'account'" class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                       <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
                         <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mon compte</h1>         
                       </div>
@@ -143,7 +161,7 @@
                           </div>
                       </div>    
                   </div>
-                  <div class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5"> 
+                  <div v-if="activeSection === 'preferences'" class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section"> 
                       <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
                         <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mes préférences</h1>         
                       </div>
@@ -196,12 +214,10 @@ import Navbar2 from '../components/AppNavbar8.vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
 import {
-AdjustmentsVerticalIcon,
-UserIcon,
-CreditCardIcon,
-CircleStackIcon,
-EnvelopeIcon,
-KeyIcon
+  AdjustmentsVerticalIcon,
+  UserIcon,
+  EnvelopeIcon,
+  KeyIcon
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -212,13 +228,18 @@ export default {
     Color,
     AdjustmentsVerticalIcon,
     UserIcon,
-    CreditCardIcon,
-    CircleStackIcon,
     EnvelopeIcon,
     KeyIcon
   },
+  data() {
+    return {
+      activeSection: 'preferences' // Default active section
+    };
+  },
   methods: {
-    
+    setActiveSection(section) {
+      this.activeSection = section;
+    }
   },
 }
 </script>

@@ -15,7 +15,12 @@ from email.mime.application import MIMEApplication
 from .forms import MailForm
 from googleapiclient.errors import HttpError
 from google.auth.exceptions import RefreshError
-
+from google.auth.transport.urllib3 import AuthorizedHttp
+from google.auth import exceptions as auth_exceptions
+from google.oauth2 import credentials
+from django.core.exceptions import ObjectDoesNotExist
+from .models import SocialAPI
+from django.contrib.auth.models import User
 
 # from .library import *
 from . import library
@@ -37,7 +42,7 @@ SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_
 
 test_int = 0
 ######################## Authentification ########################
-
+''' OLD CODE TO DELETE AFTER CHECKING
 def check_token_pickle():
     print('check_token_pickle')
     creds = None
@@ -158,7 +163,91 @@ def authenticate_service_old():
         service['other.contacts'] = build('people', 'v1', credentials=creds)
     # return services
     return service
+'''
+SCOPES = [
+    'https://www.googleapis.com/auth/gmail.readonly',
+    'https://www.googleapis.com/auth/gmail.send',
+    'https://www.googleapis.com/auth/calendar.readonly',
+    'https://www.googleapis.com/auth/contacts.readonly',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email',
+    'openid',
+    'https://www.googleapis.com/auth/contacts.other.readonly'
+]
 
+def get_credentials(user):
+    try:
+        social_api = SocialAPI.objects.get(user=user, type_api='Google')
+        creds_data = {
+            'token': social_api.access_token,
+            'refresh_token': social_api.refresh_token,
+            'token_uri': 'https://oauth2.googleapis.com/token',  # Assuming you're using Google's OAuth 2.0 endpoint
+            'client_id': '900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com',
+            'client_secret': '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',
+            'scopes': SCOPES
+        }
+        creds = credentials.Credentials.from_authorized_user_info(creds_data)
+    except ObjectDoesNotExist:
+        print(f"No credentials found for user {user.username}")
+        creds = None
+    return creds
+
+def refresh_credentials(creds):
+    try:
+        creds.refresh(Request())
+    except auth_exceptions.RefreshError as e:
+        print(f"Failed to refresh credentials: {e}")
+        creds = None
+    return creds
+
+def save_credentials(creds, user):
+    try:
+        social_api, created = SocialAPI.objects.get_or_create(user=user, type_api='google')
+        social_api.access_token = creds.token
+        social_api.refresh_token = creds.refresh_token
+        social_api.save()
+    except Exception as e:
+        print(f"Failed to save credentials: {e}")
+
+''' OLD ONE 
+def build_services(creds):
+    authed_http = AuthorizedHttp(creds, Request())
+    service = {
+        'gmail.readonly': build('gmail', 'v1', http=authed_http),
+        'gmail.send': build('gmail', 'v1', http=authed_http),
+        'calendar': build('calendar', 'v3', http=authed_http),
+        'contacts': build('people', 'v1', http=authed_http),
+        'profile': build('people', 'v1', http=authed_http),
+        'email': build('people', 'v1', http=authed_http),
+        'other.contacts': build('people', 'v1', http=authed_http),
+    }
+    return service'''
+
+def build_services(creds):
+    service = {
+        'gmail.readonly': build('gmail', 'v1', credentials=creds),
+        'gmail.send': build('gmail', 'v1', credentials=creds),
+        'calendar': build('calendar', 'v3', credentials=creds),
+        'contacts': build('people', 'v1', credentials=creds),
+        'profile': build('people', 'v1', credentials=creds),
+        'email': build('people', 'v1', credentials=creds),
+        'other.contacts': build('people', 'v1', credentials=creds),
+    }
+    return service
+
+def authenticate_service(user):
+    creds = get_credentials(user)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds = refresh_credentials(creds)
+        if creds:
+            save_credentials(creds, user)
+        else:
+            print("Failed to authenticate")
+            return None
+    
+    service = build_services(creds)
+    return service
 
 ######################## Read Mails ########################
 

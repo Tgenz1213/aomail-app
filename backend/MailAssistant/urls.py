@@ -24,6 +24,10 @@ urlpatterns = [
     path('api/login/', views.login, name='login'), # MADE BY THEO
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
+    path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'),
+    path('api/get_mail', views.get_mail_view, name='get_mail'),
+    path('api/get_mail_by_id', views.get_mail_by_id_view, name='get_mail_by_id'),
+    path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail')
+    #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
 ]

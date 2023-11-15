@@ -35,6 +35,12 @@ from django.db import IntegrityError
 # from .google_api import * 
 from . import google_api, microsoft_api
 
+# To test co to google_api
+from django.http import JsonResponse
+from django.views import View
+from .google_api import authenticate_service 
+from .google_api import get_mail
+
 # OpenAI - ChatGPT
 import openai
 
@@ -468,9 +474,6 @@ def separate_concatenated_mails(decoded_text):
     mails = [mail.strip() for mail in mails if mail.strip()]
     
     return mails
-
-
-
 
 def raw_to_string(raw_data):
     # Decode the base64-encoded raw email
@@ -1083,6 +1086,8 @@ def get_user_emails(request):
     for email in emails:
         email_data = {
             "id": email.id,
+            "id_provider": email.provider_id,
+            "email": email.sender.email,
             "name": email.sender.name,
             "description": email.email_short_summary,
             "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
@@ -1211,13 +1216,12 @@ def send_email(request):
 
 
 # GET
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_bg_color(request):
     try:
-        preferences = Preference.objects.get(id_user=request.user)
+        # Use 'user' instead of 'id_user' to filter the preferences
+        preferences = Preference.objects.get(user=request.user)
         serializer = PreferencesSerializer(preferences)
         return Response(serializer.data)
     except Preference.DoesNotExist:
@@ -1234,3 +1238,97 @@ def get_user_login(request):
         return Response(serializer.data)
     except Users.DoesNotExist:
         return Response({"error": "User not found."}, status=404)'''
+
+# TO TEST AUTH API
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def authenticate_service_view(request):
+    user = request.user
+    service = authenticate_service(user)
+    
+    if service is not None:
+        # Return a success response, along with any necessary information
+        return JsonResponse({"message": "Authentication successful"}, status=200)
+    else:
+        # Return an error response
+        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+
+# TO TEST Gmail GET the Mail from id
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_mail_view(request):
+    user = request.user
+    service = authenticate_service(user)
+    
+    if service is not None:
+        subject, from_name, decoded_data, email_id = get_mail(service, 0, None)
+        # Return a success response, along with any necessary information
+        return JsonResponse({
+            "message": "Authentication successful",
+            "email": {
+                "subject": subject,
+                "from_name": from_name,
+                "decoded_data": decoded_data,
+                "email_id": email_id
+            }
+        }, status=200)
+    else:
+        # Return an error response
+        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+
+# TO TEST Gmail GET Last Email
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_mail_by_id_view(request):
+    user = request.user
+    service = authenticate_service(user)
+    mail_id = request.GET.get('email_id')
+    
+    if service is not None and mail_id is not None:
+        subject, from_name, decoded_data, email_id = get_mail(service, None, mail_id)
+        # Return a success response, along with any necessary information
+        return JsonResponse({
+            "message": "Authentication successful",
+            "email": {
+                "subject": subject,
+                "from_name": from_name,
+                "decoded_data": decoded_data,
+                "email_id": email_id
+            }
+        }, status=200)
+    else:
+        # Return an error response
+        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+
+# TO TEST Gmail Save in BDD Last Email
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def save_last_mail_view(request):
+    user = request.user
+    service = authenticate_service(user)
+    
+    if service is not None:
+        processed_email_to_bdd(request,service)
+        # Return a success response, along with any necessary information
+        return JsonResponse({
+            "message": "Save successful"
+        }, status=200)
+    else:
+        # Return an error response
+        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+
+
+'''
+class TestAuthenticateServiceView(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            service = authenticate_service()
+            # Assuming the service object contains the information you need
+            service_info = {
+                'gmail': str(service.get('gmail.readonly')),
+                'calendar': str(service.get('calendar')),
+                # ... add other services as needed
+            }
+            return JsonResponse(service_info)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)'''

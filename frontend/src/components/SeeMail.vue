@@ -12,7 +12,7 @@
             <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                 <div class="ml-8 flex items-center space-x-1">
                     <UserGroupIcon class="w-6 h-6" />
-                    <p class="block font-semibold leading-6 text-gray-900">Hannah Williams</p>
+                    <p class="block font-semibold leading-6 text-gray-900">{{ email.name }}</p>
                 </div>
             </div>
            <div class="flex flex-col px-8">
@@ -21,8 +21,8 @@
                         <label for="tabs" class="sr-only">Select a tab</label>
                         <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
                         <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                        <option>Résumé du mail</option>
-                        <option selected>Mail complet</option>
+                          <option selected>Résumé du mail</option>
+                          <option>Mail complet</option>
                         </select>
                     </div>
                     <div class="hidden sm:block">
@@ -35,6 +35,12 @@
                         </div>
                     </div>
                 </div>
+                <ul role="list" class="text-sm 2xl:max-w-3xl max-w-2xl">
+                  <li v-for="detail in email.details" :key="detail.id" class="pl-8 my-4 border-l-2 hover:border-l-4">
+                    {{ detail.text }}
+                  </li>
+                </ul>
+                <!--
                 <p class="text-sm 2xl:max-w-3xl max-w-2xl">
                     Hi Theo and Antoine <br><br>
                     How are you both ? I’m back to Esaip this morning. <br><br>
@@ -46,7 +52,7 @@
                     Photos and illustrations will make it even more pleasant, and if relevant, of course, sources & references. <br><br>
                     Good luck! <br><br>
                     H <br><br>
-                </p>
+                </p>-->
                 <span class="isolate inline-flex rounded-2xl justify-center mb-8">
                     <div class="group">
                         <button type="button" class="relative -ml-px inline-flex items-center rounded-l-2xl px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
@@ -106,7 +112,8 @@ export default {
     isOpen: {
       type: Boolean,
       required: true
-    }
+    },
+    email: Object
   },
   methods: {
     closeModal() {

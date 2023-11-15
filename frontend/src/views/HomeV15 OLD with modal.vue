@@ -113,7 +113,7 @@
                                                             <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-red-50">{{ item.description }}</p>
                                                         </div>
                                                         <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
-                                                            <li v-for="detail in item.details" :key="detail.id" class="pl-8 my-2" :ref="'hiddenText' + item.id" :data-text="'- ' + detail.text">
+                                                            <li v-for="detail in item.details" :key="detail.id" class="pl-8" :ref="'hiddenText' + item.id" :data-text="detail.text">
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -121,7 +121,7 @@
                                                         <div class="flex justify-center">
                                                             <span class="isolate inline-flex rounded-2xl">
                                                                 <div class="group">
-                                                                    <button @click="openInNewWindow(item.id_provider)" type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
+                                                                    <button @click="openModal(item)" type="button" class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
                                                                         <eye-icon class="w-5 h-5 text-red-500 group-hover:text-white" />
                                                                     </button>
                                                                 </div>
@@ -131,7 +131,7 @@
                                                                     </button>
                                                                 </div>
                                                                 <div class="group">
-                                                                    <button @click="openAnswer(item)" type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
+                                                                    <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
                                                                         <arrow-uturn-left-icon class="w-5 h-5 text-red-500 group-hover:text-white" />
                                                                     </button>
                                                                 </div>
@@ -283,53 +283,6 @@ export default {
         openModal(email) {
             this.selectedEmail = email; // Set the email data for the clicked email
             this.showModal = true; // Open the modal
-        },
-        openInNewWindow(id_provider) {
-            console.log("EMAIL", id_provider);
-            const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
-            // Construct the URL with the Gmail message ID
-            const urlToOpen = `${gmailBaseUrl}${id_provider}`;
-
-            window.open(urlToOpen, '_blank');
-        },
-        openAnswer(email) {
-            console.log("EMAIL", email.id_provider);
-
-            // Define the API endpoint URL
-            const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
-
-            // Make the GET request
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-                    'Content-Type': 'application/json',
-                    // Include other headers as required, like authorization tokens
-                }
-            })
-            .then(response => {
-                // Check if the request was successful
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Network response was not ok.');
-                }
-            })
-            .then(data => {
-                console.log("Received data:", data);
-                this.$router.push({ 
-                    name: 'answer', 
-                    query: { 
-                        subject: JSON.stringify(data.email.subject),
-                        email: JSON.stringify(email.email),
-                        id_provider : JSON.stringify(email.id_provider),
-                        details: JSON.stringify(email.details)
-                    }
-                });
-            })
-            .catch(error => {
-                console.error("There was a problem with the fetch operation:", error);
-            });
         },
         async refreshToken() {
             // Get the refresh token from local storage

@@ -5,6 +5,7 @@ import SignUp from '@/views/SignUpV1.vue';
 import SignUpPart2 from '@/views/SignUpV1_part2.vue';
 import Home from '@/views/HomeV15.vue';
 import New from '@/views/NewV4.vue';
+import Answer from '@/views/AnswerV1.vue';
 import Rules from '@/views/RulesV2.vue';
 import Settings from '@/views/SettingsV1.vue';
 
@@ -35,6 +36,12 @@ const routes = [
     name: 'new',
     meta: { requiresAuth: true },
     component: New,
+  },
+  {
+    path: '/answer',
+    name: 'answer',
+    meta: { requiresAuth: true },
+    component: Answer,
   },
   {
     path: '/rules',

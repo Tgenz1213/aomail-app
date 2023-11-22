@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>-->
-    <div class="flex flex-col justify-center items-center h-screen">
+    <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
       <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
         <div class="col-span-1 2xl:col-span-1">
           <div class="2xl:hidden h-full">
@@ -32,16 +32,16 @@
         </div>
         <div class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]"> <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
           <div class="flex flex-col h-full relative"> <!-- ADDED relative -->
-            <div class="divide-y divide-gray-300">
-              <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-                <h1 class="font-semibold">Règles de l'Assistant</h1>
+            <div class="divide-y divide-gray-200">
+              <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Règles de l'Assistant</h1>
               </div>
               <SearchbarV2></SearchbarV2>
             </div>
             <div class="flex-grow overflow-y-auto" style="margin-right: 2px;">
               <div class="p-6 h-full">
                 <!-- IF AT LEAST ONE RULE EXIST -->
-                <ul category="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <ul v-if="rules.length > 0" category="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   <li v-for="person in people" :key="person.email" class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-300 hover:shadow-sm relative">
                     <div class="absolute right-4 top-4">
                       <TrashIcon class="w-6 h-6 text-gray-300 hover:text-gray-400" />
@@ -78,18 +78,17 @@
                     </div>
                   </li>
                 </ul> 
-                <!-- IF NO RULE EXIST
-                <div class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 text-center" @click="showModal = true">
+                <div v-if="rules.length == 0" class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 text-center" @click="showModal = true">
                   <div class="flex-col">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                     </svg>
                     <span class="mt-2 block text-sm font-semibold text-gray-900">Cliquez pour créer une règle</span>
                   </div>
-                </div>-->
+                </div>
               </div>
             </div>
-            <div class="flex items-center justify-center w-auto right-6 left-6 absolute bottom-6 h-[85px] rounded-lg border-2 border-dashed border-gray-300 text-center" @click="showModal = true">
+            <div v-if="rules.length > 0" class="flex items-center justify-center w-auto right-6 left-6 absolute bottom-6 h-[85px] rounded-lg border-2 border-dashed border-gray-300 text-center" @click="showModal = true">
               <div class="flex-col">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-10 h-10 mx-auto text-gray-400">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
@@ -101,7 +100,7 @@
         </div>
       </div>
     </div>
-    <ModalSeeRule :isOpen="showModal" @update:isOpen="updateModalStatus" />
+    <ModalSeeRule :isOpen="showModal" @update:isOpen="updateModalStatus" :emailSenders="emailSenders" :categories="categories" />
 </template>
 
 <script>
@@ -133,12 +132,151 @@ export default {
       console.log("STATUS", status);
       this.showModal = status;
     },
+    fetchRules() {
+      fetch('http://localhost:9000/MailAssistant/user/rules/', { // Replace with your actual API URL
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}` // Adjust depending on your auth scheme
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        this.rules = data;
+        console.log("Rules", data);
+      })
+      .catch(error => {
+        console.error('Error fetching rules:', error);
+      });
+    },
+    fetchCategories() {
+      fetch('http://localhost:9000/MailAssistant/user/categories/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Categories", data)
+        this.categories = data; // Store the fetched categories in the component's data
+      })
+      .catch(error => {
+        console.error('Error fetching categories:', error);
+      });
+    },
+    fetchEmailSenders() {
+      fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("email senders", data);
+        this.emailSenders = data;
+      })
+      .catch(error => {
+        console.error('Error fetching email senders:', error);
+        // Handle errors appropriately
+      });
+    },
+    async refreshToken() {
+      // Get the refresh token from local storage
+      const refresh_token = localStorage.getItem('refreshToken');
+
+      if (!refresh_token) {
+          throw new Error('No refresh token found');
+      }
+
+      // Set up the request options for the fetch call
+      const requestOptions = {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refresh: refresh_token }),
+      };
+
+      try {
+          // Make the POST request to the refresh token endpoint
+          const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+
+          // Check if the response status is OK (200)
+          if (!response.ok) {
+              throw new Error(`Failed to refresh token: ${response.statusText}`);
+          }
+
+          // Parse the JSON response to get the new access token
+          const data = await response.json();
+          const new_access_token = data.access;
+
+          // Save the new access token to local storage
+          localStorage.setItem('userToken', new_access_token);
+
+          return new_access_token;
+      } catch (error) {
+          console.error('Error refreshing token: ', error.message);
+          // Handle the error (e.g., by redirecting the user to a login page)
+          throw error;
+      }
+    },
+    async getUserBgColor() {
+      try {
+          const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
+          method: 'GET',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+              'Content-Type': 'application/json'
+          }
+          });
+
+          if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log(data);
+          this.bgColor = data.bg_color;
+          // Do something with the response data (e.g., update component state)
+      } catch (error) {
+          console.error("Error fetching user background color:", error.message);
+          // Handle the error (e.g., show an error message to the user)
+      }
+    }
   },
   mounted() {
+    this.refreshToken();
+    this.getUserBgColor();
+    this.fetchEmailSenders();
+    this.fetchRules();
+    this.fetchCategories();
   },
   data() {
     return {
       showModal: false,
+      bgColor: 'bg-gradient-to-r from-sky-300 to-blue-300',
+      rules: [], // This will hold the fetched rules
+      categories: [],
+      emailSenders: {},
       people : [
         {
           name: 'Jane Cooper',

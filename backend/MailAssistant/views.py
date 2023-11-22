@@ -29,7 +29,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
-from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer
+from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer
 from django.db import IntegrityError
 
 # from .google_api import * 
@@ -39,7 +39,7 @@ from . import google_api, microsoft_api
 from django.http import JsonResponse
 from django.views import View
 from .google_api import authenticate_service 
-from .google_api import get_mail
+from .google_api import get_mail, get_unique_senders, get_info_contacts
 
 # OpenAI - ChatGPT
 import openai
@@ -1026,9 +1026,7 @@ def login(request):
 
 ######################## Home Page ########################
 
-
 # GET
-
 
 # @api_view(['GET'])
 # @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
@@ -1214,7 +1212,6 @@ def send_email(request):
 
 ######################## Settings ########################
 
-
 # GET
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1227,17 +1224,107 @@ def get_user_bg_color(request):
     except Preference.DoesNotExist:
         return Response({"error": "Preferences not found for the user."}, status=404)
 
-# TO UPDATE
-'''
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_user_login(request):
+def get_user_details(request):
+    return Response({'username': request.user.username})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_username(request):
+    user = request.user
+    new_username = request.data.get('username')
+
+    if not new_username:
+        return Response({'error': 'No new username provided.'}, status=400)
+
+    # Add more validation for username as needed
+
+    user.username = new_username
+    user.save()
+
+    return Response({'success': 'Username updated successfully.'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_password(request):
+    user = request.user
+    new_password = request.data.get('password')
+
+    if not new_password:
+        return Response({'error': 'No new password provided.'}, status=400)
+
+    # Add password validation as needed
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'success': 'Password updated successfully.'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_user_bg_color(request):
     try:
-        user = Users.objects.get(id_user=request.user.id)
-        serializer = UserLoginSerializer(user)
+        # Retrieve the user's Preference object
+        preferences = Preference.objects.get(user=request.user)
+    except Preference.DoesNotExist:
+        # Create a new Preference object if it doesn't exist
+        preferences = Preference(user=request.user)
+
+    # Update the bg_color field from the request data
+    serializer = PreferencesSerializer(preferences, data=request.data)
+    if serializer.is_valid():
+        serializer.save()  # Save the updated Preference object
         return Response(serializer.data)
-    except Users.DoesNotExist:
-        return Response({"error": "User not found."}, status=404)'''
+    else:
+        # Return validation errors if the data is not valid
+        return Response(serializer.errors, status=400)
+
+
+######################## Rules ########################
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_rules(request):
+    user_rules = Rule.objects.filter(user=request.user)
+    serializer = RuleSerializer(user_rules, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_user_rule(request):
+    serializer = RuleSerializer(data=request.data)
+
+    # Check if the serializer is valid
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=201)
+    else:
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_unique_email_senders_view(request):
+    user = request.user
+    services = authenticate_service(user)
+    
+    if services is not None:
+        senders_info = get_unique_senders(services)
+        contacts_info = get_info_contacts(services)
+
+        # Convert contacts_info to a dictionary format
+        contacts_dict = {email: contact['name'] for contact in contacts_info for email in contact['emails']}
+
+        # Merge the two dictionaries and remove duplicates
+        merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
+
+        return JsonResponse(merged_info, status=200)
+    else:
+        return JsonResponse({"error": "Failed to authenticate or access services"}, status=400)
+    
+######################## Test ########################
+ 
 
 # TO TEST AUTH API
 @api_view(['GET'])
@@ -1332,3 +1419,19 @@ class TestAuthenticateServiceView(View):
             return JsonResponse(service_info)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)'''
+
+
+######################## OLD ########################
+
+
+# TO UPDATE
+'''
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_login(request):
+    try:
+        user = Users.objects.get(id_user=request.user.id)
+        serializer = UserLoginSerializer(user)
+        return Response(serializer.data)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found."}, status=404)'''

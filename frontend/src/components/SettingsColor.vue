@@ -29,8 +29,14 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { defineProps, ref, watch, defineEmits } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
+
+const props = defineProps({
+  initialColor: String
+})
+
+const emits = defineEmits(['colorSelected']);
 
 const colors = [
   { name: 'Gradient_Orange_Rose', bgColor: 'bg-gradient-to-r from-orange-200 to-rose-200', selectedColor: 'ring-orange-100' }, // TESTED
@@ -65,5 +71,19 @@ const colors = [
   { name: 'Gradient_', bgColor: 'bg-gradient-to-r from-blue-300 to-emerald-200', selectedColor: 'ring-blue-100' }, // TESTED
 ]
 
-const selectedColor = ref(colors[1])
+// Function to find the initial color
+const findColor = (colorValue) => {
+  return colors.find(color => color.bgColor === colorValue) || colors[0];
+}
+
+const selectedColor = ref(findColor(props.initialColor))
+
+// Watch for changes in the initialColor prop
+watch(() => props.initialColor, (newColor) => {
+  selectedColor.value = findColor(newColor);
+});
+
+watch(selectedColor, (newValue) => {
+  emits('colorSelected', newValue.bgColor);
+});
 </script>

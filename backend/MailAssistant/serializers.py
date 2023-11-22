@@ -70,3 +70,9 @@ class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['login']
+
+# Get Rules
+class RuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rule
+        fields = ['info_AI', 'priority', 'block', 'category', 'user', 'sender']

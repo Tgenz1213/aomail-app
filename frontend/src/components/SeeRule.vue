@@ -1,6 +1,6 @@
 <template>
     <transition name="modal-fade">
-      <div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
+      <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
         <div class="bg-white rounded-lg relative w-[450px]">
           <slot></slot>
             <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
@@ -51,10 +51,8 @@
                   <label for="location" class="block text-sm font-medium leading-6 text-gray-900">Catégorie</label>
                 </div>
                 <select id="location" name="location" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-                  <option selected>Aucune règle définie</option>
-                  <option>ESAIP</option>
-                  <option>Entrepreneuriat</option>
-                  <option>Autres</option>
+                  <option selected>Aucune catégorie définie</option>
+                  <option v-for="category in categories" :key="category.name" :value="category.name">{{ category.name }}</option>
                 </select>
               </div>
               <div>
@@ -63,7 +61,7 @@
                   <label for="location" class="block text-sm font-medium leading-6 text-gray-900">Priorité</label>
                 </div>
                 <select id="location" name="location" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-                  <option selected>Aucune règle définie</option>
+                  <option selected>Aucune priorité définie</option>
                   <option>Important</option>
                   <option>Informatif</option>
                   <option>Inutile</option>
@@ -91,7 +89,7 @@
   </template>
   
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
 import {
@@ -103,20 +101,32 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue'
 
-const people = [
+/*const people = [
   { name: 'Leslie Alexander', username: '@lesliealexander' },
   // More users...
-]
+]*/
 
-const query = ref('')
-const selectedPerson = ref(null)
-const filteredPeople = computed(() =>
-  query.value === ''
-    ? people
-    : people.filter((person) => {
-        return person.name.toLowerCase().includes(query.value.toLowerCase())
-      })
-)
+/*
+const query = ref('');
+const selectedPerson = ref(null);
+
+const filteredPeople = computed(() => {
+  // Transform emailSenders into an array of {name, username} objects
+  const sendersArray = Object.entries(this.emailSenders).map(([email, name]) => {
+    return {
+      name: name || email,  // Use the name if available, otherwise use the email as the name
+      username: email  // The email address
+    };
+  });
+
+  // Filter the array based on the search query
+  return query.value === '' ? sendersArray : sendersArray.filter(person =>
+    person.name.toLowerCase().includes(query.value.toLowerCase()) ||
+    person.username.toLowerCase().includes(query.value.toLowerCase())
+  );
+});*/
+
+const selectedPerson = ref(null);
 
 const enabled = ref(false)
 </script>
@@ -142,7 +152,39 @@ export default {
     isOpen: {
       type: Boolean,
       required: true
-    }
+    },
+    emailSenders: {
+      type: Object,
+      default: () => ({}),  // Providing a default empty object
+    },
+    categories: Array
+  },
+  data() {
+    return {
+      query: '',  
+    };
+  },
+  computed: {
+    filteredPeople() {
+      const sendersArray = Object.entries(this.emailSenders).map(([email, name]) => {
+        return {
+          name: name || email,  // Use name if available, otherwise email
+          username: email
+        };
+      });
+
+      if (this.query === '') {
+        return sendersArray;
+      } else {
+        return sendersArray.filter(person =>
+          person.name.toLowerCase().includes(this.query.toLowerCase()) ||
+          person.username.toLowerCase().includes(this.query.toLowerCase())
+        );
+      }
+    },
+  },
+  mounted() {
+    console.log("FilteredPeople", this.filteredPeople);
   },
   methods: {
     closeModal() {

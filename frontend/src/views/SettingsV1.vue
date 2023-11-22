@@ -20,7 +20,7 @@
           </div>
       </div>
   </div>-->
-  <div class="flex flex-col justify-center items-center h-screen">
+  <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
       <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
           <div class="col-span-1 2xl:col-span-1">
             <div class="2xl:hidden h-full">
@@ -79,7 +79,7 @@
                                         :class="['flex space-x-2 items-center rounded-md py-2', 
                                                 {'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'data', 
                                                   'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'data'}]"
-                                        @click="setActiveSection('account')">
+                                        @click="setActiveSection('data')">
                                         <user-icon class="w-4 h-4" />
                                         <a :class="{'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data'}" class="text-sm font-medium">Mes données</a>
                                       </div>
@@ -113,31 +113,34 @@
                               <div class="pt-6 pb-10">
                                 <div class="flex space-x-1 items-center">
                                   <envelope-icon class="w-4 h-4" />
-                                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Login</label>
                                 </div>
                                 <div class="relative items-stretch mt-2">
-                                  <input type="text" name="first-name" id="first-name" value="theohubert3@gmx.com" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
-                                </div>
+                                  <input v-model="userData.username" type="text" name="username" id="username" autocomplete="username" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">                                </div>
                                 <div class="pt-4">
-                                  <div class="flex space-x-1 items-center">
-                                    <key-icon class="w-4 h-4" />
-                                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nouveau mot de passe</label>
-                                  </div>
-                                  <div class="relative items-stretch mt-2">
-                                    <input type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
-                                  </div>
-                                </div>
-                                <div class="pt-4">
-                                  <div class="flex space-x-1 items-center">
-                                    <key-icon class="w-4 h-4" />
-                                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot de passe</label>
-                                  </div>
-                                  <div class="relative items-stretch mt-2">
-                                    <input type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                                  <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <div class="flex space-x-1 items-center">
+                                        <key-icon class="w-4 h-4" />
+                                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nouveau mot de passe</label>
+                                      </div>
+                                      <div class="relative items-stretch mt-2">
+                                        <input v-model="newPassword" type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div class="flex space-x-1 items-center">
+                                        <key-icon class="w-4 h-4" />
+                                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot de passe</label>
+                                      </div>
+                                      <div class="relative items-stretch mt-2">
+                                        <input v-model="confirmPassword" type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                                 <div class="flex justify-end pt-4">
-                                  <button type="submit" class="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Modifier</button>
+                                  <button @click="handleSubmit" class="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Modifier</button> <!-- TO CODE : Notification system that worn the user when the notification appears -->
                                 </div>
                               </div>
                               <div class="relative">
@@ -196,7 +199,7 @@
                                 </div>
                               </div>
                               <div class="pt-6">
-                                <color></color>
+                                <color :initialColor="bgColor" @colorSelected="handleColorChange"></color>
                               </div>
                             </div>
                           </div>
@@ -233,13 +236,200 @@ export default {
   },
   data() {
     return {
-      activeSection: 'preferences' // Default active section
+      activeSection: 'preferences', // Default active section
+      bgColor: 'bg-gradient-to-r from-sky-300 to-blue-300',
+      userData: {
+        username: ''
+      },
+      newPassword: '',
+      confirmPassword: ''
     };
   },
   methods: {
     setActiveSection(section) {
       this.activeSection = section;
-    }
+    },
+    handleColorChange(newColor) {
+      this.bgColor = newColor;
+
+      // Prepare the data to be sent in the request
+      const data = {
+        bg_color: newColor
+      };
+
+      // Define the URL of your Django API endpoint
+      const apiUrl = 'http://localhost:9000/MailAssistant/user/preferences/set_bg_color/';
+
+      // Make the POST request using fetch
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}` // Replace with your token retrieval logic
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Background color updated successfully', data);
+        // Handle successful response here
+      })
+      .catch(error => {
+        console.error('Error updating background color:', error);
+        // Handle error here
+      });
+    },
+    fetchUserData() {
+      fetch('http://localhost:9000/MailAssistant/user/preferences/username/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}` // Use the correct auth header depending on your setup
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data.username);
+        this.userData.username = data.username;
+      })
+      .catch(error => {
+        console.error('Fetch error:', error);
+      });
+    },
+    handleSubmit() {
+      // Check if passwords are provided and match
+      if (this.newPassword && this.newPassword === this.confirmPassword) {
+        // Update password
+        this.updatePassword();
+      }
+
+      // Always update username
+      this.updateUsername();
+    },
+    updatePassword() {
+      fetch('http://localhost:9000/MailAssistant/user/preferences/update-password/', { // Replace with your actual API URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        },
+        body: JSON.stringify({ password: this.newPassword })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Password updated successfully', data);
+        // Handle successful password update
+      })
+      .catch(error => {
+        console.error('Error updating password:', error);
+        // Handle error
+      });
+    },
+    updateUsername() {
+      fetch('http://localhost:9000/MailAssistant/user/preferences/update-username/', { // Replace with your actual API URL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        },
+        body: JSON.stringify({ username: this.userData.username })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Username updated successfully', data);
+        // Handle successful username update
+      })
+      .catch(error => {
+        console.error('Error updating username:', error);
+        // Handle error
+      });
+    },
+    async refreshToken() {
+      // Get the refresh token from local storage
+      const refresh_token = localStorage.getItem('refreshToken');
+
+      if (!refresh_token) {
+          throw new Error('No refresh token found');
+      }
+
+      // Set up the request options for the fetch call
+      const requestOptions = {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refresh: refresh_token }),
+      };
+
+      try {
+          // Make the POST request to the refresh token endpoint
+          const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+
+          // Check if the response status is OK (200)
+          if (!response.ok) {
+              throw new Error(`Failed to refresh token: ${response.statusText}`);
+          }
+
+          // Parse the JSON response to get the new access token
+          const data = await response.json();
+          const new_access_token = data.access;
+
+          // Save the new access token to local storage
+          localStorage.setItem('userToken', new_access_token);
+
+          return new_access_token;
+      } catch (error) {
+          console.error('Error refreshing token: ', error.message);
+          // Handle the error (e.g., by redirecting the user to a login page)
+          throw error;
+      }
+    },
+    async getUserBgColor() {
+      try {
+          const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
+          method: 'GET',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+              'Content-Type': 'application/json'
+          }
+          });
+
+          if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log(data);
+          this.bgColor = data.bg_color;
+          // Do something with the response data (e.g., update component state)
+      } catch (error) {
+          console.error("Error fetching user background color:", error.message);
+          // Handle the error (e.g., show an error message to the user)
+      }
+    },
   },
+  async mounted() {
+    this.refreshToken();
+    this.getUserBgColor();
+    this.fetchUserData();
+  }
 }
 </script>

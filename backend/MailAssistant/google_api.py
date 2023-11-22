@@ -603,7 +603,6 @@ def search_attachments(query):
 
     return attachments
 
-
 ######################## Other ########################
 
 
@@ -662,4 +661,79 @@ def get_calendar_events(services):
     
     for item in events:
         print('item: ',item)
+
+# Fetch all the mail in the mailbox of the user => WORKS but it take to much time
+'''
+def get_unique_senders(services):
+    service = services['gmail.readonly']
+    results = service.users().messages().list(userId='me', labelIds = ['INBOX']).execute()
+    messages = results.get('messages', [])
+
+    email_addresses = set()
+
+    if not messages:
+        print('No messages found.')
+    else:
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id'], format='metadata').execute()
+            headers = msg['payload']['headers']
+            sender = next(header['value'] for header in headers if header['name'] == 'From')
+            email_address = sender.split('<')[-1].split('>')[0].strip()
+            email_addresses.add(email_address)
+
+    return list(email_addresses)'''
+
+# Fetch all the mail in the mailbox of the user
+def get_unique_senders(services):
+    service = services['gmail.readonly']
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=50).execute()
+    messages = results.get('messages', [])
+
+    senders_info = {}
+
+    if not messages:
+        print('No messages found.')
+    else:
+        for message in messages:
+            try:
+                msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+                headers = msg['payload']['headers']
+                sender_header = next(header['value'] for header in headers if header['name'] == 'From')
+                
+                # Extracting the email address and name
+                sender_parts = sender_header.split('<')
+                sender_name = sender_parts[0].strip().strip('"')
+                sender_email = sender_parts[-1].split('>')[0].strip() if len(sender_parts) > 1 else sender_name
+
+                # Store the sender's name with the email address as the key
+                senders_info[sender_email] = sender_name
+            except Exception as e:
+                print(f"Error processing message {message['id']}: {e}")
+
+    return senders_info
+
+
+# Fetch the name and the email of the contacts of the user 
+def get_info_contacts(services):
+    service = services['contacts']
+
+    # Request a list of all the user's connections (contacts)
+    results = service.people().connections().list(
+        resourceName='people/me',
+        pageSize=1000,  # Adjust the page size as needed
+        personFields='names,emailAddresses'
+    ).execute()
+
+    contacts = results.get('connections', [])
+
+    names_emails = []
+    for contact in contacts:
+        # Extract the name and email address of each contact
+        name = contact.get('names', [{}])[0].get('displayName')
+        email_addresses = [email['value'] for email in contact.get('emailAddresses', [])]
+
+        names_emails.append({'name': name, 'emails': email_addresses})
+
+    return names_emails
+
 

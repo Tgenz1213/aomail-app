@@ -42,33 +42,33 @@
               <div class="p-6 h-full">
                 <!-- IF AT LEAST ONE RULE EXIST -->
                 <ul v-if="rules.length > 0" category="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  <li v-for="person in people" :key="person.email" class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-300 hover:shadow-sm relative">
+                  <li v-for="rule in rules" :key="rule.email" class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-300 hover:shadow-sm relative">
                     <div class="absolute right-4 top-4">
                       <TrashIcon class="w-6 h-6 text-gray-300 hover:text-gray-400" />
                     </div>
                     <div class="flex w-full items-center justify-between space-x-6 p-6">
                       <div class="flex-1 truncate">
                         <div class="flex items-center space-x-3">
-                          <h3 class="truncate text-sm font-medium text-gray-900">{{ person.name }}</h3>
+                          <h3 class="truncate text-sm font-medium text-gray-900">{{ rule.name }}</h3>
                         </div>
-                        <p class="mt-1 mb-4 truncate text-sm text-gray-500">{{ person.email }}</p>
-                        <div v-if="person.category !== 'Non définie'" class="flex gap-1">
+                        <p class="mt-1 mb-4 truncate text-sm text-gray-500">{{ rule.email }}</p>
+                        <div v-if="rule.category !== ''" class="flex gap-1">
                           <div class="flex space-x-1 items-center">
                             <ArchiveBoxIcon class="w-4 h-4" />
                             <p class="font-semibold text-sm">Catégorie :</p>
                           </div>
-                          <span class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/20">{{ person.category }}</span>
+                          <span class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/20">{{ rule.category }}</span>
                         </div>
-                        <div v-if="person.priority !== 'Non définie'" class="flex gap-1 mt-2">
+                        <div v-if="rule.priority !== ''" class="flex gap-1 mt-2">
                           <div class="flex space-x-1 items-center">
                             <ExclamationCircleIcon class="w-4 h-4" />
                             <p class="font-semibold text-sm">Priorité :</p>
                           </div>
-                          <span v-if="person.priority === 'Important'" class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{ person.priority }}</span>
-                          <span v-if="person.priority === 'Informatif'" class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{ person.priority }}</span>
-                          <span v-if="person.priority === 'Inutile'" class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">{{ person.priority }}</span>
+                          <span v-if="rule.priority === 'Important'" class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{ rule.priority }}</span>
+                          <span v-if="rule.priority === 'Informatif'" class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{ rule.priority }}</span>
+                          <span v-if="rule.priority === 'Inutile'" class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">{{ rule.priority }}</span>
                         </div>
-                        <div v-if="person.mail_stop === 'True'" class="flex gap-1 mt-2">
+                        <div v-if="rule.mail_stop === 'true'" class="flex gap-1 mt-2">
                           <div class="flex space-x-1 items-center">
                             <ShieldCheckIcon class="w-4 h-4" />
                             <p class="font-semibold text-sm">Mail bloqués</p>
@@ -132,27 +132,36 @@ export default {
       console.log("STATUS", status);
       this.showModal = status;
     },
-    fetchRules() {
-      fetch('http://localhost:9000/MailAssistant/user/rules/', { // Replace with your actual API URL
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}` // Adjust depending on your auth scheme
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
+    async fetchRules() {
+      try {
+        const rulesResponse = await fetch('http://localhost:9000/MailAssistant/user/rules/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+          }
+        });
+
+        if (!rulesResponse.ok) {
           throw new Error('Network response was not ok');
         }
-        return response.json();
-      })
-      .then(data => {
-        this.rules = data;
-        console.log("Rules", data);
-      })
-      .catch(error => {
+
+        const rulesData = await rulesResponse.json();
+        console.log('Rules', rulesData);
+        console.log('Rules name', rulesData[0].category_name);
+
+        // Map each rule to the desired format and add to the people array
+        this.rules = rulesData.map(rule => ({
+          name: rule.sender_name,
+          email: rule.sender_email,
+          category: rule.category_name,
+          priority: rule.priority,
+          mail_stop: rule.block
+        }));
+
+      } catch (error) {
         console.error('Error fetching rules:', error);
-      });
+      }
     },
     fetchCategories() {
       fetch('http://localhost:9000/MailAssistant/user/categories/', {
@@ -266,8 +275,8 @@ export default {
   mounted() {
     this.refreshToken();
     this.getUserBgColor();
-    this.fetchEmailSenders();
     this.fetchRules();
+    this.fetchEmailSenders();
     this.fetchCategories();
   },
   data() {

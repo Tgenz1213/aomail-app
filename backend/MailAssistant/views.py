@@ -29,7 +29,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
-from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer
+from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer
 from django.db import IntegrityError
 
 # from .google_api import * 
@@ -1288,20 +1288,25 @@ def set_user_bg_color(request):
 @permission_classes([IsAuthenticated])
 def get_user_rules(request):
     user_rules = Rule.objects.filter(user=request.user)
-    serializer = RuleSerializer(user_rules, many=True)
-    return Response(serializer.data)
+    rules_data = []
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_user_rule(request):
-    serializer = RuleSerializer(data=request.data)
+    for rule in user_rules:
+        # Serialize the basic rule data
+        rule_serializer = RuleSerializer(rule)
+        rule_data = rule_serializer.data
 
-    # Check if the serializer is valid
-    if serializer.is_valid():
-        serializer.save(user=request.user)
-        return Response(serializer.data, status=201)
-    else:
-        return Response(serializer.errors, status=400)
+        # Manually add category name and sender details
+        category_name = rule.category.name if rule.category else None
+        sender_name = rule.sender.name if rule.sender else None
+        sender_email = rule.sender.email if rule.sender else None
+
+        rule_data['category_name'] = category_name
+        rule_data['sender_name'] = sender_name
+        rule_data['sender_email'] = sender_email
+
+        rules_data.append(rule_data)
+
+    return Response(rules_data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1322,7 +1327,38 @@ def get_unique_email_senders_view(request):
         return JsonResponse(merged_info, status=200)
     else:
         return JsonResponse({"error": "Failed to authenticate or access services"}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_sender(request):
+    serializer = SenderSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_user_rule(request):
+    serializer = RuleSerializer(data=request.data, context={'user': request.user})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    else:
+        print("Data:", request.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_category_id(request, category_name):
+    user = request.user
+    category = get_object_or_404(Category, name=category_name, user=user)
+    return JsonResponse({'id': category.id})
+        
+
 ######################## Test ########################
  
 

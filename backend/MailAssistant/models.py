@@ -29,8 +29,8 @@ class SocialAPI(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Rule(models.Model):
-    info_AI = models.TextField()
-    priority = models.CharField(max_length=50)
+    info_AI = models.TextField(blank=True)
+    priority = models.CharField(max_length=50, blank=True)
     block = models.BooleanField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

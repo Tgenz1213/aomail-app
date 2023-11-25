@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Message, Category, Email, BulletPoint, Rule, Preference
+from .models import Message, Category, Email, BulletPoint, Rule, Preference, Sender
 
 # link between data and API
 class MessageSerializer(serializers.ModelSerializer):
@@ -76,3 +76,15 @@ class RuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rule
         fields = ['info_AI', 'priority', 'block', 'category', 'user', 'sender']
+        read_only_fields = ['user']
+
+    def create(self, validated_data):
+        # Extract the user from the context
+        user = self.context.get('user')
+        # Create the Rule instance with the user
+        return Rule.objects.create(user=user, **validated_data)
+
+class SenderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sender
+        fields = ['id', 'email', 'name']  # Include 'id' in the fields

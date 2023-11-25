@@ -35,6 +35,8 @@ urlpatterns = [
     path('api/get_mail_by_id', views.get_mail_by_id_view, name='get_mail_by_id'),
     path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'),
     path('api/get_unique_email_senders', views.get_unique_email_senders_view, name='get_unique_email_senders_view'),
+    path('api/create_sender', views.create_sender, name='create_sender'),
+    path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'),
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
 ]

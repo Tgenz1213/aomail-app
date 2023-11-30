@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>-->
-    <div class="flex flex-col justify-center items-center h-screen">
+    <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">    
       <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
         <div class="col-span-1 2xl:col-span-1">
           <div class="2xl:hidden h-full">
@@ -74,8 +74,31 @@
                         </div>
                         <form class="flex flex-grow w-full px-10">
                             <div class="flex flex-col space-y-6 h-full w-full">
-                                <div class="">
-                                    <div class="flex items-stretch gap-1 pt-8">
+                                <div class="pt-8">
+                                    <div class="flex flex-wrap">
+                                        <!-- Main Recipients List -->
+                                        <div v-for="person in selectedPeople" :key="person.username" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                            {{ person.name }}
+                                            <button @click="removePersonFromMain(person)">×</button>
+                                        </div>
+                                        <!-- CC Recipients List -->
+                                        <div v-if="activeType === 'CC' && selectedCC.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                            <div v-for="person in selectedCC" :key="person.username" class="flex items-center">
+                                                <span class="font-semibold mr-1">CC:</span>
+                                                {{ person.name }}
+                                                <button @click="removePersonFromCC(person)">×</button>
+                                            </div>
+                                        </div>
+                                        <!-- CCI Recipients List -->
+                                        <div v-if="activeType === 'CCI' && selectedCCI.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                            <div v-for="person in selectedCCI" :key="person.username" class="flex items-center">
+                                                <span class="font-semibold mr-1">CCI:</span>
+                                                {{ person.name }}
+                                                <button @click="removePersonFromCCI(person)">×</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-stretch gap-1">
                                         <div class="flex-grow">
                                         <div class="relative items-stretch">
                                             <div class="relative w-full">
@@ -86,8 +109,7 @@
                                                     <UserGroupIcon class="w-4 h-4 pointer-events-none" />
                                                     <label for="username" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
                                                 </div>
-                                                <Combobox as="div" v-model="selectedPerson" @change="personSelected" 
-                                                @blur="handleBlur2">
+                                                <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected" @blur="handleBlur2">
                                                     <ComboboxInput 
                                                         class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" 
                                                         @change="query = $event.target.value" 
@@ -124,15 +146,23 @@
                                             <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
                                         </div>-->
                                         </div>
-                                        <div class="flex">
-                                        <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                        <div class="flex gap-1">
+                                            <button 
+                                            type="button" 
+                                            @click="toggleCC"
+                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                                            class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                             CC
-                                        </button>
-                                        </div>
-                                        <div class="flex">
-                                        <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                            </button>
+
+                                            <!-- CCI Button -->
+                                            <button 
+                                            type="button" 
+                                            @click="toggleCCI"
+                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                                            class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                             CCI
-                                        </button>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -248,28 +278,36 @@ const items = [
 
 const people = [
     { name: 'Leslie Alexander', username: '@lesliealexander' },
-    // More users...
+    { name: 'Theo', username: 'theohubert3@gmx.com'}
   ]
   
-  const query = ref('')
-  const filteredPeople = computed(() =>
-    query.value === ''
-      ? people
-      : people.filter((person) => {
-          return person.name.toLowerCase().includes(query.value.toLowerCase())
-        })
-  )
+const selectedPeople = ref([]);
+const selectedCC = ref([]);
+const selectedCCI = ref([]);
+const activeType = ref(null);  // null, 'CC', or 'CCI'
+
+const query = ref('')
+const filteredPeople = computed(() =>
+query.value === ''
+    ? people
+    : people.filter((person) => {
+        return person.name.toLowerCase().includes(query.value.toLowerCase())
+    })
+)
 
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:selectedPerson']);
 const selectedPerson = ref(props.modelValue);
 
 watch(selectedPerson, (newValue) => {
-    console.log(selectedPerson);
+    console.log(selectedPerson.value);
     hasValueEverBeenEntered.value = true; // to make the icon disappear
-    handleInputUpdate(selectedPerson.value.username);
+    if (selectedPerson.value && selectedPerson.value.username) {
+        handleInputUpdate(selectedPerson.value.username);
+    }  
     emit('update:selectedPerson', newValue);
 });
+
 
 const inputValue = ref('');
 const isFocused = ref(false);
@@ -364,11 +402,79 @@ const handleAIClick = () => {
   }
 };
 
+async function refreshToken() {
+    // Get the refresh token from local storage
+    const refresh_token = localStorage.getItem('refreshToken');
+
+    if (!refresh_token) {
+        throw new Error('No refresh token found');
+    }
+
+    // Set up the request options for the fetch call
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refresh_token }),
+    };
+
+    try {
+        // Make the POST request to the refresh token endpoint
+        const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+
+        // Check if the response status is OK (200)
+        if (!response.ok) {
+            throw new Error(`Failed to refresh token: ${response.statusText}`);
+        }
+
+        // Parse the JSON response to get the new access token
+        const data = await response.json();
+        const new_access_token = data.access;
+
+        // Save the new access token to local storage
+        localStorage.setItem('userToken', new_access_token);
+
+        return new_access_token;
+    } catch (error) {
+        console.error('Error refreshing token: ', error.message);
+        // Handle the error (e.g., by redirecting the user to a login page)
+        throw error;
+    }
+}
+
+const bgColor = ref(''); // Initialize a reactive variable
+
+async function getUserBgColor() {
+  try {
+    const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+    bgColor.value = data.bg_color; // Update the reactive variable
+  } catch (error) {
+    console.error("Error fetching user background color:", error.message);
+  }
+}
+
 onMounted(() => {
 
-  window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
+    refreshToken();
+    getUserBgColor();
 
-  var toolbarOptions = [
+    window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
+
+    var toolbarOptions = [
     [{ 'font': [] }],
     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
     ['bold', 'italic', 'underline'],
@@ -376,31 +482,31 @@ onMounted(() => {
     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
     [{ 'align': [] }],
     ['blockquote', 'code-block']                                      
-  ];
+    ];
 
-  // Initialize Quill editor
-  var quill = new Quill('#editor', {
+    // Initialize Quill editor
+    var quill = new Quill('#editor', {
     theme: 'snow',
     modules: {
-          toolbar: toolbarOptions
-      }
-  });
+            toolbar: toolbarOptions
+        }
+    });
 
-  /*
-  quill.on('selection-change', function(range, oldRange, source) {
+    /*
+    quill.on('selection-change', function(range, oldRange, source) {
     if (range === null && oldRange !== null) {
         console.log('Selection changed');
         var quillContent = quill.root.innerHTML;
         handleInputUpdate3(quillContent);
     }
-  });*/
+    });*/
 
-  // DOM-related code
-  DestinaryContainer.value = document.getElementById('DestinaryContainer');
+    // DOM-related code
+    DestinaryContainer.value = document.getElementById('DestinaryContainer');
 
-  const message = "Bonjour, à quelle destinaire(s) souhaitez vous envoyer cet email ?";
+    const message = "Bonjour, à quelle destinaire(s) souhaitez vous envoyer cet email ?";
 
-  const messageHTML = `
+    const messageHTML = `
     <div class="flex pb-12">
         <div class="mr-4 flex">
             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
@@ -411,47 +517,47 @@ onMounted(() => {
             <p ref="animatedText1"></p>
         </div>
     </div>
-  `;
+    `;
 
-  DestinaryContainer.value.innerHTML += messageHTML;
+    DestinaryContainer.value.innerHTML += messageHTML;
 
-  const animatedParagraph = document.querySelector('p[ref="animatedText1"]');
-  animateText(message, animatedParagraph);
+    const animatedParagraph = document.querySelector('p[ref="animatedText1"]');
+    animateText(message, animatedParagraph);
 
-  messagesContainer.value = document.getElementById('UserDestinaryContainer');
-  objectInput.value = document.getElementById('objectInput');
-  objectContainer.value = document.getElementById('UserObjectContainer');
-  askContentContainer.value = document.getElementById('UserAskContentContainer')
-  EmailContainer.value = document.getElementById('EmailContainer');
+    messagesContainer.value = document.getElementById('UserDestinaryContainer');
+    objectInput.value = document.getElementById('objectInput');
+    objectContainer.value = document.getElementById('UserObjectContainer');
+    askContentContainer.value = document.getElementById('UserAskContentContainer')
+    EmailContainer.value = document.getElementById('EmailContainer');
 
-  let quillContainer = document.querySelector('#editor');
+    let quillContainer = document.querySelector('#editor');
 
-  quillContainer.addEventListener('mouseleave', function() {
-      console.log('Mouse has left the Quill editor area');
+    quillContainer.addEventListener('mouseleave', function() {
+        console.log('Mouse has left the Quill editor area');
 
-      // Call the function to handle the input on mouseleave
-      console.log(quill.root.innerHTML)
-      const quillContent = quill.root.innerHTML;
+        // Call the function to handle the input on mouseleave
+        console.log(quill.root.innerHTML)
+        const quillContent = quill.root.innerHTML;
 
-      if (quillContent.trim() !== '<p><br></p>') {
+        if (quillContent.trim() !== '<p><br></p>') {
         handleInputUpdate3(quill.root.innerHTML);
-      }
-  });
+        }
+    });
 
-  // Event Listeners
-  objectInput.value.addEventListener('blur', handleInputUpdate2);
-  objectInput.value.addEventListener('keyup', function(e) {
-      if (e.keyCode === 13) {
-          handleInputUpdate2();
-      }
-  });
+    // Event Listeners
+    objectInput.value.addEventListener('blur', handleInputUpdate2);
+    objectInput.value.addEventListener('keyup', function(e) {
+        if (e.keyCode === 13) {
+            handleInputUpdate2();
+        }
+    });
 
-  const form = objectInput.value.closest('form');
-  if (form) {
-      form.addEventListener('submit', function(e) {
-          e.preventDefault();
-      });
-  }
+    const form = objectInput.value.closest('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    }
 });
 
 function animateText(text, target) {
@@ -468,12 +574,58 @@ function animateText(text, target) {
 }
 
 
-function personSelected() {
+/*function personSelected() { OLD TO DELETE
   console.log(selectedPerson.value);
-  if (selectedPerson.value) {
-      handleInputUpdate(selectedPerson.value.username);
+  if (selectedPerson.value && !selectedPeople.value.includes(selectedPerson.value)) {
+    selectedPeople.value.push(selectedPerson.value); // Add the selected person to the array
+    selectedPerson.value = null; // Clear the current selection
+    //handleInputUpdate(selectedPerson.value.username);
   }
+}*/
+
+function personSelected(person) {
+  if (!person) return;
+
+  switch (activeType.value) {
+    case 'CC':
+      if (!selectedCC.value.includes(person)) {
+        selectedCC.value.push(person);
+      }
+      break;
+    case 'CCI':
+      if (!selectedCCI.value.includes(person)) {
+        selectedCCI.value.push(person);
+      }
+      break;
+    default:
+      if (!selectedPeople.value.includes(person)) {
+        selectedPeople.value.push(person);
+      }
+  }
+
+  selectedPerson.value = null;  // Clear the current selection
 }
+
+function toggleCC() {
+  activeType.value = activeType.value === 'CC' ? null : 'CC';
+}
+
+function toggleCCI() {
+  activeType.value = activeType.value === 'CCI' ? null : 'CCI';
+}
+
+function removePersonFromMain(personToRemove) {
+  selectedPeople.value = selectedPeople.value.filter(person => person !== personToRemove);
+}
+
+function removePersonFromCC(personToRemove) {
+  selectedCC.value = selectedCC.value.filter(person => person !== personToRemove);
+}
+
+function removePersonFromCCI(personToRemove) {
+  selectedCCI.value = selectedCCI.value.filter(person => person !== personToRemove);
+}
+
 
 function handleInputUpdate(selectedUsername) {
   const newMessage = selectedUsername.trim();
@@ -658,7 +810,6 @@ export default {
     },
   },
   mounted() {
-    
   }
 }
 </script>

@@ -37,6 +37,8 @@ urlpatterns = [
     path('api/get_unique_email_senders', views.get_unique_email_senders_view, name='get_unique_email_senders_view'),
     path('api/create_sender', views.create_sender, name='create_sender'),
     path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'),
+    path('api/find-user/', views.find_user_view, name='find-user'),  # Add your view to the urlpatterns
+    path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'),
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
 ]

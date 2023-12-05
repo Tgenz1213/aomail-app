@@ -737,3 +737,64 @@ def get_info_contacts(services):
     return names_emails
 
 
+# NEW MAIL
+# search in mailbox
+'''
+def search_emails(services, search_query, max_results=5):
+    service = services['gmail.readonly']
+    query = f"{search_query}"
+
+    # Limit the number of results to improve performance
+    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
+    messages = results.get('messages', [])
+    found_emails = {}
+
+    for message in messages:
+        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+        headers = msg.get('payload', {}).get('headers', [])
+        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
+
+        if sender and not any(substring in sender.lower() for substring in ["noreply", "no-reply"]): # CAN BE UPGRADED FOR MORE PERFORMANCE
+            email = sender.split('<')[-1].split('>')[0].strip()
+            name = sender.split('<')[0].strip() if '<' in sender else email
+            if email:  # Ensure email is not empty
+                found_emails[email] = name
+
+    return found_emails'''
+
+# V2 : better to check the mail structure (comparing with the input)
+def search_emails(services, search_query, max_results=2):
+    service = services['gmail.readonly']
+    query = f"{search_query}"
+
+    # Fetch the list of emails based on the query
+    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
+    messages = results.get('messages', [])
+    found_emails = {}
+
+    for message in messages:
+        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+        headers = msg.get('payload', {}).get('headers', [])
+        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
+
+        if sender:
+            email = sender.split('<')[-1].split('>')[0].strip().lower()
+            name = sender.split('<')[0].strip().lower() if '<' in sender else email
+
+            # Additional filtering: Check if the sender email/name matches the search query
+            if search_query.lower() in email or search_query.lower() in name:
+                if email and not any(substring in email for substring in ["noreply", "no-reply"]):
+                    found_emails[email] = name
+
+    return found_emails
+
+
+def find_user_in_emails(services, search_query):
+    emails = search_emails(services, search_query)
+
+    if not emails:
+        return "No matching emails found."
+
+    return emails
+
+

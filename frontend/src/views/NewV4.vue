@@ -77,12 +77,14 @@
                                 <div class="pt-8">
                                     <div class="flex flex-wrap">
                                         <!-- Main Recipients List -->
-                                        <div v-for="person in selectedPeople" :key="person.username" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                        <div v-if="selectedPeople.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                          <div v-for="person in selectedPeople" :key="person.username" class="flex items-center">
                                             {{ person.name }}
                                             <button @click="removePersonFromMain(person)">×</button>
+                                          </div>
                                         </div>
                                         <!-- CC Recipients List -->
-                                        <div v-if="activeType === 'CC' && selectedCC.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                        <div v-if="selectedCC.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
                                             <div v-for="person in selectedCC" :key="person.username" class="flex items-center">
                                                 <span class="font-semibold mr-1">CC:</span>
                                                 {{ person.name }}
@@ -90,7 +92,7 @@
                                             </div>
                                         </div>
                                         <!-- CCI Recipients List -->
-                                        <div v-if="activeType === 'CCI' && selectedCCI.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                        <div v-if="selectedCCI.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
                                             <div v-for="person in selectedCCI" :key="person.username" class="flex items-center">
                                                 <span class="font-semibold mr-1">CCI:</span>
                                                 {{ person.name }}
@@ -167,6 +169,12 @@
                                     </div>
                                 </div>
                                 <div class="">
+                                    <div class="flex flex-wrap">
+                                        <div v-for="(file, index) in uploadedFiles" :key="index" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                            {{ file.name }}
+                                            <button @click="removeFile(index)">×</button>
+                                        </div>
+                                    </div>
                                     <div class="flex items-stretch gap-1">
                                     <div class="flex-grow">
                                         <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
@@ -191,10 +199,11 @@
                                         </div>
                                     </div>
                                     <div class="flex">
-                                        <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                        </svg>
+                                        <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
+                                        <button @click="triggerFileInput" type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                                            </svg>
                                         </button>
                                     </div>
                                     </div>
@@ -353,6 +362,43 @@ const adjustHeight = (event) => {
     // Votre logique pour ajuster la hauteur
 };*/
 
+////////////////////////////////////////////////////// To Handle files upload ///////////////////////////////////////////////////////
+const fileInput = ref(null);
+const uploadedFiles = ref([]);
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB, Gmail's limit
+
+const triggerFileInput = () => {
+  fileInput.value.click();
+};
+
+const handleFileUpload = (event) => {
+  const files = Array.from(event.target.files);
+  files.forEach(file => {
+    if (file.size <= MAX_FILE_SIZE) {
+      uploadedFiles.value.push({ name: file.name, size: file.size });
+    } else {
+      alert("File size exceeds Gmail's limit");
+    }
+  });
+  saveFileMetadataToLocalStorage();
+};
+
+const removeFile = (index) => {
+  uploadedFiles.value.splice(index, 1);
+  saveFileMetadataToLocalStorage();
+};
+
+const saveFileMetadataToLocalStorage = () => {
+  localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles.value));
+};
+
+const loadFileMetadataFromLocalStorage = () => {
+  const files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+  uploadedFiles.value = files;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const handleAIClick = () => {
   const elements = [
     document.getElementById("UserDestinaryContainer"),
@@ -371,16 +417,65 @@ const handleAIClick = () => {
             </span>   
         </div>
         <div>
-            <p class="font-serif" >${textareaValue.value}</p>
+            <p class="font-serif" >"${textareaValue.value}"</p>
         </div>
     </div>
   `;
     elements[0].innerHTML += messageHTML;
 
-    setTimeout(() => {
-      if (askContentContainer.value.innerHTML == ''){
-        textareaValue.value = '';
-        askContent();
+    setTimeout(async () => {
+      if (askContentContainer.value.innerHTML == '') {
+        try {
+          const result = await findUser(textareaValue.value);
+          textareaValue.value = '';
+          console.log(userSearchResult.value);
+          let noUsersAdded = true;
+          if (userSearchResult.value !== "Invalid input or query not about email recipients") { // To update to handle the main error
+            for (const [category, recipients] of Object.entries(userSearchResult.value)) {
+              for (const [key, value] of Object.entries(recipients)) {
+                if (key !== "" && value !== "No matching emails found.") {
+                  for (const [email, name] of Object.entries(value)) {
+                    const person = { name: name, email: email };
+                    if (category === "main_recipients") {
+                      selectedPeople.value.push(person);
+                    } else if (category === "cc_recipients") {
+                      selectedCC.value.push(person);
+                    } else if (category === "bcc_recipients") {
+                      selectedCCI.value.push(person);
+                    }
+                    noUsersAdded = false;
+                  }
+                }
+              }
+            }
+            if (noUsersAdded) {
+              console.log("No user added");
+              const UserDestinaryContainer = document.getElementById('UserDestinaryContainer');
+              const message = "Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement";
+              const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      </span>   
+                  </div>
+                  <div>
+                      <p>Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement</p>
+                  </div>
+              </div>
+              `;
+              UserDestinaryContainer.innerHTML += messageHTML;
+              //const animatedParagraph = document.querySelector('p[ref="animatedText1"]');
+              //animateText(message, animatedParagraph);
+            } else {
+              askContent();
+            }
+          } else {
+            console.log("No matching emails found.");
+          }
+        } catch (error) {
+          console.error("Error finding user:", error.message);
+        }
       }
     }, 400);
   } else if (elements[0].innerHTML.trim() && !elements[2].innerHTML.trim() && textareaValue.value != '') {
@@ -467,10 +562,119 @@ async function getUserBgColor() {
   }
 }
 
+/* DOES NOT WORK => TO CHECK */
+const userSearchResult = ref(null);
+
+async function findUser(searchQuery) {
+  try {
+    const response = await fetch('http://localhost:9000/MailAssistant/api/find-user-ai/?query=' + encodeURIComponent(searchQuery), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+    userSearchResult.value = data; // Update the reactive variable
+  } catch (error) {
+    console.error("Error fetching user information:", error.message);
+  }
+}
+
+/*
+function levenshteinDistance(a, b) {
+  const matrix = [];
+
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+function transformUsersDict(usersDict) {
+  return Object.entries(usersDict).map(([email, username]) => ({
+    email: email,
+    username: username || email 
+  }));
+}
+
+function findUser(userInput, usersDict) {
+  const usersList = transformUsersDict(usersDict);
+  console.log("userInput", userInput);
+  console.log("usersList", usersList);
+  let bestMatch = null;
+  let lowestDistance = Infinity;
+
+  for (const user of usersList) {
+    let emailDistance = levenshteinDistance(userInput.toLowerCase(), user.email.toLowerCase());
+    let usernameDistance = levenshteinDistance(userInput.toLowerCase(), user.username.toLowerCase());
+
+    if (emailDistance < lowestDistance) {
+      lowestDistance = emailDistance;
+      bestMatch = user;
+    }
+
+    if (usernameDistance < lowestDistance) {
+      lowestDistance = usernameDistance;
+      bestMatch = user;
+    }
+  }
+
+  return bestMatch ? { email: bestMatch.email, username: bestMatch.username } : "No matching user found";
+}
+
+const emailSenders = ref(null);
+
+function fetchEmailSenders() {
+  fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log("email senders", data);
+    emailSenders.value = data;
+  })
+  .catch(error => {
+    console.error('Error fetching email senders:', error);
+  });
+} */
+
 onMounted(() => {
 
     refreshToken();
     getUserBgColor();
+    //fetchEmailSenders();
+    loadFileMetadataFromLocalStorage(); // For uploaded file
 
     window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
@@ -540,7 +744,7 @@ onMounted(() => {
         const quillContent = quill.root.innerHTML;
 
         if (quillContent.trim() !== '<p><br></p>') {
-        handleInputUpdate3(quill.root.innerHTML);
+          handleInputUpdate3(quill.root.innerHTML);
         }
     });
 
@@ -559,6 +763,10 @@ onMounted(() => {
         });
     }
 });
+
+watch(uploadedFiles, () => {
+  saveFileMetadataToLocalStorage();
+}, { deep: true });
 
 function animateText(text, target) {
   let characters = text.split("");
@@ -665,33 +873,13 @@ function handleInputUpdate(selectedUsername) {
 }
 
 function handleInputUpdate2() {
-  const newMessage = objectInput.value.value.trim();
 
-  if (newMessage !== '') {
-      // Clear the container
-      objectContainer.value.innerHTML = '';
-
-      // Insert the full structure
-      const messageHTML = `
-          <div class="flex pb-12">
-              <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                      <span class="text-lg font-medium leading-none text-white">TH</span>
-                  </span>   
-              </div>
-              <div>
-                  <p class="font-serif" ref="">${newMessage}</p>
-              </div>
-          </div>
-      `;
-      objectContainer.value.innerHTML = messageHTML;
-
-      //const targetParagraph = objectContainer.value.querySelector('p[ref="animatedText3"]');
-      //animateText(newMessage, targetParagraph);
+  if ((selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0) && (EmailContainer.value.innerHTML.trim() == '')) {
+    askContent();
   }
 }
 
-function handleInputUpdate3(newMessage ) {
+function handleInputUpdate3(newMessage) {
 
   if (newMessage !== '') {
       // Clear the container

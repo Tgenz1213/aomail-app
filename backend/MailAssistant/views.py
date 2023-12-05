@@ -39,7 +39,7 @@ from . import google_api, microsoft_api
 from django.http import JsonResponse
 from django.views import View
 from .google_api import authenticate_service 
-from .google_api import get_mail, get_unique_senders, get_info_contacts
+from .google_api import get_mail, get_unique_senders, get_info_contacts, find_user_in_emails
 
 # OpenAI - ChatGPT
 import openai
@@ -47,6 +47,9 @@ import openai
 # langchain
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import SystemMessagePromptTemplate,ChatPromptTemplate
+
+# Logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 openai.api_key = "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"
@@ -648,6 +651,67 @@ def gpt_langchain_redaction(input_data):
     # return clear_text
     return subject_text,mail_text
 
+# TO UPDATE : make work with langchain
+def extract_contacts_recipients(input_query):
+    # Define the prompt template for ChatGPT
+    template = """
+    Analyze the following input to determine recipients for an email :
+
+    {input_query}
+
+    Format the response as (if no CC or CCI are indicate, put in main):
+    1. Main recipients: [username/email, username/email, ...]
+    2. CC recipients: [username/email, username/email, ...]
+    3. BCC recipients: [username/email, username/email, ...]
+    """
+
+    formatted_prompt = template.format(input_query=input_query)
+
+    # Call the OpenAI API
+    '''
+    response = openai.Completion.create(
+        model="gpt-3.5-turbo",
+        prompt=formatted_prompt,
+        max_tokens=150,
+        api_key=openai.api_key 
+    )
+
+    response_text = response.choices[0].text.strip()
+
+    '''
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content": formatted_prompt}],
+        api_key=openai.api_key )
+
+    response_text = response.choices[0].message['content'].strip()
+
+    logging.info("Received response from ChatGPT: %s", response_text)
+
+    if response_text == "INCORRECT":
+        return "INCORRECT", "INCORRECT", "INCORRECT"
+
+    # Define a function to extract items from the response
+    def extract_items(response, marker):
+        pattern = re.escape(marker) + r"\: \[(.*?)\]"
+        match = re.search(pattern, response)
+        if match:
+            items = match.group(1).split(", ")
+            return [item.strip() for item in items]
+        else:
+            return []
+
+    # Extract information based on markers
+    main_recipients = extract_items(response_text, "1. Main recipients")
+    cc_recipients = extract_items(response_text, "2. CC recipients")
+    bcc_recipients = extract_items(response_text, "3. BCC recipients")
+
+    logging.info("Extracted response from ChatGPT (main): %s", main_recipients)
+    logging.info("Extracted response from ChatGPT (CC): %s", cc_recipients)
+    logging.info("Extracted response from ChatGPT (BCC): %s", bcc_recipients)
+
+    return main_recipients, cc_recipients, bcc_recipients
+
 
 ######################## Search bar ########################
 
@@ -1209,6 +1273,52 @@ def send_email(request):
     
     return Response(serializer.errors, status=400)
 
+
+# TO Change later with the list of email of the user saved in a BD for optimization
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def find_user_view(request):
+    user = request.user
+    services = authenticate_service(user)
+    search_query = request.GET.get('query')
+
+    if services is not None and search_query:
+        found_users = find_user_in_emails(services, search_query)
+        return JsonResponse(found_users, safe=False, status=200)
+    else:
+        return JsonResponse({"error": "Failed to authenticate or no search query provided"}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def find_user_view_ai(request):
+    user = request.user
+    services = authenticate_service(user)
+    search_query = request.GET.get('query')
+
+    if services is not None and search_query:
+        main_list, cc_list, bcc_list = extract_contacts_recipients(search_query)
+
+        if main_list == "INCORRECT":
+            return JsonResponse({"error": "Invalid input or query not about email recipients"}, status=400)
+
+        # Function to find emails for a list of recipients
+        def find_emails_for_recipients(recipient_list):
+            return {recipient: find_user_in_emails(services, recipient) for recipient in recipient_list}
+
+        # Find emails for main recipients, CC, and BCC
+        main_recipients_with_emails = find_emails_for_recipients(main_list)
+        cc_recipients_with_emails = find_emails_for_recipients(cc_list)
+        bcc_recipients_with_emails = find_emails_for_recipients(bcc_list)
+
+        #logging.info("Email recipients (main): %s", main_recipients_with_emails)
+
+        return JsonResponse({
+            "main_recipients": main_recipients_with_emails,
+            "cc_recipients": cc_recipients_with_emails,
+            "bcc_recipients": bcc_recipients_with_emails
+        }, safe=False, status=200)
+    else:
+        return JsonResponse({"error": "Failed to authenticate or no search query provided"}, status=400)
 
 ######################## Settings ########################
 

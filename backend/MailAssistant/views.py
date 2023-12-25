@@ -29,7 +29,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
-from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer
+from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer
 from django.db import IntegrityError
 
 # from .google_api import * 
@@ -605,27 +605,30 @@ def gpt_langchain_answer(subject, decoded_data):
 
 # Writes a email based on a draft
 # def gpt_langchain_redaction(subject, input_data, parameters):
-def gpt_langchain_redaction(input_data):
+# OLD USE LANGCHAIN BUT DOES NOT WORK CORRECTLY
+'''
+def gpt_langchain_redaction(input_data, length, formality):
     # if (subject!=None):
     template = (
         """Given the following draft:
 
-        {input}
-        
-        1. Write a subject to the email based on the draft in French
-        2. Write a {length} and appropriate {formality} mail based on the draft in French.
+            {input}
 
-        ---
+            Please follow these instructions carefully:
+            1. Write a subject for the email based on the draft in French.
+            2. Write an email in French that matches the length and content of the input. The email should be very short, informal, and should strictly contain only the information present in the input. Do not add any new details or information.
 
-        Subject:
-        [Model's drafted subject]
+            ---
 
-        Draft:
-        [Model's drafted email]
+            Subject:
+            [Model's drafted subject]
+
+            Draft:
+            [Model's drafted email]
         """
     )
-    length = 'really short'
-    formality = 'formal'
+    #length = 'really short'
+    #formality = 'formal'
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
@@ -649,7 +652,223 @@ def gpt_langchain_redaction(input_data):
     #     subject_text=subject
     #     mail_text=clear_text
     # return clear_text
-    return subject_text,mail_text
+    return subject_text, mail_text'''
+
+def gpt_langchain_redaction(input_data, length, formality):
+    template = """
+        Given the following draft:
+
+        "{input_data}"
+
+        Please follow these instructions carefully:
+        1. Write a short subject for the email based on the draft in French.
+        2. Write an email in French that matches the length and content of the input. The email should be {length}, {formality}, and should strictly contain only the information present in the input. Do not add any new details or information.
+        ---
+
+        Subject:
+        [Model's drafted subject]
+
+        Draft:
+        [Model's drafted email]
+    """
+
+    formatted_prompt = template.format(input_data=input_data, length=length, formality=formality)
+
+    print("FORMATTED PROMPT", formatted_prompt)
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
+        messages=[{"role": "system", "content": formatted_prompt}],
+        api_key=openai.api_key )
+
+    clear_text = response.choices[0].message['content'].strip()
+
+    print('clear_text: ',clear_text)
+
+    # Extracting Subject
+    subject_start = clear_text.index("Subject:") + len("Subject:")
+    subject_end = clear_text[subject_start:].index("\n\n") if "\n\n" in clear_text[subject_start:] else len(clear_text)
+    subject_list = clear_text[subject_start:subject_start+subject_end].strip().split("\n")
+    subject_text = "\n".join(subject_list)
+
+    # Extracting Email
+    mail_start = clear_text.index("Draft:") + len("Draft:")
+    mail_list = clear_text[mail_start:len(clear_text)].strip().split("\n")
+    mail_text = "\n".join(mail_list)
+
+    print("Email :", mail_text)
+
+    return subject_text, mail_text
+
+def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject):
+    template = """
+        Consider the following email subject, content, and user recommendation in French:
+
+        Email Subject:
+        "{email_subject}"
+
+        Email Content:
+        "{mail_content}"
+
+        User Recommendation:
+        "{user_recommendation}"
+
+        Based on the user recommendation, modify the email while keeping as much of the original content and intent as possible. Please provide:
+        1. An revised subject for the email, if the recommendation suggests a change.
+        2. A revised body of the email that incorporates the recommendation without altering the original message unnecessarily.
+
+        ---
+
+        Subject:
+        [Adjusted Email Subject]
+
+        Email Body:
+        [Revised Email Body]
+    """
+
+    formatted_prompt = template.format(mail_content=mail_content, user_recommendation=user_recommendation, email_subject=email_subject)
+
+    print("FORMATTED PROMPT", formatted_prompt)
+
+    # Replace 'openai.api_key' with your actual OpenAI API key
+    response = openai.ChatCompletion.create(
+        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
+        messages=[{"role": "system", "content": formatted_prompt}],
+        api_key=openai.api_key
+    )
+
+    clear_text = response.choices[0].message['content'].strip()
+
+    print('clear_text: ', clear_text)
+
+    # Extract the subject and body of the email
+    subject_start = clear_text.index("Subject:") + len("Subject:")
+    subject_end = clear_text.index("Email Body:")
+    subject_text = clear_text[subject_start:subject_end].strip()
+
+    body_start = subject_end + len("Email Body:")
+    email_body = clear_text[body_start:].strip()
+
+    print("Subject:", subject_text)
+    print("Email Body:", email_body)
+
+    return subject_text, email_body
+
+
+ # This  function is handling the ortograph and grammar correction of the email and object if the user ask for it
+def correct_mail_language_mistakes(email_subject, email_body):
+    # V1 template to upgrade to make work with GPT3
+    template = """
+    Please check the following French text for any grammatical or spelling errors and correct them. Do not change any words unless they are misspelled or grammatically incorrect.
+
+    Subject:
+    "{email_subject}"
+
+    Body:
+    "{email_body}"
+
+    ---
+
+    Corrected Subject:
+    [Corrected Subject]
+
+    Corrected Body:
+    [Corrected Body]
+    """
+
+    formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
+
+    # Call the OpenAI API
+    response = openai.ChatCompletion.create(
+        model="gpt-4-1106-preview",
+        messages=[{"role": "system", "content": formatted_prompt}],
+        api_key=openai.api_key
+    )
+
+    response_text = response.choices[0].message['content'].strip()
+
+    print("Response Text : ", response_text)
+
+    # Extract the corrected subject and body
+    corrected_subject = extract_between_markers(response_text, "Corrected Subject:", "Corrected Body:")
+    corrected_body = extract_after_marker(response_text, "Corrected Body:")
+
+    # Count the number of corrections
+    num_corrections = count_corrections(email_subject, email_body, corrected_subject, corrected_body)
+
+    return corrected_subject, corrected_body, num_corrections
+
+def extract_between_markers(text, start_marker, end_marker):
+    start = text.find(start_marker) + len(start_marker)
+    end = text.find(end_marker, start)
+    if end > start:
+        extracted_text = text[start:end].strip()
+        return extracted_text.strip('"')  # Remove surrounding quotation marks
+    return ""
+
+def extract_after_marker(text, marker):
+    start = text.find(marker) + len(marker)
+    if start > -1:
+        extracted_text = text[start:].strip()
+        return extracted_text.strip('"')  # Remove surrounding quotation marks
+    return ""
+
+def count_corrections(original_subject, original_body, corrected_subject, corrected_body):
+    # Splitting the original and corrected texts into words
+    original_subject_words = original_subject.split()
+    corrected_subject_words = corrected_subject.split()
+    original_body_words = original_body.split()
+    corrected_body_words = corrected_body.split()
+
+    # Counting the differences in the subject
+    subject_corrections = sum(1 for orig, corr in zip(original_subject_words, corrected_subject_words) if orig != corr)
+
+    # Counting the differences in the body
+    body_corrections = sum(1 for orig, corr in zip(original_body_words, corrected_body_words) if orig != corr)
+
+    # Total corrections
+    total_corrections = subject_corrections + body_corrections
+
+    return total_corrections
+
+# This function is giving some feedback on the copywriting on the email and give some suggestions
+def improve_email_copywriting(email_subject, email_body):
+    # Simplified template for direct feedback and suggestions on copywriting
+    template = """
+    Évaluez en français la qualité du copywriting du sujet et du corps de cet e-mail. Fournissez un retour et des suggestions d'amélioration.
+
+    Objet de l'e-mail :
+    "{email_subject}"
+
+    Corps de l'e-mail :
+    "{email_body}"
+
+    ---
+
+    <strong>Retour sur l'objet</strong> :
+    [Votre retour sur l'objet]
+
+    <strong>Suggestions pour l'objet</strong> :
+    [Vos suggestions pour l'objet]
+
+    <strong>Retour sur le corps de l'e-mail</strong> :
+    [Votre retour sur le corps de l'e-mail]
+
+    <strong>Suggestions pour le corps de l'e-mail</strong> :
+    [Vos suggestions pour le corps de l'e-mail]
+    """
+
+    formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content": formatted_prompt}],
+        api_key=openai.api_key
+    )
+
+    response_text = response.choices[0].message['content'].strip()
+
+    return response_text    
 
 # TO UPDATE : make work with langchain
 def extract_contacts_recipients(input_query):
@@ -1319,6 +1538,82 @@ def find_user_view_ai(request):
         }, safe=False, status=200)
     else:
         return JsonResponse({"error": "Failed to authenticate or no search query provided"}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def new_email_ai(request):
+    serializer = NewEmailAISerializer(data=request.data)
+
+    if serializer.is_valid():
+        input_data = serializer.validated_data['input_data']
+        length = serializer.validated_data['length']
+        formality = serializer.validated_data['formality']
+
+        subject_text, mail_text = gpt_langchain_redaction(input_data, length, formality)
+
+        print("LOG MAIL", mail_text)
+
+        # Return the response
+        return Response({'subject': subject_text, 'mail': mail_text})
+    else:
+        return Response(serializer.errors, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def new_email_recommendations(request):
+    serializer = EmailAIRecommendationsSerializer(data=request.data)
+
+    if serializer.is_valid():
+        mail_content = serializer.validated_data['mail_content']
+        user_recommendation = serializer.validated_data['user_recommendation']
+        email_subject = serializer.validated_data['email_subject']  # Récupérer l'objet
+
+        subject_text, email_body = gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)  # Inclure l'objet dans l'appel
+
+        # Retourner la réponse
+        return Response({'subject': subject_text, 'email_body': email_body})
+    else:
+        return Response(serializer.errors, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def correct_email_language(request):
+    serializer = EmailCorrectionSerializer(data=request.data)
+    print("Serializer :", serializer)
+
+    if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
+        email_body = serializer.validated_data['email_body']
+
+        corrected_subject, corrected_body, num_corrections = correct_mail_language_mistakes(email_subject, email_body)
+
+        # Return the response
+        return Response({
+            'corrected_subject': corrected_subject,
+            'corrected_body': corrected_body,
+            'num_corrections': num_corrections
+        })
+    else:
+        return Response(serializer.errors, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def check_email_copywriting(request):
+    serializer = EmailCopyWritingSerializer(data=request.data)
+    print("Serializer :", serializer)
+
+    if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
+        email_body = serializer.validated_data['email_body']
+
+        feedback_copywriting = improve_email_copywriting(email_subject, email_body)
+
+        # Return the response
+        return Response({
+            'feedback_copywriting': feedback_copywriting,
+        })
+    else:
+        return Response(serializer.errors, status=400)
 
 ######################## Settings ########################
 

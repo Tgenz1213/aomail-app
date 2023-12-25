@@ -40,15 +40,7 @@
                     <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
                     <div class="px-10 py-4">
                         <div class="flex-grow">
-                            <div id="DestinaryContainer">
-                            </div>
-                            <div id="UserDestinaryContainer">
-                            </div>
-                            <div id="UserObjectContainer">
-                            </div>
-                            <div id="UserAskContentContainer">
-                            </div>
-                            <div id="EmailContainer">
+                            <div id="AIContainer">
                             </div>
                         </div>
                     </div>
@@ -77,23 +69,23 @@
                                 <div class="pt-8">
                                     <div class="flex flex-wrap">
                                         <!-- Main Recipients List -->
-                                        <div v-if="selectedPeople.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
-                                          <div v-for="person in selectedPeople" :key="person.username" class="flex items-center">
+                                        <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
+                                          <div v-for="person in selectedPeople" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                             {{ person.name }}
                                             <button @click="removePersonFromMain(person)">×</button>
                                           </div>
                                         </div>
                                         <!-- CC Recipients List -->
-                                        <div v-if="selectedCC.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
-                                            <div v-for="person in selectedCC" :key="person.username" class="flex items-center">
+                                        <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
+                                            <div v-for="person in selectedCC" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                                 <span class="font-semibold mr-1">CC:</span>
                                                 {{ person.name }}
                                                 <button @click="removePersonFromCC(person)">×</button>
                                             </div>
                                         </div>
                                         <!-- CCI Recipients List -->
-                                        <div v-if="selectedCCI.length > 0" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
-                                            <div v-for="person in selectedCCI" :key="person.username" class="flex items-center">
+                                        <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
+                                            <div v-for="person in selectedCCI" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                                 <span class="font-semibold mr-1">CCI:</span>
                                                 {{ person.name }}
                                                 <button @click="removePersonFromCCI(person)">×</button>
@@ -116,7 +108,7 @@
                                                         class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" 
                                                         @change="query = $event.target.value" 
                                                         :display-value="(person) => person?.name"
-                                                        @focus="handleFocus2"
+                                                        @focus="handleFocusDestinary"
                                                         @blur="handleBlur2"
                                                     />
                                                     <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -191,9 +183,10 @@
                                                 id="objectInput" 
                                                 v-model="inputValue"
                                                 type="text" 
-                                                class="block h-10 flex-1 border-0 bg-transparent py-2 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative" 
-                                                @focus="handleFocus" 
+                                                class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative" 
+                                                @focus="handleFocusObject" 
                                                 @blur="handleBlur"
+                                                @input="handleInputUpdateObject" 
                                             />
                                         </div>
                                         </div>
@@ -311,19 +304,22 @@ const selectedPerson = ref(props.modelValue);
 watch(selectedPerson, (newValue) => {
     console.log(selectedPerson.value);
     hasValueEverBeenEntered.value = true; // to make the icon disappear
-    if (selectedPerson.value && selectedPerson.value.username) {
-        handleInputUpdate(selectedPerson.value.username);
-    }  
+    /*if (selectedPerson.value && selectedPerson.value.username) {
+        //handleInputUpdate(selectedPerson.value.username);
+    }  */
     emit('update:selectedPerson', newValue);
 });
 
 
 const inputValue = ref('');
+const isFirstTimeObject = ref(true); // to detect first letter object input
+const isFirstTimeEmail = ref(true); // to detect first letter email content input
 const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
 
-function handleFocus() {
+// User pressed the object input
+function handleFocusObject() {
   isFocused.value = true;
 }
 
@@ -331,7 +327,7 @@ function handleBlur() {
   isFocused.value = false;
 }
 
-function handleFocus2() {
+function handleFocusDestinary() {
   isFocused2.value = true;
 }
 
@@ -339,12 +335,21 @@ function handleBlur2() {
   isFocused2.value = false;
 }
 
-const DestinaryContainer = ref(null);
+const AIContainer = ref(null);
+let stepcontainer = 0;
+/* TO DELETE
 const messagesContainer = ref(null);
 const objectInput = ref(null);
 const objectContainer = ref(null);
 const askContentContainer = ref(null);
-const EmailContainer = ref(null);
+const EmailContainer = ref(null);*/ 
+const objectInput = ref(null);
+const mailInput = ref(null);
+
+let counter_display = 0; // to create the animation of the text displayed
+
+// Quill editor
+const quill = ref(null);
 
 // To keep the navbar always at the bottom when new content is added
 const scrollableDiv = ref(null);
@@ -356,6 +361,19 @@ const scrollToBottom = async () => {
 
 // AI instruction textarea input
 const textareaValue = ref('');
+const textareaValueSave = ref('');
+
+// AI instruction button parameters
+const lengthValue = ref('short');
+const formalityValue = ref('formal');
+
+// AI instruction to do revision on the mail
+const subject = ref('');
+const mail = ref('');
+const MailCreatedByAI = ref(false); // to check if the AI create the Mail or not
+
+// Loading animation
+const isLoading = ref(false);
 
 /*
 const adjustHeight = (event) => {
@@ -400,15 +418,14 @@ const loadFileMetadataFromLocalStorage = () => {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const handleAIClick = () => {
-  const elements = [
+  /*const elements = [
     document.getElementById("UserDestinaryContainer"),
     document.getElementById("UserObjectContainer"),
     document.getElementById("EmailContainer"),
   ];
-  console.log(textareaValue.value); // Cela imprimera la valeur de la textarea
+  console.log(textareaValue.value); // Cela imprimera la valeur de la textarea*/
 
   // Vous pouvez maintenant vérifier la valeur et exécuter votre logique désirée
-  if (!elements[0].innerHTML.trim() && !elements[1].innerHTML.trim() && !elements[2].innerHTML.trim() && textareaValue.value != '') {
     const messageHTML = `
     <div class="flex pb-12">
         <div class="mr-4 flex">
@@ -421,80 +438,329 @@ const handleAIClick = () => {
         </div>
     </div>
   `;
-    elements[0].innerHTML += messageHTML;
+
+    AIContainer.value.innerHTML += messageHTML;
+
+    textareaValueSave.value = textareaValue.value;
+    textareaValue.value = '';
+    console.log("textareaValueSave", textareaValueSave.value);
 
     setTimeout(async () => {
-      if (askContentContainer.value.innerHTML == '') {
-        try {
-          const result = await findUser(textareaValue.value);
-          textareaValue.value = '';
-          console.log(userSearchResult.value);
-          let noUsersAdded = true;
-          if (userSearchResult.value !== "Invalid input or query not about email recipients") { // To update to handle the main error
-            for (const [category, recipients] of Object.entries(userSearchResult.value)) {
-              for (const [key, value] of Object.entries(recipients)) {
-                if (key !== "" && value !== "No matching emails found.") {
-                  for (const [email, name] of Object.entries(value)) {
-                    const person = { name: name, email: email };
-                    if (category === "main_recipients") {
-                      selectedPeople.value.push(person);
-                    } else if (category === "cc_recipients") {
-                      selectedCC.value.push(person);
-                    } else if (category === "bcc_recipients") {
-                      selectedCCI.value.push(person);
+      if (stepcontainer == 0) {
+        if (textareaValueSave.value == '') {
+          display("Vous n'avez saisi aucun destinataire(s), veuillez ressayer", counter_display);
+          counter_display += 1;
+        } else {
+          try {
+            isLoading.value = true;
+            loading();
+            const result = await findUser(textareaValueSave.value);
+            hideLoading();
+            //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
+            console.log(userSearchResult.value);
+            let noUsersAdded = true;
+            if (userSearchResult.value !== "Invalid input or query not about email recipients") { // To update to handle the main error
+              for (const [category, recipients] of Object.entries(userSearchResult.value)) {
+                for (const [key, value] of Object.entries(recipients)) {
+                  if (key !== "" && value !== "No matching emails found.") {
+                    for (const [email, name] of Object.entries(value)) {
+                      const person = { name: name, email: email };
+                      if (category === "main_recipients") {
+                        selectedPeople.value.push(person);
+                      } else if (category === "cc_recipients") {
+                        selectedCC.value.push(person);
+                      } else if (category === "bcc_recipients") {
+                        selectedCCI.value.push(person);
+                      }
+                      noUsersAdded = false;
                     }
-                    noUsersAdded = false;
                   }
                 }
               }
-            }
-            if (noUsersAdded) {
-              console.log("No user added");
-              const UserDestinaryContainer = document.getElementById('UserDestinaryContainer');
-              const message = "Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement";
-              const messageHTML = `
-              <div class="flex pb-12">
-                  <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                          <span class="text-lg font-medium leading-none text-white">AO</span>
-                      </span>   
-                  </div>
-                  <div>
-                      <p>Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement</p>
-                  </div>
-              </div>
-              `;
-              UserDestinaryContainer.innerHTML += messageHTML;
-              //const animatedParagraph = document.querySelector('p[ref="animatedText1"]');
-              //animateText(message, animatedParagraph);
+              if (noUsersAdded) {
+                console.log("No user added");
+                const message = "Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement";
+                const messageHTML = `
+                <div class="flex pb-12">
+                    <div class="mr-4 flex">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                            <span class="text-lg font-medium leading-none text-white">AO</span>
+                        </span>   
+                    </div>
+                    <div>
+                        <p ref="animatedText${counter_display}"></p>
+                    </div>
+                </div>
+                `;
+                AIContainer.value.innerHTML += messageHTML;
+                const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+                counter_display += 1;                
+                animateText(message, animatedParagraph);
+              } else {
+                stepcontainer = 1;
+                askContent();
+              }
             } else {
-              askContent();
+              console.log("No matching emails found.");
             }
-          } else {
-            console.log("No matching emails found.");
+          } catch (error) {
+            console.error("Error finding user:", error.message);
           }
-        } catch (error) {
-          console.error("Error finding user:", error.message);
+        }
+      } else if (stepcontainer == 1) {
+        // if the user enter an empty value
+        if (textareaValueSave.value == '') {
+          display("Vous n'avez saisi aucun brouillon, veuillez ressayer", counter_display);
+          counter_display += 1;
+        } else {
+
+          console.log('Length:', lengthValue.value, 'Formality:', formalityValue.value);
+
+          try {
+              loading();
+              scrollToBottom();
+              const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_ai/', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      input_data: textareaValueSave.value,
+                      length: lengthValue.value,
+                      formality: formalityValue.value,
+                  }),
+              });
+
+              if (!response.ok) {
+                  throw new Error('Network response was not ok ' + response.statusText);
+              }
+
+              const result = await response.json();
+              hideLoading();
+              subject.value = result.subject;
+              mail.value = result.mail;
+              console.log(result);
+              if (result.subject && result.mail) {
+                  stepcontainer = 2;
+                  // TO FINISH => animation
+                  const formattedMail = result.mail.replace(/\n/g, '<br>');
+                  const messageHTML = `
+                      <div class="flex pb-12">
+                          <div class="mr-4 flex">
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              </span>   
+                          </div>
+                          <div>
+                              <p><strong>Objet:</strong> ${result.subject}</p>
+                              <p><strong>Email:</strong> ${formattedMail}</p>
+                          </div>
+                      </div>
+                  `;
+                  AIContainer.value.innerHTML += messageHTML;
+                  inputValue.value = result.subject;
+                  MailCreatedByAI.value = true;
+                  //quill.value.clipboard.dangerouslyPasteHTML(formattedMail); OLD WAY : works but impossible to manuallty delete on quill
+                  //const delta = quill.value.clipboard.convert(formattedMail); OLD 2
+                  //console.log(delta); // Check the structure of the delta OLD 2
+                  const quillEditorContainer = quill.value.root;
+                  quillEditorContainer.innerHTML = result.mail;
+                  //quill.value.update();
+
+                  // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+                  const message = "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins";
+                  const messageHTML2 = `
+                      <div class="flex pb-12">
+                          <div class="mr-4 flex">
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              </span>   
+                          </div>
+                          <div>
+                            <p ref="animatedText${counter_display}"></p>
+                          </div>
+                      </div>
+                  `;
+                  AIContainer.value.innerHTML += messageHTML2;
+                  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+                  counter_display += 1;  
+                  scrollToBottom();              
+                  animateText(message, animatedParagraph);
+                  
+              } else {
+                hideLoading();
+                // Handling error => TO ANIMATE
+                const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+                const messageHTML = `
+                      <div class="flex pb-12">
+                          <div class="mr-4 flex">
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              </span>   
+                          </div>
+                          <div>
+                              <p ref="animatedText${counter_display}"></p>
+                          </div>
+                      </div>
+                  `;
+                AIContainer.value.innerHTML += messageHTML;
+                const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+                counter_display += 1;                
+                animateText(message, animatedParagraph);
+                scrollToBottom();
+                console.log('Subject or Email is missing in the response');
+              }
+          } catch (error) {
+            hideLoading();
+            // Handling error => TO PUT IN A FUNCTION
+            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+            const messageHTML = `
+                  <div class="flex pb-12">
+                      <div class="mr-4 flex">
+                          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                              <span class="text-lg font-medium leading-none text-white">AO</span>
+                          </span>   
+                      </div>
+                      <div>
+                          <p ref="animatedText${counter_display}"></p>
+                      </div>
+                  </div>
+              `;
+            AIContainer.value.innerHTML += messageHTML;
+            const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+            counter_display += 1;                
+            animateText(message, animatedParagraph);
+            scrollToBottom();
+            console.error('There was a problem with the fetch operation: ', error);
+          }
+        }
+      } else if (stepcontainer == 2) {
+        // if the user enter an empty value
+        if (textareaValueSave.value == '') {
+          display("Vous n'avez saisi aucunes suggestions, veuillez ressayer", counter_display);
+          counter_display += 1;
+        } else {
+          console.log("MAIL CONTENT:", mail.value);
+          console.log("EMAIL SUBJECT:", inputValue.value);
+          console.log("USER RECOMMENDATION", textareaValueSave.value);
+          try {
+              loading();
+              scrollToBottom();
+              const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+                  method: 'POST',
+                  headers: {
+                      'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      mail_content: mail.value, 
+                      user_recommendation: textareaValueSave.value,
+                      email_subject: inputValue.value,
+                  }),
+              });
+
+              if (!response.ok) {
+                  throw new Error('Network response was not ok: ' + response.statusText);
+              }
+
+              console.log("TEST");
+
+              const result = await response.json();
+              hideLoading();
+              subject.value = result.subject;
+              mail.value = result.email_body;
+              console.log(result);
+              if (result.subject && result.email_body) {
+                  // TO FINISH => animation
+                  hideLoading();
+                  const formattedMail = result.email_body.replace(/\n/g, '<br>');
+                  const messageHTML = `
+                      <div class="flex pb-12">
+                          <div class="mr-4 flex">
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              </span>   
+                          </div>
+                          <div>
+                              <p><strong>Objet:</strong> ${result.subject}</p>
+                              <p><strong>Email:</strong> ${formattedMail}</p>
+                          </div>
+                      </div>
+                  `;
+                  AIContainer.value.innerHTML += messageHTML;
+                  inputValue.value = result.subject;
+                  const quillEditorContainer = quill.value.root;
+                  quillEditorContainer.innerHTML = result.email_body;
+
+                  // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+                  const message = "Est-ce que ce mail vous convient mieux ?";
+                  const messageHTML2 = `
+                      <div class="flex pb-12">
+                          <div class="mr-4 flex">
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              </span>   
+                          </div>
+                          <div>
+                            <p ref="animatedText${counter_display}"></p>
+                          </div>
+                      </div>
+                  `;
+                  AIContainer.value.innerHTML += messageHTML2;
+                  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+                  counter_display += 1;           
+                  animateText(message, animatedParagraph);
+                  scrollToBottom();
+                } else {
+                  hideLoading();
+                  const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+                  const messageHTML = `
+                        <div class="flex pb-12">
+                            <div class="mr-4 flex">
+                                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                                </span>   
+                            </div>
+                            <div>
+                                <p ref="animatedText${counter_display}"></p>
+                            </div>
+                        </div>
+                    `;
+                  AIContainer.value.innerHTML += messageHTML;
+                  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+                  counter_display += 1;                
+                  animateText(message, animatedParagraph);
+                  scrollToBottom();
+                  console.log('Subject or Email is missing in the response');
+                }
+          } catch (error) {
+              console.error('Error:', error);
+              hideLoading();
+              // Handling error => TO PUT IN A FUNCTION
+              const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+              const messageHTML = `
+                    <div class="flex pb-12">
+                        <div class="mr-4 flex">
+                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                                <span class="text-lg font-medium leading-none text-white">AO</span>
+                            </span>   
+                        </div>
+                        <div>
+                            <p ref="animatedText${counter_display}"></p>
+                        </div>
+                    </div>
+                `;
+              AIContainer.value.innerHTML += messageHTML;
+              const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+              counter_display += 1;                
+              animateText(message, animatedParagraph);
+              scrollToBottom();
+              console.error('There was a problem with the fetch operation: ', error);
+          }
         }
       }
     }, 400);
-  } else if (elements[0].innerHTML.trim() && !elements[2].innerHTML.trim() && textareaValue.value != '') {
-      // Faites autre chose
-      const messageHTML = `
-      <div class="flex pb-12">
-          <div class="mr-4 flex">
-              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                <span class="text-lg font-medium leading-none text-white">TH</span>
-              </span>   
-          </div>
-          <div>
-              <p class="font-serif" >${textareaValue.value}</p>
-          </div>
-      </div>
-      `;
-      elements[2].innerHTML += messageHTML;
-      textareaValue.value = '';
-  }
 };
 
 async function refreshToken() {
@@ -689,7 +955,7 @@ onMounted(() => {
     ];
 
     // Initialize Quill editor
-    var quill = new Quill('#editor', {
+    quill.value = new Quill('#editor', {
     theme: 'snow',
     modules: {
             toolbar: toolbarOptions
@@ -706,7 +972,7 @@ onMounted(() => {
     });*/
 
     // DOM-related code
-    DestinaryContainer.value = document.getElementById('DestinaryContainer');
+    AIContainer.value = document.getElementById('AIContainer');
 
     const message = "Bonjour, à quelle destinaire(s) souhaitez vous envoyer cet email ?";
 
@@ -718,43 +984,56 @@ onMounted(() => {
             </span>   
         </div>
         <div>
-            <p ref="animatedText1"></p>
+            <p ref="animatedText${counter_display}"></p>
         </div>
     </div>
     `;
 
-    DestinaryContainer.value.innerHTML += messageHTML;
-
-    const animatedParagraph = document.querySelector('p[ref="animatedText1"]');
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
     animateText(message, animatedParagraph);
 
-    messagesContainer.value = document.getElementById('UserDestinaryContainer');
     objectInput.value = document.getElementById('objectInput');
-    objectContainer.value = document.getElementById('UserObjectContainer');
-    askContentContainer.value = document.getElementById('UserAskContentContainer')
-    EmailContainer.value = document.getElementById('EmailContainer');
 
+    quill.value.on('text-change', function() {
+      mailInput.value = quill.value.root.innerHTML;
+      console.log("MAIL", MailCreatedByAI.value);
+      console.log("First", isFirstTimeEmail.value);
+      if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
+        const quillContent = quill.value.root.innerHTML;
+        if (quillContent.trim() !== '<p><br></p>') {
+            mail.value = quillContent;
+            handleInputUpdateMailContent(quillContent);
+            isFirstTimeEmail.value = false;
+        }
+      }
+      MailCreatedByAI.value = false;
+    });
+
+    /* OLD DO DELETE
     let quillContainer = document.querySelector('#editor');
 
     quillContainer.addEventListener('mouseleave', function() {
         console.log('Mouse has left the Quill editor area');
 
         // Call the function to handle the input on mouseleave
-        console.log(quill.root.innerHTML)
-        const quillContent = quill.root.innerHTML;
+        console.log(quill.value.root.innerHTML)
+        const quillContent = quill.value.root.innerHTML;
 
         if (quillContent.trim() !== '<p><br></p>') {
-          handleInputUpdate3(quill.root.innerHTML);
+          handleInputUpdateMailContent(quill.value.root.innerHTML);
         }
-    });
+    });*/
 
     // Event Listeners
-    objectInput.value.addEventListener('blur', handleInputUpdate2);
+    /*
+    objectInput.value.addEventListener('blur', handleInputUpdateObject);
     objectInput.value.addEventListener('keyup', function(e) {
         if (e.keyCode === 13) {
-            handleInputUpdate2();
+            handleInputUpdateObject();
         }
-    });
+    });*/
 
     const form = objectInput.value.closest('form');
     if (form) {
@@ -793,11 +1072,16 @@ function animateText(text, target) {
 
 function personSelected(person) {
   if (!person) return;
+  
+  // To display AI
+  let displayText = '';
 
   switch (activeType.value) {
     case 'CC':
       if (!selectedCC.value.includes(person)) {
         selectedCC.value.push(person);
+        
+        console.log("CC", person.name);
       }
       break;
     case 'CCI':
@@ -811,7 +1095,53 @@ function personSelected(person) {
       }
   }
 
-  selectedPerson.value = null;  // Clear the current selection
+  // To display AI
+  // OPTIONAL : DEACTIVATED BY DEFAULT => UX DESIGN => TO VALIDATE
+  /*
+  if (selectedPeople.value.length > 0) {
+    const peopleNames = selectedPeople.value.map(person => person.name);
+    displayText += peopleNames.join(', ');
+  }
+
+  if (selectedCC.value.length > 0) {
+      if (displayText.length > 0) displayText += ', ';
+      const ccNames = selectedCC.value.map(person => person.name);
+      displayText += 'CC : '
+      displayText += ccNames.join(', ');
+  }
+
+  if (selectedCCI.value.length > 0) {
+      if (displayText.length > 0) displayText += ', ';
+      const cciNames = selectedCCI.value.map(person => person.name);
+      displayText += 'CCI : '
+      displayText += cciNames.join(', ');
+  }
+
+
+  let messageContainer = document.getElementById('object_input_user');
+
+  const messageHTML = `
+      <div id='object_input_user' class="flex pb-12">
+          <div class="mr-4 flex">
+              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
+                <span class="text-lg font-medium leading-none text-white">TH</span>
+              </span>   
+          </div>
+          <div>
+              <p class="font-serif">${displayText}</p>
+          </div>
+      </div>
+    `;
+
+  if (messageContainer) {
+      messageContainer.outerHTML = messageHTML;
+  } else {
+      AIContainer.value.innerHTML += messageHTML;
+      display("N'hésitez pas à m'indiquer un autre destinataire", counter_display); // MAYBE TO DELETE
+      counter_display += 1; // MAYBE TO DELETE
+  }*/
+
+  selectedPerson.value = null; 
 }
 
 function toggleCC() {
@@ -835,6 +1165,7 @@ function removePersonFromCCI(personToRemove) {
 }
 
 
+/* INPUT to handle SELECT => NOT USED
 function handleInputUpdate(selectedUsername) {
   const newMessage = selectedUsername.trim();
 
@@ -870,22 +1201,32 @@ function handleInputUpdate(selectedUsername) {
       //const targetParagraph = messagesContainer.value.querySelector('p[ref="animatedText2"]');
       //animateText(newMessage, targetParagraph);
   }
-}
+}*/
 
-function handleInputUpdate2() {
+function handleInputUpdateObject() {
 
-  if ((selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0) && (EmailContainer.value.innerHTML.trim() == '')) {
-    askContent();
+  if ((selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0)) {
+    if (isFirstTimeObject.value && stepcontainer == 0) {
+      askContent();
+      stepcontainer = 1;
+      isFirstTimeObject.value = false;
+    }
   }
 }
 
-function handleInputUpdate3(newMessage) {
+function handleInputUpdateMailContent(newMessage) {
 
   if (newMessage !== '') {
-      // Clear the container
-      EmailContainer.value.innerHTML = '';
+    if ((selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0)) {
+      
+      askContentAdvice();
+      stepcontainer = 2;
+
+      console.log("TEST STEP", stepcontainer);
 
       // Insert the full structure
+      // OPTION : Check UX Before activate (desactivated for UX reasons)
+      /*
       const messageHTML = `
           <div class="flex pb-12">
               <div class="mr-4 flex">
@@ -898,12 +1239,10 @@ function handleInputUpdate3(newMessage) {
               </div>
           </div>
       `;
-      EmailContainer.value.innerHTML = messageHTML;
+      AIContainer.value.innerHTML += messageHTML;*/
 
       scrollToBottom(); // To scroll to the bottom
-
-      //const targetParagraph = EmailContainer.value.querySelector('p[ref="animatedText4"]');
-      //animateText(newMessage, targetParagraph);
+    }
   }
 }
 
@@ -914,24 +1253,538 @@ onBeforeUnmount(() => {
 
 function askContent() {
     // Your previous code to display the message when the component is mounted
-    const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ou bien choisir l'une des réponses suivantes ?";
+    const message = "N'hésitez pas à fournir un brouillon de l'email que vous souhaitez rédiger"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
     const messageHTML = `
-        <div class="flex pb-12">
-            <div class="mr-4 flex">
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
                 <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
                     <span class="text-lg font-medium leading-none text-white">AO</span>
-                </span>   
+                </span>
             </div>
             <div>
-                <p ref="animatedText5"></p>
+                <div class="flex flex-col">
+                  <p ref="animatedText${counter_display}"></p>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                        <select id="lengthSelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
+                            <option value="very short">Très bref</option>
+                            <option value="short" selected>Bref</option>
+                            <option value="long">Long</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="formalitySelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
+                            <option value="very informal">Non formel</option>
+                            <option value="informal">Peu formel</option>
+                            <option value="formal" selected>Formel</option>
+                            <option value="very formal">Très formel</option>
+                        </select>
+                    </div>
+                  </div>
+                </div>
             </div>
         </div>
+      </div>
     `;
 
-    askContentContainer.value.innerHTML += messageHTML;
-    const animatedParagraph = document.querySelector('p[ref="animatedText5"]');
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
     animateText(message, animatedParagraph);
+
+    const lengthSelect = document.getElementById('lengthSelect');
+    const formalitySelect = document.getElementById('formalitySelect');
+
+    lengthSelect.addEventListener('change', () => {
+        lengthValue.value = lengthSelect.value;
+        console.log('Length:', lengthValue);
+    });
+
+    formalitySelect.addEventListener('change', () => {
+        formalityValue.value = formalitySelect.value;
+        console.log('Formality:', formalityValue);
+    });
+}
+
+function askContentAdvice() {
+    // Your previous code to display the message when the component is mounted
+    const message = "Comment puis-je vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
+
+    const messageHTML = `
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                </span>
+            </div>
+            <div>
+                <div class="flex flex-col">
+                  <p ref="animatedText${counter_display}"></p>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                      <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Corrige l'orthographe
+                      </button>
+                    </div>
+                    <div>
+                      <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Vérifie le copywriting
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                      <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Améliore l'écriture
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+
+    // To check the ortgraph of the subject and the mail
+    setTimeout(() => {
+      const spellCheckButton = document.getElementById('spellCheckButton');
+      if (spellCheckButton) {
+        spellCheckButton.addEventListener('click', checkSpelling);
+      }
+    }, 0);
+
+    setTimeout(() => {
+      const CopyWritingCheckButton = document.getElementById('CopyWritingCheckButton');
+      if (CopyWritingCheckButton) {
+        CopyWritingCheckButton.addEventListener('click', checkCopyWriting);
+      }
+    }, 0);
+
+    setTimeout(() => {
+      const WriteBetterButton = document.getElementById('WriteBetterButton');
+      if (WriteBetterButton) {
+        WriteBetterButton.addEventListener('click', WriteBetter);
+      }
+    }, 0);
+
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
+    animateText(message, animatedParagraph);
+
+}
+
+async function checkSpelling() {
+  try {
+      loading();
+      scrollToBottom();
+      const response = await fetch('http://localhost:9000/MailAssistant/api/correct_email_language/', {
+          method: 'POST',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              email_subject: inputValue.value,
+              email_body: mailInput.value,
+          }),
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.statusText);
+      }
+
+      const result = await response.json();
+      hideLoading();
+      //subject.value = result.corrected_subject; TO DELETE ?
+      //mail.value = result.corrected_body; TO DELETE ?
+      // retrieve num of corrections
+      console.log(result);
+      if (result.corrected_subject && result.corrected_body) {
+          // TO FINISH => animation
+          const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
+          const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      </span>   
+                  </div>
+                  <div>
+                      <p><strong>Objet:</strong> ${result.corrected_subject}</p>
+                      <p><strong>Email:</strong> ${formattedMail}</p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML;
+          inputValue.value = result.corrected_subject;
+          const quillEditorContainer = quill.value.root;
+          quillEditorContainer.innerHTML = result.corrected_body;
+
+          // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+          const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
+          const messageHTML2 = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      </span>   
+                  </div>
+                  <div>
+                    <p ref="animatedText${counter_display}"></p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML2;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+
+          scrollToBottom();
+        } else {
+          hideLoading();
+          const message = "Je m'excuse, j'ai fait une erreur de traitement."
+          const messageHTML = `
+                <div class="flex pb-12">
+                    <div class="mr-4 flex">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                            <span class="text-lg font-medium leading-none text-white">AO</span>
+                        </span>   
+                    </div>
+                    <div>
+                        <p ref="animatedText${counter_display}"></p>
+                    </div>
+                </div>
+            `;
+          AIContainer.value.innerHTML += messageHTML;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+          console.log('Subject or Email is missing in the response');
+        }
+
+  } catch (error) {
+    console.error('Error:', error);
+    hideLoading();
+    const message = "Je m'excuse, j'ai fait une erreur de traitement."
+    const messageHTML = `
+          <div class="flex pb-12">
+              <div class="mr-4 flex">
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                      <span class="text-lg font-medium leading-none text-white">AO</span>
+                  </span>   
+              </div>
+              <div>
+                  <p ref="animatedText${counter_display}"></p>
+              </div>
+          </div>
+      `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;                
+    animateText(message, animatedParagraph);
+  }
+}
+
+async function checkCopyWriting() {
+  try {
+      loading();
+      scrollToBottom();
+      const response = await fetch('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
+          method: 'POST',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              email_subject: inputValue.value,
+              email_body: mailInput.value,
+          }),
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.statusText);
+      }
+
+      const result = await response.json();
+      hideLoading();
+      //subject.value = result.corrected_subject; TO DELETE ?
+      //mail.value = result.corrected_body; TO DELETE ?
+      // retrieve num of corrections
+      console.log(result);
+      if (result.feedback_copywriting) {
+          // TO FINISH => animation
+          const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
+
+          const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      </span>   
+                  </div>
+                  <div>
+                      <p>${formattedCopWritingOutput}</p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML;
+
+          // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+          const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
+          const messageHTML2 = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      </span>   
+                  </div>
+                  <div>
+                    <p ref="animatedText${counter_display}"></p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML2;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+
+          scrollToBottom();
+        } else {
+          hideLoading();
+          const message = "Je m'excuse, j'ai fait une erreur de traitement."
+          const messageHTML = `
+                <div class="flex pb-12">
+                    <div class="mr-4 flex">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                            <span class="text-lg font-medium leading-none text-white">AO</span>
+                        </span>   
+                    </div>
+                    <div>
+                        <p ref="animatedText${counter_display}"></p>
+                    </div>
+                </div>
+            `;
+          AIContainer.value.innerHTML += messageHTML;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+          console.log('Subject or Email is missing in the response');
+        }
+
+  } catch (error) {
+    console.error('Error:', error);
+    hideLoading();
+    const message = "Je m'excuse, j'ai fait une erreur de traitement."
+    const messageHTML = `
+          <div class="flex pb-12">
+              <div class="mr-4 flex">
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                      <span class="text-lg font-medium leading-none text-white">AO</span>
+                  </span>   
+              </div>
+              <div>
+                  <p ref="animatedText${counter_display}"></p>
+              </div>
+          </div>
+      `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;                
+    animateText(message, animatedParagraph);
+  }
+}
+
+async function WriteBetter() {
+  try {
+    loading();
+    scrollToBottom();
+    const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            mail_content: mailInput.value, 
+            user_recommendation: "Améliore l'écriture du mail",
+            email_subject: inputValue.value,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Network response was not ok: ' + response.statusText);
+    }
+
+    const result = await response.json();
+    hideLoading();
+    subject.value = result.subject;
+    mail.value = result.email_body;
+    console.log(result);
+    if (result.subject && result.email_body) {
+        // TO FINISH => animation
+        const formattedMail = result.email_body.replace(/\n/g, '<br>');
+        const messageHTML = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                        <span class="text-lg font-medium leading-none text-white">AO</span>
+                    </span>   
+                </div>
+                <div>
+                    <p><strong>Objet:</strong> ${result.subject}</p>
+                    <p><strong>Email:</strong> ${formattedMail}</p>
+                </div>
+            </div>
+        `;
+        AIContainer.value.innerHTML += messageHTML;
+        inputValue.value = result.subject;
+        const quillEditorContainer = quill.value.root;
+        quillEditorContainer.innerHTML = result.email_body;
+
+        // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+        const message = "Est-ce que ce mail vous convient mieux ?";
+        const messageHTML2 = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                        <span class="text-lg font-medium leading-none text-white">AO</span>
+                    </span>   
+                </div>
+                <div>
+                  <p ref="animatedText${counter_display}"></p>
+                </div>
+            </div>
+        `;
+        AIContainer.value.innerHTML += messageHTML2;
+        const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+        counter_display += 1;           
+        animateText(message, animatedParagraph);
+        scrollToBottom();
+      } else {
+        hideLoading();
+        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+        const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      </span>   
+                  </div>
+                  <div>
+                      <p ref="animatedText${counter_display}"></p>
+                  </div>
+              </div>
+          `;
+        AIContainer.value.innerHTML += messageHTML;
+        const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+        counter_display += 1;                
+        animateText(message, animatedParagraph);
+        scrollToBottom();
+        console.log('Subject or Email is missing in the response');
+      }
+} catch (error) {
+    console.error('Error:', error);
+    hideLoading();
+    // Handling error => TO PUT IN A FUNCTION
+    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+    const messageHTML = `
+          <div class="flex pb-12">
+              <div class="mr-4 flex">
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                      <span class="text-lg font-medium leading-none text-white">AO</span>
+                  </span>   
+              </div>
+              <div>
+                  <p ref="animatedText${counter_display}"></p>
+              </div>
+          </div>
+      `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;                
+    animateText(message, animatedParagraph);
+    scrollToBottom();
+    console.error('There was a problem with the fetch operation: ', error);
+}
+}
+
+// OLD FUNCTION TO DELETE
+/* function retry() {
+    // Your previous code to display the message when the component is mounted
+    const message = "Pouvez-vous saisir un brouillon pour que je puisse vous proposer un mail ?";
+
+    const messageHTML = `
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                </span>
+            </div>
+            <div>
+              <p ref="animatedText6"></p>
+            </div>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector('p[ref="animatedText6"]');
+    animateText(message, animatedParagraph);
+}*/
+
+function display(message, nbr) {
+    // Use `nbr` in the template literal to set the reference dynamically
+    const messageHTML = `
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                </span>
+            </div>
+            <div>
+                <p ref="animatedText${nbr}"></p>
+            </div>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${nbr}"]`);
+    animateText(message, animatedParagraph);
+}
+
+function loading() {
+    // Use `nbr` in the template literal to set the reference dynamically
+    const messageHTML = `
+      <div id="dynamicLoadingIndicator" class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
+                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                </span>
+            </div>
+            <div>
+              <div class="loading-spinner"></div>
+            </div>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+}
+
+function hideLoading() {
+    const loadingElement = document.getElementById('dynamicLoadingIndicator');
+    if (loadingElement) {
+        loadingElement.remove();
+    }
 }
 
 </script>

@@ -88,3 +88,41 @@ class SenderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sender
         fields = ['id', 'email', 'name']  # Include 'id' in the fields
+
+class NewEmailAISerializer(serializers.Serializer):
+    input_data = serializers.CharField()
+    length = serializers.CharField()
+    formality = serializers.CharField()
+
+class EmailAIRecommendationsSerializer(serializers.Serializer):
+    mail_content = serializers.CharField()
+    user_recommendation = serializers.CharField()
+    email_subject = serializers.CharField()
+
+class EmailCorrectionSerializer(serializers.Serializer):
+    email_subject = serializers.CharField(required=True, allow_blank=False)
+    email_body = serializers.CharField(required=True, allow_blank=False)
+
+    def validate(self, data):
+        """
+        Check that both email subject and body are provided.
+        """
+        if 'email_subject' not in data or not data['email_subject'].strip():
+            raise serializers.ValidationError("Email subject is required.")
+        if 'email_body' not in data or not data['email_body'].strip():
+            raise serializers.ValidationError("Email body is required.")
+        return data
+
+class EmailCopyWritingSerializer(serializers.Serializer):
+    email_subject = serializers.CharField(required=True, allow_blank=False)
+    email_body = serializers.CharField(required=True, allow_blank=False)
+
+    def validate(self, data):
+        """
+        Check that both email subject and body are provided.
+        """
+        if 'email_subject' not in data or not data['email_subject'].strip():
+            raise serializers.ValidationError("Email subject is required.")
+        if 'email_body' not in data or not data['email_body'].strip():
+            raise serializers.ValidationError("Email body is required.")
+        return data

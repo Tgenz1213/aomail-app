@@ -39,6 +39,11 @@ urlpatterns = [
     path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'),
     path('api/find-user/', views.find_user_view, name='find-user'),  # Add your view to the urlpatterns
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'),
+    path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'),
+    path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'),
+    path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'),
+    path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'),
+
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
 ]

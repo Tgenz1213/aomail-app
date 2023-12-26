@@ -10,7 +10,6 @@ urlpatterns = [
     path('login/', views.login_page, name="login"),
     path('logout/', views.logout_user, name="logout"),
     path('register/', views.register, name="register"),
-    path('send_mails/', views.send_mail, name="send_mails"),
     path('authenticate/', microsoft_api.authenticate_service, name='authenticate_service'),
     path('callback/', microsoft_api.handle_callback, name='handle_callback'),
     path('message/', views.get_message, name='get_message'), # TO TEST
@@ -43,6 +42,7 @@ urlpatterns = [
     path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'),
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'),
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'),
+    path('api/send_mails/', views.send_email, name="send_mails"),
 
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 

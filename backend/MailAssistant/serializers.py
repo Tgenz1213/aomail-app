@@ -52,12 +52,15 @@ class RuleBlockUpdateSerializer(serializers.ModelSerializer):
 
 # Send mails (POST)
 class EmailDataSerializer(serializers.Serializer):
-    receiver_email = serializers.EmailField()
-    cc = serializers.ListField(child=serializers.EmailField(), required=False)
-    cci = serializers.ListField(child=serializers.EmailField(), required=False)
+    to = serializers.EmailField()
     subject = serializers.CharField(required=False)
     message = serializers.CharField()
-    attachments = serializers.ListField(child=serializers.FileField(), required=False)
+    cc = serializers.CharField(required=False, allow_blank=True)
+    cci = serializers.CharField(required=False, allow_blank=True)
+    attachments = serializers.ListField(
+        child=serializers.FileField(),
+        required=False
+    )
 
 # GET background color
 class PreferencesSerializer(serializers.ModelSerializer):

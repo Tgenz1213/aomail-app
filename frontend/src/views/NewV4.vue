@@ -31,8 +31,8 @@
           </div>
         </div>
         <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-            <div class="flex gap-4 w-full">
-                <div id="firstMainColumn" class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px]"> <!--xl:h-[750px] xl:w-[625px]-->
+            <div class="flex gap-4 w-full h-full">
+                <div id="firstMainColumn" class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
                     <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
                     <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
                     </div>
@@ -46,20 +46,20 @@
                     </div>
                     </div>
                     <div class="flex-grow">
-                    <div class="flex px-6 2xl:py-10 py-6 relative w-full">
-                        <div class="flex flex-grow items-stretch">
-                            <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
-                        </div>
-                        <button type="button" @click="handleAIClick" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                            </svg>
-                        </button>
-                        </div>
-                    </div>
+                      <div class="flex px-6 2xl:py-10 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
+                          <div class="flex flex-grow items-stretch">
+                              <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
+                          </div>
+                          <button type="button" @click="handleAIClick" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                              </svg>
+                          </button>
+                          </div>
+                      </div>
                 </div>
                 </div>
-                <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
+                <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
                     <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
                         <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
                         <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisi manuel</h1>
@@ -199,7 +199,7 @@
                                             </svg>
                                         </button>
                                     </div>
-                                    </div>
+                                  </div>
                                 </div>
                                 <!--
                                 <div class="col-span-full">
@@ -224,28 +224,28 @@
                                     <Bars3BottomLeftIcon class="w-4 h-4" />
                                     <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
                                     </div>-->
-                                    <div class="flex-grow mb-16"> <!-- TO DEBUG : Overflow Error -->
+                                    <div class="flex-grow mb-20"> <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
                                         <div id="editor" class="w-full"></div> 
                                     </div>
                                     <div class="flex mb-4">
-                                    <div class="inline-flex rounded-lg shadow-lg">
-                                        <button  class="bg-gray-500 rounded-l-lg px-8 py-2.5 text-md font-semibold text-white hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
-                                        <Menu as="div" class="relative -ml-px block">
-                                        <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-500 hover:bg-gray-600 focus:z-10">
-                                            <span class="sr-only">Open options</span>
-                                            <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
-                                        </MenuButton>
-                                        <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                                            <MenuItems class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                            <div class="py-1">
-                                                <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                                                <a :href="item.href" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ item.name }}</a>
-                                                </MenuItem>
-                                            </div>
-                                            </MenuItems>
-                                        </transition>
-                                        </Menu>
-                                    </div>  
+                                      <div class="inline-flex rounded-lg shadow-lg">
+                                          <button @click="sendEmail" class="bg-gray-500 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
+                                          <Menu as="div" class="relative -ml-px block">
+                                          <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-500 hover:bg-gray-600 focus:z-10">
+                                              <span class="sr-only">Open options</span>
+                                              <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
+                                          </MenuButton>
+                                          <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                                              <MenuItems class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                              <div class="py-1">
+                                                  <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
+                                                  <a :href="item.href" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ item.name }}</a>
+                                                  </MenuItem>
+                                              </div>
+                                              </MenuItems>
+                                          </transition>
+                                          </Menu>
+                                      </div>  
                                     </div>
                                 </div>
                             </div>
@@ -383,6 +383,7 @@ const adjustHeight = (event) => {
 ////////////////////////////////////////////////////// To Handle files upload ///////////////////////////////////////////////////////
 const fileInput = ref(null);
 const uploadedFiles = ref([]);
+const fileObjects = ref([]);
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB, Gmail's limit
 
 const triggerFileInput = () => {
@@ -394,6 +395,7 @@ const handleFileUpload = (event) => {
   files.forEach(file => {
     if (file.size <= MAX_FILE_SIZE) {
       uploadedFiles.value.push({ name: file.name, size: file.size });
+      fileObjects.value.push(file);
     } else {
       alert("File size exceeds Gmail's limit");
     }
@@ -403,6 +405,7 @@ const handleFileUpload = (event) => {
 
 const removeFile = (index) => {
   uploadedFiles.value.splice(index, 1);
+  fileObjects.value.splice(index, 1);
   saveFileMetadataToLocalStorage();
 };
 
@@ -1785,6 +1788,50 @@ function hideLoading() {
     if (loadingElement) {
         loadingElement.remove();
     }
+}
+
+// To send the mail 
+async function sendEmail() {
+  const emailSubject = inputValue.value;
+  const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
+  const recipients = selectedPeople.value.map(person => person.username); // Adjust according to your data structure
+  const ccRecipients = selectedCC.value.map(person => person.username);
+  const bccRecipients = selectedCCI.value.map(person => person.username);
+
+  const formData = new FormData();
+  formData.append('subject', emailSubject);
+  formData.append('message', emailBody);
+  fileObjects.value.forEach(file => formData.append('attachments', file));
+
+  // Add recipients, CC, and BCC to formData if needed
+  // Adjust the field names according to your API's expected format
+  formData.append('to', recipients.join(','));
+  formData.append('cc', ccRecipients.join(','));
+  formData.append('cci', bccRecipients.join(','));
+
+  for (var pair of formData.entries()) {
+    console.log(pair[0]+ ', ' + pair[1]); 
+  }
+
+  try {
+    const response = await fetch('http://localhost:9000/MailAssistant/api/send_mails/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        // Do not set 'Content-Type' for FormData; the browser will set it along with the correct boundary
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok: ' + response.statusText);
+    }
+
+    const result = await response.json();
+    console.log(result.message); // Handle success
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
 }
 
 </script>

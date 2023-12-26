@@ -225,13 +225,13 @@ def build_services(creds):
 
 def build_services(creds):
     service = {
-        'gmail.readonly': build('gmail', 'v1', credentials=creds),
-        'gmail.send': build('gmail', 'v1', credentials=creds),
-        'calendar': build('calendar', 'v3', credentials=creds),
-        'contacts': build('people', 'v1', credentials=creds),
-        'profile': build('people', 'v1', credentials=creds),
-        'email': build('people', 'v1', credentials=creds),
-        'other.contacts': build('people', 'v1', credentials=creds),
+        'gmail.readonly': build('gmail', 'v1', cache_discovery=False, credentials=creds),
+        'gmail.send': build('gmail', 'v1', cache_discovery=False, credentials=creds),
+        'calendar': build('calendar', 'v3', cache_discovery=False, credentials=creds),
+        'contacts': build('people', 'v1', cache_discovery=False, credentials=creds),
+        'profile': build('people', 'v1', cache_discovery=False, credentials=creds),
+        'email': build('people', 'v1', cache_discovery=False, credentials=creds),
+        'other.contacts': build('people', 'v1', cache_discovery=False, credentials=creds),
     }
     return service
 
@@ -797,4 +797,33 @@ def find_user_in_emails(services, search_query):
 
     return emails
 
+# To send email
+def send_email_with_gmail(services, subject, message, to, cc, bcc, attachments=None):
+
+    service = services['gmail.send']
+
+    multipart_message = MIMEMultipart()
+    multipart_message["Subject"] = subject
+    multipart_message["from"] = "me"
+    multipart_message["to"] = to
+
+    if cc:
+        multipart_message["cc"] = cc
+    if bcc:
+        multipart_message["bcc"] = bcc
+
+    multipart_message.attach(MIMEText(message, "html"))
+
+    # Attach each file in the attachments list
+    if attachments:
+        for uploaded_file in attachments:
+            # Read the contents of the uploaded file
+            file_content = uploaded_file.read()
+            part = MIMEApplication(file_content)
+            part.add_header('Content-Disposition', 'attachment', filename=uploaded_file.name)
+            multipart_message.attach(part)
+
+    raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
+    body = {'raw': raw_message}
+    service.users().messages().send(userId="me", body=body).execute()
 

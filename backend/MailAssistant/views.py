@@ -39,7 +39,7 @@ from . import google_api, microsoft_api
 from django.http import JsonResponse
 from django.views import View
 from .google_api import authenticate_service 
-from .google_api import get_mail, get_unique_senders, get_info_contacts, find_user_in_emails
+from .google_api import get_mail, get_unique_senders, get_info_contacts, find_user_in_emails, send_email_with_gmail
 
 # OpenAI - ChatGPT
 import openai
@@ -1106,6 +1106,7 @@ def search_chat_reply(query_list):
 
 ######################## Other ########################
 
+
 def send_mail(request):
     return api_list[api_var].send_mail(request)
 
@@ -1476,8 +1477,6 @@ def user_contacts(request):
 
 
 # POST
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_email(request):
@@ -1486,10 +1485,28 @@ def send_email(request):
     
     if serializer.is_valid():
         data = serializer.validated_data
-        # Use data for your email sending function.
-        # send_email_function(data['receiver_email'], data['cc'], ...)
-        return Response({"message": "Email sent successfully!"}, status=200)
+        print("DATA -------------------------------->", data)
+
+        try:
+            user = request.user
+            service = authenticate_service(user)
+
+            send_email_with_gmail(
+                services=service,
+                subject=data['subject'],
+                message=data['message'],
+                to=data['to'],
+                cc=data['cc'],
+                bcc=data['cci'],
+                attachments=data.get('attachments')
+            )
+            return Response({"message": "Email sent successfully!"}, status=200)
+        except Exception as e:
+            print("ERROR ---------------------------------> ",e)
+            # Handle exceptions from the email sending process
+            return Response({"error": str(e)}, status=500)
     
+    print("SERIALIZER ERRORS", serializer.errors)
     return Response(serializer.errors, status=400)
 
 

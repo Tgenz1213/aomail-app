@@ -229,9 +229,9 @@
                                     </div>
                                     <div class="flex mb-4">
                                       <div class="inline-flex rounded-lg shadow-lg">
-                                          <button @click="sendEmail" class="bg-gray-500 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
+                                          <button @click="sendEmail" class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
                                           <Menu as="div" class="relative -ml-px block">
-                                          <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-500 hover:bg-gray-600 focus:z-10">
+                                          <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10"> <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
                                               <span class="sr-only">Open options</span>
                                               <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
                                           </MenuButton>
@@ -255,6 +255,38 @@
             </div>
         </div>
       </div>
+      <!-- Notification -->
+      <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6">
+        <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+          <transition
+            enter-active-class="transform ease-out duration-300 transition"
+            enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <div v-if="showNotification" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
+              <div class="p-4">
+                <div class="flex items-start">
+                  <div class="flex-shrink-0">
+                    <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
+                  </div>
+                  <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-gray-900">Mail envoyé !</p>
+                    <p class="mt-1 text-sm text-gray-900">Votre email a était envoyé avec succès.</p>
+                  </div>
+                  <div class="ml-4 flex flex-shrink-0">
+                    <button type="button" @click="showNotification = false" class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
+                      <span class="sr-only">Close</span>
+                      <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </transition>
+        </div>
+      </div>
     </div>
 </template>
 
@@ -262,7 +294,7 @@
 import { defineProps, defineEmits, computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
-import { ChevronDownIcon } from '@heroicons/vue/20/solid';
+import { ChevronDownIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import Quill from 'quill';
 
 import {
@@ -273,7 +305,7 @@ import {
     ComboboxOption,
     ComboboxOptions,
   } from '@headlessui/vue'
-
+  
 const items = [
   { name: 'Envoyer à une heure', href: '#' },
 ]
@@ -312,11 +344,12 @@ watch(selectedPerson, (newValue) => {
 
 
 const inputValue = ref('');
-const isFirstTimeObject = ref(true); // to detect first letter object input
+const isFirstTimeDestinary = ref(true); // to detect first letter object input
 const isFirstTimeEmail = ref(true); // to detect first letter email content input
 const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
+const showNotification = ref(false); // to display a notification, use true to debug directly the design
 
 // User pressed the object input
 function handleFocusObject() {
@@ -486,8 +519,10 @@ const handleAIClick = () => {
                 const messageHTML = `
                 <div class="flex pb-12">
                     <div class="mr-4 flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                            <span class="text-lg font-medium leading-none text-white">AO</span>
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                          </svg>
                         </span>   
                     </div>
                     <div>
@@ -551,8 +586,10 @@ const handleAIClick = () => {
                   const messageHTML = `
                       <div class="flex pb-12">
                           <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                </svg>
                               </span>   
                           </div>
                           <div>
@@ -576,8 +613,10 @@ const handleAIClick = () => {
                   const messageHTML2 = `
                       <div class="flex pb-12">
                           <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                                </svg>
                               </span>   
                           </div>
                           <div>
@@ -598,8 +637,10 @@ const handleAIClick = () => {
                 const messageHTML = `
                       <div class="flex pb-12">
                           <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                </svg>
                               </span>   
                           </div>
                           <div>
@@ -621,8 +662,10 @@ const handleAIClick = () => {
             const messageHTML = `
                   <div class="flex pb-12">
                       <div class="mr-4 flex">
-                          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                              <span class="text-lg font-medium leading-none text-white">AO</span>
+                          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
                           </span>   
                       </div>
                       <div>
@@ -681,8 +724,10 @@ const handleAIClick = () => {
                   const messageHTML = `
                       <div class="flex pb-12">
                           <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                </svg>
                               </span>   
                           </div>
                           <div>
@@ -701,8 +746,10 @@ const handleAIClick = () => {
                   const messageHTML2 = `
                       <div class="flex pb-12">
                           <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                                  <span class="text-lg font-medium leading-none text-white">AO</span>
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                                </svg>
                               </span>   
                           </div>
                           <div>
@@ -721,8 +768,10 @@ const handleAIClick = () => {
                   const messageHTML = `
                         <div class="flex pb-12">
                             <div class="mr-4 flex">
-                                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                  </svg>
                                 </span>   
                             </div>
                             <div>
@@ -745,8 +794,10 @@ const handleAIClick = () => {
               const messageHTML = `
                     <div class="flex pb-12">
                         <div class="mr-4 flex">
-                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                                <span class="text-lg font-medium leading-none text-white">AO</span>
+                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                              </svg>
                             </span>   
                         </div>
                         <div>
@@ -982,8 +1033,12 @@ onMounted(() => {
     const messageHTML = `
     <div class="flex pb-12">
         <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                <span class="text-lg font-medium leading-none text-white">AO</span>
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+              <span class="text-lg font-medium leading-none text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                </svg>
+              </span>
             </span>   
         </div>
         <div>
@@ -1098,7 +1153,13 @@ function personSelected(person) {
       }
   }
 
-  // To display AI
+  if (isFirstTimeDestinary.value) {
+    askContent();
+    stepcontainer = 1;
+    isFirstTimeDestinary.value = false;
+  }
+
+  // To display AI (value entered by the user)
   // OPTIONAL : DEACTIVATED BY DEFAULT => UX DESIGN => TO VALIDATE
   /*
   if (selectedPeople.value.length > 0) {
@@ -1208,13 +1269,15 @@ function handleInputUpdate(selectedUsername) {
 
 function handleInputUpdateObject() {
 
+  /* OLD OPTIONAL => 
   if ((selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0)) {
     if (isFirstTimeObject.value && stepcontainer == 0) {
       askContent();
       stepcontainer = 1;
       isFirstTimeObject.value = false;
     }
-  }
+  } */
+  console.log("Input entered object")
 }
 
 function handleInputUpdateMailContent(newMessage) {
@@ -1262,8 +1325,10 @@ function askContent() {
       <div class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                  </svg>
                 </span>
             </div>
             <div>
@@ -1319,8 +1384,10 @@ function askContentAdvice() {
       <div class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                  </svg>
                 </span>
             </div>
             <div>
@@ -1413,8 +1480,10 @@ async function checkSpelling() {
           const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                        </svg>
                       </span>   
                   </div>
                   <div>
@@ -1433,8 +1502,10 @@ async function checkSpelling() {
           const messageHTML2 = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                        </svg>
                       </span>   
                   </div>
                   <div>
@@ -1454,8 +1525,10 @@ async function checkSpelling() {
           const messageHTML = `
                 <div class="flex pb-12">
                     <div class="mr-4 flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                            <span class="text-lg font-medium leading-none text-white">AO</span>
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                          </svg>
                         </span>   
                     </div>
                     <div>
@@ -1477,8 +1550,10 @@ async function checkSpelling() {
     const messageHTML = `
           <div class="flex pb-12">
               <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                      <span class="text-lg font-medium leading-none text-white">AO</span>
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
                   </span>   
               </div>
               <div>
@@ -1526,8 +1601,10 @@ async function checkCopyWriting() {
           const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                        </svg>
                       </span>   
                   </div>
                   <div>
@@ -1542,8 +1619,10 @@ async function checkCopyWriting() {
           const messageHTML2 = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                        </svg>
                       </span>   
                   </div>
                   <div>
@@ -1563,8 +1642,10 @@ async function checkCopyWriting() {
           const messageHTML = `
                 <div class="flex pb-12">
                     <div class="mr-4 flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                            <span class="text-lg font-medium leading-none text-white">AO</span>
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                          </svg>
                         </span>   
                     </div>
                     <div>
@@ -1586,8 +1667,10 @@ async function checkCopyWriting() {
     const messageHTML = `
           <div class="flex pb-12">
               <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                      <span class="text-lg font-medium leading-none text-white">AO</span>
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
                   </span>   
               </div>
               <div>
@@ -1634,8 +1717,10 @@ async function WriteBetter() {
         const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                        <span class="text-lg font-medium leading-none text-white">AO</span>
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                      </svg>
                     </span>   
                 </div>
                 <div>
@@ -1654,8 +1739,10 @@ async function WriteBetter() {
         const messageHTML2 = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                        <span class="text-lg font-medium leading-none text-white">AO</span>
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                      </svg>
                     </span>   
                 </div>
                 <div>
@@ -1674,8 +1761,10 @@ async function WriteBetter() {
         const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                          <span class="text-lg font-medium leading-none text-white">AO</span>
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
                       </span>   
                   </div>
                   <div>
@@ -1698,8 +1787,10 @@ async function WriteBetter() {
     const messageHTML = `
           <div class="flex pb-12">
               <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                      <span class="text-lg font-medium leading-none text-white">AO</span>
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
                   </span>   
               </div>
               <div>
@@ -1747,8 +1838,10 @@ function display(message, nbr) {
       <div class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                  </svg>
                 </span>
             </div>
             <div>
@@ -1769,8 +1862,12 @@ function loading() {
       <div id="dynamicLoadingIndicator" class="pb-12">
         <div class="flex">
             <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                    <span class="text-lg font-medium leading-none text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
+                      </svg>
+                    </span>
                 </span>
             </div>
             <div>
@@ -1829,6 +1926,44 @@ async function sendEmail() {
 
     const result = await response.json();
     console.log(result.message); // Handle success
+
+    // To reinitialize the variable
+    showNotification.value = true;
+    inputValue.value = '';
+    quill.value.root.innerHTML = '';
+    selectedPeople.value = [];
+    selectedCC.value = [];
+    selectedCCI.value = [];
+    stepcontainer = 0;
+    AIContainer.value.innerHTML = '';
+    AIContainer.value = document.getElementById('AIContainer');
+    const message = "Bonjour, à quelle destinaire(s) souhaitez vous envoyer cet email ?";
+    const messageHTML = `
+    <div class="flex pb-12">
+        <div class="mr-4 flex">
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+              <span class="text-lg font-medium leading-none text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                </svg>
+              </span>
+            </span>   
+        </div>
+        <div>
+            <p ref="animatedText${counter_display}"></p>
+        </div>
+    </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
+    animateText(message, animatedParagraph);
+
+    // To hide the notification
+    setTimeout(() => {
+      showNotification.value = false;
+    }, 5000);
+    
   } catch (error) {
     console.error('Error sending email:', error);
   }

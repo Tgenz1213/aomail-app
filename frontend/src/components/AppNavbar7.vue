@@ -41,7 +41,7 @@
 
     <div class="flex flex-col items-center justify-center h-full">
         <div class="flex h-16 shrink-0 items-center justify-center">
-            <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=black" alt="Your Company" />
+          <img class="h-8 w-auto" :src="logo" alt="Your Company" />
         </div>
         <nav class="h-5/6 flex items-center justify-center">
             <ul role="list" class="flex flex-col space-y-1">
@@ -103,6 +103,7 @@ const navigation = [
   { name: 'Paramètres', href: '/settings', icon: CogIcon },
 ]
 
+const logo = ref(require('@/assets/LogoAugmentAI_export4.png'));
 
 const sidebarOpen = ref(false)
 </script>

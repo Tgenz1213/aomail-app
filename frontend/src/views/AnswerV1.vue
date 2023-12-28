@@ -311,65 +311,78 @@ const scrollToBottom = async () => {
 // AI instruction textarea input
 const textareaValue = ref('');
 
-/*
-const adjustHeight = (event) => {
-    // Votre logique pour ajuster la hauteur
-};*/
+async function refreshToken() {
+    // Get the refresh token from local storage
+    const refresh_token = localStorage.getItem('refreshToken');
 
-/*
-const handleAIClick = () => {
-  const elements = [
-    document.getElementById("UserDestinaryContainer"),
-    document.getElementById("UserObjectContainer"),
-    document.getElementById("EmailContainer"),
-  ];
-  console.log(textareaValue.value); // Cela imprimera la valeur de la textarea
+    if (!refresh_token) {
+        throw new Error('No refresh token found');
+    }
 
-  // Vous pouvez maintenant vérifier la valeur et exécuter votre logique désirée
-  if (!elements[0].innerHTML.trim() && !elements[1].innerHTML.trim() && !elements[2].innerHTML.trim() && textareaValue.value != '') {
-    const messageHTML = `
-    <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-              <span class="text-lg font-medium leading-none text-white">TH</span>
-            </span>   
-        </div>
-        <div>
-            <p class="font-serif" >${textareaValue.value}</p>
-        </div>
-    </div>
-  `;
-    elements[0].innerHTML += messageHTML;
+    // Set up the request options for the fetch call
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refresh: refresh_token }),
+    };
 
-    setTimeout(() => {
-      if (askContentContainer.value.innerHTML == ''){
-        textareaValue.value = '';
-        askContent();
+    try {
+        // Make the POST request to the refresh token endpoint
+        const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+
+        // Check if the response status is OK (200)
+        if (!response.ok) {
+            throw new Error(`Failed to refresh token: ${response.statusText}`);
+        }
+
+        // Parse the JSON response to get the new access token
+        const data = await response.json();
+        const new_access_token = data.access;
+
+        // Save the new access token to local storage
+        localStorage.setItem('userToken', new_access_token);
+
+        return new_access_token;
+    } catch (error) {
+        console.error('Error refreshing token: ', error.message);
+        // Handle the error (e.g., by redirecting the user to a login page)
+        throw error;
+    }
+}
+
+const bgColor = ref(''); // Initialize a reactive variable
+
+async function getUserBgColor() {
+  try {
+    const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+        'Content-Type': 'application/json'
       }
-    }, 400);
-  } else if (elements[0].innerHTML.trim() && !elements[2].innerHTML.trim() && textareaValue.value != '') {
-      // Faites autre chose
-      const messageHTML = `
-      <div class="flex pb-12">
-          <div class="mr-4 flex">
-              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                <span class="text-lg font-medium leading-none text-white">TH</span>
-              </span>   
-          </div>
-          <div>
-              <p class="font-serif" >${textareaValue.value}</p>
-          </div>
-      </div>
-      `;
-      elements[2].innerHTML += messageHTML;
-      textareaValue.value = '';
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+    bgColor.value = data.bg_color; // Update the reactive variable
+  } catch (error) {
+    console.error("Error fetching user background color:", error.message);
   }
-};*/
+}
 
 const route = useRoute();
 
 onMounted(() => {
     
+  refreshToken();
+  getUserBgColor();
+
   const subject = JSON.parse(route.query.subject);
   const email = JSON.parse(route.query.email);
   const id_provider = JSON.parse(route.query.id_provider);
@@ -441,9 +454,6 @@ onMounted(() => {
  
   DestinaryContainer.value.innerHTML += messageHTML;
 
-  const animatedParagraph = document.querySelector('p[ref="animatedText1"]');
-  animateText(message, animatedParagraph);
-
   messagesContainer.value = document.getElementById('UserDestinaryContainer');
   objectInput.value = document.getElementById('objectInput');
   objectContainer.value = document.getElementById('UserObjectContainer');
@@ -463,23 +473,9 @@ onMounted(() => {
         handleInputUpdate3(quill.root.innerHTML);
       }*/
   });
-
-  // Event Listeners 
-  /*objectInput.value.addEventListener('blur', handleInputUpdate2);
-  objectInput.value.addEventListener('keyup', function(e) {
-      if (e.keyCode === 13) {
-          handleInputUpdate2();
-      }
-  });
-
-  const form = objectInput.value.closest('form');
-  if (form) {
-      form.addEventListener('submit', function(e) {
-          e.preventDefault();
-      });
-  }*/
 });
 
+/*
 function animateText(text, target) {
   let characters = text.split("");
   let currentIndex = 0;
@@ -491,7 +487,7 @@ function animateText(text, target) {
           clearInterval(interval);
       }
   }, 30);
-}
+}*/
 
 
 function personSelected() {
@@ -500,127 +496,6 @@ function personSelected() {
       handleInputUpdate(selectedPerson.value.username);
   }*/
 }
-
-/*
-function handleInputUpdate(selectedUsername) {
-  const newMessage = selectedUsername.trim();
-
-  if (newMessage !== '') {
-      // Ask the user to enter a content
-      console.log(askContentContainer.value.innerHTML);
-      setTimeout(() => {
-        if (askContentContainer.value.innerHTML == ''){
-          askContent();
-        }
-      }, 400);
-      // Ask the user to enter a content
-      //askContent(); 
-      // Clear the container
-      messagesContainer.value.innerHTML = '';
-
-      // Insert the full structure
-      const messageHTML = `
-          <div class="flex pb-12">
-              <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                      <span class="text-lg font-medium leading-none text-white">TH</span>
-                  </span>   
-              </div>
-              <div>
-                  <p class="font-serif" ref="">${newMessage}</p>
-              </div>
-          </div>
-      `;
-
-      messagesContainer.value.innerHTML = messageHTML;
-
-      //const targetParagraph = messagesContainer.value.querySelector('p[ref="animatedText2"]');
-      //animateText(newMessage, targetParagraph);
-  }
-}
-
-function handleInputUpdate2() {
-  const newMessage = objectInput.value.value.trim();
-
-  if (newMessage !== '') {
-      // Clear the container
-      objectContainer.value.innerHTML = '';
-
-      // Insert the full structure
-      const messageHTML = `
-          <div class="flex pb-12">
-              <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                      <span class="text-lg font-medium leading-none text-white">TH</span>
-                  </span>   
-              </div>
-              <div>
-                  <p class="font-serif" ref="">${newMessage}</p>
-              </div>
-          </div>
-      `;
-      objectContainer.value.innerHTML = messageHTML;
-
-      //const targetParagraph = objectContainer.value.querySelector('p[ref="animatedText3"]');
-      //animateText(newMessage, targetParagraph);
-  }
-}
-
-function handleInputUpdate3(newMessage ) {
-
-  if (newMessage !== '') {
-      // Clear the container
-      EmailContainer.value.innerHTML = '';
-
-      // Insert the full structure
-      const messageHTML = `
-          <div class="flex pb-12">
-              <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                      <span class="text-lg font-medium leading-none text-white">TH</span>
-                  </span>   
-              </div>
-              <div class="font-serif">
-                  ${newMessage}
-              </div>
-          </div>
-      `;
-      EmailContainer.value.innerHTML = messageHTML;
-
-      scrollToBottom(); // To scroll to the bottom
-
-      //const targetParagraph = EmailContainer.value.querySelector('p[ref="animatedText4"]');
-      //animateText(newMessage, targetParagraph);
-  }
-}*/
-
-/*
-onBeforeUnmount(() => {
-    window.removeEventListener('resize', scrollToBottom);
-});*/
-
-/*
-function askContent() {
-    // Your previous code to display the message when the component is mounted
-    const message = "Pouvez-vous fournir un brouillon de la réponse que vous souhaitez rédiger ou bien choisir l'une des réponses suivantes ?";
-
-    const messageHTML = `
-        <div class="flex pb-12">
-            <div class="mr-4 flex">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                    <span class="text-lg font-medium leading-none text-white">AO</span>
-                </span>   
-            </div>
-            <div>
-                <p ref="animatedText5"></p>
-            </div>
-        </div>
-    `;
-
-    askContentContainer.value.innerHTML += messageHTML;
-    const animatedParagraph = document.querySelector('p[ref="animatedText5"]');
-    animateText(message, animatedParagraph);
-}*/
 
 </script>
 
@@ -634,30 +509,6 @@ import {
   Bars2Icon,
   //Bars3BottomLeftIcon,
 } from '@heroicons/vue/24/outline'
-
-  /*
-  const userDestinaryContainer = document.getElementById('UserDestinaryContainer');
-  const emailContainer = document.getElementById('EmailContainer');
-    
-  // Check if UserDestinaryContainer has content (not just whitespace)
-  if (userDestinaryContainer.textContent.trim() !== '') {
-     emailContainer.innerHTML = `
-        <div class="flex pb-12">
-          <div class="mr-4 flex">
-              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                  <span class="text-lg font-medium leading-none text-white">AO</span>
-              </span>   
-          </div>
-          <div>
-              <p ref="animatedText3">Veuillez choisir l'une des options ci-dessous ou saisissez un brouillon portant sur le sujet de votre mail</p>
-          </div>
-        </div>';`
-  } else {
-    emailContainer.innerHTML = ''; // Clear the EmailContainer if desired
-  }
-
-  const animatedParagraph2 = document.querySelector('p[ref="animatedText3"]');
-  animateText(message, animatedParagraph2);*/
 
 export default {
   components: {

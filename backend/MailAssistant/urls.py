@@ -1,7 +1,10 @@
 from django.urls import path
 from . import views
-from MailAssistant import microsoft_api
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from MailAssistant import microsoft_api_c
+from MailAssistant import google_api
+#from MailAssistant import microsoft_api
+
 
 app_name = 'MailAssistant'
 
@@ -10,8 +13,6 @@ urlpatterns = [
     path('login/', views.login_page, name="login"),
     path('logout/', views.logout_user, name="logout"),
     path('register/', views.register, name="register"),
-    path('authenticate/', microsoft_api.authenticate_service, name='authenticate_service'),
-    path('callback/', microsoft_api.handle_callback, name='handle_callback'),
     path('message/', views.get_message, name='get_message'), # TO TEST
     path('user/categories/', views.get_user_categories, name='user-categories'),
     path('user/emails/', views.get_user_emails, name='user-emails'),
@@ -46,7 +47,14 @@ urlpatterns = [
     path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name="generate_email_response_keywords"),
     path('api/generate_email_answer/', views.generate_email_answer, name="generate_email_answer"),
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name="get_answer_later_emails"),
-
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
+    # azure ad connection URLs
+    path('generate-auth-url/', microsoft_api_c.generate_auth_url, name='generate_auth_url'),
+    path('auth_callback/', microsoft_api_c.auth_callback, name='auth_callback'),    
+    # path('authenticate/', microsoft_api.authenticate_service, name='authenticate_service'),
+    # path('callback/', microsoft_api.handle_callback, name='handle_callback'),
+
+    # [GMAIL] backend requests URLs
+    path('unread_mails/', google_api.unread_mails, name='unread_mails')
 ]

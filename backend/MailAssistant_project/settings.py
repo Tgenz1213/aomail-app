@@ -34,6 +34,7 @@ SITE_ID = 3
 # Application definition
 
 INSTALLED_APPS = [
+    'django_extensions', # mandatory to get a https certificate
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -83,13 +84,13 @@ SIMPLE_JWT = {
 DJ_REST_AUTH_JWT_SECRET_KEY = SECRET_KEY # conf of dj-rest-auth TO UPDATE FOR SAFETY REASON
 
 MIDDLEWARE = [
-#     'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.middleware.common.CommonMiddleware',
-#     'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'allauth.account.middleware.AccountMiddleware',

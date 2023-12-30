@@ -115,7 +115,7 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const navigation = [
-  { name: 'Acceuil', href: '/home', icon: HomeIcon },
+  { name: 'Accueil', href: '/home', icon: HomeIcon },
   { name: 'Nouveau mail', href: '/new', icon: PlusIcon },
   { name: 'Recherche mail', href: '/search', icon: MagnifyingGlassIcon },
   { name: 'Règles', href: '/rules', icon: UsersIcon },

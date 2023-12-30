@@ -1,10 +1,11 @@
 import os.path
 import pickle
 import base64
+import re
 import time
 import random
 import email
-import re
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -16,19 +17,34 @@ from email.mime.application import MIMEApplication
 from .forms import MailForm
 from googleapiclient.errors import HttpError
 from google.auth.exceptions import RefreshError
-from google.auth.transport.urllib3 import AuthorizedHttp
 from google.auth import exceptions as auth_exceptions
 from google.oauth2 import credentials
 from django.core.exceptions import ObjectDoesNotExist
 from .models import SocialAPI
-from django.contrib.auth.models import User
-
-# from .library import *
+from googleapiclient.discovery import build
 from . import library
+import requests
+import logging
+from colorama import init, Fore
+from requests_oauthlib import OAuth2Session
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+
+# unused packages
+from oauth2client import client
+import google.auth
+from google.auth.transport import requests as google_requests
+from django.contrib.auth.models import User
+import datetime
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+from google.oauth2.credentials import Credentials
+import httplib2
+from google.auth.transport.urllib3 import AuthorizedHttp
+# from .library import *
 
 import sys
 sys.path.append('/Users/shost/Documents/MailAssistant/MailAssistant_project/MailAssistant')
-
 
 
 GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
@@ -39,143 +55,23 @@ PROFILE_SCOPE = 'https://www.googleapis.com/auth/userinfo.profile'
 EMAIL_SCOPE = 'https://www.googleapis.com/auth/userinfo.email'
 OPENID_SCOPE = 'openid'
 OTHER_CONTACT_READONLY_SCOPE = 'https://www.googleapis.com/auth/contacts.other.readonly'
-SCOPES = [GMAIL_READONLY_SCOPE,GMAIL_SEND_SCOPE,CALENDAR_READONLY_SCOPE,CONTACT_READONLY_SCOPE,PROFILE_SCOPE,EMAIL_SCOPE,OPENID_SCOPE,OTHER_CONTACT_READONLY_SCOPE]
+SCOPES = [
+    GMAIL_READONLY_SCOPE,
+    GMAIL_SEND_SCOPE,
+    CALENDAR_READONLY_SCOPE,
+    CONTACT_READONLY_SCOPE,PROFILE_SCOPE,
+    EMAIL_SCOPE,
+    OPENID_SCOPE,
+    OTHER_CONTACT_READONLY_SCOPE
+]
+GOOGLE_CLIENT_ID = "900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "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"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+REDIRECT_URI = "https://developers.google.com/oauthplayground"
+
 
 test_int = 0
-######################## Authentification ########################
-''' OLD CODE TO DELETE AFTER CHECKING
-def check_token_pickle():
-    print('check_token_pickle')
-    creds = None
-    # Check if token.pickle exists and load credentials if it does
-    if os.path.exists('token.pickle'):
-        if os.stat("token.pickle").st_size > 0:
-            with open('token.pickle', 'rb') as token:
-                try:
-                    creds = pickle.load(token)
-                except EOFError:
-                    print("EOFError: The file 'token.pickle' is empty or corrupted. Please regenerate the token.")
-                    creds = None
-        else:
-            print("The file 'token.pickle' is empty. Please regenerate the token.")
-            creds = None
-    else:
-        print("The file 'token.pickle' does not exist. Please generate the token.")
-        creds = None
-    return creds
-
-def check_creds(creds):
-    print('check_creds')
-    # If there are no valid credentials, create them
-    if not creds or not creds.valid:
-        # if creds and creds.expired and creds.refresh_token:
-        #     creds.refresh(Request())
-        try:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-        except RefreshError:
-            creds = None  # set creds to None to force reauthentication
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8081)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-    return creds
-
-def build_services(creds):
-    print('build_services')
-    # Build services for Gmail and Calendar based on the passed SCOPES
-    service = {}
-    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
-        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
-        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
-        service['calendar'] = build('calendar', 'v3', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
-        service['contacts'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
-        service['profile'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
-        service['email'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
-        service['other.contacts'] = build('people', 'v1', credentials=creds)
-    # return services
-    return service
-
-# authentication service for all google services needed at once, used on startup, then stored until log out
-def authenticate_service():
-    creds = check_token_pickle()
-    creds = check_creds(creds)
-    if creds:
-        service = build_services(creds)
-    else:
-        global test_int
-        test_int+=1
-        print('coucou ',test_int)
-        service = authenticate_service()
-    return service
-
-
-def authenticate_service_old():
-    """Authenticate and return service objects for Google APIs."""
-    creds = None
-    # Check if token.pickle exists and load credentials if it does
-    if os.path.exists('token.pickle'):
-        if os.stat("token.pickle").st_size > 0:
-            with open('token.pickle', 'rb') as token:
-                try:
-                    creds = pickle.load(token)
-                except EOFError:
-                    print("EOFError: The file 'token.pickle' is empty or corrupted. Please regenerate the token.")
-                    creds = None
-        else:
-            print("The file 'token.pickle' is empty. Please regenerate the token.")
-            creds = None
-    else:
-        print("The file 'token.pickle' does not exist. Please generate the token.")
-        creds = None
-
-    # If there are no valid credentials, create them
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8080)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-
-    # Build services for Gmail and Calendar based on the passed SCOPES
-    service = {}
-    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
-        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
-        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
-        service['calendar'] = build('calendar', 'v3', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
-        service['contacts'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
-        service['profile'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
-        service['email'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
-        service['other.contacts'] = build('people', 'v1', credentials=creds)
-    # return services
-    return service
-'''
-SCOPES = [
-    'https://www.googleapis.com/auth/gmail.readonly',
-    'https://www.googleapis.com/auth/gmail.send',
-    'https://www.googleapis.com/auth/calendar.readonly',
-    'https://www.googleapis.com/auth/contacts.readonly',
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'https://www.googleapis.com/auth/userinfo.email',
-    'openid',
-    'https://www.googleapis.com/auth/contacts.other.readonly'
-]
-
+######################## AUTHENTIFICATION ########################
 def get_credentials(user):
     try:
         social_api = SocialAPI.objects.get(user=user, type_api='Google')
@@ -210,21 +106,7 @@ def save_credentials(creds, user):
     except Exception as e:
         print(f"Failed to save credentials: {e}")
 
-''' OLD ONE 
-def build_services(creds):
-    authed_http = AuthorizedHttp(creds, Request())
-    service = {
-        'gmail.readonly': build('gmail', 'v1', http=authed_http),
-        'gmail.send': build('gmail', 'v1', http=authed_http),
-        'calendar': build('calendar', 'v3', http=authed_http),
-        'contacts': build('people', 'v1', http=authed_http),
-        'profile': build('people', 'v1', http=authed_http),
-        'email': build('people', 'v1', http=authed_http),
-        'other.contacts': build('people', 'v1', http=authed_http),
-    }
-    return service'''
-
-def build_services(creds):
+def build_services(creds) -> dict:
     service = {
         'gmail.readonly': build('gmail', 'v1', cache_discovery=False, credentials=creds),
         'gmail.send': build('gmail', 'v1', cache_discovery=False, credentials=creds),
@@ -236,7 +118,7 @@ def build_services(creds):
     }
     return service
 
-def authenticate_service(user):
+def authenticate_service(user) -> dict:
     creds = get_credentials(user)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -250,56 +132,36 @@ def authenticate_service(user):
     service = build_services(creds)
     return service
 
+
+
+######################## GMAIL API REQUESTS ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def unread_mails(request):
+    """Returns the number of unread emails"""
+    try:
+        user = request.user        
+        unread_count = 0
+        service = authenticate_service(user)
+            
+        if service is not None:
+            try:
+                response = service['gmail.readonly'].users().messages().list(userId='me', q='is:unread').execute()
+                unread_count = len(response.get('messages', []))
+                return JsonResponse({'unreadCount': unread_count}, status=200)
+            except Exception as e:
+                logging.error(f"Error getting unread emails: {e}")
+                return JsonResponse({'error': 'Failed to retrieve unread count'}, status=500)
+    
+        logging.error(f"{Fore.RED}Failed to authenticate")
+        return JsonResponse({'unreadCount': unread_count}, status=400)
+    
+    except Exception as e:
+        logging.error(f"{Fore.RED}An error occurred: {e}")
+        return JsonResponse({'unreadCount': 0}, status=400)
+
+
 ######################## Read Mails ########################
-
-# used to get mail number "int_mail" (minus one as lists starts from 0) or mail ID 'id_mail' and returns subject, expeditor and body 
-''' OLD function TO DELETE AFTER CHECKING
-def get_mail(services, int_mail, id_mail):
-    service = services['gmail.readonly']
-    plaintext_var = [0]
-    plaintext_var[0] = 0
-
-    if int_mail!=None:
-        # Call the Gmail API to fetch INBOX
-        results = service.users().messages().list(userId='me',labelIds=['INBOX']).execute()
-        messages = results.get('messages', [])
-        if not messages:
-            print('No new messages.')
-        else:
-            message = messages[int_mail]
-            email_id = message['id']
-            msg = service.users().messages().get(userId='me', id=message['id']).execute()
-    # 2 lines added to make it work for id as well
-    elif id_mail!=None:
-        email_id = id_mail
-        msg = service.users().messages().get(userId='me', id=id_mail).execute()
-    # lines idented back to work as intended
-    email_data = msg['payload']['headers']
-    for values in email_data:
-        name = values['name']
-        if name == 'Subject':
-            subject = values['value']
-        if name == 'From':
-            from_name = values['value']
-            print("From: ", from_name)
-    decoded_data=None
-    if 'parts' in msg['payload']:
-        for part in msg['payload']['parts']:
-            decoded_data_temp = library.process_part(part,plaintext_var)
-            if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data,decoded_data_temp)
-
-    # If there's no 'parts' field, the body of the email could be in the 'body' field
-    elif 'body' in msg['payload']:
-        data = msg['payload']['body']["data"]
-        data = data.replace("-","+").replace("_","/")
-        decoded_data_temp = base64.b64decode(data).decode('utf-8')
-        decoded_data = library.html_clear(decoded_data_temp)
-    preprocessed_data = library.preprocess_email(decoded_data)
-                    
-    return subject,from_name,preprocessed_data, email_id'''
-
-
 def parse_name_and_email(header_value):
     if not header_value:
         return None, None
@@ -894,3 +756,188 @@ def send_email_with_gmail(services, subject, message, to, cc, bcc, attachments=N
     body = {'raw': raw_message}
     service.users().messages().send(userId="me", body=body).execute()
 
+''' OLD CODE TO DELETE AFTER CHECKING
+def check_token_pickle():
+    print('check_token_pickle')
+    creds = None
+    # Check if token.pickle exists and load credentials if it does
+    if os.path.exists('token.pickle'):
+        if os.stat("token.pickle").st_size > 0:
+            with open('token.pickle', 'rb') as token:
+                try:
+                    creds = pickle.load(token)
+                except EOFError:
+                    print("EOFError: The file 'token.pickle' is empty or corrupted. Please regenerate the token.")
+                    creds = None
+        else:
+            print("The file 'token.pickle' is empty. Please regenerate the token.")
+            creds = None
+    else:
+        print("The file 'token.pickle' does not exist. Please generate the token.")
+        creds = None
+    return creds
+
+def check_creds(creds):
+    print('check_creds')
+    # If there are no valid credentials, create them
+    if not creds or not creds.valid:
+        # if creds and creds.expired and creds.refresh_token:
+        #     creds.refresh(Request())
+        try:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+        except RefreshError:
+            creds = None  # set creds to None to force reauthentication
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=8081)
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+    return creds
+
+def build_services(creds):
+    print('build_services')
+    # Build services for Gmail and Calendar based on the passed SCOPES
+    service = {}
+    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
+        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
+        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
+        service['calendar'] = build('calendar', 'v3', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
+        service['contacts'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
+        service['profile'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
+        service['email'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
+        service['other.contacts'] = build('people', 'v1', credentials=creds)
+    # return services
+    return service
+
+# authentication service for all google services needed at once, used on startup, then stored until log out
+def authenticate_service():
+    creds = check_token_pickle()
+    creds = check_creds(creds)
+    if creds:
+        service = build_services(creds)
+    else:
+        global test_int
+        test_int+=1
+        print('coucou ',test_int)
+        service = authenticate_service()
+    return service
+
+
+def authenticate_service_old():
+    """Authenticate and return service objects for Google APIs."""
+    creds = None
+    # Check if token.pickle exists and load credentials if it does
+    if os.path.exists('token.pickle'):
+        if os.stat("token.pickle").st_size > 0:
+            with open('token.pickle', 'rb') as token:
+                try:
+                    creds = pickle.load(token)
+                except EOFError:
+                    print("EOFError: The file 'token.pickle' is empty or corrupted. Please regenerate the token.")
+                    creds = None
+        else:
+            print("The file 'token.pickle' is empty. Please regenerate the token.")
+            creds = None
+    else:
+        print("The file 'token.pickle' does not exist. Please generate the token.")
+        creds = None
+
+    # If there are no valid credentials, create them
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=8080)
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
+    # Build services for Gmail and Calendar based on the passed SCOPES
+    service = {}
+    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
+        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
+        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
+        service['calendar'] = build('calendar', 'v3', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
+        service['contacts'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
+        service['profile'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
+        service['email'] = build('people', 'v1', credentials=creds)
+    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
+        service['other.contacts'] = build('people', 'v1', credentials=creds)
+    # return services
+    return service
+'''
+
+
+# used to get mail number "int_mail" (minus one as lists starts from 0) or mail ID 'id_mail' and returns subject, expeditor and body 
+''' OLD function TO DELETE AFTER CHECKING
+def get_mail(services, int_mail, id_mail):
+    service = services['gmail.readonly']
+    plaintext_var = [0]
+    plaintext_var[0] = 0
+
+    if int_mail!=None:
+        # Call the Gmail API to fetch INBOX
+        results = service.users().messages().list(userId='me',labelIds=['INBOX']).execute()
+        messages = results.get('messages', [])
+        if not messages:
+            print('No new messages.')
+        else:
+            message = messages[int_mail]
+            email_id = message['id']
+            msg = service.users().messages().get(userId='me', id=message['id']).execute()
+    # 2 lines added to make it work for id as well
+    elif id_mail!=None:
+        email_id = id_mail
+        msg = service.users().messages().get(userId='me', id=id_mail).execute()
+    # lines idented back to work as intended
+    email_data = msg['payload']['headers']
+    for values in email_data:
+        name = values['name']
+        if name == 'Subject':
+            subject = values['value']
+        if name == 'From':
+            from_name = values['value']
+            print("From: ", from_name)
+    decoded_data=None
+    if 'parts' in msg['payload']:
+        for part in msg['payload']['parts']:
+            decoded_data_temp = library.process_part(part,plaintext_var)
+            if decoded_data_temp:
+                decoded_data = library.concat_text(decoded_data,decoded_data_temp)
+
+    # If there's no 'parts' field, the body of the email could be in the 'body' field
+    elif 'body' in msg['payload']:
+        data = msg['payload']['body']["data"]
+        data = data.replace("-","+").replace("_","/")
+        decoded_data_temp = base64.b64decode(data).decode('utf-8')
+        decoded_data = library.html_clear(decoded_data_temp)
+    preprocessed_data = library.preprocess_email(decoded_data)
+                    
+    return subject,from_name,preprocessed_data, email_id'''
+
+''' OLD ONE 
+USELESS AS THE OTHER ONE WORKS WELL
+def build_services(creds):
+    authed_http = AuthorizedHttp(creds, Request())
+    service = {
+        'gmail.readonly': build('gmail', 'v1', http=authed_http),
+        'gmail.send': build('gmail', 'v1', http=authed_http),
+        'calendar': build('calendar', 'v3', http=authed_http),
+        'contacts': build('people', 'v1', http=authed_http),
+        'profile': build('people', 'v1', http=authed_http),
+        'email': build('people', 'v1', http=authed_http),
+        'other.contacts': build('people', 'v1', http=authed_http),
+    }
+    return service'''

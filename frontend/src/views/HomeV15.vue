@@ -433,18 +433,37 @@ export default {
             this.showModal = status;
         },
         animateText() {
-            let text = "Bonjour ! Vous avez reçu 4 nouveaux mails.";
-            let target = this.$refs.animatedText;
-            let characters = text.split("");
-            let currentIndex = 0;
-            const interval = setInterval(() => {
-                if (currentIndex < characters.length) {
-                    target.textContent += characters[currentIndex];
-                    currentIndex++;
-                } else {
-                    clearInterval(interval);
+            const access_token = localStorage.getItem('userToken');
+            
+            fetch(`http://localhost:9000/MailAssistant/unread_mails/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
                 }
-            }, 30);
+            })
+            .then(response => {
+                console.log(response);
+                return response.json();
+            })
+            .then(data => {
+                const unreadMailCount = data.unreadCount;
+                let text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveaux mails.`;
+
+                let target = this.$refs.animatedText;
+                let characters = text.split("");
+                let currentIndex = 0;
+                const interval = setInterval(() => {
+                    if (currentIndex < characters.length) {
+                        target.textContent += characters[currentIndex];
+                        currentIndex++;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 30);
+            })
+            .catch(error => {
+                console.error('Error trying to get the number of unread emails:', error);
+            });
         },
         toggleHiddenParagraph(index) {
             console.log("Item ID:",index)

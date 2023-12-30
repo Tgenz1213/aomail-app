@@ -242,6 +242,38 @@
             </div>
         </div>
     </div>
+    <!-- Notification -->
+    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6">
+        <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+        <transition
+            enter-active-class="transform ease-out duration-300 transition"
+            enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <div v-if="showNotification" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
+            <div class="p-4">
+                <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-gray-900">Mail envoyé !</p>
+                    <p class="mt-1 text-sm text-gray-900">Votre email a était envoyé avec succès.</p>
+                </div>
+                <div class="ml-4 flex flex-shrink-0">
+                    <button type="button" @click="showNotification = false" class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
+                    <span class="sr-only">Close</span>
+                    <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
+                    </button>
+                </div>
+                </div>
+            </div>
+            </div>
+        </transition>
+        </div>
+    </div>
     <ModalSeeMail :isOpen="showModal" :email="selectedEmail" @update:isOpen="updateModalStatus" />
     </div>
 </template>
@@ -250,7 +282,7 @@
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import ModalSeeMail from '../components/SeeMail.vue';
-//import { ref } from 'vue';
+import { ref } from 'vue';
 import {
     //ChatBubbleOvalLeftEllipsisIcon,
     ExclamationTriangleIcon,
@@ -321,6 +353,9 @@ export default {
                     name: 'answer', 
                     query: { 
                         subject: JSON.stringify(data.email.subject),
+                        cc: JSON.stringify(data.email.cc),
+                        bcc: JSON.stringify(data.email.bcc),
+                        decoded_data: JSON.stringify(data.email.decoded_data),
                         email: JSON.stringify(email.email),
                         id_provider : JSON.stringify(email.id_provider),
                         details: JSON.stringify(email.details)
@@ -460,6 +495,7 @@ export default {
         }
     },
     async mounted() {
+        const showNotification = ref(false);
         this.getUserBgColor();
         this.animateText();
         // Fetch the token. This can be from a Vue data property, VueX store, or local storage
@@ -524,6 +560,15 @@ export default {
 
         } catch (error) {
             console.error('Failed to fetch data:', error);
+        }
+
+        // To handle answer sent
+        if (localStorage.getItem('Email_sent')){
+            localStorage.setItem('Email_sent', '');
+            showNotification.value = true;
+            setTimeout(() => {
+                showNotification.value = false;
+            }, 5000);
         }
     },
     data() {

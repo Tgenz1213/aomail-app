@@ -4,6 +4,7 @@ import base64
 import time
 import random
 import email
+import re
 from django.shortcuts import render, redirect
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -251,8 +252,9 @@ def authenticate_service(user):
 
 ######################## Read Mails ########################
 
- # used to get mail number "int_mail" (minus one as lists starts from 0) or mail ID 'id_mail' and returns subject, expeditor and body 
-def get_mail(services,int_mail,id_mail):
+# used to get mail number "int_mail" (minus one as lists starts from 0) or mail ID 'id_mail' and returns subject, expeditor and body 
+''' OLD function TO DELETE AFTER CHECKING
+def get_mail(services, int_mail, id_mail):
     service = services['gmail.readonly']
     plaintext_var = [0]
     plaintext_var[0] = 0
@@ -295,7 +297,72 @@ def get_mail(services,int_mail,id_mail):
         decoded_data = library.html_clear(decoded_data_temp)
     preprocessed_data = library.preprocess_email(decoded_data)
                     
-    return subject,from_name,preprocessed_data, email_id
+    return subject,from_name,preprocessed_data, email_id'''
+
+
+def parse_name_and_email(header_value):
+    if not header_value:
+        return None, None
+
+    # Regex to extract name and email
+    match = re.match(r'(.*)\s*<(.+)>', header_value)
+    if match:
+        name, email = match.groups()
+        return name.strip(), email.strip()
+    else:
+        # If the format doesn't match, assume the entire value is the email
+        return None, header_value.strip()
+
+def get_mail(services, int_mail=None, id_mail=None):
+    service = services['gmail.readonly']
+    plaintext_var = [0]
+    plaintext_var[0] = 0
+
+    if int_mail is not None:
+        results = service.users().messages().list(userId='me', labelIds=['INBOX']).execute()
+        messages = results.get('messages', [])
+        if not messages:
+            print('No new messages.')
+            return None
+        message = messages[int_mail]
+        email_id = message['id']
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        print("Either int_mail or id_mail must be provided")
+        return None
+
+    msg = service.users().messages().get(userId='me', id=email_id).execute()
+
+    # Initialize variables
+    subject = from_info = cc_info = bcc_info = decoded_data = None
+    email_data = msg['payload']['headers']
+
+    for values in email_data:
+        name = values['name']
+        if name == 'Subject':
+            subject = values['value']
+        elif name == 'From':
+            from_info = parse_name_and_email(values['value'])
+        elif name == 'Cc':
+            cc_info = parse_name_and_email(values['value'])
+        elif name == 'Bcc':
+            bcc_info = parse_name_and_email(values['value'])
+
+    if 'parts' in msg['payload']:
+        for part in msg['payload']['parts']:
+            decoded_data_temp = library.process_part(part, plaintext_var)
+            if decoded_data_temp:
+                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+    elif 'body' in msg['payload']:
+        data = msg['payload']['body']['data']
+        data = data.replace("-", "+").replace("_", "/")
+        decoded_data_temp = base64.b64decode(data).decode('utf-8')
+        decoded_data = library.html_clear(decoded_data_temp)
+    
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    return subject, from_info, preprocessed_data, cc_info, bcc_info, email_id
 
 
 ######################## Search bar ########################

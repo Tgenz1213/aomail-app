@@ -149,15 +149,6 @@
     </div>
 </template>
 
-<script setup>
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { ChevronDownIcon } from '@heroicons/vue/20/solid'
-
-const items = [
-  { name: 'Envoyer à une heure', href: '#' },
-]
-</script>
-
 <script>
 import Navbar from './components/Navbar7.vue';
 import Navbar2 from './components/Navbar8.vue';

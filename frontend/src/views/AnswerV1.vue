@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>-->
-    <div class="flex flex-col justify-center items-center h-screen">
+    <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">    
       <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
         <div class="col-span-1 2xl:col-span-1">
           <div class="2xl:hidden h-full">
@@ -31,8 +31,8 @@
           </div>
         </div>
         <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-            <div class="flex gap-4 w-full">
-                <div id="firstMainColumn" class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px]"> <!--xl:h-[750px] xl:w-[625px]-->
+            <div class="flex gap-4 w-full h-full">
+                <div id="firstMainColumn" class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
                     <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
                     <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
                     </div>
@@ -40,42 +40,59 @@
                     <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
                     <div class="px-10 py-4">
                         <div class="flex-grow">
-                            <div id="DestinaryContainer">
-                            </div>
-                            <div id="UserDestinaryContainer">
-                            </div>
-                            <div id="UserObjectContainer">
-                            </div>
-                            <div id="UserAskContentContainer">
-                            </div>
-                            <div id="EmailContainer">
+                            <div id="AIContainer">
                             </div>
                         </div>
                     </div>
                     </div>
                     <div class="flex-grow">
-                    <div class="flex px-6 2xl:py-10 py-6 relative w-full">
-                        <div class="flex flex-grow items-stretch">
-                            <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
-                        </div>
-                        <button type="button" @click="handleAIClick" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                            </svg>
-                        </button>
-                        </div>
-                    </div>
+                      <div class="flex px-6 2xl:py-10 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
+                          <div class="flex flex-grow items-stretch">
+                              <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
+                          </div>
+                          <button type="button" @click="handleAIClick" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                              </svg>
+                          </button>
+                          </div>
+                      </div>
                 </div>
                 </div>
-                <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
+                <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
                     <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
                         <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
                         <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisi manuel</h1>
                         </div>
                         <form class="flex flex-grow w-full px-10">
                             <div class="flex flex-col space-y-6 h-full w-full">
-                                <div class="">
-                                    <div class="flex items-stretch gap-1 pt-8">
+                                <div class="pt-8">
+                                    <div class="flex flex-wrap">
+                                        <!-- Main Recipients List -->
+                                        <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
+                                          <div v-for="person in selectedPeople" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                            {{ person.username }} <!-- TO OPTIMIZE => username => RENAME -->
+                                            <button @click="removePersonFromMain(person)">×</button>
+                                          </div>
+                                        </div>
+                                        <!-- CC Recipients List -->
+                                        <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
+                                            <div v-for="person in selectedCC" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                                <span class="font-semibold mr-1">CC:</span>
+                                                {{ person.username }}
+                                                <button @click="removePersonFromCC(person)">×</button>
+                                            </div>
+                                        </div>
+                                        <!-- CCI Recipients List -->
+                                        <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
+                                            <div v-for="person in selectedCCI" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                                <span class="font-semibold mr-1">CCI:</span>
+                                                {{ person.username }}
+                                                <button @click="removePersonFromCCI(person)">×</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-stretch gap-1">
                                         <div class="flex-grow">
                                         <div class="relative items-stretch">
                                             <div class="relative w-full">
@@ -86,13 +103,12 @@
                                                     <UserGroupIcon class="w-4 h-4 pointer-events-none" />
                                                     <label for="username" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
                                                 </div>
-                                                <Combobox as="div" v-model="selectedPerson" @change="personSelected" 
-                                                @blur="handleBlur2">
+                                                <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected" @blur="handleBlur2">
                                                     <ComboboxInput 
                                                         class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" 
                                                         @change="query = $event.target.value" 
                                                         :display-value="(person) => person?.name"
-                                                        @focus="handleFocus2"
+                                                        @focus="handleFocusDestinary"
                                                         @blur="handleBlur2"
                                                     />
                                                     <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -124,19 +140,33 @@
                                             <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
                                         </div>-->
                                         </div>
-                                        <div class="flex">
-                                        <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                        <div class="flex gap-1">
+                                            <button 
+                                            type="button" 
+                                            @click="toggleCC"
+                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                                            class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                             CC
-                                        </button>
-                                        </div>
-                                        <div class="flex">
-                                        <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                            </button>
+
+                                            <!-- CCI Button -->
+                                            <button 
+                                            type="button" 
+                                            @click="toggleCCI"
+                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                                            class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                             CCI
-                                        </button>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="">
+                                    <div class="flex flex-wrap">
+                                        <div v-for="(file, index) in uploadedFiles" :key="index" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                            {{ file.name }}
+                                            <button @click="removeFile(index)">×</button>
+                                        </div>
+                                    </div>
                                     <div class="flex items-stretch gap-1">
                                     <div class="flex-grow">
                                         <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
@@ -153,21 +183,23 @@
                                                 id="objectInput" 
                                                 v-model="inputValue"
                                                 type="text" 
-                                                class="block h-10 flex-1 border-0 bg-transparent py-2 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative" 
-                                                @focus="handleFocus" 
+                                                class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative" 
+                                                @focus="handleFocusObject" 
                                                 @blur="handleBlur"
+                                                @input="handleInputUpdateObject" 
                                             />
                                         </div>
                                         </div>
                                     </div>
                                     <div class="flex">
-                                        <button type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                        </svg>
+                                        <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
+                                        <button @click="triggerFileInput" type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                                            </svg>
                                         </button>
                                     </div>
-                                    </div>
+                                  </div>
                                 </div>
                                 <!--
                                 <div class="col-span-full">
@@ -192,28 +224,28 @@
                                     <Bars3BottomLeftIcon class="w-4 h-4" />
                                     <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
                                     </div>-->
-                                    <div class="flex-grow mb-16"> <!-- TO DEBUG : Overflow Error -->
-                                        <div id="editor" class="w-full"></div> 
+                                    <div class="flex-grow mb-20 h-[200px]"> <!-- 29/12/2023 TO CHECK ON WIDER SCREEN --><!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
+                                      <div id="editor" class="w-full"></div> 
                                     </div>
                                     <div class="flex mb-4">
-                                    <div class="inline-flex rounded-lg shadow-lg">
-                                        <button  class="bg-gray-500 rounded-l-lg px-8 py-2.5 text-md font-semibold text-white hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
-                                        <Menu as="div" class="relative -ml-px block">
-                                        <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-500 hover:bg-gray-600 focus:z-10">
-                                            <span class="sr-only">Open options</span>
-                                            <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
-                                        </MenuButton>
-                                        <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                                            <MenuItems class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                            <div class="py-1">
-                                                <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                                                <a :href="item.href" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ item.name }}</a>
-                                                </MenuItem>
-                                            </div>
-                                            </MenuItems>
-                                        </transition>
-                                        </Menu>
-                                    </div>  
+                                      <div class="inline-flex rounded-lg shadow-lg">
+                                          <button @click="sendEmail" class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
+                                          <Menu as="div" class="relative -ml-px block">
+                                          <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10"> <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                                              <span class="sr-only">Open options</span>
+                                              <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
+                                          </MenuButton>
+                                          <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                                              <MenuItems class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                              <div class="py-1">
+                                                  <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
+                                                  <a :href="item.href" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ item.name }}</a>
+                                                  </MenuItem>
+                                              </div>
+                                              </MenuItems>
+                                          </transition>
+                                          </Menu>
+                                      </div>  
                                     </div>
                                 </div>
                             </div>
@@ -232,6 +264,7 @@ import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { ChevronDownIcon } from '@heroicons/vue/20/solid';
 import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import Quill from 'quill';
 
 import {
@@ -249,7 +282,7 @@ const items = [
 
 const people = [
     { name: 'Leslie Alexander', username: '@lesliealexander' },
-    // More users...
+    { name: 'Theo', username: 'theohubert3@gmx.com'}
   ]
   
   const query = ref('')
@@ -273,32 +306,1152 @@ watch(selectedPerson, (newValue) => {
 });
 
 const inputValue = ref('');
+const selectedPeople = ref([]);
+const selectedCC = ref([]);
+const selectedCCI = ref([]);
+const AIContainer = ref(null);
+const emailContent = ref(''); // To handle AI answers propositions
+const responseKeywords = ref([]); // To handle AI answers propositions
 const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
+const quill = ref(null);
 
-function handleFocus() {
-  isFocused.value = true;
+// TO parse Email => TO CHECK
+function parseEmails(emailData) {
+    if (!emailData) {
+        return [];
+    }
+
+    if (typeof emailData === 'string') {
+        // Handle the case where emailData is just an email string
+        return [{ email: emailData, username: emailData.split('@')[0] }];
+    } else if (Array.isArray(emailData)) {
+        // Handle the case where emailData is an array of tuples
+        return emailData.map(data => {
+            const [name, email] = data;
+            return {
+                email: email || '',
+                username: name || email.split('@')[0]
+            };
+        });
+    } else if (typeof emailData === 'object') {
+        // Handle the case where emailData is a single tuple
+        const [name, email] = emailData;
+        return [{
+            email: email || '',
+            username: name || email.split('@')[0]
+        }];
+    }
+
+    return [];
 }
+
 
 function handleBlur() {
   isFocused.value = false;
 }
 
-function handleFocus2() {
-  isFocused2.value = true;
+let counter_display = 0;
+
+// To handle animations
+function loading() {
+    // Use `nbr` in the template literal to set the reference dynamically
+    const messageHTML = `
+      <div id="dynamicLoadingIndicator" class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                    <span class="text-lg font-medium leading-none text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
+                      </svg>
+                    </span>
+                </span>
+            </div>
+            <div>
+              <div class="loading-spinner"></div>
+            </div>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
 }
 
-function handleBlur2() {
-  isFocused2.value = false;
+function hideLoading() {
+    const loadingElement = document.getElementById('dynamicLoadingIndicator');
+    if (loadingElement) {
+        loadingElement.remove();
+    }
 }
 
-const DestinaryContainer = ref(null);
-const messagesContainer = ref(null);
-const objectInput = ref(null);
-const objectContainer = ref(null);
-const askContentContainer = ref(null);
-const EmailContainer = ref(null);
+let stepcontainer = 0;
+
+////////////////////////////////////////////////////// To Handle files upload ///////////////////////////////////////////////////////
+const fileInput = ref(null);
+const uploadedFiles = ref([]);
+const fileObjects = ref([]);
+const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB, Gmail's limit
+
+const triggerFileInput = () => {
+  fileInput.value.click();
+};
+
+const handleFileUpload = (event) => {
+  const files = Array.from(event.target.files);
+  files.forEach(file => {
+    if (file.size <= MAX_FILE_SIZE) {
+      uploadedFiles.value.push({ name: file.name, size: file.size });
+      fileObjects.value.push(file);
+    } else {
+      alert("File size exceeds Gmail's limit");
+    }
+  });
+  saveFileMetadataToLocalStorage();
+};
+
+const removeFile = (index) => {
+  uploadedFiles.value.splice(index, 1);
+  fileObjects.value.splice(index, 1);
+  saveFileMetadataToLocalStorage();
+};
+
+const saveFileMetadataToLocalStorage = () => {
+  localStorage.setItem('uploadedFiles', JSON.stringify(uploadedFiles.value));
+};
+
+const loadFileMetadataFromLocalStorage = () => {
+  const files = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+  uploadedFiles.value = files;
+};
+
+////////////////////////////////////////////////////// To Select recipiers, CC and CCI ///////////////////////////////////////////////////////
+const activeType = ref(null); 
+
+function personSelected(person) {
+  if (!person) return;
+  
+  // To display AI
+  let displayText = '';
+
+  switch (activeType.value) {
+    case 'CC':
+      if (!selectedCC.value.includes(person)) {
+        selectedCC.value.push(person);
+        
+        console.log("CC", person.name);
+      }
+      break;
+    case 'CCI':
+      if (!selectedCCI.value.includes(person)) {
+        selectedCCI.value.push(person);
+      }
+      break;
+    default:
+      if (!selectedPeople.value.includes(person)) {
+        selectedPeople.value.push(person);
+      }
+  }
+
+  selectedPerson.value = null; 
+}
+
+function toggleCC() {
+  activeType.value = activeType.value === 'CC' ? null : 'CC';
+}
+
+function toggleCCI() {
+  activeType.value = activeType.value === 'CCI' ? null : 'CCI';
+}
+
+function removePersonFromMain(personToRemove) {
+  selectedPeople.value = selectedPeople.value.filter(person => person !== personToRemove);
+}
+
+function removePersonFromCC(personToRemove) {
+  selectedCC.value = selectedCC.value.filter(person => person !== personToRemove);
+}
+
+function removePersonFromCCI(personToRemove) {
+  selectedCCI.value = selectedCCI.value.filter(person => person !== personToRemove);
+}
+
+////////////////////////////////////////////////////// To handle AI Button click ///////////////////////////////////////////////////////
+
+const subject = ref('');
+const mail = ref('');
+const mail_to_answer = ref('');
+
+const handleAIClick = () => {
+
+    const messageHTML = `
+    <div class="flex pb-12">
+        <div class="mr-4 flex">
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
+              <span class="text-lg font-medium leading-none text-white">TH</span>
+            </span>   
+        </div>
+        <div>
+            <p class="font-serif" >"${textareaValue.value}"</p>
+        </div>
+    </div>
+  `;
+
+    AIContainer.value.innerHTML += messageHTML;
+
+    textareaValueSave.value = textareaValue.value;
+    textareaValue.value = '';
+    console.log("textareaValueSave", textareaValueSave.value);
+
+    setTimeout(async () => {
+      if (stepcontainer == 0) {
+        if (textareaValueSave.value == '') {
+          scrollToBottom();
+          display("Vous n'avez saisi aucunes suggestions, veuillez reassayer", counter_display);
+          counter_display += 1;
+        } else {
+          try {
+            MailCreatedByAI.value = true;
+            loading();
+            scrollToBottom();
+            const response = await fetch('http://localhost:9000/MailAssistant/api/generate_email_answer/', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  email_content: emailContent.value, 
+                  response_type: textareaValueSave.value
+                })
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const result = await response.json();
+            hideLoading();
+            console.log('Generated Email Response:', result);
+            const formattedMail = result.email_answer.replace(/\n/g, '<br>');
+            const messageHTML = `
+                <div class="flex pb-12">
+                    <div class="mr-4 flex">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                          </svg>
+                        </span>   
+                    </div>
+                    <div>
+                        <p><strong>Email: </strong>${formattedMail}</p>
+                    </div>
+                </div>
+            `;
+            AIContainer.value.innerHTML += messageHTML;
+            const quillEditorContainer = quill.value.root;
+            quillEditorContainer.innerHTML = result.email_answer;
+
+            const message = "Est-ce que cette réponse vous convient ?";
+            const messageHTML2 = `
+                <div class="flex pb-12">
+                    <div class="mr-4 flex">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                          </svg>
+                        </span>   
+                    </div>
+                    <div>
+                      <p ref="animatedText${counter_display}"></p>
+                    </div>
+                </div>
+            `;
+            scrollToBottom();
+            stepcontainer = 1;
+            AIContainer.value.innerHTML += messageHTML2;
+            const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+            counter_display += 1;           
+            animateText(message, animatedParagraph);
+          } catch (error) {
+            console.log("ERROR", error);
+            hideLoading();
+            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+            const messageHTML = `
+                  <div class="flex pb-12">
+                      <div class="mr-4 flex">
+                          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                            </svg>
+                          </span>   
+                      </div>
+                      <div>
+                          <p ref="animatedText${counter_display}"></p>
+                      </div>
+                  </div>
+              `;
+            AIContainer.value.innerHTML += messageHTML;
+            const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+            counter_display += 1;                
+            animateText(message, animatedParagraph);
+            scrollToBottom();
+          }
+        }
+      } else if (stepcontainer == 1) {
+        // if the user enter an empty value
+        if (textareaValueSave.value == '') {
+          display("Vous n'avez saisi aucunes suggestions, veuillez ressayer", counter_display);
+          counter_display += 1;
+        } else {
+          console.log("MAIL CONTENT:", quill.value.root.innerHTML);
+          console.log("EMAIL SUBJECT:", inputValue.value);
+          console.log("USER RECOMMENDATION", textareaValueSave.value);
+          try {
+              MailCreatedByAI.value = true;
+              loading();
+              scrollToBottom();
+              const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+                  method: 'POST',
+                  headers: {
+                      'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      mail_content: quill.value.root.innerHTML,
+                      user_recommendation: textareaValueSave.value,
+                      email_subject: inputValue.value,
+                  }),
+              });
+
+              if (!response.ok) {
+                  throw new Error('Network response was not ok: ' + response.statusText);
+              }
+
+              console.log("TEST");
+
+              const result = await response.json();
+              hideLoading();
+              subject.value = result.subject;
+              mail.value = result.email_body;
+              console.log(result);
+              if (result.subject && result.email_body) {
+                  // TO FINISH => animation
+                  hideLoading();
+                  const formattedMail = result.email_body.replace(/\n/g, '<br>');
+                  const messageHTML = `
+                      <div class="flex pb-12">
+                          <div class="mr-4 flex">
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                </svg>
+                              </span>   
+                          </div>
+                          <div>
+                              <p><strong>Email:</strong> ${formattedMail}</p>
+                          </div>
+                      </div>
+                  `;
+                  AIContainer.value.innerHTML += messageHTML;
+                  const quillEditorContainer = quill.value.root;
+                  quillEditorContainer.innerHTML = result.email_body;
+
+                  // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+                  const message = "Est-ce que ce mail vous convient mieux ?";
+                  const messageHTML2 = `
+                      <div class="flex pb-12">
+                          <div class="mr-4 flex">
+                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                                </svg>
+                              </span>   
+                          </div>
+                          <div>
+                            <p ref="animatedText${counter_display}"></p>
+                          </div>
+                      </div>
+                  `;
+                  AIContainer.value.innerHTML += messageHTML2;
+                  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+                  counter_display += 1;           
+                  animateText(message, animatedParagraph);
+                  scrollToBottom();
+                } else {
+                  hideLoading();
+                  const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+                  const messageHTML = `
+                        <div class="flex pb-12">
+                            <div class="mr-4 flex">
+                                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                  </svg>
+                                </span>   
+                            </div>
+                            <div>
+                                <p ref="animatedText${counter_display}"></p>
+                            </div>
+                        </div>
+                    `;
+                  AIContainer.value.innerHTML += messageHTML;
+                  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+                  counter_display += 1;                
+                  animateText(message, animatedParagraph);
+                  scrollToBottom();
+                  console.log('Subject or Email is missing in the response');
+                }
+          } catch (error) {
+              console.error('Error:', error);
+              hideLoading();
+              // Handling error => TO PUT IN A FUNCTION
+              const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+              const messageHTML = `
+                    <div class="flex pb-12">
+                        <div class="mr-4 flex">
+                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                              </svg>
+                            </span>   
+                        </div>
+                        <div>
+                            <p ref="animatedText${counter_display}"></p>
+                        </div>
+                    </div>
+                `;
+              AIContainer.value.innerHTML += messageHTML;
+              const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+              counter_display += 1;                
+              animateText(message, animatedParagraph);
+              scrollToBottom();
+              console.error('There was a problem with the fetch operation: ', error);
+          }
+        }
+      }
+    }, 400);
+};
+
+function display(message, nbr) {
+    // Use `nbr` in the template literal to set the reference dynamically
+    const messageHTML = `
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                  </svg>
+                </span>
+            </div>
+            <div>
+                <p ref="animatedText${nbr}"></p>
+            </div>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${nbr}"]`);
+    animateText(message, animatedParagraph);
+}
+
+////////////////////////////////////////////////////// To handle mail answer proposal ///////////////////////////////////////////////////////
+
+// To display the propositions => buttons
+function askContentAdvice() {
+    const message = "Comment puis-je vous aider à rédiger une réponse à cet email ?";
+
+    let buttonsHTML = '';
+    /*
+    for (let i = 0; i < responseKeywords.value.length; i++) {
+        buttonsHTML += `
+            <div class="mr-4">
+                <button type="button" id="responseKeywordButton${i}" data-value="${responseKeywords.value[i]}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                    ${responseKeywords.value[i]}
+                </button>
+            </div>
+        `;
+    }*/
+
+    responseKeywords.value.forEach((keyword, index) => {
+        // Start a new row for every two buttons
+        if (index % 2 === 0) {
+            buttonsHTML += index > 0 ? '</div>' : ''; // Close the previous row except for the first time
+            buttonsHTML += '<div class="flex mt-4">'; // Start a new row
+        }
+
+        // Add the button to the current row
+        buttonsHTML += `
+            <div class="mr-4">
+                <button type="button" id="responseKeywordButton${index}" data-value="${keyword}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                    ${keyword}
+                </button>
+            </div>
+        `;
+
+        // Close the last row after adding the last button
+        if (index === responseKeywords.value.length - 1) {
+            buttonsHTML += '</div>';
+        }
+    });
+
+    const messageHTML = `
+        <div class="flex pb-12">
+          <div class="mr-4 flex">
+              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                  <span class="text-lg font-medium leading-none text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                  </svg>
+                  </span>
+              </span>   
+          </div>
+          <div>
+            <p ref="animatedText${counter_display}"></p>
+            <div class="flex flex-col mt-4">
+                ${buttonsHTML}
+            </div>
+          </div>
+        </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+
+    // Add event listeners to the buttons
+    responseKeywords.value.forEach((keyword, index) => {
+        setTimeout(() => {
+            const keywordButton = document.getElementById(`responseKeywordButton${index}`);
+            if (keywordButton) {
+                keywordButton.addEventListener('click', () => {
+                    //console.log('Button clicked with keyword:', keywordButton.getAttribute('data-value'));
+                    handleButtonClick(keywordButton.getAttribute('data-value'));
+                });
+            }
+        }, 0);
+    });
+
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
+    animateText(message, animatedParagraph);
+}
+
+async function handleButtonClick(keyword) {
+  console.log('Button clicked with keyword:', keyword);
+  try {
+    MailCreatedByAI.value = true;
+    loading();
+    scrollToBottom();
+    const response = await fetch('http://localhost:9000/MailAssistant/api/generate_email_answer/', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email_content: emailContent.value, 
+          response_type: keyword,
+        })
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const result = await response.json();
+    hideLoading();
+    console.log('Generated Email Response:', result);
+    const formattedMail = result.email_answer.replace(/\n/g, '<br>');
+    const messageHTML = `
+        <div class="flex pb-12">
+            <div class="mr-4 flex">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                  </svg>
+                </span>   
+            </div>
+            <div>
+                <p><strong>Email: </strong>${formattedMail}</p>
+            </div>
+        </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+    const quillEditorContainer = quill.value.root;
+    quillEditorContainer.innerHTML = result.email_answer;
+
+    const message = "Est-ce que cette réponse vous convient ?";
+    const messageHTML2 = `
+        <div class="flex pb-12">
+            <div class="mr-4 flex">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                  </svg>
+                </span>   
+            </div>
+            <div>
+              <p ref="animatedText${counter_display}"></p>
+            </div>
+        </div>
+    `;
+    scrollToBottom();
+    stepcontainer = 1;
+    AIContainer.value.innerHTML += messageHTML2;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;           
+    animateText(message, animatedParagraph);
+  } catch (error) {
+    console.log("ERROR", error);
+    hideLoading();
+    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+    const messageHTML = `
+          <div class="flex pb-12">
+              <div class="mr-4 flex">
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  </span>   
+              </div>
+              <div>
+                  <p ref="animatedText${counter_display}"></p>
+              </div>
+          </div>
+      `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;                
+    animateText(message, animatedParagraph);
+    scrollToBottom();
+  }
+}
+
+async function fetchResponseKeywords() {
+  try {
+    loading();
+    const response = await fetch('http://localhost:9000/MailAssistant/api/generate_email_response_keywords/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email_content: emailContent.value })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    hideLoading();
+    console.log("DEBUG ANSWER PROPOSAL", data);
+    responseKeywords.value = data.response_keywords;
+    askContentAdvice();
+    
+  } catch (error) {
+    console.error("Error fetching response keywords:", error.message);
+  }
+}
+
+////////////////////////////////////////////////////// To handle the user writing his own answer  ///////////////////////////////////////////////////////
+
+const MailCreatedByAI = ref(false); 
+const isFirstTimeEmail = ref(true); 
+
+function handleInputUpdateMailContent(newMessage) {
+  if (newMessage !== '') {  
+    if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
+      askContentAdviceUser();
+      isFirstTimeEmail.value = false;
+      stepcontainer = 1;
+      scrollToBottom();
+    }  
+  }
+  MailCreatedByAI.value = false;
+}
+
+function askContentAdviceUser() {
+    // Your previous code to display the message when the component is mounted
+    const message = "Est-ce que je peux vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
+
+    const messageHTML = `
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                  </svg>
+                </span>
+            </div>
+            <div>
+                <div class="flex flex-col">
+                  <p ref="animatedText${counter_display}"></p>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                      <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Corrige l'orthographe
+                      </button>
+                    </div>
+                    <div>
+                      <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Vérifie le copywriting
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                      <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Améliore l'écriture
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+
+    // To check the ortgraph of the subject and the mail
+    setTimeout(() => {
+      const spellCheckButton = document.getElementById('spellCheckButton');
+      if (spellCheckButton) {
+        spellCheckButton.addEventListener('click', checkSpelling);
+      }
+    }, 0);
+
+    setTimeout(() => {
+      const CopyWritingCheckButton = document.getElementById('CopyWritingCheckButton');
+      if (CopyWritingCheckButton) {
+        CopyWritingCheckButton.addEventListener('click', checkCopyWriting);
+      }
+    }, 0);
+
+    setTimeout(() => {
+      const WriteBetterButton = document.getElementById('WriteBetterButton');
+      if (WriteBetterButton) {
+        WriteBetterButton.addEventListener('click', WriteBetter);
+      }
+    }, 0);
+
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
+    animateText(message, animatedParagraph);
+
+}
+
+async function checkSpelling() {
+  try {
+      loading();
+      scrollToBottom();
+      const response = await fetch('http://localhost:9000/MailAssistant/api/correct_email_language/', {
+          method: 'POST',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              email_subject: inputValue.value,
+              email_body: quill.value.root.innerHTML,
+          }),
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.statusText);
+      }
+
+      const result = await response.json();
+      hideLoading();
+      //subject.value = result.corrected_subject; TO DELETE ?
+      //mail.value = result.corrected_body; TO DELETE ?
+      // retrieve num of corrections
+      console.log(result);
+      if (result.corrected_subject && result.corrected_body) {
+          // TO FINISH => animation
+          const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
+          const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                        </svg>
+                      </span>   
+                  </div>
+                  <div>
+                      <p><strong>Objet:</strong> ${result.corrected_subject}</p>
+                      <p><strong>Email:</strong> ${formattedMail}</p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML;
+          inputValue.value = result.corrected_subject;
+          const quillEditorContainer = quill.value.root;
+          quillEditorContainer.innerHTML = result.corrected_body;
+
+          // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+          const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
+          const messageHTML2 = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                        </svg>
+                      </span>   
+                  </div>
+                  <div>
+                    <p ref="animatedText${counter_display}"></p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML2;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+
+          scrollToBottom();
+        } else {
+          hideLoading();
+          const message = "Je m'excuse, j'ai fait une erreur de traitement."
+          const messageHTML = `
+                <div class="flex pb-12">
+                    <div class="mr-4 flex">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                          </svg>
+                        </span>   
+                    </div>
+                    <div>
+                        <p ref="animatedText${counter_display}"></p>
+                    </div>
+                </div>
+            `;
+          AIContainer.value.innerHTML += messageHTML;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+          console.log('Subject or Email is missing in the response');
+        }
+
+  } catch (error) {
+    console.error('Error:', error);
+    hideLoading();
+    const message = "Je m'excuse, j'ai fait une erreur de traitement."
+    const messageHTML = `
+          <div class="flex pb-12">
+              <div class="mr-4 flex">
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  </span>   
+              </div>
+              <div>
+                  <p ref="animatedText${counter_display}"></p>
+              </div>
+          </div>
+      `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;                
+    animateText(message, animatedParagraph);
+  }
+}
+
+async function checkCopyWriting() {
+  try {
+      loading();
+      scrollToBottom();
+      const response = await fetch('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
+          method: 'POST',
+          headers: {
+              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              email_subject: inputValue.value,
+              email_body: quill.value.root.innerHTML,
+          }),
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.statusText);
+      }
+
+      const result = await response.json();
+      hideLoading();
+      //subject.value = result.corrected_subject; TO DELETE ?
+      //mail.value = result.corrected_body; TO DELETE ?
+      // retrieve num of corrections
+      console.log(result);
+      if (result.feedback_copywriting) {
+          // TO FINISH => animation
+          const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
+
+          const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                        </svg>
+                      </span>   
+                  </div>
+                  <div>
+                      <p>${formattedCopWritingOutput}</p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML;
+
+          // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+          const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
+          const messageHTML2 = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                        </svg>
+                      </span>   
+                  </div>
+                  <div>
+                    <p ref="animatedText${counter_display}"></p>
+                  </div>
+              </div>
+          `;
+          AIContainer.value.innerHTML += messageHTML2;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+
+          scrollToBottom();
+        } else {
+          hideLoading();
+          const message = "Je m'excuse, j'ai fait une erreur de traitement."
+          const messageHTML = `
+                <div class="flex pb-12">
+                    <div class="mr-4 flex">
+                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                          </svg>
+                        </span>   
+                    </div>
+                    <div>
+                        <p ref="animatedText${counter_display}"></p>
+                    </div>
+                </div>
+            `;
+          AIContainer.value.innerHTML += messageHTML;
+          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+          counter_display += 1;                
+          animateText(message, animatedParagraph);
+          console.log('Subject or Email is missing in the response');
+        }
+
+  } catch (error) {
+    console.error('Error:', error);
+    hideLoading();
+    const message = "Je m'excuse, j'ai fait une erreur de traitement."
+    const messageHTML = `
+          <div class="flex pb-12">
+              <div class="mr-4 flex">
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  </span>   
+              </div>
+              <div>
+                  <p ref="animatedText${counter_display}"></p>
+              </div>
+          </div>
+      `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;                
+    animateText(message, animatedParagraph);
+  }
+}
+
+async function WriteBetter() {
+  try {
+    loading();
+    scrollToBottom();
+    const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            mail_content: quill.value.root.innerHTML, 
+            user_recommendation: "Améliore l'écriture du mail",
+            email_subject: inputValue.value,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error('Network response was not ok: ' + response.statusText);
+    }
+
+    const result = await response.json();
+    hideLoading();
+    subject.value = result.subject;
+    mail.value = result.email_body;
+    console.log(result);
+    if (result.subject && result.email_body) {
+        // TO FINISH => animation
+        const formattedMail = result.email_body.replace(/\n/g, '<br>');
+        const messageHTML = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                      </svg>
+                    </span>   
+                </div>
+                <div>
+                    <p><strong>Objet:</strong> ${result.subject}</p>
+                    <p><strong>Email:</strong> ${formattedMail}</p>
+                </div>
+            </div>
+        `;
+        AIContainer.value.innerHTML += messageHTML;
+        inputValue.value = result.subject;
+        const quillEditorContainer = quill.value.root;
+        quillEditorContainer.innerHTML = result.email_body;
+
+        // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+        const message = "Est-ce que ce mail vous convient mieux ?";
+        const messageHTML2 = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                      </svg>
+                    </span>   
+                </div>
+                <div>
+                  <p ref="animatedText${counter_display}"></p>
+                </div>
+            </div>
+        `;
+        AIContainer.value.innerHTML += messageHTML2;
+        const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+        counter_display += 1;           
+        animateText(message, animatedParagraph);
+        scrollToBottom();
+      } else {
+        hideLoading();
+        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+        const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                      </span>   
+                  </div>
+                  <div>
+                      <p ref="animatedText${counter_display}"></p>
+                  </div>
+              </div>
+          `;
+        AIContainer.value.innerHTML += messageHTML;
+        const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+        counter_display += 1;                
+        animateText(message, animatedParagraph);
+        scrollToBottom();
+        console.log('Subject or Email is missing in the response');
+      }
+} catch (error) {
+    console.error('Error:', error);
+    hideLoading();
+    // Handling error => TO PUT IN A FUNCTION
+    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+    const messageHTML = `
+          <div class="flex pb-12">
+              <div class="mr-4 flex">
+                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                  </span>   
+              </div>
+              <div>
+                  <p ref="animatedText${counter_display}"></p>
+              </div>
+          </div>
+      `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;                
+    animateText(message, animatedParagraph);
+    scrollToBottom();
+    console.error('There was a problem with the fetch operation: ', error);
+}
+}
+
+////////////////////////////////////////////////////// To handle sending the email  ///////////////////////////////////////////////////////
+
+const router = useRouter(); 
+
+async function sendEmail() {
+  event.preventDefault();
+  const emailSubject = inputValue.value;
+  const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
+  const recipients = selectedPeople.value.map(person => person.username); // Adjust according to your data structure
+  const ccRecipients = selectedCC.value.map(person => person.username);
+  const bccRecipients = selectedCCI.value.map(person => person.username);
+
+  const formData = new FormData();
+  formData.append('subject', emailSubject);
+  formData.append('message', emailBody);
+  fileObjects.value.forEach(file => formData.append('attachments', file));
+
+  // Add recipients, CC, and BCC to formData if needed
+  // Adjust the field names according to your API's expected format
+  formData.append('to', recipients.join(','));
+  formData.append('cc', ccRecipients.join(','));
+  formData.append('cci', bccRecipients.join(','));
+
+  for (var pair of formData.entries()) {
+    console.log(pair[0]+ ', ' + pair[1]); 
+  }
+
+  try {
+    const response = await fetch('http://localhost:9000/MailAssistant/api/send_mails/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        // Do not set 'Content-Type' for FormData; the browser will set it along with the correct boundary
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok: ' + response.statusText);
+    }
+
+    const result = await response.json();
+    console.log(result.message); 
+    localStorage.setItem('Email_sent', true);
+    router.push({ name: 'home' });
+    
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // To keep the navbar always at the bottom when new content is added
 const scrollableDiv = ref(null);
@@ -310,6 +1463,7 @@ const scrollToBottom = async () => {
 
 // AI instruction textarea input
 const textareaValue = ref('');
+const textareaValueSave = ref('');
 
 async function refreshToken() {
     // Get the refresh token from local storage
@@ -380,22 +1534,29 @@ const route = useRoute();
 
 onMounted(() => {
     
-  refreshToken();
-  getUserBgColor();
+    refreshToken();
+    getUserBgColor();
+    loadFileMetadataFromLocalStorage(); // For uploaded file
 
-  const subject = JSON.parse(route.query.subject);
-  const email = JSON.parse(route.query.email);
-  const id_provider = JSON.parse(route.query.id_provider);
-  const details = JSON.parse(route.query.details);
+    const subject = JSON.parse(route.query.subject);
+    const email = JSON.parse(route.query.email);
+    const cc = JSON.parse(route.query.cc);
+    const cci = JSON.parse(route.query.bcc);
+    const decoded_data = JSON.parse(route.query.decoded_data);
+    const id_provider = JSON.parse(route.query.id_provider);
+    const details = JSON.parse(route.query.details);
 
-  console.log("Subject:", subject);
-  console.log("Email:", email);
-  console.log("ID Provider:", id_provider);
-  console.log("Details:", details);
+    console.log("Subject:", subject);
+    console.log("Email:", email);
+    console.log("cc", cc);
+    console.log("cci", cci);
+    console.log("ID Provider:", id_provider);
+    console.log("Details:", details);
+    //console.log("Decoded_data", decoded_data);
 
-  window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
+    window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
-  var toolbarOptions = [
+    var toolbarOptions = [
     [{ 'font': [] }],
     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
     ['bold', 'italic', 'underline'],
@@ -403,78 +1564,129 @@ onMounted(() => {
     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
     [{ 'align': [] }],
     ['blockquote', 'code-block']                                      
-  ];
+    ];
 
-  // Initialize Quill editor
-  var quill = new Quill('#editor', {
+    // Initialize Quill editor
+    quill.value = new Quill('#editor', {
     theme: 'snow',
     modules: {
-          toolbar: toolbarOptions
-      }
-  });
+            toolbar: toolbarOptions
+        }
+    });
 
-  /*
-  quill.on('selection-change', function(range, oldRange, source) {
+    /*
+    quill.on('selection-change', function(range, oldRange, source) {
     if (range === null && oldRange !== null) {
         console.log('Selection changed');
         var quillContent = quill.root.innerHTML;
         handleInputUpdate3(quillContent);
     }
-  });*/
+    });*/
+    
+    mail_to_answer.value = decoded_data;
 
-  // DOM-related code
-  DestinaryContainer.value = document.getElementById('DestinaryContainer');
+    // DOM-related code
+    AIContainer.value = document.getElementById('AIContainer');
 
-  const message = "Résumé de l'email : ";
+    const message = "Résumé de l'email : ";
 
-  // Start with the initial HTML structure
-  let messageHTML = `
+    // Start with the initial HTML structure
+    let messageHTML = `
     <div class="flex pb-12">
-      <div class="mr-4 flex">
-          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-              <span class="text-lg font-medium leading-none text-white">AO</span>
-          </span>   
-      </div>
-      <div>
-          <p>${message}</p>
-          <ul>
-  `;
+        <div class="mr-4 flex">
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
+            </svg>
+            </span>   
+        </div>
+        <div>
+            <p class="font-bold">${message}</p>
+            <ul>
+    `;
 
-  // Add each bullet point to the HTML
-  details.forEach(detail => {
-    messageHTML += `<li>${detail.text}</li>`;
-  });
+    // Add each bullet point to the HTML
+    details.forEach(detail => {
+    messageHTML += `<li class="pt-2">
+                        <p><span class="font-bold text-2xl">-</span> ${detail.text}</p>
+                    </li>`;
+    });
 
-  // Close the HTML structure
-  messageHTML += `
-          </ul>
-      </div>
+    // Close the HTML structure
+    messageHTML += `
+            </ul>
+        </div>
     </div>
-  `;
- 
-  DestinaryContainer.value.innerHTML += messageHTML;
+    `;
 
-  messagesContainer.value = document.getElementById('UserDestinaryContainer');
-  objectInput.value = document.getElementById('objectInput');
-  objectContainer.value = document.getElementById('UserObjectContainer');
-  askContentContainer.value = document.getElementById('UserAskContentContainer')
-  EmailContainer.value = document.getElementById('EmailContainer');
+    AIContainer.value.innerHTML += messageHTML;
 
-  let quillContainer = document.querySelector('#editor');
+    emailContent.value = details.map(item => item.text).join(' '); // USELESS => To Optimize
+    fetchResponseKeywords();
 
-  quillContainer.addEventListener('mouseleave', function() {
-      console.log('Mouse has left the Quill editor area');
+    quill.value.on('text-change', function() {
+      const quillContent = quill.value.root.innerHTML;
+      if (quillContent.trim() !== '<p><br></p>') {
+          mail.value = quillContent;
+          handleInputUpdateMailContent(quillContent);
+      }
+    });
 
-      // Call the function to handle the input on mouseleave
-      console.log(quill.root.innerHTML)
-      const quillContent = quill.root.innerHTML;
+    /*
+    const message2 = "Est-ce vous souhaitez de l'aide pour rédiger une réponse ?";
 
-      /*if (quillContent.trim() !== '<p><br></p>') {
-        handleInputUpdate3(quill.root.innerHTML);
-      }*/
-  });
+    const messageHTML2 = `
+    <div class="flex pb-12">
+        <div class="mr-4 flex">
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                <span class="text-lg font-medium leading-none text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                </svg>
+                </span>
+            </span>   
+        </div>
+        <div>
+            <p ref="animatedText${counter_display}"></p>
+        </div>
+    </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML2;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
+    animateText(message2, animatedParagraph);*/
+    //scrollToBottom(); => ACTIVATION OPTIONAL
+
+    if (email) {
+    selectedPeople.value = parseEmails(email);
+    console.log("SELECTED PEOPLE", selectedPeople.value);
+    }
+    if (cc) {
+    selectedCC.value = parseEmails(cc);
+    }
+    if (cci) {
+    selectedCCI.value = parseEmails(cci);
+    }
+
+    inputValue.value = 'Re : '+subject;
+
+    let quillContainer = document.querySelector('#editor');
+
 });
 
+function animateText(text, target) {
+  let characters = text.split("");
+  let currentIndex = 0;
+  const interval = setInterval(() => {
+      if (currentIndex < characters.length) {
+          target.textContent += characters[currentIndex];
+          currentIndex++;
+      } else {
+          clearInterval(interval);
+      }
+  }, 30);
+}
 /*
 function animateText(text, target) {
   let characters = text.split("");
@@ -488,14 +1700,6 @@ function animateText(text, target) {
       }
   }, 30);
 }*/
-
-
-function personSelected() {
-  console.log(selectedPerson.value);
-  /*if (selectedPerson.value) {
-      handleInputUpdate(selectedPerson.value.username);
-  }*/
-}
 
 </script>
 

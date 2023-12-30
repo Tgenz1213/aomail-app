@@ -29,7 +29,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
-from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer
+from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer
 from django.db import IntegrityError
 
 # from .google_api import * 
@@ -868,7 +868,99 @@ def improve_email_copywriting(email_subject, email_body):
 
     response_text = response.choices[0].message['content'].strip()
 
-    return response_text    
+    return response_text 
+
+# Answer possibilities generation
+'''
+Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output in as less keywords as possible the ways to respond in French, do not output the mail answer
+
+    Email Content:
+    "{input_email}"
+
+    ---
+
+    French ways to respond :'''
+def generate_response_keywords(input_email):
+    template = """
+    Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output as less keywords as possible in French with verbs, do not output the mail answer
+
+    Email Content:
+    "{input_email}"
+
+    ---
+
+    French ways to respond :
+    """
+
+    formatted_prompt = template.format(input_email=input_email)
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4-1106-preview",  # Replace with the correct model name
+        messages=[{"role": "system", "content": formatted_prompt}],
+        api_key=openai.api_key
+    )
+
+    response_text = response.choices[0].message['content'].strip()
+
+    # Split the response text by line breaks and remove surrounding quotes
+    keywords = [line.strip().strip('"') for line in response_text.split('\n') if line.strip()]
+
+    return keywords  
+
+# Answer mail generation
+def generate_email_response(input_email, response_type):
+
+    ''' WORK WITH GPT4
+    template = """
+    Given the following email content in French generate a mail response in French based on the response type. The response should not add any new information that is not asked by the user.
+
+    Email Content:
+    "{input_email}"
+
+    Response Type:
+    "{response_type}"
+
+    ---
+
+    French Response:
+    """'''
+
+    ''' NOT PERFECT BUT WORK EXCEPT WITH BUTTONS 
+    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
+
+    Email Content:
+    "{input_email}"
+
+    Desired Response Type:
+    "{response_type}"
+
+    Please write a response that aligns with the given response type:
+
+    Response:''' 
+
+    template = """
+    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
+
+    Email Content:
+    "{input_email}"
+
+    Desired Response Type:
+    "{response_type}"
+
+    Please write a response as that aligns with the given response type:
+
+    Response:
+    """
+
+    formatted_prompt = template.format(input_email=input_email, response_type=response_type)
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4-1106-preview", #gpt-4-1106-previewgpt-3.5-turbo
+        messages=[{"role": "system", "content": formatted_prompt}],
+        api_key=openai.api_key
+    )
+
+    return response.choices[0].message['content'].strip()
 
 # TO UPDATE : make work with langchain
 def extract_contacts_recipients(input_query):
@@ -1632,6 +1724,76 @@ def check_email_copywriting(request):
     else:
         return Response(serializer.errors, status=400)
 
+######################### Answer #########################
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_email_response_keywords(request):
+    serializer = EmailProposalAnswerSerializer(data=request.data)
+
+    if serializer.is_valid():
+        email_content = serializer.validated_data['email_content']
+        response_keywords = generate_response_keywords(email_content)
+
+        return Response({
+            'response_keywords': response_keywords,
+        })
+    else:
+        return Response(serializer.errors, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_email_answer(request):
+    serializer = EmailGenerateAnswer(data=request.data)
+
+    if serializer.is_valid():
+        email_content = serializer.validated_data['email_content']
+        response_type = serializer.validated_data['response_type']
+        email_answer = generate_email_response(email_content, response_type)
+
+        return Response({
+            'email_answer': email_answer,
+        })
+    else:
+        return Response(serializer.errors, status=400)
+
+####################### Reply Later ######################
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_answer_later_emails(request):
+    try:
+        user = request.user
+        emails = Email.objects.filter(user=user, answer_later=True).prefetch_related('bulletpoint_set', 'sender', 'category')
+
+        all_priorities = {'Important', 'Information', 'Useless'}
+
+        formatted_data = defaultdict(lambda: defaultdict(list))
+
+        for email in emails:
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
+            }
+            formatted_data[email.category.name][email.priority].append(email_data)
+        
+        # Ensuring all priorities are present for each category
+        for category in formatted_data:
+            for priority in all_priorities:
+                formatted_data[category].setdefault(priority, [])
+
+        logger.info(formatted_data)
+        return Response(formatted_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logging.error(f"Error fetching emails: {e}")
+        return Response({"error": "An error occurred while fetching emails."}, 
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 ######################## Settings ########################
 
 # GET
@@ -1655,6 +1817,7 @@ def get_user_details(request):
 @permission_classes([IsAuthenticated])
 def update_username(request):
     user = request.user
+    print("USER -------------------------->", user)
     new_username = request.data.get('username')
 
     if not new_username:
@@ -1830,14 +1993,17 @@ def get_mail_by_id_view(request):
     mail_id = request.GET.get('email_id')
     
     if service is not None and mail_id is not None:
-        subject, from_name, decoded_data, email_id = get_mail(service, None, mail_id)
-        # Return a success response, along with any necessary information
+        
+        subject, from_name, decoded_data, cc, bcc, email_id = get_mail(service, None, mail_id)
+        #print("DEBUG OUTPUT -------------------------> ", from_name, cc, bcc)
         return JsonResponse({
             "message": "Authentication successful",
             "email": {
                 "subject": subject,
                 "from_name": from_name,
                 "decoded_data": decoded_data,
+                "cc": cc,  
+                "bcc": bcc,
                 "email_id": email_id
             }
         }, status=200)

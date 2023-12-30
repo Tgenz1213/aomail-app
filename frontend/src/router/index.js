@@ -8,6 +8,8 @@ import New from '@/views/NewV4.vue';
 import Answer from '@/views/AnswerV1.vue';
 import Rules from '@/views/RulesV2.vue';
 import Settings from '@/views/SettingsV1.vue';
+import Search from '@/views/SearchV2.vue';
+import ReplyLater from '@/views/ReplyLaterV1.vue';
 
 const routes = [
   {
@@ -42,6 +44,18 @@ const routes = [
     name: 'answer',
     meta: { requiresAuth: true },
     component: Answer,
+  },
+  {
+    path: '/search',
+    name: 'search',
+    meta: { requiresAuth: true },
+    component: Search,
+  },
+  {
+    path: '/reply_later',
+    name: 'reply_later',
+    meta: { requiresAuth: true },
+    component: ReplyLater,
   },
   {
     path: '/rules',

@@ -140,7 +140,7 @@
                                   </div>
                                 </div>
                                 <div class="flex justify-end pt-4">
-                                  <button @click="handleSubmit" class="rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Modifier</button> <!-- TO CODE : Notification system that worn the user when the notification appears -->
+                                  <button @click="handleSubmit" class="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Modifier</button> <!-- TO CODE : Notification system that worn the user when the notification appears -->
                                 </div>
                               </div>
                               <div class="relative">

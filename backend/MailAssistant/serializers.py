@@ -129,3 +129,11 @@ class EmailCopyWritingSerializer(serializers.Serializer):
         if 'email_body' not in data or not data['email_body'].strip():
             raise serializers.ValidationError("Email body is required.")
         return data
+
+# To handle answer mail proposal
+class EmailProposalAnswerSerializer(serializers.Serializer):
+    email_content = serializers.CharField()
+
+class EmailGenerateAnswer(serializers.Serializer):
+    email_content = serializers.CharField()
+    response_type = serializers.CharField()

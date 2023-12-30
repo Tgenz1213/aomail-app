@@ -43,6 +43,9 @@ urlpatterns = [
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'),
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'),
     path('api/send_mails/', views.send_email, name="send_mails"),
+    path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name="generate_email_response_keywords"),
+    path('api/generate_email_answer/', views.generate_email_answer, name="generate_email_answer"),
+    path('api/get_answer_later_emails/', views.get_answer_later_emails, name="get_answer_later_emails"),
 
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 

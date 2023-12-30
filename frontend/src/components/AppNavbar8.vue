@@ -117,9 +117,9 @@ import {
 const navigation = [
   { name: 'Acceuil', href: '/home', icon: HomeIcon },
   { name: 'Nouveau mail', href: '/new', icon: PlusIcon },
-  { name: 'Recherche mail', href: '#', icon: MagnifyingGlassIcon },
+  { name: 'Recherche mail', href: '/search', icon: MagnifyingGlassIcon },
   { name: 'Règles', href: '/rules', icon: UsersIcon },
-  { name: 'Répondre plus tard', href: '#', icon: ArrowUturnLeftIcon },
+  { name: 'Répondre plus tard', href: '/reply_later', icon: ArrowUturnLeftIcon },
   { name: 'Paramètres', href: '/settings', icon: CogIcon },
 ]
 

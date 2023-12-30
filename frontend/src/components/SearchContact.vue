@@ -47,7 +47,7 @@
     Combobox,
     ComboboxButton,
     ComboboxInput,
-    ComboboxLabel,
+    //ComboboxLabel,
     ComboboxOption,
     ComboboxOptions,
   } from '@headlessui/vue'

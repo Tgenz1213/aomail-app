@@ -49,12 +49,18 @@ urlpatterns = [
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name="get_answer_later_emails"),
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
-    # azure ad connection URLs
+    ######################## Azure AD - OUTLOOK API ########################
+    # authentification
     path('generate-auth-url/', microsoft_api_c.generate_auth_url, name='generate_auth_url'),
-    path('auth_callback/', microsoft_api_c.auth_callback, name='auth_callback'),    
+    path('auth_callback/', microsoft_api_c.auth_callback, name='auth_callback'),
     # path('authenticate/', microsoft_api.authenticate_service, name='authenticate_service'),
     # path('callback/', microsoft_api.handle_callback, name='handle_callback'),
 
-    # [GMAIL] backend requests URLs
+
+    ######################## GOOGLE GMAIL API ########################
+    # authentification
+    path('google-auth-url/', google_api.generate_auth_url, name='google-auth-url'),
+    path('google-auth-callback/', google_api.auth_callback, name='google-auth-callback'),
+    # requests URLs
     path('unread_mails/', google_api.unread_mails, name='unread_mails')
 ]

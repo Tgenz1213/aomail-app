@@ -576,9 +576,8 @@ export default {
     },
     handleCallback(event) {
       event.preventDefault();
-      console.log("LAUNCH2");
       const authorizationCode = localStorage.getItem('code');
-      console.log(authorizationCode); 
+      console.log("handleCallback", authorizationCode);
 
       /*
       if (authorizationCode) {
@@ -602,11 +601,11 @@ export default {
     },
     async nextStep3(event) {
       event.preventDefault();
-      console.log("LAUNCH2");
       const authorizationCode = localStorage.getItem('code');
-      console.log(authorizationCode); 
+      console.log("nextStep3", authorizationCode); 
+      console.log("LAUNCH2");
       if (authorizationCode) {
-        console.log("AUTH CODE", authorizationCode);
+        console.log("AUTH CODE nextStep3", authorizationCode);
         // Send a POST request to your server with the authorization code
         try {
           const response = await fetch('http://localhost:9000/oauth/callback', {

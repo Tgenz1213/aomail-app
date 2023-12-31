@@ -1,11 +1,9 @@
-import os.path
-import pickle
 import base64
 import re
 import time
 import random
 import email
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -26,9 +24,11 @@ from . import library
 import requests
 import logging
 from colorama import init, Fore
-from requests_oauthlib import OAuth2Session
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
+from google_auth_oauthlib.flow import Flow
+from rest_framework.response import Response
+from rest_framework import status
 
 # unused packages
 from oauth2client import client
@@ -41,12 +41,20 @@ from google.auth.transport import requests as google_requests
 from google.oauth2.credentials import Credentials
 import httplib2
 from google.auth.transport.urllib3 import AuthorizedHttp
-# from .library import *
+import os.path
+import pickle
+from .library import *
+# import sys
+# sys.path.append('/Users/shost/Documents/MailAssistant/MailAssistant_project/MailAssistant')
 
-import sys
-sys.path.append('/Users/shost/Documents/MailAssistant/MailAssistant_project/MailAssistant')
+
+# Initialize colorama with autoreset
+init(autoreset=True)
+
+test_int = 0
 
 
+######################## GOOGLE API PROPERTIES ########################
 GMAIL_READONLY_SCOPE = 'https://www.googleapis.com/auth/gmail.readonly'
 GMAIL_SEND_SCOPE = 'https://www.googleapis.com/auth/gmail.send'
 CALENDAR_READONLY_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
@@ -64,14 +72,68 @@ SCOPES = [
     OPENID_SCOPE,
     OTHER_CONTACT_READONLY_SCOPE
 ]
-GOOGLE_CLIENT_ID = "900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
-GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-REDIRECT_URI = "https://developers.google.com/oauthplayground"
+# TODO change uri but first add it on the redirects uri in the google app project
+#redirect_uri = 'http://localhost:9000/google-auth-callback/'
+CALLBACK_REDIRECT_URI = 'http://localhost:9000/google-login/'
+SIGN_UP_REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
 
-test_int = 0
 ######################## AUTHENTIFICATION ########################
+def generate_auth_url(request):
+    """Generate a connection URL to obtain the authorization code"""    
+    flow = Flow.from_client_secrets_file(
+        'google_creds.json',
+        scopes = SCOPES,
+        redirect_uri = CALLBACK_REDIRECT_URI
+    )
+
+    authorization_url, _ = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
+
+    # Redirect the user to Google's consent screen
+    return redirect(authorization_url)
+
+def exchange_code_for_tokens(authorization_code):
+    """Exchanges the authorization code for tokens and saves them in mailassistantdb"""
+    flow = Flow.from_client_secrets_file(
+        'google_creds.json',
+        scopes = SCOPES,
+        redirect_uri = SIGN_UP_REDIRECT_URI
+    )
+
+    # Exchange the authorization code for tokens
+    flow.fetch_token(code=authorization_code)
+    # Extract the tokens from the credentials
+    credentials = flow.credentials
+    access_token = credentials.token
+    refresh_token = credentials.refresh_token
+    
+
+    # TODO: Save tokens in mailassistantdb
+
+
+def auth_callback(request):
+    """Handles the callback after user authorization"""
+    authorization_response = request.build_absolute_uri()
+
+    logging.info(f"{Fore.YELLOW}AUTH RESPONSE: {authorization_response}")
+
+    authorization_code = request.GET.get('code')
+
+    if not authorization_code:
+        return Response({
+            'error': 'No authorization code provided'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    exchange_code_for_tokens(authorization_code)
+    
+    # Redirect to home page
+    return HttpResponseRedirect('http://localhost:8080/home')
+
+
 def get_credentials(user):
     try:
         social_api = SocialAPI.objects.get(user=user, type_api='Google')

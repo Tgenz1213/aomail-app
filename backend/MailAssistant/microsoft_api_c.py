@@ -25,7 +25,7 @@ from email.mime.application import MIMEApplication
 # TODO : Store the creds and sensitive info in an other file
 
 CLIENT_ID = '6834c587-271f-46e3-866a-718bfc03654d'
-REDIRECT_URI = 'https://localhost:9000/MailAssistant/auth_callback/' #'MailAssistant:home_page'
+REDIRECT_URI = 'https://localhost:9000/MailAssistant/auth_callback/'
 TENANT_ID = 'b45a58f1-a624-4f89-97a5-8e74463dc9fb'
 AUTHORITY = f'https://login.microsoftonline.com/{TENANT_ID}'
 SCOPES = ['Mail.Read', 'Mail.Send', 'Calendars.Read', 'Contacts.Read']

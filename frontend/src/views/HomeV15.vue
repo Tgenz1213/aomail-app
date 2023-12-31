@@ -447,7 +447,15 @@ export default {
             })
             .then(data => {
                 const unreadMailCount = data.unreadCount;
-                let text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveaux mails.`;
+                let text = '';
+
+                if (unreadMailCount === 0) {
+                    text = `Bonjour ! Vous n'avez pas de nouveaux mails.`;
+                } else if (unreadMailCount === 1) {
+                    text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveau mail.`;
+                } else {
+                    text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveaux mails.`;
+                }
 
                 let target = this.$refs.animatedText;
                 let characters = text.split("");

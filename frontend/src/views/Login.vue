@@ -58,17 +58,16 @@ export default {
         const response = await axios.post('http://localhost:9000/MailAssistant/api/login/', {
           username: this.username,
           password: this.password
+        }, {
+          withCredentials: true // Important for cookies
         });
-        console.log(response);
-        console.log(response.data.access);
-        if (response.data && response.data.access) {
-          const token = response.data.access;
-          const refresh_token = response.data.refresh;
-          localStorage.setItem('userToken', token);
-          localStorage.setItem('refreshToken', refresh_token);
-                  
-          // Store the token in Vuex store or in-memory for later use
 
+        if (response.status === 200) {
+          // The access token should be in the response body
+          const token = response.data.access;
+          localStorage.setItem('userToken', token);
+
+          console.log("TOKEN", token);
           // Redirect to home13 after successful login
           this.$router.push({ name: 'home' });
         } else {

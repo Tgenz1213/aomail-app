@@ -27,6 +27,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from django.http import HttpResponse
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
 from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer
@@ -1397,8 +1398,34 @@ def login(request):
     if user:
         # print("Login Successfull") # TO DEBUG
         refresh = RefreshToken.for_user(user)
-        return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
+        access_token = str(refresh.access_token)
+        response = Response({'access': access_token})
+        response.set_cookie(
+            key='refresh_token', 
+            value=str(refresh), 
+            httponly=True,
+            samesite='Lax',
+            path='/'
+        )
+        return response
     return Response({'error': 'Invalid Credentials'}, status=400)
+
+# To check the HTTP-only cookie
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def refresh_token(request):
+    refresh_token = request.COOKIES.get('refresh_token')
+    print("---------------------------------> REFRESH TOKEN COOKIE", refresh_token)
+    if refresh_token:
+        try:
+            # Attempt to create a new access token
+            refresh = RefreshToken(refresh_token)
+            new_access_token = str(refresh.access_token)
+            return Response({'access': new_access_token})
+        except Exception as e:
+            # Handle error (e.g., token is expired or invalid)
+            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({'error': 'No refresh token found'}, status=status.HTTP_400_BAD_REQUEST)
 
 ######################## Home Page ########################
 

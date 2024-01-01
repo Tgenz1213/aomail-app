@@ -194,8 +194,6 @@ def authenticate_service(user) -> dict:
     service = build_services(creds)
     return service
 
-
-
 ######################## GMAIL API REQUESTS ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -221,7 +219,6 @@ def unread_mails(request):
     except Exception as e:
         logging.error(f"{Fore.RED}An error occurred: {e}")
         return JsonResponse({'unreadCount': 0}, status=400)
-
 
 ######################## Read Mails ########################
 def parse_name_and_email(header_value):

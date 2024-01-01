@@ -367,66 +367,86 @@ export default {
             });
         },
         async refreshToken() {
-            // Get the refresh token from local storage
-            const refresh_token = localStorage.getItem('refreshToken');
-
-            if (!refresh_token) {
-                throw new Error('No refresh token found');
-            }
-
-            // Set up the request options for the fetch call
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ refresh: refresh_token }),
-            };
-
             try {
-                // Make the POST request to the refresh token endpoint
-                const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+                const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+                    method: 'POST',
+                    credentials: 'include'  // Important to include credentials for cookies
+                });
 
-                // Check if the response status is OK (200)
                 if (!response.ok) {
-                    throw new Error(`Failed to refresh token: ${response.statusText}`);
+                    throw new Error('Failed to refresh token');
                 }
 
-                // Parse the JSON response to get the new access token
                 const data = await response.json();
-                const new_access_token = data.access;
+                const newAccessToken = data.access;
+                
+                // Update the access token in your client-side storage
+                // For example, if you're storing the token in localStorage:
+                localStorage.setItem('userToken', newAccessToken);
 
-                // Save the new access token to local storage
-                localStorage.setItem('userToken', new_access_token);
-
-                return new_access_token;
+                return newAccessToken;
             } catch (error) {
-                console.error('Error refreshing token: ', error.message);
-                // Handle the error (e.g., by redirecting the user to a login page)
-                throw error;
+                console.error('Error refreshing token:', error);
+                // Handle errors, like redirecting to login page or showing an error message
             }
         },
         async getUserBgColor() {
             try {
-                const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-                    'Content-Type': 'application/json'
-                }
-                });
+                const response = await this.fetchWithToken("http://localhost:9000/MailAssistant/user/preferences/bg_color/");
 
-                if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log(data);
-                this.bgColor = data.bg_color;
+                console.log(response);
+                this.bgColor = response.bg_color;
                 // Do something with the response data (e.g., update component state)
             } catch (error) {
                 console.error("Error fetching user background color:", error.message);
                 // Handle the error (e.g., show an error message to the user)
+            }
+        },
+        async fetchWithToken(url, options = {}) {
+            // Set default headers if not provided
+            options.headers = options.headers || {
+                'Content-Type': 'application/json'
+            };
+
+            // Retrieve the token and add it to the Authorization header
+            let token = localStorage.getItem('userToken');
+            if (token) {
+                options.headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            options.credentials = 'include';
+
+            console.log('Fetching URL:', url);
+            console.log('With options:', options);
+
+            try {
+                let response = await fetch(url, options);
+
+                // Debugging: Log response status
+                console.log(`Response status: ${response.status}`);
+
+                if (response.status === 401) {
+                    // Attempt to refresh the token
+                    token = await this.refreshToken();
+                    if (token) {
+                        options.headers['Authorization'] = `Bearer ${token}`;
+                        response = await fetch(url, options); // Retry request with new token
+                    } else {
+                        // Redirect to login or handle token refresh failure
+                        console.error('Failed to refresh token');
+                        throw new Error('Unauthorized: Failed to refresh token');
+                    }
+                }
+
+                if (!response.ok) {
+                    console.error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                return response.json();
+            } catch (error) {
+                console.error('Error object:', error);
+                throw error; // Rethrow the error for further handling
             }
         },
         updateModalStatus(status) {
@@ -522,6 +542,8 @@ export default {
         }
     },
     async mounted() {
+        console.log("COOKIES",document.cookie);
+
         const showNotification = ref(false);
         this.getUserBgColor();
         this.animateText();
@@ -532,11 +554,6 @@ export default {
         console.log("TOKEN", token);
         console.log("TOKEN_r", refresht);
 
-        const requestOptions = {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        };
         try {
             // Fetch the message
             const messageResponse = await fetch('http://localhost:9000/MailAssistant/message/');
@@ -550,39 +567,15 @@ export default {
             this.messageText = messageData.text;
             console.log("TEXT",this.messageText);
 
-            console.log("REQUEST OPTIONS", requestOptions);
-
             // Fetch the categories
-            const categoryResponse = await fetch(`http://localhost:9000/MailAssistant/user/categories/`, requestOptions);
-            // Again, check for Unauthorized
-            if (categoryResponse.status === 401) {
-                console.log("ERROR 401 : user categories")
-                // Refresh the token
-                this.refreshToken();
-                // Update requestOptions with new token
-                requestOptions.headers['Authorization'] = `Bearer ${token}`;
-                // Retry the request
-                const categoryRetryResponse = await fetch(`http://localhost:9000/MailAssistant/user/categories/`, requestOptions);
-                const categoryData = await categoryRetryResponse.json();
-                console.log("CategoryData", categoryData);
-                this.categories = categoryData.map(category => category.name);
-                console.log("Assigned categories:", this.categories);
-                // Handle token expiration or invalid token
-                return; // exit early or throw an error
-            }
-            const categoryData = await categoryResponse.json();
+            const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
             console.log("CategoryData", categoryData);
             this.categories = categoryData.map(category => category.name);
             console.log("Assigned categories:", this.categories);
 
             // Fetch emails
-            const emailResponse = await fetch(`http://localhost:9000/MailAssistant/user/emails/`, requestOptions);
-            if (emailResponse.status === 401) {
-                // Handle token expiration or invalid token
-                return; // exit early or throw an error
-            }
-            const emailData = await emailResponse.json();
-            console.log('fetchData: ',emailData)
+            const emailData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/`);
+            //console.log('fetchData: ',emailData)
             this.emails = emailData;
 
         } catch (error) {

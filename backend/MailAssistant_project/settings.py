@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -70,8 +71,12 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ROTATE_REFRESH_TOKENS': False,
-    'ALGORITHM': 'HS256',
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Token expires in 1 day
+    'ROTATE_REFRESH_TOKENS': False,  # Whether to rotate refresh tokens upon each request
+    'ALGORITHM': 'HS256',  # The algorithm used to sign the tokens
+    # ... other settings ...
+
+    # Optional settings if needed
     'VERIFYING_KEY': None,
     'VALIDATED_KEY': None,
     'AUDIENCE': None,
@@ -183,7 +188,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'WARNING'),
         },
     },
 }

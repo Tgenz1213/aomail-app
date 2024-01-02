@@ -5,6 +5,8 @@ import re
 import time
 import logging
 import json
+import jwt
+from rest_framework_simplejwt.settings import api_settings
 
 #### FOR AUTH TO THE API
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -1389,43 +1391,44 @@ def register(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
-    # print("Login function called") # TO DEBUG
-    # Print the received data
-    #print(request.data)
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
     if user:
-        # print("Login Successfull") # TO DEBUG
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
-        response = Response({'access': access_token})
-        response.set_cookie(
-            key='refresh_token', 
-            value=str(refresh), 
-            httponly=True,
-            samesite='Lax',
-            path='/'
-        )
-        return response
+
+        # Return the access token directly in the response
+        return Response({'access_token': access_token, 'message': 'Login successful'})
+    
     return Response({'error': 'Invalid Credentials'}, status=400)
 
 # To check the HTTP-only cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def refresh_token(request):
-    refresh_token = request.COOKIES.get('refresh_token')
-    print("---------------------------------> REFRESH TOKEN COOKIE", refresh_token)
-    if refresh_token:
-        try:
-            # Attempt to create a new access token
-            refresh = RefreshToken(refresh_token)
-            new_access_token = str(refresh.access_token)
-            return Response({'access': new_access_token})
-        except Exception as e:
-            # Handle error (e.g., token is expired or invalid)
-            return Response({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({'error': 'No refresh token found'}, status=status.HTTP_400_BAD_REQUEST)
+    raw_token = request.data.get('access_token')
+    if not raw_token:
+        return Response({'error': 'Access token is missing'}, status=400)
+
+    try:
+        # Decode the token without checking for expiration
+        decoded_data = jwt.decode(
+            raw_token, 
+            api_settings.SIGNING_KEY, 
+            algorithms=[api_settings.ALGORITHM],
+            options={"verify_exp": False}
+        )
+        user = User.objects.get(id=decoded_data['user_id'])
+
+        # Issue a new access token
+        new_access_token = str(RefreshToken.for_user(user).access_token)
+
+        return Response({'access_token': new_access_token})
+
+    except Exception as e:
+        # Handle exceptions
+        return Response({'error': str(e)}, status=400)
 
 ######################## Home Page ########################
 

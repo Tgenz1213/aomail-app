@@ -134,23 +134,18 @@ export default {
     },
     async fetchRules() {
       try {
-        const rulesResponse = await fetch('http://localhost:9000/MailAssistant/user/rules/', {
+        const url = 'http://localhost:9000/MailAssistant/user/rules/';
+
+        const rulesData = await this.fetchWithToken(url, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+            'Content-Type': 'application/json'
           }
         });
 
-        if (!rulesResponse.ok) {
-          throw new Error('Network response was not ok');
-        }
-
-        const rulesData = await rulesResponse.json();
         console.log('Rules', rulesData);
         console.log('Rules name', rulesData[0].category_name);
 
-        // Map each rule to the desired format and add to the people array
         this.rules = rulesData.map(rule => ({
           name: rule.sender_name,
           email: rule.sender_email,
@@ -163,118 +158,88 @@ export default {
         console.error('Error fetching rules:', error);
       }
     },
-    fetchCategories() {
-      fetch('http://localhost:9000/MailAssistant/user/categories/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log("Categories", data)
-        this.categories = data; // Store the fetched categories in the component's data
-      })
-      .catch(error => {
+    async fetchCategories() {
+      try {
+        const url = 'http://localhost:9000/MailAssistant/user/categories/';
+
+        const data = await this.fetchWithToken(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log("Categories", data);
+        this.categories = data;
+      } catch (error) {
         console.error('Error fetching categories:', error);
-      });
+      }
     },
-    fetchEmailSenders() {
-      fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
+    async fetchEmailSenders() {
+      try {
+        // Define the URL
+        const url = 'http://localhost:9000/MailAssistant/api/get_unique_email_senders';
+
+        // Fetch data using the new fetchWithToken method
+        const data = await this.fetchWithToken(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
         console.log("email senders", data);
         this.emailSenders = data;
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error fetching email senders:', error);
         // Handle errors appropriately
-      });
+      }
     },
-    async refreshToken() {
-      // Get the refresh token from local storage
-      const refresh_token = localStorage.getItem('refreshToken');
-
-      if (!refresh_token) {
-          throw new Error('No refresh token found');
+    async fetchWithToken(url, options = {}) {
+      const accessToken = localStorage.getItem('userToken');
+      if (!options.headers) {
+          options.headers = {};
+      }
+      if (accessToken) {
+          options.headers['Authorization'] = `Bearer ${accessToken}`;
       }
 
-      // Set up the request options for the fetch call
-      const requestOptions = {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ refresh: refresh_token }),
-      };
-
       try {
-          // Make the POST request to the refresh token endpoint
-          const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+        let response = await fetch(url, options);
 
-          // Check if the response status is OK (200)
-          if (!response.ok) {
-              throw new Error(`Failed to refresh token: ${response.statusText}`);
+        if (response.status === 401) {
+          const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ access_token: accessToken })
+          });
+
+          if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              const newAccessToken = refreshData.access_token;
+              localStorage.setItem('userToken', newAccessToken);
+              options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+              response = await fetch(url, options);
+          } else {
+              throw new Error('Unauthorized: Please log in again');
           }
+        }
 
-          // Parse the JSON response to get the new access token
-          const data = await response.json();
-          const new_access_token = data.access;
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-          // Save the new access token to local storage
-          localStorage.setItem('userToken', new_access_token);
-
-          return new_access_token;
+        return response.json();
       } catch (error) {
-          console.error('Error refreshing token: ', error.message);
-          // Handle the error (e.g., by redirecting the user to a login page)
+          console.error('Error in fetchWithToken:', error.message);
           throw error;
       }
     },
-    async getUserBgColor() {
-      try {
-          const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
-          method: 'GET',
-          headers: {
-              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-              'Content-Type': 'application/json'
-          }
-          });
-
-          if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          console.log(data);
-          this.bgColor = data.bg_color;
-          // Do something with the response data (e.g., update component state)
-      } catch (error) {
-          console.error("Error fetching user background color:", error.message);
-          // Handle the error (e.g., show an error message to the user)
-      }
-    }
   },
   mounted() {
-    this.refreshToken();
-    this.getUserBgColor();
+    this.bgColor = localStorage.getItem('bgColor');
     this.fetchRules();
     this.fetchEmailSenders();
     this.fetchCategories();

@@ -237,96 +237,68 @@ const nbr_reply_answer = ref(0);
 // Mounted lifecycle hook
 onMounted(() => {
 
-  refreshToken();
-  getUserBgColor();
+  bgColor.value = localStorage.getItem('bgColor');
   fetchAnswerLaterEmails();
 
 });
 
-async function refreshToken() {
-  // Get the refresh token from local storage
-  const refresh_token = localStorage.getItem('refreshToken');
-
-  if (!refresh_token) {
-      throw new Error('No refresh token found');
+async function fetchWithToken(url, options = {}) {
+  const accessToken = localStorage.getItem('userToken');
+  if (!options.headers) {
+      options.headers = {};
+  }
+  if (accessToken) {
+      options.headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
-  // Set up the request options for the fetch call
-  const requestOptions = {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh: refresh_token }),
-  };
-
   try {
-      // Make the POST request to the refresh token endpoint
-      const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
+    let response = await fetch(url, options);
 
-      // Check if the response status is OK (200)
-      if (!response.ok) {
-          throw new Error(`Failed to refresh token: ${response.statusText}`);
-      }
+    if (response.status === 401) {
+        const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ access_token: accessToken })
+        });
 
-      // Parse the JSON response to get the new access token
-      const data = await response.json();
-      const new_access_token = data.access;
-
-      // Save the new access token to local storage
-      localStorage.setItem('userToken', new_access_token);
-
-      return new_access_token;
-  } catch (error) {
-      console.error('Error refreshing token: ', error.message);
-      // Handle the error (e.g., by redirecting the user to a login page)
-      throw error;
-  }
-}
-
-// To fetch the bgColor
-async function getUserBgColor() {
-  try {
-    const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+        if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            const newAccessToken = refreshData.access_token;
+            localStorage.setItem('userToken', newAccessToken);
+            options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+            response = await fetch(url, options);
+        } else {
+            throw new Error('Unauthorized: Please log in again');
+        }
     }
 
-    const data = await response.json();
-    console.log(data);
-    bgColor.value = data.bg_color; // Update the reactive variable
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+
   } catch (error) {
-    console.error("Error fetching user background color:", error.message);
+      console.error('Error in fetchWithToken:', error.message);
+      throw error;
   }
 }
 
 // To fetch the email to reply later
 async function fetchAnswerLaterEmails() {
   try {
-    const response = await fetch('http://localhost:9000/MailAssistant/api/get_answer_later_emails/', {
+    const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/get_answer_later_emails/', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
         'Content-Type': 'application/json'
       }
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log("DATA",data);
-    emails.value = data;
+    console.log("DATA", data);
+    emails.value = data; // Assuming emails is a reactive variable
     console.log("Length", Object.keys(emails.value).length);
-    nbr_reply_answer.value = Object.keys(emails.value).length;
+    nbr_reply_answer.value = Object.keys(emails.value).length; // Assuming nbr_reply_answer is a reactive variable
     answerLaterEmails.value = data; // Update the reactive variable with the fetched emails
   } catch (error) {
     console.error("Error fetching answer-later emails:", error.message);

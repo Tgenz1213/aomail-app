@@ -557,11 +557,10 @@ const handleAIClick = () => {
           try {
               loading();
               scrollToBottom();
-              const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_ai/', {
+              const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_ai/', {
                   method: 'POST',
                   headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-                    'Content-Type': 'application/json',
+                      'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({
                       input_data: textareaValueSave.value,
@@ -569,12 +568,6 @@ const handleAIClick = () => {
                       formality: formalityValue.value,
                   }),
               });
-
-              if (!response.ok) {
-                  throw new Error('Network response was not ok ' + response.statusText);
-              }
-
-              const result = await response.json();
               hideLoading();
               subject.value = result.subject;
               mail.value = result.mail;
@@ -693,11 +686,10 @@ const handleAIClick = () => {
           try {
               loading();
               scrollToBottom();
-              const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+              const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
                   method: 'POST',
                   headers: {
-                      'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-                      'Content-Type': 'application/json',
+                      'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({
                       mail_content: mail.value, 
@@ -705,14 +697,6 @@ const handleAIClick = () => {
                       email_subject: inputValue.value,
                   }),
               });
-
-              if (!response.ok) {
-                  throw new Error('Network response was not ok: ' + response.statusText);
-              }
-
-              console.log("TEST");
-
-              const result = await response.json();
               hideLoading();
               subject.value = result.subject;
               mail.value = result.email_body;
@@ -817,89 +801,62 @@ const handleAIClick = () => {
     }, 400);
 };
 
-async function refreshToken() {
-    // Get the refresh token from local storage
-    const refresh_token = localStorage.getItem('refreshToken');
+async function fetchWithToken(url, options = {}) {
+  const accessToken = localStorage.getItem('userToken');
+  if (!options.headers) {
+      options.headers = {};
+  }
+  if (accessToken) {
+      options.headers['Authorization'] = `Bearer ${accessToken}`;
+  }
 
-    if (!refresh_token) {
-        throw new Error('No refresh token found');
-    }
+  try {
+    let response = await fetch(url, options);
 
-    // Set up the request options for the fetch call
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ refresh: refresh_token }),
-    };
+    if (response.status === 401) {
+        const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ access_token: accessToken })
+        });
 
-    try {
-        // Make the POST request to the refresh token endpoint
-        const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
-
-        // Check if the response status is OK (200)
-        if (!response.ok) {
-            throw new Error(`Failed to refresh token: ${response.statusText}`);
+        if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            const newAccessToken = refreshData.access_token;
+            localStorage.setItem('userToken', newAccessToken);
+            options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+            response = await fetch(url, options);
+        } else {
+            throw new Error('Unauthorized: Please log in again');
         }
-
-        // Parse the JSON response to get the new access token
-        const data = await response.json();
-        const new_access_token = data.access;
-
-        // Save the new access token to local storage
-        localStorage.setItem('userToken', new_access_token);
-
-        return new_access_token;
-    } catch (error) {
-        console.error('Error refreshing token: ', error.message);
-        // Handle the error (e.g., by redirecting the user to a login page)
-        throw error;
     }
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+
+  } catch (error) {
+      console.error('Error in fetchWithToken:', error.message);
+      throw error;
+  }
 }
 
 const bgColor = ref(''); // Initialize a reactive variable
-
-async function getUserBgColor() {
-  try {
-    const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log(data);
-    bgColor.value = data.bg_color; // Update the reactive variable
-  } catch (error) {
-    console.error("Error fetching user background color:", error.message);
-  }
-}
 
 /* DOES NOT WORK => TO CHECK */
 const userSearchResult = ref(null);
 
 async function findUser(searchQuery) {
   try {
-    const response = await fetch('http://localhost:9000/MailAssistant/api/find-user-ai/?query=' + encodeURIComponent(searchQuery), {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-        'Content-Type': 'application/json'
-      }
+    const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/find-user-ai/?query=' + encodeURIComponent(searchQuery), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
     console.log(data);
     userSearchResult.value = data; // Update the reactive variable
   } catch (error) {
@@ -991,8 +948,7 @@ function fetchEmailSenders() {
 
 onMounted(() => {
 
-    refreshToken();
-    getUserBgColor();
+    bgColor.value = localStorage.getItem('bgColor');
     //fetchEmailSenders();
     loadFileMetadataFromLocalStorage(); // For uploaded file
 
@@ -1452,23 +1408,16 @@ async function checkSpelling() {
   try {
       loading();
       scrollToBottom();
-      const response = await fetch('http://localhost:9000/MailAssistant/api/correct_email_language/', {
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              email_subject: inputValue.value,
-              email_body: mailInput.value,
-          }),
+      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/correct_email_language/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email_subject: inputValue.value,
+            email_body: mailInput.value,
+        }),
       });
-
-      if (!response.ok) {
-          throw new Error('Network response was not ok: ' + response.statusText);
-      }
-
-      const result = await response.json();
       hideLoading();
       //subject.value = result.corrected_subject; TO DELETE ?
       //mail.value = result.corrected_body; TO DELETE ?
@@ -1572,23 +1521,16 @@ async function checkCopyWriting() {
   try {
       loading();
       scrollToBottom();
-      const response = await fetch('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              email_subject: inputValue.value,
-              email_body: mailInput.value,
-          }),
+      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            email_subject: inputValue.value,
+            email_body: mailInput.value,
+        }),
       });
-
-      if (!response.ok) {
-          throw new Error('Network response was not ok: ' + response.statusText);
-      }
-
-      const result = await response.json();
       hideLoading();
       //subject.value = result.corrected_subject; TO DELETE ?
       //mail.value = result.corrected_body; TO DELETE ?
@@ -1689,11 +1631,10 @@ async function WriteBetter() {
   try {
     loading();
     scrollToBottom();
-    const response = await fetch('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             mail_content: mailInput.value, 
@@ -1701,12 +1642,6 @@ async function WriteBetter() {
             email_subject: inputValue.value,
         }),
     });
-
-    if (!response.ok) {
-        throw new Error('Network response was not ok: ' + response.statusText);
-    }
-
-    const result = await response.json();
     hideLoading();
     subject.value = result.subject;
     mail.value = result.email_body;
@@ -1911,20 +1846,10 @@ async function sendEmail() {
   }
 
   try {
-    const response = await fetch('http://localhost:9000/MailAssistant/api/send_mails/', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        // Do not set 'Content-Type' for FormData; the browser will set it along with the correct boundary
-      },
-      body: formData
+    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/send_mails/', {
+        method: 'POST',
+        body: formData
     });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok: ' + response.statusText);
-    }
-
-    const result = await response.json();
     console.log(result.message); // Handle success
 
     // To reinitialize the variable

@@ -194,7 +194,6 @@ export default {
   },
   methods: {
     async postSender() {
-      // Check if selectedPerson is defined
       if (!this.selectedPerson) {
         throw new Error('No sender selected');
       }
@@ -204,38 +203,75 @@ export default {
         email: this.selectedPerson.username,  // Assuming username is the email
       };
 
-      const response = await fetch('http://localhost:9000/MailAssistant/api/create_sender', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        },
-        body: JSON.stringify(senderData),
-      });
+      try {
+        const url = 'http://localhost:9000/MailAssistant/api/create_sender';
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Use fetchWithToken for the POST request
+        const responseData = await this.fetchWithToken(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(senderData),
+        });
+
+        return responseData.id;
+      } catch (error) {
+        console.error(`Error in postSender: ${error}`);
+        throw error; // Rethrowing the error can be useful if this function is used in a context where the error needs to be handled further up the chain.
+      }
+    },
+    async fetchWithToken(url, options = {}) {
+      const accessToken = localStorage.getItem('userToken');
+      if (!options.headers) {
+          options.headers = {};
+      }
+      if (accessToken) {
+          options.headers['Authorization'] = `Bearer ${accessToken}`;
       }
 
-      const responseData = await response.json();
-      return responseData.id;
+      try {
+        let response = await fetch(url, options);
+
+        if (response.status === 401) {
+          const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ access_token: accessToken })
+          });
+
+          if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              const newAccessToken = refreshData.access_token;
+              localStorage.setItem('userToken', newAccessToken);
+              options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+              response = await fetch(url, options);
+          } else {
+              throw new Error('Unauthorized: Please log in again');
+          }
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return response.json();
+      } catch (error) {
+          console.error('Error in fetchWithToken:', error.message);
+          throw error;
+      }
     },
     async createUserRule() {
       try {
-        // Fetch the category ID
         console.log("CATEGORY", this.formData.category);
-        const categoryResponse = await fetch(`http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-          }
+
+        // Fetch the category ID using fetchWithToken
+        const categoryUrl = `http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`;
+        const categoryData = await this.fetchWithToken(categoryUrl, {
+          method: 'GET'
         });
-
-        if (!categoryResponse.ok) {
-          throw new Error(`HTTP error! status: ${categoryResponse.status}`);
-        }
-
-        const categoryData = await categoryResponse.json();
         const categoryId = categoryData.id;
         console.log("CategoryId", categoryId);
 
@@ -253,20 +289,15 @@ export default {
 
         console.log("RuleData", ruleData);
 
-        const ruleResponse = await fetch('http://localhost:9000/MailAssistant/user/create-rule/', {
+        // Use fetchWithToken for the POST request to create the rule
+        const ruleResponseData = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/create-rule/', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify(ruleData),
         });
 
-        if (!ruleResponse.ok) {
-          throw new Error(`HTTP error! status: ${ruleResponse.status}`);
-        }
-
-        const ruleResponseData = await ruleResponse.json();
         console.log('Rule created:', ruleResponseData);
         window.location.reload(); // To reload
 

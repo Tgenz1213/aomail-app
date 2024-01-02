@@ -120,8 +120,7 @@ let counter_display = 0;
 // Mounted lifecycle hook
 onMounted(() => {
 
-  refreshToken();
-  getUserBgColor();
+  bgColor.value = localStorage.getItem('bgColor');
 
   AIContainer.value = document.getElementById('AIContainer');
   const message = "Cette page est non fonctionnelle et en cours de développement";
@@ -161,70 +160,6 @@ function animateText(text, target) {
           clearInterval(interval);
       }
   }, 30);
-}
-
-async function refreshToken() {
-  // Get the refresh token from local storage
-  const refresh_token = localStorage.getItem('refreshToken');
-
-  if (!refresh_token) {
-      throw new Error('No refresh token found');
-  }
-
-  // Set up the request options for the fetch call
-  const requestOptions = {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh: refresh_token }),
-  };
-
-  try {
-      // Make the POST request to the refresh token endpoint
-      const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
-
-      // Check if the response status is OK (200)
-      if (!response.ok) {
-          throw new Error(`Failed to refresh token: ${response.statusText}`);
-      }
-
-      // Parse the JSON response to get the new access token
-      const data = await response.json();
-      const new_access_token = data.access;
-
-      // Save the new access token to local storage
-      localStorage.setItem('userToken', new_access_token);
-
-      return new_access_token;
-  } catch (error) {
-      console.error('Error refreshing token: ', error.message);
-      // Handle the error (e.g., by redirecting the user to a login page)
-      throw error;
-  }
-}
-
-// To fetch the bgColor
-async function getUserBgColor() {
-  try {
-    const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log(data);
-    bgColor.value = data.bg_color; // Update the reactive variable
-  } catch (error) {
-    console.error("Error fetching user background color:", error.message);
-  }
 }
 
 // To handle the input going to wide 

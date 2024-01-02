@@ -366,87 +366,46 @@ export default {
                 console.error("There was a problem with the fetch operation:", error);
             });
         },
-        async refreshToken() {
-            try {
-                const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-                    method: 'POST',
-                    credentials: 'include'  // Important to include credentials for cookies
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to refresh token');
-                }
-
-                const data = await response.json();
-                const newAccessToken = data.access;
-                
-                // Update the access token in your client-side storage
-                // For example, if you're storing the token in localStorage:
-                localStorage.setItem('userToken', newAccessToken);
-
-                return newAccessToken;
-            } catch (error) {
-                console.error('Error refreshing token:', error);
-                // Handle errors, like redirecting to login page or showing an error message
-            }
-        },
-        async getUserBgColor() {
-            try {
-                const response = await this.fetchWithToken("http://localhost:9000/MailAssistant/user/preferences/bg_color/");
-
-                console.log(response);
-                this.bgColor = response.bg_color;
-                // Do something with the response data (e.g., update component state)
-            } catch (error) {
-                console.error("Error fetching user background color:", error.message);
-                // Handle the error (e.g., show an error message to the user)
-            }
-        },
         async fetchWithToken(url, options = {}) {
-            // Set default headers if not provided
-            options.headers = options.headers || {
-                'Content-Type': 'application/json'
-            };
-
-            // Retrieve the token and add it to the Authorization header
-            let token = localStorage.getItem('userToken');
-            if (token) {
-                options.headers['Authorization'] = `Bearer ${token}`;
+            const accessToken = localStorage.getItem('userToken');
+            if (!options.headers) {
+                options.headers = {};
             }
-
-            options.credentials = 'include';
-
-            console.log('Fetching URL:', url);
-            console.log('With options:', options);
+            if (accessToken) {
+                options.headers['Authorization'] = `Bearer ${accessToken}`;
+            }
 
             try {
                 let response = await fetch(url, options);
 
-                // Debugging: Log response status
-                console.log(`Response status: ${response.status}`);
-
                 if (response.status === 401) {
-                    // Attempt to refresh the token
-                    token = await this.refreshToken();
-                    if (token) {
-                        options.headers['Authorization'] = `Bearer ${token}`;
-                        response = await fetch(url, options); // Retry request with new token
+                    const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ access_token: accessToken })
+                    });
+
+                    if (refreshResponse.ok) {
+                        const refreshData = await refreshResponse.json();
+                        const newAccessToken = refreshData.access_token;
+                        localStorage.setItem('userToken', newAccessToken);
+                        options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                        response = await fetch(url, options);
                     } else {
-                        // Redirect to login or handle token refresh failure
-                        console.error('Failed to refresh token');
-                        throw new Error('Unauthorized: Failed to refresh token');
+                        throw new Error('Unauthorized: Please log in again');
                     }
                 }
 
                 if (!response.ok) {
-                    console.error(`HTTP error! Status: ${response.status}`);
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 return response.json();
             } catch (error) {
-                console.error('Error object:', error);
-                throw error; // Rethrow the error for further handling
+                console.error('Error in fetchWithToken:', error.message);
+                throw error;
             }
         },
         updateModalStatus(status) {
@@ -545,14 +504,8 @@ export default {
         console.log("COOKIES",document.cookie);
 
         const showNotification = ref(false);
-        this.getUserBgColor();
+        this.bgColor = localStorage.getItem('bgColor');
         this.animateText();
-        // Fetch the token. This can be from a Vue data property, VueX store, or local storage
-        const token = localStorage.getItem('userToken');
-        const refresht = localStorage.getItem('refreshToken');
-
-        console.log("TOKEN", token);
-        console.log("TOKEN_r", refresht);
 
         try {
             // Fetch the message

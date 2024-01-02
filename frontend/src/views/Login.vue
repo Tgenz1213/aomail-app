@@ -58,16 +58,22 @@ export default {
         const response = await axios.post('http://localhost:9000/MailAssistant/api/login/', {
           username: this.username,
           password: this.password
-        }, {
-          withCredentials: true // Important for cookies
         });
 
         if (response.status === 200) {
           // The access token should be in the response body
-          const token = response.data.access;
+          const token = response.data.access_token;
           localStorage.setItem('userToken', token);
 
-          console.log("TOKEN", token);
+          // Fetch color
+          const colorResponse = await axios.get("http://localhost:9000/MailAssistant/user/preferences/bg_color/", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+          const bgColor = colorResponse.data.bg_color;
+          localStorage.setItem('bgColor', bgColor);
+
+          //console.log("TOKEN", token);
           // Redirect to home13 after successful login
           this.$router.push({ name: 'home' });
         } else {

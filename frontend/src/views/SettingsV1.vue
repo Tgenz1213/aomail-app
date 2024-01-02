@@ -249,60 +249,49 @@ export default {
     setActiveSection(section) {
       this.activeSection = section;
     },
-    handleColorChange(newColor) {
+    async handleColorChange(newColor) {
       this.bgColor = newColor;
 
-      // Prepare the data to be sent in the request
       const data = {
         bg_color: newColor
       };
 
-      // Define the URL of your Django API endpoint
       const apiUrl = 'http://localhost:9000/MailAssistant/user/preferences/set_bg_color/';
 
-      // Make the POST request using fetch
-      fetch(apiUrl, {
+      const requestOptions = {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}` // Replace with your token retrieval logic
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Background color updated successfully', data);
+      };
+
+      try {
+        const responseData = await this.fetchWithToken(apiUrl, requestOptions);
+        console.log('Background color updated successfully', responseData);
+        localStorage.setItem('bgColor', newColor);
         // Handle successful response here
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error updating background color:', error);
         // Handle error here
-      });
+      }
     },
-    fetchUserData() {
-      fetch('http://localhost:9000/MailAssistant/user/preferences/username/', {
+    async fetchUserData() {
+      const requestOptions = {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}` // Use the correct auth header depending on your setup
+          'Content-Type': 'application/json'
         }
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
+      };
+
+      try {
+        const data = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/username/', requestOptions);
         console.log(data.username);
         this.userData.username = data.username;
-      })
-      .catch(error => {
+        // Handle the response data as needed
+      } catch (error) {
         console.error('Fetch error:', error);
-      });
+        // Handle the error appropriately
+      }
     },
     handleSubmit() {
       // Check if passwords are provided and match
@@ -314,121 +303,87 @@ export default {
       // Always update username
       this.updateUsername();
     },
-    updatePassword() {
-      fetch('http://localhost:9000/MailAssistant/user/preferences/update-password/', { // Replace with your actual API URL
+    async updatePassword() {
+      const requestOptions = {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ password: this.newPassword })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Password updated successfully', data);
-        // Handle successful password update
-      })
-      .catch(error => {
-        console.error('Error updating password:', error);
-        // Handle error
-      });
-    },
-    updateUsername() {
-      fetch('http://localhost:9000/MailAssistant/user/preferences/update-username/', { // Replace with your actual API URL
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        },
-        body: JSON.stringify({ username: this.userData.username })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Username updated successfully', data);
-        // Handle successful username update
-      })
-      .catch(error => {
-        console.error('Error updating username:', error);
-        // Handle error
-      });
-    },
-    async refreshToken() {
-      // Get the refresh token from local storage
-      const refresh_token = localStorage.getItem('refreshToken');
-
-      if (!refresh_token) {
-          throw new Error('No refresh token found');
-      }
-
-      // Set up the request options for the fetch call
-      const requestOptions = {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ refresh: refresh_token }),
       };
 
       try {
-          // Make the POST request to the refresh token endpoint
-          const response = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', requestOptions);
-
-          // Check if the response status is OK (200)
-          if (!response.ok) {
-              throw new Error(`Failed to refresh token: ${response.statusText}`);
-          }
-
-          // Parse the JSON response to get the new access token
-          const data = await response.json();
-          const new_access_token = data.access;
-
-          // Save the new access token to local storage
-          localStorage.setItem('userToken', new_access_token);
-
-          return new_access_token;
+        const data = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-password/', requestOptions);
+        console.log('Password updated successfully', data);
+        // Handle successful password update
       } catch (error) {
-          console.error('Error refreshing token: ', error.message);
-          // Handle the error (e.g., by redirecting the user to a login page)
-          throw error;
+        console.error('Error updating password:', error);
+        // Handle error
       }
     },
-    async getUserBgColor() {
+    async updateUsername() {
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username: this.userData.username })
+      };
+
       try {
-          const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
-          method: 'GET',
-          headers: {
-              'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-              'Content-Type': 'application/json'
-          }
+        const data = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-username/', requestOptions);
+        console.log('Username updated successfully', data);
+        // Handle successful username update
+      } catch (error) {
+        console.error('Error updating username:', error);
+        // Handle error
+      }
+    },
+    async fetchWithToken(url, options = {}) {
+      const accessToken = localStorage.getItem('userToken');
+      if (!options.headers) {
+          options.headers = {};
+      }
+      if (accessToken) {
+          options.headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      try {
+        let response = await fetch(url, options);
+
+        if (response.status === 401) {
+          const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ access_token: accessToken })
           });
 
-          if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              const newAccessToken = refreshData.access_token;
+              localStorage.setItem('userToken', newAccessToken);
+              options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+              response = await fetch(url, options);
+          } else {
+              throw new Error('Unauthorized: Please log in again');
           }
+        }
 
-          const data = await response.json();
-          console.log(data);
-          this.bgColor = data.bg_color;
-          // Do something with the response data (e.g., update component state)
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return response.json();
       } catch (error) {
-          console.error("Error fetching user background color:", error.message);
-          // Handle the error (e.g., show an error message to the user)
+          console.error('Error in fetchWithToken:', error.message);
+          throw error;
       }
     },
   },
   async mounted() {
-    this.refreshToken();
-    this.getUserBgColor();
+    this.bgColor = localStorage.getItem('bgColor');
     this.fetchUserData();
   }
 }

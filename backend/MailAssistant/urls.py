@@ -63,5 +63,6 @@ urlpatterns = [
     path('google-auth-url/', google_api.generate_auth_url, name='google-auth-url'),
     path('google-auth-callback/', google_api.auth_callback, name='google-auth-callback'),
     # requests URLs
-    path('unread_mails/', google_api.unread_mails, name='unread_mails')
+    path('gmail/unread_mails/', google_api.unread_mails, name='unread_mails'),
+    path('gmail/get_parsed_contacts/', google_api.get_parsed_contacts, name='get_parsed_contacts'),
 ]

@@ -116,23 +116,18 @@
                                                       <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                                                   </ComboboxButton>
 
-                                                  <ComboboxOptions v-if="filteredPeople.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                                      <ComboboxOption v-for="person in filteredPeople" :key="person.email" :value="person" as="template" v-slot="{ active, selected }">
-                                                          <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
-                                                              <div class="flex">
-                                                                  <span :class="['truncate', selected && 'font-semibold']">
-                                                                      {{ person.name }}
-                                                                  </span>
-                                                                  <span :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
-                                                                      {{ person.email }}
-                                                                  </span>
-                                                              </div>
-
-                                                              <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
-                                                                  <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                              </span>
-                                                          </li>
-                                                      </ComboboxOption>
+                                                  <ComboboxOptions v-if="filteredPeople.length > 0 && filteredPeople.length <= 10" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                    <ComboboxOption v-for="person in filteredPeople.slice(0, 10)" :key="person.email" :value="person" as="template" v-slot="{ active, selected }">
+                                                      <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
+                                                        <div class="flex">
+                                                          <span :class="['truncate', selected && 'font-semibold']">{{ person.name }}</span>
+                                                          <span :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">{{ person.email }}</span>
+                                                        </div>
+                                                        <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
+                                                          <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                        </span>
+                                                      </li>
+                                                    </ComboboxOption>
                                                   </ComboboxOptions>
                                               </Combobox>
                                           </div>
@@ -313,20 +308,32 @@ const items = [
 
 // lists of different types of recipients
 const people = [];
+
+// request to update the list of contacts (people array)
+fetch('http://localhost:9000/MailAssistant/gmail/get_parsed_contacts/', {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
+})
+.then(response => response.json())
+.then(data => people.push(...data))
+.catch(error => console.error("Error fetching contacts:", error));
+
 const selectedPeople = ref([]);
 const selectedCC = ref([]);
 const selectedCCI = ref([]);
 const activeType = ref(null);  // null, 'CC', or 'CCI'
 
 const query = ref('')
-const filteredPeople = computed(() =>
-query.value === ''
-    ? people
-    : people.filter((person) => {
-        return person.name.toLowerCase().includes(query.value.toLowerCase())
-    })
-)
-
+const getFilteredPeople = (query, people) => {
+  return computed(() =>
+    query.value === ''
+      ? people
+      : people.filter((person) => {
+          return person.name.toLowerCase().includes(query.value.toLowerCase());
+        })
+  );
+};
+const filteredPeople = getFilteredPeople(query, people);
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:selectedPerson']);
 const selectedPerson = ref(props.modelValue);
@@ -339,7 +346,6 @@ watch(selectedPerson, (newValue) => {
     }  */
     emit('update:selectedPerson', newValue);
 });
-
 
 const inputValue = ref('');
 const isFirstTimeDestinary = ref(true); // to detect first letter object input
@@ -364,7 +370,6 @@ function handleFocusDestinary() {
 
 function handleBlur2(event) {
   // Checks for a valid input email and adds it to the recipients list
-  isFocused2.value = false;
   const inputValue = event.target.value.trim();
   const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -372,13 +377,13 @@ function handleBlur2(event) {
     if (!people.find(person => person.email === inputValue)) {
       const newPerson = { name: inputValue, email: inputValue };
       people.push(newPerson);
-      selectedPeople.value.push(newPerson);
+      selectedPeople.value.push(newPerson);      
     }
-  } else {
+  } else if (inputValue != "") {
     // TODO: pop up invalid email format
-    alert('Invalid email format');
     console.log("Invalid email format or empty input");
   }
+  isFocused2.value = false;
 }
 
 const AIContainer = ref(null);

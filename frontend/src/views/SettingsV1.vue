@@ -373,7 +373,8 @@ export default {
               console.error('Error deleting account:', error);
           }
       } else {
-          // Inform the user that the deletion is not confirmed
+          // TODO: Inform the user that the deletion is not confirmed
+          alert('Please confirm deletion by checking the checkbox.');
           console.log('Please confirm deletion by checking the checkbox.');
       }
     },

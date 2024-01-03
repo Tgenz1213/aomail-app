@@ -170,16 +170,15 @@ def save_credentials(creds, user):
         print(f"Failed to save credentials: {e}")
 
 def build_services(creds) -> dict:
-    service = {
+    services = {
         'gmail.readonly': build('gmail', 'v1', cache_discovery=False, credentials=creds),
         'gmail.send': build('gmail', 'v1', cache_discovery=False, credentials=creds),
         'calendar': build('calendar', 'v3', cache_discovery=False, credentials=creds),
         'contacts': build('people', 'v1', cache_discovery=False, credentials=creds),
         'profile': build('people', 'v1', cache_discovery=False, credentials=creds),
-        'email': build('people', 'v1', cache_discovery=False, credentials=creds),
-        'other.contacts': build('people', 'v1', cache_discovery=False, credentials=creds),
+        'email': build('people', 'v1', cache_discovery=False, credentials=creds)
     }
-    return service
+    return services
 
 def authenticate_service(user) -> dict:
     creds = get_credentials(user)
@@ -220,6 +219,39 @@ def unread_mails(request):
     except Exception as e:
         logging.error(f"{Fore.RED}An error occurred: {e}")
         return JsonResponse({'unreadCount': 0}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_parsed_contacts(request) -> Response:
+    """Returns a list of parsed contacts e.g: [{name: example, email: example@test.com}]"""
+    user = request.user
+
+    # Authenticate the user and build the service
+    credentials = get_credentials(user)
+    service = build_services(credentials)['contacts']
+
+    try:
+        # Fetch contacts
+        contacts = service.people().connections().list(
+            resourceName='people/me',
+            personFields='names,emailAddresses'
+        ).execute()
+
+        # Extract required contact information
+        parsed_contacts = []
+        for contact in contacts.get('connections', []):
+            names = contact.get('names', [])
+            emails = contact.get('emailAddresses', [])
+            if names and emails:
+                name = names[0].get('displayName', '')
+                email = emails[0].get('value', '')
+                parsed_contacts.append({'name': name, 'email': email})
+
+        logging.info(f"Retrieved {len(parsed_contacts)} contacts")
+        return Response(parsed_contacts)
+    except Exception as e:
+        logging.exception("Error fetching contacts:")
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ######################## Read Mails ########################
 def parse_name_and_email(header_value):

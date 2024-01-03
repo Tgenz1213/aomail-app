@@ -414,7 +414,7 @@ export default {
         animateText() {
             const access_token = localStorage.getItem('userToken');
             
-            fetch(`http://localhost:9000/MailAssistant/unread_mails/`, {
+            fetch(`http://localhost:9000/MailAssistant/gmail/unread_mails/`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${access_token}`

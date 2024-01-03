@@ -70,14 +70,14 @@
                                   <div class="flex flex-wrap">
                                       <!-- Main Recipients List -->
                                       <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
-                                        <div v-for="person in selectedPeople" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                        <div v-for="person in selectedPeople" :key="person.email" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                           {{ person.name }}
                                           <button @click="removePersonFromMain(person)">×</button>
                                         </div>
                                       </div>
                                       <!-- CC Recipients List -->
                                       <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
-                                          <div v-for="person in selectedCC" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                          <div v-for="person in selectedCC" :key="person.email" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                               <span class="font-semibold mr-1">CC:</span>
                                               {{ person.name }}
                                               <button @click="removePersonFromCC(person)">×</button>
@@ -85,7 +85,7 @@
                                       </div>
                                       <!-- CCI Recipients List -->
                                       <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
-                                          <div v-for="person in selectedCCI" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                          <div v-for="person in selectedCCI" :key="person.email" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                               <span class="font-semibold mr-1">CCI:</span>
                                               {{ person.name }}
                                               <button @click="removePersonFromCCI(person)">×</button>
@@ -101,7 +101,7 @@
                                                   class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2"
                                               >
                                                   <UserGroupIcon class="w-4 h-4 pointer-events-none" />
-                                                  <label for="username" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
+                                                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
                                               </div>
                                               <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected" @blur="handleBlur2">
                                                   <ComboboxInput 
@@ -109,21 +109,22 @@
                                                       @change="query = $event.target.value" 
                                                       :display-value="(person) => person?.name"
                                                       @focus="handleFocusDestinary"
-                                                      @blur="handleBlur2"
+                                                      @blur="handleBlur2($event)"
                                                   />
+
                                                   <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                                                       <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                                                   </ComboboxButton>
 
                                                   <ComboboxOptions v-if="filteredPeople.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                                      <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person" as="template" v-slot="{ active, selected }">
+                                                      <ComboboxOption v-for="person in filteredPeople" :key="person.email" :value="person" as="template" v-slot="{ active, selected }">
                                                           <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
                                                               <div class="flex">
                                                                   <span :class="['truncate', selected && 'font-semibold']">
                                                                       {{ person.name }}
                                                                   </span>
                                                                   <span :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
-                                                                      {{ person.username }}
+                                                                      {{ person.email }}
                                                                   </span>
                                                               </div>
 
@@ -310,11 +311,8 @@ const items = [
   { name: 'Envoyer à une heure', href: '#' },
 ]
 
-const people = [
-    { name: 'Leslie Alexander', username: '@lesliealexander' },
-    { name: 'Theo', username: 'theohubert3@gmx.com'}
-  ]
-  
+// lists of different types of recipients
+const people = [];
 const selectedPeople = ref([]);
 const selectedCC = ref([]);
 const selectedCCI = ref([]);
@@ -364,8 +362,23 @@ function handleFocusDestinary() {
   isFocused2.value = true;
 }
 
-function handleBlur2() {
+function handleBlur2(event) {
+  // Checks for a valid input email and adds it to the recipients list
   isFocused2.value = false;
+  const inputValue = event.target.value.trim();
+  const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (inputValue && emailFormat.test(inputValue)) {
+    if (!people.find(person => person.email === inputValue)) {
+      const newPerson = { name: inputValue, email: inputValue };
+      people.push(newPerson);
+      selectedPeople.value.push(newPerson);
+    }
+  } else {
+    // TODO: pop up invalid email format
+    alert('Invalid email format');
+    console.log("Invalid email format or empty input");
+  }
 }
 
 const AIContainer = ref(null);
@@ -1025,7 +1038,7 @@ onMounted(() => {
       MailCreatedByAI.value = false;
     });
 
-    /* OLD DO DELETE
+    /* OLD TO DELETE
     let quillContainer = document.querySelector('#editor');
 
     quillContainer.addEventListener('mouseleave', function() {
@@ -1114,6 +1127,8 @@ function personSelected(person) {
     stepcontainer = 1;
     isFirstTimeDestinary.value = false;
   }
+  
+  selectedPerson.value = null;
 
   // To display AI (value entered by the user)
   // OPTIONAL : DEACTIVATED BY DEFAULT => UX DESIGN => TO VALIDATE
@@ -1161,7 +1176,6 @@ function personSelected(person) {
       counter_display += 1; // MAYBE TO DELETE
   }*/
 
-  selectedPerson.value = null; 
 }
 
 function toggleCC() {
@@ -1826,9 +1840,9 @@ function hideLoading() {
 async function sendEmail() {
   const emailSubject = inputValue.value;
   const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
-  const recipients = selectedPeople.value.map(person => person.username); // Adjust according to your data structure
-  const ccRecipients = selectedCC.value.map(person => person.username);
-  const bccRecipients = selectedCCI.value.map(person => person.username);
+  const recipients = selectedPeople.value.map(person => person.email); // Adjust according to your data structure
+  const ccRecipients = selectedCC.value.map(person => person.email);
+  const bccRecipients = selectedCCI.value.map(person => person.email);
 
   const formData = new FormData();
   formData.append('subject', emailSubject);

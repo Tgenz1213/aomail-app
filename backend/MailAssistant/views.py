@@ -1242,7 +1242,7 @@ def register(request):
 
             user = User.objects.create_user(username, email, password)
             user.save()
-            return redirect('MailAssistant:login')
+            return redirect('http://localhost:8080/')
     else:
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})

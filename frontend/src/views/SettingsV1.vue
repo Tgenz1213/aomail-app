@@ -157,7 +157,7 @@
                                   <label for="push-everything" class="block text-sm font-medium leading-6">Je confirme la supression de mon compte (action irréversible)</label>
                                 </div>
                                 <div class="flex justify-end pt-4">
-                                  <button type="submit" class="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Supprimer</button>
+                                  <button @click="deleteAccount" type="submit" class="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Supprimer</button>
                                 </div>
                               </div>
                             </div>
@@ -337,6 +337,44 @@ export default {
       } catch (error) {
         console.error('Error updating username:', error);
         // Handle error
+      }
+    },
+    async deleteAccount() {
+      const isChecked = document.querySelector('input[name="choice"]:checked');
+
+      if (isChecked) {
+          try {
+              const access_token = localStorage.getItem('userToken');
+              const url = 'http://localhost:9000/MailAssistant/api/delete_account/';
+
+              const requestOptions = {
+                  method: 'DELETE',
+                  headers: {
+                      'Authorization': `Bearer ${access_token}`
+                  }
+              };
+
+              const responseData = await this.fetchWithToken(url, requestOptions);
+
+              // Check the response data for success or failure
+              if (responseData && responseData.message === 'User successfully deleted') {
+                  // Handle successful deletion
+                  console.log('Account deleted successfully.');
+
+                  // Redirect logic on the client-side (assuming a frontend framework like Vue or React)
+                  window.location.href = 'http://localhost:8080'; // Redirect to desired URL
+              } else {
+                  // Handle other possible server responses or inform the user
+                  console.error('Failed to delete account. Unexpected server response:', responseData);
+              }
+
+          } catch (error) {
+              // Handle error or inform the user about the failure
+              console.error('Error deleting account:', error);
+          }
+      } else {
+          // Inform the user that the deletion is not confirmed
+          console.log('Please confirm deletion by checking the checkbox.');
       }
     },
     async fetchWithToken(url, options = {}) {

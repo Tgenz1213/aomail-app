@@ -5,6 +5,7 @@ import re
 import time
 import logging
 import json
+from colorama import Fore, init
 import jwt
 from rest_framework_simplejwt.settings import api_settings
 
@@ -51,8 +52,13 @@ import openai
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import SystemMessagePromptTemplate,ChatPromptTemplate
 
+
+# Initialize colorama with autoreset
+init(autoreset=True)
 # Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+
 
 openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 openai.api_key = "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"
@@ -1241,7 +1247,21 @@ def register(request):
         form = RegisterForm()
     return render(request, 'register.html', {'form': form})
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    """Removes the user from the database"""
+    user = request.user 
 
+    try:
+        user.delete()
+        logging.info(f"{Fore.YELLOW}The user {user} has been removed from the database")
+        return Response({'message': 'User successfully deleted'}, status=200)
+
+    except Exception as e:
+        logging.error(f"{Fore.RED}Error occurred while deleting user: {e}")
+        # TODO: Handle deletion failure
+        return Response({'error': 'Failed to delete user'}, status=500)
 
 
 logger = logging.getLogger(__name__)

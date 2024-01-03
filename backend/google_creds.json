@@ -1,9 +1,7 @@
 {
-    "web": {
-        "client_id": "900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com",
-        "client_secret": "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",
-        "redirect_uris": [],
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://accounts.google.com/o/oauth2/token"
-    }
+    "client_id": "900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com",
+    "client_secret": "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",
+    "redirect_uris": [],
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://accounts.google.com/o/oauth2/token"
 }

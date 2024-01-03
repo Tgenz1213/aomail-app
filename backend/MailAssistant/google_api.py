@@ -2,6 +2,7 @@ import base64
 import re
 import time
 import random
+import json
 import email
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
@@ -72,6 +73,7 @@ SCOPES = [
     OPENID_SCOPE,
     OTHER_CONTACT_READONLY_SCOPE
 ]
+CONFIG = json.load(open('google_creds.json', 'r'))
 # TODO change uri but first add it on the redirects uri in the google app project
 #redirect_uri = 'http://localhost:9000/google-auth-callback/'
 CALLBACK_REDIRECT_URI = 'http://localhost:9000/google-login/'
@@ -108,8 +110,7 @@ def exchange_code_for_tokens(authorization_code):
     # Extract the tokens from the credentials
     credentials = flow.credentials
     access_token = credentials.token
-    refresh_token = credentials.refresh_token
-    
+    refresh_token = credentials.refresh_token    
 
     # TODO: Save tokens in mailassistantdb
 
@@ -140,9 +141,9 @@ def get_credentials(user):
         creds_data = {
             'token': social_api.access_token,
             'refresh_token': social_api.refresh_token,
-            'token_uri': 'https://oauth2.googleapis.com/token',  # Assuming you're using Google's OAuth 2.0 endpoint
-            'client_id': '900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com',
-            'client_secret': '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',
+            'token_uri': 'https://oauth2.googleapis.com/token',
+            'client_id': CONFIG['client_id'],
+            'client_secret': CONFIG['client_secret'],
             'scopes': SCOPES
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)

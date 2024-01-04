@@ -22,7 +22,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import SocialAPI
 from googleapiclient.discovery import build
 from . import library
-import requests
 import logging
 from colorama import init, Fore
 from rest_framework.permissions import IsAuthenticated
@@ -30,8 +29,10 @@ from rest_framework.decorators import api_view, permission_classes
 from google_auth_oauthlib.flow import Flow
 from rest_framework.response import Response
 from rest_framework import status
+from collections import defaultdict
 
 # unused packages
+import requests
 from oauth2client import client
 import google.auth
 from google.auth.transport import requests as google_requests
@@ -44,9 +45,6 @@ import httplib2
 from google.auth.transport.urllib3 import AuthorizedHttp
 import os.path
 import pickle
-from .library import *
-# import sys
-# sys.path.append('/Users/shost/Documents/MailAssistant/MailAssistant_project/MailAssistant')
 
 
 # Initialize colorama with autoreset
@@ -134,7 +132,7 @@ def auth_callback(request):
     # Redirect to home page
     return HttpResponseRedirect('http://localhost:8080/home')
 
-
+######################## AUTHENTIFICATION WITH JWT ########################
 def get_credentials(user):
     try:
         social_api = SocialAPI.objects.get(user=user, type_api='Google')
@@ -222,36 +220,138 @@ def unread_mails(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_parsed_contacts(request):
-    """Returns a list of parsed contacts e.g: [{name: example, email: example@test.com}]"""
+def get_parsed_contacts(request) -> list:
+    """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
     user = request.user
 
     # Authenticate the user and build the service
     credentials = get_credentials(user)
-    service = build_services(credentials)['contacts']
+    services = build_services(credentials)
+    contacts_service = services['contacts']
 
     try:
-        # Fetch contacts
-        contacts = service.people().connections().list(
+        # Get contacts
+        contacts = contacts_service.people().connections().list(
             resourceName='people/me',
             personFields='names,emailAddresses'
         ).execute()
 
-        # Extract required contact information
-        parsed_contacts = []
-        for contact in contacts.get('connections', []):
-            names = contact.get('names', [])
-            emails = contact.get('emailAddresses', [])
-            if names and emails:
-                name = names[0].get('displayName', '')
-                email = emails[0].get('value', '')
-                parsed_contacts.append({'name': name, 'email': email})
+        # Get other contacts
+        other_contacts = contacts_service.otherContacts().list(
+            pageSize=1000,
+            readMask='names,emailAddresses'
+        ).execute()
 
-        logging.info(f"Retrieved {len(parsed_contacts)} contacts")
+        # Get unique sender information from Gmail
+        unique_senders = get_unique_senders(services)
+
+        # Combine all contacts into a dictionary to ensure uniqueness
+        all_contacts = defaultdict(set)
+
+        # Parse contacts and other contacts
+        contact_types = {
+            'connections': contacts.get('connections', []),
+            'otherContacts': other_contacts.get('otherContacts', [])
+        }
+
+        # Parse contacts and other contacts
+        for _, contact_list in contact_types.items():
+            for contact in contact_list:
+                names = contact.get('names', [])
+                emails = contact.get('emailAddresses', [])
+                if names and emails:
+                    name = names[0].get('displayName', '')
+                    email = emails[0].get('value', '')
+                    all_contacts[email].add(name)
+
+        # Add unique sender information
+        for email, name in unique_senders.items():
+            all_contacts[email].add(name)
+
+        # Format the parsed contacts
+        parsed_contacts = [{'name': ', '.join(names), 'email': email} for email, names in all_contacts.items()]
+
+        logging.info(f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts")
         return Response(parsed_contacts)
     except Exception as e:
         logging.exception("Error fetching contacts:")
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def get_unique_senders(services) -> dict:
+    """Fetches unique sender information from Gmail messages"""
+    service = services['gmail.readonly']
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=50).execute()
+    messages = results.get('messages', [])
+
+    senders_info = {}
+
+    if not messages:
+        print('No messages found.')
+    else:
+        for message in messages:
+            try:
+                msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+                headers = msg['payload']['headers']
+                sender_header = next(header['value'] for header in headers if header['name'] == 'From')
+                
+                # Extracting the email address and name
+                sender_parts = sender_header.split('<')
+                sender_name = sender_parts[0].strip().strip('"')
+                sender_email = sender_parts[-1].split('>')[0].strip() if len(sender_parts) > 1 else sender_name
+
+                # Store the sender's name with the email address as the key
+                senders_info[sender_email] = sender_name
+            except Exception as e:
+                print(f"Error processing message {message['id']}: {e}")
+
+    return senders_info
+
+
+# GOOGLE # gets list of emails based on names
+def _get_contacts(name, service_name,resource_name):
+    services = authenticate_service()
+    service = services[service_name]
+    # print("_"+name+"_")
+    if name:
+        # Call the People API
+        if service_name=='contacts':
+            results = service.people().connections().list(
+                resourceName='people/me',
+                pageSize=1000,
+                personFields='names,emailAddresses').execute()
+        else:
+            results = service.otherContacts().list(
+                pageSize=1000,
+                readMask='names,emailAddresses').execute()
+        # if resource_name == 'otherContacts':print('results: ',results)
+        connections = results.get(resource_name, [])
+        matching_contacts = []
+
+        for person in connections:
+            names = person.get('names', [])
+            email_addresses = person.get('emailAddresses', [])
+            if email_addresses:  # checking if there's an email address
+                email = email_addresses[0].get('value')  # get the primary email address
+                
+                # If there's a display name and it matches the search, add it
+                if names and name.lower() in names[0].get('displayName', '').lower():
+                    full_name = names[0].get('displayName')
+                    # matching_contacts.append((full_name, email))
+                    matching_contacts.append(email)
+                elif name.lower() in email.lower():
+                    if names:
+                        full_name = names[0].get('displayName')
+                    else:
+                        full_name = None
+                    # matching_contacts.append((full_name, email))
+                    matching_contacts.append(email)
+
+        return matching_contacts
+    else:
+        return []
+
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -723,36 +823,6 @@ def get_unique_senders(services):
             email_addresses.add(email_address)
 
     return list(email_addresses)'''
-
-# Fetch all the mail in the mailbox of the user
-def get_unique_senders(services):
-    service = services['gmail.readonly']
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=50).execute()
-    messages = results.get('messages', [])
-
-    senders_info = {}
-
-    if not messages:
-        print('No messages found.')
-    else:
-        for message in messages:
-            try:
-                msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
-                headers = msg['payload']['headers']
-                sender_header = next(header['value'] for header in headers if header['name'] == 'From')
-                
-                # Extracting the email address and name
-                sender_parts = sender_header.split('<')
-                sender_name = sender_parts[0].strip().strip('"')
-                sender_email = sender_parts[-1].split('>')[0].strip() if len(sender_parts) > 1 else sender_name
-
-                # Store the sender's name with the email address as the key
-                senders_info[sender_email] = sender_name
-            except Exception as e:
-                print(f"Error processing message {message['id']}: {e}")
-
-    return senders_info
-
 
 # Fetch the name and the email of the contacts of the user 
 def get_info_contacts(services):

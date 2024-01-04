@@ -47,8 +47,10 @@
                                             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-rose-400 via-amber-400 to-rose-200">
                                                 <span class="text-lg font-medium leading-none text-white">AO</span>
                                             </span>-->   
-                                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-700">
-                                                <span class="text-lg font-medium leading-none text-white">AO</span>
+                                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                                </svg>
                                             </span>     
                                         </div>
                                         <div>
@@ -67,9 +69,19 @@
                                         </div>
                                         <div class="hidden sm:block w-full">
                                             <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
-                                                <a v-for="category in categories" :key="category" href="#" @click="selectCategory(category)" class="flex text-gray-600 rounded-md px-8 py-2 text-sm font-medium" :class="{'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category, 'text-gray-600 hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800': selectedTopic !== category}">
+                                                <a v-for="category in categories" :key="category" href="#" @click="selectCategory(category)" class="group flex gap-x-4 items-center text-gray-600 rounded-md px-8 py-2 text-sm font-medium" :class="{'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category, 'text-gray-600 hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800': selectedTopic !== category}">
                                                     {{ category }}
                                                     <span v-if="emails[category] && emails[category].length > 0" class="bg-gray-100 text-gray-900 ml-3 hidden rounded-full py-0.5 px-2.5 text-xs font-medium md:inline-block">{{ emails[category].length }}</span>
+                                                    <span class="hidden group-hover:block mr-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 hover:text-black" @click.stop="openUpdateModal">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                                        </svg>
+                                                    </span>
+                                                </a>
+                                                <a class="flex text-gray-600 rounded-md px-8 py-2 text-sm font-medium hover:bg-gray-900 hover:text-white" @click="openModal">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                                    </svg>
                                                 </a>
                                             </nav>
                                         </div>
@@ -97,7 +109,9 @@
                                 <div class="flex">
                                     <div class="flex">
                                         <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-red-400 dark:bg-red-200">
-                                            <span class="text-lg font-medium leading-none text-white dark:text-red-400">AO</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
+                                            </svg>
                                         </span>
                                         <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                     </div>
@@ -242,6 +256,20 @@
             </div>
         </div>
     </div>
+    <!-- Category Modal -->
+    <NewCategoryModal
+      :isOpen="isModalOpen"
+      :errorMessage="modalErrorMessage"
+      @closeModal="closeModal"
+      @addCategory="handleAddCategory"
+    />
+    <UpdateCategoryModal
+    :isOpen="isModalUpdateOpen" 
+    :errorMessage="modalUpdateErrorMessage"
+    :category="selectedCategory"
+    @closeModal="closeUpdateModal"
+    @updateCategory="handleUpdateCategory"
+    />
     <!-- Notification -->
     <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6">
         <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
@@ -282,6 +310,8 @@
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import ModalSeeMail from '../components/SeeMail.vue';
+import NewCategoryModal from '../components/NewCategoryModal.vue';
+import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
 import { ref } from 'vue';
 import {
     //ChatBubbleOvalLeftEllipsisIcon,
@@ -309,13 +339,15 @@ export default {
         EllipsisHorizontalIcon,
         //HandRaisedIcon,
         EyeIcon,
-        ModalSeeMail
+        ModalSeeMail,
+        NewCategoryModal,
+        UpdateCategoryModal
     },
     methods: {
-        openModal(email) {
+        /*openModal(email) {
             this.selectedEmail = email; // Set the email data for the clicked email
             this.showModal = true; // Open the modal
-        },
+        },*/
         openInNewWindow(id_provider) {
             console.log("EMAIL", id_provider);
             const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
@@ -411,20 +443,10 @@ export default {
         updateModalStatus(status) {
             this.showModal = status;
         },
-        animateText() {
-            const access_token = localStorage.getItem('userToken');
-            
-            fetch(`http://localhost:9000/MailAssistant/unread_mails/`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            })
-            .then(response => {
-                console.log(response);
-                return response.json();
-            })
-            .then(data => {
+        async animateText() {
+            try {
+                const data = await this.fetchWithToken(`http://localhost:9000/MailAssistant/unread_mails/`);
+
                 const unreadMailCount = data.unreadCount;
                 let text = '';
 
@@ -447,10 +469,9 @@ export default {
                         clearInterval(interval);
                     }
                 }, 30);
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error trying to get the number of unread emails:', error);
-            });
+            }
         },
         toggleHiddenParagraph(index) {
             console.log("Item ID:",index)
@@ -498,7 +519,27 @@ export default {
         selectCategory(category) {
             this.selectedTopic = category;
             console.log("CHANGE CATEGORY");
-        }
+        },
+        openModal() {
+            this.isModalOpen = true;
+        },
+        closeModal() {
+            this.isModalOpen = false;
+        },
+        openUpdateModal(category) {
+            console.log("CATEGORY", category);
+            this.selectedCategory = category;
+            this.isModalUpdateOpen = true;
+        },
+        closeUpdateModal() {
+            this.isModalUpdateOpen = false;
+        },
+        handleAddCategory(categoryData) {
+            console.log('Category Added:', categoryData);
+        },
+        handleUpdateCategory(updatedCategory) {
+            console.log('Category Data to Update:', updatedCategory);
+        },
     },
     async mounted() {
         console.log("COOKIES",document.cookie);
@@ -550,6 +591,11 @@ export default {
             showHiddenParagraphs: {},
             animationTriggered: [false, false, false],
             showModal: false,
+            isModalOpen: false,
+            isModalUpdateOpen: false,
+            modalErrorMessage: '',
+            modalUpdateErrorMessage: '',
+            selectedCategory: null,
             messageText: '',
             categories: [],
             selectedTopic: 'Administrative',

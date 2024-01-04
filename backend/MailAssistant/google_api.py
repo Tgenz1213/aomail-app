@@ -222,7 +222,7 @@ def unread_mails(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_parsed_contacts(request) -> Response:
+def get_parsed_contacts(request):
     """Returns a list of parsed contacts e.g: [{name: example, email: example@test.com}]"""
     user = request.user
 
@@ -252,6 +252,26 @@ def get_parsed_contacts(request) -> Response:
     except Exception as e:
         logging.exception("Error fetching contacts:")
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_profile_image(request):
+    """Returns the profile image of the user"""
+    user = request.user
+    credentials = get_credentials(user)
+    service = build_services(credentials)['profile']
+
+    # Get user profile
+    profile = service.people().get(resourceName='people/me', personFields='photos').execute()
+
+    # Extract profile image URL if available
+    if 'photos' in profile:
+        photos = profile['photos']
+        if photos:
+            photo_url = photos[0]['url']
+            return Response({'profile_image_url': photo_url})
+    
+    return Response({'error': 'Profile image not found'}, status=status.HTTP_404_NOT_FOUND)
 
 ######################## Read Mails ########################
 def parse_name_and_email(header_value):

@@ -65,4 +65,5 @@ urlpatterns = [
     # requests URLs
     path('gmail/unread_mails/', google_api.unread_mails, name='unread_mails'),
     path('gmail/get_parsed_contacts/', google_api.get_parsed_contacts, name='get_parsed_contacts'),
+    path('gmail/get_profile_image/', google_api.get_profile_image, name='get_profile_image'),
 ]

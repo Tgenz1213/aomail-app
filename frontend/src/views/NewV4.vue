@@ -48,7 +48,7 @@
                 <div class="flex-grow">
                   <div class="flex px-6 2xl:py-10 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
                       <div class="flex flex-grow items-stretch">
-                          <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
+                          <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
                       </div>
                       <button type="button" @click="handleAIClick" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
@@ -62,7 +62,7 @@
               <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
                   <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
                       <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
-                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisi manuel</h1>
+                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle</h1>
                       </div>
                       <form class="flex flex-grow w-full px-10">
                           <div class="flex flex-col space-y-6 h-full w-full">
@@ -101,7 +101,7 @@
                                                   class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2"
                                               >
                                                   <UserGroupIcon class="w-4 h-4 pointer-events-none" />
-                                                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
+                                                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinataire(s)</label>
                                               </div>
                                               <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected" @blur="handleBlur2">
                                                   <ComboboxInput 
@@ -110,6 +110,7 @@
                                                       :display-value="(person) => person?.name"
                                                       @focus="handleFocusDestinary"
                                                       @blur="handleBlur2($event)"
+                                                      @keydown.enter="handleEnterKey"
                                                   />
 
                                                   <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -219,9 +220,9 @@
                                   <!--<div class="flex space-x-1 items-center">
                                   <Bars3BottomLeftIcon class="w-4 h-4" />
                                   <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
-                                  </div>-->
-                                  <div class="flex-grow mb-20 h-[200px]"> <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
-                                      <div id="editor" class="w-full"></div> 
+                                  </div>-->                                 
+                                  <div class="flex-grow mb-20 h-[200px]">
+                                      <div id="editor" class="w-full"></div> <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
                                   </div>
                                   <div class="flex mb-4">
                                     <div class="inline-flex rounded-lg shadow-lg">
@@ -370,6 +371,7 @@ function handleFocusDestinary() {
 
 function handleBlur2(event) {
   // Checks for a valid input email and adds it to the recipients list
+  isFocused2.value = false;
   const inputValue = event.target.value.trim();
   const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -383,7 +385,6 @@ function handleBlur2(event) {
     // TODO: pop up invalid email format
     console.log("Invalid email format or empty input");
   }
-  isFocused2.value = false;
 }
 
 const AIContainer = ref(null);
@@ -471,29 +472,60 @@ const loadFileMetadataFromLocalStorage = () => {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// function linked to ENTER key listeners
+function handleEnterKey(event) {
+  if (event.target.id === 'dynamicTextarea' && event.key === 'Enter') {
+    event.preventDefault();
+    handleAIClick();
+  } 
+  // works but if ENTER is pressed again it removes a user from the destinary list
+  /*else if (isFocused2.value) {
+    console.log("aie");
+    handleBlur2(event);
+  }
+  */
+}
+
 const handleAIClick = () => {
   /*const elements = [
     document.getElementById("UserDestinaryContainer"),
     document.getElementById("UserObjectContainer"),
     document.getElementById("EmailContainer"),
   ];
-  console.log(textareaValue.value); // Cela imprimera la valeur de la textarea*/
+  */
+  console.log(textareaValue.value);
 
-  // Vous pouvez maintenant vérifier la valeur et exécuter votre logique désirée
-    const messageHTML = `
-    <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-              <span class="text-lg font-medium leading-none text-white">TH</span>
-            </span>   
-        </div>
-        <div>
-            <p class="font-serif" >"${textareaValue.value}"</p>
-        </div>
-    </div>
-  `;
+  // Declare variables outside the fetch scope
+  let messageHTML = '';
+  let userInput = textareaValue.value;
 
-    AIContainer.value.innerHTML += messageHTML;
+  // Fetches the profile image URL from the server
+  fetch('http://localhost:9000/MailAssistant/gmail/get_profile_image/', {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
+  })
+  .then(response => response.json())
+  .then(data => {
+    const imageURL = data.profile_image_url; // Extracts the profile image URL from the fetched data
+
+    const profileImageHTML = `
+      <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
+      `;
+
+      // Create the complete message HTML with the profile image and text
+      messageHTML = `
+        <div class="flex pb-12">
+          <div class="mr-4 flex">
+            ${profileImageHTML}
+            </div>
+          <div>
+            <p class="font-serif" >${userInput}</p>
+          </div>
+        </div>
+      `;
+      AIContainer.value.innerHTML += messageHTML;
+    })
+    .catch(error => console.error("Error fetching profile image:", error));
 
     textareaValueSave.value = textareaValue.value;
     textareaValue.value = '';

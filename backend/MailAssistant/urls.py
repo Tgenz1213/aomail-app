@@ -48,6 +48,9 @@ urlpatterns = [
     path('api/generate_email_answer/', views.generate_email_answer, name="generate_email_answer"),
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name="get_answer_later_emails"),
     path('api/delete_account/', views.delete_account, name='delete_account'),
+    path('api/set_category/', views.set_category, name="set_category"),
+    path('api/update_category/<str:currentName>/', views.update_category, name="update_category"),
+    path('api/delete_category/<str:currentName>/', views.delete_category, name="delete_category"),
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
     ######################## Azure AD - OUTLOOK API ########################

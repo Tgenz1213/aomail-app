@@ -18,7 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
 class CategoryNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('name',)  # We only want the name field
+        fields = ('name', 'description')  # We only want the name and description fields
+
+class NewCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('name', 'description', 'user') 
 
 # Get data from email (GET)
 class UserEmailSerializer(serializers.ModelSerializer):

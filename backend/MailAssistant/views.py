@@ -33,7 +33,7 @@ from rest_framework.permissions import AllowAny
 from django.http import HttpResponse
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
-from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer
+from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer
 from django.db import IntegrityError
 
 # from .google_api import * 
@@ -1470,10 +1470,41 @@ def get_user_categories(request):
         current_user = User.objects.get(username=username)
         categories = Category.objects.filter(user=current_user)
         serializer = CategoryNameSerializer(categories, many=True)
-        print(serializer.data)
+        print("DATA --------------->", serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except User.DoesNotExist:
         return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+# To update a category
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_category(request, currentName):
+    try:
+        category = Category.objects.get(name=currentName, user=request.user)
+    except Category.DoesNotExist:
+        return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = CategoryNameSerializer(category, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# To delete a category
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_category(request, currentName):
+    try:
+        # Retrieve the category to be deleted
+        category = Category.objects.get(name=currentName, user=request.user)
+    except Category.DoesNotExist:
+        # Return a 404 response if the category is not found
+        return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Delete the category
+    category.delete()
+    return Response({"detail": "Category deleted successfully"}, status=status.HTTP_200_OK)
 
 # @api_view(['GET'])
 # @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
@@ -1580,6 +1611,21 @@ def set_rule_block_for_sender(request, email_id):
     serializer = RuleBlockUpdateSerializer(rule)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_category(request):
+    data = request.data.copy()
+    data['user'] = request.user.id
+
+    serializer = NewCategorySerializer(data=data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    else:
+        print("Data:", request.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=400)
 
 
 ######################## New Mail ########################

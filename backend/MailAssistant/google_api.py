@@ -4,10 +4,10 @@ import time
 import random
 import json
 import email
+import logging
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from base64 import urlsafe_b64encode
 from email.mime.multipart import MIMEMultipart
@@ -22,7 +22,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import SocialAPI
 from googleapiclient.discovery import build
 from . import library
-import logging
 from colorama import init, Fore
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
@@ -32,6 +31,7 @@ from rest_framework import status
 from collections import defaultdict
 
 # unused packages
+from google_auth_oauthlib.flow import InstalledAppFlow
 import requests
 from oauth2client import client
 import google.auth
@@ -71,9 +71,9 @@ SCOPES = [
     OPENID_SCOPE,
     OTHER_CONTACT_READONLY_SCOPE
 ]
-CONFIG = json.load(open('google_creds.json', 'r'))
+CONFIG = json.load(open('creds/google_creds.json', 'r'))
 # TODO change uri but first add it on the redirects uri in the google app project
-#redirect_uri = 'http://localhost:9000/google-auth-callback/'
+#redirect_uri = 'http://localhost:9000/MailAssistant/google/auth_callback/'
 CALLBACK_REDIRECT_URI = 'http://localhost:9000/google-login/'
 SIGN_UP_REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
@@ -160,7 +160,7 @@ def refresh_credentials(creds):
 
 def save_credentials(creds, user):
     try:
-        social_api, created = SocialAPI.objects.get_or_create(user=user, type_api='google')
+        social_api, _ = SocialAPI.objects.get_or_create(user=user, type_api='google')
         social_api.access_token = creds.token
         social_api.refresh_token = creds.refresh_token
         social_api.save()
@@ -306,53 +306,6 @@ def get_unique_senders(services) -> dict:
 
     return senders_info
 
-
-# GOOGLE # gets list of emails based on names
-def _get_contacts(name, service_name,resource_name):
-    services = authenticate_service()
-    service = services[service_name]
-    # print("_"+name+"_")
-    if name:
-        # Call the People API
-        if service_name=='contacts':
-            results = service.people().connections().list(
-                resourceName='people/me',
-                pageSize=1000,
-                personFields='names,emailAddresses').execute()
-        else:
-            results = service.otherContacts().list(
-                pageSize=1000,
-                readMask='names,emailAddresses').execute()
-        # if resource_name == 'otherContacts':print('results: ',results)
-        connections = results.get(resource_name, [])
-        matching_contacts = []
-
-        for person in connections:
-            names = person.get('names', [])
-            email_addresses = person.get('emailAddresses', [])
-            if email_addresses:  # checking if there's an email address
-                email = email_addresses[0].get('value')  # get the primary email address
-                
-                # If there's a display name and it matches the search, add it
-                if names and name.lower() in names[0].get('displayName', '').lower():
-                    full_name = names[0].get('displayName')
-                    # matching_contacts.append((full_name, email))
-                    matching_contacts.append(email)
-                elif name.lower() in email.lower():
-                    if names:
-                        full_name = names[0].get('displayName')
-                    else:
-                        full_name = None
-                    # matching_contacts.append((full_name, email))
-                    matching_contacts.append(email)
-
-        return matching_contacts
-    else:
-        return []
-
-
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_profile_image(request):
@@ -372,6 +325,8 @@ def get_profile_image(request):
             return Response({'profile_image_url': photo_url})
     
     return Response({'error': 'Profile image not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 ######################## Read Mails ########################
 def parse_name_and_email(header_value):
@@ -803,26 +758,7 @@ def get_calendar_events(services):
     for item in events:
         print('item: ',item)
 
-# Fetch all the mail in the mailbox of the user => WORKS but it take to much time
-'''
-def get_unique_senders(services):
-    service = services['gmail.readonly']
-    results = service.users().messages().list(userId='me', labelIds = ['INBOX']).execute()
-    messages = results.get('messages', [])
 
-    email_addresses = set()
-
-    if not messages:
-        print('No messages found.')
-    else:
-        for message in messages:
-            msg = service.users().messages().get(userId='me', id=message['id'], format='metadata').execute()
-            headers = msg['payload']['headers']
-            sender = next(header['value'] for header in headers if header['name'] == 'From')
-            email_address = sender.split('<')[-1].split('>')[0].strip()
-            email_addresses.add(email_address)
-
-    return list(email_addresses)'''
 
 # Fetch the name and the email of the contacts of the user 
 def get_info_contacts(services):
@@ -937,6 +873,49 @@ def send_email_with_gmail(services, subject, message, to, cc, bcc, attachments=N
     raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
     body = {'raw': raw_message}
     service.users().messages().send(userId="me", body=body).execute()
+
+# GOOGLE # gets list of emails based on names
+def _get_contacts(name, service_name,resource_name):
+    services = authenticate_service()
+    service = services[service_name]
+    # print("_"+name+"_")
+    if name:
+        # Call the People API
+        if service_name=='contacts':
+            results = service.people().connections().list(
+                resourceName='people/me',
+                pageSize=1000,
+                personFields='names,emailAddresses').execute()
+        else:
+            results = service.otherContacts().list(
+                pageSize=1000,
+                readMask='names,emailAddresses').execute()
+        # if resource_name == 'otherContacts':print('results: ',results)
+        connections = results.get(resource_name, [])
+        matching_contacts = []
+
+        for person in connections:
+            names = person.get('names', [])
+            email_addresses = person.get('emailAddresses', [])
+            if email_addresses:  # checking if there's an email address
+                email = email_addresses[0].get('value')  # get the primary email address
+                
+                # If there's a display name and it matches the search, add it
+                if names and name.lower() in names[0].get('displayName', '').lower():
+                    full_name = names[0].get('displayName')
+                    # matching_contacts.append((full_name, email))
+                    matching_contacts.append(email)
+                elif name.lower() in email.lower():
+                    if names:
+                        full_name = names[0].get('displayName')
+                    else:
+                        full_name = None
+                    # matching_contacts.append((full_name, email))
+                    matching_contacts.append(email)
+
+        return matching_contacts
+    else:
+        return []
 
 ''' OLD CODE TO DELETE AFTER CHECKING
 def check_token_pickle():
@@ -1123,3 +1102,24 @@ def build_services(creds):
         'other.contacts': build('people', 'v1', http=authed_http),
     }
     return service'''
+
+# Fetch all the mail in the mailbox of the user => WORKS but it take to much time
+'''
+def get_unique_senders(services):
+    service = services['gmail.readonly']
+    results = service.users().messages().list(userId='me', labelIds = ['INBOX']).execute()
+    messages = results.get('messages', [])
+
+    email_addresses = set()
+
+    if not messages:
+        print('No messages found.')
+    else:
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id'], format='metadata').execute()
+            headers = msg['payload']['headers']
+            sender = next(header['value'] for header in headers if header['name'] == 'From')
+            email_address = sender.split('<')[-1].split('>')[0].strip()
+            email_addresses.add(email_address)
+
+    return list(email_addresses)'''

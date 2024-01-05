@@ -1,9 +1,9 @@
 from django.urls import path
 from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from MailAssistant import microsoft_api_c
+from MailAssistant import microsoft_api
 from MailAssistant import google_api
-#from MailAssistant import microsoft_api
+#from MailAssistant import microsoft_api_old
 
 
 app_name = 'MailAssistant'
@@ -52,16 +52,16 @@ urlpatterns = [
 
     ######################## Azure AD - OUTLOOK API ########################
     # authentification
-    path('generate-auth-url/', microsoft_api_c.generate_auth_url, name='generate_auth_url'),
-    path('auth_callback/', microsoft_api_c.auth_callback, name='auth_callback'),
+    path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'),
+    path('microsoft/auth_callback/', microsoft_api.auth_callback, name='microsoft_auth_callback'),
     # path('authenticate/', microsoft_api.authenticate_service, name='authenticate_service'),
     # path('callback/', microsoft_api.handle_callback, name='handle_callback'),
 
 
     ######################## GOOGLE GMAIL API ########################
     # authentification
-    path('google-auth-url/', google_api.generate_auth_url, name='google-auth-url'),
-    path('google-auth-callback/', google_api.auth_callback, name='google-auth-callback'),
+    path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'),
+    path('google/auth_callback/', google_api.auth_callback, name='google_auth_callback'),
     # requests URLs
     path('gmail/unread_mails/', google_api.unread_mails, name='unread_mails'),
     path('gmail/get_parsed_contacts/', google_api.get_parsed_contacts, name='get_parsed_contacts'),

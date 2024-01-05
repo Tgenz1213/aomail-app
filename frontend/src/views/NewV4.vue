@@ -474,7 +474,8 @@ const loadFileMetadataFromLocalStorage = () => {
 
 // function linked to ENTER key listeners
 function handleEnterKey(event) {
-  if (event.target.id === 'dynamicTextarea' && event.key === 'Enter') {
+  // Allow pressing Enter with Shift to create a line break
+  if (event.target.id === 'dynamicTextarea' && event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     handleAIClick();
   } 

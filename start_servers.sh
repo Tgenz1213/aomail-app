@@ -13,7 +13,8 @@ source "$ABS_PATH/backend/MailAssistant-venv/bin/activate"
 cd backend
 python3 manage.py makemigrations
 python3 manage.py migrate
-python3 manage.py runserver 9000 &  # Run the backend server in the background
+python3 manage.py runserver_plus 9000 --cert-file creds/localhost.crt & # Run the backend server in the background
+#python3 manage.py runserver 9000 &  # Run the backend server in the background
 
 # Move to the frontend directory, install dependencies, and start the server
 cd ../frontend

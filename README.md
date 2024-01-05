@@ -18,6 +18,22 @@ git clone -b prodvX https://your_pseudo:token@github.com/Teh45/MailAssistant.git
 pip install -r requirements.txt
 ```
 
+## Local Development Setup
+If you're developing on localhost, it's recommended to install the following browser extensions to handle CORS (Cross-Origin Resource Sharing) issues:
+
+### Chrome Extensions:
+- [CORS Unblock](https://chromewebstore.google.com/detail/cors-unblock/lfhmikememgdcahcdlaciloancbhjino)
+- [Allow CORS Access-Control](https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf)
+
+### Firefox Add-ons:
+- [CORS Unblock](https://addons.mozilla.org/en-US/firefox/addon/cors-unblock/)
+- [Access-Control-Allow-Origin](https://addons.mozilla.org/en-US/firefox/addon/access-control-allow-origin/)
+
+### Microsoft Edge Extensions:
+- [CORS Unblock](https://microsoftedge.microsoft.com/addons/detail/cors-unblock/hkjklmhkbkdhlgnnfbbcihcajofmjgbh?hl=es)
+- [Allow CORS AccessControl](https://microsoftedge.microsoft.com/addons/detail/allow-cors-accesscontro/bhjepjpgngghppolkjdhckmnfphffdag)
+
+
 ## Database Configuration
 # Start PostgreSQL service and configure the database
 ```sql

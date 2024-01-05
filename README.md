@@ -68,9 +68,18 @@ chmod +x start_servers.sh
 sudo ./start_servers.sh
 ```
 
-## Testing Gmail API Authentication
-To test the authentication for the Gmail API, you can use the following `curl` command by replacing `ACCESS_TOKEN` with your actual access token:
+## Gmail API Authentication & Backend Server Termination
 
+To test Gmail API authentication, utilize the provided `curl` command. Replace `YOUR_ACCESS_TOKEN` with your actual access token.
+
+### Testing Authentication:
 ```bash
 curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" http://localhost:9000/MailAssistant/api/authenticate-service
+```
+
+### Stopping the Backend Server:
+To stop the backend server running on port 9000, execute the following command:
+
+```bash
+sudo kill $(sudo lsof -t -i:9000)
 ```

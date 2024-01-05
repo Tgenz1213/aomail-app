@@ -37,8 +37,8 @@
             <div class="col-span-10 2xl:col-span-6">
                 <div class="flex flex-col xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
                     <main class="rounded-xl bg-gray-100 bg-opacity-75 ring-1 shadow-sm ring-black ring-opacity-5">
-                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                            <div class="grid grid-cols-10 gap-6 items-center divide-x divide-gray-300">
+                        <div class="w-full px-4 sm:px-6 lg:px-6">
+                            <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
                                 <div class="col-span-3 h-full justify-center">
                                     <!-- Assistant Up -->
                                     <div class="flex pt-6 pb-6">
@@ -58,22 +58,22 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-span-7 h-full flex items-center pb-5">
-                                    <div class="w-full flex items-center justify-center pt-5">
+                                <div class="pl-4 col-span-8 h-full flex items-center">
+                                    <div class="w-full flex items-center justify-center pb-5 pt-5">
                                         <div class="sm:hidden">
                                             <label for="tabs" class="sr-only">Select a tab</label>
                                             <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
                                             <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" v-model="selectedTopic">
-                                                <option v-for="category in categories" :key="category">{{ category }}</option>
+                                                <option v-for="category in categories" :key="category">{{ category.name }}</option>
                                             </select>
                                         </div>
                                         <div class="hidden sm:block w-full">
-                                            <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
-                                                <a v-for="category in categories" :key="category" href="#" @click="selectCategory(category)" class="group flex gap-x-4 items-center text-gray-600 rounded-md px-8 py-2 text-sm font-medium" :class="{'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category, 'text-gray-600 hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800': selectedTopic !== category}">
-                                                    {{ category }}
+                                            <nav class="flex flex-wrap justify-center w-full" aria-label="Tabs">
+                                                <a v-for="category in categories" :key="category" href="#" @click="selectCategory(category)" class="group flex gap-x-4 items-center text-gray-600 rounded-md px-6 py-2 text-sm font-medium" :class="{'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category, 'text-gray-600 hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800': selectedTopic !== category}">
+                                                    {{ category.name }}
                                                     <span v-if="emails[category] && emails[category].length > 0" class="bg-gray-100 text-gray-900 ml-3 hidden rounded-full py-0.5 px-2.5 text-xs font-medium md:inline-block">{{ emails[category].length }}</span>
-                                                    <span class="hidden group-hover:block mr-2">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 hover:text-black" @click.stop="openUpdateModal">
+                                                    <span class="opacity-0 group-hover:opacity-100">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 hover:text-black" @click.stop="openUpdateModal(category)">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                         </svg>
                                                     </span>
@@ -266,12 +266,13 @@
     <UpdateCategoryModal
     :isOpen="isModalUpdateOpen" 
     :errorMessage="modalUpdateErrorMessage"
-    :category="selectedCategory"
+    :category="categoryToUpdate"
     @closeModal="closeUpdateModal"
     @updateCategory="handleUpdateCategory"
+    @deleteCategory="handleCategoryDelete"
     />
-    <!-- Notification -->
-    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6">
+    <!-- Notification new category created -->
+    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:p-6">
         <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
         <transition
             enter-active-class="transform ease-out duration-300 transition"
@@ -280,18 +281,82 @@
             leave-active-class="transition ease-in duration-100"
             leave-from-class="opacity-100"
             leave-to-class="opacity-0">
-            <div v-if="showNotification" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
+            <div v-if="showNewCategoryNotif" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
             <div class="p-4">
                 <div class="flex items-start">
                 <div class="flex-shrink-0">
                     <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
                 </div>
                 <div class="ml-3 w-0 flex-1 pt-0.5">
-                    <p class="text-sm font-medium text-gray-900">Mail envoyé !</p>
-                    <p class="mt-1 text-sm text-gray-900">Votre email a était envoyé avec succès.</p>
+                    <p class="text-sm font-medium text-gray-900">Categorie créée !</p>
+                    <p class="mt-1 text-sm text-gray-900">Votre catégorie a été créée avec succès</p>
                 </div>
                 <div class="ml-4 flex flex-shrink-0">
-                    <button type="button" @click="showNotification = false" class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
+                    <button type="button" @click="showNewCategoryNotif = false" class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
+                    <span class="sr-only">Close</span>
+                    <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
+                    </button>
+                </div>
+                </div>
+            </div>
+            </div>
+        </transition>
+        </div>
+    </div>
+    <!-- Notification category updated -->
+    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:p-6">
+        <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+        <transition
+            enter-active-class="transform ease-out duration-300 transition"
+            enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <div v-if="showUpdateCategoryNotif" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
+            <div class="p-4">
+                <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-gray-900">Categorie mis à jour !</p>
+                    <p class="mt-1 text-sm text-gray-900">Votre catégorie a été mis à jour avec succès</p>
+                </div>
+                <div class="ml-4 flex flex-shrink-0">
+                    <button type="button" @click="showUpdateCategoryNotif = false" class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
+                    <span class="sr-only">Close</span>
+                    <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
+                    </button>
+                </div>
+                </div>
+            </div>
+            </div>
+        </transition>
+        </div>
+    </div>
+    <!-- Notification category deleted -->
+    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:p-6">
+        <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
+        <transition
+            enter-active-class="transform ease-out duration-300 transition"
+            enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+            enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0">
+            <div v-if="showDeleteCategoryNotif" class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
+            <div class="p-4">
+                <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
+                </div>
+                <div class="ml-3 w-0 flex-1 pt-0.5">
+                    <p class="text-sm font-medium text-gray-900">Categorie supprimé !</p>
+                    <p class="mt-1 text-sm text-gray-900">Votre catégorie a été supprimée avec succès</p>
+                </div>
+                <div class="ml-4 flex flex-shrink-0">
+                    <button type="button" @click="showDeleteCategoryNotif = false" class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
                     <span class="sr-only">Close</span>
                     <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
                     </button>
@@ -517,7 +582,7 @@ export default {
             return duration;
         },
         selectCategory(category) {
-            this.selectedTopic = category;
+            this.selectedTopic = category.name;
             console.log("CHANGE CATEGORY");
         },
         openModal() {
@@ -527,19 +592,133 @@ export default {
             this.isModalOpen = false;
         },
         openUpdateModal(category) {
-            console.log("CATEGORY", category);
-            this.selectedCategory = category;
+            console.log("CATEGORY TO UPDATE : ", category);
+            this.oldCategoryName = category.name;
+            this.categoryToUpdate = category;
             this.isModalUpdateOpen = true;
         },
         closeUpdateModal() {
             this.isModalUpdateOpen = false;
         },
-        handleAddCategory(categoryData) {
+        async handleAddCategory(categoryData) {
             console.log('Category Added:', categoryData);
+            try {
+                const response = await this.fetchWithToken('http://localhost:9000/MailAssistant/api/set_category/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: categoryData.name,
+                    description: categoryData.description,
+                }),
+                });
+
+                if (response) {
+                    console.log('Category added:', response);
+                    this.showNewCategoryNotif = true;
+                    this.closeModal();
+                    const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+                    console.log("CategoryData", categoryData);
+                    this.categories = categoryData.map(category => ({
+                        name: category.name,
+                        description: category.description
+                    }));
+                    console.log("Assigned categories:", this.categories);
+                    setTimeout(() => {
+                        this.showNewCategoryNotif = false;
+                    }, 2000);
+
+                }
+            } catch (error) {
+                console.error('Error adding category:', error);
+                this.showNewCategoryNotif = false; 
+                // Handle the error
+            }
         },
-        handleUpdateCategory(updatedCategory) {
+        async handleUpdateCategory(updatedCategory) {
             console.log('Category Data to Update:', updatedCategory);
+            if (!updatedCategory.name.trim()) {
+                console.error('Error: Category name cannot be empty');
+                return;
+            }
+            const updateData = {
+                name: updatedCategory.name,
+                description: updatedCategory.description
+            };
+            try {
+                const url = `http://localhost:9000/MailAssistant/api/update_category/${this.oldCategoryName}/`; // Adjust the URL as needed
+                const options = {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData)
+                };
+                const response = await this.fetchWithToken(url, options);
+
+                if (response) {
+                    console.log('Category updated:', response);
+                    this.showUpdateCategoryNotif = true;
+                    this.closeUpdateModal();
+                    const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+                    console.log("CategoryData", categoryData);
+                    this.categories = categoryData.map(category => ({
+                        name: category.name,
+                        description: category.description
+                    }));
+                    console.log("Assigned categories:", this.categories);
+                    setTimeout(() => {
+                        this.showUpdateCategoryNotif = false;
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error updating category:', error);
+                this.showUpdateCategoryNotif = false;
+                // Handle the error
+            }
         },
+        async handleCategoryDelete(categoryNameToDelete) {
+            console.log("Category to delete", categoryNameToDelete);
+            if (!categoryNameToDelete.trim()) {
+                console.error('Error: Category name cannot be empty');
+                return;
+            }
+
+            try {
+                const url = `http://localhost:9000/MailAssistant/api/delete_category/${categoryNameToDelete}/`;
+
+                const options = {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                const response = await this.fetchWithToken(url, options);
+
+                if (response) {
+                    console.log('Category deleted:', response);
+                    this.showDeleteCategoryNotif = true;
+                    this.closeUpdateModal();
+                    // Fetch the categories
+                    const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+                    console.log("CategoryData", categoryData);
+                    this.categories = categoryData.map(category => ({
+                        name: category.name,
+                        description: category.description
+                    }));
+                    console.log("Assigned categories:", this.categories);
+                    setTimeout(() => {
+                        this.showDeleteCategoryNotif = false;
+                    }, 2000)
+                }
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                this.showDeleteCategoryNotif = false;
+                // Handle the error
+            }
+        }
     },
     async mounted() {
         console.log("COOKIES",document.cookie);
@@ -564,7 +743,10 @@ export default {
             // Fetch the categories
             const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
             console.log("CategoryData", categoryData);
-            this.categories = categoryData.map(category => category.name);
+            this.categories = categoryData.map(category => ({
+                name: category.name,
+                description: category.description
+            }));
             console.log("Assigned categories:", this.categories);
 
             // Fetch emails
@@ -596,11 +778,16 @@ export default {
             modalErrorMessage: '',
             modalUpdateErrorMessage: '',
             selectedCategory: null,
+            categoryToUpdate: null,
             messageText: '',
             categories: [],
             selectedTopic: 'Administrative',
             bgColor: 'bg-gradient-to-r from-sky-300 to-blue-300',
             selectedEmail: null,
+            showNewCategoryNotif: false,
+            showUpdateCategoryNotif: false,
+            showDeleteCategoryNotif: false,
+            oldCategoryName: '',
             // emails: { "": {
             //     "Important": [],
             //     "Information": [],

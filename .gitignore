@@ -1,7 +1,8 @@
+# auto created files
 .DS_Store
 node_modules
 /dist
-
+db.sqlite3
 
 # local env files
 .env.local

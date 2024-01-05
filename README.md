@@ -34,6 +34,19 @@ If you're developing on localhost, it's recommended to install the following bro
 - [Allow CORS AccessControl](https://microsoftedge.microsoft.com/addons/detail/allow-cors-accesscontro/bhjepjpgngghppolkjdhckmnfphffdag)
 
 
+**M365 Licenses Error:**
+If you encounter the following error while accessing data:
+```json
+{
+  "error": {
+    "code": "MailboxNotEnabledForRESTAPI",
+    "message": "The mailbox is either inactive, soft-deleted, or is hosted on-premise."
+  }
+}
+```
+This error typically indicates that your account does not have the proper license to access the requested data thus you have to pay a M365 license.
+
+
 ## Database Configuration
 # Start PostgreSQL service and configure the database
 ```sql

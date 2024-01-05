@@ -3,7 +3,6 @@ from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from MailAssistant import microsoft_api
 from MailAssistant import google_api
-#from MailAssistant import microsoft_api_old
 
 
 app_name = 'MailAssistant'
@@ -53,13 +52,17 @@ urlpatterns = [
     path('api/delete_category/<str:currentName>/', views.delete_category, name="delete_category"),
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
+
     ######################## Azure AD - OUTLOOK API ########################
     # authentification
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'),
     path('microsoft/auth_callback/', microsoft_api.auth_callback, name='microsoft_auth_callback'),
-    # path('authenticate/', microsoft_api.authenticate_service, name='authenticate_service'),
-    # path('callback/', microsoft_api.handle_callback, name='handle_callback'),
-
+    # requests URLs
+    path('microsoft/unread_mails/', microsoft_api.unread_mails, name='microsoft_unread_mails'),
+    path('microsoft/get_parsed_contacts/', microsoft_api.get_parsed_contacts, name='microsoft_get_parsed_contacts'),
+    path('microsoft/get_profile_image/', microsoft_api.get_profile_image, name='microsoft_get_profile_image'),
+    path('microsoft/send_email/', microsoft_api.send_email, name='microsoft_send_email'),
+    
 
     ######################## GOOGLE GMAIL API ########################
     # authentification

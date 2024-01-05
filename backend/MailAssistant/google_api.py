@@ -280,7 +280,8 @@ def get_parsed_contacts(request) -> list:
 def get_unique_senders(services) -> dict:
     """Fetches unique sender information from Gmail messages"""
     service = services['gmail.readonly']
-    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=50).execute()
+    limit = 50
+    results = service.users().messages().list(userId='me', labelIds=['INBOX'], maxResults=limit).execute()
     messages = results.get('messages', [])
 
     senders_info = {}

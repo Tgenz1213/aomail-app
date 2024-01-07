@@ -1,3 +1,8 @@
+"""
+Microsoft Graph API Handler
+
+Manages authentication and HTTP requests for the Microsoft Graph API.
+"""
 import json
 import logging
 import requests
@@ -100,11 +105,9 @@ def exchange_code_for_tokens(authorization_code):
 
 
 
-######################## MICROSOFT GRAPH API REQUESTS ########################
+######################## ONLY FOR TESTING PURPOSES ########################
 def get_perso_info(access_token):
-    """Returns several public informations about the profile
-    ONLY FOR TESTING PURPOSES
-    """
+    """Returns several public informations about the profile"""
 
     # Define the Microsoft Graph API endpoint for reading emails
     graph_api_endpoint = f'{GRAPH_URL}me'
@@ -214,34 +217,26 @@ def get_profile_image(request):
     access_token = ""
 
     try:
-        if access_token:
-            headers = {
-                'Authorization': f'Bearer {access_token}'
-            }
+        headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
 
-            # Endpoint to get the user's profile photo
-            graph_endpoint = 'https://graph.microsoft.com/v1.0/me/photo/$value'
-            response = requests.get(graph_endpoint, headers=headers)
+        graph_endpoint = 'https://graph.microsoft.com/v1.0/me/photo/$value'
+        response = requests.get(graph_endpoint, headers=headers)
 
-            if response.status_code == 200:
-                # Assuming the image is provided as a URL in the response
-                photo_url = response.json().get('@odata.mediaEditLink', '')
-                if photo_url:
-                    return JsonResponse({'profile_image_url': photo_url})
-                else:
-                    return JsonResponse({'error': 'Profile image URL not found in response'}, status=500)
-            elif response.status_code == 404:
-                return JsonResponse({'error': 'Profile image not found'}, status=404)
+        if response.status_code == 200:
+            photo_url = response.json().get('@odata.mediaEditLink', '')
+            if photo_url:
+                return JsonResponse({'profile_image_url': photo_url}, status=200)
             else:
-                default_img_url = "PATH_TO_IMG"
-                return JsonResponse({'error': default_img_url}, status=response.status_code)
-
+                return JsonResponse({'error': 'Profile image URL not found in response'}, status=404)
+        elif response.status_code == 404:
+            return JsonResponse({'error': 'Profile image not found'}, status=response.status_code)
         else:
-            return JsonResponse({'error': 'Access token not found'}, status=400)
+            return JsonResponse({'error': "Failed to retrieve profile image"}, status=response.status_code)
 
     except Exception as e:
-        logging.exception(f"Error retrieving profile image: {e}")
-        return JsonResponse({'error': str(e)}, status=500)   
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 

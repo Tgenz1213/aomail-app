@@ -1,3 +1,8 @@
+"""
+Google Gmail API Handler
+
+Manages authentication and HTTP requests for the Gmail API.
+"""
 import base64
 import re
 import time
@@ -192,7 +197,9 @@ def authenticate_service(user) -> dict:
     service = build_services(creds)
     return service
 
-######################## GMAIL API REQUESTS ########################
+
+
+######################## EMAIL REQUESTS ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def unread_mails(request):
@@ -218,6 +225,9 @@ def unread_mails(request):
         logging.error(f"{Fore.RED}An error occurred: {e}")
         return JsonResponse({'unreadCount': 0}, status=400)
 
+
+
+######################## PROFILE REQUESTS ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_parsed_contacts(request) -> list:
@@ -311,21 +321,24 @@ def get_unique_senders(services) -> dict:
 @permission_classes([IsAuthenticated])
 def get_profile_image(request):
     """Returns the profile image of the user"""
+    Response({'error': f"Error retrieving profile image: {e}"}, status=505)
     user = request.user
     credentials = get_credentials(user)
     service = build_services(credentials)['profile']
 
-    # Get user profile
-    profile = service.people().get(resourceName='people/me', personFields='photos').execute()
+    try:
+        profile = service.people().get(resourceName='people/me', personFields='photos').execute()
 
-    # Extract profile image URL if available
-    if 'photos' in profile:
-        photos = profile['photos']
-        if photos:
-            photo_url = photos[0]['url']
-            return Response({'profile_image_url': photo_url})
-    
-    return Response({'error': 'Profile image not found'}, status=status.HTTP_404_NOT_FOUND)
+        if 'photos' in profile:
+            photos = profile['photos']
+            if photos:
+                photo_url = photos[0]['url']
+                return Response({'profile_image_url': photo_url})
+        
+        return Response({'profile_image_url': "Profile image URL not found in response"}, status=404)
+
+    except Exception as e:
+        return Response({'error': f"Error retrieving profile image: {e}"}, status=505)
 
 
 

@@ -507,11 +507,10 @@ const handleAIClick = () => {
   })
   .then(response => response.json())
   .then(data => {
-    const imageURL = data.profile_image_url; // Extracts the profile image URL from the fetched data
-
+    let imageURL = data.profile_image_url || require('@/assets/user.png');
     const profileImageHTML = `
       <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
-      `;
+    `;
 
       // Create the complete message HTML with the profile image and text
       messageHTML = `

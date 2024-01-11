@@ -4,52 +4,36 @@ Google Gmail API Handler
 Manages authentication and HTTP requests for the Gmail API.
 """
 import base64
+import email
+import json
+import logging
+import random
 import re
 import time
-import random
-import json
-import email
-import logging
+from collections import defaultdict
+from colorama import Fore, init
+from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
-from base64 import urlsafe_b64encode
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from .forms import MailForm
-from googleapiclient.errors import HttpError
-from google.auth.exceptions import RefreshError
 from google.auth import exceptions as auth_exceptions
+from google.auth.transport.requests import Request
 from google.oauth2 import credentials
-from django.core.exceptions import ObjectDoesNotExist
-from .models import SocialAPI
 from googleapiclient.discovery import build
-from . import library
-from colorama import init, Fore
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from googleapiclient.errors import HttpError
+from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
-from collections import defaultdict
+from . import library
+from .forms import MailForm
+from .models import SocialAPI
+from base64 import urlsafe_b64encode
 
-# unused packages
-from google_auth_oauthlib.flow import InstalledAppFlow
-import requests
-from oauth2client import client
-import google.auth
-from google.auth.transport import requests as google_requests
-from django.contrib.auth.models import User
-import datetime
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
-from google.oauth2.credentials import Credentials
-import httplib2
-from google.auth.transport.urllib3 import AuthorizedHttp
-import os.path
-import pickle
 
 
 # Initialize colorama with autoreset
@@ -76,18 +60,16 @@ SCOPES = [
     OPENID_SCOPE,
     OTHER_CONTACT_READONLY_SCOPE
 ]
-CONFIG = json.load(open('creds/google_creds.json', 'r'))
-# TODO change uri but first add it on the redirects uri in the google app project
-#redirect_uri = 'http://localhost:9000/MailAssistant/google/auth_callback/'
-CALLBACK_REDIRECT_URI = 'http://localhost:9000/google-login/'
-SIGN_UP_REDIRECT_URI = 'http://localhost:8080/signup_part2'
+GOOGLE_CREDS = 'creds/google_creds.json'
+CONFIG = json.load(open(GOOGLE_CREDS, 'r'))
+CALLBACK_REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
 
 ######################## AUTHENTIFICATION ########################
 def generate_auth_url(request):
-    """Generate a connection URL to obtain the authorization code"""    
+    """Generate a connection URL to obtain the authorization code"""
     flow = Flow.from_client_secrets_file(
-        'google_creds.json',
+        GOOGLE_CREDS,
         scopes = SCOPES,
         redirect_uri = CALLBACK_REDIRECT_URI
     )
@@ -101,41 +83,25 @@ def generate_auth_url(request):
     return redirect(authorization_url)
 
 def exchange_code_for_tokens(authorization_code):
-    """Exchanges the authorization code for tokens and saves them in mailassistantdb"""
+    """Return tokens Exchanged with authorization code"""
     flow = Flow.from_client_secrets_file(
-        'google_creds.json',
+        GOOGLE_CREDS,
         scopes = SCOPES,
-        redirect_uri = SIGN_UP_REDIRECT_URI
+        redirect_uri = CALLBACK_REDIRECT_URI
     )
-
-    # Exchange the authorization code for tokens
     flow.fetch_token(code=authorization_code)
-    # Extract the tokens from the credentials
-    credentials = flow.credentials
-    access_token = credentials.token
-    refresh_token = credentials.refresh_token    
 
-    # TODO: Save tokens in mailassistantdb
+    credentials = flow.credentials   
+
+    if credentials:
+        access_token = credentials.token
+        refresh_token = credentials.refresh_token
+        
+        return access_token, refresh_token
+    else:
+        return Response({'error': 'tokens not found'}, status=400)
 
 
-def auth_callback(request):
-    """Handles the callback after user authorization"""
-    authorization_response = request.build_absolute_uri()
-
-    logging.info(f"{Fore.YELLOW}AUTH RESPONSE: {authorization_response}")
-
-    authorization_code = request.GET.get('code')
-
-    if not authorization_code:
-        return Response({
-            'error': 'No authorization code provided'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    exchange_code_for_tokens(authorization_code)
-    
-    # Redirect to home page
-    return HttpResponseRedirect('http://localhost:8080/home')
 
 ######################## AUTHENTIFICATION WITH JWT ########################
 def get_credentials(user):
@@ -285,7 +251,7 @@ def get_parsed_contacts(request) -> list:
         return Response(parsed_contacts)
     except Exception as e:
         logging.exception("Error fetching contacts:")
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': str(e)}, status=500)
 
 def get_unique_senders(services) -> dict:
     """Fetches unique sender information from Gmail messages"""

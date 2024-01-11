@@ -1,7 +1,30 @@
 {
-    "client_id": "900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com",
-    "client_secret": "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",
-    "redirect_uris": [],
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://accounts.google.com/o/oauth2/token"
+    "web": {
+        "client_id": "900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com",
+        "project_id": "chrome-cipher-268712",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_secret": "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",
+        "redirect_uris": [
+            "http://localhost:9000/",
+            "http://localhost:9000/accounts/google/login/callback/",
+            "http://localhost:8080/signup/",
+            "http://localhost:8080/",
+            "http://localhost:9000/dj-rest-auth/",
+            "http://localhost:9000/dj-rest-auth/google/login/callback",
+            "http://localhost:9000/google-login/",
+            "http://localhost:8080/signup",
+            "http://localhost:9000/oauth/callback",
+            "http://localhost:8080/signup_part2",
+            "http://localhost:9000/MailAssistant/google/auth_callback/"
+        ],
+        "javascript_origins": [
+            "http://localhost:8080",
+            "http://localhost",
+            "https://localhost",
+            "https://localhost:8080",
+            "http://localhost:9000"
+        ]
+    }
 }

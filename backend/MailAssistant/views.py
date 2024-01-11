@@ -7,8 +7,9 @@ import logging
 import json
 from colorama import Fore, init
 import jwt
+import requests
 from rest_framework_simplejwt.settings import api_settings
-
+from rest_framework.authtoken.models import Token
 #### FOR AUTH TO THE API
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -42,7 +43,7 @@ from . import google_api, microsoft_api
 # To test co to google_api
 from django.http import JsonResponse
 from django.views import View
-from .google_api import authenticate_service 
+from .google_api import authenticate_service, exchange_code_for_tokens 
 from .google_api import get_mail, get_unique_senders, get_info_contacts, find_user_in_emails, send_email_with_gmail
 
 # OpenAI - ChatGPT
@@ -1207,6 +1208,94 @@ def search_chat_reply(query_list):
 
 ######################## Other ########################
 
+######################## REGISTRATION ########################
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signup(request):
+    """REGISTER USER IN mailassistandb
+    
+    Handles the callback of the API with Oauth2.0
+    API taken into account:
+    - Gmail API (Google)
+    - Graph API (Microsoft)
+    """
+    # Extract user data from the request
+    type_api = request.data.get('type_api')
+    code = request.data.get('code')
+    username = request.data.get('login')
+    password = request.data.get('password')
+    theme = request.data.get('theme')
+    color = request.data.get('color')
+    categories = request.data.get('categories')
+
+    if not code:
+        return Response({'error': 'No authorization code provided'}, status=404)
+
+    # Check if user already exists
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    elif " " in username:
+        return Response({'error': 'Username must not contain spaces'}, status=400)
+    
+    # Checks passwords requirements
+    #if not (8 <= len(password) <= 32):
+        #return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
+    if " " in password:
+        return Response({'error': 'Password must not contain spaces'}, status=400)
+    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', password):
+        return Response({'error': 'Password contains invalid characters'}, status=400)
+
+    # Checks if the authorization code is valid
+    if type_api == "google":
+        # callback for Google API
+        try:
+            access_token, refresh_token = google_api.exchange_code_for_tokens(code)
+            print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
+        except Exception as e:
+            return Response({'error': e}, status=400)
+        
+    elif type_api == "microsoft":
+        # callback for Microsoft API
+        try:
+            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
+            print(f"{Fore.CYAN}[MICROSOFT]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
+        except Exception as e:
+            return Response({'error': e}, status=400)
+
+    # Create and save user
+    user = User.objects.create_user(username, '', password)
+    user_id = user.id
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    user.save()
+
+    # Save user preferences
+    preference = Preference(
+        theme=theme,
+        bg_color=color,
+        user=user
+    )
+    preference.save()
+
+    # Save user categories
+    if categories:
+        try:
+            categories_j = json.loads(categories)
+            for category_data in categories_j:
+                category_name = category_data.get('name')
+                category_description = category_data.get('description')
+
+                category = Category(
+                    name=category_name,
+                    description=category_description,
+                    user=user
+                )
+                category.save()
+        except json.JSONDecodeError:
+            return Response({'error': 'Invalid categories data'}, status=404)    
+
+    return Response({'user_id': user_id, "access_token": access_token}, status=201)
+
 
 def send_mail(request):
     return api_list[api_var].send_mail(request)
@@ -1231,7 +1320,8 @@ def login_page(request):
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
 
-def register(request):
+
+def register_old(request):
     # \"\"\"Handle user registration.\"\"\"
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -1245,7 +1335,7 @@ def register(request):
             return redirect('http://localhost:8080/')
     else:
         form = RegisterForm()
-    return render(request, 'register.html', {'form': form})
+        return render(request, 'register.html', {'form': form})
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -1281,19 +1371,27 @@ def register(request):
     # Extract user data from the request
     username = request.data.get('login')
     password = request.data.get('password')
-    #email = request.data.get('email')
     theme = request.data.get('theme')
     color = request.data.get('color')
     categories = request.data.get('categories')
-    access_token = request.data.get('access_token')
-    refresh_token = request.data.get('refresh_token')
+
+    #email = request.data.get('email')
+    #access_token = request.data.get('access_token')
+    #refresh_token = request.data.get('refresh_token')
+    
+    #if User.objects.filter(email=email).exists():
+    #    return Response({'error': 'Email already registered'}, status=400)
 
     # Check if user already exists
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists'}, status=400)
     
-    #if User.objects.filter(email=email).exists():
-    #    return Response({'error': 'Email already registered'}, status=400)
+    # Check password rquirement
+    if not 8 <= len(password) <= 32:
+        return Response({'error': 'Password lenght must be between 8 and 32 caracters'}, status=400)
+    elif " " in password:
+        return Response({'error': 'Incorrect password caracter'}, status=400)
+    
 
     # Create and save user
     user = User.objects.create_user(username, '', password)
@@ -1326,13 +1424,13 @@ def register(request):
 
     # Save user social api
     # FOR NOW : Just Google but will be uptdated
-    social_api = SocialAPI(
+    """social_api = SocialAPI(
         type_api="Google",
         access_token=access_token,
         refresh_token=refresh_token,
         user=user
     )
-    social_api.save()
+    social_api.save()"""
 
     # Save other user-related data like theme, color, and categories
     # This assumes you have related models or user profile extensions in place.

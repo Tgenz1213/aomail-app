@@ -463,7 +463,7 @@
 import { ref } from 'vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
-
+//import axios from 'axios';
 import {
   XMarkIcon
 } from '@heroicons/vue/24/outline'
@@ -510,22 +510,40 @@ export default {
     },
     nextStep0(event) {
       event.preventDefault();
+
+      // Checks passwords requirements
+      const passwordRegex  = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
+      const minLength = 8;
+      const maxLength = 32;
+
+      if (this.password.length < minLength || this.password.length > maxLength) {
+          this.passwordError = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
+          return;
+      }
+
+      if (this.password.includes(" ")) {
+          this.passwordError = 'Le mot de passe ne doit pas contenir d\'espaces';
+          return;
+      }
+
+      if (!passwordRegex .test(this.password)) {
+          this.passwordError = 'Le mot de passe contient des caractères invalides';
+          return;
+      }
+
       if (this.password !== this.confirmPassword) {
-        this.passwordError = 'Les mots de passes ne correspondent pas';
-        console.log(this.passwordError);
-        return; 
+          this.passwordError = 'Les mots de passe ne correspondent pas';
+          return;
+      } else if (!this.password.trim() || !this.confirmPassword.trim()) {
+          this.passwordError = 'Veuillez saisir un mot de passe';
+          return;
       }
-      else if (!this.password.trim() || !this.confirmPassword.trim()) {
-        this.passwordError = 'Veuillez saisir un mot de passe';
-        console.log(this.passwordError);
-        return; 
-      }
-      
-      localStorage.setItem('login', this.login);  
-      localStorage.setItem('password', this.password);
-      
+
+      sessionStorage.setItem('login', this.login);
+      sessionStorage.setItem('password', this.password);
+
       this.step++;
-    },
+  },
     nextStep1() {
       this.color = this.bgColor;
       localStorage.setItem('color', this.bgColor);  
@@ -561,7 +579,13 @@ export default {
     },
     async submitSignupData(event) {
       event.preventDefault();
-      this.$router.push({ name: 'signup_part2' });
+      try {
+        // Authentification first part done
+        this.$router.push({ name: 'signup_part2' });
+      }
+      catch (error) {
+        console.error('Error:', error);
+      }
     },
   }
 }

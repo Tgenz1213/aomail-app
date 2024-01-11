@@ -8,6 +8,7 @@ import logging
 import requests
 from urllib.parse import urlencode
 from urllib.parse import urlparse, parse_qs
+from rest_framework.response import Response
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
@@ -41,8 +42,7 @@ CONFIG = json.load(open('creds/microsoft_creds.json', 'r'))
 # localhost authority
 AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
 GRAPH_URL = 'https://graph.microsoft.com/v1.0/'
-REDIRECT_URI = 'https://localhost:9000/MailAssistant/microsoft/auth_callback/'
-# https://localhost:9000/MailAssistant/microsoft/auth_url/
+REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
 
 
@@ -57,36 +57,13 @@ def generate_auth_url(request):
         'scope': ' '.join(SCOPES),
         'state': '0a590ac7-6a23-44b1-9237-287743818d32'
     }
-    auth_url = f'{AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}'
-    return redirect(auth_url)
+    authorization_url = f'{AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}'
 
-def auth_callback(request):
-    """Retrieve the authorization code from the callback response"""
-    parsed_url = urlparse(request.build_absolute_uri())
-    query_params = parse_qs(parsed_url.query)
-    authorization_code = query_params.get('code', [''])[0]
-
-    if authorization_code:
-        tokens = exchange_code_for_tokens(authorization_code)
-        access_token = tokens['access_token']        
-        refresh_token = tokens['refresh_token']
-
-
-        # TODO: Save tokens in DB
-        
-        if access_token:
-            # testing access token
-            print(get_perso_info(access_token))
-
-
-            return HttpResponseRedirect('http://localhost:8080/')
-        else:
-            return JsonResponse({'error': 'Failed to obtain access token'}, status=400)
-    else:
-        return JsonResponse({'error': 'Code not found'}, status=400)
+    # Redirect the user to Microsoft's consent screen
+    return redirect(authorization_url)
 
 def exchange_code_for_tokens(authorization_code):
-    """Returns the access token"""
+    """Returns the access token and the refresh token"""
     app = ConfidentialClientApplication(
         client_id=CONFIG["client_id"],
         client_credential=CONFIG["client_secret"],
@@ -99,9 +76,9 @@ def exchange_code_for_tokens(authorization_code):
         redirect_uri=REDIRECT_URI
     )    
     if result:
-        return result
+        return result['access_token'], result['refresh_token']
     else:
-        return JsonResponse({'error': 'Access token not found'}, status=400)
+        return Response({'error': 'tokens not found'}, status=400)
 
 
 

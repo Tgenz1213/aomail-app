@@ -8,10 +8,8 @@ from MailAssistant import google_api
 app_name = 'MailAssistant'
 
 urlpatterns = [
+    ######################## Actuals URLs ########################
     path('', views.home_page, name="home_page"),
-    path('login/', views.login_page, name="login"),
-    path('logout/', views.logout_user, name="logout"),
-    path('register/', views.register, name="register"),
     path('message/', views.get_message, name='get_message'), # TO TEST
     path('user/categories/', views.get_user_categories, name='user-categories'),
     path('user/emails/', views.get_user_emails, name='user-emails'),
@@ -53,10 +51,13 @@ urlpatterns = [
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
 
+    
+    # Auth Full backend - register user
+    path('signup/', views.signup, name="signup"),
+
     ######################## Azure AD - OUTLOOK API ########################
     # authentification
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'),
-    path('microsoft/auth_callback/', microsoft_api.auth_callback, name='microsoft_auth_callback'),
     # requests URLs
     path('microsoft/unread_mails/', microsoft_api.unread_mails, name='microsoft_unread_mails'),
     path('microsoft/get_parsed_contacts/', microsoft_api.get_parsed_contacts, name='microsoft_get_parsed_contacts'),
@@ -67,7 +68,6 @@ urlpatterns = [
     ######################## GOOGLE GMAIL API ########################
     # authentification
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'),
-    path('google/auth_callback/', google_api.auth_callback, name='google_auth_callback'),
     # requests URLs
     path('gmail/unread_mails/', google_api.unread_mails, name='unread_mails'),
     path('gmail/get_parsed_contacts/', google_api.get_parsed_contacts, name='get_parsed_contacts'),

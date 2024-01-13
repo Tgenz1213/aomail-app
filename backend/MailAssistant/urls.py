@@ -9,7 +9,7 @@ app_name = 'MailAssistant'
 
 urlpatterns = [
     ######################## Actuals URLs ########################
-    path('', views.home_page, name="home_page"),
+    path('', views.home_page, name='home_page'),
     path('message/', views.get_message, name='get_message'), # TO TEST
     path('user/categories/', views.get_user_categories, name='user-categories'),
     path('user/emails/', views.get_user_emails, name='user-emails'),
@@ -40,28 +40,36 @@ urlpatterns = [
     path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'),
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'),
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'),
-    path('api/send_mails/', views.send_email, name="send_mails"),
-    path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name="generate_email_response_keywords"),
-    path('api/generate_email_answer/', views.generate_email_answer, name="generate_email_answer"),
-    path('api/get_answer_later_emails/', views.get_answer_later_emails, name="get_answer_later_emails"),
+    path('api/send_mails/', views.send_email, name='send_mails'),
+    path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name='generate_email_response_keywords'),
+    path('api/generate_email_answer/', views.generate_email_answer, name='generate_email_answer'),
+    path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'),
     path('api/delete_account/', views.delete_account, name='delete_account'),
-    path('api/set_category/', views.set_category, name="set_category"),
-    path('api/update_category/<str:currentName>/', views.update_category, name="update_category"),
-    path('api/delete_category/<str:currentName>/', views.delete_category, name="delete_category"),
+    path('api/set_category/', views.set_category, name='set_category'),
+    path('api/update_category/<str:currentName>/', views.update_category, name='update_category'),
+    path('api/delete_category/<str:currentName>/', views.delete_category, name='delete_category'),
     #path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
 
 
     
     # Auth Full backend - register user
-    path('signup/', views.signup, name="signup"),
+    path('signup/', views.signup, name='signup'),
+    path('check_username/', views.check_username, name='check_username'),
+
+
+    ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
+    path('api/unread_mails/', views.unread_mails, name='unread_mails'),
+    path('api/get_profile_image/', views.get_profile_image, name='get_profile_image'),
+    path('api/get_parsed_contacts/', views.get_parsed_contacts, name='get_parsed_contacts'),
+
 
     ######################## Azure AD - OUTLOOK API ########################
     # authentification
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'),
     # requests URLs
-    path('microsoft/unread_mails/', microsoft_api.unread_mails, name='microsoft_unread_mails'),
-    path('microsoft/get_parsed_contacts/', microsoft_api.get_parsed_contacts, name='microsoft_get_parsed_contacts'),
-    path('microsoft/get_profile_image/', microsoft_api.get_profile_image, name='microsoft_get_profile_image'),
+    #path('microsoft/unread_mails/', microsoft_api.unread_mails, name='microsoft_unread_mails'),
+    #path('microsoft/get_parsed_contacts/', microsoft_api.get_parsed_contacts, name='microsoft_get_parsed_contacts'),
+    #path('microsoft/get_profile_image/', microsoft_api.get_profile_image, name='microsoft_get_profile_image'),
     path('microsoft/send_email/', microsoft_api.send_email, name='microsoft_send_email'),
     
 
@@ -69,7 +77,7 @@ urlpatterns = [
     # authentification
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'),
     # requests URLs
-    path('gmail/unread_mails/', google_api.unread_mails, name='unread_mails'),
-    path('gmail/get_parsed_contacts/', google_api.get_parsed_contacts, name='get_parsed_contacts'),
-    path('gmail/get_profile_image/', google_api.get_profile_image, name='get_profile_image'),
+    #path('gmail/unread_mails/', google_api.unread_mails, name='unread_mails'),
+    #path('gmail/get_parsed_contacts/', google_api.get_parsed_contacts, name='get_parsed_contacts'),
+    #path('gmail/get_profile_image/', google_api.get_profile_image, name='get_profile_image'),
 ]

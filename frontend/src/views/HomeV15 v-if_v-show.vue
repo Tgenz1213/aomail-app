@@ -320,7 +320,7 @@ export default {
     async mounted() {
         this.animateText();
         // Fetch the token. This can be from a Vue data property, VueX store, or local storage
-        const token = localStorage.getItem('userToken');
+        const token = localStorage.getItem('access_token');
 
         const requestOptions = {
             headers: {

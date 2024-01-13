@@ -313,7 +313,7 @@ const people = [];
 // request to update the list of contacts (people array)
 fetch('http://localhost:9000/MailAssistant/gmail/get_parsed_contacts/', {
     method: 'GET',
-    headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
 })
 .then(response => response.json())
 .then(data => people.push(...data))
@@ -503,7 +503,7 @@ const handleAIClick = () => {
   // Fetches the profile image URL from the server
   fetch('http://localhost:9000/MailAssistant/gmail/get_profile_image/', {
     method: 'GET',
-    headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
+    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
   })
   .then(response => response.json())
   .then(data => {
@@ -852,7 +852,7 @@ const handleAIClick = () => {
 };
 
 async function fetchWithToken(url, options = {}) {
-  const accessToken = localStorage.getItem('userToken');
+  const accessToken = localStorage.getItem('access_token');
   if (!options.headers) {
       options.headers = {};
   }
@@ -875,7 +875,7 @@ async function fetchWithToken(url, options = {}) {
         if (refreshResponse.ok) {
             const refreshData = await refreshResponse.json();
             const newAccessToken = refreshData.access_token;
-            localStorage.setItem('userToken', newAccessToken);
+            localStorage.setItem('access_token', newAccessToken);
             options.headers['Authorization'] = `Bearer ${newAccessToken}`;
             response = await fetch(url, options);
         } else {
@@ -977,7 +977,7 @@ function fetchEmailSenders() {
   fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
       'Content-Type': 'application/json'
     }
   })

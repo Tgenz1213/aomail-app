@@ -528,7 +528,7 @@ async function refreshToken() {
         const new_access_token = data.access;
 
         // Save the new access token to local storage
-        localStorage.setItem('userToken', new_access_token);
+        localStorage.setItem('access_token', new_access_token);
 
         return new_access_token;
     } catch (error) {
@@ -545,7 +545,7 @@ async function getUserBgColor() {
     const response = await fetch('http://localhost:9000/MailAssistant/user/preferences/bg_color/', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         'Content-Type': 'application/json'
       }
     });
@@ -570,7 +570,7 @@ async function findUser(searchQuery) {
     const response = await fetch('http://localhost:9000/MailAssistant/api/find-user-ai/?query=' + encodeURIComponent(searchQuery), {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
         'Content-Type': 'application/json'
       }
     });
@@ -650,7 +650,7 @@ function fetchEmailSenders() {
   fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
       'Content-Type': 'application/json'
     }
   })

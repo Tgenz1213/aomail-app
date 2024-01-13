@@ -7,9 +7,8 @@ import json
 import logging
 import requests
 from urllib.parse import urlencode
-from urllib.parse import urlparse, parse_qs
 from rest_framework.response import Response
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
 from email.mime.multipart import MIMEMultipart
@@ -19,6 +18,9 @@ from colorama import init, Fore
 from rest_framework import status
 from .serializers import EmailDataSerializer
 from base64 import urlsafe_b64encode
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .models import SocialAPI
 
 # Initialize colorama with autoreset
 init(autoreset=True)
@@ -80,30 +82,48 @@ def exchange_code_for_tokens(authorization_code):
     else:
         return Response({'error': 'tokens not found'}, status=400)
 
+######################## CREDENTIALS ########################
+def get_social_api(user, email):
+    """Returns the SocialAPI instance"""
+    try:
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        return social_api
+    except SocialAPI.DoesNotExist:
+        print(f"No credentials found for user {user.username} and email {email}")
+        return None
 
+def is_token_valid(access_token):
+    """Check if the access token is still valid by making a sample request"""
+    sample_url = f'{GRAPH_URL}me'
+    headers = {'Authorization': f'Bearer {access_token}'}
+    response = requests.get(sample_url, headers=headers)
+    return response.status_code == 200
 
-######################## ONLY FOR TESTING PURPOSES ########################
-def get_perso_info(access_token):
-    """Returns several public informations about the profile"""
+def refresh_access_token(social_api):
+    """Returns a valid access token"""
+    access_token = social_api.access_token
 
-    # Define the Microsoft Graph API endpoint for reading emails
-    graph_api_endpoint = f'{GRAPH_URL}me'
+    if is_token_valid(access_token):
+        return access_token
 
-    # Set the headers with the access token
-    headers = {
-        'Authorization': f'Bearer {access_token}'
+    refresh_url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': social_api.refresh_token,
+        'client_id': CONFIG["client_id"],
+        'client_secret': CONFIG["client_secret"],
+        'scope': SCOPES
     }
 
-    # Make a GET request to the API endpoint
-    response = requests.get(graph_api_endpoint, headers=headers)
+    response = requests.post(refresh_url, data=data)
+    response_data = response.json()
 
-    if response.status_code == 200:
-        # The response contains your email data
-        email_data = response.json()
-        return email_data
+    # Check if the refresh was successful
+    if 'access_token' in response_data:
+        social_api.access_token = response_data['access_token']
+        social_api.save()
+        return response_data['access_token']
     else:
-        # Handle the error case
-        logging.error(f'{Fore.RED}Error reading emails. Status code: {response.status_code}')
         return None
 
 
@@ -215,6 +235,28 @@ def get_profile_image(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+def get_email(access_token):
+    """Returns the primary email of the user from Microsoft Graph API"""
+    if not access_token:
+        return Response({'error': 'Access token is missing'}, status=400)
+
+    try:
+        graph_api_endpoint = f'{GRAPH_URL}me'
+        headers = {
+            'Authorization': f'Bearer {access_token}'
+        }
+        response = requests.get(graph_api_endpoint, headers=headers)
+
+        if response.status_code == 200:
+            email_data = response.json()
+            email = email_data.get('mail', '')
+            return Response({'email': email})        
+        else:
+            return Response({'error': f'Failed to get the email: {response.reason}'}, status=response.status_code)
+
+    except Exception as e:
+        return Response({'error': f'Failed to get the email: {e}'}, status=500)
+    
 
 
 ######################## EMAIL REQUESTS ########################

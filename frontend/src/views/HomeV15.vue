@@ -431,7 +431,7 @@ export default {
             fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json',
                     // Include other headers as required, like authorization tokens
                 }
@@ -464,7 +464,7 @@ export default {
             });
         },
         async fetchWithToken(url, options = {}) {
-            const accessToken = localStorage.getItem('userToken');
+            const accessToken = localStorage.getItem('access_token');
             if (!options.headers) {
                 options.headers = {};
             }
@@ -487,7 +487,7 @@ export default {
                     if (refreshResponse.ok) {
                         const refreshData = await refreshResponse.json();
                         const newAccessToken = refreshData.access_token;
-                        localStorage.setItem('userToken', newAccessToken);
+                        localStorage.setItem('access_token', newAccessToken);
                         options.headers['Authorization'] = `Bearer ${newAccessToken}`;
                         response = await fetch(url, options);
                     } else {
@@ -510,7 +510,16 @@ export default {
         },
         async animateText() {
             try {
-                const data = await this.fetchWithToken(`http://localhost:9000/MailAssistant/gmail/unread_mails/`);
+                const requestOptions = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'email': localStorage.getItem('email')
+                    },
+                };
+
+                const data = await this.fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
+
 
                 const unreadMailCount = data.unreadCount;
                 let text = '';

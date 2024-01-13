@@ -12,9 +12,7 @@ import re
 import time
 from collections import defaultdict
 from colorama import Fore, init
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -28,12 +26,11 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from . import library
 from .forms import MailForm
 from .models import SocialAPI
 from base64 import urlsafe_b64encode
-
+from rest_framework.response import Response
 
 
 # Initialize colorama with autoreset
@@ -61,8 +58,8 @@ SCOPES = [
     OTHER_CONTACT_READONLY_SCOPE
 ]
 GOOGLE_CREDS = 'creds/google_creds.json'
-CONFIG = json.load(open(GOOGLE_CREDS, 'r'))
-CALLBACK_REDIRECT_URI = 'http://localhost:8080/signup_part2'
+CONFIG = json.load(open(GOOGLE_CREDS, 'r'))['web']
+REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
 
 ######################## AUTHENTIFICATION ########################
@@ -71,7 +68,7 @@ def generate_auth_url(request):
     flow = Flow.from_client_secrets_file(
         GOOGLE_CREDS,
         scopes = SCOPES,
-        redirect_uri = CALLBACK_REDIRECT_URI
+        redirect_uri = REDIRECT_URI
     )
 
     authorization_url, _ = flow.authorization_url(
@@ -87,7 +84,7 @@ def exchange_code_for_tokens(authorization_code):
     flow = Flow.from_client_secrets_file(
         GOOGLE_CREDS,
         scopes = SCOPES,
-        redirect_uri = CALLBACK_REDIRECT_URI
+        redirect_uri = REDIRECT_URI
     )
     flow.fetch_token(code=authorization_code)
 
@@ -103,21 +100,25 @@ def exchange_code_for_tokens(authorization_code):
 
 
 
-######################## AUTHENTIFICATION WITH JWT ########################
-def get_credentials(user):
+######################## CREDENTIALS ########################
+def get_credentials(user, email):
     try:
-        social_api = SocialAPI.objects.get(user=user, type_api='Google')
+        social_api = SocialAPI.objects.get(
+            user = user,
+            email = email
+        )
         creds_data = {
             'token': social_api.access_token,
             'refresh_token': social_api.refresh_token,
-            'token_uri': 'https://oauth2.googleapis.com/token',
+            'token_uri': CONFIG['token_uri'],
             'client_id': CONFIG['client_id'],
             'client_secret': CONFIG['client_secret'],
             'scopes': SCOPES
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
+        
     except ObjectDoesNotExist:
-        print(f"No credentials found for user {user.username}")
+        print(f"An unexpected error occurred while retrieving credentials for user {user.username} and email {email}")
         creds = None
     return creds
 
@@ -129,16 +130,20 @@ def refresh_credentials(creds):
         creds = None
     return creds
 
-def save_credentials(creds, user):
+def save_credentials(creds, user, email):
+    """Update the database with valid access token"""
     try:
-        social_api, _ = SocialAPI.objects.get_or_create(user=user, type_api='google')
+        social_api = SocialAPI.objects.get(
+            user = user,
+            email = email
+        )
         social_api.access_token = creds.token
-        social_api.refresh_token = creds.refresh_token
         social_api.save()
     except Exception as e:
         print(f"Failed to save credentials: {e}")
 
 def build_services(creds) -> dict:
+    """Returns a dictionary of endpoints"""
     services = {
         'gmail.readonly': build('gmail', 'v1', cache_discovery=False, credentials=creds),
         'gmail.send': build('gmail', 'v1', cache_discovery=False, credentials=creds),
@@ -149,13 +154,13 @@ def build_services(creds) -> dict:
     }
     return services
 
-def authenticate_service(user) -> dict:
-    creds = get_credentials(user)
+def authenticate_service(user, email) -> dict:
+    creds = get_credentials(user, email)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds = refresh_credentials(creds)
         if creds:
-            save_credentials(creds, user)
+            save_credentials(creds, user, email)
         else:
             print("Failed to authenticate")
             return None
@@ -171,25 +176,26 @@ def authenticate_service(user) -> dict:
 def unread_mails(request):
     """Returns the number of unread emails"""
     try:
-        user = request.user        
+        user = request.user
+        email = request.headers.get('email')
         unread_count = 0
-        service = authenticate_service(user)
+        service = authenticate_service(user, email)
             
         if service is not None:
             try:
                 response = service['gmail.readonly'].users().messages().list(userId='me', q='is:unread').execute()
                 unread_count = len(response.get('messages', []))
-                return JsonResponse({'unreadCount': unread_count}, status=200)
+                return Response({'unreadCount': unread_count}, status=200)
             except Exception as e:
                 logging.error(f"Error getting unread emails: {e}")
-                return JsonResponse({'error': 'Failed to retrieve unread count'}, status=500)
+                return Response({'error': 'Failed to retrieve unread count'}, status=500)
     
         logging.error(f"{Fore.RED}Failed to authenticate")
-        return JsonResponse({'unreadCount': unread_count}, status=400)
+        return Response({'unreadCount': unread_count}, status=400)
     
     except Exception as e:
         logging.error(f"{Fore.RED}An error occurred: {e}")
-        return JsonResponse({'unreadCount': 0}, status=400)
+        return Response({'unreadCount': 0}, status=400)
 
 
 
@@ -199,9 +205,9 @@ def unread_mails(request):
 def get_parsed_contacts(request) -> list:
     """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
     user = request.user
-
+    email = request.headers.get('email')
     # Authenticate the user and build the service
-    credentials = get_credentials(user)
+    credentials = get_credentials(user, email)
     services = build_services(credentials)
     contacts_service = services['contacts']
 
@@ -287,9 +293,9 @@ def get_unique_senders(services) -> dict:
 @permission_classes([IsAuthenticated])
 def get_profile_image(request):
     """Returns the profile image of the user"""
-    Response({'error': f"Error retrieving profile image: {e}"}, status=505)
     user = request.user
-    credentials = get_credentials(user)
+    email = request.headers.get('email')
+    credentials = get_credentials(user, email)
     service = build_services(credentials)['profile']
 
     try:
@@ -305,6 +311,26 @@ def get_profile_image(request):
 
     except Exception as e:
         return Response({'error': f"Error retrieving profile image: {e}"}, status=505)
+
+def get_email(access_token, refresh_token):
+    """Returns the primary email of the user"""
+    creds_data = {
+        'token': access_token,
+        'refresh_token': refresh_token,
+        'token_uri': CONFIG['token_uri'],
+        'client_id': CONFIG['client_id'],
+        'client_secret': CONFIG['client_secret'],
+        'scopes': SCOPES
+    }
+    creds = credentials.Credentials.from_authorized_user_info(creds_data)
+    
+    try:
+        service = build_services(creds)['profile']
+        user_info = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+        email = user_info.get('emailAddresses', [{}])[0].get('value', '')
+        return email    
+    except:
+        return None
 
 
 

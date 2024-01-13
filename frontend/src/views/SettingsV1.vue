@@ -344,7 +344,7 @@ export default {
 
       if (isChecked) {
           try {
-              const access_token = localStorage.getItem('userToken');
+              const access_token = localStorage.getItem('access_token');
               const url = 'http://localhost:9000/MailAssistant/api/delete_account/';
 
               const requestOptions = {
@@ -379,7 +379,7 @@ export default {
       }
     },
     async fetchWithToken(url, options = {}) {
-      const accessToken = localStorage.getItem('userToken');
+      const accessToken = localStorage.getItem('access_token');
       if (!options.headers) {
           options.headers = {};
       }
@@ -402,7 +402,7 @@ export default {
           if (refreshResponse.ok) {
               const refreshData = await refreshResponse.json();
               const newAccessToken = refreshData.access_token;
-              localStorage.setItem('userToken', newAccessToken);
+              localStorage.setItem('access_token', newAccessToken);
               options.headers['Authorization'] = `Bearer ${newAccessToken}`;
               response = await fetch(url, options);
           } else {

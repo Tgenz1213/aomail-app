@@ -538,22 +538,33 @@ export default {
         };
         
         // READY TO REGISTER THE USER IN DATABASE
-        const response = await fetch('http://localhost:9000/MailAssistant/signup/', requestOptions);      
+        const response = await fetch('http://localhost:9000/MailAssistant/signup/', requestOptions);
+        const data = await response.json();
 
         if (response.status === 201) {
           // Registration successful
-          const data = await response.json();
           localStorage.setItem('user_id', data.user_id);
           // JWT access token
           localStorage.setItem('access_token', data.access_token);
+          // Store the email and use it in request headers
+          localStorage.setItem('email', data.email);
 
-          console.log('Signup successful');
+          
           sessionStorage.clear();
+          console.log('Signup successful');
           // Redirect to the home page once signed in
           this.$router.push({ name: 'home' });
+        } else if (response.status === 400) {
+          if (data.error === 'Email address already used') {
+            // TODO: Display a screen: email address is used
+            console.error('Email address already used');
+            location.reload();
+          } else {
+            // TODO: Display a screen to show the error to the user
+            console.error('Signup unsuccessful');
+          }
         } else {
-          // TODO: Display a screen to show the error to the user
-          console.error("Signup unsuccessful");
+          console.error(`Unexpected response status: ${response.status}`);
         }
       } catch (error) {
         console.error('Error:', error);

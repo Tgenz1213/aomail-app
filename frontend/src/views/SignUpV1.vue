@@ -107,7 +107,7 @@
                   <div class="absolute inset-0 flex items-center" aria-hidden="true">
                     <div class="h-0.5 w-full bg-white"></div>
                   </div>
-                  <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                  <a @click="goStep0" href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                     <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                     </svg>
@@ -119,7 +119,7 @@
                   <div class="absolute inset-0 flex items-center" aria-hidden="true">
                     <div class="h-0.5 w-full bg-white"></div>
                   </div>
-                  <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white" aria-current="step">
+                  <a @click="goStep1" href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white" aria-current="step">
                     <span class="h-2.5 w-2.5 rounded-full bg-gray-400" aria-hidden="true"></span>
                     <span class="sr-only">Step 3</span>
                   </a>
@@ -335,8 +335,8 @@
           <div class="bg-white px-6 py-10 shadow sm:rounded-b-lg sm:px-12 hover:shadow-lg">
             <form class="space-y-6">
               <div class="flex flex-col gap-y-4" v-if="step === 0">
-                <div v-if="passwordError" class="mt-2 text-sm text-red-600">
-                  {{ passwordError }}
+                <div v-if="credentialError" class="mt-2 text-sm text-red-600">
+                  {{ credentialError }}
                 </div>
                 <div>
                   <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Identifiant</label>
@@ -493,7 +493,7 @@ export default {
       login: "",
       password: "",
       confirmPassword: "",
-      passwordError: '',
+      credentialError: '',
       theme: "",
       color: "",
       isOpen: false,
@@ -505,50 +505,90 @@ export default {
   },
   methods: {
     clearError() {
-      console.log(this.passwordError);
-      //this.passwordError = '';
+      this.credentialError = '';
     },
-    nextStep0(event) {
+    async nextStep0(event) {
+      // Handles user registration for the first step, validating username, checking availability, and validating passwords
+
       event.preventDefault();
+
+      // Checks username requirements
+      if (!this.login) {
+        this.credentialError = 'Veuillez saisir un identifiant';
+        return;
+      }
+      if (this.login.includes(" ")) {
+        this.credentialError = 'L\'identifiant ne doit pas contenir d\'espaces';
+        return;
+      }
+
+      // Backend request to check if username is available
+      const requestOptions = {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'username': this.login
+        }
+      };
+
+      try {
+        const response = await fetch('http://localhost:9000/MailAssistant/check_username/', requestOptions);
+        const responseData = await response.json();
+
+        if (responseData.available === false) {
+          this.credentialError = 'L\'identifiant est déjà utilisé';
+          return;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
 
       // Checks passwords requirements
       const passwordRegex  = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
       const minLength = 8;
       const maxLength = 32;
 
+      if (!this.password.trim() || !this.confirmPassword.trim()) {
+          this.credentialError = 'Veuillez saisir un mot de passe';
+          return;
+      } 
       if (this.password.length < minLength || this.password.length > maxLength) {
-          this.passwordError = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
+          this.credentialError = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
           return;
       }
-
       if (this.password.includes(" ")) {
-          this.passwordError = 'Le mot de passe ne doit pas contenir d\'espaces';
+          this.credentialError = 'Le mot de passe ne doit pas contenir d\'espaces';
           return;
       }
-
       if (!passwordRegex .test(this.password)) {
-          this.passwordError = 'Le mot de passe contient des caractères invalides';
+          this.credentialError = 'Le mot de passe contient des caractères invalides';
           return;
       }
-
       if (this.password !== this.confirmPassword) {
-          this.passwordError = 'Les mots de passe ne correspondent pas';
-          return;
-      } else if (!this.password.trim() || !this.confirmPassword.trim()) {
-          this.passwordError = 'Veuillez saisir un mot de passe';
+          this.credentialError = 'Les mots de passe ne correspondent pas';
           return;
       }
 
       sessionStorage.setItem('login', this.login);
       sessionStorage.setItem('password', this.password);
-
+      
+      this.clearError();
       this.step++;
-  },
+    },
     nextStep1() {
       this.color = this.bgColor;
       localStorage.setItem('color', this.bgColor);  
       localStorage.setItem('theme', 'light');
       this.step++;
+    },
+    goStep0() {
+      this.step = 0;
+    },
+    goStep1() {
+      this.step = 1;
+    },
+    goStep2() {
+      this.step = 2;
     },
     closeModal() {
       this.isOpen = false;
@@ -580,7 +620,7 @@ export default {
     async submitSignupData(event) {
       event.preventDefault();
       try {
-        // Authentification first part done
+      // Registration first part complete
         this.$router.push({ name: 'signup_part2' });
       }
       catch (error) {

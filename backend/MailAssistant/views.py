@@ -1206,7 +1206,6 @@ def search_chat_reply(query_list):
     return assistant_question
 
 
-######################## Other ########################
 
 ######################## REGISTRATION ########################
 @api_view(['POST'])
@@ -1229,17 +1228,17 @@ def signup(request):
     categories = request.data.get('categories')
 
     if not code:
-        return Response({'error': 'No authorization code provided'}, status=404)
-
-    # Check if user already exists
+        return Response({'error': 'No authorization code provided'}, status=404)    
+    
+    # Check if user requirements
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists'}, status=400)
     elif " " in username:
         return Response({'error': 'Username must not contain spaces'}, status=400)
     
     # Checks passwords requirements
-    #if not (8 <= len(password) <= 32):
-        #return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
+    if not (8 <= len(password) <= 32):
+        return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
     if " " in password:
         return Response({'error': 'Password must not contain spaces'}, status=400)
     elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', password):
@@ -1250,7 +1249,8 @@ def signup(request):
         # callback for Google API
         try:
             access_token, refresh_token = google_api.exchange_code_for_tokens(code)
-            print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
+            print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")            
+            email = google_api.get_email(access_token, refresh_token)
         except Exception as e:
             return Response({'error': e}, status=400)
         
@@ -1259,15 +1259,35 @@ def signup(request):
         try:
             access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
             print(f"{Fore.CYAN}[MICROSOFT]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
+            email = microsoft_api.get_email(access_token)['email']
         except Exception as e:
             return Response({'error': e}, status=400)
+        
+    # Check email requirements
+    if email:
+        if SocialAPI.objects.filter(email=email).exists():
+            return Response({'error': 'Email address already used'}, status=400)
+        elif " " in email:
+            return Response({'error': 'Email address must not contain spaces'}, status=400)
+    else:
+        return Response({'error': 'Failed to get the email'}, status=400)
 
     # Create and save user
     user = User.objects.create_user(username, '', password)
     user_id = user.id
     refresh = RefreshToken.for_user(user)
-    access_token = str(refresh.access_token)
+    jwt_access_token = str(refresh.access_token)
     user.save()
+
+    # Save socialAPI
+    social_api = SocialAPI(
+        user=user,
+        type_api=type_api,
+        email=email,
+        access_token=access_token,
+        refresh_token=refresh_token
+    )
+    social_api.save()
 
     # Save user preferences
     preference = Preference(
@@ -1292,11 +1312,76 @@ def signup(request):
                 )
                 category.save()
         except json.JSONDecodeError:
-            return Response({'error': 'Invalid categories data'}, status=404)    
+            return Response({'error': 'Invalid categories data'}, status=404)
 
-    return Response({'user_id': user_id, "access_token": access_token}, status=201)
+    return Response({'user_id': user_id, 'access_token': jwt_access_token, 'email': email}, status=201)
 
 
+
+######################## CREDENTIALS AVAILABILITY ########################
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def check_username(request):
+    """Verify if the username is available"""
+    username = request.headers.get("username")
+    
+    if User.objects.filter(username=username).exists():
+        return Response({'available': False}, status=200)
+    else:
+        return Response({'available': True}, status=200)
+
+
+
+######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def unread_mails(request):
+    """Returns the number of unread emails"""
+    return _forward_request(request, 'unread_mails')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_profile_image(request):
+    """Returns the profile image of the user"""
+    return _forward_request(request, 'get_profile_image')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_parsed_contacts(request):
+    """Returns a list of parsed unique contacts"""
+    return _forward_request(request, 'get_parsed_contacts')
+
+
+def _forward_request(request, api_method):
+    """Forwards the request to the appropriate API method based on type_api"""
+    user = request.user
+    email = request.headers.get('email')
+
+    try:
+        social_api = get_object_or_404(SocialAPI, user=user, email=email)
+        type_api = social_api.type_api
+    except SocialAPI.DoesNotExist:
+        return Response({'error': 'SocialAPI entry not found for the user and email'}, status=404)
+
+    api_module = None
+    if type_api == 'google':
+        api_module = google_api
+    elif type_api == 'microsoft':
+        api_module = microsoft_api
+
+    if api_module and hasattr(api_module, api_method):
+        # Call the specified API method dynamically
+        api_function = getattr(api_module, api_method)
+        # Forward the request
+        return api_function(request)
+    else:
+        return Response({'error': 'Unsupported API type or method'}, status=400)
+
+
+
+######################## Other ########################
 def send_mail(request):
     return api_list[api_var].send_mail(request)
 
@@ -1320,22 +1405,6 @@ def login_page(request):
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
 
-
-def register_old(request):
-    # \"\"\"Handle user registration.\"\"\"
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid() :
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            email = form.cleaned_data['email']
-
-            user = User.objects.create_user(username, email, password)
-            user.save()
-            return redirect('http://localhost:8080/')
-    else:
-        form = RegisterForm()
-        return render(request, 'register.html', {'form': form})
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
@@ -1364,146 +1433,7 @@ def get_message(request):
     serializer = MessageSerializer(message)
     return Response(serializer.data)
 
-# Register API
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def register(request):
-    # Extract user data from the request
-    username = request.data.get('login')
-    password = request.data.get('password')
-    theme = request.data.get('theme')
-    color = request.data.get('color')
-    categories = request.data.get('categories')
 
-    #email = request.data.get('email')
-    #access_token = request.data.get('access_token')
-    #refresh_token = request.data.get('refresh_token')
-    
-    #if User.objects.filter(email=email).exists():
-    #    return Response({'error': 'Email already registered'}, status=400)
-
-    # Check if user already exists
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists'}, status=400)
-    
-    # Check password rquirement
-    if not 8 <= len(password) <= 32:
-        return Response({'error': 'Password lenght must be between 8 and 32 caracters'}, status=400)
-    elif " " in password:
-        return Response({'error': 'Incorrect password caracter'}, status=400)
-    
-
-    # Create and save user
-    user = User.objects.create_user(username, '', password)
-    user.save()
-
-    # Save user preferences
-    preference = Preference(
-        theme=theme,
-        bg_color=color,
-        user=user
-    )
-    preference.save()
-
-    # Save user categories
-    try:
-        categories_j = json.loads(categories)
-    except json.JSONDecodeError:
-        return Response({'error': 'Invalid categories data'}, status=status.HTTP_400_BAD_REQUEST)
-
-    for category_data in categories_j:
-        category_name = category_data.get('name')
-        category_description = category_data.get('description')
-
-        category = Category(
-            name=category_name,
-            description=category_description,
-            user=user
-        )
-        category.save()
-
-    # Save user social api
-    # FOR NOW : Just Google but will be uptdated
-    """social_api = SocialAPI(
-        type_api="Google",
-        access_token=access_token,
-        refresh_token=refresh_token,
-        user=user
-    )
-    social_api.save()"""
-
-    # Save other user-related data like theme, color, and categories
-    # This assumes you have related models or user profile extensions in place.
-    # If not, you'll need to design your database schema to store this additional info.
-    # Here's a simple hypothetical example:
-    # user_profile = UserProfile(user=user, theme=theme, color=color)
-    # user_profile.save()
-
-    # For categories and Google token, you'd handle them similarly, adjusting to your data model.
-
-    #return Response({'success': 'User registered successfully'}, status=201)
-    return Response({'success': True}, status=201)
-
-'''
-def register(request):
-    # Extract user data from the request
-    username = request.data.get('login')
-    password = request.data.get('password')
-    email = request.data.get('email')
-    theme = request.data.get('theme')
-    color = request.data.get('color')
-    categories = request.data.get('categories')
-    googleToken = request.data.get('googletoken')
-
-    # Check if user already exists
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists'}, status=400)
-    if User.objects.filter(email=email).exists():
-        return Response({'error': 'Email already registered'}, status=400)
-
-    # Create and save user
-    user = User.objects.create_user(username, email, password)
-    user.save()
-
-    # Save user preferences
-    preference = Preference(
-        theme=theme,
-        bg_color=color,
-        user=user
-    )
-    preference.save()
-
-    # Save user categories
-    for category_data in categories:
-        category_name = category_data.get('name')
-        category_description = category_data.get('description')
-
-        category = Category(
-            name=category_name,
-            description=category_description,
-            user=user
-        )
-        category.save()
-
-    # Save user social api
-    # FOR NOW : Just Google but will be uptdated
-    social_api = SocialAPI(
-        type_api="Google",
-        token=googleToken,
-        user=user
-    )
-
-    # Save other user-related data like theme, color, and categories
-    # This assumes you have related models or user profile extensions in place.
-    # If not, you'll need to design your database schema to store this additional info.
-    # Here's a simple hypothetical example:
-    # user_profile = UserProfile(user=user, theme=theme, color=color)
-    # user_profile.save()
-
-    # For categories and Google token, you'd handle them similarly, adjusting to your data model.
-
-    return Response({'success': 'User registered successfully'}, status=201)
-'''
 
 # Authentication API
 @api_view(['POST'])
@@ -1512,6 +1442,7 @@ def login(request):
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
+    
     if user:
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
@@ -1519,12 +1450,13 @@ def login(request):
         # Return the access token directly in the response
         return Response({'access_token': access_token, 'message': 'Login successful'})
     
-    return Response({'error': 'Invalid Credentials'}, status=400)
+    return Response({'error': 'Invalid Credentials'}, status=400) 
 
 # To check the HTTP-only cookie
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def refresh_token(request):
+    """Refreshes the JWT access token"""
     raw_token = request.data.get('access_token')
     if not raw_token:
         return Response({'error': 'Access token is missing'}, status=400)
@@ -1548,22 +1480,14 @@ def refresh_token(request):
         # Handle exceptions
         return Response({'error': str(e)}, status=400)
 
-######################## Home Page ########################
 
-# GET
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
-# def get_user_categories(request):
-#     current_user = request.user
-#     categories = Category.objects.filter(user=current_user)
-#     serializer = CategoryNameSerializer(categories, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-
+######################## CATEGORIES ########################
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+@permission_classes([IsAuthenticated])
 def get_user_categories(request):
-    username = request.user.username  # assuming the default User model's username field holds the 'login' for your custom User model
+    username = request.user.username
+    
     try:
         current_user = User.objects.get(username=username)
         categories = Category.objects.filter(user=current_user)
@@ -1573,7 +1497,6 @@ def get_user_categories(request):
     except User.DoesNotExist:
         return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-# To update a category
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_category(request, currentName):
@@ -1589,7 +1512,6 @@ def update_category(request, currentName):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# To delete a category
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_category(request, currentName):
@@ -1603,6 +1525,33 @@ def delete_category(request, currentName):
     # Delete the category
     category.delete()
     return Response({"detail": "Category deleted successfully"}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_category(request):
+    data = request.data.copy()
+    data['user'] = request.user.id
+
+    serializer = NewCategorySerializer(data=data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    else:
+        print("Data:", request.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_category_id(request, category_name):
+    user = request.user
+    category = get_object_or_404(Category, name=category_name, user=user)
+    return Response({'id': category.id})
+
+
+
+######################## Home Page ########################
 
 # @api_view(['GET'])
 # @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
@@ -1623,6 +1572,8 @@ def delete_category(request, currentName):
 #     bullet_points = BulletPoint.objects.filter(id_email=email)
 #     serializer = BulletPointSerializer(bullet_points, many=True)
 #     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1709,21 +1660,6 @@ def set_rule_block_for_sender(request, email_id):
     serializer = RuleBlockUpdateSerializer(rule)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def set_category(request):
-    data = request.data.copy()
-    data['user'] = request.user.id
-
-    serializer = NewCategorySerializer(data=data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    else:
-        print("Data:", request.data)
-        print("Errors:", serializer.errors)
-        return Response(serializer.errors, status=400)
 
 
 ######################## New Mail ########################
@@ -1806,9 +1742,9 @@ def find_user_view(request):
 
     if services is not None and search_query:
         found_users = find_user_in_emails(services, search_query)
-        return JsonResponse(found_users, safe=False, status=200)
+        return Response(found_users, safe=False, status=200)
     else:
-        return JsonResponse({"error": "Failed to authenticate or no search query provided"}, status=400)
+        return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1821,7 +1757,7 @@ def find_user_view_ai(request):
         main_list, cc_list, bcc_list = extract_contacts_recipients(search_query)
 
         if main_list == "INCORRECT":
-            return JsonResponse({"error": "Invalid input or query not about email recipients"}, status=400)
+            return Response({"error": "Invalid input or query not about email recipients"}, status=400)
 
         # Function to find emails for a list of recipients
         def find_emails_for_recipients(recipient_list):
@@ -1834,13 +1770,13 @@ def find_user_view_ai(request):
 
         #logging.info("Email recipients (main): %s", main_recipients_with_emails)
 
-        return JsonResponse({
+        return Response({
             "main_recipients": main_recipients_with_emails,
             "cc_recipients": cc_recipients_with_emails,
             "bcc_recipients": bcc_recipients_with_emails
         }, safe=False, status=200)
     else:
-        return JsonResponse({"error": "Failed to authenticate or no search query provided"}, status=400)
+        return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -2103,9 +2039,9 @@ def get_unique_email_senders_view(request):
         # Merge the two dictionaries and remove duplicates
         merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
 
-        return JsonResponse(merged_info, status=200)
+        return Response(merged_info, status=200)
     else:
-        return JsonResponse({"error": "Failed to authenticate or access services"}, status=400)
+        return Response({"error": "Failed to authenticate or access services"}, status=400)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -2130,12 +2066,7 @@ def create_user_rule(request):
         print("Errors:", serializer.errors)
         return Response(serializer.errors, status=400)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_category_id(request, category_name):
-    user = request.user
-    category = get_object_or_404(Category, name=category_name, user=user)
-    return JsonResponse({'id': category.id})
+
         
 
 ######################## Test ########################
@@ -2150,10 +2081,10 @@ def authenticate_service_view(request):
     
     if service is not None:
         # Return a success response, along with any necessary information
-        return JsonResponse({"message": "Authentication successful"}, status=200)
+        return Response({"message": "Authentication successful"}, status=200)
     else:
         # Return an error response
-        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+        return Response({"error": "Failed to authenticate"}, status=400)
 
 # TO TEST Gmail GET the Mail from id
 @api_view(['GET'])
@@ -2165,7 +2096,7 @@ def get_mail_view(request):
     if service is not None:
         subject, from_name, decoded_data, email_id = get_mail(service, 0, None)
         # Return a success response, along with any necessary information
-        return JsonResponse({
+        return Response({
             "message": "Authentication successful",
             "email": {
                 "subject": subject,
@@ -2176,7 +2107,7 @@ def get_mail_view(request):
         }, status=200)
     else:
         # Return an error response
-        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+        return Response({"error": "Failed to authenticate"}, status=400)
 
 # TO TEST Gmail GET Last Email
 @api_view(['GET'])
@@ -2190,7 +2121,7 @@ def get_mail_by_id_view(request):
         
         subject, from_name, decoded_data, cc, bcc, email_id = get_mail(service, None, mail_id)
         #print("DEBUG OUTPUT -------------------------> ", from_name, cc, bcc)
-        return JsonResponse({
+        return Response({
             "message": "Authentication successful",
             "email": {
                 "subject": subject,
@@ -2203,7 +2134,7 @@ def get_mail_by_id_view(request):
         }, status=200)
     else:
         # Return an error response
-        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+        return Response({"error": "Failed to authenticate"}, status=400)
 
 # TO TEST Gmail Save in BDD Last Email
 @api_view(['GET'])
@@ -2215,14 +2146,18 @@ def save_last_mail_view(request):
     if service is not None:
         processed_email_to_bdd(request,service)
         # Return a success response, along with any necessary information
-        return JsonResponse({
+        return Response({
             "message": "Save successful"
         }, status=200)
     else:
         # Return an error response
-        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+        return Response({"error": "Failed to authenticate"}, status=400)
 
 
+
+
+
+######################## OLD ########################
 '''
 class TestAuthenticateServiceView(View):
     def get(self, request, *args, **kwargs):
@@ -2234,12 +2169,12 @@ class TestAuthenticateServiceView(View):
                 'calendar': str(service.get('calendar')),
                 # ... add other services as needed
             }
-            return JsonResponse(service_info)
+            return Response(service_info)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)'''
+            return Response({'error': str(e)}, status=500)'''
 
 
-######################## OLD ########################
+
 
 
 # TO UPDATE
@@ -2253,3 +2188,5 @@ def get_user_login(request):
         return Response(serializer.data)
     except Users.DoesNotExist:
         return Response({"error": "User not found."}, status=404)'''
+
+

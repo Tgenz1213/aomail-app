@@ -63,7 +63,7 @@ export default {
         if (response.status === 200) {
           // The access token should be in the response body
           const token = response.data.access_token;
-          localStorage.setItem('userToken', token);
+          localStorage.setItem('access_token', token);
 
           // Fetch color
           const colorResponse = await axios.get("http://localhost:9000/MailAssistant/user/preferences/bg_color/", {
@@ -72,10 +72,10 @@ export default {
 
           const bgColor = colorResponse.data.bg_color;
           localStorage.setItem('bgColor', bgColor);
-
-          //console.log("TOKEN", token);
+          
           // Redirect to home13 after successful login
           this.$router.push({ name: 'home' });
+          console.log("PAGE pushed!")
         } else {
           console.error("Login failed: No access token received");
           // Handle the case when login fails or no token is received

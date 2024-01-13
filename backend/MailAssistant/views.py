@@ -42,9 +42,7 @@ from . import google_api, microsoft_api
 
 # To test co to google_api
 from django.http import JsonResponse
-from django.views import View
-from .google_api import authenticate_service, exchange_code_for_tokens 
-from .google_api import get_mail, get_unique_senders, get_info_contacts, find_user_in_emails, send_email_with_gmail
+from .google_api import authenticate_service, get_mail, get_unique_senders, get_info_contacts, find_user_in_emails, send_email_with_gmail
 
 # OpenAI - ChatGPT
 import openai
@@ -1337,21 +1335,21 @@ def check_username(request):
 @permission_classes([IsAuthenticated])
 def unread_mails(request):
     """Returns the number of unread emails"""
-    return _forward_request(request, 'unread_mails')
+    return _forward_request(request._request, 'unread_mails')
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_profile_image(request):
     """Returns the profile image of the user"""
-    return _forward_request(request, 'get_profile_image')
+    return _forward_request(request._request, 'get_profile_image')
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_parsed_contacts(request):
     """Returns a list of parsed unique contacts"""
-    return _forward_request(request, 'get_parsed_contacts')
+    return _forward_request(request._request, 'get_parsed_contacts')
 
 
 def _forward_request(request, api_method):
@@ -1363,7 +1361,7 @@ def _forward_request(request, api_method):
         social_api = get_object_or_404(SocialAPI, user=user, email=email)
         type_api = social_api.type_api
     except SocialAPI.DoesNotExist:
-        return Response({'error': 'SocialAPI entry not found for the user and email'}, status=404)
+        return JsonResponse({'error': 'SocialAPI entry not found for the user and email'}, status=404)
 
     api_module = None
     if type_api == 'google':
@@ -1374,10 +1372,11 @@ def _forward_request(request, api_method):
     if api_module and hasattr(api_module, api_method):
         # Call the specified API method dynamically
         api_function = getattr(api_module, api_method)
-        # Forward the request
+        print(f"{Fore.YELLOW}{api_function}")
+        # Forward the request and return the response
         return api_function(request)
     else:
-        return Response({'error': 'Unsupported API type or method'}, status=400)
+        return JsonResponse({'error': 'Unsupported API type or method'}, status=400)
 
 
 

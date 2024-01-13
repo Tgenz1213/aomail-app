@@ -75,7 +75,6 @@ export default {
           
           // Redirect to home13 after successful login
           this.$router.push({ name: 'home' });
-          console.log("PAGE pushed!")
         } else {
           console.error("Login failed: No access token received");
           // Handle the case when login fails or no token is received

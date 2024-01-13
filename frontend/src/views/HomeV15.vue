@@ -498,7 +498,7 @@ export default {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-
+                
                 return response.json();
             } catch (error) {
                 console.error('Error in fetchWithToken:', error.message);

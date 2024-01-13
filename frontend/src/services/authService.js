@@ -1,8 +1,7 @@
 // authService.js
 
 export function isUserAuthenticated() {
-    const token = localStorage.getItem('userToken');
-    return !!token; // returns true if the token exists, false otherwise
+    const token = localStorage.getItem('access_token');
+    // returns true if the token exists, false otherwise
+    return !!token;
 }
-
-// You can also add other authentication-related functions here in the future.

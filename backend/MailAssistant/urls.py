@@ -66,18 +66,8 @@ urlpatterns = [
     ######################## Azure AD - OUTLOOK API ########################
     # authentification
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'),
-    # requests URLs
-    #path('microsoft/unread_mails/', microsoft_api.unread_mails, name='microsoft_unread_mails'),
-    #path('microsoft/get_parsed_contacts/', microsoft_api.get_parsed_contacts, name='microsoft_get_parsed_contacts'),
-    #path('microsoft/get_profile_image/', microsoft_api.get_profile_image, name='microsoft_get_profile_image'),
-    path('microsoft/send_email/', microsoft_api.send_email, name='microsoft_send_email'),
-    
+    path('microsoft/send_email/', microsoft_api.send_email, name='microsoft_send_email'),   
 
     ######################## GOOGLE GMAIL API ########################
-    # authentification
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'),
-    # requests URLs
-    #path('gmail/unread_mails/', google_api.unread_mails, name='unread_mails'),
-    #path('gmail/get_parsed_contacts/', google_api.get_parsed_contacts, name='get_parsed_contacts'),
-    #path('gmail/get_profile_image/', google_api.get_profile_image, name='get_profile_image'),
 ]

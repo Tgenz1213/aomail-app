@@ -13,6 +13,7 @@ import time
 from collections import defaultdict
 from colorama import Fore, init
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -185,17 +186,17 @@ def unread_mails(request):
             try:
                 response = service['gmail.readonly'].users().messages().list(userId='me', q='is:unread').execute()
                 unread_count = len(response.get('messages', []))
-                return Response({'unreadCount': unread_count}, status=200)
+                return JsonResponse({'unreadCount': unread_count}, status=200)
             except Exception as e:
                 logging.error(f"Error getting unread emails: {e}")
-                return Response({'error': 'Failed to retrieve unread count'}, status=500)
+                return JsonResponse({'error': 'Failed to retrieve unread count'}, status=500)
     
         logging.error(f"{Fore.RED}Failed to authenticate")
-        return Response({'unreadCount': unread_count}, status=400)
+        return JsonResponse({'unreadCount': unread_count}, status=400)
     
     except Exception as e:
         logging.error(f"{Fore.RED}An error occurred: {e}")
-        return Response({'unreadCount': 0}, status=400)
+        return JsonResponse({'unreadCount': 0}, status=400)
 
 
 

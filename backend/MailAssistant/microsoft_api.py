@@ -1,7 +1,5 @@
 """
-Microsoft Graph API Handler
-
-Manages authentication and HTTP requests for the Microsoft Graph API.
+Handles authentication and HTTP requests for the Microsoft Graph API.
 """
 import json
 import logging
@@ -131,8 +129,9 @@ def refresh_access_token(social_api):
 ######################## PROFILE REQUESTS ########################
 def get_parsed_contacts(request) -> list:
     """Returns a list of parsed unique contacts with email types"""
-    # TODO: ALGO to get the access token and check JWT
-    access_token = ""
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
 
     try:
         if access_token:
@@ -210,8 +209,9 @@ def get_unique_senders(access_token) -> dict:
 
 def get_profile_image(request):
     """Returns the profile image URL of the user"""
-    # TODO: ALGO to get the access token and check JWT
-    access_token = ""
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
 
     try:
         headers = {
@@ -260,19 +260,13 @@ def get_email(access_token):
 
 
 ######################## EMAIL REQUESTS ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def unread_mails(request):
     """Returns the number of unread emails"""
-    
-    #jwt_access_token = request.headers.get('jwt_access_token')
-    #email = request.headers.get('email')
-    #user_id = request.headers.get('user_id')
-
-    # TODO: check if jwt_access_token is valid
-    # Then get the access token associated with the user id & email
-        # check if it is valid
-    
-    # email API OAuth access_token
-    access_token = ""
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
 
     try:
         if access_token:
@@ -299,11 +293,15 @@ def unread_mails(request):
         logging.error(f"An error occurred: {e}")
         return JsonResponse({'unreadCount': 0}, status=400)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def send_email(request):
-    # TODO: ALGO to get the access token and check JWT
-    access_token = ""
+    """Sends an email using the Microsoft Graph API."""  
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
     serializer = EmailDataSerializer(data=request.data)
-    logger = logging.getLogger(__name__)
     
     if serializer.is_valid():
         data = serializer.validated_data
@@ -356,16 +354,16 @@ def send_email(request):
             try:
                 response = requests.post(graph_endpoint, headers=headers, json=body)
                 if response.status_code == 202:
-                    return JsonResponse({"message": "Email sent successfully!"}, status=200)
+                    return JsonResponse({"message": "Email sent successfully!"}, status=202)
                 else:
                     return JsonResponse({"error": "Failed to send email"}, status=response.status_code)
             except Exception as e:
-                logger.exception(f"Error sending email: {e}")
+                logging.exception(f"Error sending email: {e}")
                 return JsonResponse({"error": str(e)}, status=500)
 
         except Exception as e:
-            logger.exception(f"Error preparing email data: {e}")
+            logging.exception(f"Error preparing email data: {e}")
             return JsonResponse({'error': str(e)}, status=500)
 
-    logger.error(f"{Fore.RED}Serializer errors: {serializer.errors}")
+    logging.error(f"{Fore.RED}Serializer errors: {serializer.errors}")
     return JsonResponse(serializer.errors, status=400)

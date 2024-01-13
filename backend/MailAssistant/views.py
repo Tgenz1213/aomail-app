@@ -1,28 +1,25 @@
-# Refactoring the entire code based on the changes discussed
-
+"""
+Handles frontend requests and redirects them to the appropriate API.
+"""
 import base64
 import re
-import time
 import logging
 import json
 from colorama import Fore, init
 import jwt
-import requests
 from rest_framework_simplejwt.settings import api_settings
-from rest_framework.authtoken.models import Token
 #### FOR AUTH TO THE API
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, logout
 from django.shortcuts import render, redirect, get_object_or_404
 ####
 
 from django.shortcuts import render, redirect
-from .forms import LoginForm, RegisterForm
+from MailAssistant import gpt_4
+from MailAssistant import gpt_3_5_turbo
 from django.contrib.auth.models import User
 import datetime
-from googleapiclient.errors import HttpError
-import random
 from email import message_from_string
 from collections import defaultdict
 
@@ -31,10 +28,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
-from django.http import HttpResponse
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
-from .serializers import MessageSerializer, CategoryNameSerializer, UserEmailSerializer, BulletPointSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer
+from .serializers import MessageSerializer, CategoryNameSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer
 from django.db import IntegrityError
 
 # from .google_api import * 
@@ -56,17 +52,12 @@ from langchain.prompts.chat import SystemMessagePromptTemplate,ChatPromptTemplat
 init(autoreset=True)
 # Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+logger = logging.getLogger(__name__)
 
 
 openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 openai.api_key = "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"
 gpt_model = "gpt-3.5-turbo"
-
-# configuration = {
-#     'organization': "org-YSlFvq9rM1qPzM15jewopUUt",
-#     'api_key' : "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"
-# }
 
 importance_list = {
     'Important': 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
@@ -95,116 +86,6 @@ relevance_list = {
 api_list = [google_api,microsoft_api]
 api_var = 0
 
-# loading landing page
-def home_page(request):
-    # connection to google
-    # get_message(request)
-    if api_var==0:
-        services = api_list[api_var].authenticate_service()
-    elif api_var==1:
-        # services = api_list[api_var].authenticate_service(request)
-
-        # services = api_list[api_var].authenticate_service(request)
-        # api_list[api_var].callback(request)
-        # services = api_list[api_var].silent_authentication()
-        # print('services: ',services)
-        # return redirect('MailAssistant:callback')
-        # Retrieve the access_token from session
-        access_token = request.session.get('access_token')
-
-        if not access_token:
-            # Redirect to login or handle this case
-            return api_list[api_var].authenticate_service(request)
-
-        # Initialize the GraphAPI object
-        services = api_list[api_var].GraphAPI(request.session['token']['access_token'])
-        
-
-    processed_email_to_bdd(request,services)
-    # subject, from_name, decoded_data = api_list[api_var].get_mail(services,0,None)
-
-    # # subject, from_name, decoded_data = extract_body_from_email(services,0,None) #doesn't work
-    
-    # if decoded_data: decoded_data = format_mail(decoded_data)
-    # # print("decoded_data: ",decoded_data)
-
-    # category_list = get_db_categories(request.user)
-    # topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject,decoded_data,category_list)
-
-    # print('topic: ',topic) #Category
-    # print('importance: ',importance) #priority
-    # print('answer: ',answer) #########
-    # print('summary: ',summary) #BulletPoint - Content
-    # print('sentence: ',sentence) #email_short_summary
-    # print('relevance: ',relevance) #DEBUG
-    # print('importance_explain: ',importance_explain) #DEBUG
-
-
-
-    # # # print('draft: ',response)
-    # answer_list = ['No Answer Required: "No answer is required."','No Answer Required']
-    # if answer not in answer_list:
-    #     draft = gpt_langchain_answer(subject,decoded_data)
-    #     # print('draft: ',draft)
-    # # search_emails("test")
-    # # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
-    # # # subject_test = None
-    # # subject,new_mail = gpt_langchain_redaction(input)
-    # # print('subject: ',subject)
-    # # print('new_mail: ',new_mail)
-    # # get_calendar_events(services)
-    # input_ai = "Que recherchez-vous ?"
-    # input_text = "J'ai reçu un mail de sécurité concernant Google"
-    # # emails_id = search_emails(email_query(*gpt_langchain_decompose_search([input_ai,input_text])))
-
-    # query,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),0)
-    # print('query: ',query)
-    # question = search_chat_reply(query_list)
-    # print('question (number between 0/4 for test):',question)
-
-    # input_ai = "Que recherchez-vous ?"
-    # # input_text = "pôle emploi"
-    # input_text = 'offres_du_bassin'
-
-    # # query_attachement = 'offres_du_bassin'
-    # query_attachement,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),1)
-    # print('query_attachement: ',query_attachement)
-    # # attachements = api_list[api_var].search_attachments(query_attachement)
-    # attachements = api_list[api_var].search_emails(query_attachement)
-
-    # print('attachements: ',attachements)
-
-    # email_list_from, email_list_to, starting_date, ending_date, key_words = gpt_langchain_decompose_search([input_ai,input_text])
-    # query = email_query(email_list_from,email_list_to,starting_date,ending_date,key_words)
-    # emails_id = api_list[api_var].search_emails(query)
-    
-    # print('from_who: ',from_who)
-    # print('to_who: ',to_who)
-    # print('key_words: ',key_words)
-    # print('starting_date: ',starting_date)
-    # print('ending_date: ',ending_date)
-    # print("query: ",query)
-    # emails_id = search_emails(query)
-    # print('emails_id: ',emails_id)
-
-    # if emails_id:
-    #     for email_id in emails_id:
-    #         # print('email found: ',google_api.get_mail(services,None,email_id))
-    #         subject, from_name, decoded_data = api_list[api_var].get_mail(services,None,email_id)
-    #         if decoded_data: decoded_data = format_mail(decoded_data)
-            # print('email found: ',decoded_data)
-            # print('email found: ',get_email_by_id(email_id)) #doesn't work
-
-
-    # emailist = 'gmail'
-    # full_emailist = get_contacts(emailist,'contacts','connections')
-    # print('full_emailist: ',full_emailist)
-    # full_emailist = get_contacts(emailist,'other.contacts','otherContacts')
-    # print('full_emailist: ',full_emailist)
-
-    
-    # return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
-    return render(request, 'home_page.html')
 
 
 ######################## Read Mails ########################
@@ -609,428 +490,6 @@ def gpt_langchain_answer(subject, decoded_data):
     return clear_response
 
 
-######################## Redaction ########################
-
-# Writes a email based on a draft
-# def gpt_langchain_redaction(subject, input_data, parameters):
-# OLD USE LANGCHAIN BUT DOES NOT WORK CORRECTLY
-'''
-def gpt_langchain_redaction(input_data, length, formality):
-    # if (subject!=None):
-    template = (
-        """Given the following draft:
-
-            {input}
-
-            Please follow these instructions carefully:
-            1. Write a subject for the email based on the draft in French.
-            2. Write an email in French that matches the length and content of the input. The email should be very short, informal, and should strictly contain only the information present in the input. Do not add any new details or information.
-
-            ---
-
-            Subject:
-            [Model's drafted subject]
-
-            Draft:
-            [Model's drafted email]
-        """
-    )
-    #length = 'really short'
-    #formality = 'formal'
-    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
-    # get a chat completion from the formatted messages
-    chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
-    text = chat(chat_prompt.format_prompt(input=input_data,length=length,formality=formality).to_messages())
-
-    clear_text = text.content.strip()
-    print('clear_text: ',clear_text)
-    # if subject==None:
-    # Extracting Subject
-    subject_start = clear_text.index("Subject:") + len("Subject:")
-    subject_end = clear_text[subject_start:].index("\n\n") if "\n\n" in clear_text[subject_start:] else len(clear_text)
-    subject_list = clear_text[subject_start:subject_start+subject_end].strip().split("\n")
-    subject_text = "\n".join(subject_list)
-    # Extracting Email
-    mail_start = clear_text.index("Draft:") + len("Draft:")
-    # mail_end = clear_text[mail_start:].index("\n\n") if "\n\n" in clear_text[mail_start:] else len(clear_text)
-    mail_list = clear_text[mail_start:len(clear_text)].strip().split("\n")
-    mail_text = "\n".join(mail_list)
-    # else:
-    #     subject_text=subject
-    #     mail_text=clear_text
-    # return clear_text
-    return subject_text, mail_text'''
-
-def gpt_langchain_redaction(input_data, length, formality):
-    template = """
-        Given the following draft:
-
-        "{input_data}"
-
-        Please follow these instructions carefully:
-        1. Write a short subject for the email based on the draft in French.
-        2. Write an email in French that matches the length and content of the input. The email should be {length}, {formality}, and should strictly contain only the information present in the input. Do not add any new details or information.
-        ---
-
-        Subject:
-        [Model's drafted subject]
-
-        Draft:
-        [Model's drafted email]
-    """
-
-    formatted_prompt = template.format(input_data=input_data, length=length, formality=formality)
-
-    print("FORMATTED PROMPT", formatted_prompt)
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key )
-
-    clear_text = response.choices[0].message['content'].strip()
-
-    print('clear_text: ',clear_text)
-
-    # Extracting Subject
-    subject_start = clear_text.index("Subject:") + len("Subject:")
-    subject_end = clear_text[subject_start:].index("\n\n") if "\n\n" in clear_text[subject_start:] else len(clear_text)
-    subject_list = clear_text[subject_start:subject_start+subject_end].strip().split("\n")
-    subject_text = "\n".join(subject_list)
-
-    # Extracting Email
-    mail_start = clear_text.index("Draft:") + len("Draft:")
-    mail_list = clear_text[mail_start:len(clear_text)].strip().split("\n")
-    mail_text = "\n".join(mail_list)
-
-    print("Email :", mail_text)
-
-    return subject_text, mail_text
-
-def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject):
-    template = """
-        Consider the following email subject, content, and user recommendation in French:
-
-        Email Subject:
-        "{email_subject}"
-
-        Email Content:
-        "{mail_content}"
-
-        User Recommendation:
-        "{user_recommendation}"
-
-        Based on the user recommendation, modify the email while keeping as much of the original content and intent as possible. Please provide:
-        1. An revised subject for the email, if the recommendation suggests a change.
-        2. A revised body of the email that incorporates the recommendation without altering the original message unnecessarily.
-
-        ---
-
-        Subject:
-        [Adjusted Email Subject]
-
-        Email Body:
-        [Revised Email Body]
-    """
-
-    formatted_prompt = template.format(mail_content=mail_content, user_recommendation=user_recommendation, email_subject=email_subject)
-
-    print("FORMATTED PROMPT", formatted_prompt)
-
-    # Replace 'openai.api_key' with your actual OpenAI API key
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
-
-    clear_text = response.choices[0].message['content'].strip()
-
-    print('clear_text: ', clear_text)
-
-    # Extract the subject and body of the email
-    subject_start = clear_text.index("Subject:") + len("Subject:")
-    subject_end = clear_text.index("Email Body:")
-    subject_text = clear_text[subject_start:subject_end].strip()
-
-    body_start = subject_end + len("Email Body:")
-    email_body = clear_text[body_start:].strip()
-
-    print("Subject:", subject_text)
-    print("Email Body:", email_body)
-
-    return subject_text, email_body
-
-
- # This  function is handling the ortograph and grammar correction of the email and object if the user ask for it
-def correct_mail_language_mistakes(email_subject, email_body):
-    # V1 template to upgrade to make work with GPT3
-    template = """
-    Please check the following French text for any grammatical or spelling errors and correct them. Do not change any words unless they are misspelled or grammatically incorrect.
-
-    Subject:
-    "{email_subject}"
-
-    Body:
-    "{email_body}"
-
-    ---
-
-    Corrected Subject:
-    [Corrected Subject]
-
-    Corrected Body:
-    [Corrected Body]
-    """
-
-    formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
-
-    # Call the OpenAI API
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview",
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
-
-    response_text = response.choices[0].message['content'].strip()
-
-    print("Response Text : ", response_text)
-
-    # Extract the corrected subject and body
-    corrected_subject = extract_between_markers(response_text, "Corrected Subject:", "Corrected Body:")
-    corrected_body = extract_after_marker(response_text, "Corrected Body:")
-
-    # Count the number of corrections
-    num_corrections = count_corrections(email_subject, email_body, corrected_subject, corrected_body)
-
-    return corrected_subject, corrected_body, num_corrections
-
-def extract_between_markers(text, start_marker, end_marker):
-    start = text.find(start_marker) + len(start_marker)
-    end = text.find(end_marker, start)
-    if end > start:
-        extracted_text = text[start:end].strip()
-        return extracted_text.strip('"')  # Remove surrounding quotation marks
-    return ""
-
-def extract_after_marker(text, marker):
-    start = text.find(marker) + len(marker)
-    if start > -1:
-        extracted_text = text[start:].strip()
-        return extracted_text.strip('"')  # Remove surrounding quotation marks
-    return ""
-
-def count_corrections(original_subject, original_body, corrected_subject, corrected_body):
-    # Splitting the original and corrected texts into words
-    original_subject_words = original_subject.split()
-    corrected_subject_words = corrected_subject.split()
-    original_body_words = original_body.split()
-    corrected_body_words = corrected_body.split()
-
-    # Counting the differences in the subject
-    subject_corrections = sum(1 for orig, corr in zip(original_subject_words, corrected_subject_words) if orig != corr)
-
-    # Counting the differences in the body
-    body_corrections = sum(1 for orig, corr in zip(original_body_words, corrected_body_words) if orig != corr)
-
-    # Total corrections
-    total_corrections = subject_corrections + body_corrections
-
-    return total_corrections
-
-# This function is giving some feedback on the copywriting on the email and give some suggestions
-def improve_email_copywriting(email_subject, email_body):
-    # Simplified template for direct feedback and suggestions on copywriting
-    template = """
-    Évaluez en français la qualité du copywriting du sujet et du corps de cet e-mail. Fournissez un retour et des suggestions d'amélioration.
-
-    Objet de l'e-mail :
-    "{email_subject}"
-
-    Corps de l'e-mail :
-    "{email_body}"
-
-    ---
-
-    <strong>Retour sur l'objet</strong> :
-    [Votre retour sur l'objet]
-
-    <strong>Suggestions pour l'objet</strong> :
-    [Vos suggestions pour l'objet]
-
-    <strong>Retour sur le corps de l'e-mail</strong> :
-    [Votre retour sur le corps de l'e-mail]
-
-    <strong>Suggestions pour le corps de l'e-mail</strong> :
-    [Vos suggestions pour le corps de l'e-mail]
-    """
-
-    formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
-
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
-
-    response_text = response.choices[0].message['content'].strip()
-
-    return response_text 
-
-# Answer possibilities generation
-'''
-Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output in as less keywords as possible the ways to respond in French, do not output the mail answer
-
-    Email Content:
-    "{input_email}"
-
-    ---
-
-    French ways to respond :'''
-def generate_response_keywords(input_email):
-    template = """
-    Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output as less keywords as possible in French with verbs, do not output the mail answer
-
-    Email Content:
-    "{input_email}"
-
-    ---
-
-    French ways to respond :
-    """
-
-    formatted_prompt = template.format(input_email=input_email)
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview",  # Replace with the correct model name
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
-
-    response_text = response.choices[0].message['content'].strip()
-
-    # Split the response text by line breaks and remove surrounding quotes
-    keywords = [line.strip().strip('"') for line in response_text.split('\n') if line.strip()]
-
-    return keywords  
-
-# Answer mail generation
-def generate_email_response(input_email, response_type):
-
-    ''' WORK WITH GPT4
-    template = """
-    Given the following email content in French generate a mail response in French based on the response type. The response should not add any new information that is not asked by the user.
-
-    Email Content:
-    "{input_email}"
-
-    Response Type:
-    "{response_type}"
-
-    ---
-
-    French Response:
-    """'''
-
-    ''' NOT PERFECT BUT WORK EXCEPT WITH BUTTONS 
-    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
-
-    Email Content:
-    "{input_email}"
-
-    Desired Response Type:
-    "{response_type}"
-
-    Please write a response that aligns with the given response type:
-
-    Response:''' 
-
-    template = """
-    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
-
-    Email Content:
-    "{input_email}"
-
-    Desired Response Type:
-    "{response_type}"
-
-    Please write a response as that aligns with the given response type:
-
-    Response:
-    """
-
-    formatted_prompt = template.format(input_email=input_email, response_type=response_type)
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview", #gpt-4-1106-previewgpt-3.5-turbo
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
-
-    return response.choices[0].message['content'].strip()
-
-# TO UPDATE : make work with langchain
-def extract_contacts_recipients(input_query):
-    # Define the prompt template for ChatGPT
-    template = """
-    Analyze the following input to determine recipients for an email :
-
-    {input_query}
-
-    Format the response as (if no CC or CCI are indicate, put in main):
-    1. Main recipients: [username/email, username/email, ...]
-    2. CC recipients: [username/email, username/email, ...]
-    3. BCC recipients: [username/email, username/email, ...]
-    """
-
-    formatted_prompt = template.format(input_query=input_query)
-
-    # Call the OpenAI API
-    '''
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo",
-        prompt=formatted_prompt,
-        max_tokens=150,
-        api_key=openai.api_key 
-    )
-
-    response_text = response.choices[0].text.strip()
-
-    '''
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key )
-
-    response_text = response.choices[0].message['content'].strip()
-
-    logging.info("Received response from ChatGPT: %s", response_text)
-
-    if response_text == "INCORRECT":
-        return "INCORRECT", "INCORRECT", "INCORRECT"
-
-    # Define a function to extract items from the response
-    def extract_items(response, marker):
-        pattern = re.escape(marker) + r"\: \[(.*?)\]"
-        match = re.search(pattern, response)
-        if match:
-            items = match.group(1).split(", ")
-            return [item.strip() for item in items]
-        else:
-            return []
-
-    # Extract information based on markers
-    main_recipients = extract_items(response_text, "1. Main recipients")
-    cc_recipients = extract_items(response_text, "2. CC recipients")
-    bcc_recipients = extract_items(response_text, "3. BCC recipients")
-
-    logging.info("Extracted response from ChatGPT (main): %s", main_recipients)
-    logging.info("Extracted response from ChatGPT (CC): %s", cc_recipients)
-    logging.info("Extracted response from ChatGPT (BCC): %s", bcc_recipients)
-
-    return main_recipients, cc_recipients, bcc_recipients
-
 
 ######################## Search bar ########################
 
@@ -1209,12 +668,11 @@ def search_chat_reply(query_list):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
-    """REGISTER USER IN mailassistandb
-    
-    Handles the callback of the API with Oauth2.0
-    API taken into account:
-    - Gmail API (Google)
-    - Graph API (Microsoft)
+    """REGISTER USER IN mailassistandb and handles the callback of the API with Oauth2.0
+
+    APIs taken into account:
+        - Gmail API (Google)
+        - Graph API (Microsoft)
     """
     # Extract user data from the request
     type_api = request.data.get('type_api')
@@ -1331,28 +789,36 @@ def check_username(request):
 
 
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
+#----------------------- GET REQUESTS -----------------------#
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def unread_mails(request):
     """Returns the number of unread emails"""
-    return _forward_request(request._request, 'unread_mails')
+    return forward_request(request._request, 'unread_mails')
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_profile_image(request):
     """Returns the profile image of the user"""
-    return _forward_request(request._request, 'get_profile_image')
+    return forward_request(request._request, 'get_profile_image')
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_parsed_contacts(request):
     """Returns a list of parsed unique contacts"""
-    return _forward_request(request._request, 'get_parsed_contacts')
+    return forward_request(request._request, 'get_parsed_contacts')
 
 
-def _forward_request(request, api_method):
+#----------------------- POST REQUESTS -----------------------#
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_email_view(request):
+    forward_request(request._request, 'send_email')
+    
+
+def forward_request(request, api_method):
     """Forwards the request to the appropriate API method based on type_api"""
     user = request.user
     email = request.headers.get('email')
@@ -1372,7 +838,6 @@ def _forward_request(request, api_method):
     if api_module and hasattr(api_module, api_method):
         # Call the specified API method dynamically
         api_function = getattr(api_module, api_method)
-        print(f"{Fore.YELLOW}{api_function}")
         # Forward the request and return the response
         return api_function(request)
     else:
@@ -1380,31 +845,7 @@ def _forward_request(request, api_method):
 
 
 
-######################## Other ########################
-def send_mail(request):
-    return api_list[api_var].send_mail(request)
-
-def logout_user(request):
-    # \"\"\"Handle user logout.\"\"\"
-    logout(request)
-    return redirect('MailAssistant:login')
-
-def login_page(request):
-    # \"\"\"Render the login page and handle user authentication.\"\"\"
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('MailAssistant:home_page')
-    else:
-        form = LoginForm()
-    return render(request, 'login.html', {'form': form})
-
-
+######################## ACCOUNT ########################
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_account(request):
@@ -1422,7 +863,6 @@ def delete_account(request):
         return Response({'error': 'Failed to delete user'}, status=500)
 
 
-logger = logging.getLogger(__name__)
 
 # THEO API TEST
 @api_view(['GET'])
@@ -1433,11 +873,16 @@ def get_message(request):
     return Response(serializer.data)
 
 
+def logout_user(request):
+    # \"\"\"Handle user logout.\"\"\"
+    logout(request)
+    return redirect('MailAssistant:login')
 
-# Authentication API
+######################## AUTHENTICATION API ########################
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
+    """Authentication Django Rest API"""
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(username=username, password=password)
@@ -1451,7 +896,7 @@ def login(request):
     
     return Response({'error': 'Invalid Credentials'}, status=400) 
 
-# To check the HTTP-only cookie
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def refresh_token(request):
@@ -1477,7 +922,8 @@ def refresh_token(request):
 
     except Exception as e:
         # Handle exceptions
-        return Response({'error': str(e)}, status=400)
+        print(f'{Fore.RED}ERROR: {e}')
+        return Response({'error': e}, status=400)
 
 
 
@@ -1496,6 +942,7 @@ def get_user_categories(request):
     except User.DoesNotExist:
         return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_category(request, currentName):
@@ -1511,6 +958,7 @@ def update_category(request, currentName):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_category(request, currentName):
@@ -1524,6 +972,7 @@ def delete_category(request, currentName):
     # Delete the category
     category.delete()
     return Response({"detail": "Category deleted successfully"}, status=status.HTTP_200_OK)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1541,6 +990,7 @@ def set_category(request):
         print("Errors:", serializer.errors)
         return Response(serializer.errors, status=400)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_category_id(request, category_name):
@@ -1553,7 +1003,7 @@ def get_category_id(request, category_name):
 ######################## Home Page ########################
 
 # @api_view(['GET'])
-# @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+# @permission_classes([IsAuthenticated])  
 # def get_user_emails(request):
 #     user = request.user
 #     emails = Email.objects.filter(id_user=user)
@@ -1561,7 +1011,7 @@ def get_category_id(request, category_name):
 #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 # @api_view(['GET'])
-# @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+# @permission_classes([IsAuthenticated])  
 # def get_email_bullet_points(request, email_id):
 #     user = request.user
 
@@ -1609,7 +1059,7 @@ def get_user_emails(request):
 # POST
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+@permission_classes([IsAuthenticated])  
 def set_email_read(request, email_id):
     user = request.user
 
@@ -1625,7 +1075,7 @@ def set_email_read(request, email_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+@permission_classes([IsAuthenticated])  
 def set_email_reply_later(request, email_id):
     user = request.user
 
@@ -1641,7 +1091,7 @@ def set_email_reply_later(request, email_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+@permission_classes([IsAuthenticated])  
 def set_rule_block_for_sender(request, email_id):
     user = request.user
 
@@ -1649,7 +1099,7 @@ def set_rule_block_for_sender(request, email_id):
     email = get_object_or_404(Email, user=user, id=email_id)
     
     # Check if there's a rule for this sender and user
-    rule, created = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
+    rule, _ = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
 
     # Update the block field
     rule.block = True
@@ -1697,7 +1147,7 @@ def user_contacts(request):
     return Response(user_contacts)
 
 
-# POST
+"""# POST
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_email(request):
@@ -1728,7 +1178,7 @@ def send_email(request):
             return Response({"error": str(e)}, status=500)
     
     print("SERIALIZER ERRORS", serializer.errors)
-    return Response(serializer.errors, status=400)
+    return Response(serializer.errors, status=400)"""
 
 
 # TO Change later with the list of email of the user saved in a BD for optimization
@@ -1736,7 +1186,8 @@ def send_email(request):
 @permission_classes([IsAuthenticated])
 def find_user_view(request):
     user = request.user
-    services = authenticate_service(user)
+    email = request.headers.get('email')
+    services = authenticate_service(user, email)
     search_query = request.GET.get('query')
 
     if services is not None and search_query:
@@ -1745,15 +1196,19 @@ def find_user_view(request):
     else:
         return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
 
+
+
+######################## PROMPT ENGINEERING ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def find_user_view_ai(request):
     user = request.user
-    services = authenticate_service(user)
+    email = request.headers.get("email")
+    services = authenticate_service(user, email)
     search_query = request.GET.get('query')
 
     if services is not None and search_query:
-        main_list, cc_list, bcc_list = extract_contacts_recipients(search_query)
+        main_list, cc_list, bcc_list = gpt_3_5_turbo.extract_contacts_recipients(search_query)
 
         if main_list == "INCORRECT":
             return Response({"error": "Invalid input or query not about email recipients"}, status=400)
@@ -1767,16 +1222,18 @@ def find_user_view_ai(request):
         cc_recipients_with_emails = find_emails_for_recipients(cc_list)
         bcc_recipients_with_emails = find_emails_for_recipients(bcc_list)
 
-        #logging.info("Email recipients (main): %s", main_recipients_with_emails)
+        # logging.info("Email recipients (main): %s", main_recipients_with_emails)
 
         return Response({
             "main_recipients": main_recipients_with_emails,
             "cc_recipients": cc_recipients_with_emails,
             "bcc_recipients": bcc_recipients_with_emails
-        }, safe=False, status=200)
+        }, status=200)
     else:
         return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
 
+
+#----------------------- REDACTION -----------------------#
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def new_email_ai(request):
@@ -1787,7 +1244,7 @@ def new_email_ai(request):
         length = serializer.validated_data['length']
         formality = serializer.validated_data['formality']
 
-        subject_text, mail_text = gpt_langchain_redaction(input_data, length, formality)
+        subject_text, mail_text = gpt_4.gpt_langchain_redaction(input_data, length, formality)
 
         print("LOG MAIL", mail_text)
 
@@ -1795,6 +1252,7 @@ def new_email_ai(request):
         return Response({'subject': subject_text, 'mail': mail_text})
     else:
         return Response(serializer.errors, status=400)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1806,12 +1264,12 @@ def new_email_recommendations(request):
         user_recommendation = serializer.validated_data['user_recommendation']
         email_subject = serializer.validated_data['email_subject']  # Récupérer l'objet
 
-        subject_text, email_body = gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)  # Inclure l'objet dans l'appel
+        subject_text, email_body = gpt_4.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)  # Inclure l'objet dans l'appel
 
-        # Retourner la réponse
         return Response({'subject': subject_text, 'email_body': email_body})
     else:
         return Response(serializer.errors, status=400)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1823,9 +1281,8 @@ def correct_email_language(request):
         email_subject = serializer.validated_data['email_subject']
         email_body = serializer.validated_data['email_body']
 
-        corrected_subject, corrected_body, num_corrections = correct_mail_language_mistakes(email_subject, email_body)
+        corrected_subject, corrected_body, num_corrections = gpt_4.correct_mail_language_mistakes(email_subject, email_body)
 
-        # Return the response
         return Response({
             'corrected_subject': corrected_subject,
             'corrected_body': corrected_body,
@@ -1833,6 +1290,7 @@ def correct_email_language(request):
         })
     else:
         return Response(serializer.errors, status=400)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1844,17 +1302,14 @@ def check_email_copywriting(request):
         email_subject = serializer.validated_data['email_subject']
         email_body = serializer.validated_data['email_body']
 
-        feedback_copywriting = improve_email_copywriting(email_subject, email_body)
+        feedback_copywriting = gpt_3_5_turbo.improve_email_copywriting(email_subject, email_body)
 
-        # Return the response
-        return Response({
-            'feedback_copywriting': feedback_copywriting,
-        })
+        return Response({'feedback_copywriting': feedback_copywriting})
     else:
         return Response(serializer.errors, status=400)
 
-######################### Answer #########################
 
+#----------------------- ANSWER -----------------------#
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def generate_email_response_keywords(request):
@@ -1862,7 +1317,7 @@ def generate_email_response_keywords(request):
 
     if serializer.is_valid():
         email_content = serializer.validated_data['email_content']
-        response_keywords = generate_response_keywords(email_content)
+        response_keywords = gpt_4.generate_response_keywords(email_content)
 
         return Response({
             'response_keywords': response_keywords,
@@ -1878,7 +1333,7 @@ def generate_email_answer(request):
     if serializer.is_valid():
         email_content = serializer.validated_data['email_content']
         response_type = serializer.validated_data['response_type']
-        email_answer = generate_email_response(email_content, response_type)
+        email_answer = gpt_4.generate_email_response(email_content, response_type)
 
         return Response({
             'email_answer': email_answer,
@@ -1886,8 +1341,8 @@ def generate_email_answer(request):
     else:
         return Response(serializer.errors, status=400)
 
-####################### Reply Later ######################
 
+#----------------------- REPLY LATER -----------------------#
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_answer_later_emails(request):
@@ -1924,23 +1379,23 @@ def get_answer_later_emails(request):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 ######################## Settings ########################
-
-# GET
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_bg_color(request):
     try:
-        # Use 'user' instead of 'id_user' to filter the preferences
         preferences = Preference.objects.get(user=request.user)
         serializer = PreferencesSerializer(preferences)
         return Response(serializer.data)
+
     except Preference.DoesNotExist:
         return Response({"error": "Preferences not found for the user."}, status=404)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_details(request):
     return Response({'username': request.user.username})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1959,6 +1414,7 @@ def update_username(request):
 
     return Response({'success': 'Username updated successfully.'})
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def update_password(request):
@@ -1974,6 +1430,7 @@ def update_password(request):
     user.save()
 
     return Response({'success': 'Password updated successfully.'})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1995,9 +1452,8 @@ def set_user_bg_color(request):
         return Response(serializer.errors, status=400)
 
 
-######################## Rules ########################
 
-
+######################## RULES ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_rules(request):
@@ -2022,11 +1478,13 @@ def get_user_rules(request):
 
     return Response(rules_data)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_unique_email_senders_view(request):
     user = request.user
-    services = authenticate_service(user)
+    email = request.headers.get('email')
+    services = authenticate_service(user, email)
     
     if services is not None:
         senders_info = get_unique_senders(services)
@@ -2042,6 +1500,7 @@ def get_unique_email_senders_view(request):
     else:
         return Response({"error": "Failed to authenticate or access services"}, status=400)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_sender(request):
@@ -2053,6 +1512,7 @@ def create_sender(request):
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_user_rule(request):
@@ -2066,17 +1526,15 @@ def create_user_rule(request):
         return Response(serializer.errors, status=400)
 
 
-        
 
-######################## Test ########################
- 
-
+######################## TESTING ########################
 # TO TEST AUTH API
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def authenticate_service_view(request):
     user = request.user
-    service = authenticate_service(user)
+    email = request.headers.get('email')
+    service = authenticate_service(user, email)
     
     if service is not None:
         # Return a success response, along with any necessary information
@@ -2090,7 +1548,8 @@ def authenticate_service_view(request):
 @permission_classes([IsAuthenticated])
 def get_mail_view(request):
     user = request.user
-    service = authenticate_service(user)
+    email = request.headers.get('email')
+    service = authenticate_service(user, email)
     
     if service is not None:
         subject, from_name, decoded_data, email_id = get_mail(service, 0, None)
@@ -2113,7 +1572,8 @@ def get_mail_view(request):
 @permission_classes([IsAuthenticated])
 def get_mail_by_id_view(request):
     user = request.user
-    service = authenticate_service(user)
+    email = request.headers.get('email')
+    service = authenticate_service(user, email)
     mail_id = request.GET.get('email_id')
     
     if service is not None and mail_id is not None:
@@ -2140,7 +1600,8 @@ def get_mail_by_id_view(request):
 @permission_classes([IsAuthenticated])
 def save_last_mail_view(request):
     user = request.user
-    service = authenticate_service(user)
+    email = request.headers.get('email')
+    service = authenticate_service(user, email)
     
     if service is not None:
         processed_email_to_bdd(request,service)
@@ -2189,3 +1650,116 @@ def get_user_login(request):
         return Response({"error": "User not found."}, status=404)'''
 
 
+"""
+# loading landing page
+def home_page(request):
+    # connection to google
+    # get_message(request)
+    if api_var==0:
+        services = api_list[api_var].authenticate_service()
+    elif api_var==1:
+        # services = api_list[api_var].authenticate_service(request)
+
+        # services = api_list[api_var].authenticate_service(request)
+        # api_list[api_var].callback(request)
+        # services = api_list[api_var].silent_authentication()
+        # print('services: ',services)
+        # return redirect('MailAssistant:callback')
+        # Retrieve the access_token from session
+        access_token = request.session.get('access_token')
+
+        if not access_token:
+            # Redirect to login or handle this case
+            return api_list[api_var].authenticate_service(request)
+
+        # Initialize the GraphAPI object
+        services = api_list[api_var].GraphAPI(request.session['token']['access_token'])
+        
+    print(f"{Fore.RED}PROCESSING")
+    processed_email_to_bdd(request,services)
+    # subject, from_name, decoded_data = api_list[api_var].get_mail(services,0,None)
+
+    # # subject, from_name, decoded_data = extract_body_from_email(services,0,None) #doesn't work
+    
+    # if decoded_data: decoded_data = format_mail(decoded_data)
+    # # print("decoded_data: ",decoded_data)
+
+    # category_list = get_db_categories(request.user)
+    # topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject,decoded_data,category_list)
+
+    # print('topic: ',topic) #Category
+    # print('importance: ',importance) #priority
+    # print('answer: ',answer) #########
+    # print('summary: ',summary) #BulletPoint - Content
+    # print('sentence: ',sentence) #email_short_summary
+    # print('relevance: ',relevance) #DEBUG
+    # print('importance_explain: ',importance_explain) #DEBUG
+
+
+
+    # # # print('draft: ',response)
+    # answer_list = ['No Answer Required: "No answer is required."','No Answer Required']
+    # if answer not in answer_list:
+    #     draft = gpt_langchain_answer(subject,decoded_data)
+    #     # print('draft: ',draft)
+    # # search_emails("test")
+    # # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
+    # # # subject_test = None
+    # # subject,new_mail = gpt_langchain_redaction(input)
+    # # print('subject: ',subject)
+    # # print('new_mail: ',new_mail)
+    # # get_calendar_events(services)
+    # input_ai = "Que recherchez-vous ?"
+    # input_text = "J'ai reçu un mail de sécurité concernant Google"
+    # # emails_id = search_emails(email_query(*gpt_langchain_decompose_search([input_ai,input_text])))
+
+    # query,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),0)
+    # print('query: ',query)
+    # question = search_chat_reply(query_list)
+    # print('question (number between 0/4 for test):',question)
+
+    # input_ai = "Que recherchez-vous ?"
+    # # input_text = "pôle emploi"
+    # input_text = 'offres_du_bassin'
+
+    # # query_attachement = 'offres_du_bassin'
+    # query_attachement,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),1)
+    # print('query_attachement: ',query_attachement)
+    # # attachements = api_list[api_var].search_attachments(query_attachement)
+    # attachements = api_list[api_var].search_emails(query_attachement)
+
+    # print('attachements: ',attachements)
+
+    # email_list_from, email_list_to, starting_date, ending_date, key_words = gpt_langchain_decompose_search([input_ai,input_text])
+    # query = email_query(email_list_from,email_list_to,starting_date,ending_date,key_words)
+    # emails_id = api_list[api_var].search_emails(query)
+    
+    # print('from_who: ',from_who)
+    # print('to_who: ',to_who)
+    # print('key_words: ',key_words)
+    # print('starting_date: ',starting_date)
+    # print('ending_date: ',ending_date)
+    # print("query: ",query)
+    # emails_id = search_emails(query)
+    # print('emails_id: ',emails_id)
+
+    # if emails_id:
+    #     for email_id in emails_id:
+    #         # print('email found: ',google_api.get_mail(services,None,email_id))
+    #         subject, from_name, decoded_data = api_list[api_var].get_mail(services,None,email_id)
+    #         if decoded_data: decoded_data = format_mail(decoded_data)
+            # print('email found: ',decoded_data)
+            # print('email found: ',get_email_by_id(email_id)) #doesn't work
+
+
+    # emailist = 'gmail'
+    # full_emailist = get_contacts(emailist,'contacts','connections')
+    # print('full_emailist: ',full_emailist)
+    # full_emailist = get_contacts(emailist,'other.contacts','otherContacts')
+    # print('full_emailist: ',full_emailist)
+
+    
+    # return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
+    print("RENDERING HOME.HTML")
+    return render(request, 'home_page.html')
+"""

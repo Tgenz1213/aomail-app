@@ -1229,7 +1229,7 @@ def new_email_recommendations(request):
         print(f'{Fore.CYAN}user_recommendation: {user_recommendation}')
         print(f'{Fore.CYAN}email_subject: {email_subject}')
 
-        subject_text, email_body = gpt_4.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)
+        subject_text, email_body = gpt_3_5_turbo.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)
 
         return Response({'subject': subject_text, 'email_body': email_body})
     else:
@@ -1239,14 +1239,33 @@ def new_email_recommendations(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+def gpt_improve_email_writing(request):
+    """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
+    serializer = EmailCorrectionSerializer(data=request.data)
+
+    if serializer.is_valid():
+        email_body = serializer.validated_data['email_body']
+        email_subject = serializer.validated_data['email_subject']
+
+        email_body, subject_text = gpt_3_5_turbo.gpt_improve_email_writing(email_body, email_subject)
+        
+        return Response({'subject': subject_text, 'email_body': email_body})        
+    else:
+        logging.error(f'{Fore.RED}Error: {serializer.errors}')
+        return Response(serializer.errors, status=400)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def correct_email_language(request):
+    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
     serializer = EmailCorrectionSerializer(data=request.data)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data['email_subject']
         email_body = serializer.validated_data['email_body']
 
-        corrected_subject, corrected_body, num_corrections = gpt_4.correct_mail_language_mistakes(email_subject, email_body)
+        corrected_subject, corrected_body, num_corrections = gpt_3_5_turbo.correct_mail_language_mistakes(email_subject, email_body)
 
         return Response({
             'corrected_subject': corrected_subject,

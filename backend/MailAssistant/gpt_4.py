@@ -3,16 +3,28 @@ Handles prompt engineering requests for GPT-4 API.
 """
 from colorama import Fore, init
 import openai
+from MailAssistant import gpt_3_5_turbo
 
 
-# Initialize colorama with autoreset
-init(autoreset=True)
 
 
 ######################## GPT - 4 API SETTINGS ########################
 openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 openai.api_key = "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"
+init(autoreset=True)
 
+
+
+
+
+
+def get_prompt_response(formatted_prompt):
+    """Returns the prompt response"""
+    response = openai.ChatCompletion.create(
+        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
+        messages=[{"role": "system", "content": formatted_prompt}]
+    )
+    return response
 
 
 ######################## REDACTION ########################
@@ -39,11 +51,8 @@ def gpt_langchain_redaction(input_data, length, formality):
 
     print("FORMATTED PROMPT", formatted_prompt)
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
+    # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
+    response = get_prompt_response(formatted_prompt)
 
     clear_text = response.choices[0].message['content'].strip()
 
@@ -95,12 +104,7 @@ def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject
 
     print("FORMATTED PROMPT", formatted_prompt)
 
-    # Replace 'openai.api_key' with your actual OpenAI API key
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
+    response = get_prompt_response(formatted_prompt)
     
     clear_text = response.choices[0].message['content'].strip()
 
@@ -123,7 +127,6 @@ def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject
     return subject_text, email_body
 
 
-# TODO: V1 template to upgrade to make work with GPT3
 def correct_mail_language_mistakes(email_subject, email_body):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""    
     template = """
@@ -143,16 +146,8 @@ def correct_mail_language_mistakes(email_subject, email_body):
     Corrected Body:
     [Corrected Body]
     """
-
     formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
-
-    # Call the OpenAI API
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview",
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
-
+    response = get_prompt_response(formatted_prompt)
     response_text = response.choices[0].message['content'].strip()
 
     print("Response Text : ", response_text)
@@ -162,7 +157,7 @@ def correct_mail_language_mistakes(email_subject, email_body):
     corrected_body = extract_after_marker(response_text, "Corrected Body:")
 
     # Count the number of corrections
-    num_corrections = count_corrections(email_subject, email_body, corrected_subject, corrected_body)
+    num_corrections = gpt_3_5_turbo.count_corrections(email_subject, email_body, corrected_subject, corrected_body)
 
     return corrected_subject, corrected_body, num_corrections
 
@@ -189,15 +184,8 @@ def generate_response_keywords(input_email):
 
     French ways to respond :
     """
-
     formatted_prompt = template.format(input_email=input_email)
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview",  # Replace with the correct model name
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
-
+    response = get_prompt_response(formatted_prompt)
     response_text = response.choices[0].message['content'].strip()
 
     # Split the response text by line breaks and remove surrounding quotes
@@ -250,14 +238,8 @@ def generate_email_response(input_email, response_type):
 
     Response:
     """
-
     formatted_prompt = template.format(input_email=input_email, response_type=response_type)
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview", #gpt-4-1106-previewgpt-3.5-turbo
-        messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key
-    )
+    response = get_prompt_response(formatted_prompt)
 
     return response.choices[0].message['content'].strip()
 
@@ -279,25 +261,6 @@ def extract_after_marker(text, marker):
         extracted_text = text[start:].strip()
         return extracted_text.strip('"')  # Remove surrounding quotation marks
     return ""
-
-
-def count_corrections(original_subject, original_body, corrected_subject, corrected_body):
-    # Splitting the original and corrected texts into words
-    original_subject_words = original_subject.split()
-    corrected_subject_words = corrected_subject.split()
-    original_body_words = original_body.split()
-    corrected_body_words = corrected_body.split()
-
-    # Counting the differences in the subject
-    subject_corrections = sum(1 for orig, corr in zip(original_subject_words, corrected_subject_words) if orig != corr)
-
-    # Counting the differences in the body
-    body_corrections = sum(1 for orig, corr in zip(original_body_words, corrected_body_words) if orig != corr)
-
-    # Total corrections
-    total_corrections = subject_corrections + body_corrections
-
-    return total_corrections
 
 
 

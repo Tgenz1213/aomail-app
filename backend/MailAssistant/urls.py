@@ -30,6 +30,8 @@ urlpatterns = [
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'),
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'),
     path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'),
+    path('api/gpt_improve_email_writing/', views.gpt_improve_email_writing, name='gpt_improve_email_writing'),
+
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'),
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'),
     path('api/send_mail/', views.send_email, name='send_mail'),

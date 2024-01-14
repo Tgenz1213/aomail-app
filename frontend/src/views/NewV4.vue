@@ -1674,21 +1674,19 @@ async function WriteBetter() {
         'email': localStorage.getItem('email')
       },
       body: JSON.stringify({
-        mail_content: mailInput.value,
-        user_recommendation: "Améliore l'écriture du mail",
+        email_body: mailInput.value,
         email_subject: inputValue.value,
       }),
     };
 
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', requestOptions);
+    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/gpt_improve_email_writing/', requestOptions);
 
     hideLoading();
-    subject.value = result.subject;
-    mail.value = result.email_body;
     console.log(result);
+    subject.value = result.subject;
+    mail.value = result.body;
     if (result.subject && result.email_body) {
         // TO FINISH => animation
-        const formattedMail = result.email_body.replace(/\n/g, '<br>');
         const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
@@ -1700,7 +1698,7 @@ async function WriteBetter() {
                 </div>
                 <div>
                     <p><strong>Objet:</strong> ${result.subject}</p>
-                    <p><strong>Email:</strong> ${formattedMail}</p>
+                    <p><strong>Email:</strong> ${result.email_body}</p>
                 </div>
             </div>
         `;

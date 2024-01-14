@@ -313,6 +313,7 @@ const people = [];
 const requestOptions = {
   method: 'GET',
   headers: {
+    'Content-Type': 'application/json',
     'email': localStorage.getItem('email')
   },
 };
@@ -508,7 +509,7 @@ const handleAIClick = async () => {
   const requestOptions = {
     method: 'GET',
     headers: {
-      
+      'Content-Type': 'application/json',
       'email': localStorage.getItem('email')
     },
   };
@@ -616,6 +617,7 @@ const handleAIClick = async () => {
               const requestOptions = {
                 method: 'POST',
                 headers: {
+                  'Content-Type': 'application/json',
                   'email': localStorage.getItem('email')
                 },
                 body: JSON.stringify({
@@ -748,6 +750,7 @@ const handleAIClick = async () => {
               const requestOptions = {
                 method: 'POST',
                 headers: {
+                  'Content-Type': 'application/json',
                   'email': localStorage.getItem('email')
                 },
                 body: JSON.stringify({
@@ -871,7 +874,8 @@ async function findUser(searchQuery) {
 
   const requestOptions = {
     method: 'GET',
-    headers: {      
+    headers: {
+      'Content-Type': 'application/json',
       'email': localStorage.getItem('email')
     },
   };
@@ -1434,6 +1438,7 @@ async function checkSpelling() {
       const requestOptions = {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'email': localStorage.getItem('email')
         },
         body: JSON.stringify({
@@ -1551,6 +1556,7 @@ async function checkCopyWriting() {
       const requestOptions = {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'email': localStorage.getItem('email')
         },
         body: JSON.stringify({
@@ -1664,6 +1670,7 @@ async function WriteBetter() {
     const requestOptions = {
       method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'email': localStorage.getItem('email')
       },
       body: JSON.stringify({

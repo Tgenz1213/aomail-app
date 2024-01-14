@@ -200,50 +200,56 @@ def unread_mails(request):
 @permission_classes([IsAuthenticated])
 def send_email(request):
     """Sends an email using the Gmail API."""
-    user = request.user
-    email = request.headers.get('email')
-    service = authenticate_service(user, email)['gmail.send']
-    serializer = EmailDataSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        data = serializer.validated_data
+    try:
+        user = request.user
+        email = request.headers.get('email')
+        service = authenticate_service(user, email)['gmail.send']
+        serializer = EmailDataSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            data = serializer.validated_data
 
-        subject=data['subject'],
-        message=data['message'],
-        to=data['to'],
-        cc=data['cc'],
-        bcc=data['cci'],
-        attachments=data.get('attachments', '')
+            subject = data['subject']
+            message = data['message']
+            to = data['to']
+            cc = data['cc']
+            bcc = data['cci']
+            attachments = data.get('attachments', '')
 
-        multipart_message = MIMEMultipart()
-        multipart_message["Subject"] = subject
-        multipart_message["from"] = "me"
-        multipart_message["to"] = to
+            multipart_message = MIMEMultipart()
+            multipart_message["Subject"] = subject
+            multipart_message["from"] = "me"
+            multipart_message["to"] = to
 
-        if cc:
-            multipart_message["cc"] = cc
-        if bcc:
-            multipart_message["bcc"] = bcc
+            if cc:
+                multipart_message["cc"] = cc
+            if bcc:
+                multipart_message["bcc"] = bcc
 
-        multipart_message.attach(MIMEText(message, "html"))
+            multipart_message.attach(MIMEText(message, "html"))
 
-        # Attach each file in the attachments list
-        if attachments:
-            for uploaded_file in attachments:
-                # Read the contents of the uploaded file
-                file_content = uploaded_file.read()
-                part = MIMEApplication(file_content)
-                part.add_header('Content-Disposition', 'attachment', filename=uploaded_file.name)
-                multipart_message.attach(part)
+            # Attach each file in the attachments list
+            if attachments:
+                for uploaded_file in attachments:
+                    # Read the contents of the uploaded file
+                    file_content = uploaded_file.read()
+                    part = MIMEApplication(file_content)
+                    part.add_header('Content-Disposition', 'attachment', filename=uploaded_file.name)
+                    multipart_message.attach(part)
 
-        raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
-        body = {'raw': raw_message}
-        service.users().messages().send(userId="me", body=body).execute()
+            raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
+            body = {'raw': raw_message}
+            service.users().messages().send(userId="me", body=body).execute()
 
-        return Response({"message": "Email sent successfully!"}, status=200)
+            return Response({"message": "Email sent successfully!"}, status=200)
 
-    else:
-        return Response(serializer.errors, status=400)
+        else:
+            return Response(serializer.errors, status=400)
+    except Exception as e:
+        # Log the error
+        logging.error(f'Error in send_email view: {e}')
+        # Return a response indicating the error
+        return Response({"error": "Internal Server Error"}, status=500)
 
 
 
@@ -518,58 +524,8 @@ def email_query(from_list,to_list,after,before,keywords,int_attachement):
     # print(len(to_list))
     return query, query_list
 
-# # GOOGLE # Search for emails
-# def search_emails(query):
-#     services = authenticate_service()
-#     service = services['gmail.readonly']
-#     # print('query: ',query)
-#     email_ids = []
-    
-#     # Initial API request
-#     response = service.users().messages().list(userId='me', q=query).execute()
-    
-#     while 'messages' in response:
-#         while 'messages' in response:
-#             for message in response['messages']:
-#                 email_ids.append(message['id'])
-            
-#             # Check if there are more pages of results
-#             if 'nextPageToken' in response:
-#                 response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
-#             else:
-#                 break
 
-#         # If you want to print out the IDs
-#         for email_id in email_ids:
-#             print(email_id)
-#         print("Number of mails: ",len(email_ids))
 
-#         return email_ids
-def search_emails(query):
-    services = authenticate_service()
-    service = services['gmail.readonly']
-    
-    email_ids = []
-    
-    # Initial API request
-    response = service.users().messages().list(userId='me', q=query).execute()
-    
-    while 'messages' in response:
-        for message in response['messages']:
-            email_ids.append(message['id'])
-        
-        # Check if there are more pages of results
-        if 'nextPageToken' in response:
-            response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
-        else:
-            break
-
-    # If you want to print out the IDs
-    for email_id in email_ids:
-        print(email_id)
-    print("Number of mails: ", len(email_ids))
-
-    return email_ids
 
 
 # delays retries after error 429 sync quota exceeded
@@ -796,56 +752,37 @@ def get_info_contacts(services):
     return names_emails
 
 
-# NEW MAIL
-# search in mailbox
-'''
-def search_emails(services, search_query, max_results=5):
-    service = services['gmail.readonly']
-    query = f"{search_query}"
 
-    # Limit the number of results to improve performance
-    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
-    messages = results.get('messages', [])
-    found_emails = {}
-
-    for message in messages:
-        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
-        headers = msg.get('payload', {}).get('headers', [])
-        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
-
-        if sender and not any(substring in sender.lower() for substring in ["noreply", "no-reply"]): # CAN BE UPGRADED FOR MORE PERFORMANCE
-            email = sender.split('<')[-1].split('>')[0].strip()
-            name = sender.split('<')[0].strip() if '<' in sender else email
-            if email:  # Ensure email is not empty
-                found_emails[email] = name
-
-    return found_emails'''
 
 # V2 : better to check the mail structure (comparing with the input)
 def search_emails(services, search_query, max_results=2):
     service = services['gmail.readonly']
-    query = f"{search_query}"
 
     # Fetch the list of emails based on the query
-    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
-    messages = results.get('messages', [])
-    found_emails = {}
+    try:
+        results = service.users().messages().list(userId='me', q=search_query, maxResults=max_results).execute()
+        messages = results.get('messages', [])
+        found_emails = {}
 
-    for message in messages:
-        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
-        headers = msg.get('payload', {}).get('headers', [])
-        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+            headers = msg.get('payload', {}).get('headers', [])
+            sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
 
-        if sender:
-            email = sender.split('<')[-1].split('>')[0].strip().lower()
-            name = sender.split('<')[0].strip().lower() if '<' in sender else email
+            if sender:
+                email = sender.split('<')[-1].split('>')[0].strip().lower()
+                name = sender.split('<')[0].strip().lower() if '<' in sender else email
 
-            # Additional filtering: Check if the sender email/name matches the search query
-            if search_query.lower() in email or search_query.lower() in name:
-                if email and not any(substring in email for substring in ["noreply", "no-reply"]):
-                    found_emails[email] = name
+                # Additional filtering: Check if the sender email/name matches the search query
+                if search_query.lower() in email or search_query.lower() in name:
+                    if email and not any(substring in email for substring in ["noreply", "no-reply"]):
+                        found_emails[email] = name
 
-    return found_emails
+        return found_emails
+
+    except Exception as e:
+        logging.error(f'{Fore.RED}ERROR in Gmail API request: {e}')
+        return {}
 
 
 def find_user_in_emails(services, search_query):
@@ -855,6 +792,7 @@ def find_user_in_emails(services, search_query):
         return "No matching emails found."
 
     return emails
+
 
 # To send email
 def send_email_with_gmail(services, subject, message, to, cc, bcc, attachments=None):
@@ -1043,3 +981,81 @@ def send_mail(request):
     else : 
         form = MailForm()         
     return render(request, 'send_mails.html', {'form': form})"""
+
+
+# NEW MAIL
+# search in mailbox
+'''
+def search_emails(services, search_query, max_results=5):
+    service = services['gmail.readonly']
+    query = f"{search_query}"
+
+    # Limit the number of results to improve performance
+    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
+    messages = results.get('messages', [])
+    found_emails = {}
+
+    for message in messages:
+        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+        headers = msg.get('payload', {}).get('headers', [])
+        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
+
+        if sender and not any(substring in sender.lower() for substring in ["noreply", "no-reply"]): # CAN BE UPGRADED FOR MORE PERFORMANCE
+            email = sender.split('<')[-1].split('>')[0].strip()
+            name = sender.split('<')[0].strip() if '<' in sender else email
+            if email:  # Ensure email is not empty
+                found_emails[email] = name
+
+    return found_emails'''
+# # GOOGLE # Search for emails
+# def search_emails(query):
+#     services = authenticate_service()
+#     service = services['gmail.readonly']
+#     # print('query: ',query)
+#     email_ids = []
+    
+#     # Initial API request
+#     response = service.users().messages().list(userId='me', q=query).execute()
+    
+#     while 'messages' in response:
+#         while 'messages' in response:
+#             for message in response['messages']:
+#                 email_ids.append(message['id'])
+            
+#             # Check if there are more pages of results
+#             if 'nextPageToken' in response:
+#                 response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+#             else:
+#                 break
+
+#         # If you want to print out the IDs
+#         for email_id in email_ids:
+#             print(email_id)
+#         print("Number of mails: ",len(email_ids))
+
+#         return email_ids
+"""def search_emails(query):
+    services = authenticate_service()
+    service = services['gmail.readonly']
+    
+    email_ids = []
+    
+    # Initial API request
+    response = service.users().messages().list(userId='me', q=query).execute()
+    
+    while 'messages' in response:
+        for message in response['messages']:
+            email_ids.append(message['id'])
+        
+        # Check if there are more pages of results
+        if 'nextPageToken' in response:
+            response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+        else:
+            break
+
+    # If you want to print out the IDs
+    for email_id in email_ids:
+        print(email_id)
+    print("Number of mails: ", len(email_ids))
+
+    return email_ids"""

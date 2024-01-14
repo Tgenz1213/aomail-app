@@ -1,8 +1,12 @@
 """
 Handles prompt engineering requests for GPT-4 API.
 """
+from colorama import Fore, init
 import openai
 
+
+# Initialize colorama with autoreset
+init(autoreset=True)
 
 
 ######################## GPT - 4 API SETTINGS ########################
@@ -97,18 +101,21 @@ def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject
         messages=[{"role": "system", "content": formatted_prompt}],
         api_key=openai.api_key
     )
-
+    
     clear_text = response.choices[0].message['content'].strip()
-
-    print('clear_text: ', clear_text)
 
     # Extract the subject and body of the email
     subject_start = clear_text.index("Subject:") + len("Subject:")
     subject_end = clear_text.index("Email Body:")
     subject_text = clear_text[subject_start:subject_end].strip()
-
     body_start = subject_end + len("Email Body:")
     email_body = clear_text[body_start:].strip()
+
+    # Removing quotations from subject and body
+    if subject_text.startswith('"') and subject_text.endswith('"'):
+        subject_text = subject_text[1:-1]
+    if email_body.startswith('"') and email_body.endswith('"'):
+        email_body = email_body[1:-1]
 
     print("Subject:", subject_text)
     print("Email Body:", email_body)

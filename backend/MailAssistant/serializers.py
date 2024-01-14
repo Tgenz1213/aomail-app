@@ -105,7 +105,7 @@ class NewEmailAISerializer(serializers.Serializer):
 class EmailAIRecommendationsSerializer(serializers.Serializer):
     mail_content = serializers.CharField()
     user_recommendation = serializers.CharField()
-    email_subject = serializers.CharField()
+    email_subject = serializers.CharField(allow_blank=True)
 
 class EmailCorrectionSerializer(serializers.Serializer):
     email_subject = serializers.CharField(required=True, allow_blank=False)

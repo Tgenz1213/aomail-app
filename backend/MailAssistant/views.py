@@ -38,7 +38,7 @@ from . import google_api, microsoft_api
 
 # To test co to google_api
 from django.http import JsonResponse
-from .google_api import authenticate_service, get_mail, get_unique_senders, get_info_contacts, find_user_in_emails, send_email_with_gmail
+from .google_api import authenticate_service, get_mail, get_unique_senders, get_info_contacts, find_user_in_emails
 
 # OpenAI - ChatGPT
 import openai
@@ -814,9 +814,9 @@ def get_parsed_contacts(request):
 #----------------------- POST REQUESTS -----------------------#
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def send_email_view(request):
-    forward_request(request._request, 'send_email')
-    
+def send_email(request):
+    return forward_request(request._request, 'send_email')  
+
 
 def forward_request(request, api_method):
     """Forwards the request to the appropriate API method based on type_api"""
@@ -980,15 +980,22 @@ def set_category(request):
     data = request.data.copy()
     data['user'] = request.user.id
 
+    # Check if the category already exists for the user
+    existing_category = Category.objects.filter(user=request.user, name=data['name']).exists()
+
+
+    if existing_category:
+        return Response({'error': 'Category already exists for the user'}, status=status.HTTP_400_BAD_REQUEST)
+
     serializer = NewCategorySerializer(data=data)
 
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data, status=201)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         print("Data:", request.data)
         print("Errors:", serializer.errors)
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -1147,40 +1154,6 @@ def user_contacts(request):
     return Response(user_contacts)
 
 
-"""# POST
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def send_email(request):
-
-    serializer = EmailDataSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        data = serializer.validated_data
-        print("DATA -------------------------------->", data)
-
-        try:
-            user = request.user
-            service = authenticate_service(user)
-
-            send_email_with_gmail(
-                services=service,
-                subject=data['subject'],
-                message=data['message'],
-                to=data['to'],
-                cc=data['cc'],
-                bcc=data['cci'],
-                attachments=data.get('attachments')
-            )
-            return Response({"message": "Email sent successfully!"}, status=200)
-        except Exception as e:
-            print("ERROR ---------------------------------> ",e)
-            # Handle exceptions from the email sending process
-            return Response({"error": str(e)}, status=500)
-    
-    print("SERIALIZER ERRORS", serializer.errors)
-    return Response(serializer.errors, status=400)"""
-
-
 # TO Change later with the list of email of the user saved in a BD for optimization
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1256,18 +1229,19 @@ def new_email_ai(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def new_email_recommendations(request):
+def new_email_recommendations(request):    
     serializer = EmailAIRecommendationsSerializer(data=request.data)
 
     if serializer.is_valid():
         mail_content = serializer.validated_data['mail_content']
         user_recommendation = serializer.validated_data['user_recommendation']
-        email_subject = serializer.validated_data['email_subject']  # Récupérer l'objet
+        email_subject = serializer.validated_data['email_subject']
 
-        subject_text, email_body = gpt_4.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)  # Inclure l'objet dans l'appel
+        subject_text, email_body = gpt_4.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)
 
         return Response({'subject': subject_text, 'email_body': email_body})
     else:
+        logging.error(f'{Fore.RED}Error: {serializer.errors}')
         return Response(serializer.errors, status=400)
 
 
@@ -1275,7 +1249,6 @@ def new_email_recommendations(request):
 @permission_classes([IsAuthenticated])
 def correct_email_language(request):
     serializer = EmailCorrectionSerializer(data=request.data)
-    print("Serializer :", serializer)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data['email_subject']
@@ -1432,6 +1405,22 @@ def update_password(request):
     return Response({'success': 'Password updated successfully.'})
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_first_email(request):
+    """Returns the first email associated with the user in mailassistantdb"""
+    user = request.user
+    social_api_instance = get_object_or_404(SocialAPI, user=user)
+    
+    # TODO: update the code to handle when the user has several emails
+    email = social_api_instance.email
+    
+    if email:
+        return Response({'email': email}, status=200)
+    else:
+        return Response({'error': 'No emails associated with the user'}, status=404)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_user_bg_color(request):
@@ -1528,6 +1517,12 @@ def create_user_rule(request):
 
 
 ######################## TESTING ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def is_authenticated(request):
+    return Response(status=200)
+
+
 # TO TEST AUTH API
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

@@ -705,7 +705,7 @@ def signup(request):
         # callback for Google API
         try:
             access_token, refresh_token = google_api.exchange_code_for_tokens(code)
-            print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")            
+            # print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")            
             email = google_api.get_email(access_token, refresh_token)
         except Exception as e:
             return Response({'error': e}, status=400)
@@ -714,8 +714,11 @@ def signup(request):
         # callback for Microsoft API
         try:
             access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
-            print(f"{Fore.CYAN}[MICROSOFT]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
-            email = microsoft_api.get_email(access_token)['email']
+            # print(f"{Fore.CYAN}[MICROSOFT]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
+            email = microsoft_api.get_email(access_token)
+            # TODO: check if its constant
+            # Access  token len: 2416
+            # Refresh token len: 1530
         except Exception as e:
             return Response({'error': e}, status=400)
         

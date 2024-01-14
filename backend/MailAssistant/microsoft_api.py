@@ -127,6 +127,8 @@ def refresh_access_token(social_api):
 
 
 ######################## PROFILE REQUESTS ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_parsed_contacts(request) -> list:
     """Returns a list of parsed unique contacts with email types"""
     user = request.user
@@ -176,7 +178,8 @@ def get_parsed_contacts(request) -> list:
 
     except Exception as e:
         logging.exception(f"{Fore.YELLOW}Error fetching contacts: {e}")
-        return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse({'error': e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 def get_unique_senders(access_token) -> dict:
     """Fetches unique sender information from Microsoft Graph API messages"""
@@ -207,6 +210,9 @@ def get_unique_senders(access_token) -> dict:
         logging.exception(f"{Fore.RED}Error fetching senders: {e}")
         return senders_info
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_profile_image(request):
     """Returns the profile image URL of the user"""
     user = request.user
@@ -224,16 +230,20 @@ def get_profile_image(request):
         if response.status_code == 200:
             photo_url = response.json().get('@odata.mediaEditLink', '')
             if photo_url:
-                return JsonResponse({'profile_image_url': photo_url}, status=200)
+                return Response({'profile_image_url': photo_url}, status=200)
             else:
-                return JsonResponse({'error': 'Profile image URL not found in response'}, status=404)
+                return Response({'error': 'Profile image URL not found in response'}, status=404)
         elif response.status_code == 404:
-            return JsonResponse({'error': 'Profile image not found'}, status=response.status_code)
+            print(f"{Fore.GREEN}ERROR 404...")
+            return Response({'error': 'Profile image not found'}, status=404)
         else:
-            return JsonResponse({'error': "Failed to retrieve profile image"}, status=response.status_code)
+            print(f"{Fore.GREEN}ERROR {response.status_code}...")
+            return Response({'error': "Failed to retrieve profile image"}, status=response.status_code)
 
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        print(f'{Fore.RED}Error with the request to get the profile img: {e}')
+        return Response({'error': e}, status=500)
+
 
 def get_email(access_token):
     """Returns the primary email of the user from Microsoft Graph API"""
@@ -249,13 +259,12 @@ def get_email(access_token):
 
         if response.status_code == 200:
             email_data = response.json()
-            email = email_data.get('mail', '')
-            return Response({'email': email})        
+            email = email_data.get('mail')
+            return email
         else:
-            return Response({'error': f'Failed to get the email: {response.reason}'}, status=response.status_code)
-
-    except Exception as e:
-        return Response({'error': f'Failed to get the email: {e}'}, status=500)
+            return None
+    except:
+        return None
     
 
 

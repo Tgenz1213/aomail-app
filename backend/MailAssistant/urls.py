@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from MailAssistant import microsoft_api, google_api
 
 
@@ -19,16 +19,16 @@ urlpatterns = [
     path('api/login/', views.login, name='login'), 
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', views.refresh_token, name='refresh_token'),
-    path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'),
     path('api/get_mail', views.get_mail_view, name='get_mail'),
     path('api/get_mail_by_id', views.get_mail_by_id_view, name='get_mail_by_id'),
     path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'),
     path('api/get_unique_email_senders', views.get_unique_email_senders_view, name='get_unique_email_senders_view'),
     path('api/create_sender', views.create_sender, name='create_sender'),
     path('api/find-user/', views.find_user_view, name='find-user'),
+    path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'),
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'),
-    path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'),    
+    path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'),
     path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'),
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'),
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'),
@@ -49,23 +49,19 @@ urlpatterns = [
     path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'),
     path('api/update_category/<str:currentName>/', views.update_category, name='update_category'),
     path('api/delete_category/<str:currentName>/', views.delete_category, name='delete_category'),
-    # path('', views.home_page, name='home_page'),
-    # path('user/emails/<int:email_id>/bullet-points/', views.get_email_bullet_points, name='email-bullet-points'),
-    # path('api/test_authenticate_service/', TestAuthenticateServiceView.as_view(), name='test_authenticate_service'),
-
-
-    
     #----------------------- REGISTER USER -----------------------#
     path('signup/', views.signup, name='signup'),
     path('check_username/', views.check_username, name='check_username'),
-
-    ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
+    #----------------------- EMAIL ACCOUNT -----------------------#
     path('api/unread_mails/', views.unread_mails, name='unread_mails'),
     path('api/get_profile_image/', views.get_profile_image, name='get_profile_image'),
     path('api/get_parsed_contacts/', views.get_parsed_contacts, name='get_parsed_contacts'),
-
     #----------------------- MICROSOFT GRAPH API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'),
     #----------------------- GOOGLE GMAIL API -----------------------#
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'),
+
+
+    #----------------------- OLD -----------------------#
+    #path('user/emails/<int:email_id>/bullet-points/', views.get_email_bullet_points, name='email-bullet-points'),    
 ]

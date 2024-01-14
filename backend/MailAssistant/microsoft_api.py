@@ -19,6 +19,8 @@ from base64 import urlsafe_b64encode
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import SocialAPI
+from requests.exceptions import HTTPError
+
 
 # Initialize colorama with autoreset
 init(autoreset=True)
@@ -87,13 +89,16 @@ def get_social_api(user, email):
         social_api = SocialAPI.objects.get(user=user, email=email)
         return social_api
     except SocialAPI.DoesNotExist:
-        print(f"No credentials found for user {user.username} and email {email}")
+        logging.error(f"{Fore.RED}No credentials found for user {user.username} and email {email}")
         return None
 
 def is_token_valid(access_token):
     """Check if the access token is still valid by making a sample request"""
     sample_url = f'{GRAPH_URL}me'
-    headers = {'Authorization': f'Bearer {access_token}'}
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {access_token}'
+    }
     response = requests.get(sample_url, headers=headers)
     return response.status_code == 200
 
@@ -134,10 +139,11 @@ def get_parsed_contacts(request) -> list:
     user = request.user
     email = request.headers.get('email')
     access_token = refresh_access_token(get_social_api(user, email))
-
+    
     try:
         if access_token:
             headers = {
+                'Content-Type': 'application/json',
                 'Authorization': f'Bearer {access_token}'
             }
 
@@ -181,12 +187,47 @@ def get_parsed_contacts(request) -> list:
         return JsonResponse({'error': e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+def get_info_contacts(access_token):
+    """Fetch the name and the email of the contacts of the user"""
+    graph_endpoint = 'https://graph.microsoft.com/v1.0/me/contacts'
+
+    try:
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+
+        params = {
+            '$top': 1000
+        }
+
+        response = requests.get(graph_endpoint, headers=headers, params=params)
+        response.raise_for_status()
+
+        contacts = response.json().get('value', [])
+
+        names_emails = []
+        for contact in contacts:
+            # Extract the name and email address of each contact
+            name = contact.get('displayName')
+            email_addresses = [email['address'] for email in contact.get('emailAddresses', [])]
+
+            names_emails.append({'name': name, 'emails': email_addresses})
+
+        return names_emails
+
+    except HTTPError as e:
+        logging.error(f"{Fore.RED}Error in Microsoft Graph API request: {str(e)}")
+        return []
+
+
 def get_unique_senders(access_token) -> dict:
     """Fetches unique sender information from Microsoft Graph API messages"""
     senders_info = {}
 
     try:
         headers = {
+            'Content-Type': 'application/json',
             'Authorization': f'Bearer {access_token}'
         }
 
@@ -221,6 +262,7 @@ def get_profile_image(request):
 
     try:
         headers = {
+            'Content-Type': 'application/json',
             'Authorization': f'Bearer {access_token}'
         }
 
@@ -228,21 +270,20 @@ def get_profile_image(request):
         response = requests.get(graph_endpoint, headers=headers)
 
         if response.status_code == 200:
-            photo_url = response.json().get('@odata.mediaEditLink', '')
+            photo_url = response.url
             if photo_url:
                 return Response({'profile_image_url': photo_url}, status=200)
             else:
                 return Response({'error': 'Profile image URL not found in response'}, status=404)
         elif response.status_code == 404:
-            print(f"{Fore.GREEN}ERROR 404...")
             return Response({'error': 'Profile image not found'}, status=404)
         else:
-            print(f"{Fore.GREEN}ERROR {response.status_code}...")
-            return Response({'error': "Failed to retrieve profile image"}, status=response.status_code)
+            logging.error(f"{Fore.RED}Failed to retrieve profile image: {response.status_code}\nReason: {response.reason}")
+            return Response({'error': f"Failed to retrieve profile image: {response.reason}"}, status=404)
 
     except Exception as e:
-        print(f'{Fore.RED}Error with the request to get the profile img: {e}')
-        return Response({'error': e}, status=500)
+        logging.exception(f"{Fore.RED}An exception occurred: {str(e)}")
+        return Response({'error': f"An exception occurred: {str(e)}"}, status=500)
 
 
 def get_email(access_token):
@@ -253,6 +294,7 @@ def get_email(access_token):
     try:
         graph_api_endpoint = f'{GRAPH_URL}me'
         headers = {
+            'Content-Type': 'application/json',
             'Authorization': f'Bearer {access_token}'
         }
         response = requests.get(graph_api_endpoint, headers=headers)
@@ -280,19 +322,20 @@ def unread_mails(request):
     try:
         if access_token:
             headers = {
+                'Content-Type': 'application/json',
                 'Authorization': f'Bearer {access_token}'
             }
             unread_count = 0
 
             # Get unread messages using Microsoft Graph API
-            graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages?$count=true&$filter=isRead eq false'
+            graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages' # ?$count=true&$filter=isRead eq false'
             response = requests.get(graph_endpoint, headers=headers)
-
+            
             if response.status_code == 200:
                 unread_count = response.json().get('@odata.count', 0)
                 return JsonResponse({'unreadCount': unread_count}, status=200)
             else:
-                error_message = response.json().get('error', {}).get('message', 'Failed to retrieve unread count')
+                error_message = response.json().get('error', {}).get('message', 'No error message')
                 logging.error(f"{Fore.RED}Failed to retrieve unread count: {error_message}")
                 return JsonResponse({'unreadCount': 0}, status=response.status_code)
 
@@ -326,6 +369,7 @@ def send_email(request):
 
             graph_endpoint = 'https://graph.microsoft.com/v1.0/me/sendMail'
             headers = {
+                'Content-Type': 'application/json',
                 'Authorization': f'Bearer {access_token}'
             }
 
@@ -376,3 +420,71 @@ def send_email(request):
 
     logging.error(f"{Fore.RED}Serializer errors: {serializer.errors}")
     return JsonResponse(serializer.errors, status=400)
+
+
+def get_unique_email_senders(request):
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
+    
+    senders_info = get_unique_senders(access_token)
+    contacts_info = get_info_contacts(access_token)
+    # Convert contacts_info to a dictionary format
+    contacts_dict = {email: contact['name'] for contact in contacts_info for email in contact['emails']}
+
+    # Merge the two dictionaries and remove duplicates
+    merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
+
+    return Response(merged_info, status=200)
+
+
+def find_user_in_emails(access_token, search_query):
+    messages = search_emails(access_token, search_query)
+
+    if not messages:
+        return "No matching emails found."
+
+    return messages
+
+
+def search_emails(access_token, search_query, max_results=2):
+    graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages'
+
+    try:
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+
+        # Use $filter to achieve search functionality
+        filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
+        
+        params = {
+            '$filter': filter_expression,
+            '$top': max_results
+        }
+
+        response = requests.get(graph_endpoint, headers=headers, params=params)
+        response.raise_for_status()
+
+        messages = response.json().get('value', [])
+
+        found_emails = {}
+
+        for message in messages:
+            sender = message.get('from', {}).get('emailAddress', {}).get('address', '')
+
+            if sender:
+                email = sender.lower()
+                name = sender.split('@')[0].lower()
+
+                # Additional filtering: Check if the sender email/name matches the search query
+                if search_query.lower() in email or search_query.lower() in name:
+                    if email and not any(substring in email for substring in ["noreply", "no-reply"]):
+                        found_emails[email] = name
+
+        return found_emails
+
+    except HTTPError as e:
+        logging.error(f'{Fore.RED}ERROR in Microsoft Graph API request: {str(e)}')
+        return {}

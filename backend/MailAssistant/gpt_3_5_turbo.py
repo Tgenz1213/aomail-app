@@ -6,7 +6,6 @@ import re
 import openai
 
 
-
 ######################## GPT - 3.5 turbo API SETTINGS ########################
 openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 openai.api_key = "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"
@@ -44,7 +43,8 @@ def extract_contacts_recipients(input_query):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "system", "content": formatted_prompt}],
-        api_key=openai.api_key )
+        api_key=openai.api_key
+    )
 
     response_text = response.choices[0].message['content'].strip()
 

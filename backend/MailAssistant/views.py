@@ -12,12 +12,9 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, logout
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 ####
 
-from django.shortcuts import render, redirect
-from MailAssistant import gpt_4
-from MailAssistant import gpt_3_5_turbo
 from django.contrib.auth.models import User
 import datetime
 from email import message_from_string
@@ -33,12 +30,10 @@ from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Pref
 from .serializers import MessageSerializer, CategoryNameSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer
 from django.db import IntegrityError
 
-# from .google_api import * 
-from . import google_api, microsoft_api
-
-# To test co to google_api
+from MailAssistant import google_api, microsoft_api
+from MailAssistant import gpt_4
+from MailAssistant import gpt_3_5_turbo
 from django.http import JsonResponse
-from .google_api import authenticate_service, get_mail, get_unique_senders, get_info_contacts, find_user_in_emails
 
 # OpenAI - ChatGPT
 import openai
@@ -814,6 +809,13 @@ def get_parsed_contacts(request):
     return forward_request(request._request, 'get_parsed_contacts')
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_unique_email_senders_view(request):
+    """Fetches unique email senders' information, combining data from user's contacts and email senders."""
+    return forward_request(request._request, 'get_unique_email_senders')
+
+
 #----------------------- POST REQUESTS -----------------------#
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -858,6 +860,7 @@ def delete_account(request):
     try:
         user.delete()
         logging.info(f"{Fore.YELLOW}The user {user} has been removed from the database")
+        # TODO: Success message for user
         return Response({'message': 'User successfully deleted'}, status=200)
 
     except Exception as e:
@@ -925,7 +928,7 @@ def refresh_token(request):
 
     except Exception as e:
         # Handle exceptions
-        print(f'{Fore.RED}ERROR: {e}')
+        print(f'{Fore.RED}Error while refreshing the JWT token: {e}')
         return Response({'error': e}, status=400)
 
 
@@ -1121,53 +1124,27 @@ def set_rule_block_for_sender(request, email_id):
 
 
 
-######################## New Mail ########################
 
 
-# GET
 
-
-# class UserContactsView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         user = request.user
-
-#         # Mock example.
-#         mock_contacts_data = {
-#             "alice": ["bob@example.com", "charlie@example.com"],
-#             "bob": ["alice@example.com"]
-#         }
-
-#         user_contacts = mock_contacts_data.get(user.username, [])
-
-#         return Response(user_contacts)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def user_contacts(request):
-
-    if api_var==0:
-        full_emailist_1 = api_list[api_var].get_contacts('@','contacts','connections')
-        full_emailist_2 = api_list[api_var].get_contacts('@','other.contacts','otherContacts')
-        user_contacts = full_emailist_1 + full_emailist_2
-    else:
-        user_contacts = []
-
-    return Response(user_contacts)
-
-
-# TO Change later with the list of email of the user saved in a BD for optimization
+# TODO: Change later with the list of email of the user saved in a BD for optimization
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def find_user_view(request):
     user = request.user
     email = request.headers.get('email')
-    services = authenticate_service(user, email)
     search_query = request.GET.get('query')
+    social_api = get_object_or_404(SocialAPI, user=user, email=email)    
+    type_api = social_api.type_api
 
-    if services is not None and search_query:
-        found_users = find_user_in_emails(services, search_query)
+    if search_query:
+        if type_api == 'google':
+            services = google_api.authenticate_service(user, email)
+            found_users = google_api.find_user_in_emails(services, search_query)
+        elif type_api == 'microsoft':
+            access_token = microsoft_api.refresh_access_token(microsoft_api.get_social_api(user, email))
+            found_users = google_api.find_user_in_emails(access_token, search_query)
+
         return Response(found_users, safe=False, status=200)
     else:
         return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
@@ -1178,12 +1155,12 @@ def find_user_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def find_user_view_ai(request):
+    """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
     user = request.user
     email = request.headers.get("email")
-    services = authenticate_service(user, email)
     search_query = request.GET.get('query')
 
-    if services is not None and search_query:
+    if search_query:
         main_list, cc_list, bcc_list = gpt_3_5_turbo.extract_contacts_recipients(search_query)
 
         if main_list == "INCORRECT":
@@ -1191,14 +1168,22 @@ def find_user_view_ai(request):
 
         # Function to find emails for a list of recipients
         def find_emails_for_recipients(recipient_list):
-            return {recipient: find_user_in_emails(services, recipient) for recipient in recipient_list}
+            social_api = get_object_or_404(SocialAPI, user=user, email=email)
+            type_api = social_api.type_api
+            
+            if type_api == 'google':
+                services = google_api.authenticate_service(user, email)
+                return {recipient: google_api.find_user_in_emails(services, recipient) for recipient in recipient_list}
+            elif type_api == 'microsoft':
+                access_token = microsoft_api.refresh_access_token(microsoft_api.get_social_api(user, email))
+                return {recipient: microsoft_api.find_user_in_emails(access_token, recipient) for recipient in recipient_list}
 
         # Find emails for main recipients, CC, and BCC
         main_recipients_with_emails = find_emails_for_recipients(main_list)
         cc_recipients_with_emails = find_emails_for_recipients(cc_list)
         bcc_recipients_with_emails = find_emails_for_recipients(bcc_list)
 
-        # logging.info("Email recipients (main): %s", main_recipients_with_emails)
+        logging.info(f"{Fore.GREEN}Email recipients (main): {main_recipients_with_emails}")
 
         return Response({
             "main_recipients": main_recipients_with_emails,
@@ -1239,6 +1224,10 @@ def new_email_recommendations(request):
         mail_content = serializer.validated_data['mail_content']
         user_recommendation = serializer.validated_data['user_recommendation']
         email_subject = serializer.validated_data['email_subject']
+        
+        print(f'{Fore.CYAN}mail_content: {mail_content}')
+        print(f'{Fore.CYAN}user_recommendation: {user_recommendation}')
+        print(f'{Fore.CYAN}email_subject: {email_subject}')
 
         subject_text, email_body = gpt_4.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)
 
@@ -1354,6 +1343,8 @@ def get_answer_later_emails(request):
         return Response({"error": "An error occurred while fetching emails."}, 
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
 ######################## Settings ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1377,17 +1368,21 @@ def get_user_details(request):
 @permission_classes([IsAuthenticated])
 def update_username(request):
     user = request.user
-    print("USER -------------------------->", user)
     new_username = request.data.get('username')
 
     if not new_username:
         return Response({'error': 'No new username provided.'}, status=400)
 
-    # Add more validation for username as needed
+    # Check if user requirements
+    if User.objects.filter(username=new_username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    elif " " in new_username:
+        return Response({'error': 'Username must not contain spaces'}, status=400)
 
     user.username = new_username
     user.save()
-
+    
+    logging.info(f"{Fore.CYAN}User: {user} changed its name in {new_username}")
     return Response({'success': 'Username updated successfully.'})
 
 
@@ -1400,7 +1395,13 @@ def update_password(request):
     if not new_password:
         return Response({'error': 'No new password provided.'}, status=400)
 
-    # Add password validation as needed
+    # Checks passwords requirements
+    if not (8 <= len(new_password) <= 32):
+        return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
+    if " " in new_password:
+        return Response({'error': 'Password must not contain spaces'}, status=400)
+    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', new_password):
+        return Response({'error': 'Password contains invalid characters'}, status=400)
 
     user.set_password(new_password)
     user.save()
@@ -1471,28 +1472,6 @@ def get_user_rules(request):
     return Response(rules_data)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_unique_email_senders_view(request):
-    user = request.user
-    email = request.headers.get('email')
-    services = authenticate_service(user, email)
-    
-    if services is not None:
-        senders_info = get_unique_senders(services)
-        contacts_info = get_info_contacts(services)
-
-        # Convert contacts_info to a dictionary format
-        contacts_dict = {email: contact['name'] for contact in contacts_info for email in contact['emails']}
-
-        # Merge the two dictionaries and remove duplicates
-        merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
-
-        return Response(merged_info, status=200)
-    else:
-        return Response({"error": "Failed to authenticate or access services"}, status=400)
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_sender(request):
@@ -1526,20 +1505,7 @@ def is_authenticated(request):
     return Response(status=200)
 
 
-# TO TEST AUTH API
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def authenticate_service_view(request):
-    user = request.user
-    email = request.headers.get('email')
-    service = authenticate_service(user, email)
-    
-    if service is not None:
-        # Return a success response, along with any necessary information
-        return Response({"message": "Authentication successful"}, status=200)
-    else:
-        # Return an error response
-        return Response({"error": "Failed to authenticate"}, status=400)
+
 
 # TO TEST Gmail GET the Mail from id
 @api_view(['GET'])
@@ -1547,10 +1513,10 @@ def authenticate_service_view(request):
 def get_mail_view(request):
     user = request.user
     email = request.headers.get('email')
-    service = authenticate_service(user, email)
+    service = google_api.authenticate_service(user, email)
     
     if service is not None:
-        subject, from_name, decoded_data, email_id = get_mail(service, 0, None)
+        subject, from_name, decoded_data, email_id = google_api.get_mail(service, 0, None)
         # Return a success response, along with any necessary information
         return Response({
             "message": "Authentication successful",
@@ -1571,12 +1537,12 @@ def get_mail_view(request):
 def get_mail_by_id_view(request):
     user = request.user
     email = request.headers.get('email')
-    service = authenticate_service(user, email)
+    service = google_api.authenticate_service(user, email)
     mail_id = request.GET.get('email_id')
     
     if service is not None and mail_id is not None:
         
-        subject, from_name, decoded_data, cc, bcc, email_id = get_mail(service, None, mail_id)
+        subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(service, None, mail_id)
         #print("DEBUG OUTPUT -------------------------> ", from_name, cc, bcc)
         return Response({
             "message": "Authentication successful",
@@ -1599,7 +1565,7 @@ def get_mail_by_id_view(request):
 def save_last_mail_view(request):
     user = request.user
     email = request.headers.get('email')
-    service = authenticate_service(user, email)
+    service = google_api.authenticate_service(user, email)
     
     if service is not None:
         processed_email_to_bdd(request,service)
@@ -1611,29 +1577,24 @@ def save_last_mail_view(request):
         # Return an error response
         return Response({"error": "Failed to authenticate"}, status=400)
 
-
+# TO TEST AUTH API
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def authenticate_service_view(request):
+    user = request.user
+    email = request.headers.get('email')
+    service = google_api.authenticate_service(user, email)
+    
+    if service is not None:
+        # Return a success response, along with any necessary information
+        return Response({"message": "Authentication successful"}, status=200)
+    else:
+        # Return an error response
+        return Response({"error": "Failed to authenticate"}, status=400)
 
 
 
 ######################## OLD ########################
-'''
-class TestAuthenticateServiceView(View):
-    def get(self, request, *args, **kwargs):
-        try:
-            service = authenticate_service()
-            # Assuming the service object contains the information you need
-            service_info = {
-                'gmail': str(service.get('gmail.readonly')),
-                'calendar': str(service.get('calendar')),
-                # ... add other services as needed
-            }
-            return Response(service_info)
-        except Exception as e:
-            return Response({'error': str(e)}, status=500)'''
-
-
-
-
 
 # TO UPDATE
 '''
@@ -1647,117 +1608,3 @@ def get_user_login(request):
     except Users.DoesNotExist:
         return Response({"error": "User not found."}, status=404)'''
 
-
-"""
-# loading landing page
-def home_page(request):
-    # connection to google
-    # get_message(request)
-    if api_var==0:
-        services = api_list[api_var].authenticate_service()
-    elif api_var==1:
-        # services = api_list[api_var].authenticate_service(request)
-
-        # services = api_list[api_var].authenticate_service(request)
-        # api_list[api_var].callback(request)
-        # services = api_list[api_var].silent_authentication()
-        # print('services: ',services)
-        # return redirect('MailAssistant:callback')
-        # Retrieve the access_token from session
-        access_token = request.session.get('access_token')
-
-        if not access_token:
-            # Redirect to login or handle this case
-            return api_list[api_var].authenticate_service(request)
-
-        # Initialize the GraphAPI object
-        services = api_list[api_var].GraphAPI(request.session['token']['access_token'])
-        
-    print(f"{Fore.RED}PROCESSING")
-    processed_email_to_bdd(request,services)
-    # subject, from_name, decoded_data = api_list[api_var].get_mail(services,0,None)
-
-    # # subject, from_name, decoded_data = extract_body_from_email(services,0,None) #doesn't work
-    
-    # if decoded_data: decoded_data = format_mail(decoded_data)
-    # # print("decoded_data: ",decoded_data)
-
-    # category_list = get_db_categories(request.user)
-    # topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject,decoded_data,category_list)
-
-    # print('topic: ',topic) #Category
-    # print('importance: ',importance) #priority
-    # print('answer: ',answer) #########
-    # print('summary: ',summary) #BulletPoint - Content
-    # print('sentence: ',sentence) #email_short_summary
-    # print('relevance: ',relevance) #DEBUG
-    # print('importance_explain: ',importance_explain) #DEBUG
-
-
-
-    # # # print('draft: ',response)
-    # answer_list = ['No Answer Required: "No answer is required."','No Answer Required']
-    # if answer not in answer_list:
-    #     draft = gpt_langchain_answer(subject,decoded_data)
-    #     # print('draft: ',draft)
-    # # search_emails("test")
-    # # input = "Bien reçu, je t'envoie les infos pour le BP au plus vite"
-    # # # subject_test = None
-    # # subject,new_mail = gpt_langchain_redaction(input)
-    # # print('subject: ',subject)
-    # # print('new_mail: ',new_mail)
-    # # get_calendar_events(services)
-    # input_ai = "Que recherchez-vous ?"
-    # input_text = "J'ai reçu un mail de sécurité concernant Google"
-    # # emails_id = search_emails(email_query(*gpt_langchain_decompose_search([input_ai,input_text])))
-
-    # query,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),0)
-    # print('query: ',query)
-    # question = search_chat_reply(query_list)
-    # print('question (number between 0/4 for test):',question)
-
-    # input_ai = "Que recherchez-vous ?"
-    # # input_text = "pôle emploi"
-    # input_text = 'offres_du_bassin'
-
-    # # query_attachement = 'offres_du_bassin'
-    # query_attachement,query_list = api_list[api_var].email_query(*gpt_langchain_decompose_search([input_ai,input_text]),1)
-    # print('query_attachement: ',query_attachement)
-    # # attachements = api_list[api_var].search_attachments(query_attachement)
-    # attachements = api_list[api_var].search_emails(query_attachement)
-
-    # print('attachements: ',attachements)
-
-    # email_list_from, email_list_to, starting_date, ending_date, key_words = gpt_langchain_decompose_search([input_ai,input_text])
-    # query = email_query(email_list_from,email_list_to,starting_date,ending_date,key_words)
-    # emails_id = api_list[api_var].search_emails(query)
-    
-    # print('from_who: ',from_who)
-    # print('to_who: ',to_who)
-    # print('key_words: ',key_words)
-    # print('starting_date: ',starting_date)
-    # print('ending_date: ',ending_date)
-    # print("query: ",query)
-    # emails_id = search_emails(query)
-    # print('emails_id: ',emails_id)
-
-    # if emails_id:
-    #     for email_id in emails_id:
-    #         # print('email found: ',google_api.get_mail(services,None,email_id))
-    #         subject, from_name, decoded_data = api_list[api_var].get_mail(services,None,email_id)
-    #         if decoded_data: decoded_data = format_mail(decoded_data)
-            # print('email found: ',decoded_data)
-            # print('email found: ',get_email_by_id(email_id)) #doesn't work
-
-
-    # emailist = 'gmail'
-    # full_emailist = get_contacts(emailist,'contacts','connections')
-    # print('full_emailist: ',full_emailist)
-    # full_emailist = get_contacts(emailist,'other.contacts','otherContacts')
-    # print('full_emailist: ',full_emailist)
-
-    
-    # return render(request, 'home_page.html', {'subject': subject,'sender': from_name, 'content': decoded_data})
-    print("RENDERING HOME.HTML")
-    return render(request, 'home_page.html')
-"""

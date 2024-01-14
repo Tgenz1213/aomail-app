@@ -252,6 +252,26 @@ def send_email(request):
         return Response({"error": "Internal Server Error"}, status=500)
 
 
+def get_unique_email_senders(request):
+    user = request.user
+    email = request.headers.get('email')
+    services = authenticate_service(user, email)
+
+    if services:
+        senders_info = get_unique_senders(services)
+        contacts_info = get_info_contacts(services)            
+    else:
+        return Response({"error": "Failed to authenticate or access services"}, status=400)
+
+    # Convert contacts_info to a dictionary format
+    contacts_dict = {email: contact['name'] for contact in contacts_info for email in contact['emails']}
+
+    # Merge the two dictionaries and remove duplicates
+    merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
+
+    return Response(merged_info, status=200)
+
+
 
 ######################## PROFILE REQUESTS ########################
 @api_view(['GET'])
@@ -728,8 +748,9 @@ def get_calendar_events(services):
 
 
 
-# Fetch the name and the email of the contacts of the user 
+
 def get_info_contacts(services):
+    """Fetch the name and the email of the contacts of the user"""
     service = services['contacts']
 
     # Request a list of all the user's connections (contacts)
@@ -752,10 +773,9 @@ def get_info_contacts(services):
     return names_emails
 
 
-
-
 # V2 : better to check the mail structure (comparing with the input)
 def search_emails(services, search_query, max_results=2):
+    """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
     service = services['gmail.readonly']
 
     # Fetch the list of emails based on the query

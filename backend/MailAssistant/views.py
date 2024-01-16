@@ -50,8 +50,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
-openai.api_key = "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"
+# TODO: The 'openai.organization' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(organization="org-YSlFvq9rM1qPzM15jewopUUt")'
+# openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
 gpt_model = "gpt-3.5-turbo"
 
 importance_list = {
@@ -896,9 +896,12 @@ def login(request):
     if user:
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
+        social_api_instance = get_object_or_404(SocialAPI, user=user)
+    
+        # TODO: update the code to handle when the user has several emails
+        email = social_api_instance.email
 
-        # Return the access token directly in the response
-        return Response({'access_token': access_token, 'message': 'Login successful'})
+        return Response({'access_token': access_token, 'email': email}, status=200)
     
     return Response({'error': 'Invalid Credentials'}, status=400) 
 
@@ -1205,7 +1208,7 @@ def new_email_ai(request):
         length = serializer.validated_data['length']
         formality = serializer.validated_data['formality']
 
-        subject_text, mail_text = gpt_4.gpt_langchain_redaction(input_data, length, formality)
+        subject_text, mail_text = gpt_3_5_turbo.gpt_langchain_redaction(input_data, length, formality)
 
         print("LOG MAIL", mail_text)
 
@@ -1308,6 +1311,7 @@ def generate_email_response_keywords(request):
         })
     else:
         return Response(serializer.errors, status=400)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

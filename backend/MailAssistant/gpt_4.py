@@ -1,34 +1,56 @@
 """
 Handles prompt engineering requests for GPT-4 API.
 """
+import json
 from colorama import Fore, init
-import openai
 from MailAssistant import gpt_3_5_turbo
+import openai
 
 
 
 
 ######################## GPT - 4 API SETTINGS ########################
-openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
-openai.api_key = "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"
+OPENAI_CREDS = json.load(open('creds/openai_creds.json', 'r'))
 init(autoreset=True)
 
 
 
-
-
-
+######################## TEXT PROCESSING UTILITIES ########################
 def get_prompt_response(formatted_prompt):
     """Returns the prompt response"""
-    response = openai.ChatCompletion.create(
-        model="gpt-4-1106-preview", # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
-        messages=[{"role": "system", "content": formatted_prompt}]
+    client = openai.OpenAI(organization=OPENAI_CREDS['organization'], api_key=OPENAI_CREDS['api_key'])
+    response = client.chat.completions.create(
+        model="gpt-4-1106-preview",
+        messages=[{
+            "role": "system",
+            "content": formatted_prompt
+        }]
     )
     return response
 
 
-######################## REDACTION ########################
-# TODO: gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
+
+######################## WRITING FUNCTIONS ########################
+def generate_email_response(input_subject, input_body, response_type, language):
+    """Generates a French email response based on the given response type"""
+    template = """As an email assistant, REPLY in {language} to the email with subject: '{input_subject}' and body: '{input_body}'.
+
+    Based on the user indication: '{response_type}', REPLY to the email without adding any new details.
+    It should STRICTLY correspond to the information present in the original email.
+
+    Answer must ONLY be an HTML email body
+    """
+    formatted_prompt = template.format(input_subject=input_subject, input_body=input_body, response_type=response_type, language=language)
+    response = get_prompt_response(formatted_prompt)
+    body = response.choices[0].message.content.strip()
+
+    print(f'{Fore.GREEN}[REPLY] body: {body}')
+
+    return body
+
+
+
+######################## DEPRECATED FUNCTIONS ########################
 def gpt_langchain_redaction(input_data, length, formality):
     template = """
         Given the following draft:
@@ -51,10 +73,9 @@ def gpt_langchain_redaction(input_data, length, formality):
 
     print("FORMATTED PROMPT", formatted_prompt)
 
-    # gpt-3.5-turbo => TO FIX AND TO FIND THE BEST PROMPT
     response = get_prompt_response(formatted_prompt)
 
-    clear_text = response.choices[0].message['content'].strip()
+    clear_text = response.choices[0].message.content.strip()
 
     print('clear_text: ',clear_text)
 
@@ -106,7 +127,7 @@ def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject
 
     response = get_prompt_response(formatted_prompt)
     
-    clear_text = response.choices[0].message['content'].strip()
+    clear_text = response.choices[0].message.content.strip()
 
     # Extract the subject and body of the email
     subject_start = clear_text.index("Subject:") + len("Subject:")
@@ -148,7 +169,7 @@ def correct_mail_language_mistakes(email_subject, email_body):
     """
     formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
     response = get_prompt_response(formatted_prompt)
-    response_text = response.choices[0].message['content'].strip()
+    response_text = response.choices[0].message.content.strip()
 
     print("Response Text : ", response_text)
 
@@ -163,85 +184,8 @@ def correct_mail_language_mistakes(email_subject, email_body):
 
 
 
-# Answer possibilities generation
-'''
-Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output in as less keywords as possible the ways to respond in French, do not output the mail answer
-
-    Email Content:
-    "{input_email}"
-
-    ---
-
-    French ways to respond :'''
-def generate_response_keywords(input_email):
-    template = """
-    Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output as less keywords as possible in French with verbs, do not output the mail answer
-
-    Email Content:
-    "{input_email}"
-
-    ---
-
-    French ways to respond :
-    """
-    formatted_prompt = template.format(input_email=input_email)
-    response = get_prompt_response(formatted_prompt)
-    response_text = response.choices[0].message['content'].strip()
-
-    # Split the response text by line breaks and remove surrounding quotes
-    keywords = [line.strip().strip('"') for line in response_text.split('\n') if line.strip()]
-
-    return keywords
 
 
-def generate_email_response(input_email, response_type):
-    """Answer mail generation."""
-
-    ''' WORK WITH GPT4
-    template = """
-    Given the following email content in French generate a mail response in French based on the response type. The response should not add any new information that is not asked by the user.
-
-    Email Content:
-    "{input_email}"
-
-    Response Type:
-    "{response_type}"
-
-    ---
-
-    French Response:
-    """'''
-
-    ''' NOT PERFECT BUT WORK EXCEPT WITH BUTTONS 
-    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
-
-    Email Content:
-    "{input_email}"
-
-    Desired Response Type:
-    "{response_type}"
-
-    Please write a response that aligns with the given response type:
-
-    Response:''' 
-
-    template = """
-    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
-
-    Email Content:
-    "{input_email}"
-
-    Desired Response Type:
-    "{response_type}"
-
-    Please write a response as that aligns with the given response type:
-
-    Response:
-    """
-    formatted_prompt = template.format(input_email=input_email, response_type=response_type)
-    response = get_prompt_response(formatted_prompt)
-
-    return response.choices[0].message['content'].strip()
 
 
 
@@ -324,3 +268,84 @@ def gpt_langchain_redaction(input_data, length, formality):
     #     mail_text=clear_text
     # return clear_text
     return subject_text, mail_text'''
+
+
+# Answer possibilities generation
+'''
+Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output in as less keywords as possible the ways to respond in French, do not output the mail answer
+
+    Email Content:
+    "{input_email}"
+
+    ---
+
+    French ways to respond :'''
+'''def generate_response_keywords(input_email):
+    template = """
+    Given the following email content in French, identify different ways to respond to this email (maximum 4 NOT MORE). Only output as less keywords as possible in French with verbs, do not output the mail answer
+
+    Email Content:
+    "{input_email}"
+
+    ---
+
+    French ways to respond :
+    """
+    formatted_prompt = template.format(input_email=input_email)
+    response = get_prompt_response(formatted_prompt)
+    response_text = response.choices[0].message.content.strip()
+
+    # Split the response text by line breaks and remove surrounding quotes
+    keywords = [line.strip().strip('"') for line in response_text.split('\n') if line.strip()]
+
+    return keywords'''
+
+
+'''def generate_email_response(input_email, response_type):
+    """Answer mail generation."""
+
+    """WORK WITH GPT4
+    template = """
+    Given the following email content in French generate a mail response in French based on the response type. The response should not add any new information that is not asked by the user.
+
+    Email Content:
+    "{input_email}"
+
+    Response Type:
+    "{response_type}"
+
+    ---
+
+    French Response:
+    """
+
+    """NOT PERFECT BUT WORK EXCEPT WITH BUTTONS 
+    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
+
+    Email Content:
+    "{input_email}"
+
+    Desired Response Type:
+    "{response_type}"
+
+    Please write a response that aligns with the given response type:
+
+    Response:"""
+
+    template = """
+    Given an email written in French, generate a reply to this email also in French. The reply should be based on the indicated response type below and should strictly adhere to the information given in the email without adding any new details.
+
+    Email Content:
+    "{input_email}"
+
+    Desired Response Type:
+    "{response_type}"
+
+    Please write a response as that aligns with the given response type:
+
+    Response:
+    """
+    formatted_prompt = template.format(input_email=input_email, response_type=response_type)
+    response = get_prompt_response(formatted_prompt)
+
+    return response.choices[0].message.content.strip()'''

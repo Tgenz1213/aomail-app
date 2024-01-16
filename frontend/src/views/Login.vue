@@ -61,7 +61,9 @@ export default {
         });
 
         if (response.status === 200) {
-          // The access token should be in the response body
+          // Set access token and email for API calls
+          const email = response.data.email;
+          localStorage.setItem('email', email);
           const token = response.data.access_token;
           localStorage.setItem('access_token', token);
 

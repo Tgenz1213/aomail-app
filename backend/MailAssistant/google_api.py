@@ -1,56 +1,40 @@
+"""
+Handles authentication and HTTP requests for the Gmail API.
+"""
 import base64
+import email
+import json
+import logging
+import random
 import re
 import time
-import random
-import json
-import email
-import logging
-from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, redirect
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
-from base64 import urlsafe_b64encode
+from collections import defaultdict
+from colorama import Fore, init
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+from django.shortcuts import redirect
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from .forms import MailForm
-from googleapiclient.errors import HttpError
-from google.auth.exceptions import RefreshError
 from google.auth import exceptions as auth_exceptions
+from google.auth.transport.requests import Request
 from google.oauth2 import credentials
-from django.core.exceptions import ObjectDoesNotExist
-from .models import SocialAPI
 from googleapiclient.discovery import build
-from . import library
-from colorama import init, Fore
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from googleapiclient.errors import HttpError
+from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from MailAssistant.serializers import EmailDataSerializer
+from . import library
+from .models import SocialAPI
+from base64 import urlsafe_b64encode
 from rest_framework.response import Response
-from rest_framework import status
-from collections import defaultdict
-
-# unused packages
-from google_auth_oauthlib.flow import InstalledAppFlow
-import requests
-from oauth2client import client
-import google.auth
-from google.auth.transport import requests as google_requests
-from django.contrib.auth.models import User
-import datetime
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
-from google.oauth2.credentials import Credentials
-import httplib2
-from google.auth.transport.urllib3 import AuthorizedHttp
-import os.path
-import pickle
 
 
 # Initialize colorama with autoreset
 init(autoreset=True)
 
-test_int = 0
 
 
 ######################## GOOGLE API PROPERTIES ########################
@@ -71,20 +55,18 @@ SCOPES = [
     OPENID_SCOPE,
     OTHER_CONTACT_READONLY_SCOPE
 ]
-CONFIG = json.load(open('creds/google_creds.json', 'r'))
-# TODO change uri but first add it on the redirects uri in the google app project
-#redirect_uri = 'http://localhost:9000/MailAssistant/google/auth_callback/'
-CALLBACK_REDIRECT_URI = 'http://localhost:9000/google-login/'
-SIGN_UP_REDIRECT_URI = 'http://localhost:8080/signup_part2'
+GOOGLE_CREDS = 'creds/google_creds.json'
+CONFIG = json.load(open(GOOGLE_CREDS, 'r'))['web']
+REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
 
 ######################## AUTHENTIFICATION ########################
 def generate_auth_url(request):
-    """Generate a connection URL to obtain the authorization code"""    
+    """Generate a connection URL to obtain the authorization code"""
     flow = Flow.from_client_secrets_file(
-        'google_creds.json',
+        GOOGLE_CREDS,
         scopes = SCOPES,
-        redirect_uri = CALLBACK_REDIRECT_URI
+        redirect_uri = REDIRECT_URI
     )
 
     authorization_url, _ = flow.authorization_url(
@@ -96,57 +78,45 @@ def generate_auth_url(request):
     return redirect(authorization_url)
 
 def exchange_code_for_tokens(authorization_code):
-    """Exchanges the authorization code for tokens and saves them in mailassistantdb"""
+    """Return tokens Exchanged with authorization code"""
     flow = Flow.from_client_secrets_file(
-        'google_creds.json',
+        GOOGLE_CREDS,
         scopes = SCOPES,
-        redirect_uri = SIGN_UP_REDIRECT_URI
+        redirect_uri = REDIRECT_URI
     )
-
-    # Exchange the authorization code for tokens
     flow.fetch_token(code=authorization_code)
-    # Extract the tokens from the credentials
-    credentials = flow.credentials
-    access_token = credentials.token
-    refresh_token = credentials.refresh_token    
 
-    # TODO: Save tokens in mailassistantdb
+    credentials = flow.credentials   
+
+    if credentials:
+        access_token = credentials.token
+        refresh_token = credentials.refresh_token
+        
+        return access_token, refresh_token
+    else:
+        return Response({'error': 'tokens not found'}, status=400)
 
 
-def auth_callback(request):
-    """Handles the callback after user authorization"""
-    authorization_response = request.build_absolute_uri()
 
-    logging.info(f"{Fore.YELLOW}AUTH RESPONSE: {authorization_response}")
-
-    authorization_code = request.GET.get('code')
-
-    if not authorization_code:
-        return Response({
-            'error': 'No authorization code provided'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    exchange_code_for_tokens(authorization_code)
-    
-    # Redirect to home page
-    return HttpResponseRedirect('http://localhost:8080/home')
-
-######################## AUTHENTIFICATION WITH JWT ########################
-def get_credentials(user):
+######################## CREDENTIALS ########################
+def get_credentials(user, email):
     try:
-        social_api = SocialAPI.objects.get(user=user, type_api='Google')
+        social_api = SocialAPI.objects.get(
+            user = user,
+            email = email
+        )
         creds_data = {
             'token': social_api.access_token,
             'refresh_token': social_api.refresh_token,
-            'token_uri': 'https://oauth2.googleapis.com/token',
+            'token_uri': CONFIG['token_uri'],
             'client_id': CONFIG['client_id'],
             'client_secret': CONFIG['client_secret'],
             'scopes': SCOPES
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
+        
     except ObjectDoesNotExist:
-        print(f"No credentials found for user {user.username}")
+        print(f"An unexpected error occurred while retrieving credentials for user {user.username} and email {email}")
         creds = None
     return creds
 
@@ -158,16 +128,20 @@ def refresh_credentials(creds):
         creds = None
     return creds
 
-def save_credentials(creds, user):
+def save_credentials(creds, user, email):
+    """Update the database with valid access token"""
     try:
-        social_api, _ = SocialAPI.objects.get_or_create(user=user, type_api='google')
+        social_api = SocialAPI.objects.get(
+            user = user,
+            email = email
+        )
         social_api.access_token = creds.token
-        social_api.refresh_token = creds.refresh_token
         social_api.save()
     except Exception as e:
         print(f"Failed to save credentials: {e}")
 
 def build_services(creds) -> dict:
+    """Returns a dictionary of endpoints"""
     services = {
         'gmail.readonly': build('gmail', 'v1', cache_discovery=False, credentials=creds),
         'gmail.send': build('gmail', 'v1', cache_discovery=False, credentials=creds),
@@ -178,29 +152,32 @@ def build_services(creds) -> dict:
     }
     return services
 
-def authenticate_service(user) -> dict:
-    creds = get_credentials(user)
+def authenticate_service(user, email) -> dict:
+    creds = get_credentials(user, email)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds = refresh_credentials(creds)
         if creds:
-            save_credentials(creds, user)
+            save_credentials(creds, user, email)
         else:
             print("Failed to authenticate")
             return None
     
-    service = build_services(creds)
-    return service
+    services = build_services(creds)
+    return services
 
-######################## GMAIL API REQUESTS ########################
+
+
+######################## EMAIL REQUESTS ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def unread_mails(request):
     """Returns the number of unread emails"""
     try:
-        user = request.user        
+        user = request.user
+        email = request.headers.get('email')
         unread_count = 0
-        service = authenticate_service(user)
+        service = authenticate_service(user, email)
             
         if service is not None:
             try:
@@ -218,14 +195,93 @@ def unread_mails(request):
         logging.error(f"{Fore.RED}An error occurred: {e}")
         return JsonResponse({'unreadCount': 0}, status=400)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_email(request):
+    """Sends an email using the Gmail API."""
+    try:
+        user = request.user
+        email = request.headers.get('email')
+        service = authenticate_service(user, email)['gmail.send']
+        serializer = EmailDataSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            data = serializer.validated_data
+
+            subject = data['subject']
+            message = data['message']
+            to = data['to']
+            cc = data['cc']
+            bcc = data['cci']
+            attachments = data.get('attachments', '')
+
+            multipart_message = MIMEMultipart()
+            multipart_message["Subject"] = subject
+            multipart_message["from"] = "me"
+            multipart_message["to"] = to
+
+            if cc:
+                multipart_message["cc"] = cc
+            if bcc:
+                multipart_message["bcc"] = bcc
+
+            multipart_message.attach(MIMEText(message, "html"))
+
+            # Attach each file in the attachments list
+            if attachments:
+                for uploaded_file in attachments:
+                    # Read the contents of the uploaded file
+                    file_content = uploaded_file.read()
+                    part = MIMEApplication(file_content)
+                    part.add_header('Content-Disposition', 'attachment', filename=uploaded_file.name)
+                    multipart_message.attach(part)
+
+            raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
+            body = {'raw': raw_message}
+            service.users().messages().send(userId="me", body=body).execute()
+
+            return Response({"message": "Email sent successfully!"}, status=200)
+
+        else:
+            return Response(serializer.errors, status=400)
+    except Exception as e:
+        # Log the error
+        logging.error(f'Error in send_email view: {e}')
+        # Return a response indicating the error
+        return Response({"error": "Internal Server Error"}, status=500)
+
+
+def get_unique_email_senders(request):
+    user = request.user
+    email = request.headers.get('email')
+    services = authenticate_service(user, email)
+
+    if services:
+        senders_info = get_unique_senders(services)
+        contacts_info = get_info_contacts(services)            
+    else:
+        return Response({"error": "Failed to authenticate or access services"}, status=400)
+
+    # Convert contacts_info to a dictionary format
+    contacts_dict = {email: contact['name'] for contact in contacts_info for email in contact['emails']}
+
+    # Merge the two dictionaries and remove duplicates
+    merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
+
+    return Response(merged_info, status=200)
+
+
+
+######################## PROFILE REQUESTS ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_parsed_contacts(request) -> list:
     """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
     user = request.user
-
+    email = request.headers.get('email')
     # Authenticate the user and build the service
-    credentials = get_credentials(user)
+    credentials = get_credentials(user, email)
     services = build_services(credentials)
     contacts_service = services['contacts']
 
@@ -275,7 +331,7 @@ def get_parsed_contacts(request) -> list:
         return Response(parsed_contacts)
     except Exception as e:
         logging.exception("Error fetching contacts:")
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': str(e)}, status=500)
 
 def get_unique_senders(services) -> dict:
     """Fetches unique sender information from Gmail messages"""
@@ -312,20 +368,43 @@ def get_unique_senders(services) -> dict:
 def get_profile_image(request):
     """Returns the profile image of the user"""
     user = request.user
-    credentials = get_credentials(user)
+    email = request.headers.get('email')
+    credentials = get_credentials(user, email)
     service = build_services(credentials)['profile']
 
-    # Get user profile
-    profile = service.people().get(resourceName='people/me', personFields='photos').execute()
+    try:
+        profile = service.people().get(resourceName='people/me', personFields='photos').execute()
 
-    # Extract profile image URL if available
-    if 'photos' in profile:
-        photos = profile['photos']
-        if photos:
-            photo_url = photos[0]['url']
-            return Response({'profile_image_url': photo_url})
+        if 'photos' in profile:
+            photos = profile['photos']
+            if photos:
+                photo_url = photos[0]['url']
+                return Response({'profile_image_url': photo_url})
+        
+        return Response({'profile_image_url': "Profile image URL not found in response"}, status=404)
+
+    except Exception as e:
+        return Response({'error': f"Error retrieving profile image: {e}"}, status=505)
+
+def get_email(access_token, refresh_token):
+    """Returns the primary email of the user"""
+    creds_data = {
+        'token': access_token,
+        'refresh_token': refresh_token,
+        'token_uri': CONFIG['token_uri'],
+        'client_id': CONFIG['client_id'],
+        'client_secret': CONFIG['client_secret'],
+        'scopes': SCOPES
+    }
+    creds = credentials.Credentials.from_authorized_user_info(creds_data)
     
-    return Response({'error': 'Profile image not found'}, status=status.HTTP_404_NOT_FOUND)
+    try:
+        service = build_services(creds)['profile']
+        user_info = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+        email = user_info.get('emailAddresses', [{}])[0].get('value', '')
+        return email    
+    except:
+        return None
 
 
 
@@ -465,58 +544,8 @@ def email_query(from_list,to_list,after,before,keywords,int_attachement):
     # print(len(to_list))
     return query, query_list
 
-# # GOOGLE # Search for emails
-# def search_emails(query):
-#     services = authenticate_service()
-#     service = services['gmail.readonly']
-#     # print('query: ',query)
-#     email_ids = []
-    
-#     # Initial API request
-#     response = service.users().messages().list(userId='me', q=query).execute()
-    
-#     while 'messages' in response:
-#         while 'messages' in response:
-#             for message in response['messages']:
-#                 email_ids.append(message['id'])
-            
-#             # Check if there are more pages of results
-#             if 'nextPageToken' in response:
-#                 response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
-#             else:
-#                 break
 
-#         # If you want to print out the IDs
-#         for email_id in email_ids:
-#             print(email_id)
-#         print("Number of mails: ",len(email_ids))
 
-#         return email_ids
-def search_emails(query):
-    services = authenticate_service()
-    service = services['gmail.readonly']
-    
-    email_ids = []
-    
-    # Initial API request
-    response = service.users().messages().list(userId='me', q=query).execute()
-    
-    while 'messages' in response:
-        for message in response['messages']:
-            email_ids.append(message['id'])
-        
-        # Check if there are more pages of results
-        if 'nextPageToken' in response:
-            response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
-        else:
-            break
-
-    # If you want to print out the IDs
-    for email_id in email_ids:
-        print(email_id)
-    print("Number of mails: ", len(email_ids))
-
-    return email_ids
 
 
 # delays retries after error 429 sync quota exceeded
@@ -703,49 +732,7 @@ def search_attachments(query):
 ######################## Other ########################
 
 
-# GOOGLE
-def send_mail(request):
-    # \"\"\"Handle the process of sending emails.\"\"\"
-    # service = authenticate_service(GMAIL_SEND_SCOPE)
-    services = authenticate_service()
-    service = services['gmail.send']
-    if request.method == 'POST' :
-        form = MailForm(request.POST)
-        if form.is_valid() :
-            subject = form.cleaned_data['subject']
-            message = form.cleaned_data['message']
-            to = form.cleaned_data['to']
-            cc = form.cleaned_data['cc']
-            bcc = form.cleaned_data['bcc']
-            piece_jointe = form.cleaned_data['piece_jointe']
 
-            multipart_message = MIMEMultipart()
-            multipart_message["Subject"] = subject
-            multipart_message["from"] = "me"
-            multipart_message["to"] = to
-            multipart_message["cc"] = cc
-            multipart_message["bcc"] = bcc
-
-            # Attach the message content to the email, regardless of whether
-            # there's an attachment.
-            multipart_message.attach(MIMEText(message, "plain"))
-
-            if piece_jointe != None :
-                piece_jointe = MIMEApplication(open(piece_jointe, 'rb').read())
-                piece_jointe.add_header('Content-Disposition', 'attachment', filename='attachment.pdf')
-                multipart_message.attach(piece_jointe)
-
-            raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
-
-            body = {'raw': raw_message}
-
-            multipart_message = service.users().messages().send(userId="me", body=body).execute()
-
-            return redirect('MailAssistant:home_page')
-
-    else : 
-        form = MailForm()         
-    return render(request, 'send_mails.html', {'form': form})
 
 # GOOGLE
 def get_calendar_events(services):
@@ -761,8 +748,9 @@ def get_calendar_events(services):
 
 
 
-# Fetch the name and the email of the contacts of the user 
+
 def get_info_contacts(services):
+    """Fetch the name and the email of the contacts of the user"""
     service = services['contacts']
 
     # Request a list of all the user's connections (contacts)
@@ -785,56 +773,36 @@ def get_info_contacts(services):
     return names_emails
 
 
-# NEW MAIL
-# search in mailbox
-'''
-def search_emails(services, search_query, max_results=5):
-    service = services['gmail.readonly']
-    query = f"{search_query}"
-
-    # Limit the number of results to improve performance
-    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
-    messages = results.get('messages', [])
-    found_emails = {}
-
-    for message in messages:
-        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
-        headers = msg.get('payload', {}).get('headers', [])
-        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
-
-        if sender and not any(substring in sender.lower() for substring in ["noreply", "no-reply"]): # CAN BE UPGRADED FOR MORE PERFORMANCE
-            email = sender.split('<')[-1].split('>')[0].strip()
-            name = sender.split('<')[0].strip() if '<' in sender else email
-            if email:  # Ensure email is not empty
-                found_emails[email] = name
-
-    return found_emails'''
-
 # V2 : better to check the mail structure (comparing with the input)
 def search_emails(services, search_query, max_results=2):
+    """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
     service = services['gmail.readonly']
-    query = f"{search_query}"
 
     # Fetch the list of emails based on the query
-    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
-    messages = results.get('messages', [])
-    found_emails = {}
+    try:
+        results = service.users().messages().list(userId='me', q=search_query, maxResults=max_results).execute()
+        messages = results.get('messages', [])
+        found_emails = {}
 
-    for message in messages:
-        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
-        headers = msg.get('payload', {}).get('headers', [])
-        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
+        for message in messages:
+            msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+            headers = msg.get('payload', {}).get('headers', [])
+            sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
 
-        if sender:
-            email = sender.split('<')[-1].split('>')[0].strip().lower()
-            name = sender.split('<')[0].strip().lower() if '<' in sender else email
+            if sender:
+                email = sender.split('<')[-1].split('>')[0].strip().lower()
+                name = sender.split('<')[0].strip().lower() if '<' in sender else email
 
-            # Additional filtering: Check if the sender email/name matches the search query
-            if search_query.lower() in email or search_query.lower() in name:
-                if email and not any(substring in email for substring in ["noreply", "no-reply"]):
-                    found_emails[email] = name
+                # Additional filtering: Check if the sender email/name matches the search query
+                if search_query.lower() in email or search_query.lower() in name:
+                    if email and not any(substring in email for substring in ["noreply", "no-reply"]):
+                        found_emails[email] = name
 
-    return found_emails
+        return found_emails
+
+    except Exception as e:
+        logging.error(f'{Fore.RED}ERROR in Gmail API request: {e}')
+        return {}
 
 
 def find_user_in_emails(services, search_query):
@@ -844,6 +812,7 @@ def find_user_in_emails(services, search_query):
         return "No matching emails found."
 
     return emails
+
 
 # To send email
 def send_email_with_gmail(services, subject, message, to, cc, bcc, attachments=None):
@@ -918,129 +887,6 @@ def _get_contacts(name, service_name,resource_name):
     else:
         return []
 
-''' OLD CODE TO DELETE AFTER CHECKING
-def check_token_pickle():
-    print('check_token_pickle')
-    creds = None
-    # Check if token.pickle exists and load credentials if it does
-    if os.path.exists('token.pickle'):
-        if os.stat("token.pickle").st_size > 0:
-            with open('token.pickle', 'rb') as token:
-                try:
-                    creds = pickle.load(token)
-                except EOFError:
-                    print("EOFError: The file 'token.pickle' is empty or corrupted. Please regenerate the token.")
-                    creds = None
-        else:
-            print("The file 'token.pickle' is empty. Please regenerate the token.")
-            creds = None
-    else:
-        print("The file 'token.pickle' does not exist. Please generate the token.")
-        creds = None
-    return creds
-
-def check_creds(creds):
-    print('check_creds')
-    # If there are no valid credentials, create them
-    if not creds or not creds.valid:
-        # if creds and creds.expired and creds.refresh_token:
-        #     creds.refresh(Request())
-        try:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-        except RefreshError:
-            creds = None  # set creds to None to force reauthentication
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8081)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-    return creds
-
-def build_services(creds):
-    print('build_services')
-    # Build services for Gmail and Calendar based on the passed SCOPES
-    service = {}
-    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
-        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
-        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
-        service['calendar'] = build('calendar', 'v3', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
-        service['contacts'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
-        service['profile'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
-        service['email'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
-        service['other.contacts'] = build('people', 'v1', credentials=creds)
-    # return services
-    return service
-
-# authentication service for all google services needed at once, used on startup, then stored until log out
-def authenticate_service():
-    creds = check_token_pickle()
-    creds = check_creds(creds)
-    if creds:
-        service = build_services(creds)
-    else:
-        global test_int
-        test_int+=1
-        print('coucou ',test_int)
-        service = authenticate_service()
-    return service
-
-
-def authenticate_service_old():
-    """Authenticate and return service objects for Google APIs."""
-    creds = None
-    # Check if token.pickle exists and load credentials if it does
-    if os.path.exists('token.pickle'):
-        if os.stat("token.pickle").st_size > 0:
-            with open('token.pickle', 'rb') as token:
-                try:
-                    creds = pickle.load(token)
-                except EOFError:
-                    print("EOFError: The file 'token.pickle' is empty or corrupted. Please regenerate the token.")
-                    creds = None
-        else:
-            print("The file 'token.pickle' is empty. Please regenerate the token.")
-            creds = None
-    else:
-        print("The file 'token.pickle' does not exist. Please generate the token.")
-        creds = None
-
-    # If there are no valid credentials, create them
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8080)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-
-    # Build services for Gmail and Calendar based on the passed SCOPES
-    service = {}
-    if 'https://www.googleapis.com/auth/gmail.readonly' in SCOPES:
-        service['gmail.readonly'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/gmail.send' in SCOPES:
-        service['gmail.send'] = build('gmail', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/calendar.readonly' in SCOPES:
-        service['calendar'] = build('calendar', 'v3', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.readonly' in SCOPES:
-        service['contacts'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.profile' in SCOPES:
-        service['profile'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/userinfo.email' in SCOPES:
-        service['email'] = build('people', 'v1', credentials=creds)
-    if 'https://www.googleapis.com/auth/contacts.other.readonly' in SCOPES:
-        service['other.contacts'] = build('people', 'v1', credentials=creds)
-    # return services
-    return service
-'''
-
 
 # used to get mail number "int_mail" (minus one as lists starts from 0) or mail ID 'id_mail' and returns subject, expeditor and body 
 ''' OLD function TO DELETE AFTER CHECKING
@@ -1089,20 +935,6 @@ def get_mail(services, int_mail, id_mail):
                     
     return subject,from_name,preprocessed_data, email_id'''
 
-''' OLD ONE 
-USELESS AS THE OTHER ONE WORKS WELL
-def build_services(creds):
-    authed_http = AuthorizedHttp(creds, Request())
-    service = {
-        'gmail.readonly': build('gmail', 'v1', http=authed_http),
-        'gmail.send': build('gmail', 'v1', http=authed_http),
-        'calendar': build('calendar', 'v3', http=authed_http),
-        'contacts': build('people', 'v1', http=authed_http),
-        'profile': build('people', 'v1', http=authed_http),
-        'email': build('people', 'v1', http=authed_http),
-        'other.contacts': build('people', 'v1', http=authed_http),
-    }
-    return service'''
 
 # Fetch all the mail in the mailbox of the user => WORKS but it take to much time
 '''
@@ -1124,3 +956,126 @@ def get_unique_senders(services):
             email_addresses.add(email_address)
 
     return list(email_addresses)'''
+
+
+"""# GOOGLE
+def send_mail(request):
+    # \"\"\"Handle the process of sending emails.\"\"\"
+    # service = authenticate_service(GMAIL_SEND_SCOPE)
+    services = authenticate_service()
+    service = services['gmail.send']
+    if request.method == 'POST' :
+        form = MailForm(request.POST)
+        if form.is_valid() :
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            to = form.cleaned_data['to']
+            cc = form.cleaned_data['cc']
+            bcc = form.cleaned_data['bcc']
+            piece_jointe = form.cleaned_data['piece_jointe']
+
+            multipart_message = MIMEMultipart()
+            multipart_message["Subject"] = subject
+            multipart_message["from"] = "me"
+            multipart_message["to"] = to
+            multipart_message["cc"] = cc
+            multipart_message["bcc"] = bcc
+
+            # Attach the message content to the email, regardless of whether
+            # there's an attachment.
+            multipart_message.attach(MIMEText(message, "plain"))
+
+            if piece_jointe != None :
+                piece_jointe = MIMEApplication(open(piece_jointe, 'rb').read())
+                piece_jointe.add_header('Content-Disposition', 'attachment', filename='attachment.pdf')
+                multipart_message.attach(piece_jointe)
+
+            raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
+
+            body = {'raw': raw_message}
+
+            multipart_message = service.users().messages().send(userId="me", body=body).execute()
+
+            return redirect('MailAssistant:home_page')
+
+    else : 
+        form = MailForm()         
+    return render(request, 'send_mails.html', {'form': form})"""
+
+
+# NEW MAIL
+# search in mailbox
+'''
+def search_emails(services, search_query, max_results=5):
+    service = services['gmail.readonly']
+    query = f"{search_query}"
+
+    # Limit the number of results to improve performance
+    results = service.users().messages().list(userId='me', q=query, maxResults=max_results).execute()
+    messages = results.get('messages', [])
+    found_emails = {}
+
+    for message in messages:
+        msg = service.users().messages().get(userId='me', id=message['id'], format='metadata', metadataHeaders=['From']).execute()
+        headers = msg.get('payload', {}).get('headers', [])
+        sender = next((header['value'] for header in headers if header['name'] == 'From'), None)
+
+        if sender and not any(substring in sender.lower() for substring in ["noreply", "no-reply"]): # CAN BE UPGRADED FOR MORE PERFORMANCE
+            email = sender.split('<')[-1].split('>')[0].strip()
+            name = sender.split('<')[0].strip() if '<' in sender else email
+            if email:  # Ensure email is not empty
+                found_emails[email] = name
+
+    return found_emails'''
+# # GOOGLE # Search for emails
+# def search_emails(query):
+#     services = authenticate_service()
+#     service = services['gmail.readonly']
+#     # print('query: ',query)
+#     email_ids = []
+    
+#     # Initial API request
+#     response = service.users().messages().list(userId='me', q=query).execute()
+    
+#     while 'messages' in response:
+#         while 'messages' in response:
+#             for message in response['messages']:
+#                 email_ids.append(message['id'])
+            
+#             # Check if there are more pages of results
+#             if 'nextPageToken' in response:
+#                 response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+#             else:
+#                 break
+
+#         # If you want to print out the IDs
+#         for email_id in email_ids:
+#             print(email_id)
+#         print("Number of mails: ",len(email_ids))
+
+#         return email_ids
+"""def search_emails(query):
+    services = authenticate_service()
+    service = services['gmail.readonly']
+    
+    email_ids = []
+    
+    # Initial API request
+    response = service.users().messages().list(userId='me', q=query).execute()
+    
+    while 'messages' in response:
+        for message in response['messages']:
+            email_ids.append(message['id'])
+        
+        # Check if there are more pages of results
+        if 'nextPageToken' in response:
+            response = service.users().messages().list(userId='me', q=query, pageToken=response['nextPageToken']).execute()
+        else:
+            break
+
+    # If you want to print out the IDs
+    for email_id in email_ids:
+        print(email_id)
+    print("Number of mails: ", len(email_ids))
+
+    return email_ids"""

@@ -758,6 +758,7 @@ import ModalSeeMail from '../components/SeeMail.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
 import { ref } from 'vue';
+import { fetchWithToken } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
     //ChatBubbleOvalLeftEllipsisIcon,
@@ -961,7 +962,7 @@ export default {
             fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
                     'Content-Type': 'application/json',
                     // Include other headers as required, like authorization tokens
                 }
@@ -993,54 +994,21 @@ export default {
                 console.error("There was a problem with the fetch operation:", error);
             });
         },
-        async fetchWithToken(url, options = {}) {
-            const accessToken = localStorage.getItem('userToken');
-            if (!options.headers) {
-                options.headers = {};
-            }
-            if (accessToken) {
-                options.headers['Authorization'] = `Bearer ${accessToken}`;
-            }
-
-            try {
-                let response = await fetch(url, options);
-
-                if (response.status === 401) {
-                    const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ access_token: accessToken })
-                    });
-
-                    if (refreshResponse.ok) {
-                        const refreshData = await refreshResponse.json();
-                        const newAccessToken = refreshData.access_token;
-                        localStorage.setItem('userToken', newAccessToken);
-                        options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                        response = await fetch(url, options);
-                    } else {
-                        throw new Error('Unauthorized: Please log in again');
-                    }
-                }
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                return response.json();
-            } catch (error) {
-                console.error('Error in fetchWithToken:', error.message);
-                throw error;
-            }
-        },
         updateModalStatus(status) {
             this.showModal = status;
         },
         async animateText() {
             try {
-                const data = await this.fetchWithToken(`http://localhost:9000/MailAssistant/gmail/unread_mails/`);
+                const requestOptions = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'email': localStorage.getItem('email')
+                    },
+                };
+
+                const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
+
 
                 const unreadMailCount = data.unreadCount;
                 let text = '';
@@ -1133,7 +1101,7 @@ export default {
         async handleAddCategory(categoryData) {
             console.log('Category Added:', categoryData);
             try {
-                const response = await this.fetchWithToken('http://localhost:9000/MailAssistant/api/set_category/', {
+                const response = await fetchWithToken('http://localhost:9000/MailAssistant/api/set_category/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1148,7 +1116,7 @@ export default {
                     console.log('Category added:', response);
                     this.showNewCategoryNotif = true;
                     this.closeModal();
-                    const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+                    const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
                     console.log("CategoryData", categoryData);
                     this.categories = categoryData.map(category => ({
                         name: category.name,
@@ -1185,13 +1153,13 @@ export default {
                 },
                 body: JSON.stringify(updateData)
                 };
-                const response = await this.fetchWithToken(url, options);
+                const response = await fetchWithToken(url, options);
 
                 if (response) {
                     console.log('Category updated:', response);
                     this.showUpdateCategoryNotif = true;
                     this.closeUpdateModal();
-                    const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+                    const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
                     console.log("CategoryData", categoryData);
                     this.categories = categoryData.map(category => ({
                         name: category.name,
@@ -1225,14 +1193,14 @@ export default {
                     }
                 };
 
-                const response = await this.fetchWithToken(url, options);
+                const response = await fetchWithToken(url, options);
 
                 if (response) {
                     console.log('Category deleted:', response);
                     this.showDeleteCategoryNotif = true;
                     this.closeUpdateModal();
                     // Fetch the categories
-                    const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+                    const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
                     console.log("CategoryData", categoryData);
                     this.categories = categoryData.map(category => ({
                         name: category.name,
@@ -1271,7 +1239,7 @@ export default {
             console.log("TEXT",this.messageText);
 
             // Fetch the categories
-            const categoryData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
             console.log("CategoryData", categoryData);
             this.categories = categoryData.map(category => ({
                 name: category.name,
@@ -1280,7 +1248,7 @@ export default {
             console.log("Assigned categories:", this.categories);
 
             // Fetch emails
-            const emailData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/`);
+            const emailData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/`);
             //console.log('fetchData: ',emailData)
             this.emails = emailData;
 

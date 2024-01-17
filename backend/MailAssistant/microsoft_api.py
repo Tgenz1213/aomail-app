@@ -1,9 +1,12 @@
+"""
+Handles authentication and HTTP requests for the Microsoft Graph API.
+"""
 import json
 import logging
 import requests
 from urllib.parse import urlencode
-from urllib.parse import urlparse, parse_qs
-from django.http import HttpResponseRedirect, JsonResponse
+from rest_framework.response import Response
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
 from email.mime.multipart import MIMEMultipart
@@ -13,6 +16,11 @@ from colorama import init, Fore
 from rest_framework import status
 from .serializers import EmailDataSerializer
 from base64 import urlsafe_b64encode
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from .models import SocialAPI
+from requests.exceptions import HTTPError
+
 
 # Initialize colorama with autoreset
 init(autoreset=True)
@@ -36,8 +44,7 @@ CONFIG = json.load(open('creds/microsoft_creds.json', 'r'))
 # localhost authority
 AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
 GRAPH_URL = 'https://graph.microsoft.com/v1.0/'
-REDIRECT_URI = 'https://localhost:9000/MailAssistant/microsoft/auth_callback/'
-# https://localhost:9000/MailAssistant/microsoft/auth_url/
+REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
 
 
@@ -52,36 +59,13 @@ def generate_auth_url(request):
         'scope': ' '.join(SCOPES),
         'state': '0a590ac7-6a23-44b1-9237-287743818d32'
     }
-    auth_url = f'{AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}'
-    return redirect(auth_url)
+    authorization_url = f'{AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}'
 
-def auth_callback(request):
-    """Retrieve the authorization code from the callback response"""
-    parsed_url = urlparse(request.build_absolute_uri())
-    query_params = parse_qs(parsed_url.query)
-    authorization_code = query_params.get('code', [''])[0]
-
-    if authorization_code:
-        tokens = exchange_code_for_tokens(authorization_code)
-        access_token = tokens['access_token']        
-        refresh_token = tokens['refresh_token']
-
-
-        # TODO: Save tokens in DB
-        
-        if access_token:
-            # testing access token
-            print(get_perso_info(access_token))
-
-
-            return HttpResponseRedirect('http://localhost:8080/')
-        else:
-            return JsonResponse({'error': 'Failed to obtain access token'}, status=400)
-    else:
-        return JsonResponse({'error': 'Code not found'}, status=400)
+    # Redirect the user to Microsoft's consent screen
+    return redirect(authorization_url)
 
 def exchange_code_for_tokens(authorization_code):
-    """Returns the access token"""
+    """Returns the access token and the refresh token"""
     app = ConfidentialClientApplication(
         client_id=CONFIG["client_id"],
         client_credential=CONFIG["client_secret"],
@@ -94,49 +78,72 @@ def exchange_code_for_tokens(authorization_code):
         redirect_uri=REDIRECT_URI
     )    
     if result:
-        return result
+        return result['access_token'], result['refresh_token']
     else:
-        return JsonResponse({'error': 'Access token not found'}, status=400)
+        return Response({'error': 'tokens not found'}, status=400)
 
+######################## CREDENTIALS ########################
+def get_social_api(user, email):
+    """Returns the SocialAPI instance"""
+    try:
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        return social_api
+    except SocialAPI.DoesNotExist:
+        logging.error(f"{Fore.RED}No credentials found for user {user.username} and email {email}")
+        return None
 
-
-######################## MICROSOFT GRAPH API REQUESTS ########################
-def get_perso_info(access_token):
-    """Returns several public informations about the profile
-    ONLY FOR TESTING PURPOSES
-    """
-
-    # Define the Microsoft Graph API endpoint for reading emails
-    graph_api_endpoint = f'{GRAPH_URL}me'
-
-    # Set the headers with the access token
+def is_token_valid(access_token):
+    """Check if the access token is still valid by making a sample request"""
+    sample_url = f'{GRAPH_URL}me'
     headers = {
+        'Content-Type': 'application/json',
         'Authorization': f'Bearer {access_token}'
     }
+    response = requests.get(sample_url, headers=headers)
+    return response.status_code == 200
 
-    # Make a GET request to the API endpoint
-    response = requests.get(graph_api_endpoint, headers=headers)
+def refresh_access_token(social_api):
+    """Returns a valid access token"""
+    access_token = social_api.access_token
 
-    if response.status_code == 200:
-        # The response contains your email data
-        email_data = response.json()
-        return email_data
+    if is_token_valid(access_token):
+        return access_token
+
+    refresh_url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': social_api.refresh_token,
+        'client_id': CONFIG["client_id"],
+        'client_secret': CONFIG["client_secret"],
+        'scope': SCOPES
+    }
+
+    response = requests.post(refresh_url, data=data)
+    response_data = response.json()
+
+    # Check if the refresh was successful
+    if 'access_token' in response_data:
+        social_api.access_token = response_data['access_token']
+        social_api.save()
+        return response_data['access_token']
     else:
-        # Handle the error case
-        logging.error(f'{Fore.RED}Error reading emails. Status code: {response.status_code}')
         return None
 
 
 
 ######################## PROFILE REQUESTS ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_parsed_contacts(request) -> list:
     """Returns a list of parsed unique contacts with email types"""
-    # TODO: ALGO to get the access token and check JWT
-    access_token = ""
-
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
+    
     try:
         if access_token:
             headers = {
+                'Content-Type': 'application/json',
                 'Authorization': f'Bearer {access_token}'
             }
 
@@ -177,7 +184,42 @@ def get_parsed_contacts(request) -> list:
 
     except Exception as e:
         logging.exception(f"{Fore.YELLOW}Error fetching contacts: {e}")
-        return JsonResponse({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse({'error': e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def get_info_contacts(access_token):
+    """Fetch the name and the email of the contacts of the user"""
+    graph_endpoint = 'https://graph.microsoft.com/v1.0/me/contacts'
+
+    try:
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+
+        params = {
+            '$top': 1000
+        }
+
+        response = requests.get(graph_endpoint, headers=headers, params=params)
+        response.raise_for_status()
+
+        contacts = response.json().get('value', [])
+
+        names_emails = []
+        for contact in contacts:
+            # Extract the name and email address of each contact
+            name = contact.get('displayName')
+            email_addresses = [email['address'] for email in contact.get('emailAddresses', [])]
+
+            names_emails.append({'name': name, 'emails': email_addresses})
+
+        return names_emails
+
+    except HTTPError as e:
+        logging.error(f"{Fore.RED}Error in Microsoft Graph API request: {str(e)}")
+        return []
+
 
 def get_unique_senders(access_token) -> dict:
     """Fetches unique sender information from Microsoft Graph API messages"""
@@ -185,6 +227,7 @@ def get_unique_senders(access_token) -> dict:
 
     try:
         headers = {
+            'Content-Type': 'application/json',
             'Authorization': f'Bearer {access_token}'
         }
 
@@ -208,74 +251,91 @@ def get_unique_senders(access_token) -> dict:
         logging.exception(f"{Fore.RED}Error fetching senders: {e}")
         return senders_info
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_profile_image(request):
     """Returns the profile image URL of the user"""
-    # TODO: ALGO to get the access token and check JWT
-    access_token = ""
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
 
     try:
-        if access_token:
-            headers = {
-                'Authorization': f'Bearer {access_token}'
-            }
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {access_token}'
+        }
 
-            # Endpoint to get the user's profile photo
-            graph_endpoint = 'https://graph.microsoft.com/v1.0/me/photo/$value'
-            response = requests.get(graph_endpoint, headers=headers)
+        graph_endpoint = 'https://graph.microsoft.com/v1.0/me/photo/$value'
+        response = requests.get(graph_endpoint, headers=headers)
 
-            if response.status_code == 200:
-                # Assuming the image is provided as a URL in the response
-                photo_url = response.json().get('@odata.mediaEditLink', '')
-                if photo_url:
-                    return JsonResponse({'profile_image_url': photo_url})
-                else:
-                    return JsonResponse({'error': 'Profile image URL not found in response'}, status=500)
-            elif response.status_code == 404:
-                return JsonResponse({'error': 'Profile image not found'}, status=404)
+        if response.status_code == 200:
+            photo_url = response.url
+            if photo_url:
+                return Response({'profile_image_url': photo_url}, status=200)
             else:
-                default_img_url = "PATH_TO_IMG"
-                return JsonResponse({'error': default_img_url}, status=response.status_code)
-
+                return Response({'error': 'Profile image URL not found in response'}, status=404)
+        elif response.status_code == 404:
+            return Response({'error': 'Profile image not found'}, status=404)
         else:
-            return JsonResponse({'error': 'Access token not found'}, status=400)
+            logging.error(f"{Fore.RED}Failed to retrieve profile image: {response.status_code}\nReason: {response.reason}")
+            return Response({'error': f"Failed to retrieve profile image: {response.reason}"}, status=404)
 
     except Exception as e:
-        logging.exception(f"Error retrieving profile image: {e}")
-        return JsonResponse({'error': str(e)}, status=500)   
+        logging.exception(f"{Fore.RED}An exception occurred: {str(e)}")
+        return Response({'error': f"An exception occurred: {str(e)}"}, status=500)
 
+
+def get_email(access_token):
+    """Returns the primary email of the user from Microsoft Graph API"""
+    if not access_token:
+        return Response({'error': 'Access token is missing'}, status=400)
+
+    try:
+        graph_api_endpoint = f'{GRAPH_URL}me'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {access_token}'
+        }
+        response = requests.get(graph_api_endpoint, headers=headers)
+
+        if response.status_code == 200:
+            email_data = response.json()
+            email = email_data.get('mail')
+            return email
+        else:
+            return None
+    except:
+        return None
+    
 
 
 ######################## EMAIL REQUESTS ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def unread_mails(request):
     """Returns the number of unread emails"""
-    
-    #jwt_access_token = request.headers.get('jwt_access_token')
-    #email = request.headers.get('email')
-    #user_id = request.headers.get('user_id')
-
-    # TODO: check if jwt_access_token is valid
-    # Then get the access token associated with the user id & email
-        # check if it is valid
-    
-    # email API OAuth access_token
-    access_token = ""
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
 
     try:
         if access_token:
             headers = {
+                'Content-Type': 'application/json',
                 'Authorization': f'Bearer {access_token}'
             }
             unread_count = 0
 
             # Get unread messages using Microsoft Graph API
-            graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages?$count=true&$filter=isRead eq false'
+            graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages' # ?$count=true&$filter=isRead eq false'
             response = requests.get(graph_endpoint, headers=headers)
-
+            
             if response.status_code == 200:
                 unread_count = response.json().get('@odata.count', 0)
                 return JsonResponse({'unreadCount': unread_count}, status=200)
             else:
-                error_message = response.json().get('error', {}).get('message', 'Failed to retrieve unread count')
+                error_message = response.json().get('error', {}).get('message', 'No error message')
                 logging.error(f"{Fore.RED}Failed to retrieve unread count: {error_message}")
                 return JsonResponse({'unreadCount': 0}, status=response.status_code)
 
@@ -285,11 +345,15 @@ def unread_mails(request):
         logging.error(f"An error occurred: {e}")
         return JsonResponse({'unreadCount': 0}, status=400)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def send_email(request):
-    # TODO: ALGO to get the access token and check JWT
-    access_token = ""
+    """Sends an email using the Microsoft Graph API."""  
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
     serializer = EmailDataSerializer(data=request.data)
-    logger = logging.getLogger(__name__)
     
     if serializer.is_valid():
         data = serializer.validated_data
@@ -305,6 +369,7 @@ def send_email(request):
 
             graph_endpoint = 'https://graph.microsoft.com/v1.0/me/sendMail'
             headers = {
+                'Content-Type': 'application/json',
                 'Authorization': f'Bearer {access_token}'
             }
 
@@ -342,16 +407,84 @@ def send_email(request):
             try:
                 response = requests.post(graph_endpoint, headers=headers, json=body)
                 if response.status_code == 202:
-                    return JsonResponse({"message": "Email sent successfully!"}, status=200)
+                    return JsonResponse({"message": "Email sent successfully!"}, status=202)
                 else:
                     return JsonResponse({"error": "Failed to send email"}, status=response.status_code)
             except Exception as e:
-                logger.exception(f"Error sending email: {e}")
+                logging.exception(f"Error sending email: {e}")
                 return JsonResponse({"error": str(e)}, status=500)
 
         except Exception as e:
-            logger.exception(f"Error preparing email data: {e}")
+            logging.exception(f"Error preparing email data: {e}")
             return JsonResponse({'error': str(e)}, status=500)
 
-    logger.error(f"{Fore.RED}Serializer errors: {serializer.errors}")
+    logging.error(f"{Fore.RED}Serializer errors: {serializer.errors}")
     return JsonResponse(serializer.errors, status=400)
+
+
+def get_unique_email_senders(request):
+    user = request.user
+    email = request.headers.get('email')
+    access_token = refresh_access_token(get_social_api(user, email))
+    
+    senders_info = get_unique_senders(access_token)
+    contacts_info = get_info_contacts(access_token)
+    # Convert contacts_info to a dictionary format
+    contacts_dict = {email: contact['name'] for contact in contacts_info for email in contact['emails']}
+
+    # Merge the two dictionaries and remove duplicates
+    merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
+
+    return Response(merged_info, status=200)
+
+
+def find_user_in_emails(access_token, search_query):
+    messages = search_emails(access_token, search_query)
+
+    if not messages:
+        return "No matching emails found."
+
+    return messages
+
+
+def search_emails(access_token, search_query, max_results=2):
+    graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages'
+
+    try:
+        headers = {
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json'
+        }
+
+        # Use $filter to achieve search functionality
+        filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
+        
+        params = {
+            '$filter': filter_expression,
+            '$top': max_results
+        }
+
+        response = requests.get(graph_endpoint, headers=headers, params=params)
+        response.raise_for_status()
+
+        messages = response.json().get('value', [])
+
+        found_emails = {}
+
+        for message in messages:
+            sender = message.get('from', {}).get('emailAddress', {}).get('address', '')
+
+            if sender:
+                email = sender.lower()
+                name = sender.split('@')[0].lower()
+
+                # Additional filtering: Check if the sender email/name matches the search query
+                if search_query.lower() in email or search_query.lower() in name:
+                    if email and not any(substring in email for substring in ["noreply", "no-reply"]):
+                        found_emails[email] = name
+
+        return found_emails
+
+    except HTTPError as e:
+        logging.error(f'{Fore.RED}ERROR in Microsoft Graph API request: {str(e)}')
+        return {}

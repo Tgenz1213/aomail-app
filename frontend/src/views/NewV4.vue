@@ -292,17 +292,17 @@ import { defineProps, defineEmits, computed, ref, onMounted, nextTick } from 'vu
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/vue/20/solid';
+import { fetchWithToken } from '../router/index.js';
 import Quill from 'quill';
-
 import {
-    Combobox,
-    ComboboxButton,
-    ComboboxInput,
-    //ComboboxLabel,
-    ComboboxOption,
-    ComboboxOptions,
-  } from '@headlessui/vue'
-  
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from '@headlessui/vue'
+
+
 const items = [
   { name: 'Envoyer à une heure', href: '#' },
 ]
@@ -310,11 +310,16 @@ const items = [
 // lists of different types of recipients
 const people = [];
 
+const requestOptions = {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'email': localStorage.getItem('email')
+  },
+};
+
 // request to update the list of contacts (people array)
-fetch('http://localhost:9000/MailAssistant/gmail/get_parsed_contacts/', {
-    method: 'GET',
-    headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
-})
+fetchWithToken('http://localhost:9000/MailAssistant/api/get_parsed_contacts/', requestOptions)
 .then(response => response.json())
 .then(data => people.push(...data))
 .catch(error => console.error("Error fetching contacts:", error));
@@ -487,7 +492,7 @@ function handleEnterKey(event) {
   */
 }
 
-const handleAIClick = () => {
+const handleAIClick = async () => {
   /*const elements = [
     document.getElementById("UserDestinaryContainer"),
     document.getElementById("UserObjectContainer"),
@@ -501,32 +506,33 @@ const handleAIClick = () => {
   let userInput = textareaValue.value;
 
   // Fetches the profile image URL from the server
-  fetch('http://localhost:9000/MailAssistant/gmail/get_profile_image/', {
+  const requestOptions = {
     method: 'GET',
-    headers: { 'Authorization': `Bearer ${localStorage.getItem('userToken')}` }
-  })
-  .then(response => response.json())
-  .then(data => {
-    const imageURL = data.profile_image_url; // Extracts the profile image URL from the fetched data
+    headers: {
+      'Content-Type': 'application/json',
+      'email': localStorage.getItem('email')
+    },
+  };
 
-    const profileImageHTML = `
-      <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
-      `;
+  const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/get_profile_image/', requestOptions);
+  let imageURL = data.profile_image_url || require('@/assets/user.png');
+  const profileImageHTML = `
+    <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
+  `;
 
-      // Create the complete message HTML with the profile image and text
-      messageHTML = `
-        <div class="flex pb-12">
-          <div class="mr-4 flex">
-            ${profileImageHTML}
-            </div>
-          <div>
-            <p class="font-serif" >${userInput}</p>
-          </div>
-        </div>
-      `;
-      AIContainer.value.innerHTML += messageHTML;
-    })
-    .catch(error => console.error("Error fetching profile image:", error));
+  // Create the complete message HTML with the profile image and text
+  messageHTML = `
+    <div class="flex pb-12">
+      <div class="mr-4 flex">
+        ${profileImageHTML}
+      </div>
+      <div>
+        <p class="font-serif" >${userInput}</p>
+      </div>
+    </div>
+  `;
+  AIContainer.value.innerHTML += messageHTML;
+
 
     textareaValueSave.value = textareaValue.value;
     textareaValue.value = '';
@@ -608,17 +614,20 @@ const handleAIClick = () => {
           try {
               loading();
               scrollToBottom();
-              const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_ai/', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                      input_data: textareaValueSave.value,
-                      length: lengthValue.value,
-                      formality: formalityValue.value,
-                  }),
-              });
+              const requestOptions = {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'email': localStorage.getItem('email')
+                },
+                body: JSON.stringify({
+                  input_data: textareaValueSave.value,
+                  length: lengthValue.value,
+                  formality: formalityValue.value,
+                })
+              };
+
+              const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_ai/', requestOptions);
               hideLoading();
               subject.value = result.subject;
               mail.value = result.mail;
@@ -737,17 +746,22 @@ const handleAIClick = () => {
           try {
               loading();
               scrollToBottom();
-              const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                      mail_content: mail.value, 
-                      user_recommendation: textareaValueSave.value,
-                      email_subject: inputValue.value,
-                  }),
-              });
+              
+              const requestOptions = {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'email': localStorage.getItem('email')
+                },
+                body: JSON.stringify({
+                  mail_content: mail.value,
+                  user_recommendation: textareaValueSave.value,
+                  email_subject: inputValue.value,
+                }),
+              };
+
+              const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', requestOptions);
+
               hideLoading();
               subject.value = result.subject;
               mail.value = result.email_body;
@@ -851,63 +865,23 @@ const handleAIClick = () => {
       }
     }, 400);
 };
-
-async function fetchWithToken(url, options = {}) {
-  const accessToken = localStorage.getItem('userToken');
-  if (!options.headers) {
-      options.headers = {};
-  }
-  if (accessToken) {
-      options.headers['Authorization'] = `Bearer ${accessToken}`;
-  }
-
-  try {
-    let response = await fetch(url, options);
-
-    if (response.status === 401) {
-        const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ access_token: accessToken })
-        });
-
-        if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            const newAccessToken = refreshData.access_token;
-            localStorage.setItem('userToken', newAccessToken);
-            options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-            response = await fetch(url, options);
-        } else {
-            throw new Error('Unauthorized: Please log in again');
-        }
-    }
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return response.json();
-
-  } catch (error) {
-      console.error('Error in fetchWithToken:', error.message);
-      throw error;
-  }
-}
-
 const bgColor = ref(''); // Initialize a reactive variable
 
 /* DOES NOT WORK => TO CHECK */
 const userSearchResult = ref(null);
 
 async function findUser(searchQuery) {
+
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'email': localStorage.getItem('email')
+    },
+  };
+
   try {
-    const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/find-user-ai/?query=' + encodeURIComponent(searchQuery), {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
+    const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/find-user-ai/?query=' + encodeURIComponent(searchQuery), requestOptions);
     console.log(data);
     userSearchResult.value = data; // Update the reactive variable
   } catch (error) {
@@ -978,7 +952,7 @@ function fetchEmailSenders() {
   fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
       'Content-Type': 'application/json'
     }
   })
@@ -1460,16 +1434,21 @@ async function checkSpelling() {
   try {
       loading();
       scrollToBottom();
-      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/correct_email_language/', {
+      
+      const requestOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'email': localStorage.getItem('email')
         },
         body: JSON.stringify({
-            email_subject: inputValue.value,
-            email_body: mailInput.value,
+          email_subject: inputValue.value,
+          email_body: mailInput.value,
         }),
-      });
+      };
+
+      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/correct_email_language/', requestOptions);
+
       hideLoading();
       //subject.value = result.corrected_subject; TO DELETE ?
       //mail.value = result.corrected_body; TO DELETE ?
@@ -1573,16 +1552,21 @@ async function checkCopyWriting() {
   try {
       loading();
       scrollToBottom();
-      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
+
+      const requestOptions = {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'email': localStorage.getItem('email')
         },
         body: JSON.stringify({
-            email_subject: inputValue.value,
-            email_body: mailInput.value,
+          email_subject: inputValue.value,
+          email_body: mailInput.value,
         }),
-      });
+      };
+
+      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/check_email_copywriting/', requestOptions);
+
       hideLoading();
       //subject.value = result.corrected_subject; TO DELETE ?
       //mail.value = result.corrected_body; TO DELETE ?
@@ -1683,24 +1667,26 @@ async function WriteBetter() {
   try {
     loading();
     scrollToBottom();
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            mail_content: mailInput.value, 
-            user_recommendation: "Améliore l'écriture du mail",
-            email_subject: inputValue.value,
-        }),
-    });
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'email': localStorage.getItem('email')
+      },
+      body: JSON.stringify({
+        email_body: mailInput.value,
+        email_subject: inputValue.value,
+      }),
+    };
+
+    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/gpt_improve_email_writing/', requestOptions);
+
     hideLoading();
-    subject.value = result.subject;
-    mail.value = result.email_body;
     console.log(result);
+    subject.value = result.subject;
+    mail.value = result.body;
     if (result.subject && result.email_body) {
         // TO FINISH => animation
-        const formattedMail = result.email_body.replace(/\n/g, '<br>');
         const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
@@ -1712,7 +1698,7 @@ async function WriteBetter() {
                 </div>
                 <div>
                     <p><strong>Objet:</strong> ${result.subject}</p>
-                    <p><strong>Email:</strong> ${formattedMail}</p>
+                    <p><strong>Email:</strong> ${result.email_body}</p>
                 </div>
             </div>
         `;
@@ -1898,8 +1884,11 @@ async function sendEmail() {
   }
 
   try {
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/send_mails/', {
+    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/send_mail/', {
         method: 'POST',
+        headers: {
+          email: localStorage.getItem('email')
+        },
         body: formData
     });
     console.log(result.message); // Handle success
@@ -1958,30 +1947,6 @@ import {
   Bars2Icon,
   //Bars3BottomLeftIcon,
 } from '@heroicons/vue/24/outline'
-
-  /*
-  const userDestinaryContainer = document.getElementById('UserDestinaryContainer');
-  const emailContainer = document.getElementById('EmailContainer');
-    
-  // Check if UserDestinaryContainer has content (not just whitespace)
-  if (userDestinaryContainer.textContent.trim() !== '') {
-     emailContainer.innerHTML = `
-        <div class="flex pb-12">
-          <div class="mr-4 flex">
-              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                  <span class="text-lg font-medium leading-none text-white">AO</span>
-              </span>   
-          </div>
-          <div>
-              <p ref="animatedText3">Veuillez choisir l'une des options ci-dessous ou saisissez un brouillon portant sur le sujet de votre mail</p>
-          </div>
-        </div>';`
-  } else {
-    emailContainer.innerHTML = ''; // Clear the EmailContainer if desired
-  }
-
-  const animatedParagraph2 = document.querySelector('p[ref="animatedText3"]');
-  animateText(message, animatedParagraph2);*/
 
 export default {
   components: {

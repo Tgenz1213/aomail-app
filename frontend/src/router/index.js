@@ -11,6 +11,57 @@ import Settings from '@/views/SettingsV1.vue';
 import Search from '@/views/SearchV2.vue';
 import ReplyLater from '@/views/ReplyLaterV1.vue';
 
+
+async function fetchWithToken(url, options = {}) {
+  const accessToken = localStorage.getItem('access_token');
+  if (!options.headers) {
+    options.headers = {};
+  }
+  if (accessToken) {
+    options.headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  try {
+    let response = await fetch(url, options);
+
+    if (response.status === 401) {
+      console.log("REFRESHING JWT ACCESS TOKEN");
+      const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ access_token: accessToken })
+      });
+
+      if (refreshResponse.ok) {
+        const refreshData = await refreshResponse.json();
+        const newAccessToken = refreshData.access_token;
+        localStorage.setItem('access_token', newAccessToken);
+        options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        response = await fetch(url, options);
+      } else {
+        throw new Error('Unauthorized: Please log in again');
+      }
+    } 
+    // Access token is still valid
+    // Handles other errors
+    else {
+      return response.json();
+    }    
+
+    // Failed to refresh the token
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error in fetchWithToken:', error.message);
+    throw error;
+  }
+}
+
 const routes = [
   {
     path: '/',
@@ -91,3 +142,4 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
+export { fetchWithToken };

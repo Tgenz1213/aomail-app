@@ -1,0 +1,13 @@
+{
+    "secret_key": "django-insecure-eglv0w%qyggc072=++va@*4qk$j(&(330+h8n80a4p*a87&n7y",
+    "database_conf": {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "mailassistantdb",
+            "USER": "django_admin",
+            "PASSWORD": "admin@2",
+            "HOST": "localhost",
+            "PORT": "5432"
+        }
+    }
+}

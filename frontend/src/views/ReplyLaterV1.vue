@@ -243,7 +243,7 @@ onMounted(() => {
 });
 
 async function fetchWithToken(url, options = {}) {
-  const accessToken = localStorage.getItem('userToken');
+  const accessToken = localStorage.getItem('access_token');
   if (!options.headers) {
       options.headers = {};
   }
@@ -266,7 +266,7 @@ async function fetchWithToken(url, options = {}) {
         if (refreshResponse.ok) {
             const refreshData = await refreshResponse.json();
             const newAccessToken = refreshData.access_token;
-            localStorage.setItem('userToken', newAccessToken);
+            localStorage.setItem('access_token', newAccessToken);
             options.headers['Authorization'] = `Bearer ${newAccessToken}`;
             response = await fetch(url, options);
         } else {

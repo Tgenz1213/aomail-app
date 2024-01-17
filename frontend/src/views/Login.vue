@@ -8,7 +8,7 @@
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form class="space-y-6">
             <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Adresse email</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Identifiant</label>
             <div class="mt-2">
                 <input id="email" name="email" v-model="username" autocomplete="email" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6">
             </div>
@@ -61,9 +61,11 @@ export default {
         });
 
         if (response.status === 200) {
-          // The access token should be in the response body
+          // Set access token and email for API calls
+          const email = response.data.email;
+          localStorage.setItem('email', email);
           const token = response.data.access_token;
-          localStorage.setItem('userToken', token);
+          localStorage.setItem('access_token', token);
 
           // Fetch color
           const colorResponse = await axios.get("http://localhost:9000/MailAssistant/user/preferences/bg_color/", {
@@ -72,8 +74,7 @@ export default {
 
           const bgColor = colorResponse.data.bg_color;
           localStorage.setItem('bgColor', bgColor);
-
-          //console.log("TOKEN", token);
+          
           // Redirect to home13 after successful login
           this.$router.push({ name: 'home' });
         } else {

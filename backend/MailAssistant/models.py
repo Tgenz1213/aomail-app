@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Message(models.Model):
     text = models.CharField(max_length=200)
 
@@ -8,10 +9,6 @@ class Sender(models.Model):
     email = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) # null = True to debug
-
-# class User(models.Model):
-#     login = models.CharField(max_length=50)
-#     password = models.CharField(max_length=50)  # renamed from 'paswd' for clarity
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -24,9 +21,11 @@ class Preference(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class SocialAPI(models.Model):
+    """Table that contains email creds"""
     type_api = models.CharField(max_length=50)
-    access_token = models.CharField(max_length=500, null=True)
-    refresh_token = models.CharField(max_length=500, null=True)
+    email = models.CharField(max_length=320, null=True)
+    access_token = models.CharField(max_length=2500, null=True)
+    refresh_token = models.CharField(max_length=1600, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Rule(models.Model):

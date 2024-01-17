@@ -347,7 +347,7 @@
                   <div class="py-6">
                     <div class="relative items-stretch mt-2">
                       <!--<GoogleLogin :callback="callback"/>-->
-                      <button @click="authorize">Lier votre compte Google</button>
+                      <button @click="authorize_google">Lier votre compte Google</button>
                     </div>
                   </div>
                   <div class="relative">
@@ -360,7 +360,7 @@
                   </div>
                   <div class="pt-4">
                     <div class="relative items-stretch mt-2">
-                      <p class="font-semibold">En cours de construction</p>
+                      <button @click="authorize_microsoft">Lier votre compte Outlook</button>
                     </div>
                   </div>
                   <div>
@@ -448,8 +448,6 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-
 import {
   XMarkIcon
 } from '@heroicons/vue/24/outline'
@@ -460,64 +458,11 @@ export default {
     XMarkIcon
   },
   created() {
-    console.log('Login:', localStorage.getItem('login'));
-    console.log('Password:', localStorage.getItem('password'));
+    console.log('Login:', sessionStorage.getItem('login'));
+    console.log('Password:', sessionStorage.getItem('password'));
     console.log('Theme:', localStorage.getItem('theme'));
     console.log('Color:', localStorage.getItem('color'));
     console.log('Categories:', localStorage.getItem('categories'));
-
-    const code = this.$route.query.code;
-    localStorage.setItem('code', code);
-    console.log(localStorage.getItem('code'));  // Log the 'code' query parameter to the console
-  },
-  setup() {
-    const bgColor = localStorage.getItem('color');
-
-    /*
-    const callback = (response) => {
-      // This callback will be triggered when the user selects or logs in to
-      // his Google account from the popup
-      console.log("Handle the response", response);
-    }*/
-    const handleSuccess = (googleUser) => {
-      const idToken = googleUser.credential;
-      authenticateWithDjango(idToken);
-    }
-
-    const handleError = (error) => {
-      console.error("Erreur lors de la connexion avec Google:", error);
-    }
-
-    const authenticateWithDjango = (googleToken) => {
-      console.log(googleToken);
-      axios.post('http://localhost:9000/google-login/', { credential: googleToken })
-        .then(response => {
-          console.log(response);
-          const receivedGoogleToken = response.data.googleToken; // Google Token received from the backend
-
-          console.log("Successful Login");
-          console.log("Google Token:", receivedGoogleToken);
-
-          localStorage.setItem('googleToken', receivedGoogleToken);
-        })
-        .catch(error => {
-          console.error("Erreur d'authentification avec Django:", error);
-        });
-    }
-
-    const callback = (response) => {
-      if (response) {
-        console.log(response);
-        handleSuccess(response);
-      } else {
-        handleError(response);
-      }
-    }
-
-    return {
-      callback,
-      bgColor
-    }
   },
   data() {
     return {
@@ -537,135 +482,94 @@ export default {
     }
   },
   methods: {
-    authorize(event) {
+    authorize_google(event) {
       event.preventDefault();
+      sessionStorage.setItem("type_api", "google");
 
-      try {
-        const clientId = '900609376538-creikhrqkhuq82i7dh9lge3sg50526pi.apps.googleusercontent.com';
-        const redirectUri = encodeURIComponent('http://localhost:8080/signup_part2');
-        const scope = encodeURIComponent(
-          'https://www.googleapis.com/auth/gmail.readonly ' +
-          'https://www.googleapis.com/auth/gmail.send ' +
-          'https://www.googleapis.com/auth/calendar.readonly ' +
-          'https://www.googleapis.com/auth/contacts.readonly ' +
-          'https://www.googleapis.com/auth/userinfo.profile ' +
-          'https://www.googleapis.com/auth/userinfo.email ' +
-          'openid ' +
-          'https://www.googleapis.com/auth/contacts.other.readonly'
-        );
-        const responseType = 'code';
-        const accessType = 'offline'; 
-        const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=${responseType}&access_type=${accessType}`;  // Update this line
-        
-        // Redirect the user to the Google authorization page
-        window.location.href = authUrl;
-
-        /*const authWindow = window.open(authUrl, '_blank', 'width=500,height=600');
-        // Check if the pop-up window was closed every second
-        const checkInterval = setInterval(() => {
-          if (authWindow.closed) {
-            clearInterval(checkInterval);
-            // Now handle the callback
-            console.log("LAUNCH");
-            this.handleCallback();
-          }
-        }, 1000);*/
-      } catch (error) {
-        console.error(error);  // This line logs any errors to the console
-      }
+      // Redirect the user to the authorization URL
+      window.location.replace("http://localhost:9000/MailAssistant/google/auth_url/");
     },
-    handleCallback(event) {
+    authorize_microsoft(event) {
       event.preventDefault();
-      const authorizationCode = localStorage.getItem('code');
-      console.log("handleCallback", authorizationCode);
+      sessionStorage.setItem("type_api", "microsoft");
 
-      /*
-      if (authorizationCode) {
-        console.log("AUTH CODE", authorizationCode);
-        // Send a POST request to your server with the authorization code
-        const response = fetch('http://localhost:9000/oauth/callback', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ code: authorizationCode }),
-        });
-
-        const data = response.json();
-        console.log('Success:', data);
-      }*/
-    },
-    clearError() {
-      console.log(this.passwordError);
-      //this.passwordError = '';
-    },
-    async nextStep3(event) {
-      event.preventDefault();
-      const authorizationCode = localStorage.getItem('code');
-      console.log("nextStep3", authorizationCode); 
-      console.log("LAUNCH2");
-      if (authorizationCode) {
-        console.log("AUTH CODE nextStep3", authorizationCode);
-        // Send a POST request to your server with the authorization code
-        try {
-          const response = await fetch('http://localhost:9000/oauth/callback', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ code: authorizationCode }),
-          });
-
-          if (!response.ok) {
-            // Handle HTTP errors
-            console.error('HTTP Error:', response.statusText);
-            return;
-          }
-
-          const data = await response.json();
-          console.log('Success:', data);
-
-          if (data.token && data.token.access_token && data.token.refresh_token) {
-              // Save tokens to localStorage
-              localStorage.setItem('access_token', data.token.access_token);
-              localStorage.setItem('refresh_token', data.token.refresh_token);
-              this.step++;
-          } else {
-              console.error('Tokens not found in response');
-          }
-
-        } catch (error) {
-          // Handle fetch or network errors
-          console.error('Fetch Error:', error);
-        }
-      }
-    },
+      // Redirect the user to the authorization URL
+      window.location.replace("http://localhost:9000/MailAssistant/microsoft/auth_url/");
+    },    
     closeModal() {
       this.isOpen = false;
     },
-    async submitSignupData(event) {
+    async nextStep3(event) {
       event.preventDefault();
-      try {
-          const response = await axios.post('http://localhost:9000/MailAssistant/register/', {
-              login: localStorage.getItem('login'),
-              password: localStorage.getItem('password'),
-              theme: localStorage.getItem('theme'),
-              color: localStorage.getItem('color'),
-              categories: localStorage.getItem('categories'),
-              access_token: localStorage.getItem('access_token'),
-              refresh_token: localStorage.getItem('refresh_token')
-          });
+      // After redirection, get the authorization code from the current URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const authorizationCode = urlParams.get('code');
 
-          if (response.data && 'success' in response.data) {
-              this.$router.push({ name: 'home' });
-          } else {
-            console.log("ERROR Signup No DATA"); // TO UPDATE : Display a screen to show the error to the user
-          }
-      } catch (error) {
-          // Handle other errors like network issues or server being down
-          console.error("Error during signup:", error);
+      if (authorizationCode) {
+        // The authorization code is available, you can use it as needed
+        console.log('Authorization Code:', authorizationCode);
+        sessionStorage.setItem("code", authorizationCode);
+        this.step++;
+      } else {
+        // TODO: display an error pop up
+        console.error('Authorization Code not found in the URL');
       }
     },
+    async submitSignupData(event) {
+      event.preventDefault();
+      console.log("The user has read and accepted our terms");
+
+      try {
+        // Prepare the data for registration
+        const requestOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            login: sessionStorage.getItem('login'),
+            password: sessionStorage.getItem('password'),
+            theme: localStorage.getItem('theme'),
+            color: localStorage.getItem('color'),
+            categories: localStorage.getItem('categories'),
+            code: sessionStorage.getItem('code'),
+            type_api: sessionStorage.getItem("type_api")
+          })
+        };
+        
+        // READY TO REGISTER THE USER IN DATABASE
+        const response = await fetch('http://localhost:9000/MailAssistant/signup/', requestOptions);
+        const data = await response.json();
+
+        if (response.status === 201) {
+          // Registration successful
+          localStorage.setItem('user_id', data.user_id);
+          // JWT access token
+          localStorage.setItem('access_token', data.access_token);
+          // Store the email and use it in request headers
+          localStorage.setItem('email', data.email);
+
+          
+          sessionStorage.clear();
+          console.log('Signup successful');
+          // Redirect to the home page once signed in
+          this.$router.push({ name: 'home' });
+        } else if (response.status === 400) {
+          if (data.error === 'Email address already used') {
+            // TODO: Display a screen: email address is used
+            console.error('Email address already used');
+            location.reload();
+          } else {
+            // TODO: Display a screen to show the error to the user
+            console.error('Signup unsuccessful');
+          }
+        } else {
+          console.error(`Unexpected response status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
   }
 }
 </script>

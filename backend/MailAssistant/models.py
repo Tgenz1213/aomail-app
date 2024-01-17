@@ -7,6 +7,7 @@ class Message(models.Model):
 class Sender(models.Model):
     email = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) # null = True to debug
 
 # class User(models.Model):
 #     login = models.CharField(max_length=50)
@@ -32,7 +33,7 @@ class Rule(models.Model):
     info_AI = models.TextField(blank=True)
     priority = models.CharField(max_length=50, blank=True)
     block = models.BooleanField()
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sender = models.ForeignKey(Sender, on_delete=models.CASCADE)
 

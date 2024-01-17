@@ -8,6 +8,8 @@ import json
 from colorama import Fore, init
 import jwt
 from rest_framework_simplejwt.settings import api_settings
+from django.db.models import Subquery, Exists, OuterRef
+from django.core.exceptions import ObjectDoesNotExist
 
 #### FOR AUTH TO THE API
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -1533,6 +1535,19 @@ def get_user_emails(request):
     user = request.user
     emails = Email.objects.filter(user=user).prefetch_related('category', 'bulletpoint_set')
 
+    emails = emails.annotate( 
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef('sender'), user=user))
+    )
+
+    rule_id_subquery = Rule.objects.filter(
+        sender=OuterRef('sender'),
+        user=user
+    ).values('id')[:1]
+
+    emails = emails.annotate(
+        rule_id=Subquery(rule_id_subquery)
+    )
+
     # A set of all possible priorities. Adjust according to your needs.
     all_priorities = {'Important', 'Information', 'Useless'}
 
@@ -1545,7 +1560,10 @@ def get_user_emails(request):
             "email": email.sender.email,
             "name": email.sender.name,
             "description": email.email_short_summary,
-            "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
+            "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()],
+            "read": email.read,
+            "rule": email.has_rule,
+            "rule_id": email.rule_id
         }
         formatted_data[email.category.name][email.priority].append(email_data)
     
@@ -1576,6 +1594,21 @@ def set_email_read(request, email_id):
     serializer = EmailReadUpdateSerializer(email)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_email(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, user=user, id=email_id)
+
+    # Delete the email
+    email.delete()
+
+    # Prepare the response
+    response_data = {"message": "Email deleted successfully"}
+    return Response(response_data, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Ensure the user is authenticated
 def set_email_reply_later(request, email_id):
@@ -1585,7 +1618,7 @@ def set_email_reply_later(request, email_id):
     email = get_object_or_404(Email, user=user, id=email_id)
 
     # Update the reply_later field
-    email.reply_later = True
+    email.answer_later = True
     email.save()
 
     # Serialize the data to return
@@ -1600,12 +1633,10 @@ def set_rule_block_for_sender(request, email_id):
     # Check if the email belongs to the authenticated user
     email = get_object_or_404(Email, user=user, id=email_id)
     
-    # Check if there's a rule for this sender and user
-    rule, created = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
-
-    # Update the block field
-    rule.block = True
-    rule.save()
+    rule, created = Rule.objects.get_or_create(sender=email.sender, user=user, defaults={'block': True}, category=email.category)
+    if not created:
+        rule.block = True
+        rule.save()
 
     # Serialize the data to return
     serializer = RuleBlockUpdateSerializer(rule)
@@ -1991,6 +2022,47 @@ def get_user_rules(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def get_user_rule_by_id(request, id_rule):
+    try:
+        # Retrieve the rule with the given id that belongs to the user
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+    except Rule.DoesNotExist:
+        # Return a 404 response if the rule does not exist
+        return Response({'error': 'Rule not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Serialize the rule data
+    rule_serializer = RuleSerializer(user_rule)
+    rule_data = rule_serializer.data
+
+    # Manually add category name and sender details if they exist
+    category_name = user_rule.category.name if user_rule.category else None
+    sender_name = user_rule.sender.name if user_rule.sender else None
+    sender_email = user_rule.sender.email if user_rule.sender else None
+
+    rule_data['category_name'] = category_name
+    rule_data['sender_name'] = sender_name
+    rule_data['sender_email'] = sender_email
+
+    return Response(rule_data)
+
+@api_view(['DELETE']) 
+@permission_classes([IsAuthenticated])
+def delete_user_rule_by_id(request, id_rule):
+    try:
+        # Retrieve the rule with the given id that belongs to the user
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+    except Rule.DoesNotExist:
+        # Return a 404 response if the rule does not exist
+        return Response({'error': 'Rule not found'})
+
+    # Perform the delete operation
+    user_rule.delete()
+
+    # Return a success response
+    return Response({'message': 'Rule deleted successfully'})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_unique_email_senders_view(request):
     user = request.user
     services = authenticate_service(user)
@@ -2019,6 +2091,19 @@ def create_sender(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def check_sender_for_user(request):
+    user_email = request.data.get('email')
+
+    try:
+        # Check if a sender with the given email exists for the authenticated user
+        sender = Sender.objects.get(email=user_email, user=request.user)
+        return Response({'exists': True, 'sender_id': sender.id}, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        # If no such sender exists
+        return Response({'exists': False}, status=status.HTTP_404_NOT_FOUND)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -2027,6 +2112,23 @@ def create_user_rule(request):
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=201)
+    else:
+        print("Data:", request.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=400)
+    
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_user_rule(request):
+    try:
+        rule = Rule.objects.get(id=request.data.get('id'), user=request.user)
+    except Rule.DoesNotExist:
+        return Response({'error': 'Rule not found.'}, status=404)
+
+    serializer = RuleSerializer(rule, data=request.data, partial=True, context={'user': request.user})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=200)
     else:
         print("Data:", request.data)
         print("Errors:", serializer.errors)

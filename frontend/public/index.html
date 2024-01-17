@@ -99,7 +99,19 @@
         animation: spin 2s linear infinite;
       }
 
-  </style>
+      /* Animation mail actions buttons */
+      .fade-enter-active {
+        transition: opacity 0.3s ease;
+      }
+
+      .fade-enter /* .fade-leave-active in <2.1.8 */ {
+        opacity: 0;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar-track {
+        margin: 4px; /* Adjust this value to set the margin for the scrollbar */
+      }
+    </style>
   </head>
   <body class="bg-gradient-to-r from-sky-300 to-blue-300">
     <noscript>

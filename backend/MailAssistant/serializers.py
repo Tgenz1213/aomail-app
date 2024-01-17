@@ -47,7 +47,7 @@ class EmailReadUpdateSerializer(serializers.ModelSerializer):
 class EmailReplyLaterUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Email
-        fields = ('reply_later',)  # We only want the reply_later field
+        fields = ('answer_later',)  # We only want the reply_later field
 
 # Mark as blocked (POST)
 class RuleBlockUpdateSerializer(serializers.ModelSerializer):
@@ -83,14 +83,23 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class RuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rule
-        fields = ['info_AI', 'priority', 'block', 'category', 'user', 'sender']
+        fields = ['id', 'info_AI', 'priority', 'block', 'category', 'user', 'sender']
         read_only_fields = ['user']
 
     def create(self, validated_data):
-        # Extract the user from the context
         user = self.context.get('user')
-        # Create the Rule instance with the user
+        category = validated_data.get('category')
+
+        if category is None or category == '':
+            validated_data.pop('category', None)
+
         return Rule.objects.create(user=user, **validated_data)
+
+    def update(self, instance, validated_data):
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+        return instance
 
 class SenderSerializer(serializers.ModelSerializer):
     class Meta:

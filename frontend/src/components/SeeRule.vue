@@ -79,7 +79,7 @@
                 <ShieldCheckIcon class="ml-1 w-4 h-4" />
               </SwitchGroup>
               <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
-                <button type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto" @click="createUserRule">Créer</button>
+                <button type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:ml-3 sm:w-auto" @click="createUserRule">Créer</button>
                 <!--<button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" @click="open = false" ref="cancelButtonRef">Annuler</button>-->
               </div>
            </div>
@@ -156,7 +156,8 @@ export default {
       type: Object,
       default: () => ({}),  // Providing a default empty object
     },
-    categories: Array
+    categories: Array,
+    sender: Object
   },
   data() {
     return {
@@ -191,8 +192,31 @@ export default {
   },
   mounted() {
     console.log("FilteredPeople", this.filteredPeople);
+    this.setSelectedPerson();
+  },
+  watch: {
+    sender: {
+      immediate: true,
+      handler(newValue) {
+        console.log("WATCHER",newValue);
+        this.setSelectedPerson();
+      }
+    }
   },
   methods: {
+    setSelectedPerson() {
+      console.log("------------------------> TEST", this.sender);
+      if (Object.keys(this.sender).length !== 0) {
+        console.log("------------------------> TEST", this.sender);
+        // Assuming sender has properties name and email
+        this.selectedPerson = {
+          name: this.sender.name,
+          username: this.sender.email
+        };
+      } else {
+        this.selectedPerson = null;
+      }
+    },
     async postSender() {
       if (!this.selectedPerson) {
         throw new Error('No sender selected');
@@ -219,6 +243,38 @@ export default {
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
         throw error; // Rethrowing the error can be useful if this function is used in a context where the error needs to be handled further up the chain.
+      }
+    },
+    async checkSenderExists() {
+      if (!this.selectedPerson) {
+        throw new Error('No sender selected');
+      }
+
+      const senderData = {
+        email: this.selectedPerson.username, // username is the email => TO FIX : rename
+      };
+
+      try {
+        const url = 'http://localhost:9000/MailAssistant/api/check_sender';
+
+        // Use fetchWithToken for the POST request
+        const response = await this.fetchWithToken(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(senderData),
+        });
+
+        //console.log("DEBUG Check sender ------>", response); To debug
+
+        return {
+          exists: response.exists, 
+          senderId: response.sender_id
+        }; 
+      } catch (error) {
+        console.error(`Error in checkSenderExists: ${error}`);
+        throw error;
       }
     },
     async fetchWithToken(url, options = {}) {
@@ -265,28 +321,44 @@ export default {
     },
     async createUserRule() {
       try {
-        console.log("CATEGORY", this.formData.category);
+        console.log("CATEGORY", this.formData.category); // To debug
+        console.log("FORMDATA", this.formData); // To debug
+        var ruleData = {};
 
-        // Fetch the category ID using fetchWithToken
-        const categoryUrl = `http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`;
-        const categoryData = await this.fetchWithToken(categoryUrl, {
-          method: 'GET'
-        });
-        const categoryId = categoryData.id;
-        console.log("CategoryId", categoryId);
+        // First, check if the sender already exists
+        let { exists, senderId } = await this.checkSenderExists();
 
-        // First, POST the sender and get the ID
-        const senderId = await this.postSender();
-        console.log("SenderId", senderId);
+        if (!exists) {
+          // If the sender does not exist, POST the sender and get the ID
+          senderId = await this.postSender();
+          console.log("New SenderId", senderId);
+        } else {
+          // If the sender already exists, use the existing senderId
+          console.log("Existing SenderId", senderId);
+        }
 
-        // Now, POST the rule with the sender's ID and category ID
-        const ruleData = {
-          ...this.formData,
-          sender: senderId,  // Replace sender object with sender ID
-          category: categoryId, // Use the fetched category ID
-          info_AI: ''
-        };
+        if (this.formData.category) {  
+          // Fetch the category ID using fetchWithToken
+          const categoryUrl = `http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`;
+          const categoryData = await this.fetchWithToken(categoryUrl, {
+            method: 'GET'
+          });
+          const categoryId = categoryData.id;
+          console.log("CategoryId", categoryId);
 
+          // Now, POST the rule with the sender's ID and category ID
+          ruleData = {
+            ...this.formData,
+            sender: senderId,  // Replace sender object with sender ID
+            category: categoryId, // Use the fetched category ID
+            info_AI: ''
+          };
+        } else {
+          ruleData = {
+            ...this.formData,
+            sender: senderId  // Replace sender object with sender ID
+          };
+        } 
         console.log("RuleData", ruleData);
 
         // Use fetchWithToken for the POST request to create the rule

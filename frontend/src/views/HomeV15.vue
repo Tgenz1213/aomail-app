@@ -1284,6 +1284,7 @@ export default {
             //console.log('fetchData: ',emailData)
             this.emails = emailData;
 
+            /* 
             // To test ONLY => select your category and inject this 
             var newInfo = {
                 id: 10,
@@ -1311,7 +1312,7 @@ export default {
                 read: true,
                 description: "Participer au stage de formation des enseignants chercheurs en anglais la 1ère semaine de février",
             };
-            this.emails.Administrative.Information.push(newInfo3);
+            this.emails.Administrative.Information.push(newInfo3);*/
             /*
             var newUseless = {
                 id: 5,

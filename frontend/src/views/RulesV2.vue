@@ -110,7 +110,7 @@ import Navbar2 from '../components/AppNavbar8.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeRule from '../components/SeeRule.vue';
 import UpdateRule from '../components/UpdateRule.vue';
-
+import { fetchWithToken } from '../router/index.js';
 import {
   ArchiveBoxIcon,
   ExclamationCircleIcon,
@@ -147,7 +147,7 @@ export default {
       try {
         const url = 'http://localhost:9000/MailAssistant/user/rules/';
 
-        const rulesData = await this.fetchWithToken(url, {
+        const rulesData = await fetchWithToken(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -174,7 +174,7 @@ export default {
       try {
         const url = `http://localhost:9000/MailAssistant/user/rules/${id_rule}/`;
 
-        const ruleData = await this.fetchWithToken(url, {
+        const ruleData = await fetchWithToken(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -201,7 +201,7 @@ export default {
       try {
         const url = 'http://localhost:9000/MailAssistant/user/categories/';
 
-        const data = await this.fetchWithToken(url, {
+        const data = await fetchWithToken(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -220,7 +220,7 @@ export default {
         const url = 'http://localhost:9000/MailAssistant/api/get_unique_email_senders';
 
         // Fetch data using the new fetchWithToken method
-        const data = await this.fetchWithToken(url, {
+        const data = await fetchWithToken(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -233,49 +233,7 @@ export default {
         console.error('Error fetching email senders:', error);
         // Handle errors appropriately
       }
-    },
-    async fetchWithToken(url, options = {}) {
-      const accessToken = localStorage.getItem('access_token');
-      if (!options.headers) {
-          options.headers = {};
-      }
-      if (accessToken) {
-          options.headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-
-      try {
-        let response = await fetch(url, options);
-
-        if (response.status === 401) {
-          const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ access_token: accessToken })
-          });
-
-          if (refreshResponse.ok) {
-              const refreshData = await refreshResponse.json();
-              const newAccessToken = refreshData.access_token;
-              localStorage.setItem('access_token', newAccessToken);
-              options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-              response = await fetch(url, options);
-          } else {
-              throw new Error('Unauthorized: Please log in again');
-          }
-        }
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        return response.json();
-      } catch (error) {
-          console.error('Error in fetchWithToken:', error.message);
-          throw error;
-      }
-    },
+    }
   },
   mounted() {
     this.bgColor = localStorage.getItem('bgColor');

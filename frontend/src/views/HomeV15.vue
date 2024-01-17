@@ -846,7 +846,7 @@ export default {
         },
         async markEmailAsRead(emailId) {
             try {
-                const response = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-read/`, {
+                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-read/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -885,7 +885,7 @@ export default {
         },
         async markEmailReplyLater(emailId) {
             try {
-                const response = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-reply-later/`, {
+                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-reply-later/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -922,7 +922,7 @@ export default {
         },
         async setRuleBlockForSender(emailId) {
             try {
-                const response = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/block-sender/`, {
+                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/block-sender/`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

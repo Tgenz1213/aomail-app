@@ -1,34 +1,49 @@
+"""
+Database Models with Security Measures.
+
+Each model corresponds to a database table, storing data and implementing security measures against SQL injection attacks.
+"""
 from django.db import models
 from django.contrib.auth.models import User
 
 
 class Message(models.Model):
+    """Model for storing text messages."""
     text = models.CharField(max_length=200)
 
+
 class Sender(models.Model):
+    """Model for storing sender information."""
     email = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) # null = True to debug
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null=True for debugging
+
 
 class Category(models.Model):
+    """Model for storing category information."""
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+
 class Preference(models.Model):
+    """Model for storing user preferences."""
     theme = models.CharField(max_length=50)
     bg_color = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+
 class SocialAPI(models.Model):
-    """Table that contains email creds"""
+    """Table that contains email credentials."""
     type_api = models.CharField(max_length=50)
     email = models.CharField(max_length=320, null=True)
     access_token = models.CharField(max_length=2500, null=True)
     refresh_token = models.CharField(max_length=1600, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+
 class Rule(models.Model):
+    """Model for storing rule information."""
     info_AI = models.TextField(blank=True)
     priority = models.CharField(max_length=50, blank=True)
     block = models.BooleanField()
@@ -36,7 +51,9 @@ class Rule(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     sender = models.ForeignKey(Sender, on_delete=models.CASCADE)
 
+
 class Email(models.Model):
+    """Model for storing email information."""
     provider_id = models.CharField(max_length=200, unique=True)
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=200)
@@ -49,11 +66,15 @@ class Email(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_emails')
 
+
 class BulletPoint(models.Model):
+    """Model for storing bullet points."""
     content = models.TextField()
     email = models.ForeignKey(Email, on_delete=models.CASCADE)  # renamed from 'id_email'
 
+
 class CC(models.Model):
+    """Model for storing CC (Carbon Copy) information."""
     email = models.CharField(max_length=100)
     name = models.CharField(max_length=50)
     email_reference = models.ForeignKey(Email, on_delete=models.CASCADE)  # 'id_email' is renamed

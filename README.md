@@ -33,7 +33,7 @@ If you're developing on localhost, it's recommended to install the following bro
 - [CORS Unblock](https://microsoftedge.microsoft.com/addons/detail/cors-unblock/hkjklmhkbkdhlgnnfbbcihcajofmjgbh?hl=es)
 - [Allow CORS AccessControl](https://microsoftedge.microsoft.com/addons/detail/allow-cors-accesscontro/bhjepjpgngghppolkjdhckmnfphffdag)
 
-
+# COMMON ISSUES
 **M365 Licenses Error:**
 If you encounter the following error while accessing data:
 ```json
@@ -45,6 +45,16 @@ If you encounter the following error while accessing data:
 }
 ```
 This error typically indicates that your account does not have the proper license to access the requested data thus you have to pay a M365 license.
+
+# Database Suppression
+
+**Note:** Ensure that you have stopped the backend server before attempting to drop the database.
+
+```sql
+sudo -u postgres psql
+\c postgres
+DROP DATABASE mailassistantdb;
+```
 
 
 ## Database Configuration

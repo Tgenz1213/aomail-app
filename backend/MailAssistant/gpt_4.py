@@ -2,10 +2,9 @@
 Handles prompt engineering requests for GPT-4 API.
 """
 import json
+import openai
 from colorama import Fore, init
 from MailAssistant import gpt_3_5_turbo
-import openai
-
 
 
 

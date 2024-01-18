@@ -219,7 +219,6 @@ export default {
         // Define the URL
         const url = 'http://localhost:9000/MailAssistant/api/get_unique_email_senders';
 
-        // Fetch data using the new fetchWithToken method
         const data = await fetchWithToken(url, {
           method: 'GET',
           headers: {

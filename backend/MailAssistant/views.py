@@ -2,58 +2,1019 @@
 Handles frontend requests and redirects them to the appropriate API.
 """
 import base64
-import re
-import logging
-import json
-from colorama import Fore, init
-import jwt
-from rest_framework_simplejwt.settings import api_settings
-from django.db.models import Subquery, Exists, OuterRef
-from django.core.exceptions import ObjectDoesNotExist
-#### FOR AUTH TO THE API
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
-from django.contrib.auth import authenticate, logout
-from django.shortcuts import redirect, get_object_or_404
-####
-
-from django.contrib.auth.models import User
 import datetime
-from email import message_from_string
+import json
+import logging
+import re
+import openai
+import jwt
 from collections import defaultdict
-
-# THEO IMPORT For API and test Postgres
-from rest_framework.response import Response
+from email import message_from_string
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import authenticate, logout
+from django.contrib.auth.models import User
+from django.db import IntegrityError
+from django.db.models import Subquery, Exists, OuterRef
+from django.http import JsonResponse
+from django.shortcuts import redirect, get_object_or_404
+from MailAssistant import gpt_3_5_turbo, gpt_4, google_api, microsoft_api
+from colorama import Fore, init
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts.chat import SystemMessagePromptTemplate, ChatPromptTemplate
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticated
-from .models import Message, Category, SocialAPI, Email, BulletPoint, Rule, Preference, Sender
-from .serializers import MessageSerializer, CategoryNameSerializer, EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer, RuleBlockUpdateSerializer, EmailDataSerializer, PreferencesSerializer, UserLoginSerializer, RuleSerializer, SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer, EmailCorrectionSerializer, EmailCopyWritingSerializer, EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer
-from django.db import IntegrityError
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.settings import api_settings
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import (
+    Message, Category, SocialAPI, Email, BulletPoint, Rule,
+    Preference, Sender
+)
+from .serializers import (
+    BulletPointSerializer, MessageSerializer, CategoryNameSerializer,
+    EmailReadUpdateSerializer, EmailReplyLaterUpdateSerializer,
+    RuleBlockUpdateSerializer, PreferencesSerializer, RuleSerializer,
+    SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer,
+    EmailCorrectionSerializer, EmailCopyWritingSerializer,
+    EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer
+)
 
-from MailAssistant import google_api, microsoft_api
-from MailAssistant import gpt_4
-from MailAssistant import gpt_3_5_turbo
-from django.http import JsonResponse
 
-# OpenAI - ChatGPT
-import openai
-
-# langchain
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts.chat import SystemMessagePromptTemplate,ChatPromptTemplate
-
-
-# Initialize colorama with autoreset
+######################## LOGGING CONFIGURATION ########################
 init(autoreset=True)
-# Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
-# TODO: The 'openai.organization' option isn't read in the client API. You will need to pass it when you instantiate the client, e.g. 'OpenAI(organization="org-YSlFvq9rM1qPzM15jewopUUt")'
-# openai.organization = "org-YSlFvq9rM1qPzM15jewopUUt"
+
+######################## REGISTRATION ########################
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signup(request):
+    """REGISTER USER IN mailassistandb and handles the callback of the API with Oauth2.0
+
+    APIs taken into account:
+        - Gmail API (Google)
+        - Graph API (Microsoft)
+    """
+    # Extract user data from the request
+    type_api = request.data.get('type_api')
+    code = request.data.get('code')
+    username = request.data.get('login')
+    password = request.data.get('password')
+    theme = request.data.get('theme')
+    color = request.data.get('color')
+    categories = request.data.get('categories')
+
+    if not code:
+        return Response({'error': 'No authorization code provided'}, status=404)    
+    
+    # Check if user requirements
+    if User.objects.filter(username=username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    elif " " in username:
+        return Response({'error': 'Username must not contain spaces'}, status=400)
+    
+    # Checks passwords requirements
+    if not (8 <= len(password) <= 32):
+        return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
+    if " " in password:
+        return Response({'error': 'Password must not contain spaces'}, status=400)
+    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', password):
+        return Response({'error': 'Password contains invalid characters'}, status=400)
+
+    # Checks if the authorization code is valid
+    if type_api == "google":
+        # callback for Google API
+        try:
+            access_token, refresh_token = google_api.exchange_code_for_tokens(code)
+            # print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")            
+            email = google_api.get_email(access_token, refresh_token)
+        except Exception as e:
+            return Response({'error': e}, status=400)
+        
+    elif type_api == "microsoft":
+        # callback for Microsoft API
+        try:
+            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
+            # print(f"{Fore.CYAN}[MICROSOFT]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
+            email = microsoft_api.get_email(access_token)
+            # TODO: check if its constant
+            # Access  token len: 2416
+            # Refresh token len: 1530
+        except Exception as e:
+            return Response({'error': e}, status=400)
+        
+    # Check email requirements
+    if email:
+        if SocialAPI.objects.filter(email=email).exists():
+            return Response({'error': 'Email address already used'}, status=400)
+        elif " " in email:
+            return Response({'error': 'Email address must not contain spaces'}, status=400)
+    else:
+        return Response({'error': 'Failed to get the email'}, status=400)
+
+    # Create and save user
+    user = User.objects.create_user(username, '', password)
+    user_id = user.id
+    refresh = RefreshToken.for_user(user)
+    jwt_access_token = str(refresh.access_token)
+    user.save()
+
+    # Save socialAPI
+    social_api = SocialAPI(
+        user=user,
+        type_api=type_api,
+        email=email,
+        access_token=access_token,
+        refresh_token=refresh_token
+    )
+    social_api.save()
+
+    # Save user preferences
+    preference = Preference(
+        theme=theme,
+        bg_color=color,
+        user=user
+    )
+    preference.save()
+
+    # Save user categories
+    if categories:
+        try:
+            categories_j = json.loads(categories)
+            for category_data in categories_j:
+                category_name = category_data.get('name')
+                category_description = category_data.get('description')
+
+                category = Category(
+                    name=category_name,
+                    description=category_description,
+                    user=user
+                )
+                category.save()
+        except json.JSONDecodeError:
+            return Response({'error': 'Invalid categories data'}, status=404)
+
+    return Response({'user_id': user_id, 'access_token': jwt_access_token, 'email': email}, status=201)
+
+
+
+######################## CREDENTIALS AVAILABILITY ########################
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def check_username(request):
+    """Verify if the username is available"""
+    username = request.headers.get("username")
+    
+    if User.objects.filter(username=username).exists():
+        return Response({'available': False}, status=200)
+    else:
+        return Response({'available': True}, status=200)
+
+
+
+######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
+#----------------------- GET REQUESTS -----------------------#
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def unread_mails(request):
+    """Returns the number of unread emails"""
+    return forward_request(request._request, 'unread_mails')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_profile_image(request):
+    """Returns the profile image of the user"""
+    return forward_request(request._request, 'get_profile_image')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_parsed_contacts(request):
+    """Returns a list of parsed unique contacts"""
+    return forward_request(request._request, 'get_parsed_contacts')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_unique_email_senders_view(request):
+    """Fetches unique email senders' information, combining data from user's contacts and email senders."""
+    return forward_request(request._request, 'get_unique_email_senders')
+
+
+#----------------------- POST REQUESTS -----------------------#
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def send_email(request):
+    return forward_request(request._request, 'send_email')  
+
+
+def forward_request(request, api_method):
+    """Forwards the request to the appropriate API method based on type_api"""
+    user = request.user
+    email = request.headers.get('email')
+
+    try:
+        social_api = get_object_or_404(SocialAPI, user=user, email=email)
+        type_api = social_api.type_api
+    except SocialAPI.DoesNotExist:
+        return JsonResponse({'error': 'SocialAPI entry not found for the user and email'}, status=404)
+
+    api_module = None
+    if type_api == 'google':
+        api_module = google_api
+    elif type_api == 'microsoft':
+        api_module = microsoft_api
+
+    if api_module and hasattr(api_module, api_method):
+        # Call the specified API method dynamically
+        api_function = getattr(api_module, api_method)
+        # Forward the request and return the response
+        return api_function(request)
+    else:
+        return JsonResponse({'error': 'Unsupported API type or method'}, status=400)
+
+
+
+######################## ACCOUNT ########################
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_account(request):
+    """Removes the user from the database"""
+    user = request.user 
+
+    try:
+        user.delete()
+        logging.info(f"{Fore.YELLOW}The user {user} has been removed from the database")
+        # TODO: Success message for user
+        return Response({'message': 'User successfully deleted'}, status=200)
+
+    except Exception as e:
+        logging.error(f"{Fore.RED}Error occurred while deleting user: {e}")
+        # TODO: Handle deletion failure
+        return Response({'error': 'Failed to delete user'}, status=500)
+
+
+
+
+
+######################## AUTHENTICATION API ########################
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    """Authentication Django Rest API"""
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
+    
+    if user:
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        social_api_instance = get_object_or_404(SocialAPI, user=user)
+    
+        # TODO: update the code to handle when the user has several emails
+        email = social_api_instance.email
+
+        return Response({'access_token': access_token, 'email': email}, status=200)
+    
+    return Response({'error': 'Invalid Credentials'}, status=400) 
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def refresh_token(request):
+    """Refreshes the JWT access token"""
+    raw_token = request.data.get('access_token')
+    if not raw_token:
+        return Response({'error': 'Access token is missing'}, status=400)
+
+    try:
+        # Decode the token without checking for expiration
+        decoded_data = jwt.decode(
+            raw_token, 
+            api_settings.SIGNING_KEY, 
+            algorithms=[api_settings.ALGORITHM],
+            options={"verify_exp": False}
+        )
+        user = User.objects.get(id=decoded_data['user_id'])
+
+        # Issue a new access token
+        new_access_token = str(RefreshToken.for_user(user).access_token)
+
+        return Response({'access_token': new_access_token})
+
+    except Exception as e:
+        # Handle exceptions
+        print(f'{Fore.RED}Error while refreshing the JWT token: {e}')
+        return Response({'error': e}, status=400)
+
+
+
+######################## CATEGORIES ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_categories(request):
+    username = request.user.username
+    
+    try:
+        current_user = User.objects.get(username=username)
+        categories = Category.objects.filter(user=current_user)
+        serializer = CategoryNameSerializer(categories, many=True)
+        print("DATA --------------->", serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_category(request, currentName):
+    try:
+        category = Category.objects.get(name=currentName, user=request.user)
+    except Category.DoesNotExist:
+        return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = CategoryNameSerializer(category, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_category(request, currentName):
+    try:
+        # Retrieve the category to be deleted
+        category = Category.objects.get(name=currentName, user=request.user)
+    except Category.DoesNotExist:
+        # Return a 404 response if the category is not found
+        return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Delete the category
+    category.delete()
+    return Response({"detail": "Category deleted successfully"}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_category(request):
+    data = request.data.copy()
+    data['user'] = request.user.id
+
+    # Check if the category already exists for the user
+    existing_category = Category.objects.filter(user=request.user, name=data['name']).exists()
+
+
+    if existing_category:
+        return Response({'error': 'Category already exists for the user'}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = NewCategorySerializer(data=data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        print("Data:", request.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_category_id(request, category_name):
+    user = request.user
+    category = get_object_or_404(Category, name=category_name, user=user)
+    return Response({'id': category.id})
+
+
+
+######################## PROMPT ENGINEERING ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def find_user_view_ai(request):
+    """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
+    user = request.user
+    email = request.headers.get("email")
+    search_query = request.GET.get('query')
+
+    if search_query:
+        main_list, cc_list, bcc_list = gpt_3_5_turbo.extract_contacts_recipients(search_query)
+
+        if main_list == "INCORRECT":
+            return Response({"error": "Invalid input or query not about email recipients"}, status=400)
+
+        # Function to find emails for a list of recipients
+        def find_emails_for_recipients(recipient_list):
+            social_api = get_object_or_404(SocialAPI, user=user, email=email)
+            type_api = social_api.type_api
+            
+            if type_api == 'google':
+                services = google_api.authenticate_service(user, email)
+                return {recipient: google_api.find_user_in_emails(services, recipient) for recipient in recipient_list}
+            elif type_api == 'microsoft':
+                access_token = microsoft_api.refresh_access_token(microsoft_api.get_social_api(user, email))
+                return {recipient: microsoft_api.find_user_in_emails(access_token, recipient) for recipient in recipient_list}
+
+        # Find emails for main recipients, CC, and BCC
+        main_recipients_with_emails = find_emails_for_recipients(main_list)
+        cc_recipients_with_emails = find_emails_for_recipients(cc_list)
+        bcc_recipients_with_emails = find_emails_for_recipients(bcc_list)
+
+        logging.info(f"{Fore.GREEN}Email recipients (main): {main_recipients_with_emails}")
+
+        return Response({
+            "main_recipients": main_recipients_with_emails,
+            "cc_recipients": cc_recipients_with_emails,
+            "bcc_recipients": bcc_recipients_with_emails
+        }, status=200)
+    else:
+        return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
+
+
+#----------------------- REDACTION -----------------------#
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def new_email_ai(request):
+    serializer = NewEmailAISerializer(data=request.data)
+
+    if serializer.is_valid():
+        input_data = serializer.validated_data['input_data']
+        length = serializer.validated_data['length']
+        formality = serializer.validated_data['formality']
+
+        subject_text, mail_text = gpt_3_5_turbo.gpt_langchain_redaction(input_data, length, formality)
+
+        # Return the response
+        return Response({'subject': subject_text, 'mail': mail_text})
+    else:
+        return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def new_email_recommendations(request):    
+    serializer = EmailAIRecommendationsSerializer(data=request.data)
+
+    if serializer.is_valid():
+        mail_content = serializer.validated_data['mail_content']
+        user_recommendation = serializer.validated_data['user_recommendation']
+        email_subject = serializer.validated_data['email_subject']
+        
+        print(f'{Fore.CYAN}mail_content: {mail_content}')
+        print(f'{Fore.CYAN}user_recommendation: {user_recommendation}')
+        print(f'{Fore.CYAN}email_subject: {email_subject}')
+
+        subject_text, email_body = gpt_3_5_turbo.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)
+
+        return Response({'subject': subject_text, 'email_body': email_body})
+    else:
+        logging.error(f'{Fore.RED}Error: {serializer.errors}')
+        return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def gpt_improve_email_writing(request):
+    """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
+    serializer = EmailCorrectionSerializer(data=request.data)
+
+    if serializer.is_valid():
+        email_body = serializer.validated_data['email_body']
+        email_subject = serializer.validated_data['email_subject']
+
+        email_body, subject_text = gpt_3_5_turbo.gpt_improve_email_writing(email_body, email_subject)
+        
+        return Response({'subject': subject_text, 'email_body': email_body})        
+    else:
+        logging.error(f'{Fore.RED}Error: {serializer.errors}')
+        return Response(serializer.errors, status=400)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def correct_email_language(request):
+    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
+    serializer = EmailCorrectionSerializer(data=request.data)
+
+    if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
+        email_body = serializer.validated_data['email_body']
+
+        corrected_subject, corrected_body, num_corrections = gpt_3_5_turbo.correct_mail_language_mistakes(email_subject, email_body)
+
+        return Response({
+            'corrected_subject': corrected_subject,
+            'corrected_body': corrected_body,
+            'num_corrections': num_corrections
+        })
+    else:
+        return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def check_email_copywriting(request):
+    serializer = EmailCopyWritingSerializer(data=request.data)
+    print("Serializer :", serializer)
+
+    if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
+        email_body = serializer.validated_data['email_body']
+
+        feedback_copywriting = gpt_3_5_turbo.improve_email_copywriting(email_subject, email_body)
+
+        return Response({'feedback_copywriting': feedback_copywriting})
+    else:
+        return Response(serializer.errors, status=400)
+
+
+#----------------------- ANSWER -----------------------#
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_email_response_keywords(request):
+    serializer = EmailProposalAnswerSerializer(data=request.data)
+
+    if serializer.is_valid():
+        email_content = serializer.validated_data['email_content']
+        response_keywords = gpt_4.generate_response_keywords(email_content)
+
+        return Response({
+            'response_keywords': response_keywords,
+        })
+    else:
+        return Response(serializer.errors, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def generate_email_answer(request):
+    serializer = EmailGenerateAnswer(data=request.data)
+
+    if serializer.is_valid():
+        email_content = serializer.validated_data['email_content']
+        response_type = serializer.validated_data['response_type']
+        email_answer = gpt_4.generate_email_response(email_content, response_type)
+
+        return Response({
+            'email_answer': email_answer,
+        })
+    else:
+        return Response(serializer.errors, status=400)
+
+
+#----------------------- REPLY LATER -----------------------#
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_answer_later_emails(request):
+    try:
+        user = request.user
+        emails = Email.objects.filter(user=user, answer_later=True).prefetch_related('bulletpoint_set', 'sender', 'category')
+
+        all_priorities = {'Important', 'Information', 'Useless'}
+
+        formatted_data = defaultdict(lambda: defaultdict(list))
+
+        for email in emails:
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
+            }
+            formatted_data[email.category.name][email.priority].append(email_data)
+        
+        # Ensuring all priorities are present for each category
+        for category in formatted_data:
+            for priority in all_priorities:
+                formatted_data[category].setdefault(priority, [])
+
+        logger.info(formatted_data)
+        return Response(formatted_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logging.error(f"Error fetching emails: {e}")
+        return Response({"error": "An error occurred while fetching emails."}, 
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+######################## Settings ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_bg_color(request):
+    try:
+        preferences = Preference.objects.get(user=request.user)
+        serializer = PreferencesSerializer(preferences)
+        return Response(serializer.data)
+
+    except Preference.DoesNotExist:
+        return Response({"error": "Preferences not found for the user."}, status=404)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_details(request):
+    return Response({'username': request.user.username})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def is_authenticated(request):
+    """Used in index.js by the router to check if the user can access enpoints"""
+    return Response(status=200)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_username(request):
+    user = request.user
+    new_username = request.data.get('username')
+
+    if not new_username:
+        return Response({'error': 'No new username provided.'}, status=400)
+
+    # Check if user requirements
+    if User.objects.filter(username=new_username).exists():
+        return Response({'error': 'Username already exists'}, status=400)
+    elif " " in new_username:
+        return Response({'error': 'Username must not contain spaces'}, status=400)
+
+    user.username = new_username
+    user.save()
+    
+    logging.info(f"{Fore.CYAN}User: {user} changed its name in {new_username}")
+    return Response({'success': 'Username updated successfully.'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_password(request):
+    user = request.user
+    new_password = request.data.get('password')
+
+    if not new_password:
+        return Response({'error': 'No new password provided.'}, status=400)
+
+    # Checks passwords requirements
+    if not (8 <= len(new_password) <= 32):
+        return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
+    if " " in new_password:
+        return Response({'error': 'Password must not contain spaces'}, status=400)
+    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', new_password):
+        return Response({'error': 'Password contains invalid characters'}, status=400)
+
+    user.set_password(new_password)
+    user.save()
+
+    return Response({'success': 'Password updated successfully.'})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_first_email(request):
+    """Returns the first email associated with the user in mailassistantdb"""
+    user = request.user
+    social_api_instance = get_object_or_404(SocialAPI, user=user)
+    
+    # TODO: update the code to handle when the user has several emails
+    email = social_api_instance.email
+    
+    if email:
+        return Response({'email': email}, status=200)
+    else:
+        return Response({'error': 'No emails associated with the user'}, status=404)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def set_user_bg_color(request):
+    try:
+        # Retrieve the user's Preference object
+        preferences = Preference.objects.get(user=request.user)
+    except Preference.DoesNotExist:
+        # Create a new Preference object if it doesn't exist
+        preferences = Preference(user=request.user)
+
+    # Update the bg_color field from the request data
+    serializer = PreferencesSerializer(preferences, data=request.data)
+    if serializer.is_valid():
+        serializer.save()  # Save the updated Preference object
+        return Response(serializer.data)
+    else:
+        # Return validation errors if the data is not valid
+        return Response(serializer.errors, status=400)
+
+
+
+######################## RULES ########################
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  
+def set_rule_block_for_sender(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, user=user, id=email_id)
+    
+    # Check if there's a rule for this sender and user
+    rule, created = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
+
+    # Update the block field
+    rule.block = True
+    rule.save()
+
+    # Serialize the data to return
+    serializer = RuleBlockUpdateSerializer(rule)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_rules(request):
+    user_rules = Rule.objects.filter(user=request.user)
+    rules_data = []
+
+    for rule in user_rules:
+        # Serialize the basic rule data
+        rule_serializer = RuleSerializer(rule)
+        rule_data = rule_serializer.data
+
+        # Manually add category name and sender details
+        category_name = rule.category.name if rule.category else None
+        sender_name = rule.sender.name if rule.sender else None
+        sender_email = rule.sender.email if rule.sender else None
+
+        rule_data['category_name'] = category_name
+        rule_data['sender_name'] = sender_name
+        rule_data['sender_email'] = sender_email
+
+        rules_data.append(rule_data)
+
+    return Response(rules_data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_rule_by_id(request, id_rule):
+    try:
+        # Retrieve the rule with the given id that belongs to the user
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+    except Rule.DoesNotExist:
+        # Return a 404 response if the rule does not exist
+        return Response({'error': 'Rule not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Serialize the rule data
+    rule_serializer = RuleSerializer(user_rule)
+    rule_data = rule_serializer.data
+
+    # Manually add category name and sender details if they exist
+    category_name = user_rule.category.name if user_rule.category else None
+    sender_name = user_rule.sender.name if user_rule.sender else None
+    sender_email = user_rule.sender.email if user_rule.sender else None
+
+    rule_data['category_name'] = category_name
+    rule_data['sender_name'] = sender_name
+    rule_data['sender_email'] = sender_email
+
+    return Response(rule_data)
+
+
+@api_view(['DELETE']) 
+@permission_classes([IsAuthenticated])
+def delete_user_rule_by_id(request, id_rule):
+    try:
+        # Retrieve the rule with the given id that belongs to the user
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+    except Rule.DoesNotExist:
+        # Return a 404 response if the rule does not exist
+        return Response({'error': 'Rule not found'})
+
+    # Perform the delete operation
+    user_rule.delete()
+
+    # Return a success response
+    return Response({'message': 'Rule deleted successfully'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_user_rule(request):
+    serializer = RuleSerializer(data=request.data, context={'user': request.user})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    else:
+        print("Data:", request.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=400)
+    
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_user_rule(request):
+    try:
+        rule = Rule.objects.get(id=request.data.get('id'), user=request.user)
+    except Rule.DoesNotExist:
+        return Response({'error': 'Rule not found.'}, status=404)
+
+    serializer = RuleSerializer(rule, data=request.data, partial=True, context={'user': request.user})
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=200)
+    else:
+        print("Data:", request.data)
+        print("Errors:", serializer.errors)
+        return Response(serializer.errors, status=400)
+
+
+######################################################################
+######################## TODO: SORT FUNCTIONS ########################
+######################################################################
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def check_sender_for_user(request):
+    user_email = request.data.get('email')
+
+    try:
+        # Check if a sender with the given email exists for the authenticated user
+        sender = Sender.objects.get(email=user_email, user=request.user)
+        return Response({'exists': True, 'sender_id': sender.id}, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        # If no such sender exists
+        return Response({'exists': False}, status=status.HTTP_404_NOT_FOUND)    
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+def get_email_bullet_points(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, id_user=user, id=email_id)
+
+    bullet_points = BulletPoint.objects.filter(id_email=email)
+    serializer = BulletPointSerializer(bullet_points, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_emails(request):
+    print("get_user_emails")
+    user = request.user
+    emails = Email.objects.filter(user=user).prefetch_related('category', 'bulletpoint_set')
+
+    emails = emails.annotate( 
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef('sender'), user=user))
+    )
+
+    rule_id_subquery = Rule.objects.filter(
+        sender=OuterRef('sender'),
+        user=user
+    ).values('id')[:1]
+
+    emails = emails.annotate(
+        rule_id=Subquery(rule_id_subquery)
+    )
+
+    # A set of all possible priorities. Adjust according to your needs.
+    all_priorities = {'Important', 'Information', 'Useless'}
+
+    formatted_data = defaultdict(lambda: defaultdict(list))
+
+    for email in emails:
+        email_data = {
+            "id": email.id,
+            "id_provider": email.provider_id,
+            "email": email.sender.email,
+            "name": email.sender.name,
+            "description": email.email_short_summary,
+            "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()],
+            "read": email.read,
+            "rule": email.has_rule,
+            "rule_id": email.rule_id
+        }
+        formatted_data[email.category.name][email.priority].append(email_data)
+    
+    # Ensuring all priorities are present for each category
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    logger.info(formatted_data)
+    return Response(formatted_data, status=status.HTTP_200_OK)
+
+
+# POST
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  
+def set_email_read(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, user=user, id=email_id)
+
+    # Update the read field
+    email.read = True
+    email.save()
+
+    # Serialize the data to return
+    serializer = EmailReadUpdateSerializer(email)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_email(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, user=user, id=email_id)
+
+    # Delete the email
+    email.delete()
+
+    # Prepare the response
+    response_data = {"message": "Email deleted successfully"}
+    return Response(response_data, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  
+def set_email_reply_later(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, user=user, id=email_id)
+
+    # Update the reply_later field
+    email.answer_later = True
+    email.save()
+
+    # Serialize the data to return
+    serializer = EmailReplyLaterUpdateSerializer(email)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# TODO: Change later with the list of email of the user saved in a BD for optimization
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def find_user_view(request):
+    user = request.user
+    email = request.headers.get('email')
+    search_query = request.GET.get('query')
+    social_api = get_object_or_404(SocialAPI, user=user, email=email)    
+    type_api = social_api.type_api
+
+    if search_query:
+        if type_api == 'google':
+            services = google_api.authenticate_service(user, email)
+            found_users = google_api.find_user_in_emails(services, search_query)
+        elif type_api == 'microsoft':
+            access_token = microsoft_api.refresh_access_token(microsoft_api.get_social_api(user, email))
+            found_users = google_api.find_user_in_emails(access_token, search_query)
+
+        return Response(found_users, safe=False, status=200)
+    else:
+        return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_sender(request):
+    serializer = SenderSerializer(data=request.data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+
+
+#########################################################################
+######################## OLD & UNKNOWN FUNCTIONS ########################
+#########################################################################
+# TO UPDATE
+'''
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_login(request):
+    try:
+        user = Users.objects.get(id_user=request.user.id)
+        serializer = UserLoginSerializer(user)
+        return Response(serializer.data)
+    except Users.DoesNotExist:
+        return Response({"error": "User not found."}, status=404)'''
+
+
+
 gpt_model = "gpt-3.5-turbo"
 
 importance_list = {
@@ -660,218 +1621,7 @@ def search_chat_reply(query_list):
     return assistant_question
 
 
-
-######################## REGISTRATION ########################
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def signup(request):
-    """REGISTER USER IN mailassistandb and handles the callback of the API with Oauth2.0
-
-    APIs taken into account:
-        - Gmail API (Google)
-        - Graph API (Microsoft)
-    """
-    # Extract user data from the request
-    type_api = request.data.get('type_api')
-    code = request.data.get('code')
-    username = request.data.get('login')
-    password = request.data.get('password')
-    theme = request.data.get('theme')
-    color = request.data.get('color')
-    categories = request.data.get('categories')
-
-    if not code:
-        return Response({'error': 'No authorization code provided'}, status=404)    
-    
-    # Check if user requirements
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists'}, status=400)
-    elif " " in username:
-        return Response({'error': 'Username must not contain spaces'}, status=400)
-    
-    # Checks passwords requirements
-    if not (8 <= len(password) <= 32):
-        return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
-    if " " in password:
-        return Response({'error': 'Password must not contain spaces'}, status=400)
-    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', password):
-        return Response({'error': 'Password contains invalid characters'}, status=400)
-
-    # Checks if the authorization code is valid
-    if type_api == "google":
-        # callback for Google API
-        try:
-            access_token, refresh_token = google_api.exchange_code_for_tokens(code)
-            # print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")            
-            email = google_api.get_email(access_token, refresh_token)
-        except Exception as e:
-            return Response({'error': e}, status=400)
-        
-    elif type_api == "microsoft":
-        # callback for Microsoft API
-        try:
-            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
-            # print(f"{Fore.CYAN}[MICROSOFT]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
-            email = microsoft_api.get_email(access_token)
-            # TODO: check if its constant
-            # Access  token len: 2416
-            # Refresh token len: 1530
-        except Exception as e:
-            return Response({'error': e}, status=400)
-        
-    # Check email requirements
-    if email:
-        if SocialAPI.objects.filter(email=email).exists():
-            return Response({'error': 'Email address already used'}, status=400)
-        elif " " in email:
-            return Response({'error': 'Email address must not contain spaces'}, status=400)
-    else:
-        return Response({'error': 'Failed to get the email'}, status=400)
-
-    # Create and save user
-    user = User.objects.create_user(username, '', password)
-    user_id = user.id
-    refresh = RefreshToken.for_user(user)
-    jwt_access_token = str(refresh.access_token)
-    user.save()
-
-    # Save socialAPI
-    social_api = SocialAPI(
-        user=user,
-        type_api=type_api,
-        email=email,
-        access_token=access_token,
-        refresh_token=refresh_token
-    )
-    social_api.save()
-
-    # Save user preferences
-    preference = Preference(
-        theme=theme,
-        bg_color=color,
-        user=user
-    )
-    preference.save()
-
-    # Save user categories
-    if categories:
-        try:
-            categories_j = json.loads(categories)
-            for category_data in categories_j:
-                category_name = category_data.get('name')
-                category_description = category_data.get('description')
-
-                category = Category(
-                    name=category_name,
-                    description=category_description,
-                    user=user
-                )
-                category.save()
-        except json.JSONDecodeError:
-            return Response({'error': 'Invalid categories data'}, status=404)
-
-    return Response({'user_id': user_id, 'access_token': jwt_access_token, 'email': email}, status=201)
-
-
-
-######################## CREDENTIALS AVAILABILITY ########################
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def check_username(request):
-    """Verify if the username is available"""
-    username = request.headers.get("username")
-    
-    if User.objects.filter(username=username).exists():
-        return Response({'available': False}, status=200)
-    else:
-        return Response({'available': True}, status=200)
-
-
-
-######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
-#----------------------- GET REQUESTS -----------------------#
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def unread_mails(request):
-    """Returns the number of unread emails"""
-    return forward_request(request._request, 'unread_mails')
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_profile_image(request):
-    """Returns the profile image of the user"""
-    return forward_request(request._request, 'get_profile_image')
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_parsed_contacts(request):
-    """Returns a list of parsed unique contacts"""
-    return forward_request(request._request, 'get_parsed_contacts')
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_unique_email_senders_view(request):
-    """Fetches unique email senders' information, combining data from user's contacts and email senders."""
-    return forward_request(request._request, 'get_unique_email_senders')
-
-
-#----------------------- POST REQUESTS -----------------------#
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def send_email(request):
-    return forward_request(request._request, 'send_email')  
-
-
-def forward_request(request, api_method):
-    """Forwards the request to the appropriate API method based on type_api"""
-    user = request.user
-    email = request.headers.get('email')
-
-    try:
-        social_api = get_object_or_404(SocialAPI, user=user, email=email)
-        type_api = social_api.type_api
-    except SocialAPI.DoesNotExist:
-        return JsonResponse({'error': 'SocialAPI entry not found for the user and email'}, status=404)
-
-    api_module = None
-    if type_api == 'google':
-        api_module = google_api
-    elif type_api == 'microsoft':
-        api_module = microsoft_api
-
-    if api_module and hasattr(api_module, api_method):
-        # Call the specified API method dynamically
-        api_function = getattr(api_module, api_method)
-        # Forward the request and return the response
-        return api_function(request)
-    else:
-        return JsonResponse({'error': 'Unsupported API type or method'}, status=400)
-
-
-
-######################## ACCOUNT ########################
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_account(request):
-    """Removes the user from the database"""
-    user = request.user 
-
-    try:
-        user.delete()
-        logging.info(f"{Fore.YELLOW}The user {user} has been removed from the database")
-        # TODO: Success message for user
-        return Response({'message': 'User successfully deleted'}, status=200)
-
-    except Exception as e:
-        logging.error(f"{Fore.RED}Error occurred while deleting user: {e}")
-        # TODO: Handle deletion failure
-        return Response({'error': 'Failed to delete user'}, status=500)
-
-
-
+######################## TESTING FUNCTIONS ########################
 # THEO API TEST
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -886,718 +1636,8 @@ def logout_user(request):
     logout(request)
     return redirect('MailAssistant:login')
 
-######################## AUTHENTICATION API ########################
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def login(request):
-    """Authentication Django Rest API"""
-    username = request.data.get('username')
-    password = request.data.get('password')
-    user = authenticate(username=username, password=password)
-    
-    if user:
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        social_api_instance = get_object_or_404(SocialAPI, user=user)
-    
-        # TODO: update the code to handle when the user has several emails
-        email = social_api_instance.email
 
-        return Response({'access_token': access_token, 'email': email}, status=200)
-    
-    return Response({'error': 'Invalid Credentials'}, status=400) 
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def refresh_token(request):
-    """Refreshes the JWT access token"""
-    raw_token = request.data.get('access_token')
-    if not raw_token:
-        return Response({'error': 'Access token is missing'}, status=400)
-
-    try:
-        # Decode the token without checking for expiration
-        decoded_data = jwt.decode(
-            raw_token, 
-            api_settings.SIGNING_KEY, 
-            algorithms=[api_settings.ALGORITHM],
-            options={"verify_exp": False}
-        )
-        user = User.objects.get(id=decoded_data['user_id'])
-
-        # Issue a new access token
-        new_access_token = str(RefreshToken.for_user(user).access_token)
-
-        return Response({'access_token': new_access_token})
-
-    except Exception as e:
-        # Handle exceptions
-        print(f'{Fore.RED}Error while refreshing the JWT token: {e}')
-        return Response({'error': e}, status=400)
-
-
-
-######################## CATEGORIES ########################
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_categories(request):
-    username = request.user.username
-    
-    try:
-        current_user = User.objects.get(username=username)
-        categories = Category.objects.filter(user=current_user)
-        serializer = CategoryNameSerializer(categories, many=True)
-        print("DATA --------------->", serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except User.DoesNotExist:
-        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def update_category(request, currentName):
-    try:
-        category = Category.objects.get(name=currentName, user=request.user)
-    except Category.DoesNotExist:
-        return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    serializer = CategoryNameSerializer(category, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_category(request, currentName):
-    try:
-        # Retrieve the category to be deleted
-        category = Category.objects.get(name=currentName, user=request.user)
-    except Category.DoesNotExist:
-        # Return a 404 response if the category is not found
-        return Response({"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    # Delete the category
-    category.delete()
-    return Response({"detail": "Category deleted successfully"}, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def set_category(request):
-    data = request.data.copy()
-    data['user'] = request.user.id
-
-    # Check if the category already exists for the user
-    existing_category = Category.objects.filter(user=request.user, name=data['name']).exists()
-
-
-    if existing_category:
-        return Response({'error': 'Category already exists for the user'}, status=status.HTTP_400_BAD_REQUEST)
-
-    serializer = NewCategorySerializer(data=data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        print("Data:", request.data)
-        print("Errors:", serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_category_id(request, category_name):
-    user = request.user
-    category = get_object_or_404(Category, name=category_name, user=user)
-    return Response({'id': category.id})
-
-
-
-######################## Home Page ########################
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])  
-# def get_user_emails(request):
-#     user = request.user
-#     emails = Email.objects.filter(id_user=user)
-#     serializer = UserEmailSerializer(emails, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])  
-# def get_email_bullet_points(request, email_id):
-#     user = request.user
-
-#     # Check if the email belongs to the authenticated user
-#     email = get_object_or_404(Email, id_user=user, id=email_id)
-
-#     bullet_points = BulletPoint.objects.filter(id_email=email)
-#     serializer = BulletPointSerializer(bullet_points, many=True)
-#     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_emails(request):
-    print("get_user_emails")
-    user = request.user
-    emails = Email.objects.filter(user=user).prefetch_related('category', 'bulletpoint_set')
-
-    emails = emails.annotate( 
-        has_rule=Exists(Rule.objects.filter(sender=OuterRef('sender'), user=user))
-    )
-
-    rule_id_subquery = Rule.objects.filter(
-        sender=OuterRef('sender'),
-        user=user
-    ).values('id')[:1]
-
-    emails = emails.annotate(
-        rule_id=Subquery(rule_id_subquery)
-    )
-
-    # A set of all possible priorities. Adjust according to your needs.
-    all_priorities = {'Important', 'Information', 'Useless'}
-
-    formatted_data = defaultdict(lambda: defaultdict(list))
-
-    for email in emails:
-        email_data = {
-            "id": email.id,
-            "id_provider": email.provider_id,
-            "email": email.sender.email,
-            "name": email.sender.name,
-            "description": email.email_short_summary,
-            "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()],
-            "read": email.read,
-            "rule": email.has_rule,
-            "rule_id": email.rule_id
-        }
-        formatted_data[email.category.name][email.priority].append(email_data)
-    
-    # Ensuring all priorities are present for each category
-    for category in formatted_data:
-        for priority in all_priorities:
-            formatted_data[category].setdefault(priority, [])
-
-    logger.info(formatted_data)
-    return Response(formatted_data, status=status.HTTP_200_OK)
-
-
-# POST
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])  
-def set_email_read(request, email_id):
-    user = request.user
-
-    # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, user=user, id=email_id)
-
-    # Update the read field
-    email.read = True
-    email.save()
-
-    # Serialize the data to return
-    serializer = EmailReadUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_email(request, email_id):
-    user = request.user
-
-    # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, user=user, id=email_id)
-
-    # Delete the email
-    email.delete()
-
-    # Prepare the response
-    response_data = {"message": "Email deleted successfully"}
-    return Response(response_data, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])  
-def set_email_reply_later(request, email_id):
-    user = request.user
-
-    # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, user=user, id=email_id)
-
-    # Update the reply_later field
-    email.answer_later = True
-    email.save()
-
-    # Serialize the data to return
-    serializer = EmailReplyLaterUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])  
-def set_rule_block_for_sender(request, email_id):
-    user = request.user
-
-    # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, user=user, id=email_id)
-    
-    # Check if there's a rule for this sender and user
-    rule, created = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
-
-    # Update the block field
-    rule.block = True
-    rule.save()
-
-    # Serialize the data to return
-    serializer = RuleBlockUpdateSerializer(rule)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-
-
-# TODO: Change later with the list of email of the user saved in a BD for optimization
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def find_user_view(request):
-    user = request.user
-    email = request.headers.get('email')
-    search_query = request.GET.get('query')
-    social_api = get_object_or_404(SocialAPI, user=user, email=email)    
-    type_api = social_api.type_api
-
-    if search_query:
-        if type_api == 'google':
-            services = google_api.authenticate_service(user, email)
-            found_users = google_api.find_user_in_emails(services, search_query)
-        elif type_api == 'microsoft':
-            access_token = microsoft_api.refresh_access_token(microsoft_api.get_social_api(user, email))
-            found_users = google_api.find_user_in_emails(access_token, search_query)
-
-        return Response(found_users, safe=False, status=200)
-    else:
-        return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
-
-
-
-######################## PROMPT ENGINEERING ########################
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def find_user_view_ai(request):
-    """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
-    user = request.user
-    email = request.headers.get("email")
-    search_query = request.GET.get('query')
-
-    if search_query:
-        main_list, cc_list, bcc_list = gpt_3_5_turbo.extract_contacts_recipients(search_query)
-
-        if main_list == "INCORRECT":
-            return Response({"error": "Invalid input or query not about email recipients"}, status=400)
-
-        # Function to find emails for a list of recipients
-        def find_emails_for_recipients(recipient_list):
-            social_api = get_object_or_404(SocialAPI, user=user, email=email)
-            type_api = social_api.type_api
-            
-            if type_api == 'google':
-                services = google_api.authenticate_service(user, email)
-                return {recipient: google_api.find_user_in_emails(services, recipient) for recipient in recipient_list}
-            elif type_api == 'microsoft':
-                access_token = microsoft_api.refresh_access_token(microsoft_api.get_social_api(user, email))
-                return {recipient: microsoft_api.find_user_in_emails(access_token, recipient) for recipient in recipient_list}
-
-        # Find emails for main recipients, CC, and BCC
-        main_recipients_with_emails = find_emails_for_recipients(main_list)
-        cc_recipients_with_emails = find_emails_for_recipients(cc_list)
-        bcc_recipients_with_emails = find_emails_for_recipients(bcc_list)
-
-        logging.info(f"{Fore.GREEN}Email recipients (main): {main_recipients_with_emails}")
-
-        return Response({
-            "main_recipients": main_recipients_with_emails,
-            "cc_recipients": cc_recipients_with_emails,
-            "bcc_recipients": bcc_recipients_with_emails
-        }, status=200)
-    else:
-        return Response({"error": "Failed to authenticate or no search query provided"}, status=400)
-
-
-#----------------------- REDACTION -----------------------#
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def new_email_ai(request):
-    serializer = NewEmailAISerializer(data=request.data)
-
-    if serializer.is_valid():
-        input_data = serializer.validated_data['input_data']
-        length = serializer.validated_data['length']
-        formality = serializer.validated_data['formality']
-
-        subject_text, mail_text = gpt_3_5_turbo.gpt_langchain_redaction(input_data, length, formality)
-
-        print("LOG MAIL", mail_text)
-
-        # Return the response
-        return Response({'subject': subject_text, 'mail': mail_text})
-    else:
-        return Response(serializer.errors, status=400)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def new_email_recommendations(request):    
-    serializer = EmailAIRecommendationsSerializer(data=request.data)
-
-    if serializer.is_valid():
-        mail_content = serializer.validated_data['mail_content']
-        user_recommendation = serializer.validated_data['user_recommendation']
-        email_subject = serializer.validated_data['email_subject']
-        
-        print(f'{Fore.CYAN}mail_content: {mail_content}')
-        print(f'{Fore.CYAN}user_recommendation: {user_recommendation}')
-        print(f'{Fore.CYAN}email_subject: {email_subject}')
-
-        subject_text, email_body = gpt_3_5_turbo.gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject)
-
-        return Response({'subject': subject_text, 'email_body': email_body})
-    else:
-        logging.error(f'{Fore.RED}Error: {serializer.errors}')
-        return Response(serializer.errors, status=400)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def gpt_improve_email_writing(request):
-    """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
-    serializer = EmailCorrectionSerializer(data=request.data)
-
-    if serializer.is_valid():
-        email_body = serializer.validated_data['email_body']
-        email_subject = serializer.validated_data['email_subject']
-
-        email_body, subject_text = gpt_3_5_turbo.gpt_improve_email_writing(email_body, email_subject)
-        
-        return Response({'subject': subject_text, 'email_body': email_body})        
-    else:
-        logging.error(f'{Fore.RED}Error: {serializer.errors}')
-        return Response(serializer.errors, status=400)
-    
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def correct_email_language(request):
-    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
-    serializer = EmailCorrectionSerializer(data=request.data)
-
-    if serializer.is_valid():
-        email_subject = serializer.validated_data['email_subject']
-        email_body = serializer.validated_data['email_body']
-
-        corrected_subject, corrected_body, num_corrections = gpt_3_5_turbo.correct_mail_language_mistakes(email_subject, email_body)
-
-        return Response({
-            'corrected_subject': corrected_subject,
-            'corrected_body': corrected_body,
-            'num_corrections': num_corrections
-        })
-    else:
-        return Response(serializer.errors, status=400)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def check_email_copywriting(request):
-    serializer = EmailCopyWritingSerializer(data=request.data)
-    print("Serializer :", serializer)
-
-    if serializer.is_valid():
-        email_subject = serializer.validated_data['email_subject']
-        email_body = serializer.validated_data['email_body']
-
-        feedback_copywriting = gpt_3_5_turbo.improve_email_copywriting(email_subject, email_body)
-
-        return Response({'feedback_copywriting': feedback_copywriting})
-    else:
-        return Response(serializer.errors, status=400)
-
-
-#----------------------- ANSWER -----------------------#
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def generate_email_response_keywords(request):
-    serializer = EmailProposalAnswerSerializer(data=request.data)
-
-    if serializer.is_valid():
-        email_content = serializer.validated_data['email_content']
-        response_keywords = gpt_4.generate_response_keywords(email_content)
-
-        return Response({
-            'response_keywords': response_keywords,
-        })
-    else:
-        return Response(serializer.errors, status=400)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def generate_email_answer(request):
-    serializer = EmailGenerateAnswer(data=request.data)
-
-    if serializer.is_valid():
-        email_content = serializer.validated_data['email_content']
-        response_type = serializer.validated_data['response_type']
-        email_answer = gpt_4.generate_email_response(email_content, response_type)
-
-        return Response({
-            'email_answer': email_answer,
-        })
-    else:
-        return Response(serializer.errors, status=400)
-
-
-#----------------------- REPLY LATER -----------------------#
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_answer_later_emails(request):
-    try:
-        user = request.user
-        emails = Email.objects.filter(user=user, answer_later=True).prefetch_related('bulletpoint_set', 'sender', 'category')
-
-        all_priorities = {'Important', 'Information', 'Useless'}
-
-        formatted_data = defaultdict(lambda: defaultdict(list))
-
-        for email in emails:
-            email_data = {
-                "id": email.id,
-                "id_provider": email.provider_id,
-                "email": email.sender.email,
-                "name": email.sender.name,
-                "description": email.email_short_summary,
-                "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
-            }
-            formatted_data[email.category.name][email.priority].append(email_data)
-        
-        # Ensuring all priorities are present for each category
-        for category in formatted_data:
-            for priority in all_priorities:
-                formatted_data[category].setdefault(priority, [])
-
-        logger.info(formatted_data)
-        return Response(formatted_data, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        logging.error(f"Error fetching emails: {e}")
-        return Response({"error": "An error occurred while fetching emails."}, 
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-######################## Settings ########################
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_bg_color(request):
-    try:
-        preferences = Preference.objects.get(user=request.user)
-        serializer = PreferencesSerializer(preferences)
-        return Response(serializer.data)
-
-    except Preference.DoesNotExist:
-        return Response({"error": "Preferences not found for the user."}, status=404)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_details(request):
-    return Response({'username': request.user.username})
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def update_username(request):
-    user = request.user
-    new_username = request.data.get('username')
-
-    if not new_username:
-        return Response({'error': 'No new username provided.'}, status=400)
-
-    # Check if user requirements
-    if User.objects.filter(username=new_username).exists():
-        return Response({'error': 'Username already exists'}, status=400)
-    elif " " in new_username:
-        return Response({'error': 'Username must not contain spaces'}, status=400)
-
-    user.username = new_username
-    user.save()
-    
-    logging.info(f"{Fore.CYAN}User: {user} changed its name in {new_username}")
-    return Response({'success': 'Username updated successfully.'})
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def update_password(request):
-    user = request.user
-    new_password = request.data.get('password')
-
-    if not new_password:
-        return Response({'error': 'No new password provided.'}, status=400)
-
-    # Checks passwords requirements
-    if not (8 <= len(new_password) <= 32):
-        return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
-    if " " in new_password:
-        return Response({'error': 'Password must not contain spaces'}, status=400)
-    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', new_password):
-        return Response({'error': 'Password contains invalid characters'}, status=400)
-
-    user.set_password(new_password)
-    user.save()
-
-    return Response({'success': 'Password updated successfully.'})
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_first_email(request):
-    """Returns the first email associated with the user in mailassistantdb"""
-    user = request.user
-    social_api_instance = get_object_or_404(SocialAPI, user=user)
-    
-    # TODO: update the code to handle when the user has several emails
-    email = social_api_instance.email
-    
-    if email:
-        return Response({'email': email}, status=200)
-    else:
-        return Response({'error': 'No emails associated with the user'}, status=404)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def set_user_bg_color(request):
-    try:
-        # Retrieve the user's Preference object
-        preferences = Preference.objects.get(user=request.user)
-    except Preference.DoesNotExist:
-        # Create a new Preference object if it doesn't exist
-        preferences = Preference(user=request.user)
-
-    # Update the bg_color field from the request data
-    serializer = PreferencesSerializer(preferences, data=request.data)
-    if serializer.is_valid():
-        serializer.save()  # Save the updated Preference object
-        return Response(serializer.data)
-    else:
-        # Return validation errors if the data is not valid
-        return Response(serializer.errors, status=400)
-
-
-
-######################## RULES ########################
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_rules(request):
-    user_rules = Rule.objects.filter(user=request.user)
-    rules_data = []
-
-    for rule in user_rules:
-        # Serialize the basic rule data
-        rule_serializer = RuleSerializer(rule)
-        rule_data = rule_serializer.data
-
-        # Manually add category name and sender details
-        category_name = rule.category.name if rule.category else None
-        sender_name = rule.sender.name if rule.sender else None
-        sender_email = rule.sender.email if rule.sender else None
-
-        rule_data['category_name'] = category_name
-        rule_data['sender_name'] = sender_name
-        rule_data['sender_email'] = sender_email
-
-        rules_data.append(rule_data)
-
-    return Response(rules_data)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_unique_email_senders_view(request):
-    user = request.user
-    services = google_api.authenticate_service(user)
-    
-    if services is not None:
-        senders_info = google_api.get_unique_senders(services)
-        contacts_info = google_api.get_info_contacts(services)
-
-        # Convert contacts_info to a dictionary format
-        contacts_dict = {email: contact['name'] for contact in contacts_info for email in contact['emails']}
-
-        # Merge the two dictionaries and remove duplicates
-        merged_info = {**contacts_dict, **senders_info}  # In case of duplicates, senders_info will overwrite contacts_dict
-
-        return JsonResponse(merged_info, status=200)
-    else:
-        return JsonResponse({"error": "Failed to authenticate or access services"}, status=400)
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_sender(request):
-    serializer = SenderSerializer(data=request.data)
-
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def create_user_rule(request):
-    serializer = RuleSerializer(data=request.data, context={'user': request.user})
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    else:
-        print("Data:", request.data)
-        print("Errors:", serializer.errors)
-        return Response(serializer.errors, status=400)
-    
-@api_view(['PUT'])
-@permission_classes([IsAuthenticated])
-def update_user_rule(request):
-    try:
-        rule = Rule.objects.get(id=request.data.get('id'), user=request.user)
-    except Rule.DoesNotExist:
-        return Response({'error': 'Rule not found.'}, status=404)
-
-    serializer = RuleSerializer(rule, data=request.data, partial=True, context={'user': request.user})
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=200)
-    else:
-        print("Data:", request.data)
-        print("Errors:", serializer.errors)
-        return Response(serializer.errors, status=400)
-
-
-
-######################## TESTING ########################
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def is_authenticated(request):
-    return Response(status=200)
-
-
-
-
+######################## THESE FUNCTIONS WORKS ONLY WITH GMAIL => DEPRECATED & USELESS ########################
 # TO TEST Gmail GET the Mail from id
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1682,20 +1722,26 @@ def authenticate_service_view(request):
     else:
         # Return an error response
         return Response({"error": "Failed to authenticate"}, status=400)
+    
 
+######################## Home Page ########################
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])  
+# def get_user_emails(request):
+#     user = request.user
+#     emails = Email.objects.filter(id_user=user)
+#     serializer = UserEmailSerializer(emails, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)
 
-######################## OLD ########################
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])  
+# def get_email_bullet_points(request, email_id):
+#     user = request.user
 
-# TO UPDATE
-'''
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_login(request):
-    try:
-        user = Users.objects.get(id_user=request.user.id)
-        serializer = UserLoginSerializer(user)
-        return Response(serializer.data)
-    except Users.DoesNotExist:
-        return Response({"error": "User not found."}, status=404)'''
+#     # Check if the email belongs to the authenticated user
+#     email = get_object_or_404(Email, id_user=user, id=email_id)
 
+#     bullet_points = BulletPoint.objects.filter(id_email=email)
+#     serializer = BulletPointSerializer(bullet_points, many=True)
+#     return Response(serializer.data, status=status.HTTP_200_OK)

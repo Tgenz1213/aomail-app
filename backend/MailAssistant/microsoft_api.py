@@ -22,7 +22,7 @@ from .models import SocialAPI
 from requests.exceptions import HTTPError
 
 
-# Initialize colorama with autoreset
+######################## LOGGING CONFIGURATION ########################
 init(autoreset=True)
 
 
@@ -40,9 +40,9 @@ SCOPES = [
 ]
 CONFIG = json.load(open('creds/microsoft_creds.json', 'r'))
 # PRODUCTION authority
-# AUTHORITY = f'https://login.microsoftonline.com/common'
+AUTHORITY = f'https://login.microsoftonline.com/common'
 # localhost authority
-AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
+# AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
 GRAPH_URL = 'https://graph.microsoft.com/v1.0/'
 REDIRECT_URI = 'http://localhost:8080/signup_part2'
 
@@ -331,11 +331,19 @@ def unread_mails(request):
             graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages' # ?$count=true&$filter=isRead eq false'
             response = requests.get(graph_endpoint, headers=headers)
             
+            response_json = response.json()            
+            print(f'{Fore.YELLOW}RESPONSE: {response_json}')
+
             if response.status_code == 200:
-                unread_count = response.json().get('@odata.count', 0)
+                unread_count = response_json.get('@odata.count', 0)
                 return JsonResponse({'unreadCount': unread_count}, status=200)
             else:
-                error_message = response.json().get('error', {}).get('message', 'No error message')
+                error_message = response_json.get('error', {}).get('message', 'No error message')
+                error_code = response_json.get('error', {}).get('code')
+
+                if error_code == 'MailboxNotEnabledForRESTAPI':
+                    print(f'{Fore.RED}The account you are using does not have a proper license to access the required endpoints')
+
                 logging.error(f"{Fore.RED}Failed to retrieve unread count: {error_message}")
                 return JsonResponse({'unreadCount': 0}, status=response.status_code)
 

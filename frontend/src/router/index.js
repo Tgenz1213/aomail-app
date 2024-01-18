@@ -128,6 +128,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
+  // true if authenticated else false
   const isAuthenticated = isUserAuthenticated();
 
   if (to.matched.some(record => record.meta.requiresAuth)) {

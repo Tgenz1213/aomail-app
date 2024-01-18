@@ -227,6 +227,8 @@
 import { onMounted, ref } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
+import { fetchWithToken } from '../router/index.js';
+
 
 // Main variables
 const bgColor = ref('');
@@ -241,50 +243,6 @@ onMounted(() => {
   fetchAnswerLaterEmails();
 
 });
-
-async function fetchWithToken(url, options = {}) {
-  const accessToken = localStorage.getItem('access_token');
-  if (!options.headers) {
-      options.headers = {};
-  }
-  if (accessToken) {
-      options.headers['Authorization'] = `Bearer ${accessToken}`;
-  }
-
-  try {
-    let response = await fetch(url, options);
-
-    if (response.status === 401) {
-        const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ access_token: accessToken })
-        });
-
-        if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            const newAccessToken = refreshData.access_token;
-            localStorage.setItem('access_token', newAccessToken);
-            options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-            response = await fetch(url, options);
-        } else {
-            throw new Error('Unauthorized: Please log in again');
-        }
-    }
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return response.json();
-
-  } catch (error) {
-      console.error('Error in fetchWithToken:', error.message);
-      throw error;
-  }
-}
-
 // To fetch the email to reply later
 async function fetchAnswerLaterEmails() {
   try {
@@ -304,5 +262,4 @@ async function fetchAnswerLaterEmails() {
     console.error("Error fetching answer-later emails:", error.message);
   }
 }
-
 </script>

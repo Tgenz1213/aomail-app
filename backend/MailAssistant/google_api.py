@@ -32,9 +32,8 @@ from base64 import urlsafe_b64encode
 from rest_framework.response import Response
 
 
-# Initialize colorama with autoreset
+######################## LOGGING CONFIGURATION ########################
 init(autoreset=True)
-
 
 
 ######################## GOOGLE API PROPERTIES ########################
@@ -120,6 +119,7 @@ def get_credentials(user, email):
         creds = None
     return creds
 
+
 def refresh_credentials(creds):
     try:
         creds.refresh(Request())
@@ -127,6 +127,7 @@ def refresh_credentials(creds):
         print(f"Failed to refresh credentials: {e}")
         creds = None
     return creds
+
 
 def save_credentials(creds, user, email):
     """Update the database with valid access token"""
@@ -151,6 +152,7 @@ def build_services(creds) -> dict:
         'email': build('people', 'v1', cache_discovery=False, credentials=creds)
     }
     return services
+
 
 def authenticate_service(user, email) -> dict:
     creds = get_credentials(user, email)
@@ -729,10 +731,15 @@ def search_attachments(query):
 
     return attachments
 
-######################## Other ########################
 
 
 
+
+
+
+######################################################################
+######################## TODO: SORT FUNCTIONS ########################
+######################################################################
 
 # GOOGLE
 def get_calendar_events(services):
@@ -813,36 +820,6 @@ def find_user_in_emails(services, search_query):
 
     return emails
 
-
-# To send email
-def send_email_with_gmail(services, subject, message, to, cc, bcc, attachments=None):
-
-    service = services['gmail.send']
-
-    multipart_message = MIMEMultipart()
-    multipart_message["Subject"] = subject
-    multipart_message["from"] = "me"
-    multipart_message["to"] = to
-
-    if cc:
-        multipart_message["cc"] = cc
-    if bcc:
-        multipart_message["bcc"] = bcc
-
-    multipart_message.attach(MIMEText(message, "html"))
-
-    # Attach each file in the attachments list
-    if attachments:
-        for uploaded_file in attachments:
-            # Read the contents of the uploaded file
-            file_content = uploaded_file.read()
-            part = MIMEApplication(file_content)
-            part.add_header('Content-Disposition', 'attachment', filename=uploaded_file.name)
-            multipart_message.attach(part)
-
-    raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
-    body = {'raw': raw_message}
-    service.users().messages().send(userId="me", body=body).execute()
 
 # GOOGLE # gets list of emails based on names
 def _get_contacts(name, service_name,resource_name):
@@ -958,49 +935,6 @@ def get_unique_senders(services):
     return list(email_addresses)'''
 
 
-"""# GOOGLE
-def send_mail(request):
-    # \"\"\"Handle the process of sending emails.\"\"\"
-    # service = authenticate_service(GMAIL_SEND_SCOPE)
-    services = authenticate_service()
-    service = services['gmail.send']
-    if request.method == 'POST' :
-        form = MailForm(request.POST)
-        if form.is_valid() :
-            subject = form.cleaned_data['subject']
-            message = form.cleaned_data['message']
-            to = form.cleaned_data['to']
-            cc = form.cleaned_data['cc']
-            bcc = form.cleaned_data['bcc']
-            piece_jointe = form.cleaned_data['piece_jointe']
-
-            multipart_message = MIMEMultipart()
-            multipart_message["Subject"] = subject
-            multipart_message["from"] = "me"
-            multipart_message["to"] = to
-            multipart_message["cc"] = cc
-            multipart_message["bcc"] = bcc
-
-            # Attach the message content to the email, regardless of whether
-            # there's an attachment.
-            multipart_message.attach(MIMEText(message, "plain"))
-
-            if piece_jointe != None :
-                piece_jointe = MIMEApplication(open(piece_jointe, 'rb').read())
-                piece_jointe.add_header('Content-Disposition', 'attachment', filename='attachment.pdf')
-                multipart_message.attach(piece_jointe)
-
-            raw_message = urlsafe_b64encode(multipart_message.as_string().encode('UTF-8')).decode()
-
-            body = {'raw': raw_message}
-
-            multipart_message = service.users().messages().send(userId="me", body=body).execute()
-
-            return redirect('MailAssistant:home_page')
-
-    else : 
-        form = MailForm()         
-    return render(request, 'send_mails.html', {'form': form})"""
 
 
 # NEW MAIL

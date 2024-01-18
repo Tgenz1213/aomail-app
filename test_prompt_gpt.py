@@ -1,3 +1,6 @@
+"""
+File to test prompt engineering functions quickly
+"""
 import json
 from colorama import Fore, init
 import openai

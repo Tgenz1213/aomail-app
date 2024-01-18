@@ -394,12 +394,6 @@ function handleBlur2(event) {
 
 const AIContainer = ref(null);
 let stepcontainer = 0;
-/* TO DELETE
-const messagesContainer = ref(null);
-const objectInput = ref(null);
-const objectContainer = ref(null);
-const askContentContainer = ref(null);
-const EmailContainer = ref(null);*/ 
 const objectInput = ref(null);
 const mailInput = ref(null);
 
@@ -432,10 +426,6 @@ const MailCreatedByAI = ref(false); // to check if the AI create the Mail or not
 // Loading animation
 const isLoading = ref(false);
 
-/*
-const adjustHeight = (event) => {
-    // Votre logique pour ajuster la hauteur
-};*/
 
 ////////////////////////////////////////////////////// To Handle files upload ///////////////////////////////////////////////////////
 const fileInput = ref(null);
@@ -493,12 +483,6 @@ function handleEnterKey(event) {
 }
 
 const handleAIClick = async () => {
-  /*const elements = [
-    document.getElementById("UserDestinaryContainer"),
-    document.getElementById("UserObjectContainer"),
-    document.getElementById("EmailContainer"),
-  ];
-  */
   console.log(textareaValue.value);
 
   // Declare variables outside the fetch scope

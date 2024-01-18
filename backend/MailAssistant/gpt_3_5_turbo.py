@@ -126,7 +126,6 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
     Answer must be a list (Python) format: []
     """
     formatted_prompt = template.format(input_subject=input_subject, input_email=input_email, language=language)
-    #response = get_prompt_response(formatted_prompt)
     response = get_prompt_response(formatted_prompt)
     keywords = response.choices[0].message.content.strip()
 
@@ -140,7 +139,7 @@ def shorten_keywords(keywords) -> dict:
 
     formatted_prompt = f"""As an email assistant,
 
-    Givent this list of keywords '{keywords}', GENERATE a shorter version for each keyword/
+    Given this list of keywords '{keywords}', GENERATE a shorter version for each keyword/
     
 
     Answer must be a Json format with KEYS being each NEW keyword and values being each associated old keyword
@@ -170,7 +169,14 @@ def gpt_improve_email_writing(body, subject):
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 
-    return result_json['body'], result_json['subject']
+    subject_text = result_json['subject']
+    email_body = result_json['body']
+
+    print(f"{Fore.CYAN}EMAIL DRAFT IMPROVED:")
+    print(f"{Fore.GREEN}Subject: {subject_text}")
+    print(f"{Fore.CYAN}Email Body: {email_body}")
+
+    return email_body, subject_text
 
 
 def gpt_new_mail_recommendation(mail_content, email_subject, user_recommendation):
@@ -191,6 +197,7 @@ def gpt_new_mail_recommendation(mail_content, email_subject, user_recommendation
     subject_text = result_json['subject']
     email_body = result_json['body']
     
+    print(f"{Fore.CYAN}NEW EMAIL RECOMMENDATION:")
     print(f"{Fore.GREEN}Subject: {subject_text}")
     print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
 
@@ -214,6 +221,7 @@ def gpt_langchain_redaction(input_data, length, formality):
     subject_text = result_json.get('subject')
     email_body = result_json.get('body')
 
+    print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
     print(f"{Fore.GREEN}Subject: {subject_text}")
     print(f"{Fore.CYAN}Email Body: {email_body}")
 
@@ -235,10 +243,12 @@ def correct_mail_language_mistakes(body, subject):
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 
-    print(f"{Fore.GREEN}Response Text : ", result_json)
-
     corrected_subject = result_json['subject']
     corrected_body = result_json['body']
+
+    print(f"{Fore.CYAN}EMAIL CORRECTED:")
+    print(f"{Fore.GREEN}Subject: {corrected_subject}")
+    print(f"{Fore.CYAN}Email Body: {corrected_body}")
 
     # Count the number of corrections
     num_corrections = count_corrections(subject, body, corrected_subject, corrected_body)
@@ -246,6 +256,7 @@ def correct_mail_language_mistakes(body, subject):
     return corrected_subject, corrected_body, num_corrections
 
 
+# TODO: improve prompt engineering + get a json response from GPT
 def improve_email_copywriting(email_subject, email_body):
     """Provides feedback and suggestions for improving the copywriting in the email subject and body."""
 
@@ -276,5 +287,8 @@ def improve_email_copywriting(email_subject, email_body):
     formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
     response = get_prompt_response(formatted_prompt)
     response_text = response.choices[0].message.content.strip()
+
+    print(f"{Fore.CYAN}EMAIL COPYWRITING:")
+    print(f"{Fore.GREEN}{response_text}")
 
     return response_text

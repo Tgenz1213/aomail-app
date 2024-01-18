@@ -19,6 +19,13 @@ class Sender(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null=True for debugging
 
 
+class Contact(models.Model):
+    """Stores contacts of an email account"""
+    email = models.CharField(max_length=320, null=True)
+    username = models.CharField(max_length=50, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
 class Category(models.Model):
     """Model for storing category information."""
     name = models.CharField(max_length=50)

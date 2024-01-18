@@ -2,6 +2,7 @@
 Handles authentication and HTTP requests for the Gmail API.
 """
 import base64
+import datetime
 import email
 import json
 import logging
@@ -12,6 +13,7 @@ from collections import defaultdict
 from colorama import Fore, init
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
+from django.db import IntegrityError
 from django.shortcuts import redirect
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -27,7 +29,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from MailAssistant.serializers import EmailDataSerializer
 from . import library
-from .models import SocialAPI
+from .models import SocialAPI, Contact
 from base64 import urlsafe_b64encode
 from rest_framework.response import Response
 
@@ -280,6 +282,8 @@ def get_unique_email_senders(request):
 @permission_classes([IsAuthenticated])
 def get_parsed_contacts(request) -> list:
     """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
+    start = time.time()
+
     user = request.user
     email = request.headers.get('email')
     # Authenticate the user and build the service
@@ -329,7 +333,10 @@ def get_parsed_contacts(request) -> list:
         # Format the parsed contacts
         parsed_contacts = [{'name': ', '.join(names), 'email': email} for email, names in all_contacts.items()]
 
-        logging.info(f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts")
+        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+        print(f'{Fore.BLUE}{parsed_contacts}')
+        logging.info(f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts in {formatted_time}")
+        
         return Response(parsed_contacts)
     except Exception as e:
         logging.exception("Error fetching contacts:")
@@ -364,6 +371,7 @@ def get_unique_senders(services) -> dict:
                 print(f"Error processing message {message['id']}: {e}")
 
     return senders_info
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -408,6 +416,69 @@ def get_email(access_token, refresh_token):
     except:
         return None
 
+
+
+######################## UNDER CONSTRUCTION ########################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_contacts(request):
+    """Stores all unique contacts of an email account in DB."""
+    start = time.time()
+
+    user = request.user
+    email = request.headers.get('email')
+
+    # Authenticate the user and build the service
+    credentials = get_credentials(user, email)
+    services = build_services(credentials)
+    contacts_service = services['contacts']
+
+    try:
+        # Get all contacts without specifying a page size
+        connections = contacts_service.people().connections().list(
+            resourceName='people/me',
+            personFields='names,emailAddresses',
+            pageSize=1000,
+        ).execute().get('connections', [])
+
+        # Get all other contacts without specifying a page size
+        other_contacts = contacts_service.otherContacts().list(
+            readMask='names,emailAddresses',
+            pageSize=1000,
+        ).execute().get('otherContacts', [])
+
+        # Combine all contacts into a dictionary to ensure uniqueness
+        all_contacts = defaultdict(set)
+
+        # Parse and add connections
+        for contact in connections + other_contacts:
+            name = contact.get('names', [{}])[0].get('displayName', '')
+            email_address = contact.get('emailAddresses', [{}])[0].get('value', '')
+            all_contacts[name].add(email_address)
+
+        # Add contacts to the database
+        for name, emails in all_contacts.items():
+            for email in emails:
+                try:
+                    Contact.objects.create(email=email, username=name, user=user)
+                except IntegrityError:
+                    # TODO: Handle duplicates gracefully (e.g., update existing records)
+                    pass
+
+        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+        logging.info(f"{Fore.YELLOW}Retrieved {len(all_contacts)} unique contacts in {formatted_time}")
+
+        return Response("All contacts retrieved successfully", status=201)
+    except Exception as e:
+        logging.exception(f"Error fetching contacts: {str(e)}")
+        return Response({'error': str(e)}, status=500)
+
+
+
+
+######################################################################
+######################## TODO: SORT FUNCTIONS ########################
+######################################################################
 
 
 ######################## Read Mails ########################
@@ -737,9 +808,8 @@ def search_attachments(query):
 
 
 
-######################################################################
-######################## TODO: SORT FUNCTIONS ########################
-######################################################################
+
+
 
 # GOOGLE
 def get_calendar_events(services):

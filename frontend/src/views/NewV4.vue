@@ -520,7 +520,6 @@ const handleAIClick = async () => {
 
     textareaValueSave.value = textareaValue.value;
     textareaValue.value = '';
-    console.log("textareaValueSave", textareaValueSave.value);
 
     setTimeout(async () => {
       if (stepcontainer == 0) {
@@ -534,13 +533,12 @@ const handleAIClick = async () => {
             const result = await findUser(textareaValueSave.value);
             hideLoading();
             //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
-            console.log(userSearchResult.value);
             let noUsersAdded = true;
             if (userSearchResult.value !== "Invalid input or query not about email recipients") { // To update to handle the main error
               for (const [category, recipients] of Object.entries(userSearchResult.value)) {
                 for (const [key, value] of Object.entries(recipients)) {
                   if (key !== "" && value !== "No matching emails found.") {
-                    for (const [email, name] of Object.entries(value)) {
+                    for (const [email, name] of Object.entries(value )) {
                       const person = { name: name, email: email };
                       if (category === "main_recipients") {
                         selectedPeople.value.push(person);
@@ -555,7 +553,6 @@ const handleAIClick = async () => {
                 }
               }
               if (noUsersAdded) {
-                console.log("No user added");
                 const message = "Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement";
                 const messageHTML = `
                 <div class="flex pb-12">

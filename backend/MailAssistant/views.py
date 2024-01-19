@@ -405,7 +405,7 @@ def find_user_view_ai(request):
     if search_query:
         main_list, cc_list, bcc_list = gpt_3_5_turbo.extract_contacts_recipients(search_query)
 
-        if main_list == "INCORRECT":
+        if not main_list:
             return Response({"error": "Invalid input or query not about email recipients"}, status=400)
 
         # Function to find emails for a list of recipients

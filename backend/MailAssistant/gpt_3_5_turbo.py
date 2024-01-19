@@ -248,7 +248,41 @@ def improve_email_copywriting(email_subject, email_body):
 
     return response_text
 
-# TO UPDATE : make work with langchain
+
+######################## UNDER CONSTRUCTION ########################
+def extract_contacts_recipients(query):
+    template = """As an email assistant,
+
+    Analyze the following input: '{query}' to determine recipients for an email. Follow these rules:
+
+    1. If no main recipients are explicitly indicated, assume all recipients are main recipients.
+    2. If no CC or BCC recipients are specified, include all recipients in the main_recipients list.
+
+    Return the results in JSON format with three keys:
+    main_recipients: [Python list],
+    cc_recipients: [Python list],
+    bcc_recipients: [Python list]    
+    """
+    formatted_prompt = template.format(query=query)
+    response = get_prompt_response(formatted_prompt)
+    response_text = response.choices[0].message.content.strip()    
+    recipients = json.loads(response_text)
+
+    # Extract information based on markers
+    main_recipients = recipients.get('main_recipients', [])
+    cc_recipients = recipients.get('cc_recipients', [])
+    bcc_recipients = recipients.get('bcc_recipients', [])
+
+    print(f"{Fore.CYAN}Main Recipients: {main_recipients}")
+    print(f"{Fore.BLUE}Carbon Copy: {cc_recipients}")
+    print(f"{Fore.GREEN}Blind Carbon Copy: {bcc_recipients}")
+
+    return main_recipients, cc_recipients, bcc_recipients
+
+
+
+######################## OLD FUNCTIONS ########################
+'''# TO UPDATE : make work with langchain
 def extract_contacts_recipients(input_query):
     # Define the prompt template for ChatGPT
     template = """Analyze the following input to determine recipients for an email:
@@ -289,4 +323,4 @@ def extract_contacts_recipients(input_query):
     logging.info("Extracted response from ChatGPT (CC): %s", cc_recipients)
     logging.info("Extracted response from ChatGPT (BCC): %s", bcc_recipients)
 
-    return main_recipients, cc_recipients, bcc_recipients
+    return main_recipients, cc_recipients, bcc_recipients'''

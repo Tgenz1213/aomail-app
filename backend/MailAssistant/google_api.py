@@ -419,14 +419,9 @@ def get_email(access_token, refresh_token):
 
 
 ######################## UNDER CONSTRUCTION ########################
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_all_contacts(request):
-    """Stores all unique contacts of an email account in DB."""
+def set_all_contacts(user, email):
+    """Stores all unique contacts of an email account in DB"""
     start = time.time()
-
-    user = request.user
-    email = request.headers.get('email')
 
     # Authenticate the user and build the service
     credentials = get_credentials(user, email)
@@ -435,26 +430,28 @@ def get_all_contacts(request):
 
     try:
         # Get all contacts without specifying a page size
-        connections = contacts_service.people().connections().list(
-            resourceName='people/me',
-            personFields='names,emailAddresses',
-            pageSize=1000,
-        ).execute().get('connections', [])
-
-        # Get all other contacts without specifying a page size
-        other_contacts = contacts_service.otherContacts().list(
-            readMask='names,emailAddresses',
-            pageSize=1000,
-        ).execute().get('otherContacts', [])
-
-        # Combine all contacts into a dictionary to ensure uniqueness
         all_contacts = defaultdict(set)
+        next_page_token = None
 
-        # Parse and add connections
-        for contact in connections + other_contacts:
-            name = contact.get('names', [{}])[0].get('displayName', '')
-            email_address = contact.get('emailAddresses', [{}])[0].get('value', '')
-            all_contacts[name].add(email_address)
+        while True:
+            connections = contacts_service.people().connections().list(
+                resourceName='people/me',
+                personFields='names,emailAddresses',
+                pageSize=1000,
+                pageToken=next_page_token
+            ).execute().get('connections', [])
+
+            # Parse and add connections
+            for contact in connections:
+                name = contact.get('names', [{}])[0].get('displayName', '')
+                email_address = contact.get('emailAddresses', [{}])[0].get('value', '')
+                all_contacts[name].add(email_address)
+
+            # Update next_page_token directly from the list
+            next_page_token = connections[-1].get('nextPageToken')
+
+            if not next_page_token:
+                break
 
         # Add contacts to the database
         for name, emails in all_contacts.items():
@@ -466,12 +463,10 @@ def get_all_contacts(request):
                     pass
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        logging.info(f"{Fore.YELLOW}Retrieved {len(all_contacts)} unique contacts in {formatted_time}")
+        logging.info(f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}")
 
-        return Response("All contacts retrieved successfully", status=201)
     except Exception as e:
         logging.exception(f"Error fetching contacts: {str(e)}")
-        return Response({'error': str(e)}, status=500)
 
 
 

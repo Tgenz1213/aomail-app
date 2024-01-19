@@ -53,14 +53,14 @@ def extract_contacts_recipients(query):
     return main_recipients, cc_recipients, bcc_recipients
 
 
-query = "mail à paul & marie & claud. "
+query = "mail à Carter,  Taylor et Isabell. En copie caché met Mitchell & Grace. En copi simple: Sophia et madison"
 
 main_list, cc_list, bcc_list = extract_contacts_recipients(query)
 
 if not main_list:
     print(f"{Fore.RED}Invalid input or query not about email recipients")
 else:
-    print('Liam Turner'.lower().strip())
+    pass
 
 
 
@@ -224,7 +224,6 @@ def find_emails_for_recipients(recipient_list, contacts_dict) -> dict:
 
     # Return the list of matching emails
     return recipients_with_emails
-
 
 # Find matching emails for each list of recipients
 main_recipients_with_emails = find_emails_for_recipients(main_list, contacts_dict)

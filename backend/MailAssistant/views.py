@@ -1,11 +1,14 @@
 """
 Handles frontend requests and redirects them to the appropriate API.
 """
+import asyncio
 import base64
+from concurrent.futures import ThreadPoolExecutor
 import datetime
 import json
 import logging
 import re
+import threading
 import openai
 import jwt
 from collections import defaultdict
@@ -67,45 +70,22 @@ def signup(request):
     color = request.data.get('color')
     categories = request.data.get('categories')
 
-    if not code:
-        return Response({'error': 'No authorization code provided'}, status=404)    
-    
-    # Check if user requirements
-    if User.objects.filter(username=username).exists():
-        return Response({'error': 'Username already exists'}, status=400)
-    elif " " in username:
-        return Response({'error': 'Username must not contain spaces'}, status=400)
-    
-    # Checks passwords requirements
-    if not (8 <= len(password) <= 32):
-        return Response({'error': 'Password length must be between 8 and 32 characters'}, status=400)
-    if " " in password:
-        return Response({'error': 'Password must not contain spaces'}, status=400)
-    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', password):
-        return Response({'error': 'Password contains invalid characters'}, status=400)
+    # Validate user data
+    validation_result = validate_signup_data(username, password, code)
+    if 'error' in validation_result:
+        return Response(validation_result, status=validation_result['status'])
 
     # Checks if the authorization code is valid
-    if type_api == "google":
-        # callback for Google API
-        try:
-            access_token, refresh_token = google_api.exchange_code_for_tokens(code)
-            # print(f"{Fore.CYAN}[GOOGLE]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")            
-            email = google_api.get_email(access_token, refresh_token)
-        except Exception as e:
-            return Response({'error': e}, status=400)
-        
-    elif type_api == "microsoft":
-        # callback for Microsoft API
-        try:
-            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
-            # print(f"{Fore.CYAN}[MICROSOFT]\n{Fore.GREEN}TOKENS RETRIEVED FROM BACKEND: \n{Fore.LIGHTGREEN_EX}Access token: {Fore.YELLOW}{access_token} \n{Fore.LIGHTGREEN_EX}Refresh token: {Fore.YELLOW}{refresh_token}")
-            email = microsoft_api.get_email(access_token)
-            # TODO: check if its constant
-            # Access  token len: 2416
-            # Refresh token len: 1530
-        except Exception as e:
-            return Response({'error': e}, status=400)
-        
+    authorization_result = validate_authorization_code(type_api, code)
+
+    if 'error' in authorization_result:
+        return Response({'error': authorization_result['error']}, status=authorization_result['status'])
+    
+    # Extract tokens and email from the authorization result
+    access_token = authorization_result['access_token']
+    refresh_token = authorization_result['refresh_token']
+    email = authorization_result['email']
+
     # Check email requirements
     if email:
         if SocialAPI.objects.filter(email=email).exists():
@@ -122,42 +102,100 @@ def signup(request):
     jwt_access_token = str(refresh.access_token)
     user.save()
 
-    # Save socialAPI
-    social_api = SocialAPI(
-        user=user,
-        type_api=type_api,
-        email=email,
-        access_token=access_token,
-        refresh_token=refresh_token
-    )
-    social_api.save()
+    # Asynchronous function to store all contacts
+    try:
+        if type_api == 'google':
+            threading.Thread(target=google_api.set_all_contacts, args=(user, email)).start()
+        elif type_api == "microsoft":
+            threading.Thread(target=microsoft_api.set_all_contacts, args=(access_token, user)).start()
+    except Exception as e:
+        print(f'{Fore.RED}Error while saving contacts: {str(e)}')
 
-    # Save user preferences
-    preference = Preference(
-        theme=theme,
-        bg_color=color,
-        user=user
-    )
-    preference.save()
-
-    # Save user categories
-    if categories:
-        try:
-            categories_j = json.loads(categories)
-            for category_data in categories_j:
-                category_name = category_data.get('name')
-                category_description = category_data.get('description')
-
-                category = Category(
-                    name=category_name,
-                    description=category_description,
-                    user=user
-                )
-                category.save()
-        except json.JSONDecodeError:
-            return Response({'error': 'Invalid categories data'}, status=404)
+    # Save user data
+    result = save_user_data(user, type_api, email, access_token, refresh_token, theme, color, categories)
+    if 'error' in result:
+        return Response(result, status=result['status'])
 
     return Response({'user_id': user_id, 'access_token': jwt_access_token, 'email': email}, status=201)
+
+
+def validate_authorization_code(type_api, code):
+    """Validates the authorization code for a given API type"""
+    try:
+        if type_api == "google":
+            access_token, refresh_token = google_api.exchange_code_for_tokens(code)
+            email = google_api.get_email(access_token, refresh_token)
+        elif type_api == "microsoft":
+            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
+            email = microsoft_api.get_email(access_token)
+        return {'access_token': access_token, 'refresh_token': refresh_token, 'email': email}
+    except Exception as e:
+        return {'error': str(e), 'status': status.HTTP_400_BAD_REQUEST}
+
+
+def validate_signup_data(username, password, code):
+    """Validates user signup data to ensure all requirements are met"""
+    if not code:
+        return {'error': 'No authorization code provided', 'status': 404}
+
+    # Check if user requirements
+    if User.objects.filter(username=username).exists():
+        return {'error': 'Username already exists', 'status': 400}
+    elif " " in username:
+        return {'error': 'Username must not contain spaces', 'status': 400}
+
+    # Check passwords requirements
+    if not (8 <= len(password) <= 32):
+        return {'error': 'Password length must be between 8 and 32 characters', 'status': 400}
+    if " " in password:
+        return {'error': 'Password must not contain spaces', 'status': 400}
+    elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', password):
+        return {'error': 'Password contains invalid characters', 'status': 400}
+
+    return {'status': 200}
+
+
+def save_user_data(user, type_api, email, access_token, refresh_token, theme, color, categories):
+    """Store user creds and settings in DB"""
+    try:
+        social_api = SocialAPI(
+            user=user,
+            type_api=type_api,
+            email=email,
+            access_token=access_token,
+            refresh_token=refresh_token
+        )
+        social_api.save()
+
+        # Save user preferences
+        preference = Preference(
+            theme=theme,
+            bg_color=color,
+            user=user
+        )
+        preference.save()
+
+        # Save user categories
+        if categories:
+            try:
+                categories_j = json.loads(categories)
+                for category_data in categories_j:
+                    category_name = category_data.get('name')
+                    category_description = category_data.get('description')
+
+                    category = Category(
+                        name=category_name,
+                        description=category_description,
+                        user=user
+                    )
+                    category.save()
+            except json.JSONDecodeError:
+                return {'error': 'Invalid categories data', 'status': status.HTTP_404_NOT_FOUND}
+
+        return {'status': status.HTTP_200_OK}
+
+    except Exception as e:
+        return {'error': str(e), 'status': status.HTTP_400_BAD_REQUEST}
 
 
 

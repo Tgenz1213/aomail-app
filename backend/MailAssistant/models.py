@@ -44,8 +44,8 @@ class SocialAPI(models.Model):
     """Table that contains email credentials."""
     type_api = models.CharField(max_length=50)
     email = models.CharField(max_length=320, null=True)
-    access_token = models.CharField(max_length=2500, null=True)
-    refresh_token = models.CharField(max_length=1600, null=True)
+    access_token = models.CharField(max_length=3000, null=True)
+    refresh_token = models.CharField(max_length=2000, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 

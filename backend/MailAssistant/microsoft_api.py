@@ -1,8 +1,13 @@
 """
 Handles authentication and HTTP requests for the Microsoft Graph API.
 """
+from collections import defaultdict
+import datetime
 import json
 import logging
+import time
+from django.db import IntegrityError
+import httpx
 import requests
 from urllib.parse import urlencode
 from rest_framework.response import Response
@@ -18,7 +23,7 @@ from .serializers import EmailDataSerializer
 from base64 import urlsafe_b64encode
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .models import SocialAPI
+from .models import Contact, SocialAPI
 from requests.exceptions import HTTPError
 
 
@@ -83,6 +88,14 @@ def exchange_code_for_tokens(authorization_code):
         return Response({'error': 'tokens not found'}, status=400)
 
 ######################## CREDENTIALS ########################
+def get_headers(access_token) -> dict:
+    """Returns the default access headers"""
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {access_token}'
+    }
+    return headers
+
 def get_social_api(user, email):
     """Returns the SocialAPI instance"""
     try:
@@ -95,10 +108,7 @@ def get_social_api(user, email):
 def is_token_valid(access_token):
     """Check if the access token is still valid by making a sample request"""
     sample_url = f'{GRAPH_URL}me'
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {access_token}'
-    }
+    headers = get_headers(access_token)
     response = requests.get(sample_url, headers=headers)
     return response.status_code == 200
 
@@ -141,11 +151,8 @@ def get_parsed_contacts(request) -> list:
     access_token = refresh_access_token(get_social_api(user, email))
     
     try:
-        if access_token:
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {access_token}'
-            }
+        if access_token:            
+            headers = get_headers(access_token)
 
             # Get contacts using Microsoft Graph API
             graph_endpoint = 'https://graph.microsoft.com/v1.0/me/contacts?$select=displayName,emailAddresses'
@@ -192,10 +199,7 @@ def get_info_contacts(access_token):
     graph_endpoint = 'https://graph.microsoft.com/v1.0/me/contacts'
 
     try:
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json'
-        }
+        headers = get_headers(access_token)
 
         params = {
             '$top': 1000
@@ -226,10 +230,7 @@ def get_unique_senders(access_token) -> dict:
     senders_info = {}
 
     try:
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {access_token}'
-        }
+        headers = get_headers(access_token)
 
         limit = 50
         graph_endpoint = f'https://graph.microsoft.com/v1.0/me/messages?$select=sender&$top={limit}'
@@ -261,10 +262,7 @@ def get_profile_image(request):
     access_token = refresh_access_token(get_social_api(user, email))
 
     try:
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {access_token}'
-        }
+        headers = get_headers(access_token)
 
         graph_endpoint = 'https://graph.microsoft.com/v1.0/me/photo/$value'
         response = requests.get(graph_endpoint, headers=headers)
@@ -293,10 +291,7 @@ def get_email(access_token):
 
     try:
         graph_api_endpoint = f'{GRAPH_URL}me'
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {access_token}'
-        }
+        headers = get_headers(access_token)
         response = requests.get(graph_api_endpoint, headers=headers)
 
         if response.status_code == 200:
@@ -321,10 +316,7 @@ def unread_mails(request):
 
     try:
         if access_token:
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {access_token}'
-            }
+            headers = get_headers(access_token)
             unread_count = 0
 
             # Get unread messages using Microsoft Graph API
@@ -376,10 +368,7 @@ def send_email(request):
             attachments = data.get('attachments')
 
             graph_endpoint = 'https://graph.microsoft.com/v1.0/me/sendMail'
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {access_token}'
-            }
+            headers = get_headers(access_token)
 
             recipients = {'emailAddress': {'address': to}}
             if cc:
@@ -459,10 +448,7 @@ def search_emails(access_token, search_query, max_results=2):
     graph_endpoint = 'https://graph.microsoft.com/v1.0/me/messages'
 
     try:
-        headers = {
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json'
-        }
+        headers = get_headers(access_token)
 
         # Use $filter to achieve search functionality
         filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
@@ -496,3 +482,46 @@ def search_emails(access_token, search_query, max_results=2):
     except HTTPError as e:
         logging.error(f'{Fore.RED}ERROR in Microsoft Graph API request: {str(e)}')
         return {}
+
+
+
+######################## UNDER CONSTRUCTION ########################
+def set_all_contacts(access_token, user):
+    """Stores all unique contacts of an email account in DB"""
+    start = time.time()
+
+    # Microsoft Graph API endpoint for getting contacts
+    graph_api_endpoint = "https://graph.microsoft.com/v1.0/me/contacts"
+    headers = get_headers(access_token)
+
+    try:
+        # Get all contacts without specifying a page size
+        with httpx.Client() as client:
+            response = client.get(graph_api_endpoint, headers=headers)
+            response.raise_for_status()
+            response_data = response.json()
+            connections = response_data.get('value', [])
+
+            # Combine all contacts into a dictionary to ensure uniqueness
+            all_contacts = defaultdict(set)
+
+            # Parse and add connections
+            for contact in connections:
+                name = contact.get('displayName', '')
+                email_address = contact.get('emailAddresses', [{}])[0].get('address', '')
+                all_contacts[name].add(email_address)
+
+            # Add contacts to the database
+            for name, emails in all_contacts.items():
+                for email in emails:
+                    try:
+                        Contact.objects.create(email=email, username=name, user=user)
+                    except IntegrityError:
+                        # TODO: Handle duplicates gracefully (e.g., update existing records)
+                        pass
+
+            formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+            logging.info(f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}")
+
+    except httpx.HTTPError as e:
+        logging.exception(f"Error fetching contacts: {str(e)}")

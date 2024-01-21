@@ -55,7 +55,7 @@
                   </div>
                 </li>
               </ul> -->
-              <div v-if="nbr_reply_answer == 0" class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 text-center" @click="showModal = true">
+              <div v-if="nbr_reply_answer == 0" class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-800 text-center" @click="showModal = true">
                 <div class="flex-col">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />

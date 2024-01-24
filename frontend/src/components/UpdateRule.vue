@@ -21,20 +21,20 @@
                     <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
                   </div>
                   <div class="relative mt-2">
-                    <ComboboxInput class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" @change="query = $event.target.value" :display-value="(person) => person?.name" />
+                    <ComboboxInput class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-700 sm:text-sm sm:leading-6" @change="query = $event.target.value" :display-value="(person) => person?.username" />
                     <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                       <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                     </ComboboxButton>
 
                     <ComboboxOptions v-if="filteredPeople.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                       <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person" as="template" v-slot="{ active, selected }">
-                        <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
+                        <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-800 text-white' : 'text-gray-900']">
                           <div class="flex">
                             <span :class="['truncate', selected && 'font-semibold']">
-                              {{ person.name }}
-                            </span>
-                            <span :class="['ml-2 truncate text-gray-500', active ? 'text-gray-200' : 'text-gray-500']">
                               {{ person.username }}
+                            </span>
+                            <span :class="['ml-2 truncate text-gray-800', active ? 'text-gray-200' : 'text-gray-800']">
+                              {{ person.email }}
                             </span>
                           </div>
                           <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
@@ -159,8 +159,8 @@
         required: true
       },
       emailSenders: {
-        type: Object,
-        default: () => ({}),  // Providing a default empty object
+        type: Array,
+        default: () => ([]),
       },
       rule: Object,
       categories: Array,
@@ -180,19 +180,17 @@
     },
     computed: {
       filteredPeople() {
-        const sendersArray = Object.entries(this.emailSenders).map(([email, name]) => {
-          return {
-            name: name || email,  // Use name if available, otherwise email
-            username: email
-          };
-        });
-  
+        const sendersArray = this.emailSenders.map(sender => ({
+          email: sender.email,
+          username: sender.username, 
+        }));
+
         if (this.query === '') {
           return sendersArray;
         } else {
           return sendersArray.filter(person =>
-            person.name.toLowerCase().includes(this.query.toLowerCase()) ||
-            person.username.toLowerCase().includes(this.query.toLowerCase())
+            person.username.toLowerCase().includes(this.query.toLowerCase()) ||
+            person.email.toLowerCase().includes(this.query.toLowerCase())
           );
         }
       },
@@ -217,8 +215,8 @@
             }
             console.log("NEW FORM DATA", this.formData);
             this.selectedPerson = {
-              name: newVal.name,
-              username: newVal.email,
+              username: newVal.name,
+              email: newVal.email,
             };
           }
         }
@@ -253,8 +251,8 @@
         }
   
         const senderData = {
-          name: this.selectedPerson.name,
-          email: this.selectedPerson.username,  // Assuming username is the email
+          name: this.selectedPerson.username,
+          email: this.selectedPerson.email,  // Assuming username is the email
         };
   
         try {
@@ -273,6 +271,43 @@
         } catch (error) {
           console.error(`Error in postSender: ${error}`);
           throw error; // Rethrowing the error can be useful if this function is used in a context where the error needs to be handled further up the chain.
+        }
+      },
+      async checkSenderExists() {
+        if (!this.selectedPerson) {
+          throw new Error('No sender selected');
+        }
+
+        const senderData = {
+          email: this.selectedPerson.email, // username is the email => TO FIX : rename
+        };
+
+        try {
+          const url = 'http://localhost:9000/MailAssistant/api/check_sender';
+
+          // Use fetchWithToken for the POST request
+          const response = await this.fetchWithToken(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(senderData),
+          });
+
+          //console.log("DEBUG Check sender ------>", response); To debug
+          if (response.exists) {
+            return {
+              exists: response.exists, 
+              senderId: response.sender_id
+            };
+          } else {
+            return {
+              exists: false
+            }
+          }
+        } catch (error) {
+          console.error(`Error in checkSenderExists: ${error}`);
+          throw error;
         }
       },
       async fetchWithToken(url, options = {}) {
@@ -328,8 +363,18 @@
             throw new Error("Rule ID is required for updating.");
           }
 
-          // First, POST the sender and get the ID
-          const senderId = await this.postSender();
+          // First, check if the sender already exists
+          let { exists, senderId } = await this.checkSenderExists();
+
+          if (!exists) {
+            // If the sender does not exist, POST the sender and get the ID
+            senderId = await this.postSender();
+            console.log("New SenderId", senderId);
+          } else {
+            // If the sender already exists, use the existing senderId
+            console.log("Existing SenderId", senderId);
+          }
+
           console.log("SenderId", senderId);
 
           if (this.formData.category) {  

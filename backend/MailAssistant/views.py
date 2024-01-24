@@ -32,7 +32,7 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import (
     Message, Category, SocialAPI, Email, BulletPoint, Rule,
-    Preference, Sender
+    Preference, Sender, Contact
 )
 from .serializers import (
     BulletPointSerializer, MessageSerializer, CategoryNameSerializer,
@@ -40,7 +40,7 @@ from .serializers import (
     RuleBlockUpdateSerializer, PreferencesSerializer, RuleSerializer,
     SenderSerializer, NewEmailAISerializer, EmailAIRecommendationsSerializer,
     EmailCorrectionSerializer, EmailCopyWritingSerializer,
-    EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer
+    EmailProposalAnswerSerializer, EmailGenerateAnswer, NewCategorySerializer, ContactSerializer
 )
 
 
@@ -298,7 +298,6 @@ def delete_account(request):
 
 
 
-
 ######################## AUTHENTICATION API ########################
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -429,6 +428,19 @@ def get_category_id(request, category_name):
     category = get_object_or_404(Category, name=category_name, user=user)
     return Response({'id': category.id})
 
+
+############################# CONTACT ##############################
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_contacts(request):
+    try:
+        user_contacts = Contact.objects.filter(user=request.user)
+    except Contact.DoesNotExist:
+        return Response({'error': 'No contacts found'}, status=status.HTTP_404_NOT_FOUND)
+
+    contacts_serializer = ContactSerializer(user_contacts, many=True)  # Note the 'many=True' for serializing multiple objects
+
+    return Response(contacts_serializer.data)
 
 
 ######################## PROMPT ENGINEERING ########################
@@ -869,6 +881,8 @@ def update_user_rule(request):
         print("Data:", request.data)
         print("Errors:", serializer.errors)
         return Response(serializer.errors, status=400)
+    
+
 
 
 ######################################################################
@@ -877,6 +891,7 @@ def update_user_rule(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def check_sender_for_user(request):
+
     user_email = request.data.get('email')
 
     try:
@@ -885,7 +900,7 @@ def check_sender_for_user(request):
         return Response({'exists': True, 'sender_id': sender.id}, status=status.HTTP_200_OK)
     except ObjectDoesNotExist:
         # If no such sender exists
-        return Response({'exists': False}, status=status.HTTP_404_NOT_FOUND)    
+        return Response({'exists': False}, status=status.HTTP_200_OK)    
 
 
 @api_view(['GET'])
@@ -1027,7 +1042,7 @@ def create_sender(request):
     serializer = SenderSerializer(data=request.data)
 
     if serializer.is_valid():
-        serializer.save()
+        serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

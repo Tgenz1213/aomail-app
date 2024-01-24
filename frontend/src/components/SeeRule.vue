@@ -21,20 +21,20 @@
                     <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
                   </div>
                   <div class="relative mt-2">
-                    <ComboboxInput class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" @change="query = $event.target.value" :display-value="(person) => person?.name" />
+                    <ComboboxInput class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-700 sm:text-sm sm:leading-6" @change="query = $event.target.value" :display-value="(person) => person?.username" />
                     <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                       <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                     </ComboboxButton>
 
                     <ComboboxOptions v-if="filteredPeople.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                       <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person" as="template" v-slot="{ active, selected }">
-                        <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
+                        <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-800 text-white' : 'text-gray-900']">
                           <div class="flex">
                             <span :class="['truncate', selected && 'font-semibold']">
-                              {{ person.name }}
-                            </span>
-                            <span :class="['ml-2 truncate text-gray-500', active ? 'text-gray-200' : 'text-gray-500']">
                               {{ person.username }}
+                            </span>
+                            <span :class="['ml-2 truncate text-gray-800', active ? 'text-gray-200' : 'text-gray-800']">
+                              {{ person.email }}
                             </span>
                           </div>
                           <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
@@ -153,8 +153,8 @@ export default {
       required: true
     },
     emailSenders: {
-      type: Object,
-      default: () => ({}),  // Providing a default empty object
+      type: Array,
+      default: () => ([]),  // Providing a default empty object
     },
     categories: Array,
     sender: Object
@@ -173,19 +173,17 @@ export default {
   },
   computed: {
     filteredPeople() {
-      const sendersArray = Object.entries(this.emailSenders).map(([email, name]) => {
-        return {
-          name: name || email,  // Use name if available, otherwise email
-          username: email
-        };
-      });
+      const sendersArray = this.emailSenders.map(sender => ({
+        email: sender.email,
+        username: sender.username,
+      }));
 
       if (this.query === '') {
         return sendersArray;
       } else {
         return sendersArray.filter(person =>
-          person.name.toLowerCase().includes(this.query.toLowerCase()) ||
-          person.username.toLowerCase().includes(this.query.toLowerCase())
+          person.username.toLowerCase().includes(this.query.toLowerCase()) ||
+          person.email.toLowerCase().includes(this.query.toLowerCase())
         );
       }
     },
@@ -205,13 +203,12 @@ export default {
   },
   methods: {
     setSelectedPerson() {
-      console.log("------------------------> TEST", this.sender);
+      console.log("------------------------> TEST Select", this.sender);
       if (Object.keys(this.sender).length !== 0) {
-        console.log("------------------------> TEST", this.sender);
-        // Assuming sender has properties name and email
+        console.log("------------------------> TEST Select", this.sender);
         this.selectedPerson = {
-          name: this.sender.name,
-          username: this.sender.email
+          email: this.sender.email,
+          username: this.sender.username
         };
       } else {
         this.selectedPerson = null;
@@ -223,8 +220,8 @@ export default {
       }
 
       const senderData = {
-        name: this.selectedPerson.name,
-        email: this.selectedPerson.username,  // Assuming username is the email
+        name: this.selectedPerson.username,
+        email: this.selectedPerson.email,  // Assuming username is the email
       };
 
       try {
@@ -251,7 +248,7 @@ export default {
       }
 
       const senderData = {
-        email: this.selectedPerson.username, // username is the email => TO FIX : rename
+        email: this.selectedPerson.email, // username is the email => TO FIX : rename
       };
 
       try {
@@ -267,11 +264,16 @@ export default {
         });
 
         //console.log("DEBUG Check sender ------>", response); To debug
-
-        return {
-          exists: response.exists, 
-          senderId: response.sender_id
-        }; 
+        if (response.exists) {
+          return {
+            exists: response.exists, 
+            senderId: response.sender_id
+          };
+        } else {
+          return {
+            exists: false
+          }
+        }
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
         throw error;

@@ -217,7 +217,7 @@ export default {
     async fetchEmailSenders() {
       try {
         // Define the URL
-        const url = 'http://localhost:9000/MailAssistant/api/get_unique_email_senders';
+        const url = 'http://localhost:9000/MailAssistant/user/contacts/';
 
         const data = await fetchWithToken(url, {
           method: 'GET',
@@ -270,7 +270,7 @@ export default {
       bgColor: 'bg-gradient-to-r from-sky-300 to-blue-300',
       rules: [], // This will hold the fetched rules
       categories: [],
-      emailSenders: {},
+      emailSenders: [],
       senderSelected: {},
       selectedCategory: '',
       selectedEmailSender: {},

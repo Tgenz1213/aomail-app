@@ -5,7 +5,7 @@ A serializer is an object that requires specific parameters and is used to check
 """
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Message, Category, Email, BulletPoint, Rule, Preference, Sender
+from .models import Message, Category, Email, BulletPoint, Rule, Preference, Sender, Contact
 
 
 
@@ -91,6 +91,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ['login']
 
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = ['id', 'email', 'username']
 
 
 #----------------------- RULE  SERIALIZER-----------------------#

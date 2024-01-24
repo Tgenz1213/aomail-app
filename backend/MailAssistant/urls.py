@@ -47,6 +47,7 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'),
     path('user/emails/<int:email_id>/mark-reply-later/', views.set_email_reply_later, name='email-mark-reply-later'),
     path('user/emails/<int:email_id>/block-sender/', views.set_rule_block_for_sender, name='block-sender-via-email'),
+    path('user/contacts/', views.get_user_contacts, name='get_user_contacts'),
     path('user/rules/', views.get_user_rules, name='get_user_rules'),
     path('user/rules/<int:id_rule>/', views.get_user_rule_by_id, name='get_user_rule_by_id'),
     path('user/delete-rules/<int:id_rule>/', views.delete_user_rule_by_id, name='delete_user_rule_by_id'),

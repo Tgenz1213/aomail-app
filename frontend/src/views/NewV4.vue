@@ -33,12 +33,12 @@
       <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
           <div class="flex gap-4 w-full h-full">
             <div id="firstMainColumn" class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
-              <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+              <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
                 <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
               </div>
-              <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[785px]">
+              <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
               <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
-              <div class="px-10 py-4">
+              <div class="px-10 py-6">
                   <div class="flex-grow">
                       <div id="AIContainer">
                       </div>
@@ -46,7 +46,7 @@
               </div>
               </div>
               <div class="flex-grow">
-                <div class="flex px-6 2xl:py-10 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
+                <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
                     <div class="flex flex-grow items-stretch">
                         <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
                     </div>
@@ -61,7 +61,7 @@
             </div>
             <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
                 <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
-                    <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
+                    <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
                       <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle</h1>
                     </div>
                     <form class="flex flex-grow w-full px-10">

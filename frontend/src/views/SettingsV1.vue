@@ -71,7 +71,7 @@
                                                 {'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 
                                                   'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription'}]"
                                         @click="setActiveSection('subscription')">
-                                        <adjustments-vertical-icon class="w-4 h-4" />
+                                        <credit-card-icon class="w-4 h-4" />
                                         <a :class="{'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription'}" class="text-sm font-medium">Abonnement</a>
                                       </div>
 
@@ -80,7 +80,7 @@
                                                 {'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'data', 
                                                   'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'data'}]"
                                         @click="setActiveSection('data')">
-                                        <user-icon class="w-4 h-4" />
+                                        <circle-stack-icon class="w-4 h-4" />
                                         <a :class="{'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data'}" class="text-sm font-medium">Mes données</a>
                                       </div>
                                   </nav>
@@ -116,7 +116,7 @@
                                   <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Login</label>
                                 </div>
                                 <div class="relative items-stretch mt-2">
-                                  <input v-model="userData.username" type="text" name="username" id="username" autocomplete="username" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">                                </div>
+                                  <input v-model="userData.username" type="text" name="username" id="username" autocomplete="username" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">                                </div>
                                 <div class="pt-4">
                                   <div class="grid grid-cols-2 gap-4">
                                     <div>
@@ -125,7 +125,7 @@
                                         <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nouveau mot de passe</label>
                                       </div>
                                       <div class="relative items-stretch mt-2">
-                                        <input v-model="newPassword" type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                                        <input v-model="newPassword" type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                                       </div>
                                     </div>
                                     <div>
@@ -134,13 +134,13 @@
                                         <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot de passe</label>
                                       </div>
                                       <div class="relative items-stretch mt-2">
-                                        <input v-model="confirmPassword" type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                                        <input v-model="confirmPassword" type="text" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                                 <div class="flex justify-end pt-4">
-                                  <button @click="handleSubmit" class="rounded-md bg-gray-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Modifier</button> <!-- TO CODE : Notification system that worn the user when the notification appears -->
+                                  <button @click="handleSubmit" class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Modifier</button> <!-- TO CODE : Notification system that worn the user when the notification appears -->
                                 </div>
                               </div>
                               <div class="relative">
@@ -163,6 +163,42 @@
                             </div>
                           </div>
                       </div>    
+                  </div>
+                  <div v-if="activeSection === 'subscription'" class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
+                    <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
+                      <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mon abonnement</h1>         
+                    </div>
+                    <div class="float-right mt-[-70px] mr-[10px]">
+                      <credit-card-icon class="w-6 h-6 text-gray-500" />
+                    </div>
+                    <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
+                    <div class="mx-8 2xl:mx-16">
+                      <!-- Content goes here -->
+                      <subscription></subscription>
+                    </div> 
+                  </div>
+                  <div v-if="activeSection === 'data'" class="flex flex-col h-full rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
+                    <div class="flex">
+                      <div class="flex-1">
+                        <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
+                          <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mes données</h1>         
+                        </div>
+                        <div class="float-right mt-[-70px] mr-[10px]">
+                          <circle-stack-icon class="w-6 h-6 text-gray-500" />
+                        </div>
+                      </div>
+                    </div>
+                    <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
+                    <div class="m-6 2xl:m-8 flex-grow">
+                      <div class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-800 text-center">
+                        <div class="flex flex-col">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+                          </svg>
+                          <span class="mt-2 block text-sm font-semibold text-gray-900">En cours de construction</span>
+                        </div>
+                      </div>
+                    </div> 
                   </div>
                   <div v-if="activeSection === 'preferences'" class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section"> 
                       <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
@@ -216,11 +252,14 @@ import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
+import Subscription from '../components/SettingsSubscription.vue'
 import {
   AdjustmentsVerticalIcon,
   UserIcon,
   EnvelopeIcon,
-  KeyIcon
+  KeyIcon,
+  CreditCardIcon,
+  CircleStackIcon
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -229,10 +268,13 @@ export default {
     Navbar2,
     Theme,
     Color,
+    Subscription,
     AdjustmentsVerticalIcon,
     UserIcon,
     EnvelopeIcon,
-    KeyIcon
+    KeyIcon,
+    CreditCardIcon,
+    CircleStackIcon
   },
   data() {
     return {

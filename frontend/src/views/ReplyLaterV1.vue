@@ -11,7 +11,7 @@
       </div>
       <div class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]"> <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full divide-y divide-gray-200">
-          <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+          <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
             <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Répondre plus tard</h1>
           </div>
           <div class="flex-grow overflow-y-auto" style="margin-right: 2px;">

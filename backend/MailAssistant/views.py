@@ -443,6 +443,28 @@ def get_user_contacts(request):
     return Response(contacts_serializer.data)
 
 
+def is_no_reply_email(sender_email):
+    """Returns True if the email is a no-reply address."""
+    no_reply_patterns = ["no-reply", "donotreply", "noreply", "do-not-reply"]
+
+    return any(pattern in sender_email.lower() for pattern in no_reply_patterns)
+
+
+def save_email_sender(user, sender_name, sender_email):
+    """Saves the sender if the mail is relevant"""
+    if not is_no_reply_email(sender_email):
+        existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
+
+        if not existing_contact:
+            try:
+                Contact.objects.create(email=sender_email, username=sender_name, user=user)
+            except IntegrityError:
+                # TODO: Handle duplicates gracefully (e.g., update existing records)
+                pass
+
+
+
+
 ######################## PROMPT ENGINEERING ########################
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

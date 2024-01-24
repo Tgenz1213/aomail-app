@@ -71,7 +71,7 @@
                                     <!-- Main Recipients List -->
                                     <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
                                       <div v-for="person in selectedPeople" :key="person.email" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                                        {{ person.name }}
+                                        {{ person.username }}
                                         <button @click="removePersonFromMain(person)">×</button>
                                       </div>
                                     </div>
@@ -79,7 +79,7 @@
                                     <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
                                         <div v-for="person in selectedCC" :key="person.email" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                             <span class="font-semibold mr-1">CC:</span>
-                                            {{ person.name }}
+                                            {{ person.username }}
                                             <button @click="removePersonFromCC(person)">×</button>
                                         </div>
                                     </div>
@@ -87,7 +87,7 @@
                                     <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
                                         <div v-for="person in selectedCCI" :key="person.email" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                                             <span class="font-semibold mr-1">CCI:</span>
-                                            {{ person.name }}
+                                            {{ person.username }}
                                             <button @click="removePersonFromCCI(person)">×</button>
                                         </div>
                                     </div>
@@ -117,12 +117,12 @@
                                                     <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                                                 </ComboboxButton>
 
-                                                <ComboboxOptions v-if="filteredPeople.length > 0 && filteredPeople.length <= 10" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                <ComboboxOptions v-if="filteredPeople.length > 0 && filteredPeople.length <= 10" class="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                                                   <ComboboxOption v-for="person in filteredPeople.slice(0, 10)" :key="person.email" :value="person" as="template" v-slot="{ active, selected }">
                                                     <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
                                                       <div class="flex">
                                                         <span :class="['truncate', selected && 'font-semibold']">{{ person.name }}</span>
-                                                        <span :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">{{ person.email }}</span>
+                                                        <span :class="['ml-2 truncate text-gray-500', active ? 'text-white' : 'text-gray-500']">{{ person.email }}</span>
                                                       </div>
                                                       <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
                                                         <CheckIcon class="h-5 w-5" aria-hidden="true" />
@@ -226,7 +226,7 @@
                                 </div>
                                 <div class="flex mb-4">
                                   <div class="inline-flex rounded-lg shadow-lg">
-                                      <button @click="sendEmail" class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
+                                      <button @click="sendEmail" class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
                                       <Menu as="div" class="relative -ml-px block">
                                       <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10"> <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
                                           <span class="sr-only">Open options</span>
@@ -312,17 +312,17 @@ const people = [];
 
 const requestOptions = {
 method: 'GET',
-headers: {
-  'Content-Type': 'application/json',
-  'email': localStorage.getItem('email')
-},
+  headers: {
+    'Content-Type': 'application/json',
+  },
 };
 
 // request to update the list of contacts (people array)
-fetchWithToken('http://localhost:9000/MailAssistant/api/get_parsed_contacts/', requestOptions)
-.then(response => response.json())
-.then(data => people.push(...data))
+fetchWithToken('http://localhost:9000/MailAssistant/user/contacts/', requestOptions)
+.then(response => people.push(...response))
 .catch(error => console.error("Error fetching contacts:", error));
+
+console.log("PEOPLE", people);
 
 const selectedPeople = ref([]);
 const selectedCC = ref([]);
@@ -331,14 +331,17 @@ const activeType = ref(null);  // null, 'CC', or 'CCI'
 
 const query = ref('')
 const getFilteredPeople = (query, people) => {
-return computed(() =>
-  query.value === ''
-    ? people
-    : people.filter((person) => {
-        return person.name.toLowerCase().includes(query.value.toLowerCase());
-      })
-);
+  return computed(() =>
+    query.value === ''
+      ? people
+      : people.filter((person) => {
+          // Check if either the username or the email includes the query
+          return person.username.toLowerCase().includes(query.value.toLowerCase()) ||
+                 person.email.toLowerCase().includes(query.value.toLowerCase());
+        })
+  );
 };
+
 const filteredPeople = getFilteredPeople(query, people);
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:selectedPerson']);
@@ -980,8 +983,6 @@ switch (activeType.value) {
   case 'CC':
     if (!selectedCC.value.includes(person)) {
       selectedCC.value.push(person);
-      
-      console.log("CC", person.name);
     }
     break;
   case 'CCI':
@@ -992,6 +993,7 @@ switch (activeType.value) {
   default:
     if (!selectedPeople.value.includes(person)) {
       selectedPeople.value.push(person);
+      console.log("DEBUG People -->", selectedPeople.value);
     }
 }
 

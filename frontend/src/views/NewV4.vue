@@ -561,23 +561,58 @@ const handleAIClick = async () => {
           //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
           let noUsersAdded = true;
           if (userSearchResult.value !== "Invalid input or query not about email recipients") { // To update to handle the main error
-            for (const [category, recipients] of Object.entries(userSearchResult.value)) {
-              for (const [key, value] of Object.entries(recipients)) {
-                if (key !== "" && value !== "No matching emails found.") {
-                  for (const [email, name] of Object.entries(value )) {
-                    const person = { name: name, email: email };
-                    if (category === "main_recipients") {
-                      selectedPeople.value.push(person);
-                    } else if (category === "cc_recipients") {
-                      selectedCC.value.push(person);
-                    } else if (category === "bcc_recipients") {
-                      selectedCCI.value.push(person);
-                    }
-                    noUsersAdded = false;
-                  }
-                }
+            
+            const main_recipients = userSearchResult.value.main_recipients;
+            const cc_recipients = userSearchResult.value.cc_recipients;
+            const bcc_recipients = userSearchResult.value.bcc_recipients;
+            console.log("debug", main_recipients, cc_recipients, bcc_recipients);
+
+            for (let i=0; i<main_recipients.length; i++) {
+              const user = main_recipients[i];
+              const emails = user.email;
+
+              if (emails.length == 1) {
+                const person = { username: user.username, email: emails[0] };
+                selectedPeople.value.push(person);
+                main_recipients.splice(i, 1);
+                noUsersAdded = false;
+                i--;
               }
             }
+
+            for (let i=0; i<cc_recipients.length; i++) {
+              const user = cc_recipients[i];
+              const emails = user.email;
+
+              if (emails.length == 1) {
+                const person = { username: user.username, email: emails[0] };
+                selectedCC.value.push(person);
+                delete cc_recipients[i];
+                cc_recipients.splice(i, 1);
+                noUsersAdded = false;
+                i--;
+              }
+            }
+
+            for (let i=0; i<bcc_recipients.length; i++) {
+              const user = bcc_recipients[i];
+              const emails = user.email;
+
+              if (emails.length == 1) {
+                const person = { username: user.username, email: emails[0] };
+                selectedCCI.value.push(person);
+                bcc_recipients.splice(i, 1);
+                noUsersAdded = false;
+                i--;
+              }
+            }
+
+            // This condition is used to display the diffrent mail possibilities
+            if (main_recipients.length > 0 || cc_recipients.length > 0 || bcc_recipients.length > 0) {
+              console.log("Remaining")
+              noUsersAdded = false;
+            }
+
             if (noUsersAdded) {
               const message = "Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement";
               const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />`

@@ -479,23 +479,68 @@ def find_user_view_ai(request):
 
         if not main_list:
             return Response({"error": "Invalid input or query not about email recipients"}, status=400)
+        
+        try:
+            user_contacts = Contact.objects.filter(user=request.user)
+        except Contact.DoesNotExist:
+            return Response({'error': 'No contacts found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        contacts_serializer = ContactSerializer(user_contacts, many=True)
 
-        # Function to find emails for a list of recipients
-        def find_emails_for_recipients(recipient_list):
-            social_api = get_object_or_404(SocialAPI, user=user, email=email)
-            type_api = social_api.type_api
-            
-            if type_api == 'google':
-                services = google_api.authenticate_service(user, email)
-                return {recipient: google_api.find_user_in_emails(services, recipient) for recipient in recipient_list}
-            elif type_api == 'microsoft':
-                access_token = microsoft_api.refresh_access_token(microsoft_api.get_social_api(user, email))
-                return {recipient: microsoft_api.find_user_in_emails(access_token, recipient) for recipient in recipient_list}
+        # To check for performance (should be fast)
+        def transform_list_of_dicts(list_of_dicts):
+            new_dict = {}
 
-        # Find emails for main recipients, CC, and BCC
-        main_recipients_with_emails = find_emails_for_recipients(main_list)
-        cc_recipients_with_emails = find_emails_for_recipients(cc_list)
-        bcc_recipients_with_emails = find_emails_for_recipients(bcc_list)
+            for item in list_of_dicts:
+                new_dict[item['username']] = item['email']
+
+            return new_dict
+        
+        contacts_dict = transform_list_of_dicts(contacts_serializer.data)
+
+        logging.info(f"{Fore.RED}Contacts dict: {contacts_dict}")
+
+        def find_emails(input_str, contacts_dict):
+            # Split input_str into substrings if it contains spaces
+            input_substrings = input_str.split() if ' ' in input_str else [input_str]
+
+            # Convert input substrings to lowercase for case-insensitive matching
+            input_substrings_lower = [sub_str.lower() for sub_str in input_substrings]
+
+            # List comprehension to find matching emails
+            matching_emails = [
+                email
+                for name, email in contacts_dict.items()
+                if all(sub_str in name.lower() for sub_str in input_substrings_lower)
+            ]
+
+            # Return the list of matching emails
+            return matching_emails
+
+
+        def find_emails_for_recipients(recipient_list, contacts_dict) -> dict:
+            """Find matching emails for a list of recipients."""
+            recipients_with_emails = []
+
+            # Iterate through recipient_list to find matches
+            for recipient_name in recipient_list:
+                matching_emails = find_emails(recipient_name, contacts_dict)
+
+                # Append the result as a dictionary
+                recipients_with_emails.append({'username': recipient_name, 'email': matching_emails})
+
+            # Print the result using Fore for color
+            print(f"{Fore.YELLOW}Matching emails for '{', '.join(recipient_list)}':")
+            for recipient in recipients_with_emails:
+                print(f"{Fore.GREEN}{recipient['username']}:{Fore.RESET} {recipient['email']}")
+
+            # Return the list of matching emails
+            return recipients_with_emails
+
+        # Find matching emails for each list of recipients
+        main_recipients_with_emails = find_emails_for_recipients(main_list, contacts_dict)
+        cc_recipients_with_emails = find_emails_for_recipients(cc_list, contacts_dict)
+        bcc_recipients_with_emails = find_emails_for_recipients(bcc_list, contacts_dict)
 
         logging.info(f"{Fore.GREEN}Email recipients (main): {main_recipients_with_emails}")
 

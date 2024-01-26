@@ -527,7 +527,8 @@ def find_user_view_ai(request):
                 matching_emails = find_emails(recipient_name, contacts_dict)
 
                 # Append the result as a dictionary
-                recipients_with_emails.append({'username': recipient_name, 'email': matching_emails})
+                if len(matching_emails) > 0:
+                    recipients_with_emails.append({'username': recipient_name, 'email': matching_emails})
 
             # Print the result using Fore for color
             print(f"{Fore.YELLOW}Matching emails for '{', '.join(recipient_list)}':")

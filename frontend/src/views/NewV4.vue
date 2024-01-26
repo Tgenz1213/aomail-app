@@ -34,7 +34,12 @@
           <div class="flex gap-4 w-full h-full">
             <div id="firstMainColumn" class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
               <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
+                <div class="flex gap-x-2 items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                  </svg>
+                  <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
+                </div>
               </div>
               <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
               <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
@@ -62,7 +67,12 @@
             <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
                 <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
                     <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
-                      <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle</h1>
+                      <div class="flex gap-x-2 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+                        </svg>
+                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle</h1>
+                      </div>
                     </div>
                     <form class="flex flex-grow w-full px-10">
                         <div class="flex flex-col space-y-6 h-full w-full">
@@ -487,7 +497,6 @@ if (event.target.id === 'dynamicTextarea' && event.key === 'Enter' && !event.shi
 
 function displayMessage(message, ai_icon) {
   // Function to display a message from the AI Assistant
-
   const messageHTML = `
     <div class="flex pb-12">
       <div class="mr-4 flex">
@@ -560,7 +569,8 @@ const handleAIClick = async () => {
           hideLoading();
           //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
           let noUsersAdded = true;
-          if (userSearchResult.value !== "Invalid input or query not about email recipients") { // To update to handle the main error
+          let WaitforUserChoice = false;
+          if (result !== "Invalid input or query not about email recipients") { // To update to handle the main error
             
             const main_recipients = userSearchResult.value.main_recipients;
             const cc_recipients = userSearchResult.value.cc_recipients;
@@ -609,15 +619,92 @@ const handleAIClick = async () => {
 
             // This condition is used to display the diffrent mail possibilities
             if (main_recipients.length > 0 || cc_recipients.length > 0 || bcc_recipients.length > 0) {
-              console.log("Remaining")
-              noUsersAdded = false;
+
+              /* The animation does not work => TO FIX
+              const message = "J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent";
+              const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />`
+              await displayMessage(message, ai_icon);*/
+
+              const messageHTML = `
+                    <div class="flex pb-2">
+                        <div class="mr-4 flex">
+                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                              </svg>
+                            </span>   
+                        </div>
+                        <div>
+                            <p>J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent</p>
+                        </div>
+                    </div>
+                `;
+              AIContainer.value.innerHTML += messageHTML;
+
+              if (main_recipients.length > 0) {
+                WaitforUserChoice = true;
+                const emailList = [];
+              
+                for (const user of main_recipients) {
+                  for (const email of user.email) {
+                    if (user.email !== '') {
+                      // Creating an object for each email and pushing it to the emailList array
+                      const emailMapping = {};
+                      emailMapping[user.username] = email;
+                      emailList.push(emailMapping);
+                      noUsersAdded = false;
+                    }
+                  }
+                }
+                console.log("emailList", emailList);
+                askChoiceRecipier(emailList, "main");
+              } 
+              if (cc_recipients.length > 0) {
+                WaitforUserChoice = true;
+                const emailList = [];
+              
+                for (const user of cc_recipients) {
+                  for (const email of user.email) {
+                    if (user.email !== '') {
+                      // Creating an object for each email and pushing it to the emailList array
+                      const emailMapping = {};
+                      emailMapping[user.username] = email;
+                      emailList.push(emailMapping);
+                      noUsersAdded = false;
+                    }
+                  }
+                }
+                askChoiceRecipier(emailList, "cc");
+              }
+              if (bcc_recipients.length > 0) {
+                WaitforUserChoice = true;
+                const emailList = [];
+              
+                for (const user of bcc_recipients) {
+                  for (const email of user.email) {
+                    if (user.email !== '') {
+                      // Creating an object for each email and pushing it to the emailList array
+                      const emailMapping = {};
+                      emailMapping[user.username] = email;
+                      emailList.push(emailMapping);
+                      noUsersAdded = false;
+                    }
+                  }
+                }
+                askChoiceRecipier(emailList, "bcc");
+              }
+
+              // To display the button to go to the next step 
+              NextStepRecipier();
+              
             }
 
             if (noUsersAdded) {
+              console.log("DEBUG");
               const message = "Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement";
-              const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />`
+              const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
               displayMessage(message, ai_icon);
-            } else {
+            } else if (!WaitforUserChoice) {
               stepcontainer = 1;
               askContent();
             }
@@ -1242,6 +1329,8 @@ function askContent() {
   counter_display += 1;
   animateText(message, animatedParagraph);
 
+  scrollToBottom();
+
   const lengthSelect = document.getElementById('lengthSelect');
   const formalitySelect = document.getElementById('formalitySelect');
 
@@ -1326,6 +1415,102 @@ function askContentAdvice() {
   counter_display += 1;
   animateText(message, animatedParagraph);
 
+}
+
+// To display the button for one choice of the recipier for the user
+function askChoiceRecipier(list, type) {
+  let buttonsHTML = '';
+
+  const firstUsername = Object.keys(list[0])[0];
+
+  // Display the username before the list of emails
+  const usernameHTML = `<div>Pour l'utilisateur : <strong>${firstUsername}</strong></div>`;
+
+  list.forEach((item, index) => {
+    // Extract the first (and presumably only) key in the dictionary, which is the username
+    const username = Object.keys(item)[0];
+    const email = item[username]; // Accessing the email using the username key
+
+    // Generating a unique ID for each button based on the index to ensure it's unique
+    const buttonId = `button-${index}`;
+
+    buttonsHTML += `
+      <div class="mr-4">
+        <button type="button" id="${buttonId}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+          ${email} <!-- Displaying the email on the button -->
+        </button>
+      </div>
+    `;
+  });
+
+  const messageHTML = `
+    <div class="flex pb-1 pl-[72px]">
+      <div class="flex flex-col">
+        ${usernameHTML}
+        <div class="flex mt-4">
+          ${buttonsHTML}
+        </div>
+      </div>
+    </div>
+  `;
+
+  AIContainer.value.innerHTML += messageHTML;
+
+  // Add event listeners to the buttons
+  list.forEach((item, index) => {
+    const buttonId = `button-${index}`;
+    setTimeout(() => {
+      const button = document.getElementById(buttonId);
+      if (button) {
+        button.addEventListener('click', () => {
+          const username = Object.keys(item)[0]; // Re-extracting the username for the click event
+          const email = item[username]; // Accessing the email using the username key
+          console.log(`Username: ${username}, Email: ${email}`);
+          if (type === 'main') {
+            const person = { username: username, email: email };
+            selectedPeople.value.push(person);
+          } else if (type === 'cc') {
+            const person = { username: username, email: email };
+            selectedCC.value.push(person);
+          } else {
+            const person = { username: username, email: email };
+            selectedCCI.value.push(person);
+          }
+        });
+      }
+    }, 0);
+  });
+}
+
+function NextStepRecipier() {
+
+  const messageHTML = `
+    <div class="flex pb-12 pl-[72px]">
+      <div class="flex flex-col">
+        <div class="flex mt-4">
+          <div class="mr-4">
+            <button type="button" id="nextButton" class="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white hover:bg-black border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+              Passez à la suite
+            </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  AIContainer.value.innerHTML += messageHTML;
+  
+  setTimeout(() => {
+    const nextButton = document.getElementById('nextButton');
+    if (nextButton) {
+      nextButton.addEventListener('click', () => {
+        stepcontainer = 1;
+        askContent();
+      });
+    }
+  }, 0);
 }
 
 async function checkSpelling() {

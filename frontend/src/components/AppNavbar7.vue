@@ -40,9 +40,12 @@
     </TransitionRoot>
 
     <div class="flex flex-col items-center justify-center h-full">
-        <div class="flex h-16 shrink-0 items-center justify-center">
-          <img class="h-8 w-auto" :src="logo" alt="Your Company" />
-        </div>
+        <!-- LOGO Mail Assistant -->
+        <a href="http://localhost:8080" class="button">
+            <button type="button" class="h-8 w-auto">
+              <img class="h-8 w-auto" :src="logo" alt="LOGO Mail Assistant" />
+            </button>
+        </a>
         <nav class="h-5/6 flex items-center justify-center">
             <ul role="list" class="flex flex-col space-y-1">
                 <li v-for="item in navigation" :key="item.name">

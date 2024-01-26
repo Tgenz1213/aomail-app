@@ -20,7 +20,7 @@
           </div>
       </div>
   </div>-->
-  <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">    
+  <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
       <div class="col-span-1 2xl:col-span-1">
         <div class="2xl:hidden h-full">

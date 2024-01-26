@@ -265,6 +265,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { ChevronDownIcon } from '@heroicons/vue/20/solid';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
+import { fetchWithToken } from '../router/index.js';
 import Quill from 'quill';
 
 import {
@@ -1407,52 +1408,7 @@ const scrollToBottom = async () => {
 // AI instruction textarea input
 const textareaValue = ref('');
 const textareaValueSave = ref('');
-
-async function fetchWithToken(url, options = {}) {
-  const accessToken = localStorage.getItem('access_token');
-  if (!options.headers) {
-      options.headers = {};
-  }
-  if (accessToken) {
-      options.headers['Authorization'] = `Bearer ${accessToken}`;
-  }
-
-  try {
-    let response = await fetch(url, options);
-
-    if (response.status === 401) {
-        const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ access_token: accessToken })
-        });
-
-        if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            const newAccessToken = refreshData.access_token;
-            localStorage.setItem('access_token', newAccessToken);
-            options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-            response = await fetch(url, options);
-        } else {
-            throw new Error('Unauthorized: Please log in again');
-        }
-    }
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    return response.json();
-
-  } catch (error) {
-      console.error('Error in fetchWithToken:', error.message);
-      throw error;
-  }
-}
-
 const bgColor = ref(''); // Initialize a reactive variable
-
 const route = useRoute();
 
 onMounted(() => {
@@ -1479,13 +1435,13 @@ onMounted(() => {
     window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
     var toolbarOptions = [
-    [{ 'font': [] }],
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-    ['bold', 'italic', 'underline'],
-    [{ 'color': [] }, { 'background': [] }],
-    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'align': [] }],
-    ['blockquote', 'code-block']                                      
+      [{ 'font': [] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['blockquote', 'code-block']                                      
     ];
 
     // Initialize Quill editor

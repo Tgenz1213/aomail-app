@@ -956,30 +956,19 @@ export default {
 
             window.open(urlToOpen, '_blank');
         },
-        openAnswer(email) {
+        async openAnswer(email) {
             console.log("EMAIL", email.id_provider);
 
             // Define the API endpoint URL
             const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
 
-            // Make the GET request
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    'Content-Type': 'application/json',
-                    // Include other headers as required, like authorization tokens
-                }
-            })
-            .then(response => {
-                // Check if the request was successful
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Network response was not ok.');
-                }
-            })
-            .then(data => {
+            try {
+                const data = await fetchWithToken(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
                 console.log("Received data:", data);
                 this.$router.push({ 
                     name: 'answer', 
@@ -993,10 +982,9 @@ export default {
                         details: JSON.stringify(email.details)
                     }
                 });
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error("There was a problem with the fetch operation:", error);
-            });
+            }
         },
         updateModalStatus(status) {
             this.showModal = status;

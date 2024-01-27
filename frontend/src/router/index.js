@@ -25,7 +25,6 @@ async function fetchWithToken(url, options = {}) {
     let response = await fetch(url, options);
 
     if (response.status === 401) {
-      console.log("REFRESHING JWT ACCESS TOKEN");
       const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
         method: 'POST',
         headers: {

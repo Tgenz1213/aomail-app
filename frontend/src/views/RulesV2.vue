@@ -255,7 +255,7 @@ export default {
         console.error('Error in fetching rule by ID:', error);
       });
     } else if (editRule === 'false' && name_sender && email_sender) {
-      this.senderSelected = { name: name_sender, email: email_sender };
+      this.senderSelected = { username: name_sender, email: email_sender };
       console.log("DEBUG New Rule Auto -------------------->", this.senderSelected);
       this.updateModalStatus(true);
       // Remove query parameters from URL

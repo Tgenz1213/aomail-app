@@ -966,7 +966,8 @@ export default {
                 const data = await fetchWithToken(url, {
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'email': localStorage.getItem('email')
                     }
                 });
                 console.log("Received data:", data);

@@ -62,7 +62,7 @@
     <div class="flex flex-col items-center justify-center h-full">
       <!-- LOGO Mail Assistant -->
       <div class="flex h-16 shrink-0 items-center justify-center">
-        <a href="http://localhost:8080" class="button">
+        <a href="/" class="button">
             <button type="button" class="h-8 w-auto">
               <img class="h-8 w-auto" :src="logo" alt="LOGO Mail Assistant" />
             </button>

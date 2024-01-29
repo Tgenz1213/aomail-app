@@ -1220,7 +1220,7 @@ def processed_email_to_bdd(request, services):
         # Get user categories
         category_list = get_db_categories(request.user)
 
-        print("DEBUG -------------> category", category)
+        #print("DEBUG -------------> category", category_list)
 
         # Process the email data with AI/NLP
         topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject, decoded_data, category_list)

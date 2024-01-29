@@ -907,7 +907,8 @@ async function handleButtonClick(keyword) {
   }
 }
 
-async function fetchResponseKeywords() {
+// TO FIX : delete the INPUT subject or use both input
+async function fetchResponseKeywords(subject) {
   try {
     loading();
     const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/generate_email_response_keywords/', {
@@ -915,11 +916,15 @@ async function fetchResponseKeywords() {
       headers: {
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ email_content: emailContent.value })
+      body: JSON.stringify({ email_subject: subject, email_content: emailContent.value })
     });
     hideLoading();
     console.log("DEBUG ANSWER PROPOSAL", data);
+    // Parsing the data to get a list  => TO UPGRADE
+    console.log("DEBUG 2", data.response_keywords);
     responseKeywords.value = data.response_keywords;
+    console.log(typeof data.response_keywords);
+    console.log(Array.isArray(data.response_keywords)); 
     askContentAdvice();
     
   } catch (error) {
@@ -1500,7 +1505,7 @@ onMounted(() => {
     AIContainer.value.innerHTML += messageHTML;
 
     emailContent.value = details.map(item => item.text).join(' '); // USELESS => To Optimize
-    fetchResponseKeywords();
+    fetchResponseKeywords(subject);
 
     quill.value.on('text-change', function() {
       const quillContent = quill.value.root.innerHTML;

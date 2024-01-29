@@ -86,7 +86,7 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
 
     print(f'{Fore.YELLOW}{keywords}')
 
-    return keywords
+    return list(keywords)
 
 
 def shorten_keywords(keywords) -> dict:

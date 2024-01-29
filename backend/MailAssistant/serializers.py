@@ -67,6 +67,7 @@ class EmailCopyWritingSerializer(serializers.Serializer):
 
 class EmailProposalAnswerSerializer(serializers.Serializer):
     """Serializer for handling answer mail proposal data."""
+    email_subject = serializers.CharField()
     email_content = serializers.CharField()
 
 

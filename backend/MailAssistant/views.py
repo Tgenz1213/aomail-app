@@ -658,8 +658,12 @@ def generate_email_response_keywords(request):
     serializer = EmailProposalAnswerSerializer(data=request.data)
 
     if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
         email_content = serializer.validated_data['email_content']
-        response_keywords = gpt_4.generate_response_keywords(email_content)
+        response_keywords = gpt_3_5_turbo.generate_response_keywords(email_subject, email_content, 'French') # To UPDATE : language parameter
+
+        print("DEBUG --------->", response_keywords)
+        print("DEBUG --------->", type(response_keywords))
 
         return Response({
             'response_keywords': response_keywords,

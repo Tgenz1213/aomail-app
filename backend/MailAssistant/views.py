@@ -1209,7 +1209,7 @@ def separate_name_email(s):
         return None, None
 
 def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, email_id = api_list[api_var].get_mail(services, 0, None) #microsoft non fonctionnel
+    subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(services, 0, None) #microsoft non fonctionnel
 
     if not Email.objects.filter(provider_id=email_id).exists():
 
@@ -1220,19 +1220,26 @@ def processed_email_to_bdd(request, services):
         # Get user categories
         category_list = get_db_categories(request.user)
 
+        print("DEBUG -------------> category", category)
+
         # Process the email data with AI/NLP
         topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject, decoded_data, category_list)
 
-        sender_name, sender_email = separate_name_email(from_name)
+        #print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+        #sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+        sender_name, sender_email = from_name[0], from_name[1]
 
         # Fetch or create the sender
         sender, created = Sender.objects.get_or_create(name=sender_name, email=sender_email)  # assuming from_name contains the sender's name
 
+        print("DEBUG ----------------> topic", topic)
         # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
         category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 
         provider_list = ['Gmail','Outlook']
         provider = provider_list[api_var]
+
+        #print("DEBUG --------------> provider", len(provider), provider, "DEBUG ------------> subject", len(subject), subject, "Prio :", len(importance[0]), importance[0])
 
         try:
             # Create a new email record
@@ -1358,7 +1365,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
-    chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
+    chat = ChatOpenAI(temperature=0,openai_api_key='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',openai_organization='org-YSlFvq9rM1qPzM15jewopUUt')
     response = chat(chat_prompt.format_prompt(user=user_description,category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data,relevance=relevance_list).to_messages())
 
     clear_response = response.content.strip()

@@ -384,15 +384,15 @@
                                             </span>
                                             <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                         </div>
-                                        <div class="ml-6 ">
-                                            <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-gray-500">
-                                                <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
-                                                    <li class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100">
+                                        <div class="ml-6 w-full">
+                                            <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-gray-500 w-full">
+                                                <ul role="list" class="divide-y divide-gray-200 dark:divide-white w-full">
+                                                    <li class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                         <div class="flex-auto">
-                                                            Vous avez reçu <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{ emails[selectedTopic]['Useless'].length }}</span> <span v-if="emails[selectedTopic]['Useless'].length === 1">mail inutile</span><span v-else>mails inutiles</span>. Cliquez pour voir.
+                                                            Vous avez reçu <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{ emails[selectedTopic]['Useless'].length }}</span> <span v-if="emails[selectedTopic]['Useless'].length === 1">mail inutile</span><span v-else>mails inutiles</span>. Cliquez pour voir.
                                                         </div>
                                                         <ul v-if="showEmailDescriptions" class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-200">
-                                                            <li class="py-5 grid grid-cols-10" v-for="item in emails[selectedTopic]['Useless']" :key="item.id" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
+                                                            <li class="py-5 grid grid-cols-10 w-full" v-for="item in emails[selectedTopic]['Useless']" :key="item.id" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                                                                <div class="col-span-8 flex-auto">
                                                                     <div class="flex items-baseline justify-between gap-x-4">
                                                                         <p class="text-sm font-semibold leading-6 text-gray-800 dark:text-white">{{ item.name }}</p>

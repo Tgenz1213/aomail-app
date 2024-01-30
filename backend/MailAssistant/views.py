@@ -678,9 +678,10 @@ def generate_email_answer(request):
     serializer = EmailGenerateAnswer(data=request.data)
 
     if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
         email_content = serializer.validated_data['email_content']
         response_type = serializer.validated_data['response_type']
-        email_answer = gpt_4.generate_email_response(email_content, response_type)
+        email_answer = gpt_4.generate_email_response(email_subject, email_content, response_type, 'French')
 
         return Response({
             'email_answer': email_answer,

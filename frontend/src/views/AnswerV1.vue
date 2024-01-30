@@ -532,6 +532,7 @@ const handleAIClick = () => {
                   'Content-Type': 'application/json'
               },
               body: JSON.stringify({
+                  email_subject: inputValue.value,
                   email_content: emailContent.value, 
                   response_type: textareaValueSave.value
               }),
@@ -845,6 +846,7 @@ async function handleButtonClick(keyword) {
           'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        email_subject: inputValue.value,
         email_content: emailContent.value, 
         response_type: keyword,
       }),

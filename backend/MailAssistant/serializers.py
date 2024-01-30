@@ -73,6 +73,7 @@ class EmailProposalAnswerSerializer(serializers.Serializer):
 
 class EmailGenerateAnswer(serializers.Serializer):
     """Serializer for handling generated email answer data."""
+    email_subject = serializers.CharField()
     email_content = serializers.CharField()
     response_type = serializers.CharField()
 

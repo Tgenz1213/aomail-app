@@ -6,7 +6,7 @@ import logging
 import re
 import openai
 from colorama import Fore, init
-
+import ast
 
 
 ######################## GPT - 3.5 turbo API SETTINGS ########################
@@ -78,7 +78,7 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
     USE as few verbs in {language} as possible while keeping a relevant meaning.
     KEYWORDS must look like buttons the user WILL click to reply to the email.
 
-    Answer must be a list (Python) format: []
+    Answer must be a list (Python) format: ["....", "....."]
     """
     formatted_prompt = template.format(input_subject=input_subject, input_email=input_email, language=language)
     response = get_prompt_response(formatted_prompt)
@@ -86,7 +86,9 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
 
     print(f'{Fore.YELLOW}{keywords}')
 
-    return list(keywords)
+    keywords_list = ast.literal_eval(keywords)
+
+    return keywords_list
 
 
 def shorten_keywords(keywords) -> dict:

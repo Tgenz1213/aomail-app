@@ -989,13 +989,11 @@ export default {
 
                 console.log("RESPONSE ------------> ", response);
 
-                const responseData = await response.json();
-
                 if (response.message) {
-                    console.log("Email deleted successfully", responseData);
+                    console.log("Email deleted successfully", response);
                     this.deleteEmailFromState(emailId);
                 } else {
-                    console.error('Failed to delete email', responseData);
+                    console.error('Failed to delete email', response);
                 }
             } catch (error) {
                 console.error('Error in deleteEmail:', error.message);

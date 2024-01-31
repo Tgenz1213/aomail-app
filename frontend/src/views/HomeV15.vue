@@ -401,7 +401,7 @@
                                             <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                         </div>
                                         <div class="ml-6 w-full">
-                                            <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-gray-500 w-full">
+                                            <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-gray-500 w-full" style="overflow: visible;">
                                                 <ul role="list" class="divide-y divide-gray-200 dark:divide-white w-full">
                                                     <li class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                         <div class="flex gap-x-2">
@@ -431,7 +431,7 @@
                                                                                     <div class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
                                                                                         Ouvrir
                                                                                     </div>
-                                                                                    <button @click="openInNewWindow(item.id_provider)" type="button" class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                                                                    <button @click.stop="openInNewWindow(item.id_provider)" type="button" class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                         <eye-icon class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                                                                     </button>
                                                                                 </div>
@@ -442,7 +442,7 @@
                                                                                         Bloquer
                                                                                     </div>
                                                                                     <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                                                                        <HandRaisedIcon @click="setRuleBlockForSender(item.id)" class="w-5 h-5 text-gray-500 group-hover:text-white" />
+                                                                                        <HandRaisedIcon @click.stop="setRuleBlockForSender(item.id)" class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                                                                     </button>
                                                                                 </div>
                                                                             </div>
@@ -451,7 +451,7 @@
                                                                                     <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
                                                                                         Répondre
                                                                                     </div>
-                                                                                    <button @click="openAnswer(item)" type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                                                                    <button @click.stop="openAnswer(item)" type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                         <arrow-uturn-left-icon class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                                                                     </button>
                                                                                 </div>
@@ -463,7 +463,7 @@
                                                                                     </div>
                                                                                     <Menu as="div" class="relative inline-block text-left">
                                                                                         <div>
-                                                                                            <MenuButton @click="toggleTooltip" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                                                                            <MenuButton @click.stop="toggleTooltip" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                                 <ellipsis-horizontal-icon class="w-5 h-5 group-hover:text-white text-gray-500 group-active:text-gray-500 group-focus:text-red focus:text-gray-500" />
                                                                                             </MenuButton>
                                                                                         </div>
@@ -541,7 +541,7 @@
                                             <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                         </div>
                                         <div class="ml-6 w-full"> <!-- To check : strange w-full not necessary in grey but it must be here to have the correct space for readEmailsInSelectedTopic -->
-                                            <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-emerald-500 w-full">
+                                            <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-emerald-500 w-full" style="overflow: visible;">
                                                 <ul role="list" class="divide-y divide-gray-200 dark:divide-white w-full">
                                                     <li class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                         <div class="flex group gap-x-2">
@@ -573,7 +573,7 @@
                                                                                     <div class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
                                                                                         Ouvrir
                                                                                     </div>
-                                                                                    <button @click="openInNewWindow(item.id_provider)" type="button" class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-emerald-400 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                    <button @click.stop="openInNewWindow(item.id_provider)" type="button" class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-emerald-400 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                         <eye-icon class="w-5 h-5 text-emerald-500 group-hover:text-white" />
                                                                                     </button>
                                                                                 </div>
@@ -584,7 +584,7 @@
                                                                                         Supprimer
                                                                                     </div>
                                                                                     <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
-                                                                                        <TrashIcon @click="deleteEmail(item.id)" class="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                                                                        <TrashIcon @click.stop="deleteEmail(item.id)" class="w-5 h-5 text-emerald-500 group-hover:text-white" />
                                                                                     </button>
                                                                                 </div>
                                                                             </div>
@@ -593,7 +593,7 @@
                                                                                     <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
                                                                                         Répondre
                                                                                     </div>
-                                                                                    <button @click="openAnswer(item)" type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                    <button @click.stop="openAnswer(item)" type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                         <arrow-uturn-left-icon class="w-5 h-5 text-emerald-500 group-hover:text-white" />
                                                                                     </button>
                                                                                 </div>
@@ -605,7 +605,7 @@
                                                                                     </div>
                                                                                     <Menu as="div" class="relative inline-block text-left">
                                                                                         <div>
-                                                                                            <MenuButton @click="toggleTooltip" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-emerald-500 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                            <MenuButton @click.stop="toggleTooltip" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-emerald-500 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                                 <ellipsis-horizontal-icon class="w-5 h-5 group-hover:text-white text-emerald-500 group-active:text-emerald-500 group-focus:text-red focus:text-emerald-500" />
                                                                                             </MenuButton>
                                                                                         </div>

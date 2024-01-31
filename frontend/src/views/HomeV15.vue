@@ -112,7 +112,7 @@
                     <div v-else class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar" ref="scrollableDiv">
                         <ul role="list" class="flex flex-col w-full h-full rounded-xl">
                          <div class="pb-4"><!-- To check if there is one class allow the whitespace at the bottom -->
-                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && emails[selectedTopic]['Important'].length > 0" class="py-10 px-8 mx-4 my-4 rounded-xl bg-red-100 bg-opacity-50 hover:border border-red-700 border-opacity-20"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
+                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && emails[selectedTopic]['Important'].length > 0" class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:border border-red-700 border-opacity-20"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                 <div class="float-right mt-[-25px] mr-[-10px]">
                                     <exclamation-triangle-icon class="w-6 h-6 text-red-500" />
                                 </div>
@@ -131,9 +131,17 @@
                                             <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
                                                 <li v-for="item in emails[selectedTopic]['Important'].filter(email => !email.read)" :key="item.id" class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem"><!-- SAVE DO NOT DELETE : px-6 md:py-2 2xl:py-4 -->
                                                     <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
-                                                        <div class="flex-auto">
-                                                            <div class="flex items-baseline justify-between gap-x-4">
+                                                        <div class="flex-auto group">
+                                                            <div class="flex gap-x-4">
                                                                 <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item.name }}</p>
+                                                                <div class="hidden group-hover:block px-2 py-0.5 bg-red-300 text-white text-sm shadow rounded-xl">
+                                                                    <div class="flex gap-x-1 items-center">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+                                                                        </svg>
+                                                                        <p>Cliquez pour voir le résumé</p>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-red-50">{{ item.description }}</p>
                                                         </div>
@@ -241,7 +249,7 @@
                                 </div>
                             </li>
                             <!-- More items... -->
-                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && emails[selectedTopic]['Information'].length > 0" class="py-10 px-8 mx-4 rounded-xl bg-blue-100 bg-opacity-50 hover:border border-blue-700 border-opacity-20"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
+                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && emails[selectedTopic]['Information'].length > 0" class="py-10 px-8 mx-4 mt-4 rounded-xl bg-blue-100 bg-opacity-50 hover:border border-blue-700 border-opacity-20"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
                                 <div class="float-right mt-[-25px] mr-[-10px]">
                                     <information-circle-icon class="w-6 h-6 text-blue-500" />
                                 </div>
@@ -260,13 +268,21 @@
                                             <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
                                                 <li v-for="item in emails[selectedTopic]['Information'].filter(email => !email.read)" :key="item.id" class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                                                     <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
-                                                        <div class="flex-auto">
-                                                            <div class="flex items-baseline justify-between gap-x-4">
+                                                        <div class="flex-auto group">
+                                                            <div class="flex gap-x-4">
                                                                 <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{ item.name }}</p>
+                                                                <div class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
+                                                                    <div class="flex gap-x-1 items-center">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+                                                                        </svg>
+                                                                        <p>Cliquez pour voir le résumé</p>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{ item.description }}</p>
                                                         </div>
-                                                        <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
+                                                        <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id"> <!-- Potential design update : bg-white shadow rounded-xl -->
                                                             <li v-for="detail in item.details" :key="detail.id" class="pl-8" :ref="'hiddenText' + item.id" :data-text="detail.text">
                                                             </li>
                                                         </ul>

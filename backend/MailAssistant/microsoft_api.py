@@ -27,6 +27,7 @@ from .models import Contact, SocialAPI
 from requests.exceptions import HTTPError
 
 
+
 ######################## LOGGING CONFIGURATION ########################
 init(autoreset=True)
 

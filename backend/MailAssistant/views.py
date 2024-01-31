@@ -919,6 +919,21 @@ def create_sender(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_email(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, user=user, id=email_id)
+
+    # Delete the email
+    email.delete()
+
+    response_data = {"message": "Email deleted successfully"}
+    return Response(response_data, status=status.HTTP_200_OK)
 
 
 #----------------------- CREDENTIALS AVAILABILITY -----------------------#
@@ -1062,7 +1077,7 @@ relevance_list = {
 
 
 def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, email_id = google_api.get_mail(services, 0, None) #microsoft non fonctionnel
+    subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(services, 0, None) #microsoft non fonctionnel
 
     if not Email.objects.filter(provider_id=email_id).exists():
 

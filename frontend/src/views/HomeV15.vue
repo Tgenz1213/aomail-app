@@ -978,6 +978,29 @@ export default {
                 console.error('Error in setRuleBlockForSender:', error.message);
             }
         },
+        async deleteEmail(emailId) {
+            try {
+                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/delete/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                console.log("RESPONSE ------------> ", response);
+
+                const responseData = await response.json();
+
+                if (response.message) {
+                    console.log("Email deleted successfully", responseData);
+                    this.deleteEmailFromState(emailId);
+                } else {
+                    console.error('Failed to delete email', responseData);
+                }
+            } catch (error) {
+                console.error('Error in deleteEmail:', error.message);
+            }
+        },
         /*openModal(email) {
             this.selectedEmail = email; // Set the email data for the clicked email
             this.showModal = true; // Open the modal

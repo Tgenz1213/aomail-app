@@ -57,7 +57,7 @@ DJ_REST_AUTH_JWT_SECRET_KEY = CONFIG['secret_key']
 
 ######################## GENERAL CONFIGURATION ########################
 ROOT_URLCONF = 'MailAssistant_project.urls'
-WSGI_APPLICATION = 'MailAssistant_project.wsgi.application'
+ASGI_APPLICATION = 'MailAssistant_project.asgi.application'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LANGUAGE_CODE = 'en-us'

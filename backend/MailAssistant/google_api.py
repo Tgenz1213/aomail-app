@@ -20,8 +20,6 @@ from google.auth import exceptions as auth_exceptions
 from google.auth.transport.requests import Request
 from google.oauth2 import credentials
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated

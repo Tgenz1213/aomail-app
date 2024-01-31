@@ -558,9 +558,10 @@ const handleAIClick = async () => {
 
   setTimeout(async () => {
     if (stepcontainer == 0) {
-      if (textareaValueSave.value == '') {
-        display("Vous n'avez saisi aucun destinataire(s), veuillez ressayer", counter_display);
-        counter_display += 1;
+      if (textareaValueSave.value == '') {        
+        const message = "Vous n'avez saisi aucun destinataire(s), veuillez réessayer"
+        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+        displayMessage(message, ai_icon);
       } else {
         try {
           isLoading.value = true;
@@ -701,7 +702,7 @@ const handleAIClick = async () => {
 
             if (noUsersAdded) {
               console.log("DEBUG");
-              const message = "Je n'ai pas trouvé de destinataires, veuillez ressayer ou saisir manuellement";
+              const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
               const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
               displayMessage(message, ai_icon);
             } else if (!WaitforUserChoice) {
@@ -718,8 +719,9 @@ const handleAIClick = async () => {
     } else if (stepcontainer == 1) {
       // if the user enter an empty value
       if (textareaValueSave.value == '') {
-        display("Vous n'avez saisi aucun brouillon, veuillez ressayer", counter_display);
-        counter_display += 1;
+        const message = "Vous n'avez saisi aucun brouillon, veuillez réessayer";
+        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+        displayMessage(message, ai_icon);
       } else {
 
         console.log('Length:', lengthValue.value, 'Formality:', formalityValue.value);
@@ -780,14 +782,14 @@ const handleAIClick = async () => {
                 displayMessage(message, ai_icon);
             } else {
               hideLoading();
-              const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"              
+              const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"              
               const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
               displayMessage(message, ai_icon);
               console.log('Subject or Email is missing in the response');
             }
         } catch (error) {
           hideLoading();
-          const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+          const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
           const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
           displayMessage(message, ai_icon);
           console.error('There was a problem with the fetch operation: ', error);
@@ -796,8 +798,9 @@ const handleAIClick = async () => {
     } else if (stepcontainer == 2) {
       // if the user enter an empty value
       if (textareaValueSave.value == '') {
-        display("Vous n'avez saisi aucunes suggestions, veuillez ressayer", counter_display);
-        counter_display += 1;
+        const message = "Vous n'avez saisi aucune suggestion, veuillez réessayer.";
+        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+        displayMessage(message, ai_icon);
       } else {
         console.log("MAIL CONTENT:", mail.value);
         console.log("EMAIL SUBJECT:", inputValue.value);
@@ -855,7 +858,7 @@ const handleAIClick = async () => {
                 displayMessage(message, ai_icon);
               } else {
                 hideLoading();
-                const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+                const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                 displayMessage(message, ai_icon);
                 console.log('Subject or Email is missing in the response');
@@ -863,7 +866,7 @@ const handleAIClick = async () => {
         } catch (error) {
             console.error('Error:', error);
             hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
             displayMessage(message, ai_icon);
             console.error('There was a problem with the fetch operation: ', error);
@@ -1563,7 +1566,7 @@ try {
         // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
         const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-        displayMessage(message, ai_icon);                
+        displayMessage(message, ai_icon);
       } else {
         hideLoading();
         const message = "Je m'excuse, j'ai fait une erreur de traitement."
@@ -1696,7 +1699,7 @@ try {
       displayMessage(message, ai_icon);
     } else {
       hideLoading();
-      const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+      const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
       displayMessage(message, ai_icon);
       console.log('Subject or Email is missing in the response');
@@ -1705,60 +1708,11 @@ try {
   console.error('Error:', error);
   hideLoading();
   // Handling error => TO PUT IN A FUNCTION
-  const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez ressayer ?"
+  const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
   const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
   displayMessage(message, ai_icon);
   console.error('There was a problem with the fetch operation: ', error);
 }
-}
-
-// OLD FUNCTION TO DELETE
-/* function retry() {
-  // Your previous code to display the message when the component is mounted
-  const message = "Pouvez-vous saisir un brouillon pour que je puisse vous proposer un mail ?";
-
-  const messageHTML = `
-    <div class="pb-12">
-      <div class="flex">
-          <div class="mr-4">
-              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500">
-                  <span class="text-lg font-medium leading-none text-white">AO</span>
-              </span>
-          </div>
-          <div>
-            <p ref="animatedText6"></p>
-          </div>
-      </div>
-    </div>
-  `;
-
-  AIContainer.value.innerHTML += messageHTML;
-  const animatedParagraph = document.querySelector('p[ref="animatedText6"]');
-  animateText(message, animatedParagraph);
-}*/
-
-function display(message, nbr) {
-  // Use `nbr` in the template literal to set the reference dynamically
-  const messageHTML = `
-    <div class="pb-12">
-      <div class="flex">
-          <div class="mr-4">
-              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                </svg>
-              </span>
-          </div>
-          <div>
-              <p ref="animatedText${nbr}"></p>
-          </div>
-      </div>
-    </div>
-  `;
-
-  AIContainer.value.innerHTML += messageHTML;
-  const animatedParagraph = document.querySelector(`p[ref="animatedText${nbr}"]`);
-  animateText(message, animatedParagraph);
 }
 
 function loading() {

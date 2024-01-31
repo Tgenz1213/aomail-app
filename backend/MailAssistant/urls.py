@@ -1,5 +1,5 @@
 """
-Django Rest Framework (DRF) URL Configuration for RESTful API.
+Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 """
 from django.urls import path
 from . import views

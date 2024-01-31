@@ -65,7 +65,7 @@ class Email(models.Model):
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=200)
     content = models.TextField()
-    subject = models.CharField(max_length=50)
+    subject = models.CharField(max_length=100)
     priority = models.CharField(max_length=50)
     read = models.BooleanField()
     answer_later = models.BooleanField()

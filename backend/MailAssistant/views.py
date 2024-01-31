@@ -5,7 +5,6 @@ import json
 import logging
 import re
 import threading
-import openai
 import jwt
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -439,7 +438,7 @@ def find_user_view_ai(request):
         
         contacts_serializer = ContactSerializer(user_contacts, many=True)
 
-        # To check for performance (should be fast)
+        # TODO: check for performance (should be fast)
         def transform_list_of_dicts(list_of_dicts):
             new_dict = {}
 
@@ -450,7 +449,6 @@ def find_user_view_ai(request):
         
         contacts_dict = transform_list_of_dicts(contacts_serializer.data)
 
-        logging.info(f"{Fore.RED}Contacts dict: {contacts_dict}")
 
         def find_emails(input_str, contacts_dict):
             # Split input_str into substrings if it contains spaces
@@ -494,8 +492,6 @@ def find_user_view_ai(request):
         main_recipients_with_emails = find_emails_for_recipients(main_list, contacts_dict)
         cc_recipients_with_emails = find_emails_for_recipients(cc_list, contacts_dict)
         bcc_recipients_with_emails = find_emails_for_recipients(bcc_list, contacts_dict)
-
-        logging.info(f"{Fore.GREEN}Email recipients (main): {main_recipients_with_emails}")
 
         return Response({
             "main_recipients": main_recipients_with_emails,
@@ -610,8 +606,12 @@ def generate_email_response_keywords(request):
     serializer = EmailProposalAnswerSerializer(data=request.data)
 
     if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
         email_content = serializer.validated_data['email_content']
-        response_keywords = gpt_4.generate_response_keywords(email_content)
+        response_keywords = gpt_3_5_turbo.generate_response_keywords(email_subject, email_content, 'French') # To UPDATE : language parameter
+
+        print("DEBUG --------->", response_keywords)
+        print("DEBUG --------->", type(response_keywords))
 
         return Response({
             'response_keywords': response_keywords,
@@ -626,9 +626,10 @@ def generate_email_answer(request):
     serializer = EmailGenerateAnswer(data=request.data)
 
     if serializer.is_valid():
+        email_subject = serializer.validated_data['email_subject']
         email_content = serializer.validated_data['email_content']
         response_type = serializer.validated_data['response_type']
-        email_answer = gpt_4.generate_email_response(email_content, response_type)
+        email_answer = gpt_4.generate_email_response(email_subject, email_content, response_type, 'French')
 
         return Response({
             'email_answer': email_answer,
@@ -1072,14 +1073,19 @@ def processed_email_to_bdd(request, services):
         # Get user categories
         category_list = get_db_categories(request.user)
 
+        #print("DEBUG -------------> category", category_list)
+
         # Process the email data with AI/NLP
         topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject, decoded_data, category_list)
 
-        sender_name, sender_email = separate_name_email(from_name)
+        #print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+        #sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+        sender_name, sender_email = from_name[0], from_name[1]
 
         # Fetch or create the sender
         sender, created = Sender.objects.get_or_create(name=sender_name, email=sender_email)  # assuming from_name contains the sender's name
 
+        print("DEBUG ----------------> topic", topic)
         # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
         category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 
@@ -1261,7 +1267,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     system_message_prompt = SystemMessagePromptTemplate.from_template(template)
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
-    chat = ChatOpenAI(temperature=0,openai_api_key=openai.api_key,openai_organization=openai.organization)
+    chat = ChatOpenAI(temperature=0,openai_api_key='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',openai_organization='org-YSlFvq9rM1qPzM15jewopUUt')
     response = chat(chat_prompt.format_prompt(user=user_description,category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data,relevance=relevance_list).to_messages())
 
     clear_response = response.content.strip()

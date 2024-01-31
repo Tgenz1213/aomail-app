@@ -784,12 +784,17 @@ def set_rule_block_for_sender(request, email_id):
     # Check if the email belongs to the authenticated user
     email = get_object_or_404(Email, user=user, id=email_id)
     
-    # Check if there's a rule for this sender and user
-    rule, _ = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
+    # Check if there's a rule for this sender and user, create with block=True if it doesn't exist
+    rule, created = Rule.objects.get_or_create(
+        sender=email.sender, 
+        user=user,
+        defaults={'block': True}
+    )
 
-    # Update the block field
-    rule.block = True
-    rule.save()
+    # If the rule already existed, update the block field
+    if not created:
+        rule.block = True
+        rule.save()
 
     # Serialize the data to return
     serializer = RuleBlockUpdateSerializer(rule)

@@ -51,8 +51,8 @@ class SocialAPI(models.Model):
 
 class Rule(models.Model):
     """Model for storing rule information."""
-    info_AI = models.TextField(blank=True)
-    priority = models.CharField(max_length=50, blank=True)
+    info_AI = models.TextField(blank=True, null=True)
+    priority = models.CharField(max_length=50, blank=True, null=True)
     block = models.BooleanField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

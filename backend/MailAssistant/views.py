@@ -311,8 +311,7 @@ def get_user_categories(request):
     try:
         current_user = User.objects.get(username=username)
         categories = Category.objects.filter(user=current_user)
-        serializer = CategoryNameSerializer(categories, many=True)        
-        print(f"{Fore.CYAN}Serializer Data: {serializer.data}")
+        serializer = CategoryNameSerializer(categories, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     

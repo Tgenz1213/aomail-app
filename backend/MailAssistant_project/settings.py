@@ -9,6 +9,7 @@ from datetime import timedelta
 from pathlib import Path
 
 
+
 ######################## CHECKLIST FOR PRODUCTION ########################
 """
 1. Debug Mode:
@@ -47,8 +48,8 @@ from pathlib import Path
 
 
 ######################## CREDENTIALS ########################
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# root of the project MailAssistant
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG = json.load(open('creds/django_creds.json', 'r'))
 SECRET_KEY = CONFIG['secret_key']
 DJ_REST_AUTH_JWT_SECRET_KEY = CONFIG['secret_key']
@@ -101,7 +102,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'frontend/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,8 +141,8 @@ STATIC_URL = 'static/'
 
 ######################## SECURITY ########################
 CORS_ALLOW_ALL_ORIGINS = True
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = False
+ALLOWED_HOSTS = ['*']
 
 SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1), # Token expires in 1 day

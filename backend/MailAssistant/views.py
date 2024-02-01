@@ -646,9 +646,7 @@ def get_answer_later_emails(request):
         user = request.user
         emails = Email.objects.filter(user=user, answer_later=True).prefetch_related('bulletpoint_set', 'sender', 'category')
 
-        all_priorities = {'Important', 'Information', 'Useless'}
-
-        formatted_data = defaultdict(lambda: defaultdict(list))
+        formatted_data = defaultdict(list)
 
         for email in emails:
             email_data = {
@@ -659,12 +657,8 @@ def get_answer_later_emails(request):
                 "description": email.email_short_summary,
                 "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
             }
-            formatted_data[email.category.name][email.priority].append(email_data)
-        
-        # Ensuring all priorities are present for each category
-        for category in formatted_data:
-            for priority in all_priorities:
-                formatted_data[category].setdefault(priority, [])
+            formatted_data[email.priority].append(email_data)
+
         
         print(f"{Fore.CYAN}{formatted_data}")
 

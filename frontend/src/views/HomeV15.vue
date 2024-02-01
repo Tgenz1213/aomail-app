@@ -112,7 +112,7 @@
                     <div v-else class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar" ref="scrollableDiv">
                         <ul role="list" class="flex flex-col w-full h-full rounded-xl">
                          <div class="pb-4"><!-- To check if there is one class allow the whitespace at the bottom -->
-                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && emails[selectedTopic]['Important'].length > 0" class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
+                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0" class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                 <div class="float-right mt-[-25px] mr-[-10px]">
                                     <exclamation-triangle-icon class="w-6 h-6 text-red-500" />
                                 </div>
@@ -385,7 +385,7 @@
                                     </div>
                                 </div>
                             </li>
-                            <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && emails[selectedTopic]['Useless'].length" class="group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20" @click="toggleEmailVisibility">
+                            <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0" class="group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20" @click="toggleEmailVisibility">
                                 <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 --> <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
                                     <div class="float-right mt-[-25px] mr-[-10px]">
                                         <trash-icon class="w-6 h-6 text-gray-500" />

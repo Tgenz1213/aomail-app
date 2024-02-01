@@ -94,7 +94,7 @@ def process_part(part, plaintext_var):
     return decoded_data
 
 
-'''def preprocess_email(email_content):
+def preprocess_email(email_content):
     """Removes common greetings and sign-offs from the email content."""
     greetings = ["Bonjour", "Hello", "Hi", "Dear", "Salut"]
     sign_offs = ["Regards", "Sincerely", "Best regards", "Cordially", "Yours truly", "Cordialement", "Bien à vous"]
@@ -105,4 +105,4 @@ def process_part(part, plaintext_var):
     email_content = re.sub(greeting_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE)
     email_content = re.sub(sign_off_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE)
     
-    return email_content.strip()'''
+    return email_content.strip()

@@ -645,9 +645,7 @@ def get_answer_later_emails(request):
         user = request.user
         emails = Email.objects.filter(user=user, answer_later=True).prefetch_related('bulletpoint_set', 'sender', 'category')
 
-        all_priorities = {'Important', 'Information', 'Useless'}
-
-        formatted_data = defaultdict(lambda: defaultdict(list))
+        formatted_data = defaultdict(list)
 
         for email in emails:
             email_data = {
@@ -658,12 +656,8 @@ def get_answer_later_emails(request):
                 "description": email.email_short_summary,
                 "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
             }
-            formatted_data[email.category.name][email.priority].append(email_data)
-        
-        # Ensuring all priorities are present for each category
-        for category in formatted_data:
-            for priority in all_priorities:
-                formatted_data[category].setdefault(priority, [])
+            formatted_data[email.priority].append(email_data)
+
         
         print(f"{Fore.CYAN}{formatted_data}")
 
@@ -783,12 +777,17 @@ def set_rule_block_for_sender(request, email_id):
     # Check if the email belongs to the authenticated user
     email = get_object_or_404(Email, user=user, id=email_id)
     
-    # Check if there's a rule for this sender and user
-    rule, _ = Rule.objects.get_or_create(id_sender=email.id_sender, id_user=user)
+    # Check if there's a rule for this sender and user, create with block=True if it doesn't exist
+    rule, created = Rule.objects.get_or_create(
+        sender=email.sender, 
+        user=user,
+        defaults={'block': True}
+    )
 
-    # Update the block field
-    rule.block = True
-    rule.save()
+    # If the rule already existed, update the block field
+    if not created:
+        rule.block = True
+        rule.save()
 
     # Serialize the data to return
     serializer = RuleBlockUpdateSerializer(rule)
@@ -918,6 +917,21 @@ def create_sender(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_email(request, email_id):
+    user = request.user
+
+    # Check if the email belongs to the authenticated user
+    email = get_object_or_404(Email, user=user, id=email_id)
+
+    # Delete the email
+    email.delete()
+
+    response_data = {"message": "Email deleted successfully"}
+    return Response(response_data, status=status.HTTP_200_OK)
 
 
 #----------------------- CREDENTIALS AVAILABILITY -----------------------#
@@ -1061,7 +1075,7 @@ relevance_list = {
 
 
 def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, email_id = google_api.get_mail(services, 0, None) #microsoft non fonctionnel
+    subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(services, 0, None) #microsoft non fonctionnel
 
     if not Email.objects.filter(provider_id=email_id).exists():
 

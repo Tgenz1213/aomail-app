@@ -98,9 +98,9 @@
                             </div>
                         </div>
                     </main>
-                    <div v-if="!emails[selectedTopic]" class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5">
+                    <div v-if="isEmptyTopic" class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5">
                         <!-- Content goes here -->
-                        <div v-if="!emails[selectedTopic]" class="flex flex-col w-full h-full rounded-xl">
+                        <div v-if="isEmptyTopic" class="flex flex-col w-full h-full rounded-xl">
                             <div class="flex flex-col justify-center items-center h-full mx-4 my-4 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="mx-auto h-14 w-14 text-gray-400">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
@@ -249,7 +249,7 @@
                                 </div>
                             </li>
                             <!-- More items... -->
-                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && emails[selectedTopic]['Information'].length > 0" class="py-10 px-8 mx-4 mt-4 rounded-xl bg-blue-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-blue-700 ring-opacity-20"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
+                            <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && countEmailsInCategoryAndPriority(selectedTopic, 'Information') > 0" class="py-10 px-8 mx-4 mt-4 rounded-xl bg-blue-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-blue-700 ring-opacity-20"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
                                 <div class="float-right mt-[-25px] mr-[-10px]">
                                     <information-circle-icon class="w-6 h-6 text-blue-500" />
                                 </div>
@@ -988,6 +988,7 @@ export default {
                 });
 
                 console.log("RESPONSE ------------> ", response);
+                console.log("EMAIL ---------------> ", this.emails);
 
                 if (response.message) {
                     console.log("Email deleted successfully", response);
@@ -1360,16 +1361,43 @@ export default {
 
             return combinedEmails.filter(email => email.read);
         },
+        // Updated to work only with the the email not red by the user
         totalEmailsInCategory() {
             return (categoryName) => {
             let totalCount = 0;
             if (this.emails[categoryName]) {
                 for (let subcategory of Object.values(this.emails[categoryName])) {
-                totalCount += subcategory.length;
+                    for (let email of subcategory) {
+                        if (!email.read) {
+                            totalCount++;
+                        }
+                    }
                 }
             }
             return totalCount;
             };
+        },
+        countEmailsInCategoryAndPriority() {
+            return (categoryName, priority) => {
+                let count = 0;
+                if (this.emails[categoryName] && this.emails[categoryName][priority]) {
+                    for (let email of this.emails[categoryName][priority]) {
+                        if (!email.read) {
+                            count++;
+                        }
+                    }
+                }
+                return count;
+            };
+        },
+        // To check if there is emails or not in the category
+        isEmptyTopic() {
+            const topic = this.emails[this.selectedTopic];
+            if (!topic) {
+                console.log("Topic not found for selectedTopic:", this.selectedTopic); // Debugging log
+                return true; // or true, based on how you want to handle this case
+            }
+            return Object.values(topic).every(subcategory => subcategory.length === 0);
         }
     },
     data() {

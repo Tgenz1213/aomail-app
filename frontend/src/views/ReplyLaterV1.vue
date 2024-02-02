@@ -143,7 +143,7 @@
                         </div>
                     </li>
                     <!-- More items... -->
-                    <li v-if="emails['Information'] && emails['Information'].length > 0" class="py-10 px-8 mx-4 my-4 rounded-xl bg-blue-100 bg-opacity-50 hover:border border-blue-700 border-opacity-20 w-full"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
+                    <li v-if="emails['Information'] && emails['Information'].length > 0" class="py-10 px-8 rounded-xl bg-blue-100 bg-opacity-50 hover:border border-blue-700 border-opacity-20"> <!-- ring-1 ring-blue-700 ring-opacity-20 -->
                       <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
                         <li v-for="item in emails['Information']" :key="item.id" class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                           <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
@@ -181,16 +181,6 @@
                                     </div>
                                     <div v-show="hoveredItemId === item.id" class="group action-buttons">
                                         <div class="relative group">
-                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                                Lu
-                                            </div>
-                                            <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                <check-icon @click="markEmailAsRead(item.id)" class="w-5 h-5 text-blue-400 group-hover:text-white" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div v-show="hoveredItemId === item.id" class="group action-buttons">
-                                        <div class="relative group">
                                             <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
                                                 Répondre
                                             </div>
@@ -199,6 +189,61 @@
                                             </button>
                                         </div>
                                     </div>
+                                    <div v-show="hoveredItemId === item.id" class="group action-buttons">
+                                        <div class="relative group">
+                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
+                                                Supprimer
+                                            </div>
+                                            <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
+                                                <TrashIcon @click.stop="deleteEmail(item.id)" class="w-5 h-5 text-blue-400 group-hover:text-white" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-show="hoveredItemId === item.id" class="group action-buttons">
+                                      <div class="relative group">
+                                          <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10">
+                                              Action supplémentaire
+                                          </div>
+                                          <Menu as="div" class="relative inline-block text-left">
+                                              <div>
+                                                  <MenuButton @click="toggleTooltip" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-blue-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
+                                                      <ellipsis-horizontal-icon class="w-5 h-5 group-hover:text-white text-blue-400 group-active:text-blue-400 group-focus:text-red focus:text-blue-400" />
+                                                  </MenuButton>
+                                              </div>
+                                              <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                                              <MenuItems v-show="isMenuOpen" class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                  <div class="py-1">
+                                                      <div v-if="item.rule">
+                                                          <MenuItem v-slot="{ active }">
+                                                              <a @click.prevent="openRuleEditor(item.rule_id)" href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                                  <span class="flex gap-x-2 items-center">
+                                                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                                                      </svg>
+                                                                      <span>Changer la règle</span>
+                                                                  </span>
+                                                              </a>
+                                                          </MenuItem>
+                                                      </div>
+                                                      <div v-else>
+                                                          <MenuItem v-slot="{ active }">
+                                                              <a @click.prevent="openNewRule(item.name, item.email)" href="#" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                                  <span class="flex gap-x-2 items-center">
+                                                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                                                      </svg>
+                                                                      <span>Créer une règle</span>
+                                                                  </span>
+                                                              </a>
+                                                          </MenuItem>
+                                                      </div>
+                                                  </div>
+                                              </MenuItems>
+                                              </transition>
+                                          </Menu>
+                                      </div>
+                                    </div>
+                                    <!--
                                     <div v-show="hoveredItemId === item.id" class="group action-buttons">
                                         <div class="relative group">
                                             <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10">
@@ -254,7 +299,7 @@
                                                 </transition>
                                             </Menu>
                                         </div>
-                                    </div>
+                                    </div>-->
                                 </span> 
                             </div>
                           </div>
@@ -310,11 +355,26 @@ import { onMounted, ref } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import { fetchWithToken } from '../router/index.js';
+import {
+    //ChatBubbleOvalLeftEllipsisIcon,
+    ExclamationTriangleIcon,
+    TrashIcon,
+    ArrowUturnLeftIcon,
+    CheckIcon,
+    EllipsisHorizontalIcon,
+    EyeIcon
+} from '@heroicons/vue/24/outline'
 
 export default {
   components: {
     Navbar,
     Navbar2,
+    ExclamationTriangleIcon,
+    TrashIcon,
+    ArrowUturnLeftIcon,
+    CheckIcon,
+    EllipsisHorizontalIcon,
+    EyeIcon
   },
   setup() {
     // Main variables
@@ -384,14 +444,95 @@ export default {
           }
       });
     },
+    openRuleEditor(ruleId) {
+      if (ruleId) {
+        this.$router.push({ name: 'rules', query: { id_rule: ruleId, edit_rule: true } });
+      }
+    },
+    openNewRule(ruleName, ruleEmail) {
+      if (ruleName && ruleEmail) {
+        this.$router.push({ name: 'rules', query: { rule_name: ruleName, rule_email: ruleEmail, edit_rule: false } });
+      }
+    },
     setHoveredItem(id) {
       this.hoveredItemId = id;
+    },
+    clearHoveredItem() {
+      this.hoveredItemId = null;
+    },
+    toggleTooltip() {
+      this.showTooltip = false;
+      this.isDropdownOpen = true;
+    },
+    openInNewWindow(id_provider) {
+      console.log("EMAIL", id_provider);
+      const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
+      // Construct the URL with the Gmail message ID
+      const urlToOpen = `${gmailBaseUrl}${id_provider}`;
+
+      window.open(urlToOpen, '_blank');
+    },
+    async openAnswer(email) {
+      console.log("EMAIL", email.id_provider);
+
+      // Define the API endpoint URL
+      const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
+
+      try {
+          const data = await fetchWithToken(url, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'email': localStorage.getItem('email')
+              }
+          });
+          console.log("Received data:", data);
+          this.$router.push({ 
+              name: 'answer', 
+              query: { 
+                  subject: JSON.stringify(data.email.subject),
+                  cc: JSON.stringify(data.email.cc),
+                  bcc: JSON.stringify(data.email.bcc),
+                  decoded_data: JSON.stringify(data.email.decoded_data),
+                  email: JSON.stringify(email.email),
+                  id_provider : JSON.stringify(email.id_provider),
+                  details: JSON.stringify(email.details)
+              }
+          });
+      } catch (error) {
+          console.error("There was a problem with the fetch operation:", error);
+      }
+    },
+    async deleteEmail(emailId) {
+      try {
+          const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/delete/`, {
+              method: 'DELETE',
+              headers: {
+                  'Content-Type': 'application/json',
+              }
+          });
+
+          console.log("RESPONSE ------------> ", response);
+          console.log("EMAIL ---------------> ", this.emails);
+
+          if (response.message) {
+              console.log("Email deleted successfully", response);
+              this.deleteEmailFromState(emailId);
+          } else {
+              console.error('Failed to delete email', response);
+          }
+      } catch (error) {
+          console.error('Error in deleteEmail:', error.message);
+      }
     },
   },
   data() {
     return {
       showHiddenParagraphs: {},
       hoveredItemId: null,
+      showTooltip: true,
+      isDropdownOpen: false,
+      isMenuOpen: true,
     }
   }
 };

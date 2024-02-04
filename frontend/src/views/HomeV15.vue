@@ -931,6 +931,7 @@ export default {
                 });
                 if (response.answer_later) {
                     console.log("Email marked for reply later successfully");
+                    this.markEmailAsRead(emailId);
                     this.isMenuOpen = false;
                 } else {
                     console.error('Failed to mark email for reply later', response);

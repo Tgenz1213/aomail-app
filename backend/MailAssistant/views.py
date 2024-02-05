@@ -645,6 +645,17 @@ def get_answer_later_emails(request):
         user = request.user
         emails = Email.objects.filter(user=user, answer_later=True).prefetch_related('bulletpoint_set', 'sender', 'category')
 
+        emails = emails.annotate( 
+            has_rule=Exists(Rule.objects.filter(sender=OuterRef('sender'), user=user))
+        )
+        rule_id_subquery = Rule.objects.filter(
+            sender=OuterRef('sender'),
+            user=user
+        ).values('id')[:1]
+        emails = emails.annotate(
+            rule_id=Subquery(rule_id_subquery)
+        )
+
         formatted_data = defaultdict(list)
 
         for email in emails:
@@ -654,7 +665,9 @@ def get_answer_later_emails(request):
                 "email": email.sender.email,
                 "name": email.sender.name,
                 "description": email.email_short_summary,
-                "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()]
+                "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()],
+                "rule": email.has_rule,
+                "rule_id": email.rule_id
             }
             formatted_data[email.priority].append(email_data)
 

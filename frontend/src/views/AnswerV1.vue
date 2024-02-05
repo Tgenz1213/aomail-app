@@ -1,5 +1,5 @@
 <template>
-    <!--
+  <!--
     <div class="pb-1 lg:pl-20 bg-gray-100">
         <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
             <div class="col-span-3 h-full bg-red-500">
@@ -20,198 +20,214 @@
             </div>
         </div>
     </div>-->
-    <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">    
-      <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
-        <div class="col-span-1 2xl:col-span-1">
-          <div class="2xl:hidden h-full">
-            <navbar></navbar>
-          </div>
-          <div class="hidden 2xl:block h-full">
-            <navbar2></navbar2>
-          </div>
+  <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
+    <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
+      <div class="col-span-1 2xl:col-span-1">
+        <div class="2xl:hidden h-full">
+          <navbar></navbar>
         </div>
-        <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-            <div class="flex gap-4 w-full h-full">
-                <div id="firstMainColumn" class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
-                    <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-                      <div class="flex gap-x-2 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
-                        </svg>
-                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
+        <div class="hidden 2xl:block h-full">
+          <navbar2></navbar2>
+        </div>
+      </div>
+      <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+        <div class="flex gap-4 w-full h-full">
+          <div id="firstMainColumn"
+            class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]">
+            <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
+            <div
+              class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10">
+              <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+              <div class="flex gap-x-2 items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                  stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                </svg>
+                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
+              </div>
+            </div>
+            <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
+              <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
+                <div class="px-10 py-6">
+                  <div class="flex-grow">
+                    <div id="AIContainer">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex-grow">
+                <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
+                  <div class="flex flex-grow items-stretch">
+                    <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue"
+                      class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                      placeholder="Instruction"></textarea>
+                  </div>
+                  <button type="button" @click="handleAIClick"
+                    class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
+                      stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="secondMainColumn"
+            class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]">
+            <!--xl:h-[695px] xl:w-[560px]-->
+            <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
+              <div
+                class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
+                <div class="flex gap-x-2 items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                    stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+                  </svg>
+                  <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle</h1>
+                </div>
+              </div>
+              <form class="flex flex-grow w-full px-10">
+                <div class="flex flex-col space-y-6 h-full w-full">
+                  <div class="pt-8">
+                    <div class="flex flex-wrap">
+                      <!-- Main Recipients List -->
+                      <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
+                        <div v-for="person in selectedPeople" :key="person.username"
+                          class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                          {{ person.username }} <!-- TO OPTIMIZE => username => RENAME -->
+                          <button @click="removePersonFromMain(person)">×</button>
+                        </div>
+                      </div>
+                      <!-- CC Recipients List -->
+                      <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
+                        <div v-for="person in selectedCC" :key="person.username"
+                          class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                          <span class="font-semibold mr-1">CC:</span>
+                          {{ person.username }}
+                          <button @click="removePersonFromCC(person)">×</button>
+                        </div>
+                      </div>
+                      <!-- CCI Recipients List -->
+                      <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
+                        <div v-for="person in selectedCCI" :key="person.username"
+                          class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                          <span class="font-semibold mr-1">CCI:</span>
+                          {{ person.username }}
+                          <button @click="removePersonFromCCI(person)">×</button>
+                        </div>
                       </div>
                     </div>
-                    <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
-                    <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
-                    <div class="px-10 py-6">
-                        <div class="flex-grow">
-                            <div id="AIContainer">
+                    <div class="flex items-stretch gap-1">
+                      <div class="flex-grow">
+                        <div class="relative items-stretch">
+                          <div class="relative w-full">
+                            <div v-if="!isFocused2 && !hasValueEverBeenEntered"
+                              class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2">
+                              <UserGroupIcon class="w-4 h-4 pointer-events-none" />
+                              <label for="username"
+                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
                             </div>
-                        </div>
-                    </div>
-                    </div>
-                    <div class="flex-grow">
-                      <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
-                          <div class="flex flex-grow items-stretch">
-                              <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" placeholder="Instruction"></textarea>
-                          </div>
-                          <button type="button" @click="handleAIClick" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                              </svg>
-                          </button>
-                          </div>
-                      </div>
-                </div>
-                </div>
-                <div id="secondMainColumn" class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]"> <!--xl:h-[695px] xl:w-[560px]-->
-                    <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
-                        <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
-                          <div class="flex gap-x-2 items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="w-6 h-6">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                            </svg>
-                            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle</h1>
-                          </div>                        
-                        </div>
-                        <form class="flex flex-grow w-full px-10">
-                            <div class="flex flex-col space-y-6 h-full w-full">
-                                <div class="pt-8">
-                                    <div class="flex flex-wrap">
-                                        <!-- Main Recipients List -->
-                                        <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
-                                          <div v-for="person in selectedPeople" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                                            {{ person.username }} <!-- TO OPTIMIZE => username => RENAME -->
-                                            <button @click="removePersonFromMain(person)">×</button>
-                                          </div>
-                                        </div>
-                                        <!-- CC Recipients List -->
-                                        <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
-                                            <div v-for="person in selectedCC" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                                                <span class="font-semibold mr-1">CC:</span>
-                                                {{ person.username }}
-                                                <button @click="removePersonFromCC(person)">×</button>
-                                            </div>
-                                        </div>
-                                        <!-- CCI Recipients List -->
-                                        <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
-                                            <div v-for="person in selectedCCI" :key="person.username" class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                                                <span class="font-semibold mr-1">CCI:</span>
-                                                {{ person.username }}
-                                                <button @click="removePersonFromCCI(person)">×</button>
-                                            </div>
-                                        </div>
+                            <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected"
+                              @blur="handleBlur2">
+                              <ComboboxInput
+                                class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                @change="query = $event.target.value" :display-value="(person) => person?.name"
+                                @focus="handleFocusDestinary" @blur="handleBlur2" />
+                              <ComboboxButton
+                                class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                              </ComboboxButton>
+
+                              <ComboboxOptions v-if="filteredPeople.length > 0"
+                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person"
+                                  as="template" v-slot="{ active, selected }">
+                                  <li
+                                    :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
+                                    <div class="flex">
+                                      <span :class="['truncate', selected && 'font-semibold']">
+                                        {{ person.name }}
+                                      </span>
+                                      <span
+                                        :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
+                                        {{ person.username }}
+                                      </span>
                                     </div>
-                                    <div class="flex items-stretch gap-1">
-                                        <div class="flex-grow">
-                                        <div class="relative items-stretch">
-                                            <div class="relative w-full">
-                                                <div 
-                                                    v-if="!isFocused2 && !hasValueEverBeenEntered" 
-                                                    class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2"
-                                                >
-                                                    <UserGroupIcon class="w-4 h-4 pointer-events-none" />
-                                                    <label for="username" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
-                                                </div>
-                                                <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected" @blur="handleBlur2">
-                                                    <ComboboxInput 
-                                                        class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" 
-                                                        @change="query = $event.target.value" 
-                                                        :display-value="(person) => person?.name"
-                                                        @focus="handleFocusDestinary"
-                                                        @blur="handleBlur2"
-                                                    />
-                                                    <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                                    </ComboboxButton>
 
-                                                    <ComboboxOptions v-if="filteredPeople.length > 0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                                        <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person" as="template" v-slot="{ active, selected }">
-                                                            <li :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
-                                                                <div class="flex">
-                                                                    <span :class="['truncate', selected && 'font-semibold']">
-                                                                        {{ person.name }}
-                                                                    </span>
-                                                                    <span :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
-                                                                        {{ person.username }}
-                                                                    </span>
-                                                                </div>
-
-                                                                <span v-if="selected" :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
-                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                                </span>
-                                                            </li>
-                                                        </ComboboxOption>
-                                                    </ComboboxOptions>
-                                                </Combobox>
-                                            </div>
-                                        </div>
-                                        <!--<div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full max-w-2xl">
+                                    <span v-if="selected"
+                                      :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
+                                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                  </li>
+                                </ComboboxOption>
+                              </ComboboxOptions>
+                            </Combobox>
+                          </div>
+                        </div>
+                        <!--<div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full max-w-2xl">
                                             <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
                                         </div>-->
-                                        </div>
-                                        <div class="flex gap-1">
-                                            <button 
-                                            type="button" 
-                                            @click="toggleCC"
-                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                                            class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                            CC
-                                            </button>
+                      </div>
+                      <div class="flex gap-1">
+                        <button type="button" @click="toggleCC"
+                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                          class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                          CC
+                        </button>
 
-                                            <!-- CCI Button -->
-                                            <button 
-                                            type="button" 
-                                            @click="toggleCCI"
-                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                                            class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                            CCI
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="">
-                                    <div class="flex flex-wrap">
-                                        <div v-for="(file, index) in uploadedFiles" :key="index" class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
-                                            {{ file.name }}
-                                            <button @click="removeFile(index)">×</button>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-stretch gap-1">
-                                    <div class="flex-grow">
-                                        <div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
-                                        <div class="relative w-full">
-                                            <div 
-                                            v-if="!isFocused && !inputValue" 
-                                            class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10"
-                                            >
-                                            <Bars2Icon class="w-4 h-4 pointer-events-none" />
-                                            <label for="username" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Objet</label>
-                                            </div>
-                                            <!--<input type="text" name="username" id="objectInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">-->
-                                            <input 
-                                                id="objectInput" 
-                                                v-model="inputValue"
-                                                type="text" 
-                                                class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative" 
-                                                @focus="handleFocusObject" 
-                                                @blur="handleBlur"
-                                                @input="handleInputUpdateObject" 
-                                            />
-                                        </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex">
-                                        <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
-                                        <button @click="triggerFileInput" type="button" class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                  </div>
-                                </div>
-                                <!--
+                        <!-- CCI Button -->
+                        <button type="button" @click="toggleCCI"
+                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                          class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                          CCI
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="">
+                    <div class="flex flex-wrap">
+                      <div v-for="(file, index) in uploadedFiles" :key="index"
+                        class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                        {{ file.name }}
+                        <button @click="removeFile(index)">×</button>
+                      </div>
+                    </div>
+                    <div class="flex items-stretch gap-1">
+                      <div class="flex-grow">
+                        <div
+                          class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
+                          <div class="relative w-full">
+                            <div v-if="!isFocused && !inputValue"
+                              class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10">
+                              <Bars2Icon class="w-4 h-4 pointer-events-none" />
+                              <label for="username"
+                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Objet</label>
+                            </div>
+                            <!--<input type="text" name="username" id="objectInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">-->
+                            <input id="objectInput" v-model="inputValue" type="text"
+                              class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
+                              @focus="handleFocusObject" @blur="handleBlur" @input="handleInputUpdateObject" />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex">
+                        <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
+                        <button @click="triggerFileInput" type="button"
+                          class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!--
                                 <div class="col-span-full">
                                 <label for="cover-photo" class="block text-sm font-medium leading-6 text-gray-900">Pièce jointes</label>
                                     <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-2">
@@ -229,43 +245,55 @@
                                     </div>
                                     </div>
                                 </div>-->
-                                <div class="flex flex-col flex-grow">
-                                    <!--<div class="flex space-x-1 items-center">
+                  <div class="flex flex-col flex-grow">
+                    <!--<div class="flex space-x-1 items-center">
                                     <Bars3BottomLeftIcon class="w-4 h-4" />
                                     <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
                                     </div>-->
-                                    <div class="flex-grow mb-20 h-[200px]"> <!-- 29/12/2023 TO CHECK ON WIDER SCREEN --><!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
-                                      <div id="editor" class="w-full"></div> 
-                                    </div>
-                                    <div class="flex mb-4">
-                                      <div class="inline-flex rounded-lg shadow-lg">
-                                          <button @click="sendEmail" class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
-                                          <Menu as="div" class="relative -ml-px block">
-                                          <MenuButton class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10"> <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
-                                              <span class="sr-only">Open options</span>
-                                              <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
-                                          </MenuButton>
-                                          <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
-                                              <MenuItems class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                              <div class="py-1">
-                                                  <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                                                  <a :href="item.href" :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{ item.name }}</a>
-                                                  </MenuItem>
-                                              </div>
-                                              </MenuItems>
-                                          </transition>
-                                          </Menu>
-                                      </div>  
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
+                    <div class="flex-grow mb-20 h-[200px]">
+                      <!-- 29/12/2023 TO CHECK ON WIDER SCREEN --><!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
+                      <div id="editor" class="w-full"></div>
                     </div>
+                    <div class="flex mb-4">
+                      <div class="inline-flex rounded-lg shadow-lg">
+                        <button @click="sendEmail"
+                          class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
+                        <Menu as="div" class="relative -ml-px block">
+                          <MenuButton
+                            class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
+                            <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                            <span class="sr-only">Open options</span>
+                            <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
+                          </MenuButton>
+                          <transition enter-active-class="transition ease-out duration-100"
+                            enter-from-class="transform opacity-0 scale-95"
+                            enter-to-class="transform opacity-100 scale-100"
+                            leave-active-class="transition ease-in duration-75"
+                            leave-from-class="transform opacity-100 scale-100"
+                            leave-to-class="transform opacity-0 scale-95">
+                            <MenuItems
+                              class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                              <div class="py-1">
+                                <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
+                                <a :href="item.href"
+                                  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
+                                    item.name }}</a>
+                                </MenuItem>
+                              </div>
+                            </MenuItems>
+                          </transition>
+                        </Menu>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </form>
             </div>
+          </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -279,41 +307,41 @@ import { fetchWithToken } from '../router/index.js';
 import Quill from 'quill';
 
 import {
-    Combobox,
-    ComboboxButton,
-    ComboboxInput,
-    //ComboboxLabel,
-    ComboboxOption,
-    ComboboxOptions,
-  } from '@headlessui/vue'
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  //ComboboxLabel,
+  ComboboxOption,
+  ComboboxOptions,
+} from '@headlessui/vue'
 
 const items = [
   { name: 'Envoyer à une heure', href: '#' },
 ]
 
 const people = [
-    { name: 'Leslie Alexander', username: '@lesliealexander' },
-    { name: 'Theo', username: 'theohubert3@gmx.com'}
-  ]
-  
-  const query = ref('')
-  const filteredPeople = computed(() =>
-    query.value === ''
-      ? people
-      : people.filter((person) => {
-          return person.name.toLowerCase().includes(query.value.toLowerCase())
-        })
-  )
+  { name: 'Leslie Alexander', username: '@lesliealexander' },
+  { name: 'Theo', username: 'theohubert3@gmx.com' }
+]
+
+const query = ref('')
+const filteredPeople = computed(() =>
+  query.value === ''
+    ? people
+    : people.filter((person) => {
+      return person.name.toLowerCase().includes(query.value.toLowerCase())
+    })
+)
 
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:selectedPerson']);
 const selectedPerson = ref(props.modelValue);
 
 watch(selectedPerson, (newValue) => {
-    console.log(selectedPerson);
-    hasValueEverBeenEntered.value = true; // to make the icon disappear
-    //handleInputUpdate(selectedPerson.value.username);
-    emit('update:selectedPerson', newValue);
+  console.log(selectedPerson);
+  hasValueEverBeenEntered.value = true; // to make the icon disappear
+  //handleInputUpdate(selectedPerson.value.username);
+  emit('update:selectedPerson', newValue);
 });
 
 const inputValue = ref('');
@@ -330,32 +358,32 @@ const quill = ref(null);
 
 // TO parse Email => TO CHECK
 function parseEmails(emailData) {
-    if (!emailData) {
-        return [];
-    }
-
-    if (typeof emailData === 'string') {
-        // Handle the case where emailData is just an email string
-        return [{ email: emailData, username: emailData.split('@')[0] }];
-    } else if (Array.isArray(emailData)) {
-        // Handle the case where emailData is an array of tuples
-        return emailData.map(data => {
-            const [name, email] = data;
-            return {
-                email: email || '',
-                username: name || email.split('@')[0]
-            };
-        });
-    } else if (typeof emailData === 'object') {
-        // Handle the case where emailData is a single tuple
-        const [name, email] = emailData;
-        return [{
-            email: email || '',
-            username: name || email.split('@')[0]
-        }];
-    }
-
+  if (!emailData) {
     return [];
+  }
+
+  if (typeof emailData === 'string') {
+    // Handle the case where emailData is just an email string
+    return [{ email: emailData, username: emailData.split('@')[0] }];
+  } else if (Array.isArray(emailData)) {
+    // Handle the case where emailData is an array of tuples
+    return emailData.map(data => {
+      const [name, email] = data;
+      return {
+        email: email || '',
+        username: name || email.split('@')[0]
+      };
+    });
+  } else if (typeof emailData === 'object') {
+    // Handle the case where emailData is a single tuple
+    const [name, email] = emailData;
+    return [{
+      email: email || '',
+      username: name || email.split('@')[0]
+    }];
+  }
+
+  return [];
 }
 
 
@@ -367,8 +395,8 @@ let counter_display = 0;
 
 // To handle animations
 function loading() {
-    // Use `nbr` in the template literal to set the reference dynamically
-    const messageHTML = `
+  // Use `nbr` in the template literal to set the reference dynamically
+  const messageHTML = `
       <div id="dynamicLoadingIndicator" class="pb-12">
         <div class="flex">
             <div class="mr-4">
@@ -387,14 +415,14 @@ function loading() {
       </div>
     `;
 
-    AIContainer.value.innerHTML += messageHTML;
+  AIContainer.value.innerHTML += messageHTML;
 }
 
 function hideLoading() {
-    const loadingElement = document.getElementById('dynamicLoadingIndicator');
-    if (loadingElement) {
-        loadingElement.remove();
-    }
+  const loadingElement = document.getElementById('dynamicLoadingIndicator');
+  if (loadingElement) {
+    loadingElement.remove();
+  }
 }
 
 let stepcontainer = 0;
@@ -438,11 +466,11 @@ const loadFileMetadataFromLocalStorage = () => {
 };
 
 ////////////////////////////////////////////////////// To Select recipiers, CC and CCI ///////////////////////////////////////////////////////
-const activeType = ref(null); 
+const activeType = ref(null);
 
 function personSelected(person) {
   if (!person) return;
-  
+
   // To display AI
   let displayText = '';
 
@@ -450,7 +478,7 @@ function personSelected(person) {
     case 'CC':
       if (!selectedCC.value.includes(person)) {
         selectedCC.value.push(person);
-        
+
         console.log("CC", person.name);
       }
       break;
@@ -465,7 +493,7 @@ function personSelected(person) {
       }
   }
 
-  selectedPerson.value = null; 
+  selectedPerson.value = null;
 }
 
 function toggleCC() {
@@ -573,12 +601,12 @@ const handleAIClick = async () => {
           const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/generate_email_answer/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email_subject: inputValue.value,
-                email_content: emailContent.value, 
-                response_type: textareaValueSave.value
+              email_subject: inputValue.value,
+              email_content: emailContent.value,
+              response_type: textareaValueSave.value
             }),
           });
           hideLoading();
@@ -602,13 +630,13 @@ const handleAIClick = async () => {
           const quillEditorContainer = quill.value.root;
           quillEditorContainer.innerHTML = result.email_answer;
 
-          const message = "Est-ce que cette réponse vous convient ?";          
+          const message = "Est-ce que cette réponse vous convient ?";
           const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
           displayMessage(message, ai_icon);
         } catch (error) {
           console.log("ERROR", error);
           hideLoading();
-          const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"              
+          const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
           const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
           displayMessage(message, ai_icon);
         }
@@ -624,29 +652,29 @@ const handleAIClick = async () => {
         console.log("EMAIL SUBJECT:", inputValue.value);
         console.log("USER RECOMMENDATION", textareaValueSave.value);
         try {
-            MailCreatedByAI.value = true;
-            loading();
-            scrollToBottom();
-            const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                mail_content: quill.value.root.innerHTML,
-                user_recommendation: textareaValueSave.value,
-                email_subject: inputValue.value,
-              }),
-            });
+          MailCreatedByAI.value = true;
+          loading();
+          scrollToBottom();
+          const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              mail_content: quill.value.root.innerHTML,
+              user_recommendation: textareaValueSave.value,
+              email_subject: inputValue.value,
+            }),
+          });
+          hideLoading();
+          subject.value = result.subject;
+          mail.value = result.email_body;
+          console.log(result);
+          if (result.subject && result.email_body) {
+            // TO FINISH => animation
             hideLoading();
-            subject.value = result.subject;
-            mail.value = result.email_body;
-            console.log(result);
-            if (result.subject && result.email_body) {
-                // TO FINISH => animation
-                hideLoading();
-                const formattedMail = result.email_body.replace(/\n/g, '<br>');
-                const messageHTML = `
+            const formattedMail = result.email_body.replace(/\n/g, '<br>');
+            const messageHTML = `
                     <div class="flex pb-12">
                         <div class="mr-4 flex">
                             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -660,27 +688,27 @@ const handleAIClick = async () => {
                         </div>
                     </div>
                 `;
-                AIContainer.value.innerHTML += messageHTML;
-                const quillEditorContainer = quill.value.root;
-                quillEditorContainer.innerHTML = result.email_body;
+            AIContainer.value.innerHTML += messageHTML;
+            const quillEditorContainer = quill.value.root;
+            quillEditorContainer.innerHTML = result.email_body;
 
-                // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-                const message = "Est-ce que ce mail vous convient mieux ?";
-                const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-                displayMessage(message, ai_icon);
-              } else {
-                hideLoading();
-                const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"              
-                const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                displayMessage(message, ai_icon);
-                console.log('Subject or Email is missing in the response');
-              }
-        } catch (error) {
+            // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+            const message = "Est-ce que ce mail vous convient mieux ?";
+            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+            displayMessage(message, ai_icon);
+          } else {
             hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"              
+            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
             displayMessage(message, ai_icon);
-            console.error('There was a problem with the fetch operation: ', error);
+            console.log('Subject or Email is missing in the response');
+          }
+        } catch (error) {
+          hideLoading();
+          const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+          const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+          displayMessage(message, ai_icon);
+          console.error('There was a problem with the fetch operation: ', error);
         }
       }
     }
@@ -707,14 +735,14 @@ function askContentAdvice() {
   }*/
 
   responseKeywords.value.forEach((keyword, index) => {
-      // Start a new row for every two buttons
-      if (index % 2 === 0) {
-          buttonsHTML += index > 0 ? '</div>' : ''; // Close the previous row except for the first time
-          buttonsHTML += '<div class="flex mt-4">'; // Start a new row
-      }
+    // Start a new row for every two buttons
+    if (index % 2 === 0) {
+      buttonsHTML += index > 0 ? '</div>' : ''; // Close the previous row except for the first time
+      buttonsHTML += '<div class="flex mt-4">'; // Start a new row
+    }
 
-      // Add the button to the current row
-      buttonsHTML += `
+    // Add the button to the current row
+    buttonsHTML += `
           <div class="mr-4">
               <button type="button" id="responseKeywordButton${index}" data-value="${keyword}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
                   ${keyword}
@@ -722,10 +750,10 @@ function askContentAdvice() {
           </div>
       `;
 
-      // Close the last row after adding the last button
-      if (index === responseKeywords.value.length - 1) {
-          buttonsHTML += '</div>';
-      }
+    // Close the last row after adding the last button
+    if (index === responseKeywords.value.length - 1) {
+      buttonsHTML += '</div>';
+    }
   });
 
   const messageHTML = `
@@ -752,15 +780,15 @@ function askContentAdvice() {
 
   // Add event listeners to the buttons
   responseKeywords.value.forEach((keyword, index) => {
-      setTimeout(() => {
-          const keywordButton = document.getElementById(`responseKeywordButton${index}`);
-          if (keywordButton) {
-              keywordButton.addEventListener('click', () => {
-                  //console.log('Button clicked with keyword:', keywordButton.getAttribute('data-value'));
-                  handleButtonClick(keywordButton.getAttribute('data-value'));
-              });
-          }
-      }, 0);
+    setTimeout(() => {
+      const keywordButton = document.getElementById(`responseKeywordButton${index}`);
+      if (keywordButton) {
+        keywordButton.addEventListener('click', () => {
+          //console.log('Button clicked with keyword:', keywordButton.getAttribute('data-value'));
+          handleButtonClick(keywordButton.getAttribute('data-value'));
+        });
+      }
+    }, 0);
   });
 
   const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
@@ -777,11 +805,11 @@ async function handleButtonClick(keyword) {
     const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/generate_email_answer/', {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         email_subject: inputValue.value,
-        email_content: emailContent.value, 
+        email_content: emailContent.value,
         response_type: keyword,
       }),
     });
@@ -812,7 +840,7 @@ async function handleButtonClick(keyword) {
   } catch (error) {
     console.log("ERROR", error);
     hideLoading();
-    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"              
+    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
     displayMessage(message, ai_icon);
   }
@@ -825,7 +853,7 @@ async function fetchResponseKeywords(subject) {
     const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/generate_email_response_keywords/', {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ email_subject: subject, email_content: emailContent.value })
     });
@@ -835,9 +863,9 @@ async function fetchResponseKeywords(subject) {
     console.log("DEBUG 2", data.response_keywords);
     responseKeywords.value = data.response_keywords;
     console.log(typeof data.response_keywords);
-    console.log(Array.isArray(data.response_keywords)); 
+    console.log(Array.isArray(data.response_keywords));
     askContentAdvice();
-    
+
   } catch (error) {
     console.error("Error fetching response keywords:", error.message);
   }
@@ -845,26 +873,26 @@ async function fetchResponseKeywords(subject) {
 
 ////////////////////////////////////////////////////// To handle the user writing his own answer  ///////////////////////////////////////////////////////
 
-const MailCreatedByAI = ref(false); 
-const isFirstTimeEmail = ref(true); 
+const MailCreatedByAI = ref(false);
+const isFirstTimeEmail = ref(true);
 
 function handleInputUpdateMailContent(newMessage) {
-  if (newMessage !== '') {  
+  if (newMessage !== '') {
     if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
       askContentAdviceUser();
       isFirstTimeEmail.value = false;
       stepcontainer = 1;
       scrollToBottom();
-    }  
+    }
   }
   MailCreatedByAI.value = false;
 }
 
 function askContentAdviceUser() {
-    // Your previous code to display the message when the component is mounted
-    const message = "Est-ce que je peux vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
+  // Your previous code to display the message when the component is mounted
+  const message = "Est-ce que je peux vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
-    const messageHTML = `
+  const messageHTML = `
       <div class="pb-12">
         <div class="flex">
             <div class="mr-4">
@@ -902,59 +930,59 @@ function askContentAdviceUser() {
       </div>
     `;
 
-    AIContainer.value.innerHTML += messageHTML;
+  AIContainer.value.innerHTML += messageHTML;
 
-    // To check the ortgraph of the subject and the mail
-    setTimeout(() => {
-      const spellCheckButton = document.getElementById('spellCheckButton');
-      if (spellCheckButton) {
-        spellCheckButton.addEventListener('click', checkSpelling);
-      }
-    }, 0);
+  // To check the ortgraph of the subject and the mail
+  setTimeout(() => {
+    const spellCheckButton = document.getElementById('spellCheckButton');
+    if (spellCheckButton) {
+      spellCheckButton.addEventListener('click', checkSpelling);
+    }
+  }, 0);
 
-    setTimeout(() => {
-      const CopyWritingCheckButton = document.getElementById('CopyWritingCheckButton');
-      if (CopyWritingCheckButton) {
-        CopyWritingCheckButton.addEventListener('click', checkCopyWriting);
-      }
-    }, 0);
+  setTimeout(() => {
+    const CopyWritingCheckButton = document.getElementById('CopyWritingCheckButton');
+    if (CopyWritingCheckButton) {
+      CopyWritingCheckButton.addEventListener('click', checkCopyWriting);
+    }
+  }, 0);
 
-    setTimeout(() => {
-      const WriteBetterButton = document.getElementById('WriteBetterButton');
-      if (WriteBetterButton) {
-        WriteBetterButton.addEventListener('click', WriteBetter);
-      }
-    }, 0);
+  setTimeout(() => {
+    const WriteBetterButton = document.getElementById('WriteBetterButton');
+    if (WriteBetterButton) {
+      WriteBetterButton.addEventListener('click', WriteBetter);
+    }
+  }, 0);
 
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-    counter_display += 1;
-    animateText(message, animatedParagraph);
+  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+  counter_display += 1;
+  animateText(message, animatedParagraph);
 
 }
 
 async function checkSpelling() {
   try {
-      loading();
-      scrollToBottom();
-      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/correct_email_language/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            email_subject: inputValue.value,
-            email_body: quill.value.root.innerHTML,
-        }),
-      });
-      hideLoading();
-      //subject.value = result.corrected_subject; TO DELETE ?
-      //mail.value = result.corrected_body; TO DELETE ?
-      // retrieve num of corrections
-      console.log(result);
-      if (result.corrected_subject && result.corrected_body) {
-          // TO FINISH => animation
-          const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
-          const messageHTML = `
+    loading();
+    scrollToBottom();
+    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/correct_email_language/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email_subject: inputValue.value,
+        email_body: quill.value.root.innerHTML,
+      }),
+    });
+    hideLoading();
+    //subject.value = result.corrected_subject; TO DELETE ?
+    //mail.value = result.corrected_body; TO DELETE ?
+    // retrieve num of corrections
+    console.log(result);
+    if (result.corrected_subject && result.corrected_body) {
+      // TO FINISH => animation
+      const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
+      const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
                       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -969,22 +997,22 @@ async function checkSpelling() {
                   </div>
               </div>
           `;
-          AIContainer.value.innerHTML += messageHTML;
-          inputValue.value = result.corrected_subject;
-          const quillEditorContainer = quill.value.root;
-          quillEditorContainer.innerHTML = result.corrected_body;
+      AIContainer.value.innerHTML += messageHTML;
+      inputValue.value = result.corrected_subject;
+      const quillEditorContainer = quill.value.root;
+      quillEditorContainer.innerHTML = result.corrected_body;
 
-          // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-          const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
-          const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-          displayMessage(message, ai_icon);
-        } else {
-          hideLoading();
-          const message = "Je m'excuse, j'ai fait une erreur de traitement."
-          const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-          displayMessage(message, ai_icon);
-          console.log('Subject or Email is missing in the response');
-        }
+      // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+      const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
+      const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+      displayMessage(message, ai_icon);
+    } else {
+      hideLoading();
+      const message = "Je m'excuse, j'ai fait une erreur de traitement."
+      const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+      displayMessage(message, ai_icon);
+      console.log('Subject or Email is missing in the response');
+    }
 
   } catch (error) {
     console.error('Error:', error);
@@ -997,28 +1025,28 @@ async function checkSpelling() {
 
 async function checkCopyWriting() {
   try {
-      loading();
-      scrollToBottom();
-      const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            email_subject: inputValue.value,
-            email_body: quill.value.root.innerHTML,
-        }),
-      });
-      hideLoading();
-      //subject.value = result.corrected_subject; TO DELETE ?
-      //mail.value = result.corrected_body; TO DELETE ?
-      // retrieve num of corrections
-      console.log(result);
-      if (result.feedback_copywriting) {
-          // TO FINISH => animation
-          const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
+    loading();
+    scrollToBottom();
+    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email_subject: inputValue.value,
+        email_body: quill.value.root.innerHTML,
+      }),
+    });
+    hideLoading();
+    //subject.value = result.corrected_subject; TO DELETE ?
+    //mail.value = result.corrected_body; TO DELETE ?
+    // retrieve num of corrections
+    console.log(result);
+    if (result.feedback_copywriting) {
+      // TO FINISH => animation
+      const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
 
-          const messageHTML = `
+      const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
                       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -1032,11 +1060,11 @@ async function checkCopyWriting() {
                   </div>
               </div>
           `;
-          AIContainer.value.innerHTML += messageHTML;
+      AIContainer.value.innerHTML += messageHTML;
 
-          // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-          const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
-          const messageHTML2 = `
+      // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+      const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
+      const messageHTML2 = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
                       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -1050,19 +1078,19 @@ async function checkCopyWriting() {
                   </div>
               </div>
           `;
-          AIContainer.value.innerHTML += messageHTML2;
-          const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-          counter_display += 1;                
-          animateText(message, animatedParagraph);
+      AIContainer.value.innerHTML += messageHTML2;
+      const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+      counter_display += 1;
+      animateText(message, animatedParagraph);
 
-          scrollToBottom();
-        } else {
-          hideLoading();
-          const message = "Je m'excuse, j'ai fait une erreur de traitement."
-          const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-          displayMessage(message, ai_icon);
-          console.log('Subject or Email is missing in the response');
-        }
+      scrollToBottom();
+    } else {
+      hideLoading();
+      const message = "Je m'excuse, j'ai fait une erreur de traitement."
+      const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+      displayMessage(message, ai_icon);
+      console.log('Subject or Email is missing in the response');
+    }
 
   } catch (error) {
     console.error('Error:', error);
@@ -1080,12 +1108,12 @@ async function WriteBetter() {
     const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-          mail_content: quill.value.root.innerHTML, 
-          user_recommendation: "Améliore l'écriture du mail",
-          email_subject: inputValue.value,
+        mail_content: quill.value.root.innerHTML,
+        user_recommendation: "Améliore l'écriture du mail",
+        email_subject: inputValue.value,
       }),
     });
     hideLoading();
@@ -1093,9 +1121,9 @@ async function WriteBetter() {
     mail.value = result.email_body;
     console.log(result);
     if (result.subject && result.email_body) {
-        // TO FINISH => animation
-        const formattedMail = result.email_body.replace(/\n/g, '<br>');
-        const messageHTML = `
+      // TO FINISH => animation
+      const formattedMail = result.email_body.replace(/\n/g, '<br>');
+      const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
                     <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -1110,35 +1138,35 @@ async function WriteBetter() {
                 </div>
             </div>
         `;
-        AIContainer.value.innerHTML += messageHTML;
-        inputValue.value = result.subject;
-        const quillEditorContainer = quill.value.root;
-        quillEditorContainer.innerHTML = result.email_body;
+      AIContainer.value.innerHTML += messageHTML;
+      inputValue.value = result.subject;
+      const quillEditorContainer = quill.value.root;
+      quillEditorContainer.innerHTML = result.email_body;
 
-        // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-        const message = "Est-ce que ce mail vous convient mieux ?";
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-        displayMessage(message, ai_icon);
-      } else {
-        hideLoading();
-        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"              
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-        displayMessage(message, ai_icon);
-        console.log('Subject or Email is missing in the response');
-      }
-} catch (error) {
+      // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
+      const message = "Est-ce que ce mail vous convient mieux ?";
+      const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+      displayMessage(message, ai_icon);
+    } else {
+      hideLoading();
+      const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+      const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+      displayMessage(message, ai_icon);
+      console.log('Subject or Email is missing in the response');
+    }
+  } catch (error) {
     console.error('Error:', error);
     hideLoading();
-    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"              
+    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
     displayMessage(message, ai_icon);
     console.error('There was a problem with the fetch operation: ', error);
-}
+  }
 }
 
 ////////////////////////////////////////////////////// To handle sending the email  ///////////////////////////////////////////////////////
 
-const router = useRouter(); 
+const router = useRouter();
 
 async function sendEmail() {
   event.preventDefault();
@@ -1160,18 +1188,18 @@ async function sendEmail() {
   formData.append('cci', bccRecipients.join(','));
 
   for (var pair of formData.entries()) {
-    console.log(pair[0]+ ', ' + pair[1]); 
+    console.log(pair[0] + ', ' + pair[1]);
   }
 
   try {
     const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/send_mails/', {
-        method: 'POST',
-        body: formData
+      method: 'POST',
+      body: formData
     });
-    console.log(result.message); 
+    console.log(result.message);
     localStorage.setItem('Email_sent', true);
     router.push({ name: 'home' });
-    
+
   } catch (error) {
     console.error('Error sending email:', error);
   }
@@ -1182,9 +1210,9 @@ async function sendEmail() {
 // To keep the navbar always at the bottom when new content is added
 const scrollableDiv = ref(null);
 const scrollToBottom = async () => {
-    await nextTick();
-    const element = scrollableDiv.value;
-    element.scrollTop = element.scrollHeight;
+  await nextTick();
+  const element = scrollableDiv.value;
+  element.scrollTop = element.scrollHeight;
 };
 
 // AI instruction textarea input
@@ -1194,64 +1222,64 @@ const bgColor = ref(''); // Initialize a reactive variable
 const route = useRoute();
 
 onMounted(() => {
-    
-    bgColor.value = localStorage.getItem('bgColor');
-    loadFileMetadataFromLocalStorage(); // For uploaded file
 
-    const subject = JSON.parse(route.query.subject);
-    const email = JSON.parse(route.query.email);
-    const cc = JSON.parse(route.query.cc);
-    const cci = JSON.parse(route.query.bcc);
-    const decoded_data = JSON.parse(route.query.decoded_data);
-    const id_provider = JSON.parse(route.query.id_provider);
-    const details = JSON.parse(route.query.details);
+  bgColor.value = localStorage.getItem('bgColor');
+  loadFileMetadataFromLocalStorage(); // For uploaded file
 
-    console.log("Subject:", subject);
-    console.log("Email:", email);
-    console.log("cc", cc);
-    console.log("cci", cci);
-    console.log("ID Provider:", id_provider);
-    console.log("Details:", details);
-    //console.log("Decoded_data", decoded_data);
+  const subject = JSON.parse(route.query.subject);
+  const email = JSON.parse(route.query.email);
+  const cc = JSON.parse(route.query.cc);
+  const cci = JSON.parse(route.query.bcc);
+  const decoded_data = JSON.parse(route.query.decoded_data);
+  const id_provider = JSON.parse(route.query.id_provider);
+  const details = JSON.parse(route.query.details);
 
-    window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
+  console.log("Subject:", subject);
+  console.log("Email:", email);
+  console.log("cc", cc);
+  console.log("cci", cci);
+  console.log("ID Provider:", id_provider);
+  console.log("Details:", details);
+  //console.log("Decoded_data", decoded_data);
 
-    var toolbarOptions = [
-      [{ 'font': [] }],
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'align': [] }],
-      ['blockquote', 'code-block']                                      
-    ];
+  window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
-    // Initialize Quill editor
-    quill.value = new Quill('#editor', {
+  var toolbarOptions = [
+    [{ 'font': [] }],
+    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+    ['bold', 'italic', 'underline'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    [{ 'align': [] }],
+    ['blockquote', 'code-block']
+  ];
+
+  // Initialize Quill editor
+  quill.value = new Quill('#editor', {
     theme: 'snow',
     modules: {
-            toolbar: toolbarOptions
-        }
-    });
-
-    /*
-    quill.on('selection-change', function(range, oldRange, source) {
-    if (range === null && oldRange !== null) {
-        console.log('Selection changed');
-        var quillContent = quill.root.innerHTML;
-        handleInputUpdate3(quillContent);
+      toolbar: toolbarOptions
     }
-    });*/
-    
-    mail_to_answer.value = decoded_data;
+  });
 
-    // DOM-related code
-    AIContainer.value = document.getElementById('AIContainer');
+  /*
+  quill.on('selection-change', function(range, oldRange, source) {
+  if (range === null && oldRange !== null) {
+      console.log('Selection changed');
+      var quillContent = quill.root.innerHTML;
+      handleInputUpdate3(quillContent);
+  }
+  });*/
 
-    const message = "Résumé de l'email : ";
+  mail_to_answer.value = decoded_data;
 
-    // Start with the initial HTML structure
-    let messageHTML = `
+  // DOM-related code
+  AIContainer.value = document.getElementById('AIContainer');
+
+  const message = "Résumé de l'email : ";
+
+  // Start with the initial HTML structure
+  let messageHTML = `
     <div class="flex pb-12">
         <div class="mr-4 flex">
             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -1265,73 +1293,73 @@ onMounted(() => {
             <ul>
     `;
 
-    // Add each bullet point to the HTML
-    details.forEach(detail => {
+  // Add each bullet point to the HTML
+  details.forEach(detail => {
     messageHTML += `<li class="pt-2">
                         <p><span class="font-bold text-2xl">-</span> ${detail.text}</p>
                     </li>`;
-    });
+  });
 
-    // Close the HTML structure
-    messageHTML += `
+  // Close the HTML structure
+  messageHTML += `
             </ul>
         </div>
     </div>
     `;
 
-    AIContainer.value.innerHTML += messageHTML;
+  AIContainer.value.innerHTML += messageHTML;
 
-    emailContent.value = details.map(item => item.text).join(' '); // USELESS => To Optimize
-    fetchResponseKeywords(subject);
+  emailContent.value = details.map(item => item.text).join(' '); // USELESS => To Optimize
+  fetchResponseKeywords(subject);
 
-    quill.value.on('text-change', function() {
-      const quillContent = quill.value.root.innerHTML;
-      if (quillContent.trim() !== '<p><br></p>') {
-          mail.value = quillContent;
-          handleInputUpdateMailContent(quillContent);
-      }
-    });
+  quill.value.on('text-change', function () {
+    const quillContent = quill.value.root.innerHTML;
+    if (quillContent.trim() !== '<p><br></p>') {
+      mail.value = quillContent;
+      handleInputUpdateMailContent(quillContent);
+    }
+  });
 
-    /*
-    const message2 = "Est-ce vous souhaitez de l'aide pour rédiger une réponse ?";
+  /*
+  const message2 = "Est-ce vous souhaitez de l'aide pour rédiger une réponse ?";
 
-    const messageHTML2 = `
-    <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-                <span class="text-lg font-medium leading-none text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                </svg>
-                </span>
-            </span>   
-        </div>
-        <div>
-            <p ref="animatedText${counter_display}"></p>
-        </div>
-    </div>
-    `;
+  const messageHTML2 = `
+  <div class="flex pb-12">
+      <div class="mr-4 flex">
+          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+              <span class="text-lg font-medium leading-none text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+              </svg>
+              </span>
+          </span>   
+      </div>
+      <div>
+          <p ref="animatedText${counter_display}"></p>
+      </div>
+  </div>
+  `;
 
-    AIContainer.value.innerHTML += messageHTML2;
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-    counter_display += 1;
-    animateText(message2, animatedParagraph);*/
-    //scrollToBottom(); => ACTIVATION OPTIONAL
+  AIContainer.value.innerHTML += messageHTML2;
+  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+  counter_display += 1;
+  animateText(message2, animatedParagraph);*/
+  //scrollToBottom(); => ACTIVATION OPTIONAL
 
-    if (email) {
+  if (email) {
     selectedPeople.value = parseEmails(email);
     console.log("SELECTED PEOPLE", selectedPeople.value);
-    }
-    if (cc) {
+  }
+  if (cc) {
     selectedCC.value = parseEmails(cc);
-    }
-    if (cci) {
+  }
+  if (cci) {
     selectedCCI.value = parseEmails(cci);
-    }
+  }
 
-    inputValue.value = 'Re : '+subject;
+  inputValue.value = 'Re : ' + subject;
 
-    let quillContainer = document.querySelector('#editor');
+  let quillContainer = document.querySelector('#editor');
 
 });
 
@@ -1339,12 +1367,12 @@ function animateText(text, target) {
   let characters = text.split("");
   let currentIndex = 0;
   const interval = setInterval(() => {
-      if (currentIndex < characters.length) {
-          target.textContent += characters[currentIndex];
-          currentIndex++;
-      } else {
-          clearInterval(interval);
-      }
+    if (currentIndex < characters.length) {
+      target.textContent += characters[currentIndex];
+      currentIndex++;
+    } else {
+      clearInterval(interval);
+    }
   }, 30);
 }
 /*
@@ -1392,16 +1420,16 @@ export default {
       textarea.style.height = 'auto';
 
       if (textarea.scrollHeight > maxHeight) {
-          textarea.style.height = maxHeight + 'px';
-          textarea.style.overflowY = 'auto'; // Enable scrolling when content exceeds maxHeight.
+        textarea.style.height = maxHeight + 'px';
+        textarea.style.overflowY = 'auto'; // Enable scrolling when content exceeds maxHeight.
       } else {
-          textarea.style.height = textarea.scrollHeight + 'px';
-          textarea.style.overflowY = 'hidden'; // Hide the scrollbar when content is below maxHeight.
+        textarea.style.height = textarea.scrollHeight + 'px';
+        textarea.style.overflowY = 'hidden'; // Hide the scrollbar when content is below maxHeight.
       }
     },
   },
   mounted() {
-    
+
   }
 }
 </script>

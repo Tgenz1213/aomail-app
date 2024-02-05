@@ -10,6 +10,7 @@ import Rules from '@/views/RulesV2.vue';
 import Settings from '@/views/SettingsV1.vue';
 import Search from '@/views/SearchV2.vue';
 import ReplyLater from '@/views/ReplyLaterV1.vue';
+import NotFound from '@/views/NotFound.vue';
 
 
 async function fetchWithToken(url, options = {}) {
@@ -42,12 +43,12 @@ async function fetchWithToken(url, options = {}) {
       } else {
         throw new Error('Unauthorized: Please log in again');
       }
-    } 
+    }
     // Access token is still valid
     // Handles other errors
     else {
       return response.json();
-    }    
+    }
 
     // Failed to refresh the token
     if (!response.ok) {
@@ -118,6 +119,11 @@ const routes = [
     name: 'settings',
     meta: { requiresAuth: true },
     component: Settings,
+  },
+  {
+    path: '/:catchAll(.*)',
+    name: 'not-found',
+    component: NotFound,
   }
 ];
 
@@ -131,13 +137,13 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = isUserAuthenticated();
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (!isAuthenticated) {
-          next({ name: 'login' });
-      } else {
-          next();
-      }
-  } else {
+    if (!isAuthenticated) {
+      next({ name: 'login' });
+    } else {
       next();
+    }
+  } else {
+    next();
   }
 });
 

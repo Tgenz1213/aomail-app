@@ -17,10 +17,13 @@
 <template>
   <RadioGroup v-model="selectedColor">
     <div class="flex flex-wrap mt-1 justify-center">
-      <RadioGroupOption as="template" v-for="color in colors" :key="color.name" :value="color" v-slot="{ active, checked }" @click="$emit('colorSelected', color.bgColor)">
-        <div :class="[color.selectedColor, active && checked ? 'ring ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 mt-3 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none mx-1 mb-2']">
+      <RadioGroupOption as="template" v-for="color in colors" :key="color.name" :value="color"
+        v-slot="{ active, checked }" @click="$emit('colorSelected', color.bgColor)">
+        <div
+          :class="[color.selectedColor, active && checked ? 'ring ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 mt-3 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none mx-1 mb-2']">
           <RadioGroupLabel as="span" class="sr-only">{{ color.name }}</RadioGroupLabel>
-          <span aria-hidden="true" :class="[color.bgColor, 'h-8 w-8 rounded-full border border-black border-opacity-10']"></span>
+          <span aria-hidden="true"
+            :class="[color.bgColor, 'h-8 w-8 rounded-full border border-black border-opacity-10']"></span>
         </div>
       </RadioGroupOption>
     </div>
@@ -41,7 +44,7 @@ const emits = defineEmits(['colorSelected']);
 const colors = [
   { name: 'Gradient_Orange_Rose', bgColor: 'bg-gradient-to-r from-orange-200 to-rose-200', selectedColor: 'ring-orange-100' }, // TESTED
   { name: 'Gradient_', bgColor: 'bg-gradient-to-r from-yellow-200 via-pink-200 to-pink-300', selectedColor: 'ring-pink-100' },
-  { name: 'Gradient_Fuschia_Rose', bgColor: 'bg-gradient-to-r from-fuchsia-200 to-pink-200', selectedColor: 'ring-fuchsia-100'},
+  { name: 'Gradient_Fuschia_Rose', bgColor: 'bg-gradient-to-r from-fuchsia-200 to-pink-200', selectedColor: 'ring-fuchsia-100' },
   { name: 'Gradient_', bgColor: 'bg-gradient-to-r from-green-100 to-purple-200', selectedColor: 'ring-green-200' },
   { name: 'Gradient_', bgColor: 'bg-gradient-to-r from-pink-200 via-purple-200 to-indigo-200', selectedColor: 'ring-purple-100' },
   { name: 'Gradient_Orange_Rose', bgColor: 'bg-gradient-to-r from-purple-200 via-violet-200 to-purple-200', selectedColor: 'ring-purple-100' },

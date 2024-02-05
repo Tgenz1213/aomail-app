@@ -1,46 +1,52 @@
 <template>
-    <transition name="modal-fade">
-      <div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
-        <div class="bg-white rounded-lg relative">
-          <slot></slot>
-            <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-                <button @click="closeModal" type="button" class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    <span class="sr-only">Close</span>
-                    <XMarkIcon class="h-6 w-6" aria-hidden="true" />
-                </button>
+  <transition name="modal-fade">
+    <div class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
+      <div class="bg-white rounded-lg relative">
+        <slot></slot>
+        <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+          <button @click="closeModal" type="button"
+            class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+            <span class="sr-only">Close</span>
+            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+          </button>
+        </div>
+        <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+          <div class="ml-8 flex items-center space-x-1">
+            <UserGroupIcon class="w-6 h-6" />
+            <p class="block font-semibold leading-6 text-gray-900">{{ email.name }}</p>
+          </div>
+        </div>
+        <div class="flex flex-col px-8">
+          <div class="mt-4 mb-8">
+            <div class="sm:hidden">
+              <label for="tabs" class="sr-only">Select a tab</label>
+              <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+              <select id="tabs" name="tabs"
+                class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+                <option selected>Résumé du mail</option>
+                <option>Mail complet</option>
+              </select>
             </div>
-            <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
-                <div class="ml-8 flex items-center space-x-1">
-                    <UserGroupIcon class="w-6 h-6" />
-                    <p class="block font-semibold leading-6 text-gray-900">{{ email.name }}</p>
-                </div>
+            <div class="hidden sm:block">
+              <div class="border-b border-gray-200">
+                <nav class="-mb-px flex" aria-label="Tabs">
+                  <!-- Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" -->
+                  <a href="#"
+                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">Résumé
+                    du Mail</a>
+                  <a href="#"
+                    class="border-red-400 text-red-500 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">Mail
+                    Complet</a>
+                </nav>
+              </div>
             </div>
-           <div class="flex flex-col px-8">
-                <div class="mt-4 mb-8">
-                    <div class="sm:hidden">
-                        <label for="tabs" class="sr-only">Select a tab</label>
-                        <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-                        <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                          <option selected>Résumé du mail</option>
-                          <option>Mail complet</option>
-                        </select>
-                    </div>
-                    <div class="hidden sm:block">
-                        <div class="border-b border-gray-200">
-                        <nav class="-mb-px flex" aria-label="Tabs">
-                            <!-- Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" -->
-                            <a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">Résumé du Mail</a>
-                            <a href="#" class="border-red-400 text-red-500 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">Mail Complet</a>
-                        </nav>
-                        </div>
-                    </div>
-                </div>
-                <ul role="list" class="text-sm 2xl:max-w-3xl max-w-2xl">
-                  <li v-for="detail in email.details" :key="detail.id" class="pl-8 my-4 border-l-2 hover:border-l-4">
-                    {{ detail.text }}
-                  </li>
-                </ul>
-                <!--
+          </div>
+          <ul role="list" class="text-sm 2xl:max-w-3xl max-w-2xl">
+            <li v-for="detail in email.details" :key="detail.id" class="pl-8 my-4 border-l-2 hover:border-l-4">
+              {{ detail.text }}
+            </li>
+          </ul>
+          <!--
                 <p class="text-sm 2xl:max-w-3xl max-w-2xl">
                     Hi Theo and Antoine <br><br>
                     How are you both ? I’m back to Esaip this morning. <br><br>
@@ -53,32 +59,35 @@
                     Good luck! <br><br>
                     H <br><br>
                 </p>-->
-                <span class="isolate inline-flex rounded-2xl justify-center mb-8">
-                    <div class="group">
-                        <button type="button" class="relative -ml-px inline-flex items-center rounded-l-2xl px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
-                            <check-icon class="w-5 h-5 text-red-500 group-hover:text-white" />
-                        </button>
-                    </div>
-                    <div class="group">
-                        <button type="button" class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
-                            <arrow-uturn-left-icon class="w-5 h-5 text-red-500 group-hover:text-white" />
-                        </button>
-                    </div>
-                    <div class="group">
-                        <button type="button" class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
-                            <ellipsis-horizontal-icon class="w-5 h-5 text-red-500 group-hover:text-white" />                                                        
-                        </button>
-                    </div>
-                </span> 
-           </div>
+          <span class="isolate inline-flex rounded-2xl justify-center mb-8">
+            <div class="group">
+              <button type="button"
+                class="relative -ml-px inline-flex items-center rounded-l-2xl px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
+                <check-icon class="w-5 h-5 text-red-500 group-hover:text-white" />
+              </button>
+            </div>
+            <div class="group">
+              <button type="button"
+                class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
+                <arrow-uturn-left-icon class="w-5 h-5 text-red-500 group-hover:text-white" />
+              </button>
+            </div>
+            <div class="group">
+              <button type="button"
+                class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
+                <ellipsis-horizontal-icon class="w-5 h-5 text-red-500 group-hover:text-white" />
+              </button>
+            </div>
+          </span>
         </div>
       </div>
-    </transition>
-  </template>
+    </div>
+  </transition>
+</template>
   
 <script setup>
-  //import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
-  //import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+//import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
+//import { ExclamationTriangleIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 </script>
 <script>
 import {
@@ -96,17 +105,17 @@ import {
 } from '@heroicons/vue/24/outline'
 
 export default {
-    components: {
-        //ChatBubbleOvalLeftEllipsisIcon,
-        //ExclamationTriangleIcon,
-        //InformationCircleIcon,
-        //TrashIcon,
-        ArrowUturnLeftIcon,
-        CheckIcon,
-        EllipsisHorizontalIcon,
-        //HandRaisedIcon,
-        //EyeIcon,
-        UserGroupIcon
+  components: {
+    //ChatBubbleOvalLeftEllipsisIcon,
+    //ExclamationTriangleIcon,
+    //InformationCircleIcon,
+    //TrashIcon,
+    ArrowUturnLeftIcon,
+    CheckIcon,
+    EllipsisHorizontalIcon,
+    //HandRaisedIcon,
+    //EyeIcon,
+    UserGroupIcon
   },
   props: {
     isOpen: {

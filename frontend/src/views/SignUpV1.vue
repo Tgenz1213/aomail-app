@@ -2,43 +2,53 @@
 <!-- TO FIX : Color background -->
 <template>
   <transition name="modal-fade">
-    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
+    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+      v-if="isOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>
-          <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-              <button @click="closeModal" type="button" class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                  <span class="sr-only">Close</span>
-                  <XMarkIcon class="h-6 w-6" aria-hidden="true" />
-              </button>
+        <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+          <button @click="closeModal" type="button"
+            class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+            <span class="sr-only">Close</span>
+            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+          </button>
+        </div>
+        <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+          <div class="ml-8 flex items-center space-x-1">
+            <p class="block font-semibold leading-6 text-gray-900">Nouvelle catégorie</p>
           </div>
-          <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
-              <div class="ml-8 flex items-center space-x-1">
-                  <p class="block font-semibold leading-6 text-gray-900">Nouvelle catégorie</p>
-              </div>
-          </div>
-          <div class="flex flex-col gap-4 px-8 py-6">
-            <p class="text-red-500"  v-if="errorMessage">{{ errorMessage }}</p>
-            <div>
-              <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la catégorie</label>
-              <div class="mt-2">
-                <input v-model="categoryName" name="email" id="email" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6" placeholder="Administratifs">
-              </div>
-            </div>
-            <div>
-              <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description brève de la catégorie</label>
-              <div class="mt-2">
-                <textarea v-model="categoryDescription" id="about" name="about" rows="3" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
-              </div>
-              <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à comprendre la catégorie</p>
-            </div>
-            <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
-              <button type="button" class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:ml-3 sm:w-auto" @click="addCategory">Créer</button>
+        </div>
+        <div class="flex flex-col gap-4 px-8 py-6">
+          <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
+          <div>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la catégorie</label>
+            <div class="mt-2">
+              <input v-model="categoryName" name="email" id="email"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
+                placeholder="Administratifs">
             </div>
           </div>
+          <div>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description brève de la
+              catégorie</label>
+            <div class="mt-2">
+              <textarea v-model="categoryDescription" id="about" name="about" rows="3"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
+            </div>
+            <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à comprendre la
+              catégorie</p>
+          </div>
+          <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
+            <button type="button"
+              class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:ml-3 sm:w-auto"
+              @click="addCategory">Créer</button>
+          </div>
+        </div>
       </div>
     </div>
   </transition>
-  <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor"><!--OLD VALUE TO SAVE : 27/01/2024 => 2xl:justify-center 2xl:items-center-->
+  <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
+    <!--OLD VALUE TO SAVE : 27/01/2024 => 2xl:justify-center 2xl:items-center-->
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
@@ -46,9 +56,10 @@
           <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Inscrivez-vous</h2>
         </div>
         <div class="2xl:mt-10 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
-          <div class="flex flex-col bg-slate-200 bg-opacity-80 rounded-lg"> 
+          <div class="flex flex-col bg-slate-200 bg-opacity-80 rounded-lg">
             <div class="divide-y divide-slate-200">
-              <div class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-lg bg-gray-400 bg-opacity-10"> 
+              <div
+                class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-lg bg-gray-400 bg-opacity-10">
                 <nav aria-label="Progress">
                   <!--<div class="absolute right-4 left-4">-->
                   <ol role="list" class="flex items-center" v-if="step === 0">
@@ -57,7 +68,9 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white" aria-current="step">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                        aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
                       </a>
@@ -67,8 +80,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -77,8 +92,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -87,8 +104,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -97,8 +116,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -109,9 +130,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a @click="goStep0" href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a @click="goStep0" href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 1</span>
                       </a>
@@ -121,7 +145,9 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a @click="goStep1" href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white" aria-current="step">
+                      <a @click="goStep1" href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                        aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
                       </a>
@@ -131,8 +157,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -141,8 +169,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -151,8 +181,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -163,9 +195,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 1</span>
                       </a>
@@ -175,9 +210,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 2</span>
                       </a>
@@ -187,7 +225,9 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white" aria-current="step">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                        aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
                       </a>
@@ -197,8 +237,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -207,8 +249,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -219,9 +263,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 1</span>
                       </a>
@@ -231,9 +278,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 2</span>
                       </a>
@@ -243,9 +293,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 3</span>
                       </a>
@@ -255,7 +308,9 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white" aria-current="step">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                        aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
                       </a>
@@ -265,8 +320,10 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300" aria-hidden="true"></span>
+                      <a href="#"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
                       </a>
                     </li>
@@ -277,9 +334,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 1</span>
                       </a>
@@ -289,9 +349,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 1</span>
                       </a>
@@ -301,9 +364,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 1</span>
                       </a>
@@ -313,9 +379,12 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                          <path fill-rule="evenodd"
+                            d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
+                            clip-rule="evenodd" />
                         </svg>
                         <span class="sr-only">Step 1</span>
                       </a>
@@ -325,7 +394,9 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#" class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white" aria-current="step">
+                      <a href="#"
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                        aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
                       </a>
@@ -342,43 +413,56 @@
                     </div>
                     <div>
                       <div class="flex gap-x-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                          stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
                         <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Identifiant</label>
                       </div>
                       <div class="mt-2">
-                        <input v-model="login" id="login" type="login" class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                        <input v-model="login" id="login" type="login"
+                          class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                       </div>
                     </div>
 
                     <div>
                       <div class="flex gap-x-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                          stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Mot de passe</label>
+                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Mot de
+                          passe</label>
                       </div>
                       <div class="mt-2">
-                        <input v-model="password" id="password" type="password" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                        <input v-model="password" id="password" type="password" autocomplete="current-password"
+                          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                       </div>
                     </div>
 
                     <div>
                       <div class="flex gap-x-1 items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                          stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot de passe</label>
+                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot
+                          de passe</label>
                       </div>
                       <div class="mt-2">
-                        <input v-model="confirmPassword" id="confirm_password" type="password" @input="clearError()" autocomplete="current-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                        <input v-model="confirmPassword" id="confirm_password" type="password" @input="clearError()"
+                          autocomplete="current-password"
+                          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                       </div>
                     </div>
 
                     <div>
                       <div class="pt-6">
-                        <button @click="nextStep0" class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
+                        <button @click="nextStep0"
+                          class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
                       </div>
                     </div>
                   </div>
@@ -411,7 +495,8 @@
                     </div>
                     <div>
                       <div class="pt-6">
-                        <button @click="nextStep1" class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">Continuer</button>
+                        <button @click="nextStep1"
+                          class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">Continuer</button>
                       </div>
                     </div>
                   </div>
@@ -428,24 +513,31 @@
                       <div class="pt-2">
                         <div class="relative items-stretch mt-2">
                           <div class="flex flex-col gap-y-4">
-                            <p>Créer vos différentes catégories dans lesquelles vous souhaitez que l'assistant place automatiquement vos emails.</p>
+                            <p>Créer vos différentes catégories dans lesquelles vous souhaitez que l'assistant place
+                              automatiquement vos emails.</p>
                             <a href="#" class="underline text-gray-500">En savoir plus</a>
                             <div v-if="categories.length === 0">
-                              <button @click="isOpen = !isOpen" type="button" class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
+                              <button @click="isOpen = !isOpen" type="button"
+                                class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
+                                  viewBox="0 0 48 48" aria-hidden="true">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
                                 </svg>
                                 <span class="mt-2 block text-sm font-semibold text-gray-900">Ajouter une catégorie</span>
                               </button>
                             </div>
                             <div v-else class="max-h-64 overflow-y-auto flex flex-col gap-y-4">
                               <ul role="list" class="space-y-3">
-                                <li v-for="category in categories" :key="category.name" class="overflow-hidden font-semibold rounded-md bg-gray-50 px-6 py-4 shadow hover:shadow-md text-gray-700">
-                                    {{ category.name }}
+                                <li v-for="category in categories" :key="category.name"
+                                  class="overflow-hidden font-semibold rounded-md bg-gray-50 px-6 py-4 shadow hover:shadow-md text-gray-700">
+                                  {{ category.name }}
                                 </li>
                                 <!-- More items... -->
                               </ul>
-                              <button @click="isOpen = !isOpen" type="button"  class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Ajouter une autre catégorie</button>
+                              <button @click="isOpen = !isOpen" type="button"
+                                class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Ajouter
+                                une autre catégorie</button>
                               <!--<button @click="isOpen = !isOpen" type="button" class="h-[25px] w-full rounded-lg border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                                 <span class="text-sm font-semibold text-gray-900">Ajouter une autre catégorie</span>
                               </button>-->
@@ -458,16 +550,17 @@
                     </div>
                     <div>
                       <div class="pt-6">
-                        <button @click="submitSignupData" class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">Continuer</button>
+                        <button @click="submitSignupData"
+                          class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">Continuer</button>
                       </div>
                     </div>
                   </div>
                 </form>
                 <div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
           <p class="mt-6 text-center text-sm text-gray-600">
             Vous avez un compte?
             {{ ' ' }}
@@ -564,40 +657,40 @@ export default {
       }
 
       // Checks passwords requirements
-      const passwordRegex  = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
+      const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
       const minLength = 8;
       const maxLength = 32;
 
       if (!this.password.trim() || !this.confirmPassword.trim()) {
-          this.credentialError = 'Veuillez saisir un mot de passe';
-          return;
-      } 
+        this.credentialError = 'Veuillez saisir un mot de passe';
+        return;
+      }
       if (this.password.length < minLength || this.password.length > maxLength) {
-          this.credentialError = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
-          return;
+        this.credentialError = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
+        return;
       }
       if (this.password.includes(" ")) {
-          this.credentialError = 'Le mot de passe ne doit pas contenir d\'espaces';
-          return;
+        this.credentialError = 'Le mot de passe ne doit pas contenir d\'espaces';
+        return;
       }
-      if (!passwordRegex .test(this.password)) {
-          this.credentialError = 'Le mot de passe contient des caractères invalides';
-          return;
+      if (!passwordRegex.test(this.password)) {
+        this.credentialError = 'Le mot de passe contient des caractères invalides';
+        return;
       }
       if (this.password !== this.confirmPassword) {
-          this.credentialError = 'Les mots de passe ne correspondent pas';
-          return;
+        this.credentialError = 'Les mots de passe ne correspondent pas';
+        return;
       }
 
       sessionStorage.setItem('login', this.login);
       sessionStorage.setItem('password', this.password);
-      
+
       this.clearError();
       this.step++;
     },
     nextStep1() {
       this.color = this.bgColor;
-      localStorage.setItem('color', this.bgColor);  
+      localStorage.setItem('color', this.bgColor);
       localStorage.setItem('theme', 'light');
       this.step++;
     },
@@ -614,33 +707,33 @@ export default {
       this.isOpen = false;
     },
     addCategory() {
-        // Vérification basique de la validité des champs
-        if (!this.categoryName.trim() || !this.categoryDescription.trim()) {
-            this.errorMessage = "Veuillez remplir tous les champs.";
-            return;
-        } else if (this.categories.some(cat => cat.name === this.categoryName)) {
-            this.errorMessage = "Le nom de la catégorie existe déjà.";
-            return;
-        } else {
-          this.categories.push({
-                name: this.categoryName,
-                description: this.categoryDescription
-            });
-            
-          localStorage.setItem('categories', JSON.stringify(this.categories));
-          // Réinitialiser les champs et le message d'erreur
-          this.categoryName = '';
-          this.categoryDescription = '';
-          this.errorMessage = '';
-          
-          // Fermer la modale
-          this.isOpen = false;
-        }
+      // Vérification basique de la validité des champs
+      if (!this.categoryName.trim() || !this.categoryDescription.trim()) {
+        this.errorMessage = "Veuillez remplir tous les champs.";
+        return;
+      } else if (this.categories.some(cat => cat.name === this.categoryName)) {
+        this.errorMessage = "Le nom de la catégorie existe déjà.";
+        return;
+      } else {
+        this.categories.push({
+          name: this.categoryName,
+          description: this.categoryDescription
+        });
+
+        localStorage.setItem('categories', JSON.stringify(this.categories));
+        // Réinitialiser les champs et le message d'erreur
+        this.categoryName = '';
+        this.categoryDescription = '';
+        this.errorMessage = '';
+
+        // Fermer la modale
+        this.isOpen = false;
+      }
     },
     async submitSignupData(event) {
       event.preventDefault();
       try {
-      // Registration first part complete
+        // Registration first part complete
         this.$router.push({ name: 'signup_part2' });
       }
       catch (error) {

@@ -63,7 +63,7 @@ class Email(models.Model):
     """Model for storing email information."""
     provider_id = models.CharField(max_length=200, unique=True)
     email_provider = models.CharField(max_length=50)
-    email_short_summary = models.CharField(max_length=200)
+    email_short_summary = models.CharField(max_length=500)
     content = models.TextField()
     subject = models.CharField(max_length=100)
     priority = models.CharField(max_length=50)

@@ -257,9 +257,8 @@
                                                                         <div v-show="hoveredItemId === item.id"
                                                                             class="group action-buttons">
                                                                             <div class="relative group">
-                                                                                <div v-if="showTooltip"
-                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10">
-                                                                                    Paramétrer
+                                                                                <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                    Actions supplémentaire
                                                                                 </div>
                                                                                 <Menu as="div"
                                                                                     class="relative inline-block text-left">
@@ -491,9 +490,8 @@
                                                                         <div v-show="hoveredItemId === item.id"
                                                                             class="group action-buttons">
                                                                             <div class="relative group">
-                                                                                <div
-                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10">
-                                                                                    Paramétrer
+                                                                                <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                    Actions supplémentaire
                                                                                 </div>
                                                                                 <Menu as="div"
                                                                                     class="relative inline-block text-left">
@@ -730,9 +728,8 @@
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
-                                                                                            <div
-                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10">
-                                                                                                Paramétrer
+                                                                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                                Actions supplémentaire
                                                                                             </div>
                                                                                             <Menu as="div"
                                                                                                 class="relative inline-block text-left">
@@ -982,9 +979,8 @@
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
-                                                                                            <div
-                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-10">
-                                                                                                Paramétrer
+                                                                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                                Actions supplémentaire
                                                                                             </div>
                                                                                             <Menu as="div"
                                                                                                 class="relative inline-block text-left">

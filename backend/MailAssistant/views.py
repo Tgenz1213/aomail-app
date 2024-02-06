@@ -794,7 +794,8 @@ def set_rule_block_for_sender(request, email_id):
     rule, created = Rule.objects.get_or_create(
         sender=email.sender, 
         user=user,
-        defaults={'block': True}
+        defaults={'block': True},
+        priority=''
     )
 
     # If the rule already existed, update the block field
@@ -1329,6 +1330,27 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     # summary_text = "\n".join(summary_list)
 
     # Finding start of the summary
+    match = re.search(r"Résumé en français(\s\(without using importance, response or relevance categorization\))?:", clear_response)
+
+    if match:
+        # Adjusting the start index based on the match found
+        summary_start = match.end()
+    else:
+        # Fallback or default behavior if the pattern is not found
+        summary_start = -1  # Or handle this case as needed
+
+    # Finding the end of the summary
+    summary_end = clear_response.find("\n\n", summary_start)
+    if summary_end == -1:  # If there's no double newline after the start, consider till the end of the string
+        summary_end = len(clear_response)
+
+    # Extracting the summary if a valid start index was found
+    if summary_start != -1:
+        summary_text = clear_response[summary_start:summary_end].strip()
+    else:
+        summary_text = "Summary not found."
+
+    ''' OLD TO DELETE (only Theo can delete)
     summary_start = clear_response.find("Résumé en français:") + len("Résumé en français:")
 
     # Finding the end of the summary
@@ -1339,7 +1361,7 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     # Extracting the summary
     summary_text = clear_response[summary_start:summary_end].strip()
     # if summary_text.startswith("- "):  # Remove any leading "- " from the extracted text
-    #     summary_text = summary_text[2:].strip()
+    #     summary_text = summary_text[2:].strip()'''
 
     # Output results
     # print("Topic Category:", topic_category)

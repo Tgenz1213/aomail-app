@@ -1565,6 +1565,7 @@ export default {
         },
         selectCategory(category) {
             this.selectedTopic = category.name;
+            localStorage.setItem('selectedTopic', category.name);
             console.log("CHANGE CATEGORY");
         },
         openModal() {
@@ -1718,6 +1719,15 @@ export default {
                 description: category.description
             }));
             console.log("Assigned categories:", this.categories);
+
+            const storedTopic = localStorage.getItem('selectedTopic');
+            if (storedTopic) {
+                this.selectedTopic = storedTopic;
+            } else {
+                if (this.categories.length > 0) {
+                    this.selectedTopic = this.categories[0].name;
+                }
+            }
 
             // Fetch emails
             const emailData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/`);

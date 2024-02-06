@@ -306,6 +306,7 @@
 import { defineProps, defineEmits, computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
+import ShowNotification from '../components/ShowNotification.vue';
 //import { ChevronDownIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import { fetchWithToken } from '../router/index.js';
 import Quill from 'quill';
@@ -1853,7 +1854,6 @@ async function sendEmail() {
 <script>
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
-import ShowNotification from '../components/ShowNotification.vue';
 import {
   UserGroupIcon,
   Bars2Icon,
@@ -1866,18 +1866,10 @@ export default {
   components: {
     Navbar,
     Navbar2,
-    ShowNotification,
     UserGroupIcon,
     Bars2Icon,
     // ChatBubbleOvalLeftEllipsisIcon,
     // Bars3BottomLeftIcon
-  },
-  data() {
-    return {
-      showNotification: false,
-      notificationTitle: '',
-      notificationMessage: '',
-    };
   },
   methods: {
     adjustHeight(event) {

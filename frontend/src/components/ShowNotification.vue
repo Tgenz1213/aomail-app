@@ -7,7 +7,7 @@
                 enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
                 leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
                 leave-to-class="opacity-0">
-                <div v-if="showNotification"
+                <div v-if="showNotification_intern"
                     :class="['pointer-events-auto', 'w-full', 'max-w-sm', 'overflow-hidden', 'rounded-lg', backgroundColor, 'shadow-lg', 'ring-1', 'ring-black', 'ring-opacity-5']">
                     <div class="p-4">
                         <div class="flex items-start">
@@ -19,7 +19,7 @@
                                 <p class="mt-1 text-sm text-gray-900">{{ notificationMessage }}</p>
                             </div>
                             <div class="ml-4 flex flex-shrink-0">
-                                <button type="button" @click="dismissNotification()"
+                                <button type="button" @click="crossDismissNotification()"
                                     class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
                                     <span class="sr-only">Close</span>
                                     <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
@@ -35,14 +35,36 @@
   
 <script>
 export default {
-
-
     props: {
         showNotification: Boolean,
         notificationTitle: String,
         notificationMessage: String,
         backgroundColor: String
-    }
+    },
+    data() {
+        return {
+            showNotification_intern: this.showNotification,
+        }
+    },
+    watch: {
+        showNotification(newVal) {
+            this.showNotification_intern = newVal;
+
+            if (newVal) {
+                this.dismissNotification();
+            }
+        }
+    },
+    methods: {
+        dismissNotification() {
+            setTimeout(() => {
+                this.showNotification_intern = false;
+            }, 4000);
+        },
+        crossDismissNotification() {
+            this.showNotification_intern = false;
+        }
+    },
 };
 </script>
   

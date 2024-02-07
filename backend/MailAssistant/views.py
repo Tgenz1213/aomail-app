@@ -269,7 +269,7 @@ def login(request):
 
         return Response({'access_token': access_token, 'email': email}, status=200)
     
-    return Response({'error': 'Invalid Credentials'}, status=400) 
+    return Response(status=400) 
 
 
 @api_view(['POST'])
@@ -678,8 +678,7 @@ def get_answer_later_emails(request):
 
     except Exception as e:
         logging.error(f"Error fetching emails: {e}")
-        return Response({"error": "An error occurred while fetching emails."}, 
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -936,16 +935,19 @@ def create_sender(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_email(request, email_id):
-    user = request.user
+    try:
+        user = request.user
 
-    # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, user=user, id=email_id)
+        # Check if the email belongs to the authenticated user
+        email = get_object_or_404(Email, user=user, id=email_id)
 
-    # Delete the email
-    email.delete()
+        # Delete the email
+        email.delete()
 
-    response_data = {"message": "Email deleted successfully"}
-    return Response(response_data, status=status.HTTP_200_OK)
+        return Response({"message": "Email deleted successfully"}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 #----------------------- CREDENTIALS AVAILABILITY -----------------------#
@@ -1466,7 +1468,6 @@ def get_mail_by_id_view(request):
             }
         }, status=200)
     else:
-        # Return an error response
         return Response({"error": "Failed to authenticate"}, status=400)
 
 

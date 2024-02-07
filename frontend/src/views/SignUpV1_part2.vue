@@ -481,15 +481,16 @@
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: 'UserSignUpPart2',
   created() {
-    console.log('Login:', sessionStorage.getItem('login'));
-    console.log('Password:', sessionStorage.getItem('password'));
-    console.log('Theme:', localStorage.getItem('theme'));
-    console.log('Color:', localStorage.getItem('color'));
-    console.log('Categories:', localStorage.getItem('categories'));
+    // console.log('Login:', sessionStorage.getItem('login'));
+    // console.log('Password:', sessionStorage.getItem('password'));
+    // console.log('Theme:', localStorage.getItem('theme'));
+    // console.log('Color:', localStorage.getItem('color'));
+    // console.log('Categories:', localStorage.getItem('categories'));
   },
   data() {
     return {
@@ -534,13 +535,14 @@ export default {
       const authorizationCode = urlParams.get('code');
 
       if (authorizationCode) {
-        // The authorization code is available, you can use it as needed
-        console.log('Authorization Code:', authorizationCode);
         sessionStorage.setItem("code", authorizationCode);
         this.step++;
       } else {
-        // TODO: display an error pop up
-        console.error('Authorization Code not found in the URL');
+        // // Show the pop-up
+        // showNotification = true;
+        // backgroundColor = 'bg-red-300';
+        // notificationTitle = 'Erreur d\'autorisation';
+        // notificationMessage = 'Code d\'autorisation introuvable dans l\'URL';
       }
     },
     async submitSignupData(event) {

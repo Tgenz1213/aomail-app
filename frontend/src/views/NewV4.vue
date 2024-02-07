@@ -1,10 +1,6 @@
 <template>
-  <ShowNotification
-    :showNotification="showNotification"
-    :notificationTitle="notificationTitle"
-    :notificationMessage="notificationMessage"
-    :backgroundColor="backgroundColor"
-  />
+  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
       <div class="col-span-1 2xl:col-span-1">
@@ -129,7 +125,7 @@
                                 class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                               </ComboboxButton>
-                              
+
                               <!-- List possible email according to current input -->
                               <ComboboxOptions v-if="filteredPeople.length > 0 && filteredPeople.length <= 10"
                                 class="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
@@ -319,6 +315,12 @@ import {
 } from '@headlessui/vue'
 
 
+// variables to display a notification
+let showNotification = ref(false);
+let notificationTitle = ref('');
+let notificationMessage = ref('');
+let backgroundColor = ref('');
+
 const items = [
   { name: 'Envoyer à une heure', href: '#' },
 ]
@@ -376,11 +378,6 @@ const isFirstTimeEmail = ref(true); // to detect first letter email content inpu
 const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
-// variables to display a notification
-let showNotification = ref(false);
-let notificationTitle = ref('');
-let notificationMessage = ref('');
-let backgroundColor = ref('');
 
 
 // User pressed the object input
@@ -412,7 +409,7 @@ function handleBlur2(event) {
       selectedPeople.value.push(newPerson);
     }
   } else if (filteredPeople._value.length == 0) {
-    // TODO: pop up invalid email format
+    // Show the pop-up
     showNotification = true;
     backgroundColor = 'bg-red-300';
     notificationTitle.value = 'Email invalide';
@@ -1762,14 +1759,6 @@ function hideLoading() {
   }
 }
 
-
-// function dismissNotification() {
-  // this function changes the value of showNotification but does not make the popup to dissapear
-//   console.log("DISMISSING");
-//   showNotification = false;
-//   console.log("showNotification", showNotification);
-// }
-
 async function sendEmail() {
   // Send an email with input parameters
 
@@ -1800,10 +1789,10 @@ async function sendEmail() {
     });
 
     if (response.message === 'Email sent successfully!') {
-      // Set notification content
+      // Show the pop-up
       showNotification = true;
       backgroundColor = 'bg-green-300';
-      notificationTitle = 'Email envoyé';
+      notificationTitle = 'Succès !';
       notificationMessage = 'Votre email a été envoyé avec succès.';
 
       // Other logic
@@ -1819,34 +1808,19 @@ async function sendEmail() {
       const message = "Bonjour, à quelle destinaire(s) souhaitez vous envoyer cet email ?";
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
       displayMessage(message, ai_icon);
-
-      // Hide the notification after 5 seconds
-      setTimeout(() => {
-        showNotification = false;
-      }, 5000);
     } else {
-      // TODO: Display a red pop-up
-      // console.error('Error sending email:', response.message);
+      // Show the pop-up
       showNotification = true;
       backgroundColor = 'bg-red-300';
       notificationTitle.value = 'Erreur d\'envoi d\'email';
       notificationMessage.value = response.message;
-
-      setTimeout(() => {
-        showNotification = false;
-      }, 5000);
     }
   } catch (error) {
-    // TODO: Display a red pop-up
-    //console.error('Error sending email:', error);
+    // Show the pop-up
     showNotification = true;
     backgroundColor = 'bg-red-300';
     notificationTitle.value = 'Erreur d\'envoi d\'email';
     notificationMessage.value = error;
-
-    setTimeout(() => {
-      showNotification = false;
-    }, 5000);
   }
 }
 </script>
@@ -1887,8 +1861,6 @@ export default {
         textarea.style.overflowY = 'hidden'; // Hide the scrollbar when content is below maxHeight.
       }
     },
-  },
-  mounted() {
   }
 }
 </script>

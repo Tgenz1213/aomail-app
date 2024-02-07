@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { isUserAuthenticated } from '@/services/authService';
-import Login from '@/views/Login.vue';
+import Login from '@/views/UserLogin.vue';
 import SignUp from '@/views/SignUpV1.vue';
 import SignUpPart2 from '@/views/SignUpV1_part2.vue';
 import Home from '@/views/HomeV15.vue';

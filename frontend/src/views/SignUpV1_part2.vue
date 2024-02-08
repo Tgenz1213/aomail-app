@@ -1,6 +1,8 @@
 <!-- V1 -->
 <!-- TO FIX : Color background -->
 <template>
+  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
   <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
@@ -482,123 +484,130 @@
   </div>
 </template>
 
+<script setup>
+import { ref } from 'vue';
+import ShowNotification from '../components/ShowNotification.vue';
+import { useRouter } from 'vue-router';
+
+
+// Variables to display a notification
+let showNotification = ref(false);
+let notificationTitle = ref('');
+let notificationMessage = ref('');
+let backgroundColor = ref('');
+
+const router = useRouter();
+let step = ref(3);
+
+// Functions
+function authorize_google(event) {
+  event.preventDefault();
+  sessionStorage.setItem("type_api", "google");
+
+  // Redirect the user to the authorization URL
+  window.location.replace("http://localhost:9000/MailAssistant/google/auth_url/");
+}
+
+function authorize_microsoft(event) {
+  event.preventDefault();
+  sessionStorage.setItem("type_api", "microsoft");
+
+  // Redirect the user to the authorization URL
+  window.location.replace("http://localhost:9000/MailAssistant/microsoft/auth_url/");
+}
+
+async function nextStep3(event) {
+  event.preventDefault();
+  // After redirection, get the authorization code from the current URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const authorizationCode = urlParams.get('code');
+
+  if (authorizationCode) {
+    sessionStorage.setItem("code", authorizationCode);
+    step.value++;
+  } else {
+    // Show the pop-up
+    showNotification.value = true;
+    backgroundColor.value = 'bg-red-300';
+    notificationTitle.value = 'Erreur d\'autorisation';
+    notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
+  }
+}
+
+async function submitSignupData(event) {
+  event.preventDefault();
+  // TODO: checkbox I read all the infos and accept the terms
+  console.log("The user has read and accepted our terms");
+
+  try {
+    // Prepare the data for registration
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        login: sessionStorage.getItem('login'),
+        password: sessionStorage.getItem('password'),
+        theme: localStorage.getItem('theme'),
+        color: localStorage.getItem('color'),
+        categories: localStorage.getItem('categories'),
+        code: sessionStorage.getItem('code'),
+        type_api: sessionStorage.getItem("type_api")
+      })
+    };
+
+    // READY TO REGISTER THE USER IN DATABASE
+    const response = await fetch('http://localhost:9000/MailAssistant/signup/', requestOptions);
+    const data = await response.json();
+
+    if (response.status === 201) {
+      // Registration successful
+      localStorage.setItem('user_id', data.user_id);
+      // JWT access token
+      localStorage.setItem('access_token', data.access_token);
+      // Store the email and use it in request headers
+      localStorage.setItem('email', data.email);
+
+      sessionStorage.clear();
+      console.log('Signup successful');
+      // Redirect to the home page once signed in
+      router.push({ name: 'home' });
+    } else if (data.error == 'Email address already used') {
+      // Show the pop-up
+      showNotification.value = true;
+      backgroundColor.value = 'bg-red-300';
+      notificationTitle.value = 'Erreur lors de la création du compte';
+      notificationMessage.value = 'Adresse e-mail déjà utilisée';
+
+    } else {
+      // Show the pop-up
+      showNotification.value = true;
+      backgroundColor.value = 'bg-red-300';
+      notificationTitle.value = 'Erreur lors de la création du compte';
+      notificationMessage.value = data.error;
+    }
+  } catch (error) {
+    // Show the pop-up
+    showNotification.value = true;
+    backgroundColor.value = 'bg-red-300';
+    notificationTitle.value = 'Erreur lors de la création du compte';
+    notificationMessage.value = error;
+  }
+}
+</script>
+
 <script>
 export default {
-  name: 'UserSignUpPart2',
-  created() {
-    // console.log('Login:', sessionStorage.getItem('login'));
-    // console.log('Password:', sessionStorage.getItem('password'));
-    // console.log('Theme:', localStorage.getItem('theme'));
-    // console.log('Color:', localStorage.getItem('color'));
-    // console.log('Categories:', localStorage.getItem('categories'));
-  },
   data() {
     return {
-      step: 3,
-      login: "",
-      password: "",
-      confirmPassword: "",
-      passwordError: '',
-      theme: "",
-      color: "",
-      googleToken: '',
       isOpen: false,
-      categoryName: '',      // Pour le champ "Nom de la catégorie"
-      categoryDescription: '', // Pour le champ "Description brève de la catégorie"
-      categories: [],
-      errorMessage: '',
       logo: require('@/assets/LogoAugmentAI_export4.png')
     }
   },
   methods: {
-    authorize_google(event) {
-      event.preventDefault();
-      sessionStorage.setItem("type_api", "google");
-
-      // Redirect the user to the authorization URL
-      window.location.replace("http://localhost:9000/MailAssistant/google/auth_url/");
-    },
-    authorize_microsoft(event) {
-      event.preventDefault();
-      sessionStorage.setItem("type_api", "microsoft");
-
-      // Redirect the user to the authorization URL
-      window.location.replace("http://localhost:9000/MailAssistant/microsoft/auth_url/");
-    },
     closeModal() {
       this.isOpen = false;
-    },
-    async nextStep3(event) {
-      event.preventDefault();
-      // After redirection, get the authorization code from the current URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const authorizationCode = urlParams.get('code');
-
-      if (authorizationCode) {
-        sessionStorage.setItem("code", authorizationCode);
-        this.step++;
-      } else {
-        // // Show the pop-up
-        // showNotification = true;
-        // backgroundColor = 'bg-red-300';
-        // notificationTitle = 'Erreur d\'autorisation';
-        // notificationMessage = 'Code d\'autorisation introuvable dans l\'URL';
-      }
-    },
-    async submitSignupData(event) {
-      event.preventDefault();
-      console.log("The user has read and accepted our terms");
-
-      try {
-        // Prepare the data for registration
-        const requestOptions = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            login: sessionStorage.getItem('login'),
-            password: sessionStorage.getItem('password'),
-            theme: localStorage.getItem('theme'),
-            color: localStorage.getItem('color'),
-            categories: localStorage.getItem('categories'),
-            code: sessionStorage.getItem('code'),
-            type_api: sessionStorage.getItem("type_api")
-          })
-        };
-
-        // READY TO REGISTER THE USER IN DATABASE
-        const response = await fetch('http://localhost:9000/MailAssistant/signup/', requestOptions);
-        const data = await response.json();
-
-        if (response.status === 201) {
-          // Registration successful
-          localStorage.setItem('user_id', data.user_id);
-          // JWT access token
-          localStorage.setItem('access_token', data.access_token);
-          // Store the email and use it in request headers
-          localStorage.setItem('email', data.email);
-
-
-          sessionStorage.clear();
-          console.log('Signup successful');
-          // Redirect to the home page once signed in
-          this.$router.push({ name: 'home' });
-        } else if (response.status === 400) {
-          if (data.error === 'Email address already used') {
-            // TODO: Display a screen: email address is used
-            console.error('Email address already used');
-            location.reload();
-          } else {
-            // TODO: Display a screen to show the error to the user
-            console.error('Signup unsuccessful');
-          }
-        } else {
-          console.error(`Unexpected response status: ${response.status}`);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
     }
   }
 }

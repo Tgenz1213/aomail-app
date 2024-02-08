@@ -49,7 +49,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
-    """REGISTER USER IN mailassistandb and handles the callback of the API with Oauth2.0
+    """Register user in mailassistandb and handles the callback of the API with Oauth2.0
 
     APIs taken into account:
         - Gmail API (Google)
@@ -67,13 +67,13 @@ def signup(request):
     # Validate user data
     validation_result = validate_signup_data(username, password, code)
     if 'error' in validation_result:
-        return Response(validation_result, status=validation_result['status'])
+        return Response(validation_result, status=400)
 
     # Checks if the authorization code is valid
     authorization_result = validate_authorization_code(type_api, code)
 
     if 'error' in authorization_result:
-        return Response({'error': authorization_result['error']}, status=authorization_result['status'])
+        return Response({'error': authorization_result['error']}, status=400)
     
     # Extract tokens and email from the authorization result
     access_token = authorization_result['access_token']
@@ -87,7 +87,8 @@ def signup(request):
         elif " " in email:
             return Response({'error': 'Email address must not contain spaces'}, status=400)
     else:
-        return Response({'error': 'Failed to get the email'}, status=400)
+        # Google Oauth2.0 returns a refresh token only at first consent
+        return Response({'error': 'Email address already used'}, status=400)
 
     # Create and save user
     user = User.objects.create_user(username, '', password)
@@ -103,12 +104,12 @@ def signup(request):
         elif type_api == "microsoft":
             threading.Thread(target=microsoft_api.set_all_contacts, args=(access_token, user)).start()
     except Exception as e:
-        print(f'{Fore.RED}Error while saving contacts: {str(e)}')
+        return Response({'error': str(e)}, status=400)
 
     # Save user data
     result = save_user_data(user, type_api, email, access_token, refresh_token, theme, color, categories)
     if 'error' in result:
-        return Response(result, status=result['status'])
+        return Response(result, status=400)
 
     return Response({'user_id': user_id, 'access_token': jwt_access_token, 'email': email}, status=201)
 
@@ -124,27 +125,27 @@ def validate_authorization_code(type_api, code):
             email = microsoft_api.get_email(access_token)
         return {'access_token': access_token, 'refresh_token': refresh_token, 'email': email}
     except Exception as e:
-        return {'error': str(e), 'status': status.HTTP_400_BAD_REQUEST}
+        return {'error': str(e)}
 
 
 def validate_signup_data(username, password, code):
     """Validates user signup data to ensure all requirements are met"""
     if not code:
-        return {'error': 'No authorization code provided', 'status': 404}
+        return {'error': 'No authorization code provided'}
 
     # Check if user requirements
     if User.objects.filter(username=username).exists():
-        return {'error': 'Username already exists', 'status': 400}
+        return {'error': 'Username already exists'}
     elif " " in username:
-        return {'error': 'Username must not contain spaces', 'status': 400}
+        return {'error': 'Username must not contain spaces'}
 
     # Check passwords requirements
     if not (8 <= len(password) <= 32):
-        return {'error': 'Password length must be between 8 and 32 characters', 'status': 400}
+        return {'error': 'Password length must be between 8 and 32 characters'}
     if " " in password:
-        return {'error': 'Password must not contain spaces', 'status': 400}
+        return {'error': 'Password must not contain spaces'}
     elif not re.match(r'^[a-zA-Z0-9!@#$%^&*()-=_+]+$', password):
-        return {'error': 'Password contains invalid characters', 'status': 400}
+        return {'error': 'Password contains invalid characters'}
 
     return {'status': 200}
 
@@ -184,12 +185,12 @@ def save_user_data(user, type_api, email, access_token, refresh_token, theme, co
                     )
                     category.save()
             except json.JSONDecodeError:
-                return {'error': 'Invalid categories data', 'status': status.HTTP_404_NOT_FOUND}
-
-        return {'status': status.HTTP_200_OK}
+                return {'error': 'Invalid categories data'}
+        
+        return {'message': 'User data saved successfully'}
 
     except Exception as e:
-        return {'error': str(e), 'status': status.HTTP_400_BAD_REQUEST}
+        return {'error': str(e)}
 
 
 @api_view(['GET'])

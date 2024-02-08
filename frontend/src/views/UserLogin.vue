@@ -103,3 +103,13 @@ async function login() {
     }
 }
 </script>
+
+<script>
+export default {
+  data() {
+    return {
+      logo: require('@/assets/LogoAugmentAI_export4.png')
+    };
+  }
+}
+</script>

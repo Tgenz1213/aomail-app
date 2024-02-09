@@ -315,7 +315,10 @@ def get_user_categories(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     except User.DoesNotExist:
-        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": "User not found"}, status=400)
+    
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
 
 
 @api_view(['PUT'])
@@ -1056,7 +1059,7 @@ def get_user_emails(request):
         for priority in all_priorities:
             formatted_data[category].setdefault(priority, [])
 
-    print(f"{Fore.CYAN}{formatted_data}")
+    print(f"{Fore.CYAN}formatted_data: {formatted_data}")
     return Response(formatted_data, status=status.HTTP_200_OK)
 
 

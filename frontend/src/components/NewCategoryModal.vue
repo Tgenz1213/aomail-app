@@ -71,5 +71,7 @@ const closeModal = () => {
 
 const addCategory = () => {
     emits('addCategory', { name: categoryName.value, description: categoryDescription.value });
+    categoryDescription.value = '';
+    categoryName.value = '';
 };
 </script>

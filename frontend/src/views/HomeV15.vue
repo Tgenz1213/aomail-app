@@ -1125,102 +1125,6 @@
         <UpdateCategoryModal :isOpen="isModalUpdateOpen" :errorMessage="modalUpdateErrorMessage"
             :category="categoryToUpdate" @closeModal="closeUpdateModal" @updateCategory="handleUpdateCategory"
             @deleteCategory="handleCategoryDelete" />
-        <!-- Notification new category created -->
-        <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:p-6">
-            <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-                <transition enter-active-class="transform ease-out duration-300 transition"
-                    enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-                    enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-                    leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                    leave-to-class="opacity-0">
-                    <div v-if="showNewCategoryNotif"
-                        class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
-                        <div class="p-4">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
-                                </div>
-                                <div class="ml-3 w-0 flex-1 pt-0.5">
-                                    <p class="text-sm font-medium text-gray-900">Categorie créée !</p>
-                                    <p class="mt-1 text-sm text-gray-900">Votre catégorie a été créée avec succès</p>
-                                </div>
-                                <div class="ml-4 flex flex-shrink-0">
-                                    <button type="button" @click="showNewCategoryNotif = false"
-                                        class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
-                                        <span class="sr-only">Close</span>
-                                        <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </transition>
-            </div>
-        </div>
-        <!-- Notification category updated -->
-        <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:p-6">
-            <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-                <transition enter-active-class="transform ease-out duration-300 transition"
-                    enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-                    enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-                    leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                    leave-to-class="opacity-0">
-                    <div v-if="showUpdateCategoryNotif"
-                        class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
-                        <div class="p-4">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
-                                </div>
-                                <div class="ml-3 w-0 flex-1 pt-0.5">
-                                    <p class="text-sm font-medium text-gray-900">Categorie mis à jour !</p>
-                                    <p class="mt-1 text-sm text-gray-900">Votre catégorie a été mis à jour avec succès</p>
-                                </div>
-                                <div class="ml-4 flex flex-shrink-0">
-                                    <button type="button" @click="showUpdateCategoryNotif = false"
-                                        class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
-                                        <span class="sr-only">Close</span>
-                                        <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </transition>
-            </div>
-        </div>
-        <!-- Notification category deleted -->
-        <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:p-6">
-            <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-                <transition enter-active-class="transform ease-out duration-300 transition"
-                    enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-                    enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-                    leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                    leave-to-class="opacity-0">
-                    <div v-if="showDeleteCategoryNotif"
-                        class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
-                        <div class="p-4">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0">
-                                    <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
-                                </div>
-                                <div class="ml-3 w-0 flex-1 pt-0.5">
-                                    <p class="text-sm font-medium text-gray-900">Categorie supprimé !</p>
-                                    <p class="mt-1 text-sm text-gray-900">Votre catégorie a été supprimée avec succès</p>
-                                </div>
-                                <div class="ml-4 flex flex-shrink-0">
-                                    <button type="button" @click="showDeleteCategoryNotif = false"
-                                        class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
-                                        <span class="sr-only">Close</span>
-                                        <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </transition>
-            </div>
-        </div>
         <ModalSeeMail :isOpen="showModal" :email="selectedEmail" @update:isOpen="updateModalStatus" />
     </div>
 </template>
@@ -1238,32 +1142,31 @@ let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 
-//let animationTriggered = ref([false, false, false]);
+let animatedText = ref(''); 
+let showHiddenParagraphs = ref({});
 let showModal = ref(false);
 let isModalOpen = ref(false);
 let isModalUpdateOpen = ref(false);
 let modalErrorMessage = ref('');
 let modalUpdateErrorMessage = ref('');
-//let selectedCategory = ref(null);
 let categoryToUpdate = ref(null);
-//let messageText = ref('');
 let categories = ref([]);
-let selectedTopic = ref('Administrative');
-let bgColor = ref('bg-gradient-to-r from-sky-300 to-blue-300');
 let selectedEmail = ref(null);
-let showNewCategoryNotif = ref(false);
-let showUpdateCategoryNotif = ref(false);
-let showDeleteCategoryNotif = ref(false);
 let hoveredItemId = ref(null);
 let oldCategoryName = ref('');
 let showEmailDescriptions = ref(false);
 let showEmailReadDescriptions = ref(false);
-//let showDropdown = ref(false);
 let showTooltip = ref(true);
 let isMenuOpen = ref(true);
 let isDropdownOpen = ref(false);
 let emails = ref({});
+let scrollableDiv = ref(null);
+let selectedTopic = ref('Administrative');
+let animationTriggered = ref([false, false, false]);
+let bgColor = ref('bg-gradient-to-r from-sky-300 to-blue-300');
 
+
+let parentElementRefs = ref([]);
 
 
 
@@ -1292,10 +1195,6 @@ function toggleTooltip() {
     showTooltip.value = false;
     isDropdownOpen.value = true;
 }
-
-// function toggleDropdown() {
-//   showDropdown.value = !showDropdown.value;
-// }
 
 async function markEmailAsRead(emailId) {
     try {
@@ -1467,21 +1366,6 @@ function updateModalStatus(status) {
     showModal.value = status;
 }
 
-
-
-/*openModal(email) {
-    this.selectedEmail = email; // Set the email data for the clicked email
-    this.showModal = true; // Open the modal
-},*/
-
-
-
-function selectCategory(category) {
-    selectedTopic.value = category.name;
-    localStorage.setItem('selectedTopic', category.name);
-    console.log("CHANGE CATEGORY");
-}
-
 function openModal() {
     isModalOpen.value = true;
 }
@@ -1491,7 +1375,7 @@ function closeModal() {
 }
 
 function openUpdateModal(category) {
-    console.log("CATEGORY TO UPDATE : ", category);
+    //console.log("CATEGORY TO UPDATE : ", category);
     oldCategoryName.value = category.name;
     categoryToUpdate.value = category;
     isModalUpdateOpen.value = true;
@@ -1516,8 +1400,14 @@ async function handleAddCategory(categoryData) {
         });
 
         if (response) {
-            console.log('Category added:', response);
-            showNewCategoryNotif.value = true;
+            //console.log('Category added:', response);
+            //showNewCategoryNotif.value = true;
+            // Show the pop-up
+            showNotification = true;
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Succès !';
+            notificationMessage = 'La catégorie a été ajoutée';
+
             closeModal();
             const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
             console.log("CategoryData", fetchedCategories);
@@ -1526,22 +1416,30 @@ async function handleAddCategory(categoryData) {
                 description: category.description
             }));
             console.log("Assigned categories:", categories.value);
-            setTimeout(() => {
-                showNewCategoryNotif.value = false;
-            }, 2000);
+            // setTimeout(() => {
+            //     showNewCategoryNotif.value = false;
+            // }, 2000);
         }
     } catch (error) {
         console.error('Error adding category:', error);
-        showNewCategoryNotif.value = false;
-        // Handle the error
+        //showNewCategoryNotif.value = false;
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur lors de l\'ajout de la catégorie';
+        notificationMessage = error;
     }
 }
 
-
 async function handleUpdateCategory(updatedCategory) {
-    console.log('Category Data to Update:', updatedCategory);
+    
     if (!updatedCategory.name.trim()) {
-        console.error('Error: Category name cannot be empty');
+        //console.error('Error: Category name cannot be empty');
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
+        notificationMessage = 'Le nom de la catégorie ne peut pas être vide';
         return;
     }
     const updateData = {
@@ -1558,10 +1456,16 @@ async function handleUpdateCategory(updatedCategory) {
             body: JSON.stringify(updateData)
         };
         const response = await fetchWithToken(url, options);
-
+        
         if (response) {
-            console.log('Category updated:', response);
-            showUpdateCategoryNotif.value = true;
+            //showUpdateCategoryNotif.value = true;
+            // Show the pop-up
+            showNotification = true;
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Succès !';
+            notificationMessage = 'La catégorie a été mise à jour';
+
+
             closeUpdateModal();
             const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
             console.log("CategoryData", fetchedCategories);
@@ -1570,20 +1474,29 @@ async function handleUpdateCategory(updatedCategory) {
                 description: category.description
             }));
             console.log("Assigned categories:", categories.value);
-            setTimeout(() => {
-                showUpdateCategoryNotif.value = false;
-            }, 2000);
+            // setTimeout(() => {
+            //     showUpdateCategoryNotif.value = false;
+            // }, 2000);
         }
     } catch (error) {
-        console.error('Error updating category:', error);
-        showUpdateCategoryNotif.value = false;
-        // Handle the error
+        //console.error('Error updating category:', error);
+        //showUpdateCategoryNotif.value = false;        
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
+        notificationMessage = error;
     }
 }
 async function handleCategoryDelete(categoryNameToDelete) {
     console.log("Category to delete", categoryNameToDelete);
     if (!categoryNameToDelete.trim()) {
-        console.error('Error: Category name cannot be empty');
+        //console.error('Error: Category name cannot be empty');
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur lors de la suppression de la catégorie';
+        notificationMessage = 'Le nom de la catégorie ne peut pas être vide';
         return;
     }
 
@@ -1598,17 +1511,13 @@ async function handleCategoryDelete(categoryNameToDelete) {
         };
 
         const response = await fetchWithToken(url, options);
-
+        
         if (response) {
-            console.log('showNotification:', showNotification.value)
-            showDeleteCategoryNotif.value = true;
-            
             // Show the pop-up
-            showNotification.value = true;
-            backgroundColor.value = 'bg-red-300';
-            notificationTitle.value = 'Succès !';
-            notificationMessage.value = 'Votre catégorie a été supprimée';
-
+            showNotification = true;
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Succès !';
+            notificationMessage = 'Votre catégorie a été supprimée';
 
             closeUpdateModal();
             // Fetch the categories
@@ -1619,27 +1528,240 @@ async function handleCategoryDelete(categoryNameToDelete) {
                 description: category.description
             }));
             console.log("Assigned categories:", categories.value);
-            setTimeout(() => {
-                showDeleteCategoryNotif.value = false;
-            }, 2000)
         }
     } catch (error) {
-        console.error('Error deleting category:', error);
-        showDeleteCategoryNotif.value = false;
-        // Handle the error
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur lors de la suppression de la catégorie';
+        notificationMessage = error;
     }
 }
 
 function readEmailsInSelectedTopic() {
     let combinedEmails = [];
-    for (let category in this.emails[this.selectedTopic]) {
-        combinedEmails = combinedEmails.concat(this.emails[this.selectedTopic][category]);
+    for (let category in emails[selectedTopic]) {
+        combinedEmails = combinedEmails.concat(emails[selectedTopic][category]);
     }
 
     return combinedEmails.filter(email => email.read);
 }
-</script>
 
+
+
+function toggleReadEmailVisibility() {
+    showEmailReadDescriptions.value = !showEmailReadDescriptions.value;
+    scrollToBottom();
+}
+
+function toggleEmailVisibility() {
+    showEmailDescriptions.value = !showEmailDescriptions.value;
+    if (readEmailsInSelectedTopic.length == 0) {
+        scrollToBottom();
+    } else {
+        scrollAlmostToBottom();
+    }
+}
+
+function scrollToBottom() {
+    nextTick(() => {
+        const element = scrollableDiv.value;
+        element.scrollTop = element.scrollHeight;
+    });
+}
+
+function scrollAlmostToBottom() {
+    nextTick(() => {
+        const element = scrollableDiv.value;
+        const offset = 100; // Adjust this value as needed
+        element.scrollTop = element.scrollHeight - offset;
+    });
+}
+
+
+async function animateText() {
+    try {
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'email': localStorage.getItem('email')
+            },
+        };
+
+        const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
+
+
+        const unreadMailCount = data.unreadCount;
+        let text = '';
+
+        if (unreadMailCount === 0) {
+            text = `Bonjour ! Vous n'avez pas de nouveaux mails.`;
+        } else if (unreadMailCount === 1) {
+            text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveau mail.`;
+        } else {
+            text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveaux mails.`;
+        }
+
+        let target = animatedText.value;
+        let characters = text.split("");
+        let currentIndex = 0;
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                target.textContent += characters[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 30);
+    } catch (error) {
+        //console.error('Error trying to get the number of unread emails:', error);
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur récupération du nombre d\'e-mails non lus';
+        notificationMessage = error;
+    }
+}
+
+
+function toggleHiddenParagraph(index) {
+    console.log("Item ID:", index)
+    console.log("All refs:", parentElementRefs.value)
+    console.log('parentElement: ', parentElementRefs.value[index])
+    console.log("Test: ", parentElementRefs.value[index].children)
+
+    showHiddenParagraphs.value[index] = !showHiddenParagraphs.value[index];
+    nextTick(() => {
+        if (showHiddenParagraphs.value[index] && !animationTriggered.value[index]) {
+            const parentElement = parentElementRefs.value[index];
+            const elements = parentElement.children;
+            console.log("Elements:", elements)
+
+            const delays = [0];
+            for (let i = 0; i < elements.length; i++) {
+                const duration = animateHiddenText(elements[i], delays[i]);
+                delays.push(delays[i] + duration + 20);
+            }
+            animationTriggered.value[index] = true;
+        }
+    });
+}
+
+function animateHiddenText(element, delay = 0) {
+    const characters = element.dataset.text.split('');
+    const duration = characters.length * 5;
+    setTimeout(() => {
+        element.textContent = '';
+        let currentIndex = 0;
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                element.textContent += characters[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 5);
+    }, delay);
+    return duration;
+}
+
+
+function selectCategory(category) {
+    selectedTopic = category.name;
+    localStorage.setItem('selectedTopic', category.name);
+    //console.log("CHANGE CATEGORY");
+}
+
+
+
+function countEmailsInCategoryAndPriority() {
+    return (categoryName, priority) => {
+        let count = 0;
+        if (emails[categoryName] && emails[categoryName][priority]) {
+            for (let email of emails[categoryName][priority]) {
+                if (!email.read) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    };
+}
+
+// To check if there is emails or not in the category
+function isEmptyTopic() {
+    const topic = emails[selectedTopic];
+    if (!topic) {
+        console.log("Topic not found for selectedTopic:", selectedTopic); // Debugging log
+        return true; // or true, based on how you want to handle this case
+    }
+    return Object.values(topic).every(subcategory => subcategory.length === 0);
+}
+
+// Updated to work only with the the email not red by the user
+function totalEmailsInCategory() {
+    return (categoryName) => {
+        let totalCount = 0;
+        if (emails[categoryName]) {
+            for (let subcategory of Object.values(emails[categoryName])) {
+                for (let email of subcategory) {
+                    if (!email.read) {
+                        totalCount++;
+                    }
+                }
+            }
+        }
+        return totalCount;
+    };
+}
+
+
+// Fetch data function
+const fetchData = async () => {
+    try {
+        // Fetch the categories
+        const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+        console.log("CategoryData", categoryData);
+
+        for (let i = 0; i < categoryData.length; i++) {
+            categories.value.push(categoryData[i]);
+        }
+        console.log("Assigned categories:", categories.value);
+
+        const storedTopic = localStorage.getItem('selectedTopic');
+        console.log("selectedTopic", storedTopic)
+        if (storedTopic) {
+            selectedTopic.value = storedTopic;
+        } else if (categories.value.length > 0) {
+            selectedTopic.value = categories.value[0].name;
+        }
+
+        // Fetch emails
+        const emailData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/`);
+        console.log('emailData: ', emailData)
+        emails.value = emailData;
+    } catch (error) {
+        console.error('Failed to fetch data:', error);
+    }
+
+    // To handle answer sent
+    if (localStorage.getItem('Email_sent')) {
+        localStorage.setItem('Email_sent', '');
+    }
+};
+
+// Run fetchData when the component is mounted
+onMounted(() => {
+    console.log("COOKIES", document.cookie);
+
+    //const showNotification = ref(false);
+    bgColor = localStorage.getItem('bgColor');
+    animateText();
+
+    fetchData();
+});
+</script>
 
 <script>
 import Navbar from '../components/AppNavbar7.vue';
@@ -1647,7 +1769,7 @@ import Navbar2 from '../components/AppNavbar8.vue';
 import ModalSeeMail from '../components/SeeMail.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
-import { ref } from 'vue';
+import { ref, nextTick, onMounted } from 'vue';
 import { fetchWithToken } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
@@ -1683,376 +1805,6 @@ export default {
         ModalSeeMail,
         NewCategoryModal,
         UpdateCategoryModal
-    },
-    methods: {
-        // To redirect to the page rules to edit a rule
-        openRuleEditor(ruleId) {
-            if (ruleId) {
-                this.$router.push({ name: 'rules', query: { id_rule: ruleId, edit_rule: true } });
-            }
-        },
-        openNewRule(ruleName, ruleEmail) {
-            if (ruleName && ruleEmail) {
-                this.$router.push({ name: 'rules', query: { rule_name: ruleName, rule_email: ruleEmail, edit_rule: false } });
-            }
-        },
-        setHoveredItem(id) {
-            this.hoveredItemId = id;
-        },
-        clearHoveredItem() {
-            this.hoveredItemId = null;
-        },
-        toggleReadEmailVisibility() {
-            this.showEmailReadDescriptions = !this.showEmailReadDescriptions;
-            this.scrollToBottom();
-        },
-        toggleEmailVisibility() {
-            this.showEmailDescriptions = !this.showEmailDescriptions;
-            if (this.readEmailsInSelectedTopic.length == 0) {
-                this.scrollToBottom();
-            } else {
-                this.scrollAlmostToBottom();
-            }
-        },
-        scrollToBottom() {
-            this.$nextTick(() => {
-                const element = this.$refs.scrollableDiv;
-                element.scrollTop = element.scrollHeight;
-            });
-        },
-        scrollAlmostToBottom() {
-            this.$nextTick(() => {
-                const element = this.$refs.scrollableDiv;
-                const offset = 100; // Adjust this value as needed
-                element.scrollTop = element.scrollHeight - offset;
-            });
-        },
-        toggleTooltip() {
-            this.showTooltip = false;
-            this.isDropdownOpen = true;
-        },
-        toggleDropdown() {
-            this.showDropdown = !this.showDropdown;
-        },
-        async animateText() {
-            try {
-                const requestOptions = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'email': localStorage.getItem('email')
-                    },
-                };
-
-                const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
-
-
-                const unreadMailCount = data.unreadCount;
-                let text = '';
-
-                if (unreadMailCount === 0) {
-                    text = `Bonjour ! Vous n'avez pas de nouveaux mails.`;
-                } else if (unreadMailCount === 1) {
-                    text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveau mail.`;
-                } else {
-                    text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveaux mails.`;
-                }
-
-                let target = this.$refs.animatedText;
-                let characters = text.split("");
-                let currentIndex = 0;
-                const interval = setInterval(() => {
-                    if (currentIndex < characters.length) {
-                        target.textContent += characters[currentIndex];
-                        currentIndex++;
-                    } else {
-                        clearInterval(interval);
-                    }
-                }, 30);
-            } catch (error) {
-                console.error('Error trying to get the number of unread emails:', error);
-            }
-        },
-        toggleHiddenParagraph(index) {
-            console.log("Item ID:", index)
-            console.log("All refs:", this.$refs)
-            console.log('parentElement: ', this.$refs['parentElement' + index])
-            console.log("Test: ", this.$refs['parentElement' + index][0].children)
-            // if(this.$refs['parentElement' + index]) {
-            //     console.log("Ref for current index:", this.$refs['parentElement' + index]);
-            // } else {
-            //     console.log(`Ref for index ${index} does not exist.`);
-            // }
-            this.showHiddenParagraphs[index] = !this.showHiddenParagraphs[index];
-            this.$nextTick(() => {
-                if (this.showHiddenParagraphs[index] && !this.animationTriggered[index]) {
-                    const parentElement = this.$refs['parentElement' + index][0];
-                    const elements = parentElement.children;
-                    console.log("Elements:", elements)
-
-                    const delays = [0];
-                    for (let i = 0; i < elements.length; i++) {
-                        const duration = this.animateHiddenText(elements[i], delays[i]);
-                        delays.push(delays[i] + duration + 20);
-                    }
-                    this.animationTriggered[index] = true;
-                }
-            });
-        },
-        animateHiddenText(element, delay = 0) {
-            const characters = element.dataset.text.split('');
-            const duration = characters.length * 5;
-            setTimeout(() => {
-                element.textContent = '';
-                let currentIndex = 0;
-                const interval = setInterval(() => {
-                    if (currentIndex < characters.length) {
-                        element.textContent += characters[currentIndex];
-                        currentIndex++;
-                    } else {
-                        clearInterval(interval);
-                    }
-                }, 5);
-            }, delay);
-            return duration;
-        },
-    },
-    async mounted() {
-        console.log("COOKIES", document.cookie);
-
-        const showNotification = ref(false);
-        this.bgColor = localStorage.getItem('bgColor');
-        this.animateText();
-
-        try {
-            // Fetch the categories
-            const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
-            console.log("CategoryData", categoryData);
-            this.categories = categoryData.map(category => ({
-                name: category.name,
-                description: category.description
-            }));
-            console.log("Assigned categories:", this.categories);
-
-            const storedTopic = localStorage.getItem('selectedTopic');
-            if (storedTopic) {
-                this.selectedTopic = storedTopic;
-            } else {
-                if (this.categories.length > 0) {
-                    this.selectedTopic = this.categories[0].name;
-                }
-            }
-
-            // Fetch emails
-            const emailData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/`);
-            //console.log('fetchData: ',emailData)
-            this.emails = emailData;
-
-
-            console.log("EMAIL", this.emails);
-
-        } catch (error) {
-            console.error('Failed to fetch data:', error);
-        }
-
-        // To handle answer sent
-        if (localStorage.getItem('Email_sent')) {
-            localStorage.setItem('Email_sent', '');
-            showNotification.value = true;
-            setTimeout(() => {
-                showNotification.value = false;
-            }, 5000);
-        }
-    },
-
-    computed: {
-        // Updated to work only with the the email not red by the user
-        totalEmailsInCategory() {
-            return (categoryName) => {
-                let totalCount = 0;
-                if (this.emails[categoryName]) {
-                    for (let subcategory of Object.values(this.emails[categoryName])) {
-                        for (let email of subcategory) {
-                            if (!email.read) {
-                                totalCount++;
-                            }
-                        }
-                    }
-                }
-                return totalCount;
-            };
-        },
-        countEmailsInCategoryAndPriority() {
-            return (categoryName, priority) => {
-                let count = 0;
-                if (this.emails[categoryName] && this.emails[categoryName][priority]) {
-                    for (let email of this.emails[categoryName][priority]) {
-                        if (!email.read) {
-                            count++;
-                        }
-                    }
-                }
-                return count;
-            };
-        },
-        // To check if there is emails or not in the category
-        isEmptyTopic() {
-            const topic = this.emails[this.selectedTopic];
-            if (!topic) {
-                console.log("Topic not found for selectedTopic:", this.selectedTopic); // Debugging log
-                return true; // or true, based on how you want to handle this case
-            }
-            return Object.values(topic).every(subcategory => subcategory.length === 0);
-        }
-    },
-    data() {
-        return {
-            // showHiddenParagraphs: [false, false, false, false, false],
-            showHiddenParagraphs: {},
-            animationTriggered: [false, false, false],
-            showModal: false,
-            isModalOpen: false,
-            isModalUpdateOpen: false,
-            modalErrorMessage: '',
-            modalUpdateErrorMessage: '',
-            selectedCategory: null,
-            categoryToUpdate: null,
-            messageText: '',
-            categories: [],
-            selectedTopic: 'Administrative',
-            bgColor: 'bg-gradient-to-r from-sky-300 to-blue-300',
-            selectedEmail: null,
-            showNewCategoryNotif: false,
-            showUpdateCategoryNotif: false,
-            showDeleteCategoryNotif: false,
-            hoveredItemId: null,
-            oldCategoryName: '',
-            showEmailDescriptions: false, // To display useless mail
-            showEmailReadDescriptions: false, // To display read mail
-            showDropdown: false,
-            showTooltip: true,
-            isMenuOpen: true,
-            isDropdownOpen: false,
-            // emails: { "": {
-            //     "Important": [],
-            //     "Information": [],
-            //     "Useless": []
-            //     }
-            // }
-            emails: {}
-        }
     }
 }
 </script>
-
-<!-- items: [{id: 1, name: 'Jean', description: 'test', topic: 'ESAIP', importance: 'Information', details: [{id: 1, text: 'text'},{id: 3, text: 'bullet'},{id: 2, text: 'blabla'}]},
-            {id: 23, name: 'Marc', description: 'Premier test', topic: 'ESAIP', importance: 'Important', details: [{id: 4, text: 'bonjour'},{id: 6, text: 'ok'},{id: 5, text: 'enfin'}]}
-
-            ],
-            items: {
-                "ESAIP": {
-                    "Important": [
-                        {
-                            id: 1, 
-                            name: 'Jean', 
-                            description: 'test', 
-                            details: [
-                                {id: 1, text: 'text'},
-                                {id: 3, text: 'bullet'},
-                                {id: 2, text: 'blabla'}
-                            ]
-                        }
-                    ],
-                    "Information": [
-                        {
-                            id: 2, 
-                            name: 'Marc', 
-                            description: 'Premier test', 
-                            details: [
-                                {id: 4, text: 'bonjour'},
-                                {id: 6, text: 'ok'},
-                                {id: 5, text: 'enfin'}
-                            ]
-                        }
-                    ]
-                },
-                "Autres": {
-                    "Important": [
-                        {
-                            id: 3, 
-                            name: 'Banque', 
-                            description: 'test', 
-                            details: [
-                                {id: 7, text: 'prêt'},
-                                {id: 8, text: 'argent'},
-                                {id: 9, text: 'euro'}
-                            ]
-                        }
-                    ],
-                    "Information": [
-                        {
-                            id: 4, 
-                            name: 'Avocat', 
-                            description: 'Premier test', 
-                            details: [
-                                {id: 10, text: 'contrat'},
-                                {id: 11, text: 'frais'},
-                                {id: 12, text: 'fruit'}
-                            ]
-                        }
-                    ]
-                }
-                // ... potentially other topics
-            } -->
-
-
-
-
-            <!-- /* 
-            // To test ONLY => select your category and inject this 
-            var newInfo = {
-                id: 10,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Kraken",
-                read: false,
-                description: "Mettre en place un dispositif d'accompagnement pour Malcom MOREL, qui est impliqué dans un projet entrepreneurial.",
-            };
-            this.emails.Administrative.Information.push(newInfo);
-            var newInfo2 = {
-                id: 3,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Christophe",
-                read: true,
-                description: "Participer au stage de formation des enseignants chercheurs en anglais la 1ère semaine de février",
-            };
-            this.emails.Administrative.Information.push(newInfo2);
-            var newInfo3 = {
-                id: 4,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Christophe",
-                read: true,
-                description: "Participer au stage de formation des enseignants chercheurs en anglais la 1ère semaine de février",
-            };
-            this.emails.Administrative.Information.push(newInfo3);*/
-            /*
-            var newUseless = {
-                id: 5,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Blablacar",
-                read: false,
-                description: "Publicité de blablacar qui vous présente un bon de -10€ sur votre premier trajet, offre valable 2 mois et non remboursable",
-            };
-            this.emails.Administrative.Useless.push(newUseless);
-            var newUseless2 = {
-                id: 6,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Blablacar",
-                read: false,
-                description: "Newsletter de castorama qui propose de découvrir des nouvelles cuisines intégrer dans leur catalogues",
-            };
-            this.emails.Administrative.Useless.push(newUseless2);*/ -->

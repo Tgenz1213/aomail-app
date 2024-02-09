@@ -96,10 +96,6 @@ async function login() {
         backgroundColor.value = 'bg-red-300';
         notificationTitle.value = 'Erreur lors de la connexion';
         notificationMessage.value = 'Informations d\'identification invalides';
-
-        setTimeout(() => {
-            showNotification.value = false;
-        }, 4000);
     }
 }
 </script>

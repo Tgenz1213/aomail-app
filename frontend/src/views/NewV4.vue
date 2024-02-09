@@ -787,7 +787,8 @@ const handleAIClick = async () => {
             //const delta = quill.value.clipboard.convert(formattedMail); OLD 2
             //console.log(delta); // Check the structure of the delta OLD 2
             const quillEditorContainer = quill.value.root;
-            quillEditorContainer.innerHTML = result.mail;
+            let modified_email_body = result.mail.replace(/<\/p>/g, "</p><p></p>");
+            quillEditorContainer.innerHTML = modified_email_body;
             //quill.value.update();
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
@@ -862,6 +863,8 @@ const handleAIClick = async () => {
             inputValue.value = result.subject;
             const quillEditorContainer = quill.value.root;
             quillEditorContainer.innerHTML = result.email_body;
+            quillEditorContainer.style.cssText = 'p { margin-bottom: 20px; }';
+
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = "Est-ce que ce mail vous convient mieux ?";

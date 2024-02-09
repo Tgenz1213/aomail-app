@@ -78,6 +78,7 @@ def generate_auth_url(request):
 
 def exchange_code_for_tokens(authorization_code):
     """Return tokens Exchanged with authorization code"""
+    print("DEBUG --------------------------------->", authorization_code)
     flow = Flow.from_client_secrets_file(
         GOOGLE_CREDS,
         scopes = SCOPES,
@@ -90,6 +91,7 @@ def exchange_code_for_tokens(authorization_code):
     if credentials:
         access_token = credentials.token
         refresh_token = credentials.refresh_token
+        print(access_token, refresh_token)
         
         return access_token, refresh_token
     else:

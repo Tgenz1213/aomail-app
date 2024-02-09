@@ -297,9 +297,7 @@ def refresh_token(request):
         return Response({'access_token': new_access_token})
 
     except Exception as e:
-        # Handle exceptions
-        print(f'{Fore.RED}Error while refreshing the JWT token: {e}')
-        return Response({'error': e}, status=400)
+        return Response({'error': str(e)}, status=400)
 
 
 

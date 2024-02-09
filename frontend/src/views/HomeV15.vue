@@ -1,4 +1,6 @@
 <template>
+    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
     <div v-if="loading">
         <Loading class=""></Loading>
     </div>
@@ -167,7 +169,7 @@
                                                     <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
                                                         <li v-for="item in emails[selectedTopic]['Important'].filter(email => !email.read)"
                                                             :key="item.id"
-                                                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
+                                                            class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
                                                             <!-- SAVE DO NOT DELETE : px-6 md:py-2 2xl:py-4 -->
@@ -257,7 +259,8 @@
                                                                         <div v-show="hoveredItemId === item.id"
                                                                             class="group action-buttons">
                                                                             <div class="relative group">
-                                                                                <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                <div
+                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
                                                                                     Actions supplémentaire
                                                                                 </div>
                                                                                 <Menu as="div"
@@ -400,7 +403,7 @@
                                                     <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
                                                         <li v-for="item in emails[selectedTopic]['Information'].filter(email => !email.read)"
                                                             :key="item.id"
-                                                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
+                                                            class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
                                                             <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
@@ -490,7 +493,8 @@
                                                                         <div v-show="hoveredItemId === item.id"
                                                                             class="group action-buttons">
                                                                             <div class="relative group">
-                                                                                <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                <div
+                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
                                                                                     Actions supplémentaire
                                                                                 </div>
                                                                                 <Menu as="div"
@@ -728,7 +732,8 @@
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
-                                                                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                            <div
+                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
                                                                                                 Actions supplémentaire
                                                                                             </div>
                                                                                             <Menu as="div"
@@ -979,7 +984,8 @@
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
-                                                                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
+                                                                                            <div
+                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
                                                                                                 Actions supplémentaire
                                                                                             </div>
                                                                                             <Menu as="div"
@@ -1219,6 +1225,422 @@
     </div>
 </template>
 
+<script setup>
+import ShowNotification from '../components/ShowNotification.vue';
+import { useRouter } from 'vue-router';
+
+
+const router = useRouter();
+
+// Variables to display a notification
+let showNotification = ref(false);
+let notificationTitle = ref('');
+let notificationMessage = ref('');
+let backgroundColor = ref('');
+
+//let animationTriggered = ref([false, false, false]);
+let showModal = ref(false);
+let isModalOpen = ref(false);
+let isModalUpdateOpen = ref(false);
+let modalErrorMessage = ref('');
+let modalUpdateErrorMessage = ref('');
+//let selectedCategory = ref(null);
+let categoryToUpdate = ref(null);
+//let messageText = ref('');
+let categories = ref([]);
+let selectedTopic = ref('Administrative');
+let bgColor = ref('bg-gradient-to-r from-sky-300 to-blue-300');
+let selectedEmail = ref(null);
+let showNewCategoryNotif = ref(false);
+let showUpdateCategoryNotif = ref(false);
+let showDeleteCategoryNotif = ref(false);
+let hoveredItemId = ref(null);
+let oldCategoryName = ref('');
+let showEmailDescriptions = ref(false);
+let showEmailReadDescriptions = ref(false);
+//let showDropdown = ref(false);
+let showTooltip = ref(true);
+let isMenuOpen = ref(true);
+let isDropdownOpen = ref(false);
+let emails = ref({});
+
+
+
+
+// To redirect to the page rules to edit a rule
+function openRuleEditor(ruleId) {
+    if (ruleId) {
+        router.push({ name: 'rules', query: { id_rule: ruleId, edit_rule: true } });
+    }
+}
+
+function openNewRule(ruleName, ruleEmail) {
+    if (ruleName && ruleEmail) {
+        router.push({ name: 'rules', query: { rule_name: ruleName, rule_email: ruleEmail, edit_rule: false } });
+    }
+}
+
+function setHoveredItem(id) {
+    hoveredItemId.value = id;
+}
+
+function clearHoveredItem() {
+    hoveredItemId.value = null;
+}
+
+function toggleTooltip() {
+    showTooltip.value = false;
+    isDropdownOpen.value = true;
+}
+
+// function toggleDropdown() {
+//   showDropdown.value = !showDropdown.value;
+// }
+
+async function markEmailAsRead(emailId) {
+    try {
+        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-read/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.read) {
+            // Handle successful response
+            updateEmailReadStatus(emailId);
+        } else {
+            console.log("RESPONSE", response);
+            console.error('Failed to mark email as read');
+        }
+    } catch (error) {
+        console.error('Error in markEmailAsRead:', error.message);
+    }
+}
+
+function updateEmailReadStatus(emailId) {
+    // Iterate over each category in the emails object
+    for (const category in emails.value) {
+        if (Object.hasOwnProperty.call(emails.value, category)) {
+            // Iterate over each subcategory within the category
+            for (const subcategory in emails.value[category]) {
+                if (Array.isArray(emails.value[category][subcategory])) {
+                    // Find the index of the email with the given ID in the current subcategory's array
+                    const emailIndex = emails.value[category][subcategory].findIndex(email => email.id === emailId);
+                    if (emailIndex !== -1) {
+                        // Email found, update its read status
+                        emails.value[category][subcategory][emailIndex].read = true;
+                        return; // Stop the function as we've found and updated the email
+                    }
+                }
+            }
+        }
+    }
+}
+
+async function markEmailReplyLater(emailId) {
+    try {
+        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-reply-later/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        if (response.answer_later) {
+            console.log("Email marked for reply later successfully");
+            markEmailAsRead(emailId);
+            isMenuOpen.value = false;
+        } else {
+            console.error('Failed to mark email for reply later', response);
+        }
+    } catch (error) {
+        console.error('Error in markEmailReplyLater:', error.message);
+    }
+}
+
+function deleteEmailFromState(emailId) {
+    // Iterate over each category in the emails object
+    for (const category in emails.value) {
+        if (Object.prototype.hasOwnProperty.call(emails.value, category)) {
+            // Iterate over each subcategory within the category
+            for (const subcategory in emails.value[category]) {
+                if (Array.isArray(emails.value[category][subcategory])) {
+                    // Find the index of the email with the given ID in the current subcategory's array
+                    const emailIndex = emails.value[category][subcategory].findIndex(email => email.id === emailId);
+                    if (emailIndex !== -1) {
+                        // Email found, delete it from the array
+                        emails.value[category][subcategory].splice(emailIndex, 1);
+                        return; // Stop the function as we've found and deleted the email
+                    }
+                }
+            }
+        }
+    }
+}
+
+async function setRuleBlockForSender(emailId) {
+    try {
+        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/block-sender/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        console.log("RESPONSE", response);
+        if (response.block) {
+            console.log("Rule set successfully");
+            // You can now update the UI or state to reflect this change
+            deleteEmail(emailId);
+        } else {
+            console.error('Failed to set block rule for sender');
+        }
+    } catch (error) {
+        console.error('Error in setRuleBlockForSender:', error.message);
+    }
+}
+
+async function deleteEmail(emailId) {
+    try {
+        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/delete/`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        console.log("RESPONSE ------------> ", response);
+        console.log("EMAIL ---------------> ", emails.value);
+
+        if (response.message) {
+            console.log("Email deleted successfully", response);
+            deleteEmailFromState(emailId);
+        } else {
+            console.error('Failed to delete email', response);
+        }
+    } catch (error) {
+        console.error('Error in deleteEmail:', error.message);
+    }
+}
+
+function openInNewWindow(id_provider) {
+    console.log("EMAIL", id_provider);
+    const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
+    // Construct the URL with the Gmail message ID
+    const urlToOpen = `${gmailBaseUrl}${id_provider}`;
+
+    window.open(urlToOpen, '_blank');
+}
+
+async function openAnswer(email) {
+    console.log("EMAIL", email.id_provider);
+
+    // Define the API endpoint URL
+    const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
+
+    try {
+        const data = await fetchWithToken(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'email': localStorage.getItem('email')
+            }
+        });
+        console.log("Received data:", data);
+        router.push({
+            name: 'answer',
+            query: {
+                subject: JSON.stringify(data.email.subject),
+                cc: JSON.stringify(data.email.cc),
+                bcc: JSON.stringify(data.email.bcc),
+                decoded_data: JSON.stringify(data.email.decoded_data),
+                email: JSON.stringify(email.email),
+                id_provider: JSON.stringify(email.id_provider),
+                details: JSON.stringify(email.details)
+            }
+        });
+    } catch (error) {
+        console.error("There was a problem with the fetch operation:", error);
+    }
+}
+
+function updateModalStatus(status) {
+    showModal.value = status;
+}
+
+
+
+/*openModal(email) {
+    this.selectedEmail = email; // Set the email data for the clicked email
+    this.showModal = true; // Open the modal
+},*/
+
+
+
+function selectCategory(category) {
+    selectedTopic.value = category.name;
+    localStorage.setItem('selectedTopic', category.name);
+    console.log("CHANGE CATEGORY");
+}
+
+function openModal() {
+    isModalOpen.value = true;
+}
+
+function closeModal() {
+    isModalOpen.value = false;
+}
+
+function openUpdateModal(category) {
+    console.log("CATEGORY TO UPDATE : ", category);
+    oldCategoryName.value = category.name;
+    categoryToUpdate.value = category;
+    isModalUpdateOpen.value = true;
+}
+
+function closeUpdateModal() {
+    isModalUpdateOpen.value = false;
+}
+
+async function handleAddCategory(categoryData) {
+    console.log('Category Added:', categoryData);
+    try {
+        const response = await fetchWithToken('http://localhost:9000/MailAssistant/api/set_category/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: categoryData.name,
+                description: categoryData.description,
+            }),
+        });
+
+        if (response) {
+            console.log('Category added:', response);
+            showNewCategoryNotif.value = true;
+            closeModal();
+            const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            console.log("CategoryData", fetchedCategories);
+            categories.value = fetchedCategories.map(category => ({
+                name: category.name,
+                description: category.description
+            }));
+            console.log("Assigned categories:", categories.value);
+            setTimeout(() => {
+                showNewCategoryNotif.value = false;
+            }, 2000);
+        }
+    } catch (error) {
+        console.error('Error adding category:', error);
+        showNewCategoryNotif.value = false;
+        // Handle the error
+    }
+}
+
+
+async function handleUpdateCategory(updatedCategory) {
+    console.log('Category Data to Update:', updatedCategory);
+    if (!updatedCategory.name.trim()) {
+        console.error('Error: Category name cannot be empty');
+        return;
+    }
+    const updateData = {
+        name: updatedCategory.name,
+        description: updatedCategory.description
+    };
+    try {
+        const url = `http://localhost:9000/MailAssistant/api/update_category/${oldCategoryName.value}/`; // Adjust the URL as needed
+        const options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData)
+        };
+        const response = await fetchWithToken(url, options);
+
+        if (response) {
+            console.log('Category updated:', response);
+            showUpdateCategoryNotif.value = true;
+            closeUpdateModal();
+            const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            console.log("CategoryData", fetchedCategories);
+            categories.value = fetchedCategories.map(category => ({
+                name: category.name,
+                description: category.description
+            }));
+            console.log("Assigned categories:", categories.value);
+            setTimeout(() => {
+                showUpdateCategoryNotif.value = false;
+            }, 2000);
+        }
+    } catch (error) {
+        console.error('Error updating category:', error);
+        showUpdateCategoryNotif.value = false;
+        // Handle the error
+    }
+}
+async function handleCategoryDelete(categoryNameToDelete) {
+    console.log("Category to delete", categoryNameToDelete);
+    if (!categoryNameToDelete.trim()) {
+        console.error('Error: Category name cannot be empty');
+        return;
+    }
+
+    try {
+        const url = `http://localhost:9000/MailAssistant/api/delete_category/${categoryNameToDelete}/`;
+
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        const response = await fetchWithToken(url, options);
+
+        if (response) {
+            console.log('showNotification:', showNotification.value)
+            showDeleteCategoryNotif.value = true;
+            
+            // Show the pop-up
+            showNotification.value = true;
+            backgroundColor.value = 'bg-red-300';
+            notificationTitle.value = 'Succès !';
+            notificationMessage.value = 'Votre catégorie a été supprimée';
+
+
+            closeUpdateModal();
+            // Fetch the categories
+            const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            console.log("CategoryData", categoryData);
+            categories.value = categoryData.map(category => ({
+                name: category.name,
+                description: category.description
+            }));
+            console.log("Assigned categories:", categories.value);
+            setTimeout(() => {
+                showDeleteCategoryNotif.value = false;
+            }, 2000)
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        showDeleteCategoryNotif.value = false;
+        // Handle the error
+    }
+}
+
+function readEmailsInSelectedTopic() {
+    let combinedEmails = [];
+    for (let category in this.emails[this.selectedTopic]) {
+        combinedEmails = combinedEmails.concat(this.emails[this.selectedTopic][category]);
+    }
+
+    return combinedEmails.filter(email => email.read);
+}
+</script>
+
+
 <script>
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
@@ -1312,171 +1734,6 @@ export default {
         toggleDropdown() {
             this.showDropdown = !this.showDropdown;
         },
-        async markEmailAsRead(emailId) {
-            try {
-                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-read/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-
-                if (response.read) {
-                    // Handle successful response
-                    this.updateEmailReadStatus(emailId);
-                } else {
-                    console.log("RESPONSE", response);
-                    console.error('Failed to mark email as read');
-                }
-            } catch (error) {
-                console.error('Error in markEmailAsRead:', error.message);
-            }
-        },
-        updateEmailReadStatus(emailId) {
-            // Iterate over each category in the emails object
-            for (const category in this.emails) {
-                if (Object.hasOwnProperty.call(this.emails, category)) {
-                    // Iterate over each subcategory within the category
-                    for (const subcategory in this.emails[category]) {
-                        if (Array.isArray(this.emails[category][subcategory])) {
-                            // Find the index of the email with the given ID in the current subcategory's array
-                            const emailIndex = this.emails[category][subcategory].findIndex(email => email.id === emailId);
-                            if (emailIndex !== -1) {
-                                // Email found, update its read status
-                                this.emails[category][subcategory][emailIndex].read = true;
-                                return; // Stop the function as we've found and updated the email
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        async markEmailReplyLater(emailId) {
-            try {
-                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-reply-later/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                if (response.answer_later) {
-                    console.log("Email marked for reply later successfully");
-                    this.markEmailAsRead(emailId);
-                    this.isMenuOpen = false;
-                } else {
-                    console.error('Failed to mark email for reply later', response);
-                }
-            } catch (error) {
-                console.error('Error in markEmailReplyLater:', error.message);
-            }
-        },
-        deleteEmailFromState(emailId) {
-            // Iterate over each category in the emails object
-            for (const category in this.emails) {
-                if (Object.prototype.hasOwnProperty.call(this.emails, category)) {
-                    // Iterate over each subcategory within the category
-                    for (const subcategory in this.emails[category]) {
-                        if (Array.isArray(this.emails[category][subcategory])) {
-                            // Find the index of the email with the given ID in the current subcategory's array
-                            const emailIndex = this.emails[category][subcategory].findIndex(email => email.id === emailId);
-                            if (emailIndex !== -1) {
-                                // Email found, delete it from the array
-                                this.emails[category][subcategory].splice(emailIndex, 1);
-                                return; // Stop the function as we've found and deleted the email
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        async setRuleBlockForSender(emailId) {
-            try {
-                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/block-sender/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                console.log("RESPONSE", response);
-                if (response.block) {
-                    console.log("Rule set successfully");
-                    // You can now update the UI or state to reflect this change
-                    this.deleteEmail(emailId);
-                } else {
-                    console.error('Failed to set block rule for sender');
-                }
-            } catch (error) {
-                console.error('Error in setRuleBlockForSender:', error.message);
-            }
-        },
-        async deleteEmail(emailId) {
-            try {
-                const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/delete/`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-
-                console.log("RESPONSE ------------> ", response);
-                console.log("EMAIL ---------------> ", this.emails);
-
-                if (response.message) {
-                    console.log("Email deleted successfully", response);
-                    this.deleteEmailFromState(emailId);
-                } else {
-                    console.error('Failed to delete email', response);
-                }
-            } catch (error) {
-                console.error('Error in deleteEmail:', error.message);
-            }
-        },
-        /*openModal(email) {
-            this.selectedEmail = email; // Set the email data for the clicked email
-            this.showModal = true; // Open the modal
-        },*/
-        openInNewWindow(id_provider) {
-            console.log("EMAIL", id_provider);
-            const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
-            // Construct the URL with the Gmail message ID
-            const urlToOpen = `${gmailBaseUrl}${id_provider}`;
-
-            window.open(urlToOpen, '_blank');
-        },
-        async openAnswer(email) {
-            console.log("EMAIL", email.id_provider);
-
-            // Define the API endpoint URL
-            const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
-
-            try {
-                const data = await fetchWithToken(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'email': localStorage.getItem('email')
-                    }
-                });
-                console.log("Received data:", data);
-                this.$router.push({
-                    name: 'answer',
-                    query: {
-                        subject: JSON.stringify(data.email.subject),
-                        cc: JSON.stringify(data.email.cc),
-                        bcc: JSON.stringify(data.email.bcc),
-                        decoded_data: JSON.stringify(data.email.decoded_data),
-                        email: JSON.stringify(email.email),
-                        id_provider: JSON.stringify(email.id_provider),
-                        details: JSON.stringify(email.details)
-                    }
-                });
-            } catch (error) {
-                console.error("There was a problem with the fetch operation:", error);
-            }
-        },
-        updateModalStatus(status) {
-            this.showModal = status;
-        },
         async animateText() {
             try {
                 const requestOptions = {
@@ -1559,145 +1816,6 @@ export default {
             }, delay);
             return duration;
         },
-        selectCategory(category) {
-            this.selectedTopic = category.name;
-            localStorage.setItem('selectedTopic', category.name);
-            console.log("CHANGE CATEGORY");
-        },
-        openModal() {
-            this.isModalOpen = true;
-        },
-        closeModal() {
-            this.isModalOpen = false;
-        },
-        openUpdateModal(category) {
-            console.log("CATEGORY TO UPDATE : ", category);
-            this.oldCategoryName = category.name;
-            this.categoryToUpdate = category;
-            this.isModalUpdateOpen = true;
-        },
-        closeUpdateModal() {
-            this.isModalUpdateOpen = false;
-        },
-        async handleAddCategory(categoryData) {
-            console.log('Category Added:', categoryData);
-            try {
-                const response = await fetchWithToken('http://localhost:9000/MailAssistant/api/set_category/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: categoryData.name,
-                        description: categoryData.description,
-                    }),
-                });
-
-                if (response) {
-                    console.log('Category added:', response);
-                    this.showNewCategoryNotif = true;
-                    this.closeModal();
-                    const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
-                    console.log("CategoryData", categoryData);
-                    this.categories = categoryData.map(category => ({
-                        name: category.name,
-                        description: category.description
-                    }));
-                    console.log("Assigned categories:", this.categories);
-                    setTimeout(() => {
-                        this.showNewCategoryNotif = false;
-                    }, 2000);
-
-                }
-            } catch (error) {
-                console.error('Error adding category:', error);
-                this.showNewCategoryNotif = false;
-                // Handle the error
-            }
-        },
-        async handleUpdateCategory(updatedCategory) {
-            console.log('Category Data to Update:', updatedCategory);
-            if (!updatedCategory.name.trim()) {
-                console.error('Error: Category name cannot be empty');
-                return;
-            }
-            const updateData = {
-                name: updatedCategory.name,
-                description: updatedCategory.description
-            };
-            try {
-                const url = `http://localhost:9000/MailAssistant/api/update_category/${this.oldCategoryName}/`; // Adjust the URL as needed
-                const options = {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updateData)
-                };
-                const response = await fetchWithToken(url, options);
-
-                if (response) {
-                    console.log('Category updated:', response);
-                    this.showUpdateCategoryNotif = true;
-                    this.closeUpdateModal();
-                    const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
-                    console.log("CategoryData", categoryData);
-                    this.categories = categoryData.map(category => ({
-                        name: category.name,
-                        description: category.description
-                    }));
-                    console.log("Assigned categories:", this.categories);
-                    setTimeout(() => {
-                        this.showUpdateCategoryNotif = false;
-                    }, 2000);
-                }
-            } catch (error) {
-                console.error('Error updating category:', error);
-                this.showUpdateCategoryNotif = false;
-                // Handle the error
-            }
-        },
-        async handleCategoryDelete(categoryNameToDelete) {
-            console.log("Category to delete", categoryNameToDelete);
-            if (!categoryNameToDelete.trim()) {
-                console.error('Error: Category name cannot be empty');
-                return;
-            }
-
-            try {
-                const url = `http://localhost:9000/MailAssistant/api/delete_category/${categoryNameToDelete}/`;
-
-                const options = {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                };
-
-                const response = await fetchWithToken(url, options);
-
-                if (response) {
-                    console.log('Category deleted:', response);
-                    this.showDeleteCategoryNotif = true;
-                    this.closeUpdateModal();
-                    // Fetch the categories
-                    const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
-                    console.log("CategoryData", categoryData);
-                    this.categories = categoryData.map(category => ({
-                        name: category.name,
-                        description: category.description
-                    }));
-                    console.log("Assigned categories:", this.categories);
-                    setTimeout(() => {
-                        this.showDeleteCategoryNotif = false;
-                    }, 2000)
-                }
-            } catch (error) {
-                console.error('Error deleting category:', error);
-                this.showDeleteCategoryNotif = false;
-                // Handle the error
-            }
-        }
     },
     async mounted() {
         console.log("COOKIES", document.cookie);
@@ -1730,54 +1848,7 @@ export default {
             //console.log('fetchData: ',emailData)
             this.emails = emailData;
 
-            /* 
-            // To test ONLY => select your category and inject this 
-            var newInfo = {
-                id: 10,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Kraken",
-                read: false,
-                description: "Mettre en place un dispositif d'accompagnement pour Malcom MOREL, qui est impliqué dans un projet entrepreneurial.",
-            };
-            this.emails.Administrative.Information.push(newInfo);
-            var newInfo2 = {
-                id: 3,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Christophe",
-                read: true,
-                description: "Participer au stage de formation des enseignants chercheurs en anglais la 1ère semaine de février",
-            };
-            this.emails.Administrative.Information.push(newInfo2);
-            var newInfo3 = {
-                id: 4,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Christophe",
-                read: true,
-                description: "Participer au stage de formation des enseignants chercheurs en anglais la 1ère semaine de février",
-            };
-            this.emails.Administrative.Information.push(newInfo3);*/
-            /*
-            var newUseless = {
-                id: 5,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Blablacar",
-                read: false,
-                description: "Publicité de blablacar qui vous présente un bon de -10€ sur votre premier trajet, offre valable 2 mois et non remboursable",
-            };
-            this.emails.Administrative.Useless.push(newUseless);
-            var newUseless2 = {
-                id: 6,
-                "id_provider": "18b8c0673cea41ba",
-                email: "hanna.williams@esaip.org",
-                name: "Blablacar",
-                read: false,
-                description: "Newsletter de castorama qui propose de découvrir des nouvelles cuisines intégrer dans leur catalogues",
-            };
-            this.emails.Administrative.Useless.push(newUseless2);*/
+
             console.log("EMAIL", this.emails);
 
         } catch (error) {
@@ -1793,15 +1864,8 @@ export default {
             }, 5000);
         }
     },
-    computed: {
-        readEmailsInSelectedTopic() {
-            let combinedEmails = [];
-            for (let category in this.emails[this.selectedTopic]) {
-                combinedEmails = combinedEmails.concat(this.emails[this.selectedTopic][category]);
-            }
 
-            return combinedEmails.filter(email => email.read);
-        },
+    computed: {
         // Updated to work only with the the email not red by the user
         totalEmailsInCategory() {
             return (categoryName) => {
@@ -1876,66 +1940,119 @@ export default {
             //     }
             // }
             emails: {}
-            // items: [{id: 1, name: 'Jean', description: 'test', topic: 'ESAIP', importance: 'Information', details: [{id: 1, text: 'text'},{id: 3, text: 'bullet'},{id: 2, text: 'blabla'}]},
-            // {id: 23, name: 'Marc', description: 'Premier test', topic: 'ESAIP', importance: 'Important', details: [{id: 4, text: 'bonjour'},{id: 6, text: 'ok'},{id: 5, text: 'enfin'}]}
-
-            // ],
-            // items: {
-            //     "ESAIP": {
-            //         "Important": [
-            //             {
-            //                 id: 1, 
-            //                 name: 'Jean', 
-            //                 description: 'test', 
-            //                 details: [
-            //                     {id: 1, text: 'text'},
-            //                     {id: 3, text: 'bullet'},
-            //                     {id: 2, text: 'blabla'}
-            //                 ]
-            //             }
-            //         ],
-            //         "Information": [
-            //             {
-            //                 id: 2, 
-            //                 name: 'Marc', 
-            //                 description: 'Premier test', 
-            //                 details: [
-            //                     {id: 4, text: 'bonjour'},
-            //                     {id: 6, text: 'ok'},
-            //                     {id: 5, text: 'enfin'}
-            //                 ]
-            //             }
-            //         ]
-            //     },
-            //     "Autres": {
-            //         "Important": [
-            //             {
-            //                 id: 3, 
-            //                 name: 'Banque', 
-            //                 description: 'test', 
-            //                 details: [
-            //                     {id: 7, text: 'prêt'},
-            //                     {id: 8, text: 'argent'},
-            //                     {id: 9, text: 'euro'}
-            //                 ]
-            //             }
-            //         ],
-            //         "Information": [
-            //             {
-            //                 id: 4, 
-            //                 name: 'Avocat', 
-            //                 description: 'Premier test', 
-            //                 details: [
-            //                     {id: 10, text: 'contrat'},
-            //                     {id: 11, text: 'frais'},
-            //                     {id: 12, text: 'fruit'}
-            //                 ]
-            //             }
-            //         ]
-            //     }
-            //     // ... potentially other topics
-            // }
         }
     }
 }
 </script>
+
+<!-- items: [{id: 1, name: 'Jean', description: 'test', topic: 'ESAIP', importance: 'Information', details: [{id: 1, text: 'text'},{id: 3, text: 'bullet'},{id: 2, text: 'blabla'}]},
+            {id: 23, name: 'Marc', description: 'Premier test', topic: 'ESAIP', importance: 'Important', details: [{id: 4, text: 'bonjour'},{id: 6, text: 'ok'},{id: 5, text: 'enfin'}]}
+
+            ],
+            items: {
+                "ESAIP": {
+                    "Important": [
+                        {
+                            id: 1, 
+                            name: 'Jean', 
+                            description: 'test', 
+                            details: [
+                                {id: 1, text: 'text'},
+                                {id: 3, text: 'bullet'},
+                                {id: 2, text: 'blabla'}
+                            ]
+                        }
+                    ],
+                    "Information": [
+                        {
+                            id: 2, 
+                            name: 'Marc', 
+                            description: 'Premier test', 
+                            details: [
+                                {id: 4, text: 'bonjour'},
+                                {id: 6, text: 'ok'},
+                                {id: 5, text: 'enfin'}
+                            ]
+                        }
+                    ]
+                },
+                "Autres": {
+                    "Important": [
+                        {
+                            id: 3, 
+                            name: 'Banque', 
+                            description: 'test', 
+                            details: [
+                                {id: 7, text: 'prêt'},
+                                {id: 8, text: 'argent'},
+                                {id: 9, text: 'euro'}
+                            ]
+                        }
+                    ],
+                    "Information": [
+                        {
+                            id: 4, 
+                            name: 'Avocat', 
+                            description: 'Premier test', 
+                            details: [
+                                {id: 10, text: 'contrat'},
+                                {id: 11, text: 'frais'},
+                                {id: 12, text: 'fruit'}
+                            ]
+                        }
+                    ]
+                }
+                // ... potentially other topics
+            } -->
+
+
+
+
+            <!-- /* 
+            // To test ONLY => select your category and inject this 
+            var newInfo = {
+                id: 10,
+                "id_provider": "18b8c0673cea41ba",
+                email: "hanna.williams@esaip.org",
+                name: "Kraken",
+                read: false,
+                description: "Mettre en place un dispositif d'accompagnement pour Malcom MOREL, qui est impliqué dans un projet entrepreneurial.",
+            };
+            this.emails.Administrative.Information.push(newInfo);
+            var newInfo2 = {
+                id: 3,
+                "id_provider": "18b8c0673cea41ba",
+                email: "hanna.williams@esaip.org",
+                name: "Christophe",
+                read: true,
+                description: "Participer au stage de formation des enseignants chercheurs en anglais la 1ère semaine de février",
+            };
+            this.emails.Administrative.Information.push(newInfo2);
+            var newInfo3 = {
+                id: 4,
+                "id_provider": "18b8c0673cea41ba",
+                email: "hanna.williams@esaip.org",
+                name: "Christophe",
+                read: true,
+                description: "Participer au stage de formation des enseignants chercheurs en anglais la 1ère semaine de février",
+            };
+            this.emails.Administrative.Information.push(newInfo3);*/
+            /*
+            var newUseless = {
+                id: 5,
+                "id_provider": "18b8c0673cea41ba",
+                email: "hanna.williams@esaip.org",
+                name: "Blablacar",
+                read: false,
+                description: "Publicité de blablacar qui vous présente un bon de -10€ sur votre premier trajet, offre valable 2 mois et non remboursable",
+            };
+            this.emails.Administrative.Useless.push(newUseless);
+            var newUseless2 = {
+                id: 6,
+                "id_provider": "18b8c0673cea41ba",
+                email: "hanna.williams@esaip.org",
+                name: "Blablacar",
+                read: false,
+                description: "Newsletter de castorama qui propose de découvrir des nouvelles cuisines intégrer dans leur catalogues",
+            };
+            this.emails.Administrative.Useless.push(newUseless2);*/ -->

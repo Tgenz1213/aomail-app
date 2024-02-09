@@ -169,7 +169,7 @@
                                                     <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
                                                         <li v-for="item in emails[selectedTopic]['Important'].filter(email => !email.read)"
                                                             :key="item.id"
-                                                            class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
+                                                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
                                                             <!-- SAVE DO NOT DELETE : px-6 md:py-2 2xl:py-4 -->
@@ -403,7 +403,7 @@
                                                     <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
                                                         <li v-for="item in emails[selectedTopic]['Information'].filter(email => !email.read)"
                                                             :key="item.id"
-                                                            class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
+                                                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
                                                             <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">

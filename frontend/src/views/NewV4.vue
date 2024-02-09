@@ -997,6 +997,11 @@ fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
 
 onMounted(() => {
 
+  // Run the function every second
+  setInterval(() => {
+    showNotification = false;
+  }, 1000);
+
   bgColor.value = localStorage.getItem('bgColor');
   //fetchEmailSenders();
   loadFileMetadataFromLocalStorage(); // For uploaded file

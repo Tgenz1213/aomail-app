@@ -18,13 +18,13 @@
                                 <p class="text-sm font-medium text-gray-900">{{ notificationTitle }}</p>
                                 <p class="mt-1 text-sm text-gray-900">{{ notificationMessage }}</p>
                             </div>
-                            <!-- <div class="ml-4 flex flex-shrink-0">
+                            <div class="ml-4 flex flex-shrink-0">
                                 <button type="button" @click="crossDismissNotification()"
                                     class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
                                     <span class="sr-only">Close</span>
                                     <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
                                 </button>
-                            </div> -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -60,14 +60,14 @@ export default {
             setTimeout(() => {
                 this.showNotification_intern = false;
             }, 4000);
+        },
+        crossDismissNotification() {
+            this.showNotification_intern = false;
         }
-        // crossDismissNotification() {
-        //     this.showNotification_intern = false;
-        // }
     }
 };
 </script>
   
-<!-- <script setup>
+<script setup>
 import { XMarkIcon } from '@heroicons/vue/20/solid';
-</script>   -->
+</script>  

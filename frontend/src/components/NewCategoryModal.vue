@@ -70,8 +70,13 @@ const closeModal = () => {
 };
 
 const addCategory = () => {
-    emits('addCategory', { name: categoryName.value, description: categoryDescription.value });
-    categoryDescription.value = '';
-    categoryName.value = '';
+
+    if (/[,;:/\\.]/.test(categoryName.value)) {
+        console.log("Name not accepted. It contains a special character.");
+    } else {
+        emits('addCategory', { name: categoryName.value, description: categoryDescription.value });
+        categoryDescription.value = '';
+        categoryName.value = '';
+    }
 };
 </script>

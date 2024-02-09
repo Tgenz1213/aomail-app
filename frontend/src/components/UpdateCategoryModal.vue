@@ -91,8 +91,13 @@ const updateCategoryHandler = () => {
     name: categoryName.value,
     description: categoryDescription.value,
   };
-  emits('updateCategory', updatedCategory);
-  closeModal();
+
+  if (/[,;:/\\.]/.test(categoryName.value)) {
+    console.log("Name not accepted. It contains a special character.");
+  } else {
+    emits('updateCategory', updatedCategory);
+    closeModal();
+  }
 };
 
 const deleteCategoryHandler = () => {

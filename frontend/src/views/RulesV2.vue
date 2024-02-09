@@ -267,7 +267,7 @@ export default {
     return {
       showModal: false,
       showUpdateModal: false,
-      bgColor: 'bg-gradient-to-r from-sky-300 to-blue-300',
+      bgColor: '',
       rules: [], // This will hold the fetched rules
       categories: [],
       emailSenders: [],

@@ -772,14 +772,10 @@ def delete_account(request):
 
     try:
         user.delete()
-        logging.info(f"{Fore.YELLOW}The user {user} has been removed from the database")
-        # TODO: Success message for user
         return Response({'message': 'User successfully deleted'}, status=200)
 
     except Exception as e:
-        logging.error(f"{Fore.RED}Error occurred while deleting user: {e}")
-        # TODO: Handle deletion failure
-        return Response({'error': 'Failed to delete user'}, status=500)
+        return Response({'error': str(e)}, status=500)
 
 
 #----------------------- RULES -----------------------#
@@ -919,6 +915,13 @@ def check_sender_for_user(request):
     
     except ObjectDoesNotExist:
         return Response({'exists': False}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_details(request):
+    """Returns the username"""
+    return Response({'username': request.user.username})
 
 
 @api_view(['POST'])
@@ -1837,11 +1840,6 @@ def find_user_view(request):
     else:
         return Response({"error": "Failed to authenticate or no search query provided"}, status=400)'''
 
-
-'''@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_details(request):
-    return Response({'username': request.user.username})'''
 
 '''@api_view(['GET'])
 @permission_classes([IsAuthenticated])

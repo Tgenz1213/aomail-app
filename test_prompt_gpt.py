@@ -34,8 +34,9 @@ def extract_contacts_recipients(query):
 
 
 query = """
-fais encore plus court
-notificationTitle = 'Erreur lors de la récupération du nombre d\'e-mails non lus'
+tr en fr
+
+notificationMessage = 'Votre Background a ete mis a jour';
 """
 
 

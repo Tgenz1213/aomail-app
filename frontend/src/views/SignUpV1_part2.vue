@@ -485,7 +485,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';
 
@@ -498,6 +498,14 @@ let backgroundColor = ref('');
 
 const router = useRouter();
 let step = ref(3);
+
+
+onMounted(() => {
+  // Run the function every second
+  setInterval(() => {
+    showNotification = false;
+  }, 1000);
+})
 
 // Functions
 function authorize_google(event) {

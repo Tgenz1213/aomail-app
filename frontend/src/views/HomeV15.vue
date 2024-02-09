@@ -1130,19 +1130,14 @@
 </template>
 
 <script setup>
-import ShowNotification from '../components/ShowNotification.vue';
-import { useRouter } from 'vue-router';
-
-
-const router = useRouter();
-
 // Variables to display a notification
 let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 
-let animatedText = ref(''); 
+const router = useRouter();
+let animatedText = ref('');
 let showHiddenParagraphs = ref({});
 let showModal = ref(false);
 let isModalOpen = ref(false);
@@ -1163,9 +1158,8 @@ let emails = ref({});
 let scrollableDiv = ref(null);
 let selectedTopic = ref('Administrative');
 let animationTriggered = ref([false, false, false]);
-let bgColor = ref('bg-gradient-to-r from-sky-300 to-blue-300');
-
-
+let bgColor = ref('');
+bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref([]);
 
 
@@ -1416,9 +1410,6 @@ async function handleAddCategory(categoryData) {
                 description: category.description
             }));
             console.log("Assigned categories:", categories.value);
-            // setTimeout(() => {
-            //     showNewCategoryNotif.value = false;
-            // }, 2000);
         }
     } catch (error) {
         console.error('Error adding category:', error);
@@ -1432,7 +1423,9 @@ async function handleAddCategory(categoryData) {
 }
 
 async function handleUpdateCategory(updatedCategory) {
-    
+
+    console.log("mise à jour caté", showNotification)
+
     if (!updatedCategory.name.trim()) {
         //console.error('Error: Category name cannot be empty');
         // Show the pop-up
@@ -1456,7 +1449,7 @@ async function handleUpdateCategory(updatedCategory) {
             body: JSON.stringify(updateData)
         };
         const response = await fetchWithToken(url, options);
-        
+
         if (response) {
             //showUpdateCategoryNotif.value = true;
             // Show the pop-up
@@ -1511,7 +1504,7 @@ async function handleCategoryDelete(categoryNameToDelete) {
         };
 
         const response = await fetchWithToken(url, options);
-        
+
         if (response) {
             // Show the pop-up
             showNotification = true;
@@ -1753,17 +1746,20 @@ const fetchData = async () => {
 
 // Run fetchData when the component is mounted
 onMounted(() => {
-    console.log("COOKIES", document.cookie);
-
-    //const showNotification = ref(false);
-    bgColor = localStorage.getItem('bgColor');
+    //console.log("COOKIES", document.cookie);
     animateText();
 
     fetchData();
-});
+    // Run the function every second
+    setInterval(() => {
+        showNotification = false;
+    }, 1000);
+})
 </script>
 
 <script>
+import ShowNotification from '../components/ShowNotification.vue';
+import { useRouter } from 'vue-router';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import ModalSeeMail from '../components/SeeMail.vue';

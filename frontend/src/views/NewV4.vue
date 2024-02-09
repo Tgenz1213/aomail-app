@@ -1862,6 +1862,7 @@ import {
   Bars2Icon,
   //Bars3BottomLeftIcon,
   //ChatBubbleOvalLeftEllipsisIcon,
+  ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 
 
@@ -1871,6 +1872,7 @@ export default {
     Navbar2,
     UserGroupIcon,
     Bars2Icon,
+    ChevronDownIcon
     // ChatBubbleOvalLeftEllipsisIcon,
     // Bars3BottomLeftIcon
   },

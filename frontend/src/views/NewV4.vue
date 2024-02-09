@@ -407,6 +407,8 @@ function handleBlur2(event) {
       const newPerson = { name: inputValue, email: inputValue };
       people.push(newPerson);
       selectedPeople.value.push(newPerson);
+      // remove the pop up
+      showNotification = false;
     }
   } else if (filteredPeople._value.length == 0) {
     // Show the pop-up
@@ -414,10 +416,6 @@ function handleBlur2(event) {
     backgroundColor = 'bg-red-300';
     notificationTitle.value = 'Email invalide';
     notificationMessage.value = 'Le format de l\'email est incorrect'
-
-    setTimeout(() => {
-      showNotification = false;
-    }, 5000);
   }
 }
 

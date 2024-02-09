@@ -86,8 +86,7 @@ def exchange_code_for_tokens(authorization_code):
     )
     flow.fetch_token(code=authorization_code)
 
-    credentials = flow.credentials   
-    print("DEBUG --------------------------------->", credentials)
+    credentials = flow.credentials
 
     if credentials:
         access_token = credentials.token
@@ -600,8 +599,9 @@ def get_email(access_token, refresh_token):
         service = build_services(creds)['profile']
         user_info = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
         email = user_info.get('emailAddresses', [{}])[0].get('value', '')
-        return email
-    except:
+        return email    
+    except Exception as e:
+        print(f"{Fore.GREEN}Couldn't get email: {e}")
         return None
 
 

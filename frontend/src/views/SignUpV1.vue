@@ -719,8 +719,7 @@ export default {
           name: this.categoryName,
           description: this.categoryDescription
         });
-
-        localStorage.setItem('categories', JSON.stringify(this.categories));
+        
         // Réinitialiser les champs et le message d'erreur
         this.categoryName = '';
         this.categoryDescription = '';
@@ -733,10 +732,13 @@ export default {
     async submitSignupData(event) {
       event.preventDefault();
       try {
+        // save categories
+        localStorage.setItem('categories', JSON.stringify(this.categories));
         // Registration first part complete
         this.$router.push({ name: 'signup_part2' });
       }
       catch (error) {
+        // TODO: display a pop up
         console.error('Error:', error);
       }
     },

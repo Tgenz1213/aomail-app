@@ -1744,10 +1744,10 @@ const fetchData = async () => {
 
 // Run fetchData when the component is mounted
 onMounted(() => {
-    //console.log("COOKIES", document.cookie);
     animateText();
-
     fetchData();
+    getBackgroundColor();
+
     // Run the function every second
     setInterval(() => {
         showNotification = false;
@@ -1764,7 +1764,7 @@ import ModalSeeMail from '../components/SeeMail.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
 import { ref, nextTick, onMounted } from 'vue';
-import { fetchWithToken } from '../router/index.js';
+import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
     //ChatBubbleOvalLeftEllipsisIcon,

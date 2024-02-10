@@ -67,6 +67,12 @@ async function fetchWithToken(url, options = {}) {
   }
 }
 
+async function getBackgroundColor() {
+  const response = await fetchWithToken("http://localhost:9000/MailAssistant/user/preferences/bg_color/");
+  const bgColor = response.bg_color;
+  localStorage.setItem('bgColor', bgColor);
+}
+
 const routes = [
   {
     path: '/',
@@ -153,4 +159,4 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
-export { fetchWithToken };
+export { fetchWithToken, getBackgroundColor };

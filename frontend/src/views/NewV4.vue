@@ -304,7 +304,7 @@ import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import ShowNotification from '../components/ShowNotification.vue';
 //import { ChevronDownIcon, XMarkIcon } from '@heroicons/vue/20/solid';
-import { fetchWithToken } from '../router/index.js';
+import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import Quill from 'quill';
 import {
   Combobox,
@@ -1002,6 +1002,8 @@ onMounted(() => {
     showNotification = false;
   }, 1000);
 
+  
+  getBackgroundColor();
   bgColor.value = localStorage.getItem('bgColor');
   //fetchEmailSenders();
   loadFileMetadataFromLocalStorage(); // For uploaded file

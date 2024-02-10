@@ -488,6 +488,7 @@
 import { ref,onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';
+import { getBackgroundColor } from '../router/index.js';
 
 
 // Variables to display a notification
@@ -502,6 +503,7 @@ let step = ref(3);
 
 onMounted(() => {
   // Run the function every second
+  getBackgroundColor();
   setInterval(() => {
     showNotification = false;
   }, 1000);

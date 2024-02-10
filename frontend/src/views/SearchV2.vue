@@ -126,7 +126,7 @@ import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import SearchContact from '../components/SearchContact.vue';
 import SearchType from '../components/SearchType.vue';
-
+import { getBackgroundColor } from '../router/index.js';
 import {
   MagnifyingGlassIcon,
   UserIcon,
@@ -140,7 +140,8 @@ let counter_display = 0;
 
 // Mounted lifecycle hook
 onMounted(() => {
-
+  
+  getBackgroundColor();
   bgColor.value = localStorage.getItem('bgColor');
 
   AIContainer.value = document.getElementById('AIContainer');

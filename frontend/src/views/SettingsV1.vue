@@ -312,6 +312,7 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let activeSection = ref('preferences'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
+console.log("mounted bg", bgColor)
 let userData = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');
@@ -319,6 +320,7 @@ let confirmPassword = ref('');
 
 onMounted(() => {
     fetchUserData();
+    getBackgroundColor();
     // Run the function every second
     setInterval(() => {
         showNotification = false;
@@ -333,13 +335,19 @@ function setActiveSection(section) {
     }
     activeSection.value = section;
 }
+
 async function handleColorChange(newColor) {
+
+    console.log("handleColorChange is running", newColor)
+
     // this is directly linked to the ref bgColor in Vue template
     bgColor.value = newColor;
+    console.log("data ===>", bgColor.value)
 
     const data = {
         bg_color: newColor
     };
+
 
     const apiUrl = 'http://localhost:9000/MailAssistant/user/preferences/set_bg_color/';
 
@@ -355,15 +363,17 @@ async function handleColorChange(newColor) {
         const response = await fetchWithToken(apiUrl, requestOptions);
 
         if (response.bg_color) {
-            localStorage.setItem('bgColor', newColor);
-            console.log('Background color updated successfully');
             // Show the pop-up
-            console.log(showNotification)
+            console.log("BEFORE --->", showNotification)
             showNotification = true;
-            console.log(showNotification)
+            console.log("AFTER ---->", showNotification)
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'Votre fond d\'écran a été mis à jour';
+
+            
+            localStorage.setItem('bgColor', newColor);
+            console.log('Background color updated successfully');
         }
     } catch (error) {
         //console.error('Error updating background color:', error);
@@ -373,6 +383,7 @@ async function handleColorChange(newColor) {
         notificationTitle = 'Erreur mise à jour fond d\'écran';
         notificationMessage = error;
     }
+
 }
 async function fetchUserData() {
     const requestOptions = {
@@ -412,8 +423,6 @@ async function getUsername() {
         return null;
     }
 }
-
-
 async function handleSubmit() {
 
     const requestOptions = {
@@ -432,13 +441,12 @@ async function handleSubmit() {
     }
 
 
-
     let resultUpdateUsername;
 
     if (response.available == false) {
         console.log("Username already exists");
         return;
-    } 
+    }
     else {
         try {
             let currentUsername = await getUsername();
@@ -508,7 +516,6 @@ async function handleSubmit() {
         console.log("Nothing has been changed")
     }
 }
-
 async function updatePassword() {
 
     const requestOptions = {
@@ -530,8 +537,6 @@ async function updatePassword() {
         return error;
     }
 }
-
-
 async function updateUsername() {
 
     const requestOptions = {
@@ -620,7 +625,7 @@ async function deleteAccount() {
 <script>
 import '@fortawesome/fontawesome-free/css/all.css';
 import ShowNotification from '../components/ShowNotification.vue';
-import { fetchWithToken } from '../router/index.js';
+import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { ref, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
@@ -656,14 +661,6 @@ export default {
             showPassword: false,
             showConfirmPassword: false
         };
-    },
-    computed: {
-        passwordButtonLabel() {
-            return (this.showPassword) ? "Hide" : "Show";
-        },
-        confirmPasswordButtonLabel() {
-            return (this.showConfirmPassword) ? "Hide" : "Show";
-        }
     },
     methods: {
         togglePasswordVisibility() {

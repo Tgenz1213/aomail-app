@@ -132,9 +132,6 @@
                                                 class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                                         </div>
                                         <div class="pt-4">
-
-
-
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div class="flex flex-col items-start">
                                                     <div class="flex space-x-1 items-center">
@@ -158,7 +155,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <div class="flex flex-col items-start">
                                                     <div class="flex space-x-1 items-center">
                                                         <key-icon class="w-4 h-4" />
@@ -181,14 +177,7 @@
                                                         </button>
                                                     </div>
                                                 </div>
-
-
                                             </div>
-
-
-
-
-
                                         </div>
                                         <div class="flex justify-end pt-4">
                                             <button @click="handleSubmit"
@@ -321,15 +310,11 @@ let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
-
 let activeSection = ref('preferences'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
 let userData = ref('');
-
 let newPassword = ref('');
 let confirmPassword = ref('');
-// let showPassword = ref(false);
-// let showConfirmPassword = ref(false);
 
 
 onMounted(() => {
@@ -341,15 +326,11 @@ onMounted(() => {
 })
 
 
-
-// function togglePasswordVisibility() {
-//     showPassword.value = !showPassword.value;
-// }
-// function toggleConfirmPasswordVisibility() {
-//     showConfirmPassword.value = !showConfirmPassword.value;
-// }
-
 function setActiveSection(section) {
+    if (section == 'account') {
+        // Update the username in case it has been modified
+        fetchUserData();
+    }
     activeSection.value = section;
 }
 async function handleColorChange(newColor) {
@@ -402,7 +383,7 @@ async function fetchUserData() {
 
     try {
         const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/username/', requestOptions);
-        console.log("USER DATA -------->", userData);
+        //console.log("USER DATA -------->", userData);
         userData.value = data.username;
     } catch (error) {
         //console.error('Fetch error:', error);
@@ -411,49 +392,6 @@ async function fetchUserData() {
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur récupération de votre identifiant';
         notificationMessage = error;
-    }
-}
-
-async function fetchWithToken(url, options = {}) {
-    const accessToken = localStorage.getItem('access_token');
-    if (!options.headers) {
-        options.headers = {};
-    }
-    if (accessToken) {
-        options.headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-
-    try {
-        let response = await fetch(url, options);
-
-        if (response.status === 401) {
-            const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ access_token: accessToken })
-            });
-
-            if (refreshResponse.ok) {
-                const refreshData = await refreshResponse.json();
-                const newAccessToken = refreshData.access_token;
-                localStorage.setItem('access_token', newAccessToken);
-                options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                response = await fetch(url, options);
-            } else {
-                throw new Error('Unauthorized: Please log in again');
-            }
-        }
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error('Error in fetchWithToken:', error.message);
-        throw error;
     }
 }
 
@@ -498,18 +436,21 @@ async function handleSubmit() {
     let resultUpdateUsername;
 
     if (response.available == false) {
-        console.log("Username already exists")
+        console.log("Username already exists");
         return;
-    } else {
-        let currentUsername;
+    } 
+    else {
+        try {
+            let currentUsername = await getUsername();
 
-        getUsername().then(username => {
-            currentUsername = username;
             if (userData.value != currentUsername) {
-                resultUpdateUsername = updateUsername();
+                resultUpdateUsername = await updateUsername();
             }
-        })
+        } catch (error) {
+            console.error("Error occurred:", error);
+        }
     }
+
 
 
     // Check if passwords are provided and match
@@ -679,7 +620,7 @@ async function deleteAccount() {
 <script>
 import '@fortawesome/fontawesome-free/css/all.css';
 import ShowNotification from '../components/ShowNotification.vue';
-//import { fetchWithToken } from '../router/index.js';
+import { fetchWithToken } from '../router/index.js';
 import { ref, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';

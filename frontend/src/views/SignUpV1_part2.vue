@@ -535,7 +535,7 @@ async function nextStep3(event) {
     step.value++;
   } else {
     // Show the pop-up
-    showNotification.value = true;
+    showNotification = true;
     backgroundColor.value = 'bg-red-300';
     notificationTitle.value = 'Erreur d\'autorisation';
     notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
@@ -583,21 +583,21 @@ async function submitSignupData(event) {
       router.push({ name: 'home' });
     } else if (data.error == 'Email address already used') {
       // Show the pop-up
-      showNotification.value = true;
+      showNotification = true;
       backgroundColor.value = 'bg-red-300';
       notificationTitle.value = 'Erreur lors de la création du compte';
       notificationMessage.value = 'Adresse e-mail déjà utilisée';
 
     } else {
       // Show the pop-up
-      showNotification.value = true;
+      showNotification = true;
       backgroundColor.value = 'bg-red-300';
       notificationTitle.value = 'Erreur lors de la création du compte';
       notificationMessage.value = data.error;
     }
   } catch (error) {
     // Show the pop-up
-    showNotification.value = true;
+    showNotification = true;
     backgroundColor.value = 'bg-red-300';
     notificationTitle.value = 'Erreur lors de la création du compte';
     notificationMessage.value = error;

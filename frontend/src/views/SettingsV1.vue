@@ -1,36 +1,6 @@
 <template>
-    <!-- Notification -->
-    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6">
-        <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
-            <transition enter-active-class="transform ease-out duration-300 transition"
-                enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-                enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
-                leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                leave-to-class="opacity-0">
-                <div v-if="showNotification"
-                    class="pointer-events-auto w-full max-w-sm overflow-hidden rounded-lg bg-green-300 shadow-lg ring-1 ring-black ring-opacity-5">
-                    <div class="p-4">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <CheckCircleIcon class="h-6 w-6 text-gray-900" aria-hidden="true" />
-                            </div>
-                            <div class="ml-3 w-0 flex-1 pt-0.5">
-                                <p class="text-sm font-medium text-gray-900">Test</p>
-                                <p class="mt-1 text-sm text-gray-900">de mdp</p>
-                            </div>
-                            <div class="ml-4 flex flex-shrink-0">
-                                <button type="button" @click="dismissNotification"
-                                    class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
-                                    <span class="sr-only">Close</span>
-                                    <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </transition>
-        </div>
-    </div>
+    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
     <!--
     <div class="pb-1 lg:pl-20 bg-gray-100">
         <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
@@ -146,52 +116,79 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">Changement d'Email ou Mot de
-                                                Passe</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">Changement d'identifiant ou de
+                                                mot de passe</span>
                                         </div>
                                     </div>
                                     <div class="pt-6 pb-10">
                                         <div class="flex space-x-1 items-center">
                                             <envelope-icon class="w-4 h-4" />
-                                            <label for="email"
-                                                class="block text-sm font-medium leading-6 text-gray-900">Login</label>
+                                            <label
+                                                class="block text-sm font-medium leading-6 text-gray-900">Identifiant</label>
                                         </div>
                                         <div class="relative items-stretch mt-2">
-                                            <input v-model="userData.username" type="text" name="username" id="username"
+                                            <input v-model="userData" type="text" name="username" id="username"
                                                 autocomplete="username"
                                                 class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                                         </div>
                                         <div class="pt-4">
+
+
+
                                             <div class="grid grid-cols-2 gap-4">
-                                                <div>
+                                                <div class="flex flex-col items-start">
                                                     <div class="flex space-x-1 items-center">
                                                         <key-icon class="w-4 h-4" />
-                                                        <label for="email"
+                                                        <label
                                                             class="block text-sm font-medium leading-6 text-gray-900">Nouveau
-                                                            mot de
-                                                            passe</label>
+                                                            mot de passe</label>
                                                     </div>
-                                                    <div class="relative items-stretch mt-2">
-                                                        <input v-model="newPassword" type="text" name="first-name"
-                                                            id="first-name" autocomplete="given-name"
-                                                            class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                                    <div class="relative items-stretch mt-2 flex">
+                                                        <input v-if="!showPassword" type="password"
+                                                            class="flex-1 rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                            v-model="newPassword" />
+                                                        <input v-else type="text"
+                                                            class="flex-1 rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                            v-model="newPassword" />
+                                                        <div class="flex items-center">
+                                                            <button class="button" @click="togglePasswordVisibility">
+                                                                <i class="fas"
+                                                                    :class="{ 'fa-eye-slash': showPassword, 'fa-eye': !showPassword }"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div>
+
+                                                <div class="flex flex-col items-start">
                                                     <div class="flex space-x-1 items-center">
                                                         <key-icon class="w-4 h-4" />
-                                                        <label for="email"
+                                                        <label
                                                             class="block text-sm font-medium leading-6 text-gray-900">Confirmer
-                                                            le mot
-                                                            de passe</label>
+                                                            le mot de passe</label>
                                                     </div>
-                                                    <div class="relative items-stretch mt-2">
-                                                        <input v-model="confirmPassword" type="text" name="first-name"
-                                                            id="first-name" autocomplete="given-name"
-                                                            class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                                    <div class="relative items-stretch mt-2 flex">
+                                                        <input v-if="!showConfirmPassword" type="password"
+                                                            class="flex-1 rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                            v-model="confirmPassword" />
+                                                        <input v-else type="text"
+                                                            class="flex-1 rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                            v-model="confirmPassword" />
+                                                        <button class="button" @click="toggleConfirmPasswordVisibility">
+                                                            <span class="icon is-small is-right">
+                                                                <i class="fas"
+                                                                    :class="{ 'fa-eye-slash': showConfirmPassword, 'fa-eye': !showConfirmPassword }"></i>
+                                                            </span>
+                                                        </button>
                                                     </div>
                                                 </div>
+
+
                                             </div>
+
+
+
+
+
                                         </div>
                                         <div class="flex justify-end pt-4">
                                             <button @click="handleSubmit"
@@ -318,8 +315,372 @@
     </div>
 </template>
   
+<script setup>
+// Variables to display a notification
+let showNotification = ref(false);
+let notificationTitle = ref('');
+let notificationMessage = ref('');
+let backgroundColor = ref('');
+
+let activeSection = ref('preferences'); // Default active section
+let bgColor = ref(localStorage.getItem('bgColor') || '');
+let userData = ref('');
+
+let newPassword = ref('');
+let confirmPassword = ref('');
+// let showPassword = ref(false);
+// let showConfirmPassword = ref(false);
+
+
+onMounted(() => {
+    fetchUserData();
+    // Run the function every second
+    setInterval(() => {
+        showNotification = false;
+    }, 1000);
+})
+
+
+
+// function togglePasswordVisibility() {
+//     showPassword.value = !showPassword.value;
+// }
+// function toggleConfirmPasswordVisibility() {
+//     showConfirmPassword.value = !showConfirmPassword.value;
+// }
+
+function setActiveSection(section) {
+    activeSection.value = section;
+}
+async function handleColorChange(newColor) {
+    // this is directly linked to the ref bgColor in Vue template
+    bgColor.value = newColor;
+
+    const data = {
+        bg_color: newColor
+    };
+
+    const apiUrl = 'http://localhost:9000/MailAssistant/user/preferences/set_bg_color/';
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    };
+
+    try {
+        const response = await fetchWithToken(apiUrl, requestOptions);
+
+        if (response.bg_color) {
+            localStorage.setItem('bgColor', newColor);
+            console.log('Background color updated successfully');
+            // Show the pop-up
+            console.log(showNotification)
+            showNotification = true;
+            console.log(showNotification)
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Succès !';
+            notificationMessage = 'Votre fond d\'écran a été mis à jour';
+        }
+    } catch (error) {
+        //console.error('Error updating background color:', error);
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur mise à jour fond d\'écran';
+        notificationMessage = error;
+    }
+}
+async function fetchUserData() {
+    const requestOptions = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/username/', requestOptions);
+        console.log("USER DATA -------->", userData);
+        userData.value = data.username;
+    } catch (error) {
+        //console.error('Fetch error:', error);
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur récupération de votre identifiant';
+        notificationMessage = error;
+    }
+}
+
+async function fetchWithToken(url, options = {}) {
+    const accessToken = localStorage.getItem('access_token');
+    if (!options.headers) {
+        options.headers = {};
+    }
+    if (accessToken) {
+        options.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    try {
+        let response = await fetch(url, options);
+
+        if (response.status === 401) {
+            const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ access_token: accessToken })
+            });
+
+            if (refreshResponse.ok) {
+                const refreshData = await refreshResponse.json();
+                const newAccessToken = refreshData.access_token;
+                localStorage.setItem('access_token', newAccessToken);
+                options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                response = await fetch(url, options);
+            } else {
+                throw new Error('Unauthorized: Please log in again');
+            }
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error('Error in fetchWithToken:', error.message);
+        throw error;
+    }
+}
+
+async function getUsername() {
+
+    const requestOptions = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+
+    try {
+        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/username/', requestOptions);
+        return data.username;
+    }
+    catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+
+async function handleSubmit() {
+
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        var response = await fetchWithToken('http://localhost:9000/MailAssistant/check_username/', requestOptions);
+    }
+    catch (error) {
+        console.log("An error occured while checking the username", error)
+        return;
+    }
+
+
+
+    let resultUpdateUsername;
+
+    if (response.available == false) {
+        console.log("Username already exists")
+        return;
+    } else {
+        let currentUsername;
+
+        getUsername().then(username => {
+            currentUsername = username;
+            if (userData.value != currentUsername) {
+                resultUpdateUsername = updateUsername();
+            }
+        })
+    }
+
+
+    // Check if passwords are provided and match
+    if (newPassword.value && newPassword.value == confirmPassword.value) {
+        var resultUpdatePwd = updatePassword();
+    }
+
+
+    // Handle all cases with pop-ups
+    if (resultUpdateUsername) {
+
+        if (resultUpdateUsername == 'Username updated successfully' && resultUpdatePwd == 'Password updated successfully') {
+            // Show the pop-up
+            showNotification = true;
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Succès !';
+            notificationMessage = 'Votre identifiant et mot de passe ont été modifiés';
+        }
+        else if (!resultUpdatePwd) {
+
+            if (resultUpdateUsername == 'Username updated successfully') {
+                // Show the pop-up
+                showNotification = true;
+                backgroundColor = 'bg-green-300';
+                notificationTitle = 'Succès !';
+                notificationMessage = 'Votre identifiant a bien été mis à jour';
+            }
+            else {
+                // Show the pop-up
+                showNotification = true;
+                backgroundColor = 'bg-green-300';
+                notificationTitle = 'Erreur mise à jour identifiant';
+                notificationMessage = resultUpdateUsername;
+            }
+        }
+    }
+    else if (resultUpdatePwd) {
+
+        if (resultUpdatePwd == 'Password updated successfully') {
+            // Show the pop-up
+            showNotification = true;
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Succès !';
+            notificationMessage = 'Votre mot de passe a bien été modifié';
+        }
+        else {
+            // Show the pop-up
+            showNotification = true;
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Erreur mise à jour mot de passe';
+            notificationMessage = resultUpdatePwd;
+        }
+    }
+    else {
+        console.log("Nothing has been changed")
+    }
+}
+
+async function updatePassword() {
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password: newPassword.value })
+    };
+
+    try {
+        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-password/', requestOptions);
+        console.log('Password updated successfully', data);
+
+        return 'Password updated successfully';
+    } catch (error) {
+        console.error('Error updating password:', error);
+
+        return error;
+    }
+}
+
+
+async function updateUsername() {
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username: userData.value })
+    };
+
+    try {
+        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-username/', requestOptions);
+        console.log('Username updated successfully', data);
+
+        return 'Username updated successfully';
+    } catch (error) {
+        console.error('Error updating username:', error);
+
+        return error;
+    }
+}
+async function deleteAccount() {
+
+    const isChecked = document.querySelector('input[name="choice"]:checked');
+
+    if (isChecked) {
+        try {
+            const access_token = localStorage.getItem('access_token');
+            const url = 'http://localhost:9000/MailAssistant/api/delete_account/';
+
+            const requestOptions = {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${access_token}`
+                }
+            };
+
+            const responseData = await fetchWithToken(url, requestOptions);
+
+            // Check the response data for success or failure
+            if (responseData && responseData.message === 'User successfully deleted') {
+                // Handle successful deletion
+                //console.log('Account deleted successfully.');
+                // Show the pop-up
+                showNotification = true;
+                backgroundColor = 'bg-green-300';
+                notificationTitle = 'Redirection en cours...';
+                notificationMessage = 'Votre compte a bien été supprimé';
+
+                setTimeout(() => {
+                    // Redirect login page
+                    window.location.href = 'http://localhost:8080';
+                }, 4000);
+
+            } else {
+                // Handle other possible server responses or inform the user
+                //console.error('Failed to delete account. Unexpected server response:', responseData);
+                // Show the pop-up
+                showNotification = true;
+                backgroundColor = 'bg-red-300';
+                notificationTitle = 'Erreur suppresion de votre compte';
+                notificationMessage = responseData.error;
+            }
+        } catch (error) {
+            // Handle error or inform the user about the failure
+            //console.error('Error deleting account:', error);            
+            // Show the pop-up
+            showNotification = true;
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Erreur suppresion de votre compte';
+            notificationMessage = error;
+        }
+    } else {
+        // TODO: Inform the user that the deletion is not confirmed
+        //alert('Please confirm deletion by checking the checkbox.');
+        //console.log('Please confirm deletion by checking the checkbox.');
+        // Show the pop-up
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Confirmation nécessaire';
+        notificationMessage = 'Cochez la case pour approuver la suppression';
+    }
+}
+</script>
+
 <script>
-import { ref } from 'vue';
+import '@fortawesome/fontawesome-free/css/all.css';
+import ShowNotification from '../components/ShowNotification.vue';
+//import { fetchWithToken } from '../router/index.js';
+import { ref, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import Theme from '../components/SettingsTheme.vue';
@@ -334,7 +695,6 @@ import {
     CircleStackIcon
 } from '@heroicons/vue/24/outline'
 
-const showNotification = ref(false);
 
 export default {
     components: {
@@ -352,210 +712,25 @@ export default {
     },
     data() {
         return {
-            //  notificationTitle: '',
-            //notificationMessage: '',
-            activeSection: 'preferences', // Default active section
-            bgColor: 'bg-gradient-to-r from-sky-300 to-blue-300',
-            userData: {
-                username: ''
-            },
-            newPassword: '',
-            confirmPassword: ''
+            showPassword: false,
+            showConfirmPassword: false
         };
     },
-    methods: {
-        showSuccessNotification() {
-            // Handle succesful pop ups
-            //this.notificationTitle = title;
-            //this.notificationMessage = msg;
-            showNotification.value = true;
-            console.log(showNotification.value)
-
-            // To hide the notification
-            setTimeout(() => {
-                showNotification.value = false;
-            }, 5000);
+    computed: {
+        passwordButtonLabel() {
+            return (this.showPassword) ? "Hide" : "Show";
         },
-        setActiveSection(section) {
-            this.activeSection = section;
-        },
-        async handleColorChange(newColor) {
-            this.bgColor = newColor;
-
-            const data = {
-                bg_color: newColor
-            };
-
-            const apiUrl = 'http://localhost:9000/MailAssistant/user/preferences/set_bg_color/';
-
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            };
-
-            try {
-                const response = await this.fetchWithToken(apiUrl, requestOptions);
-
-                if (response.bg_color) {
-                    // Handle successful response here
-                    //this.showSuccessNotification('Background updated', 'Votre Background a ete mis a jour');
-                    console.log('Background color updated successfully');
-                    localStorage.setItem('bgColor', newColor);
-                }
-            } catch (error) {
-                console.error('Error updating background color:', error);
-                // Handle error here
-            }
-        },
-        async fetchUserData() {
-            const requestOptions = {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-
-            try {
-                const data = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/username/', requestOptions);
-                console.log(data.username);
-                this.userData.username = data.username;
-                // Handle the response data as needed
-            } catch (error) {
-                console.error('Fetch error:', error);
-                // Handle the error appropriately
-            }
-        },
-        handleSubmit() {
-            // Check if passwords are provided and match
-            if (this.newPassword && this.newPassword === this.confirmPassword) {
-                this.updatePassword();
-            }
-        },
-        async updatePassword() {
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ password: this.newPassword })
-            };
-
-            try {
-                const data = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-password/', requestOptions);
-                console.log('Password updated successfully', data);
-                // TODO: Handle successful password update
-                //this.showSuccessNotification('Mot de passe modifié', 'Votre mot de passe a été modifié avec succès.');
-                this.showSuccessNotification()
-            } catch (error) {
-                console.error('Error updating password:', error);
-                // Handle error
-            }
-        },
-        async updateUsername() {
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username: this.userData.username })
-            };
-
-            try {
-                const data = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-username/', requestOptions);
-                console.log('Username updated successfully', data);
-                // Handle successful username update
-            } catch (error) {
-                console.error('Error updating username:', error);
-                // Handle error
-            }
-        },
-        async deleteAccount() {
-            const isChecked = document.querySelector('input[name="choice"]:checked');
-
-            if (isChecked) {
-                try {
-                    const access_token = localStorage.getItem('access_token');
-                    const url = 'http://localhost:9000/MailAssistant/api/delete_account/';
-
-                    const requestOptions = {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${access_token}`
-                        }
-                    };
-
-                    const responseData = await this.fetchWithToken(url, requestOptions);
-
-                    // Check the response data for success or failure
-                    if (responseData && responseData.message === 'User successfully deleted') {
-                        // Handle successful deletion
-                        console.log('Account deleted successfully.');
-
-                        // Redirect logic on the client-side (assuming a frontend framework like Vue or React)
-                        window.location.href = 'http://localhost:8080'; // Redirect to desired URL
-                    } else {
-                        // Handle other possible server responses or inform the user
-                        console.error('Failed to delete account. Unexpected server response:', responseData);
-                    }
-
-                } catch (error) {
-                    // Handle error or inform the user about the failure
-                    console.error('Error deleting account:', error);
-                }
-            } else {
-                // TODO: Inform the user that the deletion is not confirmed
-                alert('Please confirm deletion by checking the checkbox.');
-                console.log('Please confirm deletion by checking the checkbox.');
-            }
-        },
-        async fetchWithToken(url, options = {}) {
-            const accessToken = localStorage.getItem('access_token');
-            if (!options.headers) {
-                options.headers = {};
-            }
-            if (accessToken) {
-                options.headers['Authorization'] = `Bearer ${accessToken}`;
-            }
-
-            try {
-                let response = await fetch(url, options);
-
-                if (response.status === 401) {
-                    const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ access_token: accessToken })
-                    });
-
-                    if (refreshResponse.ok) {
-                        const refreshData = await refreshResponse.json();
-                        const newAccessToken = refreshData.access_token;
-                        localStorage.setItem('access_token', newAccessToken);
-                        options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                        response = await fetch(url, options);
-                    } else {
-                        throw new Error('Unauthorized: Please log in again');
-                    }
-                }
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-
-                return response.json();
-            } catch (error) {
-                console.error('Error in fetchWithToken:', error.message);
-                throw error;
-            }
-        },
+        confirmPasswordButtonLabel() {
+            return (this.showConfirmPassword) ? "Hide" : "Show";
+        }
     },
-    async mounted() {
-        this.bgColor = localStorage.getItem('bgColor');
-        this.fetchUserData();
+    methods: {
+        togglePasswordVisibility() {
+            this.showPassword = !this.showPassword;
+        },
+        toggleConfirmPasswordVisibility() {
+            this.showConfirmPassword = !this.showConfirmPassword;
+        }
     }
 }
 </script>

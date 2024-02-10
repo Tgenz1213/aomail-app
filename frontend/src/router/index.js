@@ -27,7 +27,7 @@ async function fetchWithToken(url, options = {}) {
 
     console.log("------------> DEBUG RESPONSE", response); // To delete after test (only Theo can delete)
 
-    if (response.status === 401) {
+    if (response.status == 401) {
       const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
         method: 'POST',
         headers: {
@@ -51,7 +51,7 @@ async function fetchWithToken(url, options = {}) {
     // Access token is still valid
     // Handles other errors
     else {
-      console.log("DEBUG 2"); // To delete after test (only Theo can delete)
+      console.log("DEBUG 2", response); // To delete after test (only Theo can delete)
       return response.json();
     }
 

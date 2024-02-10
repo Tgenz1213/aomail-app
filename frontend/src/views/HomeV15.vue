@@ -1424,8 +1424,6 @@ async function handleAddCategory(categoryData) {
 
 async function handleUpdateCategory(updatedCategory) {
 
-    console.log("mise à jour caté", showNotification)
-
     if (!updatedCategory.name.trim()) {
         //console.error('Error: Category name cannot be empty');
         // Show the pop-up

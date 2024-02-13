@@ -18,7 +18,7 @@ def get_prompt_response(formatted_prompt):
     """Returns the prompt response"""
     client = openai.OpenAI(organization=OPENAI_CREDS['organization'], api_key=OPENAI_CREDS['api_key'])
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-0125",
         messages=[{
             "role": "assistant",
             "content": formatted_prompt
@@ -165,7 +165,7 @@ def gpt_langchain_redaction(input_data, length, formality):
     template = """As an email assistant, write a {length} and {formality} email in FRENCH.
     Improve the QUANTITY and QUALITY in FRENCH according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
 
-    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
+    Answer must be a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
     """
     formatted_prompt = template.format(input_data=input_data, length=length, formality=formality)
     response = get_prompt_response(formatted_prompt)

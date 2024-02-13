@@ -312,7 +312,6 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let activeSection = ref('preferences'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
-console.log("mounted bg", bgColor)
 let userData = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');
@@ -338,16 +337,12 @@ function setActiveSection(section) {
 
 async function handleColorChange(newColor) {
 
-    console.log("handleColorChange is running", newColor)
-
     // this is directly linked to the ref bgColor in Vue template
     bgColor.value = newColor;
-    console.log("data ===>", bgColor.value)
 
     const data = {
         bg_color: newColor
     };
-
 
     const apiUrl = 'http://localhost:9000/MailAssistant/user/preferences/set_bg_color/';
 
@@ -363,6 +358,9 @@ async function handleColorChange(newColor) {
         const response = await fetchWithToken(apiUrl, requestOptions);
 
         if (response.bg_color) {
+            localStorage.setItem('bgColor', newColor);
+            console.log('Background color updated successfully');
+
             // Show the pop-up
             console.log("BEFORE --->", showNotification)
             showNotification = true;
@@ -370,10 +368,6 @@ async function handleColorChange(newColor) {
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'Votre fond d\'écran a été mis à jour';
-
-            
-            localStorage.setItem('bgColor', newColor);
-            console.log('Background color updated successfully');
         }
     } catch (error) {
         //console.error('Error updating background color:', error);
@@ -383,7 +377,6 @@ async function handleColorChange(newColor) {
         notificationTitle = 'Erreur mise à jour fond d\'écran';
         notificationMessage = error;
     }
-
 }
 async function fetchUserData() {
     const requestOptions = {

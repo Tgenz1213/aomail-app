@@ -80,7 +80,7 @@
                       <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
                         <div v-for="person in selectedPeople" :key="person.email"
                           class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                          {{ person.username }}
+                          {{ person.username || person.email }}
                           <button @click="removePersonFromMain(person)">×</button>
                         </div>
                       </div>
@@ -396,11 +396,10 @@ function handleFocusDestinary() {
 function handleBlur2(event) {
   // Checks for a valid input email and adds it to the recipients list
   isFocused2.value = false;
-  const inputValue = event.target.value.trim();
+  const inputValue = event.target.value.trim().toLowerCase();
   const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   if (inputValue && emailFormat.test(inputValue)) {
-    console.log("test debug ==>");
     // Add the input email to the list of recipients
     // TODO: ask if we save it in DB or if we wait till the email is sent
     if (!people.find(person => person.email === inputValue)) {
@@ -1002,7 +1001,7 @@ onMounted(() => {
     showNotification = false;
   }, 1000);
 
-  
+
   getBackgroundColor();
   bgColor.value = localStorage.getItem('bgColor');
   //fetchEmailSenders();

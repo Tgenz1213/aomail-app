@@ -273,7 +273,7 @@ export default {
       }
 
       const senderData = {
-        email: this.selectedPerson.email, // username is the email => TO FIX : rename
+        email: this.selectedPerson.email,
       };
 
       try {

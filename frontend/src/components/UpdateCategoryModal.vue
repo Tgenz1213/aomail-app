@@ -61,6 +61,7 @@
 </template>
 
 <script setup>
+import { fetchWithToken } from '../router/index.js';
 import { ref, watch, defineProps, defineEmits } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 
@@ -86,7 +87,8 @@ const closeModal = () => {
   emits('closeModal');
 };
 
-const updateCategoryHandler = () => {
+async function updateCategoryHandler() {
+  
   const updatedCategory = {
     name: categoryName.value,
     description: categoryDescription.value,
@@ -95,10 +97,27 @@ const updateCategoryHandler = () => {
   if (/[,;:/\\.]/.test(categoryName.value)) {
     console.log("Name not accepted. It contains a special character.");
   } else {
-    emits('updateCategory', updatedCategory);
-    closeModal();
+    try {
+      const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+
+      for (let i = 0; i < fetchedCategories.length; i++) {
+        if (fetchedCategories[i]['name'] == categoryName.value) {
+          emits('updateCategory', { error: 'Category already exists', categoryName: categoryName.value });
+          categoryName.value = props.category?.name || '';
+          return;
+        }
+      }
+
+      // Update the category
+      emits('updateCategory', updatedCategory);
+      
+    } catch (error) {
+      console.error("Error checking existing categories:", error);
+      // TODO: pop-up the error
+      return;
+    }
   }
-};
+}
 
 const deleteCategoryHandler = () => {
   emits('deleteCategory', categoryName.value);

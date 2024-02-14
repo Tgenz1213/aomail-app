@@ -52,6 +52,7 @@
 </template>
 
 <script setup>
+import { fetchWithToken } from '../router/index.js';
 import { ref, defineProps, defineEmits } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 
@@ -69,14 +70,32 @@ const closeModal = () => {
     emits('closeModal');
 };
 
-const addCategory = () => {
+async function addCategory() {
 
     if (/[,;:/\\.]/.test(categoryName.value)) {
+        // TODO emits with different params => show a pop-up with this error
         console.log("Name not accepted. It contains a special character.");
     } else {
-        emits('addCategory', { name: categoryName.value, description: categoryDescription.value });
-        categoryDescription.value = '';
-        categoryName.value = '';
+        try {
+            const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+
+            for (let i = 0; i < fetchedCategories.length; i++) {
+                if (fetchedCategories[i]['name'] == categoryName.value) {
+                    emits('addCategory', { error: 'Category already exists', categoryName: categoryName.value });
+                    return;
+                }
+            }
+
+            // Create the category
+            emits('addCategory', { name: categoryName.value, description: categoryDescription.value });
+            categoryDescription.value = '';
+            categoryName.value = '';
+
+        } catch (error) {
+            console.error("Error checking existing categories:", error);
+            // TODO: pop-up the error
+            return;
+        }
     }
-};
+}
 </script>

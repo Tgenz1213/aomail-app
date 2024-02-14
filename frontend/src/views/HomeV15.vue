@@ -893,7 +893,8 @@
                                                                 <div class="flex group gap-x-2">
                                                                     <p>Vous avez récemment lu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{
-                                                                                readEmailsInSelectedTopic().length }}</span> <span
+                                                                                readEmailsInSelectedTopic().length }}</span>
+                                                                        <span
                                                                             v-if="readEmailsInSelectedTopic().length === 1">mail</span><span
                                                                             v-else>mails</span>. Je <span
                                                                             class="font-medium">vais nettoyer
@@ -1380,7 +1381,17 @@ function closeUpdateModal() {
 }
 
 async function handleAddCategory(categoryData) {
-    console.log('Category Added:', categoryData);
+
+    if (Object.hasOwnProperty.call(categoryData, 'error')) {
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Catégorie déjà existante';
+        notificationMessage = 'La catégorie: ' + categoryData.categoryName + ' existe déjà';
+        
+        closeModal();
+        return;
+    }
+
     try {
         const response = await fetchWithToken('http://localhost:9000/MailAssistant/api/set_category/', {
             method: 'POST',
@@ -1422,7 +1433,19 @@ async function handleAddCategory(categoryData) {
     }
 }
 
-async function handleUpdateCategory(updatedCategory) {
+async function handleUpdateCategory(updatedCategory) {    
+
+    console.log("IMPORTANT +++++++>", updatedCategory)
+
+    if (Object.hasOwnProperty.call(updatedCategory, 'error')) {
+        showNotification = true;
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Catégorie déjà existante';
+        notificationMessage = 'La catégorie: ' + updatedCategory.categoryName + ' existe déjà';
+        
+        closeUpdateModal();
+        return;
+    }
 
     if (!updatedCategory.name.trim()) {
         //console.error('Error: Category name cannot be empty');
@@ -1465,9 +1488,6 @@ async function handleUpdateCategory(updatedCategory) {
                 description: category.description
             }));
             console.log("Assigned categories:", categories.value);
-            // setTimeout(() => {
-            //     showUpdateCategoryNotif.value = false;
-            // }, 2000);
         }
     } catch (error) {
         //console.error('Error updating category:', error);
@@ -1678,7 +1698,7 @@ function countEmailsInCategoryAndPriority(categoryName, priority) {
 
 // To check if there is emails or not in the category
 function isEmptyTopic() {
-    console.log("----> DEBUG isEmpty",selectedTopic.value);
+    console.log("----> DEBUG isEmpty", selectedTopic.value);
     if (totalEmailsInCategory(selectedTopic.value) == 0) {
         console.log("Topic not found for selectedTopic:", selectedTopic.value); // Debugging log
         return true; // or true, based on how you want to handle this case
@@ -1709,7 +1729,7 @@ const fetchData = async () => {
     try {
         // Fetch the categories
         const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
-        console.log("CategoryData", categoryData);
+        console.log("VERY IMPORTANT: =======> CategoryData", categoryData);
 
         for (let i = 0; i < categoryData.length; i++) {
             categories.value.push(categoryData[i]);

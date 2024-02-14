@@ -124,10 +124,10 @@
                                 </div>
                             </div>
                         </main>
-                        <div v-if="isEmptyTopic"
+                        <div v-if="isEmptyTopic()"
                             class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5">
                             <!-- Content goes here -->
-                            <div v-if="isEmptyTopic" class="flex flex-col w-full h-full rounded-xl">
+                            <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div
                                     class="flex flex-col justify-center items-center h-full mx-4 my-4 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
@@ -860,7 +860,7 @@
                                             </div>
                                         </li>
                                     </div>
-                                    <div v-if="readEmailsInSelectedTopic.length"
+                                    <div v-if="readEmailsInSelectedTopic().length > 0"
                                         class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30"
                                         @click="toggleReadEmailVisibility">
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
@@ -893,8 +893,8 @@
                                                                 <div class="flex group gap-x-2">
                                                                     <p>Vous avez récemment lu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{
-                                                                                readEmailsInSelectedTopic.length }}</span> <span
-                                                                            v-if="readEmailsInSelectedTopic.length === 1">mail</span><span
+                                                                                readEmailsInSelectedTopic().length }}</span> <span
+                                                                            v-if="readEmailsInSelectedTopic().length === 1">mail</span><span
                                                                             v-else>mails</span>. Je <span
                                                                             class="font-medium">vais nettoyer
                                                                             automatiquement</span> les mails lus.</p>
@@ -916,7 +916,7 @@
                                                                 <ul v-if="showEmailReadDescriptions"
                                                                     class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-300 w-full">
                                                                     <li class="py-5 grid grid-cols-10 w-full"
-                                                                        v-for="item in readEmailsInSelectedTopic"
+                                                                        v-for="item in readEmailsInSelectedTopic()"
                                                                         :key="item.id" @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem">
                                                                         <div class="col-span-8">
@@ -1531,14 +1531,12 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
 function readEmailsInSelectedTopic() {
     let combinedEmails = [];
-    for (let category in emails[selectedTopic]) {
-        combinedEmails = combinedEmails.concat(emails[selectedTopic][category]);
+    for (let category in emails.value[selectedTopic.value]) {
+        combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
     return combinedEmails.filter(email => email.read);
 }
-
-
 
 function toggleReadEmailVisibility() {
     showEmailReadDescriptions.value = !showEmailReadDescriptions.value;
@@ -1547,7 +1545,7 @@ function toggleReadEmailVisibility() {
 
 function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
-    if (readEmailsInSelectedTopic.length == 0) {
+    if (readEmailsInSelectedTopic() == 0) {
         scrollToBottom();
     } else {
         scrollAlmostToBottom();
@@ -1659,52 +1657,50 @@ function animateHiddenText(element, delay = 0) {
 
 
 function selectCategory(category) {
-    selectedTopic = category.name;
+    selectedTopic.value = category.name;
     localStorage.setItem('selectedTopic', category.name);
     //console.log("CHANGE CATEGORY");
 }
 
 
 
-function countEmailsInCategoryAndPriority() {
-    return (categoryName, priority) => {
-        let count = 0;
-        if (emails[categoryName] && emails[categoryName][priority]) {
-            for (let email of emails[categoryName][priority]) {
-                if (!email.read) {
-                    count++;
-                }
+function countEmailsInCategoryAndPriority(categoryName, priority) {
+    let count = 0;
+    if (emails.value[categoryName] && emails.value[categoryName][priority]) {
+        for (let email of emails.value[categoryName][priority]) {
+            if (!email.read) {
+                count++;
             }
         }
-        return count;
-    };
+    }
+    return count;
 }
 
 // To check if there is emails or not in the category
 function isEmptyTopic() {
-    const topic = emails[selectedTopic];
-    if (!topic) {
-        console.log("Topic not found for selectedTopic:", selectedTopic); // Debugging log
+    console.log("----> DEBUG isEmpty",selectedTopic.value);
+    if (totalEmailsInCategory(selectedTopic.value) == 0) {
+        console.log("Topic not found for selectedTopic:", selectedTopic.value); // Debugging log
         return true; // or true, based on how you want to handle this case
     }
-    return Object.values(topic).every(subcategory => subcategory.length === 0);
+    else {
+        return false;
+    }
 }
 
 // Updated to work only with the the email not red by the user
-function totalEmailsInCategory() {
-    return (categoryName) => {
-        let totalCount = 0;
-        if (emails[categoryName]) {
-            for (let subcategory of Object.values(emails[categoryName])) {
-                for (let email of subcategory) {
-                    if (!email.read) {
-                        totalCount++;
-                    }
+function totalEmailsInCategory(categoryName) {
+    let totalCount = 0;
+    if (emails.value[categoryName]) {
+        for (let subcategory of Object.values(emails.value[categoryName])) {
+            for (let email of subcategory) {
+                if (!email.read) {
+                    totalCount++;
                 }
             }
         }
-        return totalCount;
-    };
+    }
+    return totalCount;
 }
 
 

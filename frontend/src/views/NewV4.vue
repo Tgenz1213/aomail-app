@@ -803,7 +803,7 @@ const handleAIClick = async () => {
             //const delta = quill.value.clipboard.convert(formattedMail); OLD 2
             //console.log(delta); // Check the structure of the delta OLD 2
             const quillEditorContainer = quill.value.root;
-            let modified_email_body = result.mail.replace(/<\/p>/g, "</p><p></p>");
+            let modified_email_body = result.mail.replace(/<\/p>/g, "</p><p></p>"); //DO NOT DELETE
             quillEditorContainer.innerHTML = modified_email_body;
             //quill.value.update();
 

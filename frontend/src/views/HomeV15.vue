@@ -143,7 +143,6 @@
                             class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar"
                             ref="scrollableDiv">
                             <ul role="list" class="flex flex-col w-full h-full rounded-xl">
-                                {{emails[selectedTopic]['Important']}}
                                 <div class="pb-4"><!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
                                         class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20">
@@ -861,7 +860,7 @@
                                             </div>
                                         </li>
                                     </div>
-                                    <div v-if="readEmailsInSelectedTopic.length"
+                                    <div v-if="readEmailsInSelectedTopic().length > 0"
                                         class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30"
                                         @click="toggleReadEmailVisibility">
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
@@ -894,8 +893,8 @@
                                                                 <div class="flex group gap-x-2">
                                                                     <p>Vous avez récemment lu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{
-                                                                                readEmailsInSelectedTopic.length }}</span> <span
-                                                                            v-if="readEmailsInSelectedTopic.length === 1">mail</span><span
+                                                                                readEmailsInSelectedTopic().length }}</span> <span
+                                                                            v-if="readEmailsInSelectedTopic().length === 1">mail</span><span
                                                                             v-else>mails</span>. Je <span
                                                                             class="font-medium">vais nettoyer
                                                                             automatiquement</span> les mails lus.</p>
@@ -917,7 +916,7 @@
                                                                 <ul v-if="showEmailReadDescriptions"
                                                                     class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-300 w-full">
                                                                     <li class="py-5 grid grid-cols-10 w-full"
-                                                                        v-for="item in readEmailsInSelectedTopic"
+                                                                        v-for="item in readEmailsInSelectedTopic()"
                                                                         :key="item.id" @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem">
                                                                         <div class="col-span-8">
@@ -1532,8 +1531,8 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
 function readEmailsInSelectedTopic() {
     let combinedEmails = [];
-    for (let category in emails.value[selectedTopic]) {
-        combinedEmails = combinedEmails.concat(emails.value[selectedTopic][category]);
+    for (let category in emails.value[selectedTopic.value]) {
+        combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
     return combinedEmails.filter(email => email.read);
@@ -1546,7 +1545,7 @@ function toggleReadEmailVisibility() {
 
 function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
-    if (readEmailsInSelectedTopic.length == 0) {
+    if (readEmailsInSelectedTopic() == 0) {
         scrollToBottom();
     } else {
         scrollAlmostToBottom();
@@ -1665,18 +1664,16 @@ function selectCategory(category) {
 
 
 
-function countEmailsInCategoryAndPriority() {
-    return (categoryName, priority) => {
-        let count = 0;
-        if (emails.value[categoryName] && emails.value[categoryName][priority]) {
-            for (let email of emails.value[categoryName][priority]) {
-                if (!email.read) {
-                    count++;
-                }
+function countEmailsInCategoryAndPriority(categoryName, priority) {
+    let count = 0;
+    if (emails.value[categoryName] && emails.value[categoryName][priority]) {
+        for (let email of emails.value[categoryName][priority]) {
+            if (!email.read) {
+                count++;
             }
         }
-        return count;
-    };
+    }
+    return count;
 }
 
 // To check if there is emails or not in the category

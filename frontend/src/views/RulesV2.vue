@@ -155,7 +155,7 @@ export default {
         });
 
         console.log('Rules', rulesData);
-        console.log('Rules name', rulesData[0].category_name);
+        //console.log('Rules name', rulesData[0].category_name);
 
         this.rules = rulesData.map(rule => ({
           id: rule.id,

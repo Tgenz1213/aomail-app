@@ -21,7 +21,10 @@
                     <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
                   </div>
                   <div class="relative mt-2">
-                    <ComboboxInput class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" @change="query = $event.target.value" :display-value="(person) => person?.username" />
+                    <ComboboxInput
+                class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                @change="query = $event.target.value" :display-value="(person) => person?.username || person?.email" />
+                    
                     <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                       <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                     </ComboboxButton>
@@ -95,6 +98,7 @@
   </template>
   
   <script setup>
+  import { fetchWithToken } from '../router/index.js';
   import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
   import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
   import {
@@ -231,7 +235,7 @@
 
           const deleteUrl = `http://localhost:9000/MailAssistant/user/delete-rules/${this.formData.id}`;
 
-          const deleteResponse = await this.fetchWithToken(deleteUrl, {
+          const deleteResponse = await fetchWithToken(deleteUrl, {
             method: 'DELETE'
           });
 
@@ -259,7 +263,7 @@
           const url = 'http://localhost:9000/MailAssistant/api/create_sender';
   
           // Use fetchWithToken for the POST request
-          const responseData = await this.fetchWithToken(url, {
+          const responseData = await fetchWithToken(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -286,7 +290,7 @@
           const url = 'http://localhost:9000/MailAssistant/api/check_sender';
 
           // Use fetchWithToken for the POST request
-          const response = await this.fetchWithToken(url, {
+          const response = await fetchWithToken(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -308,48 +312,6 @@
         } catch (error) {
           console.error(`Error in checkSenderExists: ${error}`);
           throw error;
-        }
-      },
-      async fetchWithToken(url, options = {}) {
-        const accessToken = localStorage.getItem('userToken');
-        if (!options.headers) {
-            options.headers = {};
-        }
-        if (accessToken) {
-            options.headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-  
-        try {
-          let response = await fetch(url, options);
-  
-          if (response.status === 401) {
-            const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ access_token: accessToken })
-            });
-  
-            if (refreshResponse.ok) {
-                const refreshData = await refreshResponse.json();
-                const newAccessToken = refreshData.access_token;
-                localStorage.setItem('userToken', newAccessToken);
-                options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-                response = await fetch(url, options);
-            } else {
-                throw new Error('Unauthorized: Please log in again');
-            }
-          }
-  
-          if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-  
-          return response.json();
-        } catch (error) {
-            console.error('Error in fetchWithToken:', error.message);
-            throw error;
         }
       },
       async updateUserRule() {
@@ -380,7 +342,7 @@
           if (this.formData.category) {  
             // Fetch the category ID using fetchWithToken
             const categoryUrl = `http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`;
-            const categoryData = await this.fetchWithToken(categoryUrl, {
+            const categoryData = await fetchWithToken(categoryUrl, {
               method: 'GET'
             });
             const categoryId = categoryData.id;
@@ -394,15 +356,17 @@
               info_AI: ''
             };
           } else {
-            ruleData = {
-              ...this.formData,
-              sender: senderId  // Replace sender object with sender ID
-            };
+            // Handle error
+            return;
+            // ruleData = {
+            //   ...this.formData,
+            //   sender: senderId  // Replace sender object with sender ID
+            // };
           } 
           console.log("RuleData", ruleData);
-
+          
           // Use fetchWithToken for the PUT request to update the rule
-          const ruleResponseData = await this.fetchWithToken(`http://localhost:9000/MailAssistant/user/update-rule/`, {
+          const ruleResponseData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/update-rule/`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'

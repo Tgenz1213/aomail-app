@@ -89,7 +89,7 @@
                         <div v-for="person in selectedCC" :key="person.email"
                           class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                           <span class="font-semibold mr-1">CC:</span>
-                          {{ person.username }}
+                          {{ person.username || person.email }}
                           <button @click="removePersonFromCC(person)">×</button>
                         </div>
                       </div>
@@ -98,7 +98,7 @@
                         <div v-for="person in selectedCCI" :key="person.email"
                           class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                           <span class="font-semibold mr-1">CCI:</span>
-                          {{ person.username }}
+                          {{ person.username || person.email }}
                           <button @click="removePersonFromCCI(person)">×</button>
                         </div>
                       </div>
@@ -467,10 +467,27 @@ const handleFileUpload = (event) => {
   const files = Array.from(event.target.files);
   files.forEach(file => {
     if (file.size <= MAX_FILE_SIZE) {
+      let localStorageuploadedFiles = localStorage.getItem("uploadedFiles");
+
+      for (const currentFile of localStorageuploadedFiles) {
+        if (currentFile.name == file) {
+          // Show the pop-up
+          showNotification = true;
+          backgroundColor = 'bg-red-300';
+          notificationTitle = 'Fichier en double';
+          notificationMessage = 'Vous avez déjà inséré ce fichier';
+          return;
+        }
+      }
       uploadedFiles.value.push({ name: file.name, size: file.size });
       fileObjects.value.push(file);
     } else {
-      alert("File size exceeds Gmail's limit");
+      // Show the pop-up
+      showNotification = true;
+      backgroundColor = 'bg-red-300';
+      notificationTitle = 'Fichier trop volumineux';
+      notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
+      return;
     }
   });
   saveFileMetadataToLocalStorage();

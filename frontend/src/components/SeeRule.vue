@@ -25,11 +25,10 @@
             <div class="relative mt-2">
               <ComboboxInput
                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                @change="query = $event.target.value" :display-value="(person) => person?.username" />
+                @change="query = $event.target.value" :display-value="(person) => person?.username || person?.email" />
               <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
               </ComboboxButton>
-
               <ComboboxOptions v-if="filteredPeople.length > 0"
                 class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                 <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person" as="template"
@@ -146,6 +145,7 @@ const filteredPeople = computed(() => {
 </script>
 
 <script>
+import { fetchWithToken } from '../router/index.js';
 import {
   XMarkIcon,
   UserIcon,
@@ -234,16 +234,26 @@ export default {
         throw new Error('No sender selected');
       }
 
+      let username = this.selectedPerson.username;
+
+      if (username == "") {
+        username = this.selectedPerson.email
+          .split('@')[0] // Get the first part of the email
+          .split(/\.|-/) // Split by "." or "-"
+          .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
+          .join(' '); // Join with spaces
+      }
+
       const senderData = {
-        name: this.selectedPerson.username,
-        email: this.selectedPerson.email,  // Assuming username is the email
+        name: username,
+        email: this.selectedPerson.email,
       };
 
       try {
         const url = 'http://localhost:9000/MailAssistant/api/create_sender';
 
         // Use fetchWithToken for the POST request
-        const responseData = await this.fetchWithToken(url, {
+        const responseData = await fetchWithToken(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -270,7 +280,7 @@ export default {
         const url = 'http://localhost:9000/MailAssistant/api/check_sender';
 
         // Use fetchWithToken for the POST request
-        const response = await this.fetchWithToken(url, {
+        const response = await fetchWithToken(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -291,48 +301,6 @@ export default {
         }
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
-        throw error;
-      }
-    },
-    async fetchWithToken(url, options = {}) {
-      const accessToken = localStorage.getItem('userToken');
-      if (!options.headers) {
-        options.headers = {};
-      }
-      if (accessToken) {
-        options.headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-
-      try {
-        let response = await fetch(url, options);
-
-        if (response.status === 401) {
-          const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ access_token: accessToken })
-          });
-
-          if (refreshResponse.ok) {
-            const refreshData = await refreshResponse.json();
-            const newAccessToken = refreshData.access_token;
-            localStorage.setItem('userToken', newAccessToken);
-            options.headers['Authorization'] = `Bearer ${newAccessToken}`;
-            response = await fetch(url, options);
-          } else {
-            throw new Error('Unauthorized: Please log in again');
-          }
-        }
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        return response.json();
-      } catch (error) {
-        console.error('Error in fetchWithToken:', error.message);
         throw error;
       }
     },
@@ -357,7 +325,7 @@ export default {
         if (this.formData.category) {
           // Fetch the category ID using fetchWithToken
           const categoryUrl = `http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`;
-          const categoryData = await this.fetchWithToken(categoryUrl, {
+          const categoryData = await fetchWithToken(categoryUrl, {
             method: 'GET'
           });
           const categoryId = categoryData.id;
@@ -371,15 +339,17 @@ export default {
             info_AI: ''
           };
         } else {
-          ruleData = {
-            ...this.formData,
-            sender: senderId  // Replace sender object with sender ID
-          };
+          // Handle error
+          return;
+          // ruleData = {
+          //   ...this.formData,
+          //   sender: senderId  // Replace sender object with sender ID
+          // };
         }
         console.log("RuleData", ruleData);
 
         // Use fetchWithToken for the POST request to create the rule
-        const ruleResponseData = await this.fetchWithToken('http://localhost:9000/MailAssistant/user/create-rule/', {
+        const ruleResponseData = await fetchWithToken('http://localhost:9000/MailAssistant/user/create-rule/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -1381,14 +1381,14 @@ function closeUpdateModal() {
 }
 
 async function handleAddCategory(categoryData) {
-
+    
     if (Object.hasOwnProperty.call(categoryData, 'error')) {
         showNotification = true;
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Catégorie déjà existante';
-        notificationMessage = 'La catégorie: ' + categoryData.categoryName + ' existe déjà';
+        notificationTitle = categoryData.error;
+        notificationMessage = categoryData.description;
         
-        closeModal();
+        closeUpdateModal();
         return;
     }
 
@@ -1438,8 +1438,8 @@ async function handleUpdateCategory(updatedCategory) {
     if (Object.hasOwnProperty.call(updatedCategory, 'error')) {
         showNotification = true;
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Catégorie déjà existante';
-        notificationMessage = 'La catégorie: ' + updatedCategory.categoryName + ' existe déjà';
+        notificationTitle = updatedCategory.error;
+        notificationMessage = updatedCategory.description;
         
         closeUpdateModal();
         return;

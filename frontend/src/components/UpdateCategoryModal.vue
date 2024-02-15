@@ -88,7 +88,7 @@ const closeModal = () => {
 };
 
 async function updateCategoryHandler() {
-  
+
   const updatedCategory = {
     name: categoryName.value,
     description: categoryDescription.value,
@@ -99,10 +99,11 @@ async function updateCategoryHandler() {
   } else {
     try {
       const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
-
+      const currentName = props.category?.name;
+      
       for (let i = 0; i < fetchedCategories.length; i++) {
-        if (fetchedCategories[i]['name'] == categoryName.value) {
-          emits('updateCategory', { error: 'Category already exists', categoryName: categoryName.value });
+        if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {
+          emits('updateCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
           categoryName.value = props.category?.name || '';
           return;
         }
@@ -110,10 +111,10 @@ async function updateCategoryHandler() {
 
       // Update the category
       emits('updateCategory', updatedCategory);
-      
+
     } catch (error) {
-      console.error("Error checking existing categories:", error);
-      // TODO: pop-up the error
+      emits('updateCategory', { error: 'Erreur vérification catégories existantes', description: error });
+      categoryName.value = props.category?.name || '';
       return;
     }
   }

@@ -81,7 +81,7 @@ async function addCategory() {
 
             for (let i = 0; i < fetchedCategories.length; i++) {
                 if (fetchedCategories[i]['name'] == categoryName.value) {
-                    emits('addCategory', { error: 'Category already exists', categoryName: categoryName.value });
+                    emits('addCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
                     return;
                 }
             }
@@ -91,9 +91,10 @@ async function addCategory() {
             categoryDescription.value = '';
             categoryName.value = '';
 
-        } catch (error) {
-            console.error("Error checking existing categories:", error);
-            // TODO: pop-up the error
+        } catch (error) {            
+            emits('addCategory', { error: 'Erreur vérification catégories existantes', description: error });
+            categoryDescription.value = '';
+            categoryName.value = '';
             return;
         }
     }

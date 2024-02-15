@@ -1433,9 +1433,7 @@ async function handleAddCategory(categoryData) {
     }
 }
 
-async function handleUpdateCategory(updatedCategory) {    
-
-    console.log("IMPORTANT +++++++>", updatedCategory)
+async function handleUpdateCategory(updatedCategory) {
 
     if (Object.hasOwnProperty.call(updatedCategory, 'error')) {
         showNotification = true;

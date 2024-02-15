@@ -379,8 +379,7 @@ const getFilteredPeople = (query, people) => {
                         .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
                         .join(' '); // Join with spaces
                 }
-                return person.username.toLowerCase().includes(query.value.toLowerCase()) ||
-                    person.email.toLowerCase().includes(query.value.toLowerCase());
+                return person.username || person.email
             })
     );
 };
@@ -543,11 +542,9 @@ function handleEnterKey(event) {
         handleAIClick();
     }
     // works but if ENTER is pressed again it removes a user from the destinary list
-    /*else if (isFocused2.value) {
-      console.log("aie");
-      handleBlur2(event);
+    else if (isFocused2.value) {
+        handleBlur2(event);
     }
-    */
 }
 
 function displayMessage(message, ai_icon) {

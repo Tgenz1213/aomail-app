@@ -433,7 +433,7 @@
                                                                 </div>
                                                                 <ul v-show="showHiddenParagraphs[item.id]" role="list"
                                                                     class="text-black text-sm/6 pt-2"
-                                                                    :ref="'parentElement' + item.id">
+                                                                    :ref="el => setParentRef(el, item.id)">
                                                                     <!-- Potential design update : bg-white shadow rounded-xl -->
                                                                     <li v-for="detail in item.details" :key="detail.id"
                                                                         class="pl-8" :ref="'hiddenText' + item.id"
@@ -1162,9 +1162,15 @@ let selectedTopic = ref('Administrative');
 let animationTriggered = ref([false, false, false]);
 let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
-let parentElementRefs = ref([]);
+let parentElementRefs = ref({});
 
 
+function setParentRef(el, itemId) {
+    // Ensure the object exists before trying to set a property
+    if (el) {
+        parentElementRefs.value[itemId] = el;
+    }
+}
 
 // To redirect to the page rules to edit a rule
 function openRuleEditor(ruleId) {

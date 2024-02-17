@@ -1616,7 +1616,7 @@ async function animateText() {
 
         const unreadMailCount = data.unreadCount;*/
 
-        const unreadMailCount = totalEmailsInCategoryNotRed(selectedTopic.value);
+        const unreadMailCount = totalEmailsNotRed();
 
         let text = '';
 
@@ -1731,6 +1731,20 @@ function totalEmailsInCategory(categoryName) {
         for (let subcategory of Object.values(emails.value[categoryName])) {
             for (let email of subcategory) {
                 totalCount++;
+            }
+        }
+    }
+    return totalCount;
+}
+
+function totalEmailsNotRed() {
+    let totalCount = 0;
+    for (let category of Object.values(emails.value)) {
+        for (let subcategory of Object.values(category)) {
+            for (let email of subcategory) {
+                if (!email.read) {
+                    totalCount++;
+                }
             }
         }
     }

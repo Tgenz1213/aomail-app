@@ -84,14 +84,14 @@
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
                                                             <div class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategory(category.name) === 0, 'rounded-l-md': totalEmailsInCategory(category.name) > 0 }">{{
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md':  totalEmailsInCategoryNotRed(category.name) === 0, 'rounded-l-md':  totalEmailsInCategoryNotRed(category.name) > 0 }">{{
                                                                         category.name }}</span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
-                                                                    <span v-if="totalEmailsInCategory(category.name) > 0"
+                                                                    <span v-if="totalEmailsInCategoryNotRed(category.name) > 0"
                                                                         class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
                                                                         :class="{ 'text-gray-800': selectedTopic === category.name, 'text-white bg-gray-800': selectedTopic !== category.name }">
-                                                                        {{ totalEmailsInCategory(category.name) }}
+                                                                        {{  totalEmailsInCategoryNotRed(category.name) }}
                                                                     </span>
                                                                 </div>
                                                                 <span
@@ -895,8 +895,8 @@
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{
                                                                                 readEmailsInSelectedTopic().length }}</span>
                                                                         <span
-                                                                            v-if="readEmailsInSelectedTopic().length === 1">mail</span><span
-                                                                            v-else>mails</span>. Je <span
+                                                                            v-if="readEmailsInSelectedTopic().length === 1"> mail</span><span
+                                                                            v-else> mails</span>. Je <span
                                                                             class="font-medium">vais nettoyer
                                                                             automatiquement</span> les mails lus.
                                                                     </p>
@@ -1565,6 +1565,8 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
+    console.log("DEBUG READ", combinedEmails);
+
     return combinedEmails.filter(email => email.read);
 }
 
@@ -1600,6 +1602,7 @@ function scrollAlmostToBottom() {
 
 async function animateText() {
     try {
+        /*
         const requestOptions = {
             method: 'GET',
             headers: {
@@ -1608,18 +1611,21 @@ async function animateText() {
             },
         };
 
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
+        //const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
 
 
-        const unreadMailCount = data.unreadCount;
+        const unreadMailCount = data.unreadCount;*/
+
+        const unreadMailCount = totalEmailsNotRed();
+
         let text = '';
 
         if (unreadMailCount === 0) {
             text = `Bonjour ! Vous n'avez pas de nouveaux mails.`;
         } else if (unreadMailCount === 1) {
-            text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveau mail.`;
+            text = `Bonjour ! Vous avez ${unreadMailCount} mail non lu.`;
         } else {
-            text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveaux mails.`;
+            text = `Bonjour ! Vous avez reçu ${unreadMailCount} mails non lu.`;
         }
 
         let target = animatedText.value;
@@ -1720,6 +1726,32 @@ function isEmptyTopic() {
 
 // Updated to work only with the the email not red by the user
 function totalEmailsInCategory(categoryName) {
+    let totalCount = 0;
+    if (emails.value[categoryName]) {
+        for (let subcategory of Object.values(emails.value[categoryName])) {
+            for (let email of subcategory) {
+                totalCount++;
+            }
+        }
+    }
+    return totalCount;
+}
+
+function totalEmailsNotRed() {
+    let totalCount = 0;
+    for (let category of Object.values(emails.value)) {
+        for (let subcategory of Object.values(category)) {
+            for (let email of subcategory) {
+                if (!email.read) {
+                    totalCount++;
+                }
+            }
+        }
+    }
+    return totalCount;
+}
+
+function totalEmailsInCategoryNotRed(categoryName) {
     let totalCount = 0;
     if (emails.value[categoryName]) {
         for (let subcategory of Object.values(emails.value[categoryName])) {

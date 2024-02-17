@@ -631,7 +631,7 @@ def generate_email_answer(request):
         email_subject = serializer.validated_data['email_subject']
         email_content = serializer.validated_data['email_content']
         response_type = serializer.validated_data['response_type']
-        email_answer = gpt_4.generate_email_response(email_subject, email_content, response_type, 'French')
+        email_answer = gpt_3_5_turbo.generate_email_response(email_subject, email_content, response_type, 'French')
 
         return Response({
             'email_answer': email_answer,

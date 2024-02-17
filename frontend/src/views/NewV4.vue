@@ -1855,10 +1855,19 @@ async function sendEmail() {
             displayMessage(message, ai_icon);
         } else {
             // Show the pop-up
+            // Translate serializer errors for the user
+            if (response.error == 'recipient is missing') {
+                notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+            }
+            else if (response.error == 'subject is missing') {
+                notificationMessage.value = 'Aucun objet n\'a été saisi';
+            }
+            else {
+                notificationMessage.value = response.error;
+            }
             showNotification = true;
             backgroundColor = 'bg-red-300';
             notificationTitle.value = 'Erreur d\'envoi d\'email';
-            notificationMessage.value = response.message;
         }
     } catch (error) {
         // Show the pop-up

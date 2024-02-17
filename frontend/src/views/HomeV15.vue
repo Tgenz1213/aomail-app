@@ -898,7 +898,8 @@
                                                                             v-if="readEmailsInSelectedTopic().length === 1">mail</span><span
                                                                             v-else>mails</span>. Je <span
                                                                             class="font-medium">vais nettoyer
-                                                                            automatiquement</span> les mails lus.</p>
+                                                                            automatiquement</span> les mails lus.
+                                                                    </p>
                                                                     <div
                                                                         class="hidden group-hover/main:block px-2 py-0.5 bg-emerald-400 text-white text-sm shadow rounded-xl">
                                                                         <div class="flex gap-x-1 items-center">
@@ -1381,14 +1382,14 @@ function closeUpdateModal() {
 }
 
 async function handleAddCategory(categoryData) {
-    
+
     if (Object.hasOwnProperty.call(categoryData, 'error')) {
         showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = categoryData.error;
         notificationMessage = categoryData.description;
-        
-        closeUpdateModal();
+
+        closeModal();
         return;
     }
 
@@ -1430,6 +1431,8 @@ async function handleAddCategory(categoryData) {
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de l\'ajout de la catégorie';
         notificationMessage = error;
+
+        closeModal();
     }
 }
 
@@ -1440,7 +1443,7 @@ async function handleUpdateCategory(updatedCategory) {
         backgroundColor = 'bg-red-300';
         notificationTitle = updatedCategory.error;
         notificationMessage = updatedCategory.description;
-        
+
         closeUpdateModal();
         return;
     }
@@ -1452,6 +1455,8 @@ async function handleUpdateCategory(updatedCategory) {
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
         notificationMessage = 'Le nom de la catégorie ne peut pas être vide';
+
+        closeUpdateModal();
         return;
     }
     const updateData = {
@@ -1477,7 +1482,6 @@ async function handleUpdateCategory(updatedCategory) {
             notificationTitle = 'Succès !';
             notificationMessage = 'La catégorie a été mise à jour';
 
-
             closeUpdateModal();
             const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
             console.log("CategoryData", fetchedCategories);
@@ -1487,14 +1491,14 @@ async function handleUpdateCategory(updatedCategory) {
             }));
             console.log("Assigned categories:", categories.value);
         }
-    } catch (error) {
-        //console.error('Error updating category:', error);
-        //showUpdateCategoryNotif.value = false;        
+    } catch (error) {      
         // Show the pop-up
         showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
         notificationMessage = error;
+
+        closeUpdateModal();
     }
 }
 async function handleCategoryDelete(categoryNameToDelete) {
@@ -1544,6 +1548,8 @@ async function handleCategoryDelete(categoryNameToDelete) {
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de la suppression de la catégorie';
         notificationMessage = error;
+
+        closeUpdateModal();
     }
 }
 

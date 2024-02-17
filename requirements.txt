@@ -81,8 +81,8 @@ googleapis-common-protos==1.60.0
 gradio==3.40.1
 gradio_client==0.4.0
 greenlet==2.0.2
-grpcio==1.57.0
-grpcio-health-checking==1.57.0
+grpcio==1.60.1
+grpcio-health-checking==1.60.1
 gyp==0.1
 h11==0.14.0
 httpcore==0.17.3
@@ -114,7 +114,6 @@ matplotlib==3.7.2
 mdit-py-plugins==0.3.3
 mdurl==0.1.2
 mpmath==1.3.0
-ms-identity-web @ git+https://github.com/azure-samples/ms-identity-python-utilities@9b32cef36c6c0b73c1b3237fdd66128d89f90a62
 msal==1.23.0
 multidict==6.0.4
 multiprocess==0.70.15

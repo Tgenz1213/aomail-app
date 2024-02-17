@@ -81,6 +81,10 @@ async function addCategory() {
 
             for (let i = 0; i < fetchedCategories.length; i++) {
                 if (fetchedCategories[i]['name'] == categoryName.value) {
+                    console.log('La catégorie: ' + categoryName.value + ' existe déjà')
+                    setTimeout(() => {
+                        //
+                    }, 5000);
                     emits('addCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
                     return;
                 }

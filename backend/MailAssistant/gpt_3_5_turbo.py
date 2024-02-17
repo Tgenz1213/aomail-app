@@ -7,6 +7,7 @@ from colorama import Fore, init
 import ast
 
 
+
 ######################## GPT - 3.5 turbo API SETTINGS ########################
 OPENAI_CREDS = json.load(open('creds/openai_creds.json', 'r'))
 init(autoreset=True)
@@ -278,49 +279,3 @@ def extract_contacts_recipients(query):
     print(f"{Fore.GREEN}Blind Carbon Copy: {bcc_recipients}")
 
     return main_recipients, cc_recipients, bcc_recipients
-
-
-
-######################## OLD FUNCTIONS ########################
-'''# TO UPDATE : make work with langchain
-def extract_contacts_recipients(input_query):
-    # Define the prompt template for ChatGPT
-    template = """Analyze the following input to determine recipients for an email:
-
-    {input_query}
-
-    Format the response as (if no CC or CCI are indicate, put in main):
-    1. Main recipients: [username/email, username/email, ...]
-    2. CC recipients: [username/email, username/email, ...]
-    3. BCC recipients: [username/email, username/email, ...]
-    """
-    formatted_prompt = template.format(input_query=input_query)
-    response = get_prompt_response(formatted_prompt)
-    response_text = response.choices[0].message.content.strip()
-
-    logging.info("Received response from ChatGPT: %s", response_text)
-
-
-    if response_text == "INCORRECT":
-        return "INCORRECT", "INCORRECT", "INCORRECT"
-
-    # Define a function to extract items from the response
-    def extract_items(response, marker):
-        pattern = re.escape(marker) + r"\: \[(.*?)\]"
-        match = re.search(pattern, response)
-        if match:
-            items = match.group(1).split(", ")
-            return [item.strip() for item in items]
-        else:
-            return []
-
-    # Extract information based on markers
-    main_recipients = extract_items(response_text, "1. Main recipients")
-    cc_recipients = extract_items(response_text, "2. CC recipients")
-    bcc_recipients = extract_items(response_text, "3. BCC recipients")
-
-    logging.info("Extracted response from ChatGPT (main): %s", main_recipients)
-    logging.info("Extracted response from ChatGPT (CC): %s", cc_recipients)
-    logging.info("Extracted response from ChatGPT (BCC): %s", bcc_recipients)
-
-    return main_recipients, cc_recipients, bcc_recipients'''

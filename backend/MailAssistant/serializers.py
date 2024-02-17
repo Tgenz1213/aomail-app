@@ -12,9 +12,9 @@ from .models import Message, Category, Email, BulletPoint, Rule, Preference, Sen
 #----------------------- EMAIL SERIALIZER -----------------------#
 class EmailDataSerializer(serializers.Serializer):
     """Serializer for sending emails (POST request)."""
-    to = serializers.EmailField()
-    subject = serializers.CharField(required=False)
-    message = serializers.CharField()
+    to = serializers.EmailField(required=True)
+    subject = serializers.CharField(required=True)
+    message = serializers.CharField(required=False, allow_blank=True)
     cc = serializers.CharField(required=False, allow_blank=True)
     cci = serializers.CharField(required=False, allow_blank=True)
     attachments = serializers.ListField(

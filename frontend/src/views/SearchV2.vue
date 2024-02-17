@@ -53,7 +53,7 @@
             <div
               class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10">
               <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Recherche Manuel</h1>
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Recherche Manuelle</h1>
             </div>
             <div class="flex flex-col flex-grow">
               <div class="flex flex-col w-full px-6 pt-6">

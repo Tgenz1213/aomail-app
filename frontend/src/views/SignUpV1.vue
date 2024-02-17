@@ -690,7 +690,7 @@ export default {
     },
     nextStep1() {
       this.color = this.bgColor;
-      localStorage.setItem('color', this.bgColor);
+      localStorage.setItem('bgColor', this.bgColor);
       localStorage.setItem('theme', 'light');
       this.step++;
     },

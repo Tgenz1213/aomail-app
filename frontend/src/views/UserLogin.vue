@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -63,6 +63,16 @@ let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
+
+
+onMounted(() => {
+
+    // Run the function every second
+    setInterval(() => {
+        showNotification.value = false;
+    }, 1000);
+});
+
 
 // Function to handle login
 async function login() {
@@ -102,10 +112,10 @@ async function login() {
 
 <script>
 export default {
-  data() {
-    return {
-      logo: require('@/assets/LogoAugmentAI_export4.png')
-    };
-  }
+    data() {
+        return {
+            logo: require('@/assets/LogoAugmentAI_export4.png')
+        };
+    }
 }
 </script>

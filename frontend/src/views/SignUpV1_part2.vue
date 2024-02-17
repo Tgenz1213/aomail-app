@@ -1,5 +1,4 @@
 <!-- V1 -->
-<!-- TO FIX : Color background -->
 <template>
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
@@ -488,7 +487,6 @@
 import { ref,onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';
-import { getBackgroundColor } from '../router/index.js';
 
 
 // Variables to display a notification
@@ -497,13 +495,14 @@ let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 
+let bgColor = ref('');
+bgColor = localStorage.getItem('bgColor');
 const router = useRouter();
 let step = ref(3);
 
 
 onMounted(() => {
   // Run the function every second
-  getBackgroundColor();
   setInterval(() => {
     showNotification = false;
   }, 1000);
@@ -560,7 +559,7 @@ async function submitSignupData(event) {
         login: sessionStorage.getItem('login'),
         password: sessionStorage.getItem('password'),
         theme: localStorage.getItem('theme'),
-        color: localStorage.getItem('color'),
+        color: localStorage.getItem('bgColor'),
         categories: localStorage.getItem('categories'),
         code: sessionStorage.getItem('code'),
         type_api: sessionStorage.getItem("type_api")

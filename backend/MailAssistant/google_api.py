@@ -117,6 +117,8 @@ def get_credentials(user, email):
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
         
+        print(f'{Fore.CYAN}THE ACCESS TOKEN: {creds}')
+        
     except ObjectDoesNotExist:
         print(f"An unexpected error occurred while retrieving credentials for user {user.username} and email {email}")
         creds = None

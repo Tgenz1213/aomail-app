@@ -896,7 +896,7 @@
                                                                                 readEmailsInSelectedTopic().length }}</span>
                                                                         <span
                                                                             v-if="readEmailsInSelectedTopic().length === 1"> mail</span><span
-                                                                            v-else>mails</span>. Je <span
+                                                                            v-else> mails</span>. Je <span
                                                                             class="font-medium">vais nettoyer
                                                                             automatiquement</span> les mails lus.
                                                                     </p>
@@ -1602,6 +1602,7 @@ function scrollAlmostToBottom() {
 
 async function animateText() {
     try {
+        /*
         const requestOptions = {
             method: 'GET',
             headers: {
@@ -1610,18 +1611,21 @@ async function animateText() {
             },
         };
 
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
+        //const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
 
 
-        const unreadMailCount = data.unreadCount;
+        const unreadMailCount = data.unreadCount;*/
+
+        const unreadMailCount = totalEmailsInCategoryNotRed(selectedTopic.value);
+
         let text = '';
 
         if (unreadMailCount === 0) {
             text = `Bonjour ! Vous n'avez pas de nouveaux mails.`;
         } else if (unreadMailCount === 1) {
-            text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveau mail.`;
+            text = `Bonjour ! Vous avez ${unreadMailCount} mail non lu.`;
         } else {
-            text = `Bonjour ! Vous avez reçu ${unreadMailCount} nouveaux mails.`;
+            text = `Bonjour ! Vous avez reçu ${unreadMailCount} mails non lu.`;
         }
 
         let target = animatedText.value;

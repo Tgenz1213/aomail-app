@@ -117,8 +117,6 @@ def get_credentials(user, email):
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
         
-        print(f'{Fore.CYAN}THE ACCESS TOKEN: {creds}')
-        
     except ObjectDoesNotExist:
         print(f"An unexpected error occurred while retrieving credentials for user {user.username} and email {email}")
         creds = None
@@ -360,6 +358,7 @@ def get_mail(services, int_mail=None, id_mail=None):
     
     preprocessed_data = library.preprocess_email(decoded_data)
 
+    # TODO remove cc_info, bcc_info
     return subject, from_info, preprocessed_data, cc_info, bcc_info, email_id
 
 

@@ -44,9 +44,8 @@ urlpatterns = [
     path('user/create-rule/', views.create_user_rule, name='create_user_rule'), # ok
     path('user/update-rule/', views.update_user_rule, name='update_user_rule'), # ok
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'), # ok
-    #----------------------- API -----------------------#
-    path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
+    path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
     path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
     path('api/gpt_improve_email_writing/', views.gpt_improve_email_writing, name='gpt_improve_email_writing'), # ok

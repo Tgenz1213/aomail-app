@@ -1082,7 +1082,7 @@ importance_list = {
     'Information' : 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
     'Useless': 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.'
 }
-#user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
 
 response_list = {
     'Answer Required': 'Message requires an answer.',
@@ -1303,7 +1303,8 @@ def gpt_langchain_response(subject,decoded_data,category_list):
     chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
     # get a chat completion from the formatted messages
     chat = ChatOpenAI(temperature=0,openai_api_key='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',openai_organization='org-YSlFvq9rM1qPzM15jewopUUt')
-    response = chat(chat_prompt.format_prompt(category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data,relevance=relevance_list).to_messages())
+    # This line does not work (Augustin)
+    response = chat(chat_prompt.format_prompt(user=user_description,category=category_list,importance=importance_list,answer=response_list,subject=subject,text=decoded_data,relevance=relevance_list).to_messages())
 
     clear_response = response.content.strip()
     print("full response: ",clear_response)
@@ -1391,6 +1392,8 @@ def gpt_langchain_response(subject,decoded_data,category_list):
 
 
 
+
+
 ######################## TESTING FUNCTIONS ########################
 # TO TEST AUTH API
 @api_view(['GET'])
@@ -1416,7 +1419,8 @@ def save_last_mail_view(request):
     service = google_api.authenticate_service(user, email)
     
     if service is not None:
-        processed_email_to_bdd(request,service)
+        gpt_3_5_turbo.processed_email_to_bdd(request,service)
+        # processed_email_to_bdd(request,service)
         # Return a success response, along with any necessary information
         return Response({
             "message": "Save successful"

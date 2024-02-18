@@ -290,7 +290,7 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
     ----
 
-    Answer must be HTML : <p></p>
+    Answer must be above HTML without spaces
     """
     # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
     formatted_prompt = template.format(input_subject=input_subject, input_body=input_body, response_type=response_type, language=language)

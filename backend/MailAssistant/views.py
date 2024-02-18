@@ -1118,7 +1118,7 @@ def processed_email_to_bdd(request, services):
         sender_name, sender_email = from_name[0], from_name[1]
 
         # Fetch or create the sender
-        sender, created = Sender.objects.get_or_create(name=sender_name, email=sender_email)  # assuming from_name contains the sender's name
+        sender, created = Sender.objects.get_or_create(name=sender_name, email=sender_email, user=request.user)  # assuming from_name contains the sender's name
 
         print("DEBUG ----------------> topic", topic)
         # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)

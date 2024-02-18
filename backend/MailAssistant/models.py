@@ -16,7 +16,7 @@ class Sender(models.Model):
     """Model for storing sender information."""
     email = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null=True for debugging
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # null=True for debugging
 
 
 class Language(models.Model):

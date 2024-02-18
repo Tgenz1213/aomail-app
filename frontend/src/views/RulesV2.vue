@@ -251,6 +251,9 @@ export default {
       // Fetch the rule by ID and then show the update modal
       this.fetchRuleById(ruleId).then(() => {
         this.updateModalUpdateStatus(true);
+        // Remove query parameters from URL
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
       }).catch(error => {
         console.error('Error in fetching rule by ID:', error);
       });

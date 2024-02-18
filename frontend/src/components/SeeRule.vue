@@ -25,7 +25,8 @@
             <div class="relative mt-2">
               <ComboboxInput
                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                @change="query = $event.target.value" :display-value="(person) => person?.username || person?.email" />
+                @change="query = $event.target.value" :display-value="(person) => person?.username || person?.email"
+                @blur="handleBlur2($event)"/>
               <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
               </ComboboxButton>
@@ -113,35 +114,6 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/vue'
-
-/*const people = [
-  { name: 'Leslie Alexander', username: '@lesliealexander' },
-  // More users...
-]*/
-
-/*
-const query = ref('');
-const selectedPerson = ref(null);
-
-const filteredPeople = computed(() => {
-  // Transform emailSenders into an array of {name, username} objects
-  const sendersArray = Object.entries(this.emailSenders).map(([email, name]) => {
-    return {
-      name: name || email,  // Use the name if available, otherwise use the email as the name
-      username: email  // The email address
-    };
-  });
-
-  // Filter the array based on the search query
-  return query.value === '' ? sendersArray : sendersArray.filter(person =>
-    person.name.toLowerCase().includes(query.value.toLowerCase()) ||
-    person.username.toLowerCase().includes(query.value.toLowerCase())
-  );
-});*/
-
-//const selectedPerson = ref(null);
-
-//const enabled = ref(false)
 </script>
 
 <script>
@@ -217,6 +189,27 @@ export default {
     }
   },
   methods: {
+    handleBlur2(event) {
+      // Checks for a valid input email and adds it to the recipients list
+      const inputValue = event.target.value.trim().toLowerCase();
+      const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (inputValue && emailFormat.test(inputValue)) {
+        // Add the input email to the list of recipients
+        // TODO: ask if we save it in DB or if we wait till the email is sent
+        this.selectedPerson = {
+          email: inputValue,
+          username: inputValue
+            .split('@')[0] // Get the first part of the email
+            .split(/\.|-/) // Split by "." or "-"
+            .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
+            .join(' ') // Join with spaces
+        }
+      }
+      else {
+        console.error("The format of the email is incorrect")
+      }
+    },
     setSelectedPerson() {
       console.log("------------------------> TEST Select", this.sender);
       if (Object.keys(this.sender).length !== 0) {

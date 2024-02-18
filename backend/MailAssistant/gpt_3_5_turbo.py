@@ -285,21 +285,14 @@ def improve_email_copywriting(email_subject, email_body):
 
 def generate_email_response(input_subject, input_body, response_type, language):
     """Generates a French email response based on the given response type"""
-    template = """Based on the email with the subject: '{input_subject}' and body: '{input_body}', craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
-    <!DOCTYPE html>
-    <html>
-    <body>
-        <div>
-            <p>[Insert greeting]</p>
+    template = """Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
 
-            <!-- Insert response here based on the input body and the specified response type -->
+    ----
 
-            <p>[Insert sign_off],</p>
-            <p>[Your Name]</p>
-        </div>
-    </body>
-    </html>
+    Answer must be HTML : <p></p>
     """
+    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
     formatted_prompt = template.format(input_subject=input_subject, input_body=input_body, response_type=response_type, language=language)
     response = get_prompt_response(formatted_prompt)
     body = response.choices[0].message.content.strip()

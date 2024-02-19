@@ -36,13 +36,13 @@
               <div class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50"> <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
                 <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Règles de l'Assistant</h1>
               </div>
-              <SearchbarV2></SearchbarV2>
+              <SearchbarV2 @input="updateSearchQuery"></SearchbarV2>
             </div>
             <div class="flex-grow overflow-y-auto" style="margin-right: 2px;">
               <div class="p-6 h-full">
                 <!-- IF AT LEAST ONE RULE EXIST -->
-                <ul v-if="rules.length > 0" category="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  <li v-for="rule in rules" :key="rule.email" class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative">
+                <ul v-if="filteredRules.length > 0" category="list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <li v-for="rule in filteredRules" :key="rule.email" class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative">
                     <div class="absolute right-4 top-4">
                       <PencilSquareIcon @click="editRule(rule)" class="w-6 h-6 text-gray-300 hover:text-gray-800" />
                     </div>
@@ -131,6 +131,9 @@ export default {
     UpdateRule
   },
   methods: {
+    updateSearchQuery(event) {
+      this.searchQuery = event.target.value;
+    },
     updateModalStatus(status) {
       console.log("STATUS", status);
       this.showModal = status;
@@ -266,6 +269,18 @@ export default {
       window.history.replaceState({}, document.title, newUrl);
     }
   },
+  computed: {
+    filteredRules() {
+      console.log("DEBUG =>", this.searchQuery);
+      if (this.searchQuery == '') return this.rules; 
+      return this.rules.filter(rule =>
+        rule.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        rule.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        (rule.category && rule.category.toLowerCase().includes(this.searchQuery.toLowerCase()))
+        // add any other properties you want to include in the search
+      );
+    },
+  },
   data() {
     return {
       showModal: false,
@@ -278,6 +293,7 @@ export default {
       selectedCategory: '',
       selectedEmailSender: {},
       ruleSelected: null,
+      searchQuery: '',
       people : [
         {
           name: 'Jane Cooper',

@@ -195,7 +195,7 @@ export default {
         this.closeModal();
       }
       else if (event.key === 'Enter') {
-        this.updateUserRule()
+        this.createUserRule()
       }
     },
     handleBlur2(event) {

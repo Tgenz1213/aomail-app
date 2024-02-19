@@ -236,6 +236,9 @@
         else if (event.key === 'Enter') {          
           this.updateUserRule();
         }
+        else if (event.key === 'Delete') {
+          this.deleteRuleHandler();
+        }
       },
       handleBlur2(event) {
         // Checks for a valid input email and adds it to the recipients list

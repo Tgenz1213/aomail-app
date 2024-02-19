@@ -136,5 +136,8 @@ function handleKeyDown(event) {
   else if (event.key === 'Enter') {
     updateCategoryHandler();
   }
+  else if (event.key === 'Delete') {
+    deleteCategoryHandler();
+  }
 }
 </script>

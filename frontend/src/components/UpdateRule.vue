@@ -100,8 +100,9 @@
   
   <script setup>
   import { fetchWithToken } from '../router/index.js';
-  import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
-  import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
+  import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
+  import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
+  import { API_BASE_URL } from '@/main';
   import {
     Combobox,
     ComboboxButton,
@@ -109,7 +110,7 @@
     ComboboxLabel,
     ComboboxOption,
     ComboboxOptions,
-  } from '@headlessui/vue'
+  } from '@headlessui/vue';
   
   /*const people = [
     { name: 'Leslie Alexander', username: '@lesliealexander' },
@@ -255,7 +256,7 @@
             throw new Error("Rule ID is required for deletion.");
           }
 
-          const deleteUrl = `http://localhost:9000/MailAssistant/user/delete-rules/${this.formData.id}`;
+          const deleteUrl = `${API_BASE_URL}user/delete-rules/${this.formData.id}`;
 
           const deleteResponse = await fetchWithToken(deleteUrl, {
             method: 'DELETE'
@@ -282,7 +283,7 @@
         };
   
         try {
-          const url = 'http://localhost:9000/MailAssistant/api/create_sender';
+          const url = `${API_BASE_URL}api/create_sender`;
   
           // Use fetchWithToken for the POST request
           const responseData = await fetchWithToken(url, {
@@ -309,7 +310,7 @@
         };
 
         try {
-          const url = 'http://localhost:9000/MailAssistant/api/check_sender';
+          const url = `${API_BASE_URL}api/check_sender`;
 
           // Use fetchWithToken for the POST request
           const response = await fetchWithToken(url, {
@@ -363,7 +364,7 @@
 
           if (this.formData.category) {  
             // Fetch the category ID using fetchWithToken
-            const categoryUrl = `http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`;
+            const categoryUrl = `${API_BASE_URL}api/get-category-id/${this.formData.category}`;
             const categoryData = await fetchWithToken(categoryUrl, {
               method: 'GET'
             });
@@ -388,7 +389,7 @@
           console.log("RuleData", ruleData);
           
           // Use fetchWithToken for the PUT request to update the rule
-          const ruleResponseData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/update-rule/`, {
+          const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/update-rule/`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json'

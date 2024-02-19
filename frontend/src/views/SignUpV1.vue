@@ -575,6 +575,7 @@
 import { ref } from 'vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
+import { API_BASE_URL } from '@/main';
 //import axios from 'axios';
 import {
   XMarkIcon
@@ -645,7 +646,7 @@ export default {
       };
 
       try {
-        const response = await fetch('http://localhost:9000/MailAssistant/check_username/', requestOptions);
+        const response = await fetch(`${API_BASE_URL}check_username/`, requestOptions);
         const responseData = await response.json();
 
         if (responseData.available === false) {

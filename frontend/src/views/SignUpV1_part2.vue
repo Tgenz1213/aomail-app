@@ -487,7 +487,7 @@
 import { ref,onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';
-
+import { API_BASE_URL } from '@/main';
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -514,7 +514,7 @@ function authorize_google(event) {
   sessionStorage.setItem("type_api", "google");
 
   // Redirect the user to the authorization URL
-  window.location.replace("http://localhost:9000/MailAssistant/google/auth_url/");
+  window.location.replace(`${API_BASE_URL}google/auth_url/`);
 }
 
 function authorize_microsoft(event) {
@@ -522,7 +522,7 @@ function authorize_microsoft(event) {
   sessionStorage.setItem("type_api", "microsoft");
 
   // Redirect the user to the authorization URL
-  window.location.replace("http://localhost:9000/MailAssistant/microsoft/auth_url/");
+  window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
 }
 
 async function nextStep3(event) {
@@ -567,7 +567,7 @@ async function submitSignupData(event) {
     };
 
     // READY TO REGISTER THE USER IN DATABASE
-    const response = await fetch('http://localhost:9000/MailAssistant/signup/', requestOptions);
+    const response = await fetch(`${API_BASE_URL}signup/`, requestOptions);
     const data = await response.json();
 
     if (response.status === 201) {

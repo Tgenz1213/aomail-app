@@ -312,6 +312,8 @@
 </template>
   
 <script setup>
+import { API_BASE_URL } from '@/main';
+
 // Variables to display a notification
 let showNotification = ref(false);
 let notificationTitle = ref('');
@@ -351,7 +353,7 @@ async function handleColorChange(newColor) {
         bg_color: newColor
     };
 
-    const apiUrl = 'http://localhost:9000/MailAssistant/user/preferences/set_bg_color/';
+    const apiUrl = `${API_BASE_URL}user/preferences/set_bg_color/`;
 
     const requestOptions = {
         method: 'POST',
@@ -393,7 +395,7 @@ async function fetchUserData() {
     };
 
     try {
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/username/', requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions);
         //console.log("USER DATA -------->", userData);
         userData.value = data.username;
     } catch (error) {
@@ -415,7 +417,7 @@ async function getUsername() {
     }
 
     try {
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/username/', requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions);
         return data.username;
     }
     catch (error) {
@@ -433,7 +435,7 @@ async function handleSubmit() {
     };
 
     try {
-        var response = await fetchWithToken('http://localhost:9000/MailAssistant/check_username/', requestOptions);
+        var response = await fetchWithToken(`${API_BASE_URL}check_username/`, requestOptions);
     }
     catch (error) {
         console.log("An error occured while checking the username", error)
@@ -527,7 +529,7 @@ async function updatePassword() {
     };
 
     try {
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-password/', requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update-password/`, requestOptions);
         console.log('Password updated successfully', data);
 
         return 'Password updated successfully';
@@ -548,7 +550,7 @@ async function updateUsername() {
     };
 
     try {
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/user/preferences/update-username/', requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update-username/`, requestOptions);
         console.log('Username updated successfully', data);
 
         return 'Username updated successfully';
@@ -565,7 +567,7 @@ async function deleteAccount() {
     if (isChecked) {
         try {
             const access_token = localStorage.getItem('access_token');
-            const url = 'http://localhost:9000/MailAssistant/api/delete_account/';
+            const url = `${API_BASE_URL}api/delete_account/`;
 
             const requestOptions = {
                 method: 'DELETE',

@@ -304,6 +304,7 @@ import { ChevronDownIcon } from '@heroicons/vue/20/solid';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 import { fetchWithToken } from '../router/index.js';
+import { API_BASE_URL } from '@/main';
 import Quill from 'quill';
 
 import {
@@ -562,7 +563,7 @@ const handleAIClick = async () => {
     },
   };
 
-  const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/get_profile_image/', requestOptions);
+  const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
   let imageURL = data.profile_image_url || require('@/assets/user.png');
   const profileImageHTML = `
     <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
@@ -598,7 +599,7 @@ const handleAIClick = async () => {
           MailCreatedByAI.value = true;
           loading();
           scrollToBottom();
-          const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/generate_email_answer/', {
+          const result = await fetchWithToken(`${API_BASE_URL}api/generate_email_answer/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -655,7 +656,7 @@ const handleAIClick = async () => {
           MailCreatedByAI.value = true;
           loading();
           scrollToBottom();
-          const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+          const result = await fetchWithToken(`${API_BASE_URL}api/new_email_recommendations/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -802,7 +803,7 @@ async function handleButtonClick(keyword) {
     MailCreatedByAI.value = true;
     loading();
     scrollToBottom();
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/generate_email_answer/', {
+    const result = await fetchWithToken(`${API_BASE_URL}api/generate_email_answer/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -850,7 +851,7 @@ async function handleButtonClick(keyword) {
 async function fetchResponseKeywords(subject) {
   try {
     loading();
-    const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/generate_email_response_keywords/', {
+    const data = await fetchWithToken(`${API_BASE_URL}api/generate_email_response_keywords/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -964,7 +965,7 @@ async function checkSpelling() {
   try {
     loading();
     scrollToBottom();
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/correct_email_language/', {
+    const result = await fetchWithToken(`${API_BASE_URL}api/correct_email_language/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1027,7 +1028,7 @@ async function checkCopyWriting() {
   try {
     loading();
     scrollToBottom();
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/check_email_copywriting/', {
+    const result = await fetchWithToken(`${API_BASE_URL}api/check_email_copywriting/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1105,7 +1106,7 @@ async function WriteBetter() {
   try {
     loading();
     scrollToBottom();
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', {
+    const result = await fetchWithToken(`${API_BASE_URL}api/new_email_recommendations/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1192,7 +1193,7 @@ async function sendEmail() {
   }
 
   try {
-    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/send_mails/', {
+    const result = await fetchWithToken(`${API_BASE_URL}api/send_mails/`, {
       method: 'POST',
       body: formData
     });

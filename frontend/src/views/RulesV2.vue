@@ -111,6 +111,7 @@ import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeRule from '../components/SeeRule.vue';
 import UpdateRule from '../components/UpdateRule.vue';
 import { fetchWithToken } from '../router/index.js';
+import { API_BASE_URL } from '@/main';
 import {
   ArchiveBoxIcon,
   ExclamationCircleIcon,
@@ -148,7 +149,7 @@ export default {
     },
     async fetchRules() {
       try {
-        const url = 'http://localhost:9000/MailAssistant/user/rules/';
+        const url = `${API_BASE_URL}user/rules/`;
 
         const rulesData = await fetchWithToken(url, {
           method: 'GET',
@@ -202,7 +203,7 @@ export default {
     },
     async fetchCategories() {
       try {
-        const url = 'http://localhost:9000/MailAssistant/user/categories/';
+        const url = `${API_BASE_URL}user/categories/`;
 
         const data = await fetchWithToken(url, {
           method: 'GET',
@@ -220,7 +221,7 @@ export default {
     async fetchEmailSenders() {
       try {
         // Define the URL
-        const url = 'http://localhost:9000/MailAssistant/user/contacts/';
+        const url = `${API_BASE_URL}user/contacts/`;
 
         const data = await fetchWithToken(url, {
           method: 'GET',

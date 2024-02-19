@@ -1132,6 +1132,8 @@
 </template>
 
 <script setup>
+import { API_BASE_URL } from '@/main';
+
 // Variables to display a notification
 let showNotification = ref(false);
 let notificationTitle = ref('');
@@ -1200,7 +1202,7 @@ function toggleTooltip() {
 
 async function markEmailAsRead(emailId) {
     try {
-        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-read/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-read/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1241,7 +1243,7 @@ function updateEmailReadStatus(emailId) {
 
 async function markEmailReplyLater(emailId) {
     try {
-        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/mark-reply-later/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-reply-later/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1281,7 +1283,7 @@ function deleteEmailFromState(emailId) {
 
 async function setRuleBlockForSender(emailId) {
     try {
-        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/block-sender/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/block-sender/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1302,7 +1304,7 @@ async function setRuleBlockForSender(emailId) {
 
 async function deleteEmail(emailId) {
     try {
-        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/delete/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -1336,7 +1338,7 @@ async function openAnswer(email) {
     console.log("EMAIL", email.id_provider);
 
     // Define the API endpoint URL
-    const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
+    const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
     try {
         const data = await fetchWithToken(url, {
@@ -1400,7 +1402,7 @@ async function handleAddCategory(categoryData) {
     }
 
     try {
-        const response = await fetchWithToken('http://localhost:9000/MailAssistant/api/set_category/', {
+        const response = await fetchWithToken(`${API_BASE_URL}api/set_category/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1421,7 +1423,7 @@ async function handleAddCategory(categoryData) {
             notificationMessage = 'La catégorie a été ajoutée';
 
             closeModal();
-            const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
             console.log("CategoryData", fetchedCategories);
             categories.value = fetchedCategories.map(category => ({
                 name: category.name,
@@ -1470,7 +1472,7 @@ async function handleUpdateCategory(updatedCategory) {
         description: updatedCategory.description
     };
     try {
-        const url = `http://localhost:9000/MailAssistant/api/update_category/${oldCategoryName.value}/`; // Adjust the URL as needed
+        const url = `${API_BASE_URL}api/update_category/${oldCategoryName.value}/`; // Adjust the URL as needed
         const options = {
             method: 'PUT',
             headers: {
@@ -1489,7 +1491,7 @@ async function handleUpdateCategory(updatedCategory) {
             notificationMessage = 'La catégorie a été mise à jour';
 
             closeUpdateModal();
-            const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
             console.log("CategoryData", fetchedCategories);
             categories.value = fetchedCategories.map(category => ({
                 name: category.name,
@@ -1520,7 +1522,7 @@ async function handleCategoryDelete(categoryNameToDelete) {
     }
 
     try {
-        const url = `http://localhost:9000/MailAssistant/api/delete_category/${categoryNameToDelete}/`;
+        const url = `${API_BASE_URL}api/delete_category/${categoryNameToDelete}/`;
 
         const options = {
             method: 'DELETE',
@@ -1540,7 +1542,7 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
             closeUpdateModal();
             // Fetch the categories
-            const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
             console.log("CategoryData", categoryData);
             categories.value = categoryData.map(category => ({
                 name: category.name,
@@ -1611,7 +1613,7 @@ async function animateText() {
             },
         };
 
-        //const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/unread_mails/', requestOptions);
+        //const data = await fetchWithToken('${API_BASE_URL}api/unread_mails/', requestOptions);
 
 
         const unreadMailCount = data.unreadCount;*/
@@ -1770,7 +1772,7 @@ function totalEmailsInCategoryNotRed(categoryName) {
 const fetchData = async () => {
     try {
         // Fetch the categories
-        const categoryData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+        const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
         console.log("VERY IMPORTANT: =======> CategoryData", categoryData);
 
         for (let i = 0; i < categoryData.length; i++) {
@@ -1787,7 +1789,7 @@ const fetchData = async () => {
         }
 
         // Fetch emails
-        const emailData = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/`);
+        const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
         console.log('emailData: ', emailData)
         emails.value = emailData;
     } catch (error) {

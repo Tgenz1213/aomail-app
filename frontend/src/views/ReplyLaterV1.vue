@@ -651,7 +651,8 @@ import { onMounted, ref } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
+import { API_BASE_URL } from '@/main';
 import {
   //ChatBubbleOvalLeftEllipsisIcon,
   TrashIcon,
@@ -660,7 +661,7 @@ import {
   EyeIcon,
   InformationCircleIcon,
   ExclamationTriangleIcon
-} from '@heroicons/vue/24/outline'
+} from '@heroicons/vue/24/outline';
 
 export default {
   components: {
@@ -695,7 +696,7 @@ export default {
     // To fetch the email to reply later
     async function fetchAnswerLaterEmails() {
       try {
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/get_answer_later_emails/', {
+        const data = await fetchWithToken(`${API_BASE_URL}api/get_answer_later_emails/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

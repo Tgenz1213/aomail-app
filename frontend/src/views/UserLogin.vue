@@ -53,7 +53,7 @@ import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-
+import { API_BASE_URL } from '@/main';
 
 const router = useRouter();
 let username = ref('');
@@ -77,7 +77,7 @@ onMounted(() => {
 // Function to handle login
 async function login() {
     try {
-        const response = await axios.post('http://localhost:9000/MailAssistant/api/login/', {
+        const response = await axios.post(`${API_BASE_URL}api/login/`, {
             username: username.value,
             password: password.value
         });

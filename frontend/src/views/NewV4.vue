@@ -316,6 +316,7 @@ import ShowNotification from '../components/ShowNotification.vue';
 //import { ChevronDownIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import Quill from 'quill';
+import { API_BASE_URL } from '@/main';
 import {
     Combobox,
     ComboboxButton,
@@ -346,7 +347,7 @@ const requestOptions = {
 };
 
 // request to update the list of contacts (people array)
-fetchWithToken('http://localhost:9000/MailAssistant/user/contacts/', requestOptions)
+fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     .then(response => {
         people.push(...response);
     })
@@ -585,7 +586,7 @@ const handleAIClick = async () => {
         },
     };
 
-    const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/get_profile_image/', requestOptions);
+    const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
     let imageURL = data.profile_image_url || require('@/assets/user.png');
     const profileImageHTML = `
       <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
@@ -794,7 +795,7 @@ const handleAIClick = async () => {
                         })
                     };
 
-                    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_ai/', requestOptions);
+                    const result = await fetchWithToken(`${API_BASE_URL}api/new_email_ai/`, requestOptions);
                     hideLoading();
                     subject.value = result.subject;
                     mail.value = result.mail;
@@ -872,7 +873,7 @@ const handleAIClick = async () => {
                         }),
                     };
 
-                    const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/new_email_recommendations/', requestOptions);
+                    const result = await fetchWithToken(`${API_BASE_URL}api/new_email_recommendations/`, requestOptions);
 
                     hideLoading();
                     subject.value = result.subject;
@@ -943,7 +944,7 @@ async function findUser(searchQuery) {
     };
 
     try {
-        const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/find-user-ai/?query=' + encodeURIComponent(searchQuery), requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}api/find-user-ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
         console.log(data);
         userSearchResult.value = data; // Update the reactive variable
     } catch (error) {
@@ -1011,7 +1012,7 @@ return bestMatch ? { email: bestMatch.email, username: bestMatch.username } : "N
 const emailSenders = ref(null);
  
 function fetchEmailSenders() {
-fetch('http://localhost:9000/MailAssistant/api/get_unique_email_senders', {
+fetch(`${API_BASE_URL}api/get_unique_email_senders', {
   method: 'GET',
   headers: {
     'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -1591,7 +1592,7 @@ async function checkSpelling() {
             }),
         };
 
-        const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/correct_email_language/', requestOptions);
+        const result = await fetchWithToken(`${API_BASE_URL}api/correct_email_language/`, requestOptions);
 
         hideLoading();
         //subject.value = result.corrected_subject; TO DELETE ?
@@ -1659,7 +1660,7 @@ async function checkCopyWriting() {
             }),
         };
 
-        const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/check_email_copywriting/', requestOptions);
+        const result = await fetchWithToken(`${API_BASE_URL}api/check_email_copywriting/`, requestOptions);
 
         hideLoading();
         //subject.value = result.corrected_subject; TO DELETE ?
@@ -1723,7 +1724,7 @@ async function WriteBetter() {
             }),
         };
 
-        const result = await fetchWithToken('http://localhost:9000/MailAssistant/api/gpt_improve_email_writing/', requestOptions);
+        const result = await fetchWithToken(`${API_BASE_URL}api/gpt_improve_email_writing/`, requestOptions);
 
         hideLoading();
         console.log(result);
@@ -1825,7 +1826,7 @@ async function sendEmail() {
     formData.append('cci', bccRecipients.join(','));
 
     try {
-        const response = await fetchWithToken('http://localhost:9000/MailAssistant/api/send_mail/', {
+        const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {
             method: 'POST',
             headers: {
                 email: localStorage.getItem('email')

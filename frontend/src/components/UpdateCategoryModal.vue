@@ -64,6 +64,7 @@
 import { fetchWithToken } from '../router/index.js';
 import { ref, watch, defineProps, defineEmits } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
+import { API_BASE_URL } from '@/main';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -98,7 +99,7 @@ async function updateCategoryHandler() {
     console.log("Name not accepted. It contains a special character.");
   } else {
     try {
-      const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+      const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
       const currentName = props.category?.name;
       
       for (let i = 0; i < fetchedCategories.length; i++) {

@@ -104,8 +104,9 @@
 </template>
   
 <script setup>
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
-import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue'
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
+import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
+import { API_BASE_URL } from '@/main';
 import {
   Combobox,
   ComboboxButton,
@@ -113,7 +114,7 @@ import {
   ComboboxLabel,
   ComboboxOption,
   ComboboxOptions,
-} from '@headlessui/vue'
+} from '@headlessui/vue';
 </script>
 
 <script>
@@ -243,7 +244,7 @@ export default {
       };
 
       try {
-        const url = 'http://localhost:9000/MailAssistant/api/create_sender';
+        const url = `${API_BASE_URL}api/create_sender`;
 
         // Use fetchWithToken for the POST request
         const responseData = await fetchWithToken(url, {
@@ -270,7 +271,7 @@ export default {
       };
 
       try {
-        const url = 'http://localhost:9000/MailAssistant/api/check_sender';
+        const url = `${API_BASE_URL}api/check_sender`;
 
         // Use fetchWithToken for the POST request
         const response = await fetchWithToken(url, {
@@ -342,7 +343,7 @@ export default {
         console.log("RuleData", ruleData);
 
         // Use fetchWithToken for the POST request to create the rule
-        const ruleResponseData = await fetchWithToken('http://localhost:9000/MailAssistant/user/create-rule/', {
+        const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/create-rule/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

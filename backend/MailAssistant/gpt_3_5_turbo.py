@@ -72,12 +72,16 @@ def count_corrections(original_subject, original_body, corrected_subject, correc
 
 
 def extract_contacts_recipients(query):
-    template = """As an email assistant,
+    template = """"As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
 
-    Analyze the following input: '{query}' to determine recipients for an email. Follow these rules:
+    Guidelines for classification:
+    - Main recipients are those directly mentioned or implied to be the primary audience, without specific indicators for copying.
+    - CC (carbon copy) recipients are identified through the context or subtle cues that imply they should be informed of the communication. Look for any keywords or phrases, even if indirectly stated, that traditionally associate with copying someone on an email.
+    - BCC (blind carbon copy) recipients are identified similarly by context or cues suggesting a need for discretion or privacy in copying, without directly mentioning them in the conversation.
 
-    1. If no main recipients are explicitly indicated, assume all recipients are main recipients.
-    2. If no CC or BCC recipients are specified, include all recipients in the main_recipients list.
+    If the input does not clearly differentiate between main, cc, and bcc recipients, use intuitive rules and a careful analysis of the text structure and any potential copying-related keywords or implications:
+    1. Names appearing first or separated by phrases indicating inclusion (e.g., 'and', 'et') without clear copying context are considered as main recipients.
+    2. Utilize any linguistic or structural clues to infer if a recipient is intended for CC or BCC, focusing on the broader context rather than explicit markers
 
     Return the results in JSON format with three keys:
     main_recipients: [Python list],

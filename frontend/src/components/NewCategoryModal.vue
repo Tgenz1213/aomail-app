@@ -6,7 +6,7 @@
                 <div class="bg-white rounded-lg relative w-[450px]">
                     <slot></slot>
                     <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-                        <button @click="closeModal" type="button"
+                        <button @click="closeModal" @keydown="handleKeyDown" type="button"
                             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                             <span class="sr-only">Close</span>
                             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
@@ -55,6 +55,7 @@
 import { fetchWithToken } from '../router/index.js';
 import { ref, defineProps, defineEmits } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
+import { onMounted } from 'vue';
 
 const props = defineProps({
     isOpen: Boolean,
@@ -69,6 +70,11 @@ const categoryDescription = ref('');
 const closeModal = () => {
     emits('closeModal');
 };
+
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
 
 async function addCategory() {
 
@@ -101,6 +107,15 @@ async function addCategory() {
             categoryName.value = '';
             return;
         }
+    }
+}
+
+function handleKeyDown(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+    else if (event.key === 'Enter') {
+        addCategory();
     }
 }
 </script>

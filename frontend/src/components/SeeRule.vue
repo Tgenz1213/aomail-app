@@ -5,7 +5,7 @@
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>
         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-          <button @click="closeModal" type="button"
+          <button @click="closeModal" @keydown="handleKeyDown" type="button"
             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
             <span class="sr-only">Close</span>
             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
@@ -26,7 +26,7 @@
               <ComboboxInput
                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                 @change="query = $event.target.value" :display-value="(person) => person?.username || person?.email"
-                @blur="handleBlur2($event)"/>
+                @blur="handleBlur2($event)" />
               <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
               </ComboboxButton>
@@ -178,6 +178,7 @@ export default {
   },
   mounted() {
     console.log("FilteredPeople", this.filteredPeople);
+    document.addEventListener("keydown", this.handleKeyDown);
     this.setSelectedPerson();
   },
   watch: {
@@ -190,6 +191,14 @@ export default {
     }
   },
   methods: {
+    handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        this.closeModal();
+      }
+      else if (event.key === 'Enter') {
+        this.createUserRule()
+      }
+    },
     handleBlur2(event) {
       // Checks for a valid input email and adds it to the recipients list
       const inputValue = event.target.value.trim().toLowerCase();

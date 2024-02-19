@@ -4,12 +4,12 @@
         <div class="bg-white rounded-lg relative w-[450px]">
           <slot></slot>
             <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-                <button @click="closeModal" type="button" class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                    <span class="sr-only">Close</span>
-                    <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                <button @click="closeModal" @keydown="handleKeyDown" type="button" class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                  <span class="sr-only">Close</span>
+                  <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                 </button>
             </div>
-            <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+            <div class="flex items-center w-full h-16 bg-gr ay-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                 <div class="ml-8 flex items-center space-x-1">
                     <p class="block font-semibold leading-6 text-gray-900">Modifier la règle</p>
                 </div>
@@ -203,6 +203,7 @@
     },
     mounted() {
       console.log("FilteredPeople", this.filteredPeople);
+      document.addEventListener("keydown", this.handleKeyDown);
     },
     watch: {
       rule: {
@@ -229,6 +230,17 @@
       }
     },
     methods: {
+      handleKeyDown(event) {
+        if (event.key === 'Escape') {
+          this.closeModal();
+        }
+        else if (event.key === 'Enter') {          
+          this.updateUserRule();
+        }
+        else if (event.key === 'Delete') {
+          this.deleteRuleHandler();
+        }
+      },
       handleBlur2(event) {
         // Checks for a valid input email and adds it to the recipients list
         const inputValue = event.target.value.trim().toLowerCase();

@@ -222,7 +222,7 @@ def gpt_langchain_redaction(input_data, length, formality):
     return subject_text, email_body
 
 
-def correct_mail_language_mistakes(body, subject):
+def correct_mail_language_mistakes(subject, body):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
     template = """As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
@@ -230,7 +230,7 @@ def correct_mail_language_mistakes(body, subject):
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {email_subject},
-    body: {mail_content}
+    body: {email_body}
     """
     formatted_prompt = template.format(email_subject=subject, email_body=body)
     response = get_prompt_response(formatted_prompt)

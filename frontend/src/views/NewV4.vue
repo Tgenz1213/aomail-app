@@ -116,7 +116,7 @@
                                                         </div>
                                                         <Combobox as="div" v-model="selectedPerson"
                                                             @update:model-value="personSelected" @blur="handleBlur2">
-                                                            <ComboboxInput
+                                                            <ComboboxInput id="recipients"
                                                                 class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                                                 @change="query = $event.target.value"
                                                                 :display-value="(person) => person?.name"
@@ -1035,6 +1035,7 @@ fetch(`${API_BASE_URL}api/get_unique_email_senders', {
 } */
 
 onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
 
     // Run the function every second
     setInterval(() => {
@@ -1876,6 +1877,30 @@ async function sendEmail() {
         backgroundColor = 'bg-red-300';
         notificationTitle.value = 'Erreur d\'envoi d\'email';
         notificationMessage.value = error;
+    }
+}
+
+function handleKeyDown(event) {
+    if (event.ctrlKey) {
+        
+        switch (event.key) {
+            case 'b':
+                quill.value.focus();
+                event.preventDefault();
+                break;
+            case 'd':
+                document.getElementById('recipients').focus();
+                event.preventDefault();
+                break;
+            case 'k':
+                document.getElementById('dynamicTextarea').focus();
+                event.preventDefault();
+                break;
+            case 'o':
+                document.getElementById('objectInput').focus();
+                event.preventDefault();
+                break;
+        }
     }
 }
 </script>

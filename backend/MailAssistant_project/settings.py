@@ -141,7 +141,7 @@ STATIC_URL = 'static/'
 
 ######################## SECURITY ########################
 CORS_ALLOW_ALL_ORIGINS = True
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 SIMPLE_JWT = {

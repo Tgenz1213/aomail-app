@@ -1,32 +1,29 @@
 """
 Handles prompt engineering requests for GPT-4 API.
 """
+
 import json
 import openai
 from colorama import Fore, init
 from MailAssistant import gpt_3_5_turbo
 
 
-
 ######################## GPT - 4 API SETTINGS ########################
-OPENAI_CREDS = json.load(open('creds/openai_creds.json', 'r'))
+OPENAI_CREDS = json.load(open("creds/openai_creds.json", "r"))
 init(autoreset=True)
-
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
 def get_prompt_response(formatted_prompt):
     """Returns the prompt response"""
-    client = openai.OpenAI(organization=OPENAI_CREDS['organization'], api_key=OPENAI_CREDS['api_key'])
+    client = openai.OpenAI(
+        organization=OPENAI_CREDS["organization"], api_key=OPENAI_CREDS["api_key"]
+    )
     response = client.chat.completions.create(
         model="gpt-4-1106-preview",
-        messages=[{
-            "role": "system",
-            "content": formatted_prompt
-        }]
+        messages=[{"role": "system", "content": formatted_prompt}],
     )
     return response
-
 
 
 ######################## WRITING FUNCTIONS ########################
@@ -39,14 +36,18 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
     Answer must ONLY be an HTML email body
     """
-    formatted_prompt = template.format(input_subject=input_subject, input_body=input_body, response_type=response_type, language=language)
+    formatted_prompt = template.format(
+        input_subject=input_subject,
+        input_body=input_body,
+        response_type=response_type,
+        language=language,
+    )
     response = get_prompt_response(formatted_prompt)
     body = response.choices[0].message.content.strip()
 
-    print(f'{Fore.GREEN}[REPLY] body: {body}')
+    print(f"{Fore.GREEN}[REPLY] body: {body}")
 
     return body
-
 
 
 ######################## DEPRECATED FUNCTIONS ########################
@@ -68,7 +69,9 @@ def gpt_langchain_redaction(input_data, length, formality):
         [Model's drafted email]
     """
 
-    formatted_prompt = template.format(input_data=input_data, length=length, formality=formality)
+    formatted_prompt = template.format(
+        input_data=input_data, length=length, formality=formality
+    )
 
     print("FORMATTED PROMPT", formatted_prompt)
 
@@ -76,17 +79,23 @@ def gpt_langchain_redaction(input_data, length, formality):
 
     clear_text = response.choices[0].message.content.strip()
 
-    print('clear_text: ',clear_text)
+    print("clear_text: ", clear_text)
 
     # Extracting Subject
     subject_start = clear_text.index("Subject:") + len("Subject:")
-    subject_end = clear_text[subject_start:].index("\n\n") if "\n\n" in clear_text[subject_start:] else len(clear_text)
-    subject_list = clear_text[subject_start:subject_start+subject_end].strip().split("\n")
+    subject_end = (
+        clear_text[subject_start:].index("\n\n")
+        if "\n\n" in clear_text[subject_start:]
+        else len(clear_text)
+    )
+    subject_list = (
+        clear_text[subject_start : subject_start + subject_end].strip().split("\n")
+    )
     subject_text = "\n".join(subject_list)
 
     # Extracting Email
     mail_start = clear_text.index("Draft:") + len("Draft:")
-    mail_list = clear_text[mail_start:len(clear_text)].strip().split("\n")
+    mail_list = clear_text[mail_start : len(clear_text)].strip().split("\n")
     mail_text = "\n".join(mail_list)
 
     print("Email :", mail_text)
@@ -120,12 +129,16 @@ def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject
         [Revised Email Body]
     """
 
-    formatted_prompt = template.format(mail_content=mail_content, user_recommendation=user_recommendation, email_subject=email_subject)
+    formatted_prompt = template.format(
+        mail_content=mail_content,
+        user_recommendation=user_recommendation,
+        email_subject=email_subject,
+    )
 
     print("FORMATTED PROMPT", formatted_prompt)
 
     response = get_prompt_response(formatted_prompt)
-    
+
     clear_text = response.choices[0].message.content.strip()
 
     # Extract the subject and body of the email
@@ -148,7 +161,7 @@ def gpt_new_mail_recommendation(mail_content, user_recommendation, email_subject
 
 
 def correct_mail_language_mistakes(email_subject, email_body):
-    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""    
+    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
     template = """
     Please check the following French text for any grammatical or spelling errors and correct them. Do not change any words unless they are misspelled or grammatically incorrect.
 
@@ -166,21 +179,26 @@ def correct_mail_language_mistakes(email_subject, email_body):
     Corrected Body:
     [Corrected Body]
     """
-    formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
+    formatted_prompt = template.format(
+        email_subject=email_subject, email_body=email_body
+    )
     response = get_prompt_response(formatted_prompt)
     response_text = response.choices[0].message.content.strip()
 
     print("Response Text : ", response_text)
 
     # Extract the corrected subject and body
-    corrected_subject = extract_between_markers(response_text, "Corrected Subject:", "Corrected Body:")
+    corrected_subject = extract_between_markers(
+        response_text, "Corrected Subject:", "Corrected Body:"
+    )
     corrected_body = extract_after_marker(response_text, "Corrected Body:")
 
     # Count the number of corrections
-    num_corrections = gpt_3_5_turbo.count_corrections(email_subject, email_body, corrected_subject, corrected_body)
+    num_corrections = gpt_3_5_turbo.count_corrections(
+        email_subject, email_body, corrected_subject, corrected_body
+    )
 
     return corrected_subject, corrected_body, num_corrections
-
 
 
 ######################## TEXT EXTRACTION AND COMPARISON UTILITIES ########################

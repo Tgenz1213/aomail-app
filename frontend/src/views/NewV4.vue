@@ -601,13 +601,15 @@ const handleAIClick = async () => {
           </span>
         </div>
         <div>
-          <p class="font-serif" >${userInput}</p>
+          <p class="font-serif">${userInput}</p>
         </div>
       </div>
     `;
+
     AIContainer.value.innerHTML += messageHTML;
     textareaValueSave.value = textareaValue.value;
     textareaValue.value = '';
+    scrollToBottom();
 
     setTimeout(async () => {
         if (stepcontainer == 0) {
@@ -620,11 +622,12 @@ const handleAIClick = async () => {
                     isLoading.value = true;
                     loading();
                     const result = await findUser(textareaValueSave.value);
+
                     hideLoading();
                     //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
                     let noUsersAdded = true;
                     let WaitforUserChoice = false;
-                    if (result !== "Invalid input or query not about email recipients") { // To update to handle the main error
+                    if (result.error != "Invalid input or query not about email recipients") { // To update to handle the main error
 
                         const main_recipients = userSearchResult.value.main_recipients;
                         const cc_recipients = userSearchResult.value.cc_recipients;
@@ -680,19 +683,19 @@ const handleAIClick = async () => {
                             await displayMessage(message, ai_icon);*/
 
                             const messageHTML = `
-                      <div class="flex pb-2">
-                          <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                                </svg>
-                              </span>   
-                          </div>
-                          <div>
-                              <p>J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent</p>
-                          </div>
-                      </div>
-                  `;
+                                <div class="flex pb-2">
+                                    <div class="mr-4 flex">
+                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                                            </svg>
+                                        </span>   
+                                    </div>
+                                    <div>
+                                        <p>J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent</p>
+                                    </div>
+                                </div>
+                            `;
                             AIContainer.value.innerHTML += messageHTML;
 
                             if (main_recipients.length > 0) {
@@ -747,10 +750,9 @@ const handleAIClick = async () => {
                                 }
                                 askChoiceRecipier(emailList, "bcc");
                             }
-
                             // To display the button to go to the next step 
                             NextStepRecipier();
-
+                            scrollToBottom();
                         }
 
                         if (noUsersAdded) {
@@ -763,10 +765,15 @@ const handleAIClick = async () => {
                             askContent();
                         }
                     } else {
-                        console.log("No matching emails found.");
+                        const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
+                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                        displayMessage(message, ai_icon);
                     }
                 } catch (error) {
-                    console.error("Error finding user:", error.message);
+                    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                    displayMessage(message, ai_icon);
+                    console.error("Error finding user", error)
                 }
             }
         } else if (stepcontainer == 1) {
@@ -947,6 +954,7 @@ async function findUser(searchQuery) {
         const data = await fetchWithToken(`${API_BASE_URL}api/find-user-ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
         console.log(data);
         userSearchResult.value = data; // Update the reactive variable
+        return data
     } catch (error) {
         console.error("Error fetching user information:", error.message);
     }
@@ -1079,7 +1087,7 @@ onMounted(() => {
     // DOM-related code
     AIContainer.value = document.getElementById('AIContainer');
 
-    const message = "Bonjour, à quelle destinaire(s) souhaitez vous envoyer cet email ?";
+    const message = "Bonjour, à quel(s) destinataire(s) souhaitez vous envoyer cet email ?";
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
     displayMessage(message, ai_icon);
     objectInput.value = document.getElementById('objectInput');
@@ -1147,6 +1155,7 @@ function animateText(text, target) {
         }
     }, 30);
 }
+
 
 
 /*function personSelected() { OLD TO DELETE
@@ -1485,62 +1494,76 @@ function askChoiceRecipier(list, type) {
     let buttonsHTML = '';
 
     const firstUsername = Object.keys(list[0])[0];
-
+    // Display the type of recipient
+    const userLabel = (type === 'main') ? 'Principal' : (type === 'cc') ? 'Copie' : 'Copie cachée';
     // Display the username before the list of emails
-    const usernameHTML = `<div>Pour l'utilisateur : <strong>${firstUsername}</strong></div>`;
+    const usernameHTML = `<div>Pour l'utilisateur : <strong>${firstUsername}</strong> [${userLabel}]</div>`;
 
     list.forEach((item, index) => {
         // Extract the first (and presumably only) key in the dictionary, which is the username
         const username = Object.keys(item)[0];
-        const email = item[username]; // Accessing the email using the username key
-
+        // Accessing the email using the username key
+        const email = item[username];
         // Generating a unique ID for each button based on the index to ensure it's unique
-        const buttonId = `button-${index}`;
+        const buttonLabel = (type === 'main') ? 'main' : (type === 'cc') ? 'cc' : 'bcc';
+        const buttonId = `button-${buttonLabel}-${index}`;
+
+        // if index is a even number 
+        if (index % 2 === 0) {
+            // open the div
+            buttonsHTML += '<div class="mr-4">';
+        }
 
         buttonsHTML += `
-        <div class="mr-4">
-          <button type="button" id="${buttonId}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-            ${email} <!-- Displaying the email on the button -->
-          </button>
-        </div>
-      `;
+            <div class="mr-4">
+                <button type="button" id="${buttonId}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                    ${email}
+                </button>
+            </div>
+        `;
+
+        // if index is an odd number or its the last element
+        if (index % 2 == 1 || index === list.length - 1) {
+            // close the div
+            buttonsHTML += '</div>';
+        }
     });
 
     const messageHTML = `
-      <div class="flex pb-1 pl-[72px]">
-        <div class="flex flex-col">
-          ${usernameHTML}
-          <div class="flex mt-4">
-            ${buttonsHTML}
-          </div>
+        <div class="flex pb-1 pl-[72px]">
+            <div class="flex flex-col">
+                ${usernameHTML}
+                <br>
+                ${buttonsHTML}
+            </div>
         </div>
-      </div>
+        <br>
     `;
 
     AIContainer.value.innerHTML += messageHTML;
 
-    // Add event listeners to the buttons
     list.forEach((item, index) => {
-        const buttonId = `button-${index}`;
+        const buttonLabel = (type === 'main') ? 'main' : (type === 'cc') ? 'cc' : 'bcc';
+        const buttonId = `button-${buttonLabel}-${index}`;
+
         setTimeout(() => {
             const button = document.getElementById(buttonId);
-            if (button) {
-                button.addEventListener('click', () => {
-                    const username = Object.keys(item)[0]; // Re-extracting the username for the click event
-                    const email = item[username]; // Accessing the email using the username key
-                    console.log(`Username: ${username}, Email: ${email}`);
-                    if (type === 'main') {
-                        const person = { username: username, email: email };
-                        selectedPeople.value.push(person);
-                    } else if (type === 'cc') {
-                        const person = { username: username, email: email };
-                        selectedCC.value.push(person);
-                    } else {
-                        const person = { username: username, email: email };
-                        selectedCCI.value.push(person);
-                    }
-                });
-            }
+
+            button.addEventListener('click', () => {
+                const username = Object.keys(item)[0];
+                const email = item[username];
+
+                if (type === 'main') {
+                    const person = { username: username, email: email };
+                    selectedPeople.value.push(person);
+                } else if (type === 'cc') {
+                    const person = { username: username, email: email };
+                    selectedCC.value.push(person);
+                } else {
+                    const person = { username: username, email: email };
+                    selectedCCI.value.push(person);
+                }
+            });
         }, 0);
     });
 }
@@ -1852,7 +1875,7 @@ async function sendEmail() {
             AIContainer.value.innerHTML = '';
             AIContainer.value = document.getElementById('AIContainer');
 
-            const message = "Bonjour, à quelle destinaire(s) souhaitez vous envoyer cet email ?";
+            const message = "Bonjour, à quel(s) destinataire(s) souhaitez vous envoyer cet email ?";
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
             displayMessage(message, ai_icon);
         } else {
@@ -1882,7 +1905,7 @@ async function sendEmail() {
 
 function handleKeyDown(event) {
     if (event.ctrlKey) {
-        
+
         switch (event.key) {
             case 'b':
                 quill.value.focus();

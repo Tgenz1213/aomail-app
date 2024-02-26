@@ -3,9 +3,9 @@ Handles prompt engineering requests for GPT-3.5-turbo API.
 """
 import json
 import re
-from django.db import IntegrityError
 import openai
 import ast
+from django.db import IntegrityError
 from colorama import Fore, init
 from MailAssistant import google_api
 from .models import BulletPoint, Category, Email, Sender

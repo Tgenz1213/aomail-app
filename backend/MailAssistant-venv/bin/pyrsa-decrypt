@@ -1,4 +1,4 @@
-#!/Users/shost/Documents/MailAssistant/MailAssistant-venv/bin/python3
+#!/home/arolet/MailAssistant/backend/MailAssistant-venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -62,7 +62,7 @@
 
 <script setup>
 import { fetchWithToken } from '../router/index.js';
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { API_BASE_URL } from '@/main';
 import { onMounted } from 'vue';

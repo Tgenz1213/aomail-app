@@ -16,7 +16,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from MailAssistant import gpt_3_5_turbo, gpt_4, google_api, microsoft_api
 from colorama import Fore, init
-from langchain.chat_models import ChatOpenAI
+#from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts.chat import SystemMessagePromptTemplate, ChatPromptTemplate
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes

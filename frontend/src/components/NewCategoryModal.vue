@@ -53,7 +53,7 @@
 
 <script setup>
 import { fetchWithToken } from '../router/index.js';
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { onMounted } from 'vue';
 

@@ -297,7 +297,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, computed, ref, onMounted, nextTick } from 'vue';
+import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { ChevronDownIcon } from '@heroicons/vue/20/solid';

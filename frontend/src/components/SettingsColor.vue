@@ -32,7 +32,7 @@
 
 
 <script setup>
-import { defineProps, ref, watch, defineEmits } from 'vue'
+import { ref, watch } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 
 const props = defineProps({

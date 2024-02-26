@@ -309,7 +309,7 @@
 </template>
   
 <script setup>
-import { defineProps, defineEmits, computed, ref, onMounted, nextTick } from 'vue';
+import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import ShowNotification from '../components/ShowNotification.vue';
@@ -332,6 +332,7 @@ let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 
+const props = defineProps(['modelValue']);
 const items = [
     { name: 'Envoyer à une heure', href: '#' },
 ]
@@ -386,7 +387,6 @@ const getFilteredPeople = (query, people) => {
 };
 
 const filteredPeople = getFilteredPeople(query, people);
-const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:selectedPerson']);
 const selectedPerson = ref(props.modelValue);
 

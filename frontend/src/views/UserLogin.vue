@@ -1,7 +1,7 @@
 <template>
     <PopupComponent :showPopup="showPopup" @updateShowPopup="dismissPopup" />
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @updateShowPopup="dismissPopup" />
     <div class="h-screen bg-white flex min-h-full flex-col justify-center items-center px-6 py-12 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img class="mx-auto h-12 w-auto" :src="logo" alt="Your Company">
@@ -83,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
@@ -98,17 +98,25 @@ let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
+let timerId = ref(null);
 
-
-onMounted(() => {
-    // Run the function every second
-    // setInterval(() => {
-    //     showNotification.value = false;
-    // }, 500);
-});
 
 function togglePasswordVisibility() {
     showPassword.value = !showPassword.value;
+}
+
+function dismissPopup() {
+    showNotification.value = false;
+    // Cancel the timer
+    clearTimeout(timerId);
+}
+
+function displayPopup() {
+    showNotification.value = true;
+
+    timerId = setTimeout(() => {
+        dismissPopup();
+    }, 4000);
 }
 
 // Function to handle login
@@ -139,10 +147,10 @@ async function login() {
         }
     } catch (error) {
         // Show the pop-up
-        showNotification.value = true;
         backgroundColor.value = 'bg-red-300';
         notificationTitle.value = 'Erreur lors de la connexion';
         notificationMessage.value = 'Informations d\'identification invalides';
+        displayPopup();
     }
 }
 </script>
@@ -161,23 +169,23 @@ export default {
         };
     },
     methods: {
-        testPopup() {
-            // Show the popup
-            this.showPopup = true;
+        // testPopup() {
+        //     // Show the popup
+        //     this.showPopup = true;
 
-            // You can set a timeout to automatically dismiss the popup after a certain time
-            this.timerId = setTimeout(() => {
-                this.dismissPopup();
-            }, 5000);
-        },
+        //     // You can set a timeout to automatically dismiss the popup after a certain time
+        //     this.timerId = setTimeout(() => {
+        //         this.dismissPopup();
+        //     }, 5000);
+        // },
 
-        dismissPopup() {
-            // Dismiss the popup
-            console.log("BEFORE", this.showPopup)
-            this.showPopup = false;
-            clearTimeout(this.timerId);
-            console.log("AFTER", this.showPopup)
-        }
+        // dismissPopup() {
+        //     // Dismiss the popup
+        //     console.log("BEFORE", this.showPopup)
+        //     this.showPopup = false;
+        //     clearTimeout(this.timerId);
+        //     console.log("AFTER", this.showPopup)
+        // }
     }
 }
 </script>

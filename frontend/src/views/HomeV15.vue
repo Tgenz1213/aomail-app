@@ -1,6 +1,6 @@
 <template>
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @updateShowPopup="dismissPopup" />
     <div v-if="loading">
         <Loading class=""></Loading>
     </div>
@@ -84,14 +84,15 @@
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
                                                             <div class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md':  totalEmailsInCategoryNotRed(category.name) === 0, 'rounded-l-md':  totalEmailsInCategoryNotRed(category.name) > 0 }">{{
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRed(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRed(category.name) > 0 }">{{
                                                                         category.name }}</span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
-                                                                    <span v-if="totalEmailsInCategoryNotRed(category.name) > 0"
+                                                                    <span
+                                                                        v-if="totalEmailsInCategoryNotRed(category.name) > 0"
                                                                         class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
                                                                         :class="{ 'text-gray-800': selectedTopic === category.name, 'text-white bg-gray-800': selectedTopic !== category.name }">
-                                                                        {{  totalEmailsInCategoryNotRed(category.name) }}
+                                                                        {{ totalEmailsInCategoryNotRed(category.name) }}
                                                                     </span>
                                                                 </div>
                                                                 <span
@@ -895,8 +896,8 @@
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{
                                                                                 readEmailsInSelectedTopic().length }}</span>
                                                                         <span
-                                                                            v-if="readEmailsInSelectedTopic().length === 1"> mail</span><span
-                                                                            v-else> mails</span>. Je <span
+                                                                            v-if="readEmailsInSelectedTopic().length === 1">
+                                                                            mail</span><span v-else> mails</span>. Je <span
                                                                             class="font-medium">vais nettoyer
                                                                             automatiquement</span> les mails lus.
                                                                     </p>
@@ -1139,6 +1140,7 @@ let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
+let timerId = ref(null);
 
 const router = useRouter();
 let animatedText = ref('');
@@ -1166,6 +1168,20 @@ let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 
+
+function dismissPopup() {
+    showNotification = false;
+    // Cancel the timer
+    clearTimeout(timerId);
+}
+
+function displayPopup() {
+    showNotification = true;
+
+    timerId = setTimeout(() => {
+        dismissPopup();
+    }, 4000);
+}
 
 function setParentRef(el, itemId) {
     // Ensure the object exists before trying to set a property
@@ -1392,10 +1408,10 @@ function closeUpdateModal() {
 async function handleAddCategory(categoryData) {
 
     if (Object.hasOwnProperty.call(categoryData, 'error')) {
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = categoryData.error;
         notificationMessage = categoryData.description;
+        displayPopup();
 
         closeModal();
         return;
@@ -1414,13 +1430,11 @@ async function handleAddCategory(categoryData) {
         });
 
         if (response) {
-            //console.log('Category added:', response);
-            //showNewCategoryNotif.value = true;
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'La catégorie a été ajoutée';
+            displayPopup();
 
             closeModal();
             const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -1432,13 +1446,11 @@ async function handleAddCategory(categoryData) {
             console.log("Assigned categories:", categories.value);
         }
     } catch (error) {
-        console.error('Error adding category:', error);
-        //showNewCategoryNotif.value = false;
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de l\'ajout de la catégorie';
         notificationMessage = error;
+        displayPopup();
 
         closeModal();
     }
@@ -1447,22 +1459,21 @@ async function handleAddCategory(categoryData) {
 async function handleUpdateCategory(updatedCategory) {
 
     if (Object.hasOwnProperty.call(updatedCategory, 'error')) {
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = updatedCategory.error;
         notificationMessage = updatedCategory.description;
+        displayPopup();
 
         closeUpdateModal();
         return;
     }
 
     if (!updatedCategory.name.trim()) {
-        //console.error('Error: Category name cannot be empty');
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
         notificationMessage = 'Le nom de la catégorie ne peut pas être vide';
+        displayPopup();
 
         closeUpdateModal();
         return;
@@ -1483,12 +1494,11 @@ async function handleUpdateCategory(updatedCategory) {
         const response = await fetchWithToken(url, options);
 
         if (response) {
-            //showUpdateCategoryNotif.value = true;
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'La catégorie a été mise à jour';
+            displayPopup();
 
             closeUpdateModal();
             const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -1499,25 +1509,25 @@ async function handleUpdateCategory(updatedCategory) {
             }));
             console.log("Assigned categories:", categories.value);
         }
-    } catch (error) {      
+    } catch (error) {
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
         notificationMessage = error;
+        displayPopup();
 
         closeUpdateModal();
     }
 }
 async function handleCategoryDelete(categoryNameToDelete) {
     console.log("Category to delete", categoryNameToDelete);
+
     if (!categoryNameToDelete.trim()) {
-        //console.error('Error: Category name cannot be empty');
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de la suppression de la catégorie';
         notificationMessage = 'Le nom de la catégorie ne peut pas être vide';
+        displayPopup();
         return;
     }
 
@@ -1535,10 +1545,10 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
         if (response) {
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'Votre catégorie a été supprimée';
+            displayPopup();
 
             closeUpdateModal();
             // Fetch the categories
@@ -1552,10 +1562,10 @@ async function handleCategoryDelete(categoryNameToDelete) {
         }
     } catch (error) {
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur lors de la suppression de la catégorie';
         notificationMessage = error;
+        displayPopup();
 
         closeUpdateModal();
     }
@@ -1642,12 +1652,11 @@ async function animateText() {
             }
         }, 30);
     } catch (error) {
-        //console.error('Error trying to get the number of unread emails:', error);
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur récupération du nombre d\'e-mails non lus';
         notificationMessage = error;
+        displayPopup();
     }
 }
 

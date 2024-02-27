@@ -337,6 +337,8 @@ let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
+let timerId = ref(null);
+
 let activeSection = ref('preferences'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
 let userData = ref('');
@@ -348,12 +350,21 @@ onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     fetchUserData();
     getBackgroundColor();
-    // Run the function every second
-    setInterval(() => {
-        showNotification = false;
-    }, 1000);
 })
 
+function dismissPopup() {
+    showNotification.value = false;
+    // Cancel the timer
+    clearTimeout(timerId);
+}
+
+function displayPopup() {
+    showNotification.value = true;
+
+    timerId = setTimeout(() => {
+        dismissPopup();
+    }, 4000);
+}
 
 function handleKeyDown(event) {
     if (event.key === 'Tab') {
@@ -405,25 +416,12 @@ async function handleColorChange(newColor) {
 
         if (response.bg_color) {
             localStorage.setItem('bgColor', newColor);
-            console.log('Background color updated successfully');
-
-            // Show the pop-up
-            console.log("BEFORE --->", showNotification)
-            showNotification = true;
-            console.log("AFTER ---->", showNotification)
-            backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'Votre fond d\'écran a été mis à jour';
         }
     } catch (error) {
-        //console.error('Error updating background color:', error);
-        // Show the pop-up
-        showNotification = true;
-        backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur mise à jour fond d\'écran';
-        notificationMessage = error;
+        console.error("Error updating background", error);
     }
 }
+
 async function fetchUserData() {
     const requestOptions = {
         headers: {
@@ -433,15 +431,13 @@ async function fetchUserData() {
 
     try {
         const data = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions);
-        //console.log("USER DATA -------->", userData);
         userData.value = data.username;
     } catch (error) {
-        //console.error('Fetch error:', error);
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Erreur récupération de votre identifiant';
         notificationMessage = error;
+        displayPopup();
     }
 }
 
@@ -459,7 +455,12 @@ async function getUsername() {
     }
     catch (error) {
         console.error(error);
-        return null;
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur récupération nom d\'utilisateur';
+        notificationMessage = error;
+        displayPopup();
+        return;
     }
 }
 async function handleSubmit() {
@@ -475,7 +476,12 @@ async function handleSubmit() {
         var response = await fetchWithToken(`${API_BASE_URL}check_username/`, requestOptions);
     }
     catch (error) {
-        console.log("An error occured while checking the username", error)
+        console.log("An error occured while checking the username", error);
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur vérification nom d\'utilisateur';
+        notificationMessage = error;
+        displayPopup();
         return;
     }
 
@@ -483,7 +489,11 @@ async function handleSubmit() {
     let resultUpdateUsername;
 
     if (response.available == false) {
-        console.log("Username already exists");
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Nom d\'utilisateur déjà existant';
+        notificationMessage = 'Veuillez choisir un autre nom';
+        displayPopup();
         return;
     }
     else {
@@ -494,7 +504,12 @@ async function handleSubmit() {
                 resultUpdateUsername = await updateUsername();
             }
         } catch (error) {
-            console.error("Error occurred:", error);
+            console.error("Error occurre while retrieving data about username", error);
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Erreur lors d\'une vérification du nom d\'utilisateur';
+            notificationMessage = error;
+            displayPopup();
         }
     }
 
@@ -502,35 +517,34 @@ async function handleSubmit() {
 
     // Check if passwords are provided and match
     if (newPassword.value && newPassword.value == confirmPassword.value) {
-        var resultUpdatePwd = updatePassword();
+        var resultUpdatePwd = await updatePassword();
     }
-
 
     // Handle all cases with pop-ups
     if (resultUpdateUsername) {
 
         if (resultUpdateUsername == 'Username updated successfully' && resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'Votre identifiant et mot de passe ont été modifiés';
+            displayPopup();
         }
         else if (!resultUpdatePwd) {
 
             if (resultUpdateUsername == 'Username updated successfully') {
                 // Show the pop-up
-                showNotification = true;
                 backgroundColor = 'bg-green-300';
                 notificationTitle = 'Succès !';
                 notificationMessage = 'Votre identifiant a bien été mis à jour';
+                displayPopup();
             }
             else {
                 // Show the pop-up
-                showNotification = true;
                 backgroundColor = 'bg-green-300';
                 notificationTitle = 'Erreur mise à jour identifiant';
                 notificationMessage = resultUpdateUsername;
+                displayPopup();
             }
         }
     }
@@ -538,21 +552,18 @@ async function handleSubmit() {
 
         if (resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'Votre mot de passe a bien été modifié';
+            displayPopup();
         }
         else {
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Erreur mise à jour mot de passe';
             notificationMessage = resultUpdatePwd;
+            displayPopup();
         }
-    }
-    else {
-        console.log("Nothing has been changed")
     }
 }
 async function updatePassword() {
@@ -567,12 +578,9 @@ async function updatePassword() {
 
     try {
         const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update-password/`, requestOptions);
-        console.log('Password updated successfully', data);
 
         return 'Password updated successfully';
     } catch (error) {
-        console.error('Error updating password:', error);
-
         return error;
     }
 }
@@ -588,12 +596,9 @@ async function updateUsername() {
 
     try {
         const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update-username/`, requestOptions);
-        console.log('Username updated successfully', data);
 
         return 'Username updated successfully';
     } catch (error) {
-        console.error('Error updating username:', error);
-
         return error;
     }
 }
@@ -617,13 +622,11 @@ async function deleteAccount() {
 
             // Check the response data for success or failure
             if (responseData && responseData.message === 'User successfully deleted') {
-                // Handle successful deletion
-                //console.log('Account deleted successfully.');
                 // Show the pop-up
-                showNotification = true;
                 backgroundColor = 'bg-green-300';
                 notificationTitle = 'Redirection en cours...';
                 notificationMessage = 'Votre compte a bien été supprimé';
+                displayPopup();
 
                 setTimeout(() => {
                     // Redirect login page
@@ -631,32 +634,25 @@ async function deleteAccount() {
                 }, 4000);
 
             } else {
-                // Handle other possible server responses or inform the user
-                //console.error('Failed to delete account. Unexpected server response:', responseData);
                 // Show the pop-up
-                showNotification = true;
                 backgroundColor = 'bg-red-300';
                 notificationTitle = 'Erreur suppresion de votre compte';
                 notificationMessage = responseData.error;
+                displayPopup();
             }
         } catch (error) {
-            // Handle error or inform the user about the failure
-            //console.error('Error deleting account:', error);            
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Erreur suppresion de votre compte';
             notificationMessage = error;
+            displayPopup();
         }
     } else {
-        // TODO: Inform the user that the deletion is not confirmed
-        //alert('Please confirm deletion by checking the checkbox.');
-        //console.log('Please confirm deletion by checking the checkbox.');
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle = 'Confirmation nécessaire';
         notificationMessage = 'Cochez la case pour approuver la suppression';
+        displayPopup();
     }
 }
 </script>

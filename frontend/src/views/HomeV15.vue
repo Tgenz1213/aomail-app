@@ -1816,11 +1816,6 @@ onMounted(() => {
     animateText();
     fetchData();
     getBackgroundColor();
-
-    // Run the function every second
-    setInterval(() => {
-        showNotification = false;
-    }, 1000);
 })
 </script>
 

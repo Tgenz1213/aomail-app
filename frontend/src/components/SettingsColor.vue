@@ -1,19 +1,4 @@
-<!--<template>
-  <RadioGroup v-model="selectedColor">
-    <RadioGroupLabel class="block text-sm font-medium leading-6 text-gray-900">Couleur de fond</RadioGroupLabel>
-    <div class="mt-4 flex items-center space-x-3"> 
-    <div class="mt-2 flex items-center justify-center space-x-3">
-      <RadioGroupOption as="template" v-for="color in colors" :key="color.name" :value="color" v-slot="{ active, checked }">
-      <div :class="[color.selectedColor, active && checked ? 'ring ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none']">
-        <RadioGroupLabel as="span" class="sr-only">{{ color.name }}</RadioGroupLabel>
-        <div :class="['ring-container', color.ringColor]"></div>
-        <span aria-hidden="true" :class="[color.bgColor, 'h-8 w-8 rounded-full border border-black border-opacity-10']" />
-      </div>
-    </RadioGroupOption>
-    </div>
-  </RadioGroup>
-</template>-->
-
+<!-- TODO: Center the colors -->
 <template>
   <RadioGroup v-model="selectedColor">
     <div class="flex flex-wrap mt-1 justify-center">
@@ -30,16 +15,14 @@
   </RadioGroup>
 </template>
 
-
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
+
 
 const props = defineProps({
   initialColor: String
 })
-
-const emits = defineEmits(['colorSelected']);
 
 const colors = [
   { name: 'Gradient_Orange_Rose', bgColor: 'bg-gradient-to-r from-orange-200 to-rose-200', selectedColor: 'ring-orange-100' }, // TESTED
@@ -79,14 +62,5 @@ const findColor = (colorValue) => {
   return colors.find(color => color.bgColor === colorValue) || colors[0];
 }
 
-const selectedColor = ref(findColor(props.initialColor))
-
-// Watch for changes in the initialColor prop
-watch(() => props.initialColor, (newColor) => {
-  selectedColor.value = findColor(newColor);
-});
-
-watch(selectedColor, (newValue) => {
-  emits('colorSelected', newValue.bgColor);
-});
+const selectedColor = ref(findColor(props.initialColor));
 </script>

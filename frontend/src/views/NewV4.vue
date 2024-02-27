@@ -1059,11 +1059,6 @@ fetch(`${API_BASE_URL}api/get_unique_email_senders', {
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
 
-    // Run the function every second
-    setInterval(() => {
-        showNotification = false;
-    }, 1000);
-
     getBackgroundColor();
     bgColor.value = localStorage.getItem('bgColor');
     //fetchEmailSenders();

@@ -1531,8 +1531,8 @@ def save_last_mail_view(request):
     service = google_api.authenticate_service(user, email)
 
     if service is not None:
-        gpt_3_5_turbo.processed_email_to_bdd(request, service)
-        # processed_email_to_bdd(request,service)
+        # gpt_3_5_turbo.processed_email_to_bdd(request, service)
+        processed_email_to_bdd(request,service)
         # Return a success response, along with any necessary information
         return Response({"message": "Save successful"}, status=200)
     else:

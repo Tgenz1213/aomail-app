@@ -344,8 +344,8 @@ let newPassword = ref('');
 let confirmPassword = ref('');
 
 
-onMounted(() => {    
-    document.addEventListener("keydown", handleKeyDown);    
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
     fetchUserData();
     getBackgroundColor();
     // Run the function every second
@@ -368,8 +368,8 @@ function switchActiveSection() {
         'account': 'subscription',
         'subscription': 'data',
         'data': 'preferences'
-    } 
-    
+    }
+
     setActiveSection(nextSection[activeSection.value]);
 }
 
@@ -702,7 +702,8 @@ export default {
         };
     },
     methods: {
-        togglePasswordVisibility() {
+        togglePasswordVisibility(event) {
+            event.preventDefault();
             this.showPassword = !this.showPassword;
         },
         toggleConfirmPasswordVisibility() {

@@ -313,7 +313,6 @@ import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import ShowNotification from '../components/ShowNotification.vue';
-//import { ChevronDownIcon, XMarkIcon } from '@heroicons/vue/20/solid';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import Quill from 'quill';
 import { API_BASE_URL } from '@/main';
@@ -331,6 +330,7 @@ let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
+let timerId = ref(null);
 
 const props = defineProps(['modelValue']);
 const items = [
@@ -355,10 +355,10 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     .catch(error => {
         console.error("Error fetching contacts:", error);
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle.value = 'Erreur récupération des contacts';
         notificationMessage.value = error;
+        displayPopup();
     });
 
 
@@ -407,6 +407,20 @@ const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
 
 
+function dismissPopup() {
+    showNotification = false;
+    // Cancel the timer
+    clearTimeout(timerId);
+}
+
+function displayPopup() {
+    showNotification = true;
+
+    timerId = setTimeout(() => {
+        dismissPopup();
+    }, 4000);
+}
+
 // User pressed the object input
 function handleFocusObject() {
     isFocused.value = true;
@@ -436,10 +450,10 @@ function handleBlur2(event) {
         }
     } else if (filteredPeople._value.length == 0) {
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle.value = 'Email invalide';
         notificationMessage.value = 'Le format de l\'email est incorrect'
+        displayPopup();
     }
 }
 
@@ -497,10 +511,10 @@ const handleFileUpload = (event) => {
             for (const currentFile of localStorageuploadedFiles) {
                 if (currentFile.name == file) {
                     // Show the pop-up
-                    showNotification = true;
                     backgroundColor = 'bg-red-300';
                     notificationTitle = 'Fichier en double';
                     notificationMessage = 'Vous avez déjà inséré ce fichier';
+                    displayPopup();
                     return;
                 }
             }
@@ -508,10 +522,10 @@ const handleFileUpload = (event) => {
             fileObjects.value.push(file);
         } else {
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Fichier trop volumineux';
             notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
+            displayPopup();
             return;
         }
     });
@@ -1860,10 +1874,10 @@ async function sendEmail() {
 
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up
-            showNotification = true;
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Succès !';
             notificationMessage = 'Votre email a été envoyé avec succès.';
+            displayPopup();
 
             // Other logic
             inputValue.value = '';
@@ -1890,16 +1904,16 @@ async function sendEmail() {
             else {
                 notificationMessage.value = response.error;
             }
-            showNotification = true;
             backgroundColor = 'bg-red-300';
             notificationTitle.value = 'Erreur d\'envoi d\'email';
+            displayPopup();
         }
     } catch (error) {
         // Show the pop-up
-        showNotification = true;
         backgroundColor = 'bg-red-300';
         notificationTitle.value = 'Erreur d\'envoi d\'email';
         notificationMessage.value = error;
+        displayPopup();
     }
 }
 

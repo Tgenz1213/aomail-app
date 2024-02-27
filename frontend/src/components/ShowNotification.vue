@@ -19,7 +19,7 @@
                                 <p class="mt-1 text-sm text-gray-900">{{ notificationMessage }}</p>
                             </div>
                             <div class="ml-4 flex flex-shrink-0">
-                                <button type="button" @click="crossDismissNotification()"
+                                <button type="button" @click="dismissPopup"
                                     class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
                                     <span class="sr-only">Close</span>
                                     <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
@@ -51,19 +51,24 @@ export default {
             this.showNotification_intern = newVal;
 
             if (newVal) {
-                this.dismissNotification();
+                this.showPopupWithTimer();
             }
         }
     },
     methods: {
-        dismissNotification() {
-            setTimeout(() => {
-                this.showNotification_intern = false;
+        showPopupWithTimer() {
+            this.showNotification_intern = true;
+
+            this.timerId = setTimeout(() => {
+                this.dismissPopup();
             }, 4000);
         },
-        crossDismissNotification() {
+        dismissPopup() {
             this.showNotification_intern = false;
-        }
+            this.$emit('updateShowPopup', false);
+            // Cancel the timer
+            clearTimeout(this.timerId);
+        },
     }
 };
 </script>

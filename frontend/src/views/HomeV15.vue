@@ -1,6 +1,6 @@
 <template>
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @updateShowPopup="dismissPopup" />
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
     <div v-if="loading">
         <Loading class=""></Loading>
     </div>
@@ -84,15 +84,15 @@
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
                                                             <div class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRed(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRed(category.name) > 0 }">{{
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
                                                                         category.name }}</span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
                                                                     <span
-                                                                        v-if="totalEmailsInCategoryNotRed(category.name) > 0"
+                                                                        v-if="totalEmailsInCategoryNotRead(category.name) > 0"
                                                                         class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
                                                                         :class="{ 'text-gray-800': selectedTopic === category.name, 'text-white bg-gray-800': selectedTopic !== category.name }">
-                                                                        {{ totalEmailsInCategoryNotRed(category.name) }}
+                                                                        {{ totalEmailsInCategoryNotRead(category.name) }}
                                                                     </span>
                                                                 </div>
                                                                 <span
@@ -1162,12 +1162,86 @@ let isMenuOpen = ref(true);
 let isDropdownOpen = ref(false);
 let emails = ref({});
 let scrollableDiv = ref(null);
-let selectedTopic = ref('Administrative');
+let selectedTopic = ref('');
 let animationTriggered = ref([false, false, false]);
 let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
+let totalUnread = ref(0);
 
+
+onMounted(async () => {
+    getBackgroundColor();
+
+    // Wait for fetchData completion
+    await new Promise(resolve => {
+        fetchData().then(() => {
+            resolve();
+        });
+        animateText("Calcul des mails non lus en cours...");
+    });
+
+    setInterval(async () => {
+        const newTotalUnread = getNumberUnreadMail(emails.value);
+
+        if (newTotalUnread !== totalUnread.value) {
+            totalUnread.value = newTotalUnread;
+
+            // TODO: Leave animation if 0 mail => 1 mail OR from 1 mail to 2 mails
+            if (totalUnread.value > 0 && totalUnread.value <= 2) {
+                await animateText(getTextNumberUnreadMail(totalUnread.value));
+            } else {
+                animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
+            }
+        }
+    }, 3000);
+});
+
+function getNumberUnreadMail(emailData) {
+    let totalUnread = 0;
+
+    for (const category in emailData) {
+        for (const subcategory in emailData[category]) {
+            const emailsInSubcategory = emailData[category][subcategory];
+
+            for (const email of emailsInSubcategory) {
+                if (!email.read) {
+                    totalUnread++;
+                }
+            }
+        }
+    }
+    return totalUnread;
+}
+
+function getTextNumberUnreadMail(totalUnread) {
+    if (totalUnread === 0) {
+        return 'Vous n\'avez pas reçu de nouveau mail';
+    } else if (totalUnread === 1) {
+        return `Vous avez reçu ${totalUnread} nouveau mail`;
+    } else {
+        return `Vous avez reçu ${totalUnread} nouveaux mails`;
+    }
+}
+
+function animateText(text) {
+    // Clear text
+    animatedText.value.textContent = '';
+
+    let target = animatedText.value;
+    let characters = text.split("");
+    let currentIndex = 0;
+
+    // Used to create an animation
+    const interval = setInterval(() => {
+        if (currentIndex < characters.length) {
+            target.textContent += characters[currentIndex];
+            currentIndex++;
+        } else {
+            clearInterval(interval);
+        }
+    }, 30);
+}
 
 function dismissPopup() {
     showNotification = false;
@@ -1611,56 +1685,6 @@ function scrollAlmostToBottom() {
     });
 }
 
-
-async function animateText() {
-    try {
-        /*
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
-            },
-        };
-
-        //const data = await fetchWithToken('${API_BASE_URL}api/unread_mails/', requestOptions);
-
-
-        const unreadMailCount = data.unreadCount;*/
-
-        const unreadMailCount = totalEmailsNotRed();
-
-        let text = '';
-
-        if (unreadMailCount === 0) {
-            text = `Bonjour ! Vous n'avez pas de nouveaux mails.`;
-        } else if (unreadMailCount === 1) {
-            text = `Bonjour ! Vous avez ${unreadMailCount} mail non lu.`;
-        } else {
-            text = `Bonjour ! Vous avez reçu ${unreadMailCount} mails non lu.`;
-        }
-
-        let target = animatedText.value;
-        let characters = text.split("");
-        let currentIndex = 0;
-        const interval = setInterval(() => {
-            if (currentIndex < characters.length) {
-                target.textContent += characters[currentIndex];
-                currentIndex++;
-            } else {
-                clearInterval(interval);
-            }
-        }, 30);
-    } catch (error) {
-        // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur récupération du nombre d\'e-mails non lus';
-        notificationMessage = error;
-        displayPopup();
-    }
-}
-
-
 function toggleHiddenParagraph(index) {
     console.log("Item ID:", index)
     console.log("All refs:", parentElementRefs.value)
@@ -1710,7 +1734,6 @@ function selectCategory(category) {
 }
 
 
-
 function countEmailsInCategoryAndPriority(categoryName, priority) {
     let count = 0;
     if (emails.value[categoryName] && emails.value[categoryName][priority]) {
@@ -1748,21 +1771,7 @@ function totalEmailsInCategory(categoryName) {
     return totalCount;
 }
 
-function totalEmailsNotRed() {
-    let totalCount = 0;
-    for (let category of Object.values(emails.value)) {
-        for (let subcategory of Object.values(category)) {
-            for (let email of subcategory) {
-                if (!email.read) {
-                    totalCount++;
-                }
-            }
-        }
-    }
-    return totalCount;
-}
-
-function totalEmailsInCategoryNotRed(categoryName) {
+function totalEmailsInCategoryNotRead(categoryName) {
     let totalCount = 0;
     if (emails.value[categoryName]) {
         for (let subcategory of Object.values(emails.value[categoryName])) {
@@ -1776,9 +1785,7 @@ function totalEmailsInCategoryNotRed(categoryName) {
     return totalCount;
 }
 
-
-// Fetch data function
-const fetchData = async () => {
+async function fetchData() {
     try {
         // Fetch the categories
         const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -1809,14 +1816,7 @@ const fetchData = async () => {
     if (localStorage.getItem('Email_sent')) {
         localStorage.setItem('Email_sent', '');
     }
-};
-
-// Run fetchData when the component is mounted
-onMounted(() => {
-    animateText();
-    fetchData();
-    getBackgroundColor();
-})
+}
 </script>
 
 <script>

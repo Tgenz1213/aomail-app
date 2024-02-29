@@ -15,10 +15,8 @@ from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from MailAssistant import gpt_3_5_turbo, gpt_4, google_api, microsoft_api
+from MailAssistant import gpt_3_5_turbo, google_api, microsoft_api
 from colorama import Fore, init
-from langchain_community.chat_models import ChatOpenAI
-from langchain.prompts.chat import SystemMessagePromptTemplate, ChatPromptTemplate
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -29,7 +27,6 @@ from .models import (
     Category,
     SocialAPI,
     Email,
-    BulletPoint,
     Rule,
     Preference,
     Sender,
@@ -1149,362 +1146,6 @@ def get_user_emails(request):
     return Response(formatted_data, status=status.HTTP_200_OK)
 
 
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
-
-
-importance_list = {
-    "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
-    "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
-    "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
-}
-user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-
-response_list = {
-    "Answer Required": "Message requires an answer.",
-    "Might Require Answer": "Message might require an answer.",
-    "No Answer Required": "No answer is required.",
-}
-relevance_list = {
-    "Highly Relevant": "Message is highly relevant to the recipient.",
-    "Possibly Relevant": "Message might be relevant to the recipient.",
-    "Not Relevant": "Message is not relevant to the recipient.",
-}
-
-
-def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(
-        services, 0, None
-    )  # microsoft non fonctionnel
-
-    if not Email.objects.filter(provider_id=email_id).exists():
-
-        # Check if data is decoded, then format it
-        if decoded_data:
-            decoded_data = format_mail(decoded_data)
-
-        # Get user categories
-        category_list = get_db_categories(request.user)
-
-        # print("DEBUG -------------> category", category_list)
-
-        # Process the email data with AI/NLP
-        topic, importance, answer, summary, sentence, relevance, importance_explain = (
-            gpt_langchain_response(subject, decoded_data, category_list)
-        )
-
-        # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
-        # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
-        sender_name, sender_email = from_name[0], from_name[1]
-
-        # Fetch or create the sender
-        sender, created = Sender.objects.get_or_create(
-            name=sender_name, email=sender_email, user=request.user
-        )  # assuming from_name contains the sender's name
-
-        print("DEBUG ----------------> topic", topic)
-        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
-        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
-
-        provider = "Gmail"
-
-        try:
-            # Create a new email record
-            email_entry = Email.objects.create(
-                provider_id=email_id,
-                email_provider=provider,
-                email_short_summary=sentence,
-                content=decoded_data,
-                subject=subject,
-                priority=importance[0],
-                read=False,  # Default value; adjust as necessary
-                answer_later=False,  # Default value; adjust as necessary
-                sender=sender,
-                category=category,
-                user=request.user,
-            )
-
-            # If the email has a summary, save it in the BulletPoint table
-            if summary:
-                # Split summary by line breaks
-                lines = summary.split("\n")
-
-                # Filter lines that start with '- ' which indicates a bullet point
-                bullet_points = [
-                    line[2:].strip() for line in lines if line.strip().startswith("- ")
-                ]
-
-                for point in bullet_points:
-                    BulletPoint.objects.create(content=point, email=email_entry)
-        except IntegrityError:
-            print(
-                f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
-            )
-
-        # Debug prints
-        print("topic:", topic)
-        print("importance:", importance)
-        print("answer:", answer)
-        print("summary:", summary)
-        print("sentence:", sentence)
-        print("relevance:", relevance)
-        print("importance_explain:", importance_explain)
-
-    else:
-        print(f"Email with provider_id {email_id} already exists.")
-
-    # return email_entry  # Return the created email object, if needed
-    return
-
-
-# strips text of unnecessary spacings
-def format_mail(text):
-    # Delete links
-    text = re.sub(r"<http[^>]+>", "", text)
-    # Delete patterns like "[image: ...]"
-    text = re.sub(r"\[image:[^\]]+\]", "", text)
-    # Convert Windows line endings to Unix line endings
-    text = text.replace("\r\n", "\n")
-    # Remove spaces at the start and end of each line
-    text = "\n".join(line.strip() for line in text.split("\n"))
-    # Delete multiple spaces
-    text = re.sub(r" +", " ", text)
-    # Reduce multiple consecutive newlines to two newlines
-    text = re.sub(r"\n{3,}", "\n\n", text)
-
-    return text
-
-
-def fill_lists(categories, percentages):
-    base_categories = ["Important", "Information", "Useless"]
-
-    # Determine which category is in the list
-    first_category = categories[0]
-
-    # Remove the category found from the base list
-    base_categories.remove(first_category)
-
-    # Construct the new categories list based on the first category
-    for i in range(1, 3):
-        if not categories[i]:
-            categories[i] = base_categories.pop(0)
-            percentages[i] = "0%"
-
-    return categories, percentages
-
-
-def get_db_categories(current_user):
-    # Query categories specific to the current user from the database.
-    categories = Category.objects.filter(user=current_user)
-
-    # Construct the category_list dictionary from the queried data.
-    category_list = {category.name: category.description for category in categories}
-
-    return category_list
-
-
-def separate_name_email(s):
-    """
-    Separate "Name <email>" or "<email>" into name and email.
-
-    Args:
-    - s (str): Input string of format "Name <email>" or "<email>"
-
-    Returns:
-    - (str, str): (name, email). If name is not present, it returns (None, email)
-    """
-
-    # Regex pattern to capture Name and Email separately
-    match = re.match(r"(?:(.*)\s)?<(.+@.+)>", s)
-    if match:
-        name, email = match.groups()
-        return name.strip() if name else None, email
-    else:
-        return None, None
-
-
-# TODO: Put in gpt_3_5_turbo.py AFTER testing
-# REMOVE hardcoded variables
-
-
-# Summarize and categorize an email
-def gpt_langchain_response(subject, decoded_data, category_list):
-    template = """Given the following email:
-
-    Subject:
-    {subject}
-
-    Text:
-    {text}
-
-    And user description:
-
-    Description:
-    {user}
-
-    Using the provided categories:
-
-    Topic Categories:
-    {category}
-
-    Importance Categories:
-    {importance}
-
-    Response Categories:
-    {answer}
-
-    Relevance Categories:
-    {relevance}
-
-    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
-    2. In French: Summarize the following message
-    3. In French: Provide a short sentence summarizing the email.
-
-    ---
-
-    Topic Categorization: [Model's Response for Topic Category]
-
-    Importance Categorization (Taking User Description into account and only using Importance Categories):
-    - Category 1: [Model's Response for Importance Category 1]
-    - Percentage 1: [Model's Percentage for Importance Category 1]
-    - Category 2: [Model's Response for Importance Category 2]
-    - Percentage 2: [Model's Percentage for Importance Category 2]
-    - Category 3: [Model's Response for Importance Category 3]
-    - Percentage 3: [Model's Percentage for Importance Category 3]
-
-    Response Categorization: [Model's Response for Response Category]
-
-    Relevance Categorization: [Model's Response for Relevance Category]
-
-    Résumé court en français: [Model's One-Sentence Summary en français without using response/relevance categorization]
-
-    Résumé en français (without using importance, response or relevance categorization):
-    - [Model's Bullet Point 1 en français]
-    - [Model's Bullet Point 2 en français]
-    ...
-    """
-
-    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
-    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
-    # get a chat completion from the formatted messages
-    chat = ChatOpenAI(
-        temperature=0,
-        openai_api_key="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",
-        openai_organization="org-YSlFvq9rM1qPzM15jewopUUt",
-    )
-    # This line does not work (Augustin)
-    response = chat(
-        chat_prompt.format_prompt(
-            user=user_description,
-            category=category_list,
-            importance=importance_list,
-            answer=response_list,
-            subject=subject,
-            text=decoded_data,
-            relevance=relevance_list,
-        ).to_messages()
-    )
-
-    clear_response = response.content.strip()
-    print("full response: ", clear_response)
-
-    # Extracting Topic Categorization
-    topic_category = clear_response.split("Topic Categorization: ")[1].split("\n")[0]
-
-    # Extracting Importance/Action Categorization
-    importance_categories = []
-    importance_percentages = []
-    for i in range(1, 4):
-        cat_str = f"Category {i}: "
-        perc_str = f"Percentage {i}: "
-        importance_categories.append(clear_response.split(cat_str)[1].split("\n")[0])
-        importance_percentages.append(clear_response.split(perc_str)[1].split("\n")[0])
-
-    importance_categories, importance_percentages = fill_lists(
-        importance_categories, importance_percentages
-    )
-
-    # Extracting Response Categorization
-    response_category = clear_response.split("Response Categorization: ")[1].split(
-        "\n"
-    )[0]
-
-    # Extracting Relevance Categorization
-    relevance_category = clear_response.split("Relevance Categorization: ")[1].split(
-        "\n"
-    )[0]
-
-    # Extracting one sentence summary
-    short_sentence = clear_response.split("Résumé court en français: ")[1].split("\n")[
-        0
-    ]
-
-    # # Extracting Summary
-    # summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
-    # summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
-    # summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
-    # summary_text = "\n".join(summary_list)
-
-    # Finding start of the summary
-    match = re.search(
-        r"Résumé en français(\s\(without using importance, response or relevance categorization\))?:",
-        clear_response,
-    )
-
-    if match:
-        # Adjusting the start index based on the match found
-        summary_start = match.end()
-    else:
-        # Fallback or default behavior if the pattern is not found
-        summary_start = -1  # Or handle this case as needed
-
-    # Finding the end of the summary
-    summary_end = clear_response.find("\n\n", summary_start)
-    if (
-        summary_end == -1
-    ):  # If there's no double newline after the start, consider till the end of the string
-        summary_end = len(clear_response)
-
-    # Extracting the summary if a valid start index was found
-    if summary_start != -1:
-        summary_text = clear_response[summary_start:summary_end].strip()
-    else:
-        summary_text = "Summary not found."
-
-    """ OLD TO DELETE (only Theo can delete)
-    summary_start = clear_response.find("Résumé en français:") + len("Résumé en français:")
-
-    # Finding the end of the summary
-    summary_end = clear_response.find("\n\n", summary_start)
-    if summary_end == -1:  # If there's no double newline after the start, consider till the end of the string
-        summary_end = len(clear_response)
-
-    # Extracting the summary
-    summary_text = clear_response[summary_start:summary_end].strip()
-    # if summary_text.startswith("- "):  # Remove any leading "- " from the extracted text
-    #     summary_text = summary_text[2:].strip()"""
-
-    # Output results
-    # print("Topic Category:", topic_category)
-    # print("Importance Categories:", importance_categories)
-    # print("Importance Percentages:", importance_percentages)
-    # print("Response Category:", response_category)
-    # print("Relevance Category:", relevance_category)
-    # print("Short Sentence:", short_sentence)
-    # print("Summary Text:", summary_text)
-
-    return (
-        topic_category,
-        importance_categories,
-        response_category,
-        summary_text,
-        short_sentence,
-        relevance_category,
-        importance_percentages,
-    )
-
-
 ######################## TESTING FUNCTIONS ########################
 # TO TEST AUTH API
 @api_view(["GET"])
@@ -1531,12 +1172,10 @@ def save_last_mail_view(request):
     service = google_api.authenticate_service(user, email)
 
     if service is not None:
-        # gpt_3_5_turbo.processed_email_to_bdd(request, service)
-        processed_email_to_bdd(request,service)
-        # Return a success response, along with any necessary information
+        google_api.processed_email_to_bdd(request, service)
+        # processed_email_to_bdd(request,service)
         return Response({"message": "Save successful"}, status=200)
     else:
-        # Return an error response
         return Response({"error": "Failed to authenticate"}, status=400)
 
 
@@ -2012,3 +1651,356 @@ def get_email_bullet_points(request, email_id):
     bullet_points = BulletPoint.objects.filter(id_email=email)
     serializer = BulletPointSerializer(bullet_points, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)"""
+
+
+'''
+importance_list = {
+    "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
+    "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
+    "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+}
+user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+
+response_list = {
+    "Answer Required": "Message requires an answer.",
+    "Might Require Answer": "Message might require an answer.",
+    "No Answer Required": "No answer is required.",
+}
+relevance_list = {
+    "Highly Relevant": "Message is highly relevant to the recipient.",
+    "Possibly Relevant": "Message might be relevant to the recipient.",
+    "Not Relevant": "Message is not relevant to the recipient.",
+}
+
+
+def processed_email_to_bdd(request, services):
+    subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(
+        services, 0, None
+    )  # microsoft non fonctionnel
+
+    if not Email.objects.filter(provider_id=email_id).exists():
+
+        # Check if data is decoded, then format it
+        if decoded_data:
+            decoded_data = format_mail(decoded_data)
+
+        # Get user categories
+        category_list = get_db_categories(request.user)
+
+        # print("DEBUG -------------> category", category_list)
+
+        # Process the email data with AI/NLP
+        topic, importance, answer, summary, sentence, relevance, importance_explain = (
+            gpt_langchain_response(subject, decoded_data, category_list)
+        )
+
+        # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+        # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+        sender_name, sender_email = from_name[0], from_name[1]
+
+        # Fetch or create the sender
+        sender, created = Sender.objects.get_or_create(
+            name=sender_name, email=sender_email, user=request.user
+        )  # assuming from_name contains the sender's name
+
+        print("DEBUG ----------------> topic", topic)
+        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
+        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
+
+        provider = "Gmail"
+
+        try:
+            # Create a new email record
+            email_entry = Email.objects.create(
+                provider_id=email_id,
+                email_provider=provider,
+                email_short_summary=sentence,
+                content=decoded_data,
+                subject=subject,
+                priority=importance[0],
+                read=False,  # Default value; adjust as necessary
+                answer_later=False,  # Default value; adjust as necessary
+                sender=sender,
+                category=category,
+                user=request.user,
+            )
+
+            # If the email has a summary, save it in the BulletPoint table
+            if summary:
+                # Split summary by line breaks
+                lines = summary.split("\n")
+
+                # Filter lines that start with '- ' which indicates a bullet point
+                bullet_points = [
+                    line[2:].strip() for line in lines if line.strip().startswith("- ")
+                ]
+
+                for point in bullet_points:
+                    BulletPoint.objects.create(content=point, email=email_entry)
+        except IntegrityError:
+            print(
+                f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
+            )
+
+        # Debug prints
+        print("topic:", topic)
+        print("importance:", importance)
+        print("answer:", answer)
+        print("summary:", summary)
+        print("sentence:", sentence)
+        print("relevance:", relevance)
+        print("importance_explain:", importance_explain)
+
+    else:
+        print(f"Email with provider_id {email_id} already exists.")
+
+    # return email_entry  # Return the created email object, if needed
+    return
+
+
+# strips text of unnecessary spacings
+def format_mail(text):
+    # Delete links
+    text = re.sub(r"<http[^>]+>", "", text)
+    # Delete patterns like "[image: ...]"
+    text = re.sub(r"\[image:[^\]]+\]", "", text)
+    # Convert Windows line endings to Unix line endings
+    text = text.replace("\r\n", "\n")
+    # Remove spaces at the start and end of each line
+    text = "\n".join(line.strip() for line in text.split("\n"))
+    # Delete multiple spaces
+    text = re.sub(r" +", " ", text)
+    # Reduce multiple consecutive newlines to two newlines
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    return text
+
+
+def fill_lists(categories, percentages):
+    base_categories = ["Important", "Information", "Useless"]
+
+    # Determine which category is in the list
+    first_category = categories[0]
+
+    # Remove the category found from the base list
+    base_categories.remove(first_category)
+
+    # Construct the new categories list based on the first category
+    for i in range(1, 3):
+        if not categories[i]:
+            categories[i] = base_categories.pop(0)
+            percentages[i] = "0%"
+
+    return categories, percentages
+
+
+def get_db_categories(current_user):
+    # Query categories specific to the current user from the database.
+    categories = Category.objects.filter(user=current_user)
+
+    # Construct the category_list dictionary from the queried data.
+    category_list = {category.name: category.description for category in categories}
+
+    return category_list
+
+
+def separate_name_email(s):
+    """
+    Separate "Name <email>" or "<email>" into name and email.
+
+    Args:
+    - s (str): Input string of format "Name <email>" or "<email>"
+
+    Returns:
+    - (str, str): (name, email). If name is not present, it returns (None, email)
+    """
+
+    # Regex pattern to capture Name and Email separately
+    match = re.match(r"(?:(.*)\s)?<(.+@.+)>", s)
+    if match:
+        name, email = match.groups()
+        return name.strip() if name else None, email
+    else:
+        return None, None
+
+
+# TODO: Put in gpt_3_5_turbo.py AFTER testing
+# REMOVE hardcoded variables
+
+
+# Summarize and categorize an email
+def gpt_langchain_response(subject, decoded_data, category_list):
+    template = """Given the following email:
+
+    Subject:
+    {subject}
+
+    Text:
+    {text}
+
+    And user description:
+
+    Description:
+    {user}
+
+    Using the provided categories:
+
+    Topic Categories:
+    {category}
+
+    Importance Categories:
+    {importance}
+
+    Response Categories:
+    {answer}
+
+    Relevance Categories:
+    {relevance}
+
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
+    2. In French: Summarize the following message
+    3. In French: Provide a short sentence summarizing the email.
+
+    ---
+
+    Topic Categorization: [Model's Response for Topic Category]
+
+    Importance Categorization (Taking User Description into account and only using Importance Categories):
+    - Category 1: [Model's Response for Importance Category 1]
+    - Percentage 1: [Model's Percentage for Importance Category 1]
+    - Category 2: [Model's Response for Importance Category 2]
+    - Percentage 2: [Model's Percentage for Importance Category 2]
+    - Category 3: [Model's Response for Importance Category 3]
+    - Percentage 3: [Model's Percentage for Importance Category 3]
+
+    Response Categorization: [Model's Response for Response Category]
+
+    Relevance Categorization: [Model's Response for Relevance Category]
+
+    Résumé court en français: [Model's One-Sentence Summary en français without using response/relevance categorization]
+
+    Résumé en français (without using importance, response or relevance categorization):
+    - [Model's Bullet Point 1 en français]
+    - [Model's Bullet Point 2 en français]
+    ...
+    """
+
+    system_message_prompt = SystemMessagePromptTemplate.from_template(template)
+    chat_prompt = ChatPromptTemplate.from_messages([system_message_prompt])
+    # get a chat completion from the formatted messages
+    chat = ChatOpenAI(
+        temperature=0,
+        openai_api_key="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",
+        openai_organization="org-YSlFvq9rM1qPzM15jewopUUt",
+    )
+    # This line does not work (Augustin)
+    response = chat(
+        chat_prompt.format_prompt(
+            user=user_description,
+            category=category_list,
+            importance=importance_list,
+            answer=response_list,
+            subject=subject,
+            text=decoded_data,
+            relevance=relevance_list,
+        ).to_messages()
+    )
+
+    clear_response = response.content.strip()
+    print("full response: ", clear_response)
+
+    # Extracting Topic Categorization
+    topic_category = clear_response.split("Topic Categorization: ")[1].split("\n")[0]
+
+    # Extracting Importance/Action Categorization
+    importance_categories = []
+    importance_percentages = []
+    for i in range(1, 4):
+        cat_str = f"Category {i}: "
+        perc_str = f"Percentage {i}: "
+        importance_categories.append(clear_response.split(cat_str)[1].split("\n")[0])
+        importance_percentages.append(clear_response.split(perc_str)[1].split("\n")[0])
+
+    importance_categories, importance_percentages = fill_lists(
+        importance_categories, importance_percentages
+    )
+
+    # Extracting Response Categorization
+    response_category = clear_response.split("Response Categorization: ")[1].split(
+        "\n"
+    )[0]
+
+    # Extracting Relevance Categorization
+    relevance_category = clear_response.split("Relevance Categorization: ")[1].split(
+        "\n"
+    )[0]
+
+    # Extracting one sentence summary
+    short_sentence = clear_response.split("Résumé court en français: ")[1].split("\n")[
+        0
+    ]
+
+    # # Extracting Summary
+    # summary_start = clear_response.index("Résumé en français:") + len("Résumé en français:")
+    # summary_end = clear_response[summary_start:].index("\n\n") if "\n\n" in clear_response[summary_start:] else len(clear_response)
+    # summary_list = clear_response[summary_start:summary_start+summary_end].strip().split("\n- ")[1:]
+    # summary_text = "\n".join(summary_list)
+
+    # Finding start of the summary
+    match = re.search(
+        r"Résumé en français(\s\(without using importance, response or relevance categorization\))?:",
+        clear_response,
+    )
+
+    if match:
+        # Adjusting the start index based on the match found
+        summary_start = match.end()
+    else:
+        # Fallback or default behavior if the pattern is not found
+        summary_start = -1  # Or handle this case as needed
+
+    # Finding the end of the summary
+    summary_end = clear_response.find("\n\n", summary_start)
+    if (
+        summary_end == -1
+    ):  # If there's no double newline after the start, consider till the end of the string
+        summary_end = len(clear_response)
+
+    # Extracting the summary if a valid start index was found
+    if summary_start != -1:
+        summary_text = clear_response[summary_start:summary_end].strip()
+    else:
+        summary_text = "Summary not found."
+
+    """ OLD TO DELETE (only Theo can delete)
+    summary_start = clear_response.find("Résumé en français:") + len("Résumé en français:")
+
+    # Finding the end of the summary
+    summary_end = clear_response.find("\n\n", summary_start)
+    if summary_end == -1:  # If there's no double newline after the start, consider till the end of the string
+        summary_end = len(clear_response)
+
+    # Extracting the summary
+    summary_text = clear_response[summary_start:summary_end].strip()
+    # if summary_text.startswith("- "):  # Remove any leading "- " from the extracted text
+    #     summary_text = summary_text[2:].strip()"""
+
+    # Output results
+    # print("Topic Category:", topic_category)
+    # print("Importance Categories:", importance_categories)
+    # print("Importance Percentages:", importance_percentages)
+    # print("Response Category:", response_category)
+    # print("Relevance Category:", relevance_category)
+    # print("Short Sentence:", short_sentence)
+    # print("Summary Text:", summary_text)
+
+    return (
+        topic_category,
+        importance_categories,
+        response_category,
+        summary_text,
+        short_sentence,
+        relevance_category,
+        importance_percentages,
+    )
+'''

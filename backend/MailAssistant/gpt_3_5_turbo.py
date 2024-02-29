@@ -1,33 +1,28 @@
 """
 Handles prompt engineering requests for GPT-3.5-turbo API.
 """
+
 import json
 import re
 import openai
 import ast
-from django.db import IntegrityError
 from colorama import Fore, init
-from MailAssistant import google_api
-from .models import BulletPoint, Category, Email, Sender
-
 
 
 ######################## GPT - 3.5 turbo API SETTINGS ########################
-OPENAI_CREDS = json.load(open('creds/openai_creds.json', 'r'))
+OPENAI_CREDS = json.load(open("creds/openai_creds.json", "r"))
 init(autoreset=True)
-
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
 def get_prompt_response(formatted_prompt):
     """Returns the prompt response"""
-    client = openai.OpenAI(organization=OPENAI_CREDS['organization'], api_key=OPENAI_CREDS['api_key'])
+    client = openai.OpenAI(
+        organization=OPENAI_CREDS["organization"], api_key=OPENAI_CREDS["api_key"]
+    )
     response = client.chat.completions.create(
         model="gpt-3.5-turbo-0125",
-        messages=[{
-            "role": "assistant",
-            "content": formatted_prompt
-        }]
+        messages=[{"role": "assistant", "content": formatted_prompt}],
     )
     return response
 
@@ -40,17 +35,21 @@ def get_language(input_subject, input_body):
     
     Provide the answer in JSON format with the key 'language' (STRING).
     """
-    formatted_prompt = template.format(input_body=input_body, input_subject=input_subject)
+    formatted_prompt = template.format(
+        input_body=input_body, input_subject=input_subject
+    )
     response = get_prompt_response(formatted_prompt)
     clear_text = response.choices[0].message.content.strip()
     language = json.loads(clear_text)["language"]
 
-    print(f'{Fore.LIGHTBLUE_EX}The language used is: {language}')
+    print(f"{Fore.LIGHTBLUE_EX}The language used is: {language}")
 
     return language
 
 
-def count_corrections(original_subject, original_body, corrected_subject, corrected_body):
+def count_corrections(
+    original_subject, original_body, corrected_subject, corrected_body
+):
     """Count and compare corrections in original and corrected texts"""
 
     # Splitting the original and corrected texts into words
@@ -60,10 +59,18 @@ def count_corrections(original_subject, original_body, corrected_subject, correc
     corrected_body_words = corrected_body.split()
 
     # Counting the differences in the subject
-    subject_corrections = sum(1 for orig, corr in zip(original_subject_words, corrected_subject_words) if orig != corr)
+    subject_corrections = sum(
+        1
+        for orig, corr in zip(original_subject_words, corrected_subject_words)
+        if orig != corr
+    )
 
     # Counting the differences in the body
-    body_corrections = sum(1 for orig, corr in zip(original_body_words, corrected_body_words) if orig != corr)
+    body_corrections = sum(
+        1
+        for orig, corr in zip(original_body_words, corrected_body_words)
+        if orig != corr
+    )
 
     # Total corrections
     total_corrections = subject_corrections + body_corrections
@@ -90,13 +97,13 @@ def extract_contacts_recipients(query):
     """
     formatted_prompt = template.format(query=query)
     response = get_prompt_response(formatted_prompt)
-    response_text = response.choices[0].message.content.strip()    
+    response_text = response.choices[0].message.content.strip()
     recipients = json.loads(response_text)
 
     # Extract information based on markers
-    main_recipients = recipients.get('main_recipients', [])
-    cc_recipients = recipients.get('cc_recipients', [])
-    bcc_recipients = recipients.get('bcc_recipients', [])
+    main_recipients = recipients.get("main_recipients", [])
+    cc_recipients = recipients.get("cc_recipients", [])
+    bcc_recipients = recipients.get("bcc_recipients", [])
 
     print(f"{Fore.CYAN}Main Recipients: {main_recipients}")
     print(f"{Fore.BLUE}Carbon Copy: {cc_recipients}")
@@ -105,7 +112,7 @@ def extract_contacts_recipients(query):
     return main_recipients, cc_recipients, bcc_recipients
 
 
-#----------------------- PREPROCESSING REPLY EMAIL -----------------------#
+# ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
 def generate_response_keywords(input_subject, input_email, language) -> list:
     """Generate a list of keywords for responding to a given email."""
 
@@ -117,11 +124,13 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
 
     Answer must be a list (Python) format: ["....", "....."]
     """
-    formatted_prompt = template.format(input_subject=input_subject, input_email=input_email, language=language)
+    formatted_prompt = template.format(
+        input_subject=input_subject, input_email=input_email, language=language
+    )
     response = get_prompt_response(formatted_prompt)
     keywords = response.choices[0].message.content.strip()
 
-    print(f'{Fore.YELLOW}{keywords}')
+    print(f"{Fore.YELLOW}{keywords}")
 
     keywords_list = ast.literal_eval(keywords)
 
@@ -141,10 +150,9 @@ def shorten_keywords(keywords) -> dict:
     response = get_prompt_response(formatted_prompt)
     keywords_dict = json.loads(response.choices[0].message.content.strip())
 
-    print(f'{Fore.YELLOW}{keywords_dict}')
+    print(f"{Fore.YELLOW}{keywords_dict}")
 
     return keywords_dict
-
 
 
 ######################## WRITING ########################
@@ -159,12 +167,12 @@ def gpt_improve_email_writing(body, subject):
     body: {mail_content}
     """
     formatted_prompt = template.format(email_subject=subject, mail_content=body)
-    response = get_prompt_response(formatted_prompt)    
+    response = get_prompt_response(formatted_prompt)
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 
-    subject_text = result_json['subject']
-    email_body = result_json['body']
+    subject_text = result_json["subject"]
+    email_body = result_json["body"]
 
     print(f"{Fore.CYAN}EMAIL DRAFT IMPROVED:")
     print(f"{Fore.GREEN}Subject: {subject_text}")
@@ -183,14 +191,18 @@ def gpt_new_mail_recommendation(mail_content, email_subject, user_recommendation
     subject: {email_subject},
     body: {mail_content}
     """
-    formatted_prompt = template.format(user_recommendation=user_recommendation, email_subject=email_subject, mail_content=mail_content)
-    response = get_prompt_response(formatted_prompt)    
+    formatted_prompt = template.format(
+        user_recommendation=user_recommendation,
+        email_subject=email_subject,
+        mail_content=mail_content,
+    )
+    response = get_prompt_response(formatted_prompt)
     clear_text = response.choices[0].message.content.strip()
 
     result_json = json.loads(clear_text)
-    subject_text = result_json['subject']
-    email_body = result_json['body']
-    
+    subject_text = result_json["subject"]
+    email_body = result_json["body"]
+
     print(f"{Fore.CYAN}NEW EMAIL RECOMMENDATION:")
     print(f"{Fore.GREEN}Subject: {subject_text}")
     print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
@@ -206,14 +218,16 @@ def gpt_langchain_redaction(input_data, length, formality):
 
     Answer must be a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
     """
-    formatted_prompt = template.format(input_data=input_data, length=length, formality=formality)
+    formatted_prompt = template.format(
+        input_data=input_data, length=length, formality=formality
+    )
     response = get_prompt_response(formatted_prompt)
 
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 
-    subject_text = result_json.get('subject')
-    email_body = result_json.get('body')
+    subject_text = result_json.get("subject")
+    email_body = result_json.get("body")
 
     print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
     print(f"{Fore.GREEN}Subject: {subject_text}")
@@ -237,15 +251,17 @@ def correct_mail_language_mistakes(subject, body):
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 
-    corrected_subject = result_json['subject']
-    corrected_body = result_json['body']
+    corrected_subject = result_json["subject"]
+    corrected_body = result_json["body"]
 
     print(f"{Fore.CYAN}EMAIL CORRECTED:")
     print(f"{Fore.GREEN}Subject: {corrected_subject}")
     print(f"{Fore.CYAN}Email Body: {corrected_body}")
 
     # Count the number of corrections
-    num_corrections = count_corrections(subject, body, corrected_subject, corrected_body)
+    num_corrections = count_corrections(
+        subject, body, corrected_subject, corrected_body
+    )
 
     return corrected_subject, corrected_body, num_corrections
 
@@ -278,7 +294,9 @@ def improve_email_copywriting(email_subject, email_body):
     [Vos suggestions pour le corps de l'e-mail]
     """
 
-    formatted_prompt = template.format(email_subject=email_subject, email_body=email_body)
+    formatted_prompt = template.format(
+        email_subject=email_subject, email_body=email_body
+    )
     response = get_prompt_response(formatted_prompt)
     response_text = response.choices[0].message.content.strip()
 
@@ -286,6 +304,7 @@ def improve_email_copywriting(email_subject, email_body):
     print(f"{Fore.GREEN}{response_text}")
 
     return response_text
+
 
 def generate_email_response(input_subject, input_body, response_type, language):
     """Generates a French email response based on the given response type"""
@@ -297,245 +316,97 @@ def generate_email_response(input_subject, input_body, response_type, language):
     Answer must be above HTML without spaces
     """
     # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
-    formatted_prompt = template.format(input_subject=input_subject, input_body=input_body, response_type=response_type, language=language)
+    formatted_prompt = template.format(
+        input_subject=input_subject,
+        input_body=input_body,
+        response_type=response_type,
+        language=language,
+    )
     response = get_prompt_response(formatted_prompt)
     body = response.choices[0].message.content.strip()
 
-    print(f'{Fore.GREEN}[REPLY] body: {body}')
+    print(f"{Fore.GREEN}[REPLY] body: {body}")
 
     return body
-
-
-
 
 
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
-    
-
-importance_list = {
-    'Important': 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
-    'Information' : 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
-    'Useless': 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.'
-}
-user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-
-response_list = {
-    'Answer Required': 'Message requires an answer.',
-    'Might Require Answer': 'Message might require an answer.',
-    'No Answer Required': 'No answer is required.'
-}
-relevance_list = {
-    'Highly Relevant': 'Message is highly relevant to the recipient.',
-    'Possibly Relevant': 'Message might be relevant to the recipient.',
-    'Not Relevant': 'Message is not relevant to the recipient.'
-}
 
 
-def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(services, 0, None)
+def categorize_and_summarize_email(
+    subject, decoded_data, category_list, user_description
+):
+    """Categorizes and summarizes an email"""
 
-    print(f'{Fore.YELLOW}{subject, from_name, decoded_data, cc, bcc, email_id}')
+    template = """Given the following email:
 
-    if not Email.objects.filter(provider_id=email_id).exists():
+    Subject:
+    {subject}
 
-        # Check if data is decoded, then format it
-        if decoded_data:
-            decoded_data = format_mail(decoded_data)
+    Text:
+    {text}
 
-        # Get user categories
-        category_list = get_db_categories(request.user)
+    Description:
+    {user}
 
-        #print("DEBUG -------------> category", category_list)
+    Using the provided categories:
 
-        # Process the email data with AI/NLP
-        topic, importance, answer, summary, sentence, relevance, importance_explain = gpt_langchain_response(subject, decoded_data, category_list)
+    Topic Categories:
+    {category}
 
-        #print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
-        #sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
-        sender_name, sender_email = from_name[0], from_name[1]
+    Importance Categories:
+    {importance}
 
-        # Fetch or create the sender
-        sender, created = Sender.objects.get_or_create(name=sender_name, email=sender_email)  # assuming from_name contains the sender's name
+    Response Categories:
+    {answer}
 
-        print("DEBUG ----------------> topic", topic)
-        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
-        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
+    Relevance Categories:
+    {relevance}
 
-        provider = 'Gmail'
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
+    2. In French: Summarize the following message
+    3. In French: Provide a short sentence summarizing the email.
 
-        try:
-            # Create a new email record
-            email_entry = Email.objects.create(
-                provider_id=email_id,
-                email_provider=provider,
-                email_short_summary=sentence,
-                content=decoded_data,
-                subject=subject,
-                priority=importance[0],
-                read=False,  # Default value; adjust as necessary
-                answer_later=False,  # Default value; adjust as necessary
-                sender=sender,
-                category=category,
-                user=request.user
-            )
+    ---
 
-            # If the email has a summary, save it in the BulletPoint table
-            if summary:
-                # Split summary by line breaks
-                lines = summary.split("\n")
-                
-                # Filter lines that start with '- ' which indicates a bullet point
-                bullet_points = [line[2:].strip() for line in lines if line.strip().startswith("- ")]
+    Topic Categorization: [Model's Response for Topic Category]
 
-                for point in bullet_points:
-                    BulletPoint.objects.create(content=point, email=email_entry)
-                    
-        except IntegrityError:
-            print(f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist.")
+    Importance Categorization (Taking User Description into account and only using Importance Categories):
+    - Category 1: [Model's Response for Importance Category 1]
+    - Percentage 1: [Model's Percentage for Importance Category 1]
+    - Category 2: [Model's Response for Importance Category 2]
+    - Percentage 2: [Model's Percentage for Importance Category 2]
+    - Category 3: [Model's Response for Importance Category 3]
+    - Percentage 3: [Model's Percentage for Importance Category 3]
 
-        # Debug prints
-        print('topic:', topic)
-        print('importance:', importance)
-        print('answer:', answer)
-        print('summary:', summary)
-        print('sentence:', sentence)
-        print('relevance:', relevance)
-        print('importance_explain:', importance_explain)
-    
-    else:
-        print(f"Email with provider_id {email_id} already exists.")
+    Response Categorization: [Model's Response for Response Category]
 
-    # return email_entry  # Return the created email object, if needed
-    return
+    Relevance Categorization: [Model's Response for Relevance Category]
 
+    Résumé court en français: [Model's One-Sentence Summary en français without using response/relevance categorization]
 
-# strips text of unnecessary spacings
-def format_mail(text):
-    # Delete links
-    text = re.sub(r'<http[^>]+>', '', text)
-    # Delete patterns like "[image: ...]"
-    text = re.sub(r'\[image:[^\]]+\]', '', text)
-    # Convert Windows line endings to Unix line endings
-    text = text.replace('\r\n', '\n')
-    # Remove spaces at the start and end of each line
-    text = '\n'.join(line.strip() for line in text.split('\n'))
-    # Delete multiple spaces
-    text = re.sub(r' +', ' ', text)
-    # Reduce multiple consecutive newlines to two newlines
-    text = re.sub(r'\n{3,}', '\n\n', text)
-
-    return text
-
-
-def fill_lists(categories, percentages):
-    base_categories = ['Important', 'Information', 'Useless']
-    
-    # Determine which category is in the list
-    first_category = categories[0]
-
-    # Remove the category found from the base list
-    base_categories.remove(first_category)
-
-    # Construct the new categories list based on the first category
-    for i in range(1, 3):
-        if not categories[i]:
-            categories[i] = base_categories.pop(0)
-            percentages[i] = '0%'
-
-    return categories, percentages
-
-
-def get_db_categories(current_user):
-    # Query categories specific to the current user from the database.
-    categories = Category.objects.filter(user=current_user)
-    
-    # Construct the category_list dictionary from the queried data.
-    category_list = {category.name: category.description for category in categories}
-
-    return category_list
-
-
-def separate_name_email(s):
+    Résumé en français (without using importance, response or relevance categorization):
+    - [Model's Bullet Point 1 en français]
+    - [Model's Bullet Point 2 en français]
+    ...
     """
-    Separate "Name <email>" or "<email>" into name and email.
-    
-    Args:
-    - s (str): Input string of format "Name <email>" or "<email>"
-    
-    Returns:
-    - (str, str): (name, email). If name is not present, it returns (None, email)
-    """
-    
-    # Regex pattern to capture Name and Email separately
-    match = re.match(r"(?:(.*)\s)?<(.+@.+)>", s)
-    if match:
-        name, email = match.groups()
-        return name.strip() if name else None, email
-    else:
-        return None, None
-
-
-# TODO: Put in gpt_3_5_turbo.py AFTER testing
-# REMOVE hardcoded variables
-
-# Summarize and categorize an email
-def gpt_langchain_response(subject, decoded_data, category_list):
-    template = (
-        """Given the following email:
-
-        Subject:
-        {subject}
-
-        Text:
-        {text}
-
-        Description:
-        {user}
-
-        Using the provided categories:
-
-        Topic Categories:
-        {category}
-
-        Importance Categories:
-        {importance}
-
-        Response Categories:
-        {answer}
-
-        Relevance Categories:
-        {relevance}
-
-        1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
-        2. In French: Summarize the following message
-        3. In French: Provide a short sentence summarizing the email.
-
-        ---
-
-        Topic Categorization: [Model's Response for Topic Category]
-
-        Importance Categorization (Taking User Description into account and only using Importance Categories):
-        - Category 1: [Model's Response for Importance Category 1]
-        - Percentage 1: [Model's Percentage for Importance Category 1]
-        - Category 2: [Model's Response for Importance Category 2]
-        - Percentage 2: [Model's Percentage for Importance Category 2]
-        - Category 3: [Model's Response for Importance Category 3]
-        - Percentage 3: [Model's Percentage for Importance Category 3]
-
-        Response Categorization: [Model's Response for Response Category]
-
-        Relevance Categorization: [Model's Response for Relevance Category]
-
-        Résumé court en français: [Model's One-Sentence Summary en français without using response/relevance categorization]
-
-        Résumé en français (without using importance, response or relevance categorization):
-        - [Model's Bullet Point 1 en français]
-        - [Model's Bullet Point 2 en français]
-        ...
-        """
-    )
+    importance_list = {
+        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
+        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
+        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+    }
+    response_list = {
+        "Answer Required": "Message requires an answer.",
+        "Might Require Answer": "Message might require an answer.",
+        "No Answer Required": "No answer is required.",
+    }
+    relevance_list = {
+        "Highly Relevant": "Message is highly relevant to the recipient.",
+        "Possibly Relevant": "Message might be relevant to the recipient.",
+        "Not Relevant": "Message is not relevant to the recipient.",
+    }
     formatted_template = template.format(
         subject=subject,
         text=decoded_data,
@@ -543,10 +414,10 @@ def gpt_langchain_response(subject, decoded_data, category_list):
         category=category_list,
         importance=importance_list,
         answer=response_list,
-        relevance=relevance_list
+        relevance=relevance_list,
     )
-    
-    response = get_prompt_response(formatted_template)  
+
+    response = get_prompt_response(formatted_template)
     clear_response = response.choices[0].message.content.strip()
 
     # Extracting Topic Categorization
@@ -562,16 +433,25 @@ def gpt_langchain_response(subject, decoded_data, category_list):
         importance_percentages.append(clear_response.split(perc_str)[1].split("\n")[0])
 
     # Extracting Response Categorization
-    response_category = clear_response.split("Response Categorization: ")[1].split("\n")[0]
+    response_category = clear_response.split("Response Categorization: ")[1].split(
+        "\n"
+    )[0]
 
     # Extracting Relevance Categorization
-    relevance_category = clear_response.split("Relevance Categorization: ")[1].split("\n")[0]
+    relevance_category = clear_response.split("Relevance Categorization: ")[1].split(
+        "\n"
+    )[0]
 
     # Extracting one sentence summary
-    short_sentence = clear_response.split("Résumé court en français: ")[1].split("\n")[0]
+    short_sentence = clear_response.split("Résumé court en français: ")[1].split("\n")[
+        0
+    ]
 
     # Finding start of the summary
-    match = re.search(r"Résumé en français(\s\(without using importance, response or relevance categorization\))?:", clear_response)
+    match = re.search(
+        r"Résumé en français(\s\(without using importance, response or relevance categorization\))?:",
+        clear_response,
+    )
 
     if match:
         # Adjusting the start index based on the match found
@@ -582,7 +462,8 @@ def gpt_langchain_response(subject, decoded_data, category_list):
 
     # Finding the end of the summary
     summary_end = clear_response.find("\n\n", summary_start)
-    if summary_end == -1:  # If there's no double newline after the start, consider till the end of the string
+    # If there's no double newline after the start, consider till the end of the string
+    if summary_end == -1:
         summary_end = len(clear_response)
 
     # Extracting the summary if a valid start index was found
@@ -591,4 +472,12 @@ def gpt_langchain_response(subject, decoded_data, category_list):
     else:
         summary_text = "Summary not found."
 
-    return topic_category, importance_categories, response_category, summary_text, short_sentence, relevance_category, importance_percentages
+    return (
+        topic_category,
+        importance_categories,
+        response_category,
+        summary_text,
+        short_sentence,
+        relevance_category,
+        importance_percentages,
+    )

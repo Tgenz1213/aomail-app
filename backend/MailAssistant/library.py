@@ -4,11 +4,13 @@ Utility Functions for Email Processing.
 This file contains utility functions for processing email content, including clearing HTML, extracting text, checking for HTML presence, concatenating text, processing email parts, and preprocessing email content.
 """
 
-import base64
 import re
+import base64
+from .models import Category
 from bs4 import BeautifulSoup
 
 
+######################## UTILS FOR OTHER FUNCTIONS ########################
 def html_clear(text):
     """Uses BeautifulSoup to clear HTML tags from the given text."""
     soup = BeautifulSoup(text, "html.parser")
@@ -118,7 +120,9 @@ def preprocess_email(email_content):
     return email_content.strip()
 
 
-def count_corrections(original_subject, original_body, corrected_subject, corrected_body):
+def count_corrections(
+    original_subject, original_body, corrected_subject, corrected_body
+):
     """Count and compare corrections in original and corrected texts"""
 
     # Splitting the original and corrected texts into words
@@ -145,3 +149,74 @@ def count_corrections(original_subject, original_body, corrected_subject, correc
     total_corrections = subject_corrections + body_corrections
 
     return total_corrections
+
+
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
+
+
+# strips text of unnecessary spacings
+def format_mail(text):
+    # Delete links
+    text = re.sub(r"<http[^>]+>", "", text)
+    # Delete patterns like "[image: ...]"
+    text = re.sub(r"\[image:[^\]]+\]", "", text)
+    # Convert Windows line endings to Unix line endings
+    text = text.replace("\r\n", "\n")
+    # Remove spaces at the start and end of each line
+    text = "\n".join(line.strip() for line in text.split("\n"))
+    # Delete multiple spaces
+    text = re.sub(r" +", " ", text)
+    # Reduce multiple consecutive newlines to two newlines
+    text = re.sub(r"\n{3,}", "\n\n", text)
+
+    return text
+
+
+def fill_lists(categories, percentages):
+    base_categories = ["Important", "Information", "Useless"]
+
+    # Determine which category is in the list
+    first_category = categories[0]
+
+    # Remove the category found from the base list
+    base_categories.remove(first_category)
+
+    # Construct the new categories list based on the first category
+    for i in range(1, 3):
+        if not categories[i]:
+            categories[i] = base_categories.pop(0)
+            percentages[i] = "0%"
+
+    return categories, percentages
+
+
+def get_db_categories(current_user):
+    # Query categories specific to the current user from the database.
+    categories = Category.objects.filter(user=current_user)
+
+    # Construct the category_list dictionary from the queried data.
+    category_list = {category.name: category.description for category in categories}
+
+    return category_list
+
+
+def separate_name_email(s):
+    """
+    Separate "Name <email>" or "<email>" into name and email.
+
+    Args:
+    - s (str): Input string of format "Name <email>" or "<email>"
+
+    Returns:
+    - (str, str): (name, email). If name is not present, it returns (None, email)
+    """
+
+    # Regex pattern to capture Name and Email separately
+    match = re.match(r"(?:(.*)\s)?<(.+@.+)>", s)
+    if match:
+        name, email = match.groups()
+        return name.strip() if name else None, email
+    else:
+        return None, None

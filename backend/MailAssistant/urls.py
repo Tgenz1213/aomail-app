@@ -44,6 +44,7 @@ urlpatterns = [
     path('user/create-rule/', views.create_user_rule, name='create_user_rule'), # ok
     path('user/update-rule/', views.update_user_rule, name='update_user_rule'), # ok
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'), # ok
+    path('user/preferences/username/', views.get_user_details, name='get_user_details'), # ok
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
@@ -64,7 +65,6 @@ urlpatterns = [
     path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
     path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'), # testing
     #----------------------- UNUSED URLs -----------------------#
-    path('user/preferences/username/', views.get_user_details, name='get_user_details'),
     # path('api/get_parsed_contacts/', views.get_parsed_contacts, name='get_parsed_contacts'),
     # path('api/get_unique_email_senders', views.è, name='get_unique_email_senders_view'),
     # path('user/emails/<int:email_id>/bullet-points/', views.get_email_bullet_points, name='email-bullet-points'),

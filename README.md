@@ -46,6 +46,12 @@ If you encounter the following error while accessing data:
 ```
 This error typically indicates that your account does not have the proper license to access the requested data thus you have to pay a M365 license.
 
+# Test Reply Later
+curl -X GET \
+     -H "Authorization: Bearer access_token" \
+     -H "email: augurolet@gmail.com" \
+     "http://localhost:9000/MailAssistant/api/save_last_mail"
+
 # Database Suppression
 
 **Note:** Ensure that you have stopped the backend server before attempting to drop the database.

@@ -1,25 +1,6 @@
 <template>
-  <!--
-    <div class="pb-1 lg:pl-20 bg-gray-100">
-        <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
-            <div class="col-span-3 h-full bg-red-500">
-                    
-                    <div class="flex">
-                        <div class="flex-shrink-0 self-center">
-                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-indigo-800">
-                                <span class="text-lg font-medium leading-none text-white">AO</span>
-                            </span>
-                        </div>
-                        <div>
-                            <p class="mt-1" id="animated-text" ref="animatedText"></p>
-                        </div>
-                    </div>
-                </div>
-            <div class="col-span-5 h-full bg-red-500">
-                <p>Test</p>
-            </div>
-        </div>
-    </div>-->
+  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
       <div class="col-span-1 2xl:col-span-1">
@@ -59,7 +40,8 @@
               <div class="flex-grow">
                 <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
                   <div class="flex flex-grow items-stretch">
-                    <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue"
+                    <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight"
+                      v-model="textareaValue"
                       class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                       placeholder="Instruction"></textarea>
                   </div>
@@ -96,27 +78,27 @@
                     <div class="flex flex-wrap">
                       <!-- Main Recipients List -->
                       <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
-                        <div v-for="person in selectedPeople" :key="person.username"
+                        <div v-for="person in selectedPeople" :key="person.email"
                           class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                          {{ person.username }} <!-- TO OPTIMIZE => username => RENAME -->
+                          {{ person.username || person.email }}
                           <button @click="removePersonFromMain(person)">×</button>
                         </div>
                       </div>
                       <!-- CC Recipients List -->
                       <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
-                        <div v-for="person in selectedCC" :key="person.username"
+                        <div v-for="person in selectedCC" :key="person.email"
                           class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                           <span class="font-semibold mr-1">CC:</span>
-                          {{ person.username }}
+                          {{ person.username || person.email }}
                           <button @click="removePersonFromCC(person)">×</button>
                         </div>
                       </div>
                       <!-- CCI Recipients List -->
                       <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
-                        <div v-for="person in selectedCCI" :key="person.username"
+                        <div v-for="person in selectedCCI" :key="person.email"
                           class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
                           <span class="font-semibold mr-1">CCI:</span>
-                          {{ person.username }}
+                          {{ person.username || person.email }}
                           <button @click="removePersonFromCCI(person)">×</button>
                         </div>
                       </div>
@@ -125,39 +107,41 @@
                       <div class="flex-grow">
                         <div class="relative items-stretch">
                           <div class="relative w-full">
-                            <div v-if="!isFocused2 && !hasValueEverBeenEntered"
+                            <div v-if="!isFocused2"
                               class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2">
                               <UserGroupIcon class="w-4 h-4 pointer-events-none" />
-                              <label for="username"
-                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinaire(s)</label>
+                              <label for="email"
+                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinataire(s)</label>
                             </div>
                             <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected"
                               @blur="handleBlur2">
-                              <ComboboxInput
+                              <ComboboxInput id="recipients"
                                 class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                 @change="query = $event.target.value" :display-value="(person) => person?.name"
-                                @focus="handleFocusDestinary" @blur="handleBlur2" />
+                                @focus="handleFocusDestinary" @blur="handleBlur2($event)"
+                                @keydown.enter="handleEnterKey" />
                               <ComboboxButton
                                 class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                               </ComboboxButton>
-
+                              <!-- List possible email according to current input -->
+                              <!-- && filteredPeople.length <= 10" -->
                               <ComboboxOptions v-if="filteredPeople.length > 0"
-                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                                style="z-index: 21">
                                 <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person"
                                   as="template" v-slot="{ active, selected }">
                                   <li
                                     :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
                                     <div class="flex">
                                       <span :class="['truncate', selected && 'font-semibold']">
-                                        {{ person.name }}
-                                      </span>
-                                      <span
-                                        :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
                                         {{ person.username }}
                                       </span>
+                                      <span
+                                        :class="['ml-2 truncate text-gray-800', active ? 'text-gray-200' : 'text-gray-800']">
+                                        {{ person.email }}
+                                      </span>
                                     </div>
-
                                     <span v-if="selected"
                                       :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
                                       <CheckIcon class="h-5 w-5" aria-hidden="true" />
@@ -169,20 +153,20 @@
                           </div>
                         </div>
                         <!--<div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full max-w-2xl">
-                                            <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
-                                        </div>-->
+                                        <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
+                                    </div>-->
                       </div>
                       <div class="flex gap-1">
                         <button type="button" @click="toggleCC"
-                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                          class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                          class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
                           CC
                         </button>
 
                         <!-- CCI Button -->
                         <button type="button" @click="toggleCCI"
-                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-500 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                          class="ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                          class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
                           CCI
                         </button>
                       </div>
@@ -207,7 +191,6 @@
                               <label for="username"
                                 class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Objet</label>
                             </div>
-                            <!--<input type="text" name="username" id="objectInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">-->
                             <input id="objectInput" v-model="inputValue" type="text"
                               class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
                               @focus="handleFocusObject" @blur="handleBlur" @input="handleInputUpdateObject" />
@@ -217,7 +200,7 @@
                       <div class="flex">
                         <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
                         <button @click="triggerFileInput" type="button"
-                          class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-gray-800 hover:bg-gray-500 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                          class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-transparent hover:bg-gray-600 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -228,31 +211,31 @@
                     </div>
                   </div>
                   <!--
-                                <div class="col-span-full">
-                                <label for="cover-photo" class="block text-sm font-medium leading-6 text-gray-900">Pièce jointes</label>
-                                    <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-2">
-                                    <div class="text-center">
-                                        <svg class="mx-auto h-8 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                        <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
-                                        </svg>
-                                        <div class="mt-1 flex text-sm leading-6 text-gray-600">
-                                        <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
-                                            <span>Upload a file</span>
-                                            <input id="file-upload" name="file-upload" type="file" class="sr-only">
-                                        </label>
-                                        <p class="pl-1">or drag and drop</p>
-                                        </div>
+                            <div class="col-span-full">
+                            <label for="cover-photo" class="block text-sm font-medium leading-6 text-gray-900">Pièce jointes</label>
+                                <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-2">
+                                <div class="text-center">
+                                    <svg class="mx-auto h-8 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
+                                    </svg>
+                                    <div class="mt-1 flex text-sm leading-6 text-gray-600">
+                                    <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                                        <span>Upload a file</span>
+                                        <input id="file-upload" name="file-upload" type="file" class="sr-only">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
                                     </div>
-                                    </div>
-                                </div>-->
+                                </div>
+                                </div>
+                            </div>-->
                   <div class="flex flex-col flex-grow">
                     <!--<div class="flex space-x-1 items-center">
-                                    <Bars3BottomLeftIcon class="w-4 h-4" />
-                                    <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
-                                    </div>-->
+                                <Bars3BottomLeftIcon class="w-4 h-4" />
+                                <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
+                                </div>-->
                     <div class="flex-grow mb-20 h-[200px]">
-                      <!-- 29/12/2023 TO CHECK ON WIDER SCREEN --><!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
                       <div id="editor" class="w-full"></div>
+                      <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
                     </div>
                     <div class="flex mb-4">
                       <div class="inline-flex rounded-lg shadow-lg">
@@ -294,6 +277,27 @@
       </div>
     </div>
   </div>
+  <!--
+  <div class="pb-1 lg:pl-20 bg-gray-100">
+      <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
+          <div class="col-span-3 h-full bg-red-500">
+                  
+                  <div class="flex">
+                      <div class="flex-shrink-0 self-center">
+                          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-indigo-800">
+                              <span class="text-lg font-medium leading-none text-white">AO</span>
+                          </span>
+                      </div>
+                      <div>
+                          <p class="mt-1" id="animated-text" ref="animatedText"></p>
+                      </div>
+                  </div>
+              </div>
+          <div class="col-span-5 h-full bg-red-500">
+              <p>Test</p>
+          </div>
+      </div>
+  </div>-->
 </template>
 
 <script setup>
@@ -306,6 +310,7 @@ import { useRouter } from 'vue-router';
 import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import Quill from 'quill';
+import ShowNotification from '../components/ShowNotification.vue';
 import {
   Combobox,
   ComboboxButton,
@@ -315,34 +320,85 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue'
 
+
+// variables to display a notification
+let showNotification = ref(false);
+let notificationTitle = ref('');
+let notificationMessage = ref('');
+let backgroundColor = ref('');
+let timerId = ref(null);
+
+function dismissPopup() {
+  showNotification = false;
+  // Cancel the timer
+  clearTimeout(timerId);
+}
+
+function displayPopup() {
+  showNotification = true;
+
+  timerId = setTimeout(() => {
+    dismissPopup();
+  }, 4000);
+}
+
 const items = [
   { name: 'Envoyer à une heure', href: '#' },
 ]
 
-const people = [
-  { name: 'Leslie Alexander', username: '@lesliealexander' },
-  { name: 'Theo', username: 'theohubert3@gmx.com' }
-]
+// lists of different types of recipients
+const people = [];
+
+const requestOptions = {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
+// request to update the list of contacts (people array)
+fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
+  .then(response => {
+    people.push(...response);
+  })
+  .catch(error => {
+    console.error("Error fetching contacts:", error);
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle.value = 'Erreur récupération des contacts';
+    notificationMessage.value = error;
+    displayPopup();
+  })
 
 const query = ref('')
-const filteredPeople = computed(() =>
-  query.value === ''
-    ? people
-    : people.filter((person) => {
-      return person.name.toLowerCase().includes(query.value.toLowerCase())
-    })
-)
+const getFilteredPeople = (query, people) => {
+  return computed(() =>
+    query.value === ''
+      ? people
+      : people.filter((person) => {
+        // Check if either the username or the email includes the query
+        if (person.username == "") {
+          person.username = person.email
+            .split('@')[0] // Get the first part of the email
+            .split(/\.|-/) // Split by "." or "-"
+            .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
+            .join(' '); // Join with spaces
+        }
+        return person.username || person.email
+      })
+  );
+}
 
+const filteredPeople = getFilteredPeople(query, people);
 const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:selectedPerson']);
 const selectedPerson = ref(props.modelValue);
-
 watch(selectedPerson, (newValue) => {
   console.log(selectedPerson);
   hasValueEverBeenEntered.value = true; // to make the icon disappear
   //handleInputUpdate(selectedPerson.value.username);
   emit('update:selectedPerson', newValue);
-});
+})
 
 const inputValue = ref('');
 const selectedPeople = ref([]);
@@ -355,6 +411,71 @@ const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
 const quill = ref(null);
+
+// function linked to ENTER key listeners
+function handleBlur2(event) {
+  // Checks for a valid input email and adds it to the recipients list
+  isFocused2.value = false;
+  const inputValue = event.target.value.trim().toLowerCase();
+  const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (inputValue && emailFormat.test(inputValue)) {
+    // Add the input email to the list of recipients
+    // TODO: ask if we save it in DB or if we wait till the email is sent
+    if (!people.find(person => person.email === inputValue)) {
+      const username = inputValue.split('@')[0] // Get the first part of the email
+        .split(/\.|-/) // Split by "." or "-"
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
+        .join(' '); // Join with spaces
+      const newPerson = { name: username, email: inputValue };
+      console.log('new', newPerson)
+      people.push(newPerson);
+      selectedPeople.value.push(newPerson);
+    }
+  } else if (filteredPeople._value.length == 0) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle.value = 'Email invalide';
+    notificationMessage.value = 'Le format de l\'email est incorrect'
+    displayPopup();
+  }
+}
+
+function handleEnterKey(event) {
+  // Allow pressing Enter with Shift to create a line break
+  if (event.target.id === 'dynamicTextarea' && event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    handleAIClick();
+  }
+  // works but if ENTER is pressed again it removes a user from the destinary list
+  else if (isFocused2.value) {
+    handleBlur2(event);
+  }
+}
+
+function handleKeyDown(event) {
+  if (event.ctrlKey) {
+
+    switch (event.key) {
+      case 'b':
+        quill.value.focus();
+        event.preventDefault();
+        break;
+      case 'd':
+        document.getElementById('recipients').focus();
+        event.preventDefault();
+        break;
+      case 'k':
+        document.getElementById('dynamicTextarea').focus();
+        event.preventDefault();
+        break;
+      case 'o':
+        document.getElementById('objectInput').focus();
+        event.preventDefault();
+        break;
+    }
+  }
+}
 
 // TO parse Email => TO CHECK
 function parseEmails(emailData) {
@@ -1222,6 +1343,7 @@ const bgColor = ref(''); // Initialize a reactive variable
 const route = useRoute();
 
 onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
 
   bgColor.value = localStorage.getItem('bgColor');
   loadFileMetadataFromLocalStorage(); // For uploaded file

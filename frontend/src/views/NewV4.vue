@@ -444,7 +444,11 @@ function handleBlur2(event) {
         // Add the input email to the list of recipients
         // TODO: ask if we save it in DB or if we wait till the email is sent
         if (!people.find(person => person.email === inputValue)) {
-            const newPerson = { name: inputValue, email: inputValue };
+            const username = inputValue.split('@')[0] // Get the first part of the email
+                .split(/\.|-/) // Split by "." or "-"
+                .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
+                .join(' '); // Join with spaces
+            const newPerson = { name: username, email: inputValue };
             people.push(newPerson);
             selectedPeople.value.push(newPerson);
         }
@@ -556,9 +560,10 @@ function handleEnterKey(event) {
         event.preventDefault();
         handleAIClick();
     }
-    // works but if ENTER is pressed again it removes a user from the destinary list
     else if (isFocused2.value) {
         handleBlur2(event);
+        // the user is still on the input
+        handleFocusDestinary();
     }
 }
 

@@ -320,6 +320,8 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue'
 
+// Variable to prevent the user from starting a prompt if AI is writing
+let isAIWriting = ref(false);
 
 // variables to display a notification
 let showNotification = ref(false);
@@ -671,8 +673,13 @@ function displayMessage(message, ai_icon) {
 }
 
 
-const handleAIClick = async () => {
+async function handleAIClick() {
 
+  if (isAIWriting.value) {
+    return;
+  }
+
+  isAIWriting.value = true;
   // Declare variables outside the fetch scope
   let messageHTML = '';
   let userInput = textareaValue.value;
@@ -837,13 +844,20 @@ const handleAIClick = async () => {
       }
     }
   }, 400);
-};
+}
 
 
 ////////////////////////////////////////////////////// To handle mail answer proposal ///////////////////////////////////////////////////////
 
 // To display the propositions => buttons
 function askContentAdvice() {
+  
+  if (isAIWriting.value) {
+    return;
+  }
+
+  isAIWriting.value = true;
+
   const message = "Comment puis-je vous aider à rédiger une réponse à cet email ?";
 
   let buttonsHTML = '';
@@ -921,6 +935,13 @@ function askContentAdvice() {
 }
 
 async function handleButtonClick(keyword) {
+
+  if (isAIWriting.value) {
+    return;
+  }
+
+  isAIWriting.value = true;
+
   console.log('Button clicked with keyword:', keyword);
   try {
     MailCreatedByAI.value = true;
@@ -1483,10 +1504,7 @@ onMounted(() => {
   }
 
   inputValue.value = 'Re : ' + subject;
-
-  let quillContainer = document.querySelector('#editor');
-
-});
+})
 
 function animateText(text, target) {
   let characters = text.split("");
@@ -1496,24 +1514,13 @@ function animateText(text, target) {
       target.textContent += characters[currentIndex];
       currentIndex++;
     } else {
+      // AI has finished to write its message
       clearInterval(interval);
+      // reset the status
+      isAIWriting.value = false;
     }
   }, 30);
 }
-/*
-function animateText(text, target) {
-  let characters = text.split("");
-  let currentIndex = 0;
-  const interval = setInterval(() => {
-      if (currentIndex < characters.length) {
-          target.textContent += characters[currentIndex];
-          currentIndex++;
-      } else {
-          clearInterval(interval);
-      }
-  }, 30);
-}*/
-
 </script>
 
 <script>

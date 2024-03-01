@@ -324,10 +324,8 @@ import {
     ComboboxOptions,
 } from '@headlessui/vue'
 
-
 // Variable to prevent the user from starting a prompt if AI is writing
 let isAIWriting = ref(false);
-
 
 // variables to display a notification
 let showNotification = ref(false);

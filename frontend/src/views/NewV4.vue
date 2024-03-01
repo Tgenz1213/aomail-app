@@ -444,11 +444,7 @@ function handleBlur2(event) {
         // Add the input email to the list of recipients
         // TODO: ask if we save it in DB or if we wait till the email is sent
         if (!people.find(person => person.email === inputValue)) {
-            const username = inputValue.split('@')[0] // Get the first part of the email
-                .split(/\.|-/) // Split by "." or "-"
-                .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
-                .join(' '); // Join with spaces
-            const newPerson = { name: username, email: inputValue };
+            const newPerson = { username: '', email: inputValue };
             people.push(newPerson);
             selectedPeople.value.push(newPerson);
         }

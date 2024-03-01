@@ -441,15 +441,17 @@ function handleBlur2(event) {
   }
 }
 
+// function linked to ENTER key listeners
 function handleEnterKey(event) {
   // Allow pressing Enter with Shift to create a line break
   if (event.target.id === 'dynamicTextarea' && event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     handleAIClick();
   }
-  // works but if ENTER is pressed again it removes a user from the destinary list
   else if (isFocused2.value) {
     handleBlur2(event);
+    // the user is still on the input
+    handleFocusDestinary();
   }
 }
 

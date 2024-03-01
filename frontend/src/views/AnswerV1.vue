@@ -372,27 +372,29 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
 
 const query = ref('');
 const getFilteredPeople = (query, people) => {
-  return computed(() =>
-    query.value === ''
-      ? people
-      : people.filter((person) => {
-        // Check if either the username or the email includes the query
-        if (person.username == "") {
+  return computed(() => {
+    if (query.value === '') {
+      return people;
+    } else {
+      return people.filter((person) => {
+        if (person.username === "") {
           person.username = person.email
-            .split('@')[0] // Get the first part of the email
-            .split(/\.|-/) // Split by "." or "-"
-            .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
-            .join(' '); // Join with spaces
+            .split('@')[0]
+            .split(/\.|-/)
+            .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+            .join(' ');
         }
-        return person.username || person.email;
-      })
-  );
+        // VERY IMPORTANT: this line checks if the input matches either the username or the email
+        return person.username.toLowerCase().includes(query.value.toLowerCase()) || person.email.toLowerCase().includes(query.value.toLowerCase());
+      });
+    }
+  });
 }
 
 const filteredPeople = getFilteredPeople(query, people);
-const props = defineProps(['modelValue']);
 const emit = defineEmits(['update:selectedPerson']);
-const selectedPerson = ref(props.modelValue);
+const selectedPerson = ref('');
+
 watch(selectedPerson, (newValue) => {
   console.log(selectedPerson);
   hasValueEverBeenEntered.value = true; // to make the icon disappear
@@ -427,7 +429,7 @@ function handleBlur2(event) {
       people.push(newPerson);
       selectedPeople.value.push(newPerson);
     }
-  } else if (filteredPeople._value.length == 0) {
+  } else if (!filteredPeople.value.length && inputValue) {
     // Show the pop-up
     backgroundColor = 'bg-red-300';
     notificationTitle.value = 'Email invalide';
@@ -505,15 +507,15 @@ function parseEmails(emailData) {
 }
 
 function handleFocusObject() {
-    isFocused.value = true;
+  isFocused.value = true;
 }
 
 function handleBlur() {
-    isFocused.value = false;
+  isFocused.value = false;
 }
 
 function handleFocusDestinary() {
-    isFocused2.value = true;
+  isFocused2.value = true;
 }
 
 let counter_display = 0;
@@ -595,9 +597,6 @@ const activeType = ref(null);
 
 function personSelected(person) {
   if (!person) return;
-
-  // To display AI
-  let displayText = '';
 
   switch (activeType.value) {
     case 'CC':

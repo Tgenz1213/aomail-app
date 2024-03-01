@@ -332,7 +332,6 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
 
-const props = defineProps(['modelValue']);
 const items = [
     { name: 'Envoyer à une heure', href: '#' },
 ]
@@ -367,28 +366,30 @@ const selectedCC = ref([]);
 const selectedCCI = ref([]);
 const activeType = ref(null);  // null, 'CC', or 'CCI'
 
-const query = ref('')
+const query = ref('');
 const getFilteredPeople = (query, people) => {
-    return computed(() =>
-        query.value === ''
-            ? people
-            : people.filter((person) => {
-                // Check if either the username or the email includes the query
-                if (person.username == "") {
+    return computed(() => {
+        if (query.value === '') {
+            return people;
+        } else {
+            return people.filter((person) => {
+                if (person.username === "") {
                     person.username = person.email
-                        .split('@')[0] // Get the first part of the email
-                        .split(/\.|-/) // Split by "." or "-"
-                        .map(p => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
-                        .join(' '); // Join with spaces
+                        .split('@')[0]
+                        .split(/\.|-/)
+                        .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+                        .join(' ');
                 }
-                return person.username || person.email
-            })
-    );
-};
+                // VERY IMPORTANT: this line checks if the input matches either the username or the email
+                return person.username.toLowerCase().includes(query.value.toLowerCase()) || person.email.toLowerCase().includes(query.value.toLowerCase());
+            });
+        }
+    });
+}
 
 const filteredPeople = getFilteredPeople(query, people);
 const emit = defineEmits(['update:selectedPerson']);
-const selectedPerson = ref(props.modelValue);
+const selectedPerson = ref('');
 
 watch(selectedPerson, (newValue) => {
     // console.log(selectedPerson.value);
@@ -414,7 +415,7 @@ function dismissPopup() {
 }
 
 function displayPopup() {
-    showNotification = true;
+    showNotification = true;    
 
     timerId = setTimeout(() => {
         dismissPopup();
@@ -448,7 +449,7 @@ function handleBlur2(event) {
             people.push(newPerson);
             selectedPeople.value.push(newPerson);
         }
-    } else if (filteredPeople._value.length == 0) {
+    } else if (!filteredPeople.value.length && inputValue) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
         notificationTitle.value = 'Email invalide';
@@ -1166,22 +1167,8 @@ function animateText(text, target) {
     }, 30);
 }
 
-
-
-/*function personSelected() { OLD TO DELETE
-console.log(selectedPerson.value);
-if (selectedPerson.value && !selectedPeople.value.includes(selectedPerson.value)) {
-  selectedPeople.value.push(selectedPerson.value); // Add the selected person to the array
-  selectedPerson.value = null; // Clear the current selection
-  //handleInputUpdate(selectedPerson.value.username);
-}
-}*/
-
 function personSelected(person) {
     if (!person) return;
-
-    // To display AI
-    let displayText = '';
 
     switch (activeType.value) {
         case 'CC':

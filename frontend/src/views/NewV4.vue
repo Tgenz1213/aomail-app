@@ -325,6 +325,10 @@ import {
 } from '@headlessui/vue'
 
 
+// Variable to prevent the user from starting a prompt if AI is writing
+let isAIWriting = ref(false);
+
+
 // variables to display a notification
 let showNotification = ref(false);
 let notificationTitle = ref('');
@@ -415,7 +419,7 @@ function dismissPopup() {
 }
 
 function displayPopup() {
-    showNotification = true;    
+    showNotification = true;
 
     timerId = setTimeout(() => {
         dismissPopup();
@@ -587,7 +591,12 @@ function displayMessage(message, ai_icon) {
     scrollToBottom();
 }
 
-const handleAIClick = async () => {
+async function handleAIClick() {
+
+    if (isAIWriting.value) {
+        return;
+    }
+    isAIWriting.value = true;
 
     // Declare variables outside the fetch scope
     let messageHTML = '';
@@ -602,6 +611,8 @@ const handleAIClick = async () => {
         },
     };
 
+    // TODO: store the link in DB and check at each login or each time the page new is loaded
+    // Goal: save number of requests and indeed money
     const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
     let imageURL = data.profile_image_url || require('@/assets/user.png');
     const profileImageHTML = `
@@ -949,8 +960,8 @@ const handleAIClick = async () => {
                 }
             }
         }
-    }, 400);
-};
+    }, 0);
+}
 const bgColor = ref(''); // Initialize a reactive variable
 
 /* DOES NOT WORK => TO CHECK */
@@ -1162,7 +1173,10 @@ function animateText(text, target) {
             target.textContent += characters[currentIndex];
             currentIndex++;
         } else {
+            // AI has finished to write its message
             clearInterval(interval);
+            // reset the status
+            isAIWriting.value = false;
         }
     }, 30);
 }

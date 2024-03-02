@@ -11,6 +11,7 @@ import Settings from '@/views/SettingsV1.vue';
 import Search from '@/views/SearchV2.vue';
 import ReplyLater from '@/views/ReplyLaterV1.vue';
 import NotFound from '@/views/NotFound.vue';
+import { API_BASE_URL } from '@/main';
 
 
 async function fetchWithToken(url, options = {}) {
@@ -28,7 +29,7 @@ async function fetchWithToken(url, options = {}) {
     console.log("------------> DEBUG RESPONSE", response); // To delete after test (only Theo can delete)
 
     if (response.status == 401) {
-      const refreshResponse = await fetch('http://localhost:9000/MailAssistant/api/token/refresh/', {
+      const refreshResponse = await fetch(`${API_BASE_URL}api/token/refresh/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -68,7 +69,7 @@ async function fetchWithToken(url, options = {}) {
 }
 
 async function getBackgroundColor() {
-  const response = await fetchWithToken("http://localhost:9000/MailAssistant/user/preferences/bg_color/");
+  const response = await fetchWithToken(`${API_BASE_URL}user/preferences/bg_color/`);
   const bgColor = response.bg_color;
   localStorage.setItem('bgColor', bgColor);
 }

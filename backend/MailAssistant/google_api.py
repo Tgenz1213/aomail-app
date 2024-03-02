@@ -7,6 +7,7 @@ import json
 import logging
 import re
 import time
+import os
 from collections import defaultdict
 from colorama import Fore, init
 from django.core.exceptions import ObjectDoesNotExist
@@ -55,7 +56,8 @@ SCOPES = [
 ]
 GOOGLE_CREDS = 'creds/google_creds.json'
 CONFIG = json.load(open(GOOGLE_CREDS, 'r'))['web']
-REDIRECT_URI = 'http://localhost:8080/signup_part2'
+ENV = os.environ.get('ENV')
+REDIRECT_URI = f'https://{ENV}.aochange.com/signup_part2'
 
 
 

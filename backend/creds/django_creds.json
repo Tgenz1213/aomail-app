@@ -6,7 +6,7 @@
             "NAME": "mailassistantdb",
             "USER": "django_admin",
             "PASSWORD": "admin@2",
-            "HOST": "localhost",
+            "HOST": "db",
             "PORT": "5432"
         }
     }

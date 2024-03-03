@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copiez le reste des fichiers de votre projet dans le répertoire de travail
-COPY . .
+#COPY . .
 
 # Exposez le port utilisé par le serveur de développement Vue.js
 EXPOSE 8080

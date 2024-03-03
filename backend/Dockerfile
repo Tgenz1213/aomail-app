@@ -11,7 +11,7 @@ COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiez le reste du code source de votre application dans le répertoire de travail
-COPY . .
+#COPY . .
 
 # Copy the entrypoint script and set it as the entrypoint
 COPY entrypoint.sh /usr/local/bin/

@@ -6,6 +6,7 @@ echo "Waiting for database to be ready..."
 
 # Apply database migrations
 echo "Applying database migrations..."
+python manage.py makemigrations
 python manage.py migrate
 
 # Start the Django application

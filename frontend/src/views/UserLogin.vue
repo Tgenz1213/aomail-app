@@ -89,13 +89,13 @@ function togglePasswordVisibility() {
 }
 
 function dismissPopup() {
-    showNotification = false;
+    showNotification.value = false;
     // Cancel the timer
     clearTimeout(timerId);
 }
 
 function displayPopup() {
-    showNotification = true;
+    showNotification.value = true;
 
     timerId = setTimeout(() => {
         dismissPopup();

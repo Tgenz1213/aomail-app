@@ -1,4 +1,5 @@
 import { fetchWithToken } from '../router/index.js';
+import { API_BASE_URL } from '@/main';
 
 
 export async function isUserAuthenticated() {
@@ -14,7 +15,7 @@ export async function isUserAuthenticated() {
                 'Authorization': `Bearer ${access_token}`
             },
         };
-        let response = await fetch('http://localhost:9000/MailAssistant/api/is_authenticated/', requestOptions);
+        let response = await fetch(`${API_BASE_URL}api/is_authenticated/`, requestOptions);
 
         if (response.status === 200) {
             // Check if email is in localStorage
@@ -22,7 +23,7 @@ export async function isUserAuthenticated() {
 
             if (!email) {
                 try {
-                    const data = await fetchWithToken('http://localhost:9000/MailAssistant/api/get_first_email/');
+                    const data = await fetchWithToken(`${API_BASE_URL}api/get_first_email/`);
                     localStorage.setItem('email', data.email);
                 } catch (error) {
                     console.error("Error fetching email:", error);

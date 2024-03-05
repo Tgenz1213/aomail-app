@@ -1,6 +1,6 @@
-<!-- V1 -->
-<!-- TO FIX : Color background -->
 <template>
+  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
   <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isOpen">
@@ -21,7 +21,8 @@
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la catégorie</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la
+              catégorie</label>
             <div class="mt-2">
               <input v-model="categoryName" name="email" id="email"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
@@ -29,13 +30,15 @@
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description brève de la
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description brève
+              de la
               catégorie</label>
             <div class="mt-2">
               <textarea v-model="categoryDescription" id="about" name="about" rows="3"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à comprendre la
+            <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à
+              comprendre la
               catégorie</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
@@ -53,7 +56,8 @@
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
           <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
-          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Inscrivez-vous</h2>
+          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Inscrivez-vous
+          </h2>
         </div>
         <div class="2xl:mt-10 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
           <div class="flex flex-col bg-slate-200 bg-opacity-80 rounded-lg">
@@ -436,10 +440,10 @@
                           passe</label>
                       </div>
                       <div class="relative items-stretch mt-2 flex">
-                        <input v-if="!showPassword" type="password"
+                        <input id="password" v-if="!showPassword" type="password"
                           class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                           v-model="password" />
-                        <input v-else type="text"
+                        <input id="password" v-else type="text"
                           class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                           v-model="password" />
                         <div class="flex items-center">
@@ -468,14 +472,15 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Confirmer le mot
+                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Confirmer
+                          le mot
                           de passe</label>
                       </div>
                       <div class="relative items-stretch mt-2 flex">
-                        <input v-if="!showConfirmPassword" type="password" v-model="confirmPassword" @input="clearError()"
-                          autocomplete="current-password"
+                        <input id="confirmPassword" v-if="!showConfirmPassword" type="password"
+                          v-model="confirmPassword" @input="clearError()" autocomplete="current-password"
                           class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6" />
-                        <input v-else type="text"
+                        <input id="confirmPassword" v-else type="text"
                           class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                           v-model="confirmPassword" />
                         <button @click.prevent="toggleConfirmPasswordVisibility"
@@ -497,7 +502,7 @@
                     </div>
                     <div>
                       <div class="pt-6">
-                        <button @click="nextStep0"
+                        <button @click.prevent="nextStep0"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
                       </div>
                     </div>
@@ -531,7 +536,7 @@
                     </div>
                     <div>
                       <div class="pt-6">
-                        <button @click="nextStep1"
+                        <button @click.prevent="nextStep1"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">Continuer</button>
                       </div>
                     </div>
@@ -549,7 +554,8 @@
                       <div class="pt-2">
                         <div class="relative items-stretch mt-2">
                           <div class="flex flex-col gap-y-4">
-                            <p>Créer vos différentes catégories dans lesquelles vous souhaitez que l'assistant place
+                            <p>Créer vos différentes catégories dans lesquelles vous
+                              souhaitez que l'assistant place
                               automatiquement vos emails.</p>
                             <a href="#" class="underline text-gray-500">En savoir plus</a>
                             <div v-if="categories.length === 0">
@@ -560,7 +566,9 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
                                 </svg>
-                                <span class="mt-2 block text-sm font-semibold text-gray-900">Ajouter une catégorie</span>
+                                <span class="mt-2 block text-sm font-semibold text-gray-900">Ajouter
+                                  une
+                                  catégorie</span>
                               </button>
                             </div>
                             <div v-else class="max-h-64 overflow-y-auto flex flex-col gap-y-4">
@@ -586,7 +594,7 @@
                     </div>
                     <div>
                       <div class="pt-6">
-                        <button @click="submitSignupData"
+                        <button @click.prevent="submitSignupData"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">Continuer</button>
                       </div>
                     </div>
@@ -608,186 +616,237 @@
   </div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script setup>
+import { ref, onMounted } from 'vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
 import { API_BASE_URL } from '@/main';
-//import axios from 'axios';
-import {
-  XMarkIcon
-} from '@heroicons/vue/24/outline'
+import { XMarkIcon} from '@heroicons/vue/24/outline'
+import { useRouter } from 'vue-router';
+import ShowNotification from '../components/ShowNotification.vue';
 
+const router = useRouter();
+
+let bgColor = ref('#ffffff'); // default background color
+let showPassword = ref(false);
+let showConfirmPassword = ref(false);
+let step = ref(0);
+let login = ref('');
+let password = ref('');
+let confirmPassword = ref('');
+let credentialError = ref('');
+let theme = ref('');
+let color = ref('');
+let isOpen = ref(false);
+let categoryName = ref('');
+let categoryDescription = ref('');
+let categories = ref([]);
+let errorMessage = ref('');
+
+// Variables to display a notification
+let showNotification = ref(false);
+let notificationTitle = ref('');
+let notificationMessage = ref('');
+let backgroundColor = ref('');
+let timerId = ref(null);
+
+
+onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
+});
+
+function handleKeyDown(event) {
+  if (event.key === 'Tab') {
+    event.preventDefault();
+
+    if (step.value == 0) {
+      if (document.activeElement.id === 'login') {
+        document.getElementById('password').focus();
+      } else if (document.activeElement.id === 'password') {
+        document.getElementById('confirmPassword').focus();
+      } else {
+        document.getElementById('login').focus();
+      }
+    } else if (step.value == 1) {
+      // select next color
+      //selectNextColorByKey();
+    }
+  } else if (event.key === 'Enter') {
+    event.preventDefault();
+
+    console.log(step.value)
+    if (step.value == 0) {
+      nextStep0();
+    } else if (step.value == 1) {
+      nextStep1();
+    } else if (step.value == 2) {
+      submitSignupData();
+    }
+  }
+}
+function updateBgColor(newBgColor) {
+  bgColor.value = newBgColor;
+}
+function dismissPopup() {
+  showNotification.value = false;
+  // Cancel the timer
+  clearTimeout(timerId);
+}
+function displayPopup() {
+  showNotification.value = true;
+
+  timerId = setTimeout(() => {
+    dismissPopup();
+  }, 4000);
+}
+function togglePasswordVisibility() {
+  showPassword.value = !showPassword.value;
+}
+function toggleConfirmPasswordVisibility() {
+  showConfirmPassword.value = !showConfirmPassword.value;
+}
+function clearError() {
+  credentialError.value = '';
+}
+async function nextStep0() {
+  // Handles user registration for the first step, validating username, checking availability, and validating passwords
+
+  // Checks username requirements
+  if (!login.value) {
+    credentialError.value = 'Veuillez saisir un identifiant';
+    return;
+  }
+  if (login.value.includes(" ")) {
+    credentialError.value = 'L\'identifiant ne doit pas contenir d\'espaces';
+    return;
+  }
+
+  // Backend request to check if username is available
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'username': login
+    }
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}check_username/`, requestOptions);
+    const responseData = await response.json();
+
+    if (responseData.available === false) {
+      credentialError.value = 'L\'identifiant est déjà utilisé';
+      return;
+    }
+  } catch (error) {
+    // Show the pop-up
+    backgroundColor.value = 'bg-red-300';
+    notificationTitle.value = 'Erreur vérification identifiant';
+    notificationMessage.value = error;
+    displayPopup();
+    // TODO: remove comment
+    //return;
+  }
+
+  // Checks passwords requirements
+  const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
+  const minLength = 8;
+  const maxLength = 32;
+
+  if (!password.value.trim()) {
+    credentialError.value = 'Veuillez saisir un mot de passe';
+    return;
+  }
+  else if (!confirmPassword.value.trim()) {
+    credentialError.value = 'Veuillez confirmer votre mot de passe';
+    return;
+  }
+  else if (password.value.length < minLength || password.value.length > maxLength) {
+    credentialError.value = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
+    return;
+  }
+  else if (password.value.includes(" ")) {
+    credentialError.value = 'Le mot de passe ne doit pas contenir d\'espaces';
+    return;
+  }
+  else if (!passwordRegex.test(password.value)) {
+    credentialError.value = 'Le mot de passe contient des caractères invalides';
+    return;
+  }
+  else if (password.value !== confirmPassword.value) {
+    credentialError.value = 'Les mots de passe ne correspondent pas';
+    return;
+  }
+
+  sessionStorage.setItem('login', login.value);
+  sessionStorage.setItem('password', password.value);
+
+  clearError();
+  step.value++;
+}
+function nextStep1() {
+  color.value = bgColor;
+  localStorage.setItem('bgColor', bgColor);
+  localStorage.setItem('theme', 'light');
+  step.value++;
+}
+function goStep0() {
+  step = 0;
+}
+function goStep1() {
+  step = 1;
+}
+function closeModal() {
+  isOpen = false;
+}
+function addCategory() {
+  
+  if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
+    errorMessage.value = "Veuillez remplir tous les champs.";
+    return;
+  } else if (categories.value.some(cat => cat.name === categoryName.value)) {
+    errorMessage.value = "Le nom de la catégorie existe déjà.";
+    return;
+  } else {
+    categories.value.push({
+      name: categoryName.value,
+      description: categoryDescription.value
+    });
+
+    categoryName.value = '';
+    categoryDescription.value = '';
+    errorMessage.value = '';
+    isOpen.value = false;
+  }
+}
+async function submitSignupData() {
+  try {
+    // save categories
+    localStorage.setItem('categories', JSON.stringify(categories.value));
+    // Registration first part complete
+    router.push({ name: 'signup_part2' });
+  }
+  catch (error) {
+    // Show the pop-up
+    backgroundColor.value = 'bg-red-300';
+    notificationTitle.value = 'Erreur lors de l\'envoi des données';
+    notificationMessage.value = error;
+    displayPopup();
+  }
+}
+</script>
+
+<script>
 export default {
-  name: 'UserSignUp',
   components: {
     Theme,
     Color,
     XMarkIcon
   },
-  setup() {
-    const bgColor = ref('#ffffff') // default background color
-
-    const updateBgColor = (newBgColor) => {
-      bgColor.value = newBgColor;
-    }
-
-    return {
-      bgColor,
-      updateBgColor,
-    }
-  },
   data() {
     return {
-      showPassword: false,
-      showConfirmPassword: false,
-      step: 0,
-      login: "",
-      password: "",
-      confirmPassword: "",
-      credentialError: '',
-      theme: "",
-      color: "",
-      isOpen: false,
-      categoryName: '',      // Pour le champ "Nom de la catégorie"
-      categoryDescription: '', // Pour le champ "Description brève de la catégorie"
-      categories: [],
-      errorMessage: '',
       logo: require('@/assets/LogoAugmentAI_export4.png')
-    }
-  },
-  methods: {
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
-    },
-    toggleConfirmPasswordVisibility() {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    },
-    clearError() {
-      this.credentialError = '';
-    },
-    async nextStep0(event) {
-      // Handles user registration for the first step, validating username, checking availability, and validating passwords
-
-      event.preventDefault();
-
-      // Checks username requirements
-      if (!this.login) {
-        this.credentialError = 'Veuillez saisir un identifiant';
-        return;
-      }
-      if (this.login.includes(" ")) {
-        this.credentialError = 'L\'identifiant ne doit pas contenir d\'espaces';
-        return;
-      }
-
-      // Backend request to check if username is available
-      const requestOptions = {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'username': this.login
-        }
-      };
-
-      try {
-        const response = await fetch(`${API_BASE_URL}check_username/`, requestOptions);
-        const responseData = await response.json();
-
-        if (responseData.available === false) {
-          this.credentialError = 'L\'identifiant est déjà utilisé';
-          return;
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-
-      // Checks passwords requirements
-      const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
-      const minLength = 8;
-      const maxLength = 32;
-
-      if (!this.password.trim() || !this.confirmPassword.trim()) {
-        this.credentialError = 'Veuillez saisir un mot de passe';
-        return;
-      }
-      if (this.password.length < minLength || this.password.length > maxLength) {
-        this.credentialError = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
-        return;
-      }
-      if (this.password.includes(" ")) {
-        this.credentialError = 'Le mot de passe ne doit pas contenir d\'espaces';
-        return;
-      }
-      if (!passwordRegex.test(this.password)) {
-        this.credentialError = 'Le mot de passe contient des caractères invalides';
-        return;
-      }
-      if (this.password !== this.confirmPassword) {
-        this.credentialError = 'Les mots de passe ne correspondent pas';
-        return;
-      }
-
-      sessionStorage.setItem('login', this.login);
-      sessionStorage.setItem('password', this.password);
-
-      this.clearError();
-      this.step++;
-    },
-    nextStep1() {
-      this.color = this.bgColor;
-      localStorage.setItem('bgColor', this.bgColor);
-      localStorage.setItem('theme', 'light');
-      this.step++;
-    },
-    goStep0() {
-      this.step = 0;
-    },
-    goStep1() {
-      this.step = 1;
-    },
-    goStep2() {
-      this.step = 2;
-    },
-    closeModal() {
-      this.isOpen = false;
-    },
-    addCategory() {
-      // Vérification basique de la validité des champs
-      if (!this.categoryName.trim() || !this.categoryDescription.trim()) {
-        this.errorMessage = "Veuillez remplir tous les champs.";
-        return;
-      } else if (this.categories.some(cat => cat.name === this.categoryName)) {
-        this.errorMessage = "Le nom de la catégorie existe déjà.";
-        return;
-      } else {
-        this.categories.push({
-          name: this.categoryName,
-          description: this.categoryDescription
-        });
-
-        // Réinitialiser les champs et le message d'erreur
-        this.categoryName = '';
-        this.categoryDescription = '';
-        this.errorMessage = '';
-
-        // Fermer la modale
-        this.isOpen = false;
-      }
-    },
-    async submitSignupData(event) {
-      event.preventDefault();
-      try {
-        // save categories
-        localStorage.setItem('categories', JSON.stringify(this.categories));
-        // Registration first part complete
-        this.$router.push({ name: 'signup_part2' });
-      }
-      catch (error) {
-        // TODO: display a pop up
-        console.error('Error:', error);
-      }
-    },
+    };
   }
 }
 </script>

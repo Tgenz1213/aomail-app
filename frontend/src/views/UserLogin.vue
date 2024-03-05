@@ -106,7 +106,6 @@ function handleKeyDown(event) {
     }
 }
 
-
 function togglePasswordVisibility() {
     showPassword.value = !showPassword.value;
 }

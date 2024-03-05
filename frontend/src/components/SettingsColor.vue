@@ -61,6 +61,5 @@ const colors = [
 const findColor = (colorValue) => {
   return colors.find(color => color.bgColor === colorValue) || colors[0];
 }
-
 const selectedColor = ref(findColor(props.initialColor));
 </script>

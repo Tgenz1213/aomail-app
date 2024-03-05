@@ -478,7 +478,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '@/main';
@@ -495,7 +495,19 @@ bgColor = localStorage.getItem('bgColor');
 const router = useRouter();
 let step = ref(3);
 
+onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
+});
 
+function handleKeyDown(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+
+    if (step.value == 3) {
+      nextStep3(event);
+    }
+  }
+}
 function authorize_google(event) {
   event.preventDefault();
   sessionStorage.setItem("type_api", "google");

@@ -3,4 +3,4 @@ export FRONTEND_PORT=8081
 export DB_PORT=5433
 export ENV="theo"
 
-docker compose up
+docker compose -p theo_project up

@@ -1,4 +1,5 @@
 <!-- V1 -->
+
 <template>
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
@@ -22,8 +23,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -34,7 +34,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -46,7 +46,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -58,7 +58,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -70,7 +70,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -84,7 +84,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -99,8 +99,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-400" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -111,7 +110,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -123,7 +122,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -135,7 +134,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -149,7 +148,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -164,7 +163,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -179,8 +178,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-400" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -191,7 +189,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -203,7 +201,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -217,7 +215,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -232,7 +230,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -247,7 +245,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -262,8 +260,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -274,7 +271,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a @click="nextStep3"
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -288,7 +285,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -303,7 +300,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -318,7 +315,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -333,7 +330,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -348,15 +345,13 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
                       </a>
                     </li>
                   </ol>
-                  <!--</div>-->
                 </nav>
               </div>
               <div class="bg-white px-6 py-10 shadow sm:rounded-b-lg sm:px-12 hover:shadow-lg">
@@ -373,7 +368,6 @@
                       </div>
                       <div class="py-6">
                         <div class="relative items-stretch mt-2">
-                          <!--<GoogleLogin :callback="callback"/>-->
                           <button @click="authorize_google">Lier votre compte Google</button>
                         </div>
                       </div>
@@ -484,7 +478,7 @@
 </template>
 
 <script setup>
-import { ref,onMounted } from 'vue';
+import { ref } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '@/main';
@@ -494,6 +488,7 @@ let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
+let timerId = ref(null);
 
 let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
@@ -501,14 +496,6 @@ const router = useRouter();
 let step = ref(3);
 
 
-onMounted(() => {
-  // Run the function every second
-  setInterval(() => {
-    showNotification = false;
-  }, 1000);
-})
-
-// Functions
 function authorize_google(event) {
   event.preventDefault();
   sessionStorage.setItem("type_api", "google");
@@ -516,7 +503,6 @@ function authorize_google(event) {
   // Redirect the user to the authorization URL
   window.location.replace(`${API_BASE_URL}google/auth_url/`);
 }
-
 function authorize_microsoft(event) {
   event.preventDefault();
   sessionStorage.setItem("type_api", "microsoft");
@@ -525,6 +511,18 @@ function authorize_microsoft(event) {
   window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
 }
 
+function dismissPopup() {
+  showNotification.value = false;
+  // Cancel the timer
+  clearTimeout(timerId);
+}
+function displayPopup() {
+  showNotification.value = true;
+
+  timerId = setTimeout(() => {
+    dismissPopup();
+  }, 4000);
+}
 async function nextStep3(event) {
   event.preventDefault();
   // After redirection, get the authorization code from the current URL
@@ -536,10 +534,10 @@ async function nextStep3(event) {
     step.value++;
   } else {
     // Show the pop-up
-    showNotification = true;
     backgroundColor.value = 'bg-red-300';
     notificationTitle.value = 'Erreur d\'autorisation';
     notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
+    displayPopup();
   }
 }
 
@@ -573,7 +571,7 @@ async function submitSignupData(event) {
     if (response.status === 201) {
       // Registration successful
       localStorage.setItem('user_id', data.user_id);
-      // JWT access token
+      // Django access token
       localStorage.setItem('access_token', data.access_token);
       // Store the email and use it in request headers
       localStorage.setItem('email', data.email);
@@ -583,25 +581,25 @@ async function submitSignupData(event) {
       // Redirect to the home page once signed in
       router.push({ name: 'home' });
     } else if (data.error == 'Email address already used') {
-      // Show the pop-up
-      showNotification = true;
+      // Show the pop-up      
       backgroundColor.value = 'bg-red-300';
       notificationTitle.value = 'Erreur lors de la création du compte';
       notificationMessage.value = 'Adresse e-mail déjà utilisée';
+      displayPopup();
 
     } else {
-      // Show the pop-up
-      showNotification = true;
+      // Show the pop-up      
       backgroundColor.value = 'bg-red-300';
       notificationTitle.value = 'Erreur lors de la création du compte';
       notificationMessage.value = data.error;
+      displayPopup();
     }
   } catch (error) {
-    // Show the pop-up
-    showNotification = true;
+    // Show the pop-up    
     backgroundColor.value = 'bg-red-300';
     notificationTitle.value = 'Erreur lors de la création du compte';
     notificationMessage.value = error;
+    displayPopup();
   }
 }
 </script>

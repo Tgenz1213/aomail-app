@@ -72,11 +72,11 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
-                        <span class="sr-only">Step 3</span>
+                        <span class="sr-only">Step 0</span>
                       </a>
                     </li>
                     <li class="relative pr-6 sm:pr-16">
@@ -84,11 +84,11 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a @click="nextStep0"
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
-                        <span class="sr-only">Step 5</span>
+                        <span class="sr-only">Step 1</span>
                       </a>
                     </li>
                     <li class="relative pr-6 sm:pr-16">
@@ -96,11 +96,11 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a @click="goStep2"
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
-                        <span class="sr-only">Step 5</span>
+                        <span class="sr-only">Step 2</span>
                       </a>
                     </li>
                     <li class="relative pr-6 sm:pr-16">
@@ -108,7 +108,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -120,7 +120,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -134,7 +134,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a @click="goStep0" href="#"
+                      <a @click="goStep0"
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -149,10 +149,22 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a @click="goStep1" href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
+                        <span class="sr-only">Step 2</span>
+                      </a>
+                    </li>
+                    <li class="relative pr-6 sm:pr-16">
+                      <!-- Upcoming Step -->
+                      <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="h-0.5 w-full bg-white"></div>
+                      </div>
+                      <a @click="nextStep1"
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
+                          aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
                       </a>
                     </li>
@@ -161,19 +173,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
-                        <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
-                          aria-hidden="true"></span>
-                        <span class="sr-only">Step 5</span>
-                      </a>
-                    </li>
-                    <li class="relative pr-6 sm:pr-16">
-                      <!-- Upcoming Step -->
-                      <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
-                      </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -185,7 +185,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -199,7 +199,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a @click="goStep0"
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -214,7 +214,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a @click="goStep1"
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -229,7 +229,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
@@ -241,11 +241,11 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a @click="submitSignupData"
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
-                        <span class="sr-only">Step 5</span>
+                        <span class="sr-only">Step 4</span>
                       </a>
                     </li>
                     <li class="relative">
@@ -253,7 +253,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -267,7 +267,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -282,7 +282,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -297,7 +297,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -312,7 +312,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
@@ -324,7 +324,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
@@ -338,7 +338,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -353,7 +353,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -368,7 +368,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -383,7 +383,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
@@ -398,7 +398,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a href="#"
+                      <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
@@ -557,7 +557,7 @@
                             <p>Créer vos différentes catégories dans lesquelles vous
                               souhaitez que l'assistant place
                               automatiquement vos emails.</p>
-                            <a href="#" class="underline text-gray-500">En savoir plus</a>
+                            <a class="underline text-gray-500">En savoir plus</a>
                             <div v-if="categories.length === 0">
                               <button @click="isOpen = !isOpen" type="button"
                                 class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
@@ -668,13 +668,11 @@ function handleKeyDown(event) {
         document.getElementById('login').focus();
       }
     } else if (step.value == 1) {
-      // select next color
-      //selectNextColorByKey();
+      //TODO select next color with tab
     }
   } else if (event.key === 'Enter') {
     event.preventDefault();
 
-    console.log(step.value)
     if (step.value == 0) {
       nextStep0();
     } else if (step.value == 1) {
@@ -714,11 +712,11 @@ async function nextStep0() {
   // Checks username requirements
   if (!login.value) {
     credentialError.value = 'Veuillez saisir un identifiant';
-    return;
+    return false;
   }
   if (login.value.includes(" ")) {
     credentialError.value = 'L\'identifiant ne doit pas contenir d\'espaces';
-    return;
+    return false;
   }
 
   // Backend request to check if username is available
@@ -745,7 +743,7 @@ async function nextStep0() {
     notificationMessage.value = error;
     displayPopup();
     // TODO: remove comment
-    //return;
+    //return false;
   }
 
   // Checks passwords requirements
@@ -755,27 +753,27 @@ async function nextStep0() {
 
   if (!password.value.trim()) {
     credentialError.value = 'Veuillez saisir un mot de passe';
-    return;
+    return false;
   }
   else if (!confirmPassword.value.trim()) {
     credentialError.value = 'Veuillez confirmer votre mot de passe';
-    return;
+    return false;
   }
   else if (password.value.length < minLength || password.value.length > maxLength) {
     credentialError.value = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
-    return;
+    return false;
   }
   else if (password.value.includes(" ")) {
     credentialError.value = 'Le mot de passe ne doit pas contenir d\'espaces';
-    return;
+    return false;
   }
   else if (!passwordRegex.test(password.value)) {
     credentialError.value = 'Le mot de passe contient des caractères invalides';
-    return;
+    return false;
   }
   else if (password.value !== confirmPassword.value) {
     credentialError.value = 'Les mots de passe ne correspondent pas';
-    return;
+    return false;
   }
 
   sessionStorage.setItem('login', login.value);
@@ -791,10 +789,18 @@ function nextStep1() {
   step.value++;
 }
 function goStep0() {
-  step = 0;
+  step.value = 0;
 }
 function goStep1() {
-  step = 1;
+  step.value = 1;
+}
+async function goStep2() {
+  // go to step 2 from step 0
+  const valid = await nextStep0();
+  if (valid == false) {
+    return;
+  }  
+  nextStep1();
 }
 function closeModal() {
   isOpen = false;

@@ -1,6 +1,6 @@
 <template>
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
+    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
   <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isOpen">
@@ -72,8 +72,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 0</span>
@@ -149,8 +148,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 2</span>
@@ -229,8 +227,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -312,8 +309,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -398,8 +394,7 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
-                      <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
+                      <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
                         <span class="h-2.5 w-2.5 rounded-full bg-gray-700" aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -621,7 +616,7 @@ import { ref, onMounted } from 'vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
 import { API_BASE_URL } from '@/main';
-import { XMarkIcon} from '@heroicons/vue/24/outline'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
 import ShowNotification from '../components/ShowNotification.vue';
 
@@ -799,14 +794,14 @@ async function goStep2() {
   const valid = await nextStep0();
   if (valid == false) {
     return;
-  }  
+  }
   nextStep1();
 }
 function closeModal() {
   isOpen = false;
 }
 function addCategory() {
-  
+
   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
     errorMessage.value = "Veuillez remplir tous les champs.";
     return;

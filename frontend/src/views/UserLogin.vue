@@ -141,7 +141,7 @@ async function login() {
             localStorage.setItem('access_token', token);
 
             // Fetch color
-            const colorResponse = await axios.get("http://localhost:9000/MailAssistant/user/preferences/bg_color/", {
+            const colorResponse = await axios.get(`${API_BASE_URL}user/preferences/bg_color/`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

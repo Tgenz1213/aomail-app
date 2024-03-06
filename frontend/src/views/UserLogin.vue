@@ -102,6 +102,7 @@ function handleKeyDown(event) {
             document.getElementById('username').focus();
         }
     } else if (event.key === 'Enter') {
+        event.preventDefault();
         login();
     }
 }

@@ -6,7 +6,7 @@
                 <div class="bg-white rounded-lg relative w-[450px]">
                     <slot></slot>
                     <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-                        <button @click="closeModal" @keydown="handleKeyDown" type="button"
+                        <button @click="closeModal" type="button"
                             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                             <span class="sr-only">Close</span>
                             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
@@ -24,7 +24,7 @@
                             <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la
                                 catégorie</label>
                             <div class="mt-2">
-                                <input v-model="categoryName" name="email" id="email"
+                                <input id="categoryName" v-model="categoryName"
                                     class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
                                     placeholder="Administratifs">
                             </div>
@@ -34,8 +34,10 @@
                                 brève
                                 de la catégorie</label>
                             <div class="mt-2">
-                                <textarea v-model="categoryDescription" id="about" name="about" rows="3"
-                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
+                                <textarea id="categoryDescription" v-model="categoryDescription" rows="3"
+                                    style="min-height: 60px"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6">
+                                </textarea>
                             </div>
                             <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à
                                 comprendre la catégorie</p>
@@ -66,13 +68,12 @@ const props = defineProps({
 
 const emits = defineEmits(['closeModal', 'addCategory']);
 
-const categoryName = ref('');
-const categoryDescription = ref('');
+let categoryName = ref('');
+let categoryDescription = ref('');
 
 const closeModal = () => {
     emits('closeModal');
 };
-
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -113,9 +114,21 @@ function handleKeyDown(event) {
     if (event.key === 'Escape') {
         closeModal();
     }
-    else if (event.key === 'Enter') {
+    else if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         addCategory();
+    } else if (event.key === 'Tab' && props.isOpen) {
+        event.preventDefault();
+
+        if (categoryName.value == '' && document.activeElement.id != 'categoryName') {
+            document.getElementById('categoryName').focus();
+        } else if (categoryDescription.value == '' && document.activeElement.id != 'categoryDescription') {
+            document.getElementById('categoryDescription').focus();
+        } else if (document.activeElement.id === 'categoryName') {
+            document.getElementById('categoryDescription').focus();
+        } else {
+            document.getElementById('categoryName').focus();
+        }
     }
 }
 </script>

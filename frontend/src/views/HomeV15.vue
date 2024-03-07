@@ -72,9 +72,9 @@
                                                 <select id="tabs" name="tabs"
                                                     class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                                                     v-model="selectedTopic">
-                                                    <option v-for="category in categories" :key="category">{{
-        category.name
-    }}</option>
+                                                    <option v-for="category in categories" :key="category">
+                                                        {{ category.name }}
+                                                    </option>
                                                 </select>
                                             </div>
                                             <div class="hidden sm:block w-full">

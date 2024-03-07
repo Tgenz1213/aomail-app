@@ -11,7 +11,7 @@ import json
 
 
 ######################## MISTRAL API SETTINGS ########################
-MISTRAL_CREDS = json.load(open("backend/creds/mistral_creds.json", "r"))
+MISTRAL_CREDS = json.load(open("creds/mistral_creds.json", "r"))
 init(autoreset=True)
 
 

@@ -10,7 +10,7 @@ from colorama import Fore, init
 
 
 ######################## Claude 3 API SETTINGS ########################
-CLAUDE_CREDS = json.load(open("backend/creds/claude_creds.json", "r"))
+CLAUDE_CREDS = json.load(open("creds/claude_creds.json", "r"))
 HUMAN = "\n\nHuman: "
 ASSISTANT = "Assistant:"
 init(autoreset=True)

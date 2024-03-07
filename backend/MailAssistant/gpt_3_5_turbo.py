@@ -11,7 +11,7 @@ from colorama import Fore, init
 
 
 ######################## GPT - 3.5 turbo API SETTINGS ########################
-OPENAI_CREDS = json.load(open("backend/creds/openai_creds.json", "r"))
+OPENAI_CREDS = json.load(open("creds/openai_creds.json", "r"))
 init(autoreset=True)
 
 

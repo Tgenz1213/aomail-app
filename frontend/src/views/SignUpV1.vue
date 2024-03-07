@@ -665,33 +665,31 @@ function handleKeyDown(event) {
     } else if (step.value == 1) {
       //TODO select next color with tab
     } else if (step.value == 2 && isModalOpen.value == true) {
-      if (document.activeElement.id === 'categoryName') {
+      if (categoryName.value == '' && document.activeElement.id != 'categoryName') {
+        document.getElementById('categoryName').focus();
+      } else if (categoryDescription.value == '' && document.activeElement.id != 'categoryDescription') {
         document.getElementById('categoryDescription').focus();
-      }
-      else {
+      } else if (document.activeElement.id === 'categoryName') {
+        document.getElementById('categoryDescription').focus();
+      } else {
         document.getElementById('categoryName').focus();
       }
     }
-  } else if (event.key === 'Enter') {
+  } else if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
 
     if (step.value == 0) {
-      event.preventDefault();
       nextStep0();
     } else if (step.value == 1) {
-      event.preventDefault();
       nextStep1();
     } else if (step.value == 2) {
       if (isModalOpen.value == false) {
-        event.preventDefault();
         nextStep0();
         nextStep1();
         submitSignupData();
       } else {
-        if (!event.shiftKey) {          
-          addCategory();
-        } else {
-          console.log("Shift KEy pressed")
-        }
+        event.preventDefault();
+        addCategory();
       }
     }
   } else if (event.key === 'Escape') {

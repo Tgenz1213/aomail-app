@@ -619,7 +619,6 @@ import { API_BASE_URL } from '@/main';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
 import ShowNotification from '../components/ShowNotification.vue';
-import NewCategoryModal from '../components/NewCategoryModal.vue';
 
 const router = useRouter();
 
@@ -866,7 +865,6 @@ export default {
   components: {
     Theme,
     Color,
-    NewCategoryModal,
     XMarkIcon
   },
   data() {

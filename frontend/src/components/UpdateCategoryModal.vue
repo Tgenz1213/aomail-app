@@ -23,7 +23,7 @@
             <div>
               <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la catégorie</label>
               <div class="mt-2">
-                <input v-model="categoryName" name="email" id="email"
+                <input id="categoryName" v-model="categoryName"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
                   placeholder="Administratifs">
               </div>
@@ -32,7 +32,7 @@
               <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description brève de la
                 catégorie</label>
               <div class="mt-2">
-                <textarea v-model="categoryDescription" id="about" name="about" rows="3"
+                <textarea id="categoryDescription" v-model="categoryDescription" rows="3" style="min-height: 60px"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
               </div>
               <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à comprendre la
@@ -106,7 +106,7 @@ async function updateCategoryHandler() {
     try {
       const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
       const currentName = props.category?.name;
-      
+
       for (let i = 0; i < fetchedCategories.length; i++) {
         if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {
           emits('updateCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
@@ -134,11 +134,25 @@ function handleKeyDown(event) {
   if (event.key === 'Escape') {
     closeModal();
   }
-  else if (event.key === 'Enter') {
+  else if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
     updateCategoryHandler();
   }
   else if (event.key === 'Delete') {
     deleteCategoryHandler();
+  }
+  else if (event.key === 'Tab' && props.isOpen) {
+    event.preventDefault();
+
+    if (categoryName.value == '' && document.activeElement.id != 'categoryName') {
+      document.getElementById('categoryName').focus();
+    } else if (categoryDescription.value == '' && document.activeElement.id != 'categoryDescription') {
+      document.getElementById('categoryDescription').focus();
+    } else if (document.activeElement.id === 'categoryName') {
+      document.getElementById('categoryDescription').focus();
+    } else {
+      document.getElementById('categoryName').focus();
+    }
   }
 }
 </script>

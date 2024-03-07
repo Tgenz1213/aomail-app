@@ -798,7 +798,7 @@ async function goStep2() {
   nextStep1();
 }
 function closeModal() {
-  isOpen = false;
+  isOpen.value = false;
 }
 function addCategory() {
 

@@ -2,6 +2,7 @@
 Handles prompt engineering requests for Claude 3 API.
 """
 
+import ast
 import json
 import time
 import anthropic
@@ -10,6 +11,8 @@ from colorama import Fore, init
 
 ######################## Claude 3 API SETTINGS ########################
 CLAUDE_CREDS = json.load(open("backend/creds/claude_creds.json", "r"))
+HUMAN = "\n\nHuman: "
+ASSISTANT = "Assistant:"
 init(autoreset=True)
 
 
@@ -18,7 +21,7 @@ def get_prompt_response(formatted_prompt):
     """Returns the prompt response"""
     client = anthropic.Anthropic(api_key=CLAUDE_CREDS["api_key"])
     response = client.messages.create(
-        model="claude-3-opus-20240229",
+        model="claude-3-sonnet-20240229",
         max_tokens=1000,
         temperature=0.0,
         messages=[{"role": "user", "content": formatted_prompt}],
@@ -29,15 +32,11 @@ def get_prompt_response(formatted_prompt):
 def get_language(input_subject, input_body):
     """Returns the primary language used in the email"""
 
-    template = """\n\nHuman: Given an email with subject: '{input_subject}' and body: '{input_body}',
+    formatted_prompt = f"""{HUMAN}Given an email with subject: '{input_subject}' and body: '{input_body}',
     IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
     
-    Provide ONLY the answer in JSON format with the key 'language' (STRING).
-    
-    Assistant:"""
-    formatted_prompt = template.format(
-        input_body=input_body, input_subject=input_subject
-    )
+    Provide ONLY the answer in JSON format with the key 'language' (STRING).    
+    {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
     language = json.loads(response.content[0].text)["language"]
 
@@ -78,7 +77,7 @@ def count_corrections(
 
 
 def extract_contacts_recipients(query):
-    template = """"\n\nHuman: As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
+    formatted_prompt = f"""{HUMAN}As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
 
     Guidelines for classification:
     - Main recipients are those directly mentioned or implied to be the primary audience, without specific indicators for copying.
@@ -92,10 +91,8 @@ def extract_contacts_recipients(query):
     Return ONLY the results in JSON format with three keys:
     main_recipients: [Python list],
     cc_recipients: [Python list],
-    bcc_recipients: [Python list]
-    
-    Assistant:"""
-    formatted_prompt = template.format(query=query)
+    bcc_recipients: [Python list]    
+    {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
     recipients = json.loads(response.content[0].text)
 
@@ -111,24 +108,131 @@ def extract_contacts_recipients(query):
     return main_recipients, cc_recipients, bcc_recipients
 
 
-'''start_time = time.time()
-get_language(
-    "Yaxshimiziz",
-    "Assalomu Aleykum, Meining ismi Augustin. Men Uzbek tilini organypman",
-)
-get_language("test d'email", "Salut, la team, cava? c'est juste un test")
-get_language("Achtung bitte", "Hallo, ich habe nur ein Frage, Warum bist du langsamer als mistral?")
+# ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
+def generate_response_keywords(input_subject, input_email, language) -> list:
+    """Generate a list of keywords for responding to a given email."""
 
+    formatted_prompt = f"""{HUMAN}As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
+
+    IDENTIFY up to 4 different ways to respond to this email.
+    USE as few verbs in {language} as possible while keeping a relevant meaning.
+    KEYWORDS must look like buttons the user WILL click to reply to the email.
+
+    Answer must be a list (Python) format: ["...", "..."]
+    {ASSISTANT}"""
+    response = get_prompt_response(formatted_prompt)
+    keywords = response.content[0].text.strip()
+
+    print(f"{Fore.YELLOW}{keywords}")
+
+    keywords_list = ast.literal_eval(keywords)
+
+    return keywords_list
+
+
+######################## WRITING ########################
+def improve_email_writing(body, subject):
+    """Enhance email subject and body in French"""
+
+    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
+    
+    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
+
+    subject: {subject},
+    body: {body}
+    {ASSISTANT}"""
+    response = get_prompt_response(formatted_prompt)
+    result_json = json.loads(response.content[0].text.strip())
+
+    subject_text = result_json["subject"]
+    email_body = result_json["body"]
+
+    print(f"{Fore.CYAN}EMAIL DRAFT IMPROVED:")
+    print(f"{Fore.GREEN}Subject: {subject_text}")
+    print(f"{Fore.CYAN}Email Body: {email_body}")
+
+    return email_body, subject_text
+
+
+def new_mail_recommendation(mail_content, email_subject, user_recommendation):
+    """Enhance email subject and body in FRENCH based on user guideline"""
+
+    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
+    
+    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
+
+    subject: {email_subject},
+    body: {mail_content}
+    {ASSISTANT}"""
+    response = get_prompt_response(formatted_prompt)
+    clear_text = response.content[0].text.strip()
+
+    # TODO: handle when the response is not a json format with an algorithm
+    result_json = json.loads(clear_text)
+    subject_text = result_json["subject"]
+    email_body = result_json["body"]
+
+    print(f"{Fore.CYAN}NEW EMAIL RECOMMENDATION:")
+    print(f"{Fore.GREEN}Subject: {subject_text}")
+    print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
+
+    return subject_text, email_body
+
+
+def generate_email(input_data, length, formality):
+    """Generate a French email, enhancing both QUANTITY and QUALITY according to user guidelines."""
+
+    formatted_prompt = f"""{HUMAN}As an email assistant, write a {length} and {formality} email in FRENCH.
+    Improve the QUANTITY and QUALITY in FRENCH according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
+
+    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
+    {ASSISTANT}"""
+    response = get_prompt_response(formatted_prompt)
+    clear_text = response.content[0].text.strip()
+
+    result_json = json.loads(clear_text)
+
+    subject_text = result_json.get("subject")
+    email_body = result_json.get("body")
+
+    print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
+    print(f"{Fore.GREEN}Subject: {subject_text}")
+    print(f"{Fore.CYAN}Email Body: {email_body}")
+
+    return subject_text, email_body
+
+
+def correct_mail_language_mistakes(subject, body):
+    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
+
+    formatted_prompt = f"""{HUMAN}As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    
+    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
+
+    subject: {subject},
+    body: {body}
+    """
+    response = get_prompt_response(formatted_prompt)
+    clear_text = response.content[0].text.strip()
+    result_json = json.loads(clear_text)
+
+    corrected_subject = result_json["subject"]
+    corrected_body = result_json["body"]
+
+    print(f"{Fore.CYAN}EMAIL CORRECTED:")
+    print(f"{Fore.GREEN}Subject: {corrected_subject}")
+    print(f"{Fore.CYAN}Email Body: {corrected_body}")
+
+    # Count the number of corrections
+    num_corrections = count_corrections(
+        subject, body, corrected_subject, corrected_body
+    )
+
+    return corrected_subject, corrected_body, num_corrections
+
+
+"""start_time = time.time()
+correct_mail_language_mistakes("peti test appl", "c un  emai de test envoyer depus l'appl")
 execution_time = time.time() - start_time
 
-print(f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes.")'''
-
-
-
-'''start_time = time.time()
-extract_contacts_recipients("envoie à jean et à claude")
-execution_time = time.time() - start_time
-
-print(
-    f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes."
-)'''
+print(f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes.")"""

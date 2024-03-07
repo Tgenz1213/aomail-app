@@ -123,7 +123,7 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
     USE as few verbs in {language} as possible while keeping a relevant meaning.
     KEYWORDS must look like buttons the user WILL click to reply to the email.
 
-    Answer must be a list (Python) format: ["....", "....."]
+    Answer must be a list (Python) format:  ["...", "..."]
     """
     model = "mistral-small-latest"
     role = "user"
@@ -231,7 +231,7 @@ def correct_mail_language_mistakes(subject, body):
 
     template = """As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
-    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
+    Answer must be ONLY a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {email_subject},
     body: {email_body}
@@ -241,6 +241,7 @@ def correct_mail_language_mistakes(subject, body):
     role = "user"
     response = get_prompt_response(formatted_prompt, model, role)
     clear_text = response.choices[0].message.content.strip()
+
     result_json = json.loads(clear_text)
 
     corrected_subject = result_json["subject"]
@@ -258,30 +259,12 @@ def correct_mail_language_mistakes(subject, body):
     return corrected_subject, corrected_body, num_corrections
 
 
-# --- TESTING --- #
-'''start_time = time.time()
-
-email_subject = "Je serais absent à la réunion de vendredi"
-mail_content = "jai dotre reunion je ne peux pas venir désole je ratrap asep c u"
-user_recommendation = (
-    "il ne doit contenir que les informations présentes dans l'entrée."
+"""start_time = time.time()
+correct_mail_language_mistakes(
+    "peti test appl", "c un  emai de test envoyer depus l'appl"
 )
-
-new_mail_recommendation(mail_content, email_subject, user_recommendation)
 execution_time = time.time() - start_time
 
-print(f"{Fore.GREEN}Le temps d'exécution du script est de {execution_time} secondes.")
-
-start_time = time.time()
-get_language(
-    "Yaxshimiziz",
-    "Assalomu Aleykum, Meining ismi Augustin. Men Uzbek tilini organypman",
-)
-get_language("test d'email", "Salut, la team, cava? c'est juste un test")
-get_language("Achtung bitte", "Hallo, ich habe nur ein Frage, Warum bist du langsamer als mistral?")
-
-
-execution_time = time.time() - start_time
-
-print(f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes.")
-'''
+print(
+    f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes."
+)"""

@@ -687,9 +687,10 @@ function handleKeyDown(event) {
         nextStep1();
         submitSignupData();
       } else {
-        if (!event.shiftKey) {
-          console.log("Shift KEy pressed")
+        if (!event.shiftKey) {          
           addCategory();
+        } else {
+          console.log("Shift KEy pressed")
         }
       }
     }

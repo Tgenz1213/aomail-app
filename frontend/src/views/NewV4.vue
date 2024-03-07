@@ -11,7 +11,7 @@
                     <navbar2></navbar2>
                 </div>
             </div>
-            <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+            <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[calc(6/7*100vh)] 2xl:w-[calc(80vw)]">
                 <div class="flex gap-4 w-full h-full">
                     <div id="firstMainColumn"
                         class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]">
@@ -29,7 +29,7 @@
                             </div>
                         </div>
                         <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
-                            <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;"
+                            <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[calc(5/8*100vh)]" style="margin-right: 2px;"
                                 ref="scrollableDiv">
                                 <div class="px-10 py-6">
                                     <div class="flex-grow">

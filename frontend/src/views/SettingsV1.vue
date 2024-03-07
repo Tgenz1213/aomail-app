@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="col-span-10 2xl:col-span-6">
-                <div class="flex flex-col xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+                <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]">
                     <main class="rounded-xl bg-gray-100 bg-opacity-75 ring-1 shadow-sm ring-black ring-opacity-5">
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div class="flex items-center pb-5">

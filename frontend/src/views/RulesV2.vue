@@ -31,7 +31,7 @@
         </div>
       </div>
       <div
-        class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+        class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]">
         <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full relative"> <!-- ADDED relative -->
           <div class="divide-y divide-gray-200">

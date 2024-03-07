@@ -1,9 +1,7 @@
 <template>
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
-  <NewCategoryModal :isModalOpen="isModalOpen" :errorMessage="modalErrorMessage" @closeModal="closeModal"
-    @addCategory="handleAddCategory" />
-  <!-- <transition name="modal-fade">
+  <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isModalOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
@@ -26,7 +24,7 @@
             <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la
               catégorie</label>
             <div class="mt-2">
-              <input v-model="categoryName" name="email" id="email"
+              <input v-model="categoryName" name="email" id="categoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
                 placeholder="Administratifs">
             </div>
@@ -36,7 +34,7 @@
               de la
               catégorie</label>
             <div class="mt-2">
-              <textarea v-model="categoryDescription" id="about" name="about" rows="3"
+              <textarea v-model="categoryDescription" id="categoryDescription" name="about" rows="3"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
             <p class="mt-3 text-sm leading-6 text-gray-600">Cette description permettra à l'assitant à
@@ -51,7 +49,7 @@
         </div>
       </div>
     </div>
-  </transition> -->
+  </transition>
   <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
     <!--OLD VALUE TO SAVE : 27/01/2024 => 2xl:justify-center 2xl:items-center-->
     <div class="flex-grow flex flex-col justify-center py-4">
@@ -667,6 +665,13 @@ function handleKeyDown(event) {
       }
     } else if (step.value == 1) {
       //TODO select next color with tab
+    } else if (step.value == 2 && isModalOpen.value == true) {
+      if (document.activeElement.id === 'categoryName') {
+        document.getElementById('categoryDescription').focus();
+      }
+      else {
+        document.getElementById('categoryName').focus();
+      }
     }
   } else if (event.key === 'Enter') {
     event.preventDefault();
@@ -675,9 +680,15 @@ function handleKeyDown(event) {
       nextStep0();
     } else if (step.value == 1) {
       nextStep1();
-    } else if (step.value == 2 && isModalOpen.value == false) {
-      submitSignupData();
+    } else if (step.value == 2) {
+      if (isModalOpen.value == false) {
+        submitSignupData();
+      } else {
+        addCategory();
+      }
     }
+  } else if (event.key === 'Escape') {
+    closeModal();
   }
 }
 function updateBgColor(newBgColor) {
@@ -803,76 +814,30 @@ async function goStep2() {
 function closeModal() {
   isModalOpen.value = false;
 }
-async function handleAddCategory(categoryData) {
+function addCategory() {
 
-if (Object.hasOwnProperty.call(categoryData, 'error')) {
-    backgroundColor = 'bg-red-300';
-    notificationTitle = categoryData.error;
-    notificationMessage = categoryData.description;
-    displayPopup();
-
-    closeModal();
+  if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
+    errorMessage.value = "Veuillez remplir tous les champs.";
     return;
-}
-
-try {
-    const response = await fetchWithToken(`${API_BASE_URL}api/set_category/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            name: categoryData.name,
-            description: categoryData.description,
-        }),
+  } else if (categories.value.some(cat => cat.name === categoryName.value)) {
+    errorMessage.value = "Le nom de la catégorie existe déjà.";
+    return;
+  } else if (/[,;:/\\.]/.test(categoryName.value)) {
+    errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : , ; : / \\';
+    return;
+  }
+  else {
+    categories.value.push({
+      name: categoryName.value,
+      description: categoryDescription.value
     });
 
-    if (response) {
-        // Show the pop-up
-        backgroundColor = 'bg-green-300';
-        notificationTitle = 'Succès !';
-        notificationMessage = 'La catégorie a été ajoutée';
-        displayPopup();
-
-        closeModal();
-        const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
-        console.log("CategoryData", fetchedCategories);
-        categories.value = fetchedCategories.map(category => ({
-            name: category.name,
-            description: category.description
-        }));
-        console.log("Assigned categories:", categories.value);
-    }
-} catch (error) {
-    // Show the pop-up
-    backgroundColor = 'bg-red-300';
-    notificationTitle = 'Erreur lors de l\'ajout de la catégorie';
-    notificationMessage = error;
-    displayPopup();
-
-    closeModal();
+    categoryName.value = '';
+    categoryDescription.value = '';
+    errorMessage.value = '';
+    isModalOpen.value = false;
+  }
 }
-}
-// function addCategory() {
-
-//   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-//     errorMessage.value = "Veuillez remplir tous les champs.";
-//     return;
-//   } else if (categories.value.some(cat => cat.name === categoryName.value)) {
-//     errorMessage.value = "Le nom de la catégorie existe déjà.";
-//     return;
-//   } else {
-//     categories.value.push({
-//       name: categoryName.value,
-//       description: categoryDescription.value
-//     });
-
-//     categoryName.value = '';
-//     categoryDescription.value = '';
-//     errorMessage.value = '';
-//     isModalOpen.value = false;
-//   }
-// }
 async function submitSignupData() {
   try {
     // save categories

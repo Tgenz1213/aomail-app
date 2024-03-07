@@ -30,7 +30,8 @@
                             </div>
                         </div>
                         <div>
-                            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description brève
+                            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">Description
+                                brève
                                 de la catégorie</label>
                             <div class="mt-2">
                                 <textarea v-model="categoryDescription" id="about" name="about" rows="3"
@@ -80,8 +81,8 @@ onMounted(() => {
 async function addCategory() {
 
     if (/[,;:/\\.]/.test(categoryName.value)) {
-        // TODO emits with different params => show a pop-up with this error
-        console.log("Name not accepted. It contains a special character.");
+        console.log("Nom non accepté. Il contient un caractère spécial.");
+        emits('addCategory', { error: 'Nom de catégorie non conforme', description: 'Le nom contient un caractère interdit : , ; : / \\' });
     } else {
         try {
             const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -89,9 +90,6 @@ async function addCategory() {
             for (let i = 0; i < fetchedCategories.length; i++) {
                 if (fetchedCategories[i]['name'] == categoryName.value) {
                     console.log('La catégorie: ' + categoryName.value + ' existe déjà')
-                    setTimeout(() => {
-                        //
-                    }, 4000);
                     emits('addCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
                     return;
                 }
@@ -102,7 +100,7 @@ async function addCategory() {
             categoryDescription.value = '';
             categoryName.value = '';
 
-        } catch (error) {            
+        } catch (error) {
             emits('addCategory', { error: 'Erreur vérification catégories existantes', description: error });
             categoryDescription.value = '';
             categoryName.value = '';

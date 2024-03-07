@@ -52,40 +52,31 @@
                                     <div class="hidden sm:block w-full">
                                         <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
                                             <!-- Current: "bg-gray-200 text-gray-800", Default: "text-gray-600 hover:text-gray-800" -->
-                                            <div :class="['flex space-x-2 items-center rounded-md py-2',
-                                                {
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'preferences',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'preferences'
-                                                }]" @click="setActiveSection('preferences')">
+                                            <div class="text-sm font-medium cursor-pointer"
+                                                :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'preferences', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'preferences' }]"
+                                                @click="setActiveSection('preferences')">
                                                 <adjustments-vertical-icon class="w-4 h-4" />
-                                                <a :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }"
-                                                    class="text-sm font-medium">Préférences</a>
+                                                <a
+                                                    :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">Préférences</a>
                                             </div>
-
-                                            <div :class="['flex space-x-2 items-center rounded-md py-2',
-                                                {
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'account',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'account'
-                                                }]" @click="setActiveSection('account')">
+                                            <div class="text-sm font-medium cursor-pointer"
+                                                :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'account', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'account' }]"
+                                                @click="setActiveSection('account')">
                                                 <user-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account' }"
                                                     class="text-sm font-medium">Mon Compte</a>
                                             </div>
-                                            <div :class="['flex space-x-2 items-center rounded-md py-2',
-                                                {
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription'
-                                                }]" @click="setActiveSection('subscription')">
+                                            <div class="text-sm font-medium cursor-pointer"
+                                                :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription' }]"
+                                                @click="setActiveSection('subscription')">
                                                 <credit-card-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription' }"
                                                     class="text-sm font-medium">Abonnement</a>
                                             </div>
 
-                                            <div :class="['flex space-x-2 items-center rounded-md py-2',
-                                                {
-                                                    'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'data',
-                                                    'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'data'
-                                                }]" @click="setActiveSection('data')">
+                                            <div class="text-sm font-medium cursor-pointer"
+                                                :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'data', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'data' }]"
+                                                @click="setActiveSection('data')">
                                                 <circle-stack-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data' }"
                                                     class="text-sm font-medium">Mes données</a>
@@ -99,7 +90,8 @@
                     <div v-if="activeSection === 'account'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mon compte
+                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mon
+                                compte
                             </h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
@@ -116,7 +108,8 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">Changement d'identifiant ou de
+                                            <span class="bg-white px-2 text-sm text-gray-500">Changement d'identifiant
+                                                ou de
                                                 mot de passe</span>
                                         </div>
                                     </div>
@@ -150,16 +143,17 @@
                                                         <div class="flex items-center">
                                                             <button @click="togglePasswordVisibility"
                                                                 class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300">
-                                                                <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg"
-                                                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                                                <svg v-if="!showPassword"
+                                                                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                    viewBox="0 0 24 24" stroke-width="1.5"
                                                                     stroke="currentColor" class="w-6 h-6">
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                                 </svg>
-                                                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                    viewBox="0 0 24 24" stroke-width="1.5"
+                                                                <svg v-else xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                                                     stroke="currentColor" class="w-6 h-6">
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
@@ -186,16 +180,16 @@
                                                             class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300">
                                                             <svg v-if="!showConfirmPassword"
                                                                 xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                                class="w-6 h-6">
+                                                                viewBox="0 0 24 24" stroke-width="1.5"
+                                                                stroke="currentColor" class="w-6 h-6">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                             </svg>
                                                             <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                                class="w-6 h-6">
+                                                                viewBox="0 0 24 24" stroke-width="1.5"
+                                                                stroke="currentColor" class="w-6 h-6">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
                                                             </svg>
@@ -215,7 +209,8 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">Suppression du compte</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">Suppression du
+                                                compte</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">
@@ -256,7 +251,8 @@
                         <div class="flex">
                             <div class="flex-1">
                                 <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                                    <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mes
+                                    <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">
+                                        Mes
                                         données</h1>
                                 </div>
                                 <div class="float-right mt-[-70px] mr-[10px]">
@@ -269,8 +265,8 @@
                             <div
                                 class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center">
                                 <div class="flex flex-col">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                                        stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
                                     </svg>
@@ -328,7 +324,7 @@
         </div>
     </div>
 </template>
-  
+
 <script setup>
 import { API_BASE_URL } from '@/main';
 

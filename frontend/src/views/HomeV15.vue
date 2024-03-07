@@ -1209,6 +1209,7 @@ onMounted(async () => {
     });
 
     setInterval(async () => {
+        // TODO: fix bug to display the good number
         const newTotalUnread = getNumberUnreadMail(emails.value);
 
         if (newTotalUnread !== totalUnread.value) {

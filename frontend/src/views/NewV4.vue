@@ -39,10 +39,11 @@
                                 </div>
                             </div>
                             <div class="flex-grow">
-                                <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
+                                <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full">
+                                    <!-- Old value (26/12/2023) -->
                                     <div class="flex flex-grow items-stretch">
-                                        <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight"
-                                            v-model="textareaValue"
+                                        <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
+                                            @input="adjustHeight" v-model="textareaValue"
                                             class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                             placeholder="Instruction"></textarea>
                                     </div>
@@ -65,12 +66,13 @@
                             <div
                                 class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
                                 <div class="flex gap-x-2 items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                                        stroke="currentColor" class="w-6 h-6">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
                                     </svg>
-                                    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle</h1>
+                                    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle
+                                    </h1>
                                 </div>
                             </div>
                             <form class="flex flex-grow w-full px-10">
@@ -120,7 +122,8 @@
                                                                 class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                                                 @change="query = $event.target.value"
                                                                 :display-value="(person) => person?.name"
-                                                                @focus="handleFocusDestinary" @blur="handleBlur2($event)"
+                                                                @focus="handleFocusDestinary"
+                                                                @blur="handleBlur2($event)"
                                                                 @keydown.enter="handleEnterKey" />
                                                             <ComboboxButton
                                                                 class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -149,7 +152,8 @@
                                                                         </div>
                                                                         <span v-if="selected"
                                                                             :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
-                                                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                            <CheckIcon class="h-5 w-5"
+                                                                                aria-hidden="true" />
                                                                         </span>
                                                                     </li>
                                                                 </ComboboxOption>
@@ -208,8 +212,9 @@
                                                     hidden>
                                                 <button @click="triggerFileInput" type="button"
                                                     class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-transparent hover:bg-gray-600 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-6 h-6">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
                                                     </svg>
@@ -268,7 +273,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                                                        item.name }}</a>
+        item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -307,7 +312,7 @@
         </div>
     </div>-->
 </template>
-  
+
 <script setup>
 import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
@@ -415,7 +420,6 @@ function dismissPopup() {
     // Cancel the timer
     clearTimeout(timerId);
 }
-
 function displayPopup() {
     showNotification = true;
 
@@ -423,20 +427,16 @@ function displayPopup() {
         dismissPopup();
     }, 4000);
 }
-
 // User pressed the object input
 function handleFocusObject() {
     isFocused.value = true;
 }
-
 function handleBlur() {
     isFocused.value = false;
 }
-
 function handleFocusDestinary() {
     isFocused2.value = true;
 }
-
 function handleBlur2(event) {
     // Checks for a valid input email and adds it to the recipients list
     isFocused2.value = false;
@@ -1913,8 +1913,30 @@ async function sendEmail() {
 }
 
 function handleKeyDown(event) {
-    if (event.ctrlKey) {
 
+    if (event.key == 'Tab') {
+        event.preventDefault();
+
+        if (document.getElementById('editor').contains(document.activeElement)) {
+            return;
+        } else if (inputValue.value == '' && isFocused.value == false) {
+            document.getElementById('objectInput').focus();
+        } else if (quill.value.root.innerHTML == '<p><br></p>') {
+            quill.value.focus();
+        } else if (selectedCCI.value.length == 0 && selectedCC.value.length == 0 && selectedPeople.value.length == 0 && document.activeElement.id != 'recipients') {
+            activeType.value = null;
+            document.getElementById('recipients').focus();
+        } else {
+            // Logic to rotate
+            if (document.activeElement.id === 'recipients') {
+                document.getElementById('objectInput').focus();
+            } else if (document.activeElement.id === 'dynamicTextarea') {
+                document.getElementById('recipients').focus();
+            } else {
+                document.getElementById('dynamicTextarea').focus();
+            }
+        }
+    } else if (event.ctrlKey) {
         switch (event.key) {
             case 'b':
                 quill.value.focus();
@@ -1936,7 +1958,7 @@ function handleKeyDown(event) {
     }
 }
 </script>
-  
+
 <script>
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';

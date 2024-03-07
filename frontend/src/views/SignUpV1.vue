@@ -570,9 +570,8 @@
                               <ul role="list" class="space-y-3">
                                 <li v-for="category in categories" :key="category.name"
                                   class="overflow-hidden font-semibold rounded-md bg-gray-50 px-6 py-4 shadow hover:shadow-md text-gray-700">
-                                  {{ category.name }}
+                                  {{ category.name }} Test
                                 </li>
-                                <!-- More items... -->
                               </ul>
                               <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Ajouter
@@ -674,17 +673,24 @@ function handleKeyDown(event) {
       }
     }
   } else if (event.key === 'Enter') {
-    event.preventDefault();
 
     if (step.value == 0) {
+      event.preventDefault();
       nextStep0();
     } else if (step.value == 1) {
+      event.preventDefault();
       nextStep1();
     } else if (step.value == 2) {
       if (isModalOpen.value == false) {
+        event.preventDefault();
+        nextStep0();
+        nextStep1();
         submitSignupData();
       } else {
-        addCategory();
+        if (!event.shiftKey) {
+          console.log("Shift KEy pressed")
+          addCategory();
+        }
       }
     }
   } else if (event.key === 'Escape') {

@@ -3,10 +3,17 @@ Utility Functions for Email Processing.
 
 This file contains utility functions for processing email content, including clearing HTML, extracting text, checking for HTML presence, concatenating text, processing email parts, and preprocessing email content.
 """
+import sys
+import os
 
+# Assuming library.py is in the MailAssistant/backend/MailAssistant directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+from models import Category
 import re
 import base64
-from .models import Category
 from bs4 import BeautifulSoup
 
 

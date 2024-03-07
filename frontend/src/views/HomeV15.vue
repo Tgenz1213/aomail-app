@@ -51,8 +51,9 @@
                                             </span>-->
                                                 <span
                                                     class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-6 h-6">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                                     </svg>
@@ -71,8 +72,9 @@
                                                 <select id="tabs" name="tabs"
                                                     class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
                                                     v-model="selectedTopic">
-                                                    <option v-for="category in categories" :key="category">{{ category.name
-                                                    }}</option>
+                                                    <option v-for="category in categories" :key="category">{{
+        category.name
+    }}</option>
                                                 </select>
                                             </div>
                                             <div class="hidden sm:block w-full">
@@ -85,14 +87,15 @@
                                                             <div class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
-                                                                        category.name }}</span>
+        category.name }}</span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
                                                                     <span
                                                                         v-if="totalEmailsInCategoryNotRead(category.name) > 0"
                                                                         class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
                                                                         :class="{ 'text-gray-800': selectedTopic === category.name, 'text-white bg-gray-800': selectedTopic !== category.name }">
-                                                                        {{ totalEmailsInCategoryNotRead(category.name) }}
+                                                                        {{ totalEmailsInCategoryNotRead(category.name)
+                                                                        }}
                                                                     </span>
                                                                 </div>
                                                                 <span
@@ -102,7 +105,8 @@
                                                                         stroke="currentColor"
                                                                         class="w-5 h-5 hover:text-black"
                                                                         @click.stop="openUpdateModal(category)">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round"
                                                                             d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                                     </svg>
                                                                 </span>
@@ -131,12 +135,13 @@
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div
                                     class="flex flex-col justify-center items-center h-full mx-4 my-4 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                                        stroke="currentColor" class="mx-auto h-14 w-14 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1" stroke="currentColor" class="mx-auto h-14 w-14 text-gray-400">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                     </svg>
-                                    <span class="mt-2 block text-md font-semibold text-gray-900">Aucun nouveau mail</span>
+                                    <span class="mt-2 block text-md font-semibold text-gray-900">Aucun nouveau
+                                        mail</span>
                                 </div>
                             </div>
                         </div>
@@ -144,7 +149,8 @@
                             class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar"
                             ref="scrollableDiv">
                             <ul role="list" class="flex flex-col w-full h-full rounded-xl">
-                                <div class="pb-4"><!-- To check if there is one class allow the whitespace at the bottom -->
+                                <div class="pb-4">
+                                    <!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
                                         class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20">
                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
@@ -156,8 +162,9 @@
                                             <div class="flex">
                                                 <span
                                                     class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-red-400 dark:bg-red-200">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-6 h-6 text-white">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                     </svg>
@@ -174,7 +181,8 @@
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
                                                             <!-- SAVE DO NOT DELETE : px-6 md:py-2 2xl:py-4 -->
-                                                            <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                                                            <div class="col-span-8"
+                                                                @click="toggleHiddenParagraph(item.id)">
                                                                 <div class="flex-auto group">
                                                                     <div class="flex gap-x-4">
                                                                         <p
@@ -185,7 +193,8 @@
                                                                             <div class="flex gap-x-1 items-center">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                                     fill="none" viewBox="0 0 24 24"
-                                                                                    stroke-width="1.5" stroke="currentColor"
+                                                                                    stroke-width="1.5"
+                                                                                    stroke="currentColor"
                                                                                     class="w-4 h-4">
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
@@ -234,7 +243,8 @@
                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
                                                                                     Lu
                                                                                 </div>
-                                                                                <button @click="markEmailAsRead(item.id)"
+                                                                                <button
+                                                                                    @click="markEmailAsRead(item.id)"
                                                                                     type="button"
                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
                                                                                     <check-icon
@@ -267,7 +277,8 @@
                                                                                 <Menu as="div"
                                                                                     class="relative inline-block text-left">
                                                                                     <div>
-                                                                                        <MenuButton @click="toggleTooltip"
+                                                                                        <MenuButton
+                                                                                            @click="toggleTooltip"
                                                                                             class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-red-400 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
                                                                                             <ellipsis-horizontal-icon
                                                                                                 class="w-5 h-5 group-hover:text-white text-red-400 group-active:text-red-400 group-focus:text-red focus:text-red-400" />
@@ -302,7 +313,8 @@
                                                                                                                     stroke-linejoin="round"
                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                             </svg>
-                                                                                                            <span>Changer la
+                                                                                                            <span>Changer
+                                                                                                                la
                                                                                                                 règle</span>
                                                                                                         </span>
                                                                                                     </a>
@@ -327,7 +339,8 @@
                                                                                                                     stroke-linejoin="round"
                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                             </svg>
-                                                                                                            <span>Créer une
+                                                                                                            <span>Créer
+                                                                                                                une
                                                                                                                 règle</span>
                                                                                                         </span>
                                                                                                     </a>
@@ -358,7 +371,8 @@
                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                         </svg>
-                                                                                                        <span>Répondre plus
+                                                                                                        <span>Répondre
+                                                                                                            plus
                                                                                                             tard</span>
                                                                                                     </span>
                                                                                                 </a>
@@ -390,8 +404,9 @@
                                             <div class="flex">
                                                 <span
                                                     class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 dark:bg-blue-200">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-white">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-6 h-6 text-white">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                     </svg>
@@ -407,7 +422,8 @@
                                                             class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
-                                                            <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                                                            <div class="col-span-8"
+                                                                @click="toggleHiddenParagraph(item.id)">
                                                                 <div class="flex-auto group">
                                                                     <div class="flex gap-x-4">
                                                                         <p
@@ -418,7 +434,8 @@
                                                                             <div class="flex gap-x-1 items-center">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                                     fill="none" viewBox="0 0 24 24"
-                                                                                    stroke-width="1.5" stroke="currentColor"
+                                                                                    stroke-width="1.5"
+                                                                                    stroke="currentColor"
                                                                                     class="w-4 h-4">
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
@@ -501,7 +518,8 @@
                                                                                 <Menu as="div"
                                                                                     class="relative inline-block text-left">
                                                                                     <div>
-                                                                                        <MenuButton @click="toggleTooltip"
+                                                                                        <MenuButton
+                                                                                            @click="toggleTooltip"
                                                                                             class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-blue-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
                                                                                             <ellipsis-horizontal-icon
                                                                                                 class="w-5 h-5 group-hover:text-white text-blue-400 group-active:text-blue-400 group-focus:text-red focus:text-blue-400" />
@@ -536,7 +554,8 @@
                                                                                                                     stroke-linejoin="round"
                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                             </svg>
-                                                                                                            <span>Changer la
+                                                                                                            <span>Changer
+                                                                                                                la
                                                                                                                 règle</span>
                                                                                                         </span>
                                                                                                     </a>
@@ -561,7 +580,8 @@
                                                                                                                     stroke-linejoin="round"
                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                             </svg>
-                                                                                                            <span>Créer une
+                                                                                                            <span>Créer
+                                                                                                                une
                                                                                                                 règle</span>
                                                                                                         </span>
                                                                                                     </a>
@@ -592,7 +612,8 @@
                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                         </svg>
-                                                                                                        <span>Répondre plus
+                                                                                                        <span>Répondre
+                                                                                                            plus
                                                                                                             tard</span>
                                                                                                     </span>
                                                                                                 </a>
@@ -644,8 +665,8 @@
                                                                 <div class="flex gap-x-2">
                                                                     <p>Vous avez reçu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
-                                                                                emails[selectedTopic]['Useless'].length
-                                                                            }}</span> <span
+        emails[selectedTopic]['Useless'].length
+    }}</span> <span
                                                                             v-if="emails[selectedTopic]['Useless'].length === 1">mail
                                                                             inutile</span><span v-else>mails
                                                                             inutiles</span>.</p>
@@ -668,7 +689,8 @@
                                                                     class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-200">
                                                                     <li class="py-5 grid grid-cols-10 w-full"
                                                                         v-for="item in emails[selectedTopic]['Useless']"
-                                                                        :key="item.id" @mouseover="setHoveredItem(item.id)"
+                                                                        :key="item.id"
+                                                                        @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem">
                                                                         <div class="col-span-8 flex-auto">
                                                                             <div
@@ -757,7 +779,8 @@
                                                                                                     <MenuItems
                                                                                                         v-show="isMenuOpen"
                                                                                                         class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                                                                        <div class="py-1">
+                                                                                                        <div
+                                                                                                            class="py-1">
                                                                                                             <div
                                                                                                                 v-if="item.rule">
                                                                                                                 <MenuItem
@@ -812,7 +835,8 @@
                                                                                                                 </MenuItem>
                                                                                                             </div>
                                                                                                         </div>
-                                                                                                        <div class="py-1">
+                                                                                                        <div
+                                                                                                            class="py-1">
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
                                                                                                             <a @click.prevent="markEmailReplyLater(item.id)"
@@ -894,11 +918,11 @@
                                                                 <div class="flex group gap-x-2">
                                                                     <p>Vous avez récemment lu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{
-                                                                                readEmailsInSelectedTopic().length }}</span>
+        readEmailsInSelectedTopic().length }}</span>
                                                                         <span
                                                                             v-if="readEmailsInSelectedTopic().length === 1">
-                                                                            mail</span><span v-else> mails</span>. Je <span
-                                                                            class="font-medium">vais nettoyer
+                                                                            mail</span><span v-else> mails</span>. Je
+                                                                        <span class="font-medium">vais nettoyer
                                                                             automatiquement</span> les mails lus.
                                                                     </p>
                                                                     <div
@@ -920,7 +944,8 @@
                                                                     class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-300 w-full">
                                                                     <li class="py-5 grid grid-cols-10 w-full"
                                                                         v-for="item in readEmailsInSelectedTopic()"
-                                                                        :key="item.id" @mouseover="setHoveredItem(item.id)"
+                                                                        :key="item.id"
+                                                                        @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem">
                                                                         <div class="col-span-8">
                                                                             <div class="flex-auto">
@@ -1011,7 +1036,8 @@
                                                                                                     <MenuItems
                                                                                                         v-show="isMenuOpen"
                                                                                                         class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                                                                        <div class="py-1">
+                                                                                                        <div
+                                                                                                            class="py-1">
                                                                                                             <div
                                                                                                                 v-if="item.rule">
                                                                                                                 <MenuItem
@@ -1066,7 +1092,8 @@
                                                                                                                 </MenuItem>
                                                                                                             </div>
                                                                                                         </div>
-                                                                                                        <div class="py-1">
+                                                                                                        <div
+                                                                                                            class="py-1">
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
                                                                                                             <a @click.prevent="markEmailReplyLater(item.id)"
@@ -1189,7 +1216,7 @@ onMounted(async () => {
 
             // TODO: Leave animation if 0 mail => 1 mail OR from 1 mail to 2 mails
             if (totalUnread.value > 0 && totalUnread.value <= 2) {
-                await animateText(getTextNumberUnreadMail(totalUnread.value));
+                animateText(getTextNumberUnreadMail(totalUnread.value));
             } else {
                 animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
             }
@@ -1512,12 +1539,11 @@ async function handleAddCategory(categoryData) {
 
             closeModal();
             const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
-            console.log("CategoryData", fetchedCategories);
+
             categories.value = fetchedCategories.map(category => ({
                 name: category.name,
                 description: category.description
             }));
-            console.log("Assigned categories:", categories.value);
         }
     } catch (error) {
         // Show the pop-up

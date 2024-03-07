@@ -56,6 +56,7 @@ import { fetchWithToken } from '../router/index.js';
 import { ref } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { onMounted } from 'vue';
+import { API_BASE_URL } from '@/main';
 
 const props = defineProps({
     isOpen: Boolean,
@@ -83,14 +84,14 @@ async function addCategory() {
         console.log("Name not accepted. It contains a special character.");
     } else {
         try {
-            const fetchedCategories = await fetchWithToken(`http://localhost:9000/MailAssistant/user/categories/`);
+            const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
 
             for (let i = 0; i < fetchedCategories.length; i++) {
                 if (fetchedCategories[i]['name'] == categoryName.value) {
                     console.log('La catégorie: ' + categoryName.value + ' existe déjà')
                     setTimeout(() => {
                         //
-                    }, 5000);
+                    }, 4000);
                     emits('addCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
                     return;
                 }
@@ -115,6 +116,7 @@ function handleKeyDown(event) {
         closeModal();
     }
     else if (event.key === 'Enter') {
+        event.preventDefault();
         addCategory();
     }
 }

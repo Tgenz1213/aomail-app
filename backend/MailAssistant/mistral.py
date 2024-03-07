@@ -8,7 +8,6 @@ from mistralai.models.chat_completion import ChatMessage
 from colorama import Fore, init
 import time
 import json
-import library
 
 
 ######################## MISTRAL API SETTINGS ########################
@@ -29,11 +28,11 @@ def get_language(input_subject, input_body):
     """Returns the primary language used in the email"""
 
     template = """Given an email with subject: '{input_subject}' and body: '{input_body}',
-    IDENTIFY the primary language used (e.g., French, English, Russian), prioritizing the body over the subject.
+    IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
     
-    Provide the answer in JSON format with the key 'language' (STRING).
+    Provide ONLY the answer in JSON format with the key 'language' (STRING).
     """
-    model = "mistral-small"
+    model = "mistral-small-latest"
     role = "user"
     formatted_prompt = template.format(
         input_body=input_body, input_subject=input_subject
@@ -45,6 +44,37 @@ def get_language(input_subject, input_body):
     print(f"{Fore.LIGHTBLUE_EX}The language used is: {language}")
 
     return language
+
+
+def count_corrections(
+    original_subject, original_body, corrected_subject, corrected_body
+):
+    """Count and compare corrections in original and corrected texts"""
+
+    # Splitting the original and corrected texts into words
+    original_subject_words = original_subject.split()
+    corrected_subject_words = corrected_subject.split()
+    original_body_words = original_body.split()
+    corrected_body_words = corrected_body.split()
+
+    # Counting the differences in the subject
+    subject_corrections = sum(
+        1
+        for orig, corr in zip(original_subject_words, corrected_subject_words)
+        if orig != corr
+    )
+
+    # Counting the differences in the body
+    body_corrections = sum(
+        1
+        for orig, corr in zip(original_body_words, corrected_body_words)
+        if orig != corr
+    )
+
+    # Total corrections
+    total_corrections = subject_corrections + body_corrections
+
+    return total_corrections
 
 
 def extract_contacts_recipients(query):
@@ -62,9 +92,9 @@ def extract_contacts_recipients(query):
     Return the results in JSON format with three keys:
     main_recipients: [Python list],
     cc_recipients: [Python list],
-    bcc_recipients: [Python list]    
+    bcc_recipients: [Python list]
     """
-    model = "mistral-small"
+    model = "mistral-small-latest"
     role = "user"
     formatted_prompt = template.format(query=query)
     response = get_prompt_response(formatted_prompt, model, role)
@@ -95,7 +125,7 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
 
     Answer must be a list (Python) format: ["....", "....."]
     """
-    model = "mistral-small"
+    model = "mistral-small-latest"
     role = "user"
     formatted_prompt = template.format(
         input_subject=input_subject, input_email=input_email, language=language
@@ -151,7 +181,7 @@ def new_mail_recommendation(mail_content, email_subject, user_recommendation):
         email_subject=email_subject,
         mail_content=mail_content,
     )
-    model = "mistral-small"
+    model = "mistral-small-latest"
     role = "user"
     response = get_prompt_response(formatted_prompt, model, role)
     clear_text = response.choices[0].message.content.strip()
@@ -179,7 +209,7 @@ def generate_email(input_data, length, formality):
     formatted_prompt = template.format(
         input_data=input_data, length=length, formality=formality
     )
-    model = "mistral-small"
+    model = "mistral-small-latest"
     role = "user"
     response = get_prompt_response(formatted_prompt, model, role)
 
@@ -207,7 +237,7 @@ def correct_mail_language_mistakes(subject, body):
     body: {email_body}
     """
     formatted_prompt = template.format(email_subject=subject, email_body=body)
-    model = "mistral-small"
+    model = "mistral-small-latest"
     role = "user"
     response = get_prompt_response(formatted_prompt, model, role)
     clear_text = response.choices[0].message.content.strip()
@@ -221,7 +251,7 @@ def correct_mail_language_mistakes(subject, body):
     print(f"{Fore.CYAN}Email Body: {corrected_body}")
 
     # Count the number of corrections
-    num_corrections = library.count_corrections(
+    num_corrections = count_corrections(
         subject, body, corrected_subject, corrected_body
     )
 
@@ -229,7 +259,7 @@ def correct_mail_language_mistakes(subject, body):
 
 
 # --- TESTING --- #
-"""start_time = time.time()
+'''start_time = time.time()
 
 email_subject = "Je serais absent à la réunion de vendredi"
 mail_content = "jai dotre reunion je ne peux pas venir désole je ratrap asep c u"
@@ -240,4 +270,18 @@ user_recommendation = (
 new_mail_recommendation(mail_content, email_subject, user_recommendation)
 execution_time = time.time() - start_time
 
-print(f"{Fore.GREEN}Le temps d'exécution du script est de {execution_time} secondes.")"""
+print(f"{Fore.GREEN}Le temps d'exécution du script est de {execution_time} secondes.")
+
+start_time = time.time()
+get_language(
+    "Yaxshimiziz",
+    "Assalomu Aleykum, Meining ismi Augustin. Men Uzbek tilini organypman",
+)
+get_language("test d'email", "Salut, la team, cava? c'est juste un test")
+get_language("Achtung bitte", "Hallo, ich habe nur ein Frage, Warum bist du langsamer als mistral?")
+
+
+execution_time = time.time() - start_time
+
+print(f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes.")
+'''

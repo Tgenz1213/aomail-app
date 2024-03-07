@@ -46,6 +46,7 @@ async function fetchWithToken(url, options = {}) {
         options.headers['Authorization'] = `Bearer ${newAccessToken}`;
         response = await fetch(url, options);
       } else {
+        // TODO: Display a template page
         throw new Error('Unauthorized: Please log in again');
       }
     }

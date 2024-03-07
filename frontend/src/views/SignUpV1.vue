@@ -1,9 +1,11 @@
 <template>
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
-  <transition name="modal-fade">
+  <NewCategoryModal :isModalOpen="isModalOpen" :errorMessage="modalErrorMessage" @closeModal="closeModal"
+    @addCategory="handleAddCategory" />
+  <!-- <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-      v-if="isOpen">
+      v-if="isModalOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>
         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
@@ -49,7 +51,7 @@
         </div>
       </div>
     </div>
-  </transition>
+  </transition> -->
   <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
     <!--OLD VALUE TO SAVE : 27/01/2024 => 2xl:justify-center 2xl:items-center-->
     <div class="flex-grow flex flex-col justify-center py-4">
@@ -554,7 +556,7 @@
                               automatiquement vos emails.</p>
                             <a class="underline text-gray-500">En savoir plus</a>
                             <div v-if="categories.length === 0">
-                              <button @click="isOpen = !isOpen" type="button"
+                              <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
                                   viewBox="0 0 48 48" aria-hidden="true">
@@ -574,14 +576,14 @@
                                 </li>
                                 <!-- More items... -->
                               </ul>
-                              <button @click="isOpen = !isOpen" type="button"
+                              <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">Ajouter
                                 une autre catégorie</button>
-                              <!--<button @click="isOpen = !isOpen" type="button" class="h-[25px] w-full rounded-lg border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                              <!--<button @click="isModalOpen = !isModalOpen" type="button" class="h-[25px] w-full rounded-lg border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                                 <span class="text-sm font-semibold text-gray-900">Ajouter une autre catégorie</span>
                               </button>-->
                               <!--
-                              <button @click="isOpen = !isOpen" type="button"  class="flex w-full justify-center rounded-md bg-gray-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Ajouter une autre catégorie</button>-->
+                              <button @click="isModalOpen = !isModalOpen" type="button"  class="flex w-full justify-center rounded-md bg-gray-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Ajouter une autre catégorie</button>-->
                             </div>
                           </div>
                         </div>
@@ -619,6 +621,7 @@ import { API_BASE_URL } from '@/main';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
 import ShowNotification from '../components/ShowNotification.vue';
+import NewCategoryModal from '../components/NewCategoryModal.vue';
 
 const router = useRouter();
 
@@ -632,7 +635,7 @@ let confirmPassword = ref('');
 let credentialError = ref('');
 let theme = ref('');
 let color = ref('');
-let isOpen = ref(false);
+let isModalOpen = ref(false);
 let categoryName = ref('');
 let categoryDescription = ref('');
 let categories = ref([]);
@@ -672,7 +675,7 @@ function handleKeyDown(event) {
       nextStep0();
     } else if (step.value == 1) {
       nextStep1();
-    } else if (step.value == 2) {
+    } else if (step.value == 2 && isModalOpen.value == false) {
       submitSignupData();
     }
   }
@@ -798,28 +801,78 @@ async function goStep2() {
   nextStep1();
 }
 function closeModal() {
-  isOpen.value = false;
+  isModalOpen.value = false;
 }
-function addCategory() {
+async function handleAddCategory(categoryData) {
 
-  if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-    errorMessage.value = "Veuillez remplir tous les champs.";
+if (Object.hasOwnProperty.call(categoryData, 'error')) {
+    backgroundColor = 'bg-red-300';
+    notificationTitle = categoryData.error;
+    notificationMessage = categoryData.description;
+    displayPopup();
+
+    closeModal();
     return;
-  } else if (categories.value.some(cat => cat.name === categoryName.value)) {
-    errorMessage.value = "Le nom de la catégorie existe déjà.";
-    return;
-  } else {
-    categories.value.push({
-      name: categoryName.value,
-      description: categoryDescription.value
+}
+
+try {
+    const response = await fetchWithToken(`${API_BASE_URL}api/set_category/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            name: categoryData.name,
+            description: categoryData.description,
+        }),
     });
 
-    categoryName.value = '';
-    categoryDescription.value = '';
-    errorMessage.value = '';
-    isOpen.value = false;
-  }
+    if (response) {
+        // Show the pop-up
+        backgroundColor = 'bg-green-300';
+        notificationTitle = 'Succès !';
+        notificationMessage = 'La catégorie a été ajoutée';
+        displayPopup();
+
+        closeModal();
+        const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
+        console.log("CategoryData", fetchedCategories);
+        categories.value = fetchedCategories.map(category => ({
+            name: category.name,
+            description: category.description
+        }));
+        console.log("Assigned categories:", categories.value);
+    }
+} catch (error) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle = 'Erreur lors de l\'ajout de la catégorie';
+    notificationMessage = error;
+    displayPopup();
+
+    closeModal();
 }
+}
+// function addCategory() {
+
+//   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
+//     errorMessage.value = "Veuillez remplir tous les champs.";
+//     return;
+//   } else if (categories.value.some(cat => cat.name === categoryName.value)) {
+//     errorMessage.value = "Le nom de la catégorie existe déjà.";
+//     return;
+//   } else {
+//     categories.value.push({
+//       name: categoryName.value,
+//       description: categoryDescription.value
+//     });
+
+//     categoryName.value = '';
+//     categoryDescription.value = '';
+//     errorMessage.value = '';
+//     isModalOpen.value = false;
+//   }
+// }
 async function submitSignupData() {
   try {
     // save categories
@@ -842,6 +895,7 @@ export default {
   components: {
     Theme,
     Color,
+    NewCategoryModal,
     XMarkIcon
   },
   data() {

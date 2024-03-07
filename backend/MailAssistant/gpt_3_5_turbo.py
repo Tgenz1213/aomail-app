@@ -4,13 +4,14 @@ Handles prompt engineering requests for GPT-3.5-turbo API.
 
 import json
 import re
+import time
 import openai
 import ast
 from colorama import Fore, init
 
 
 ######################## GPT - 3.5 turbo API SETTINGS ########################
-OPENAI_CREDS = json.load(open("creds/openai_creds.json", "r"))
+OPENAI_CREDS = json.load(open("backend/creds/openai_creds.json", "r"))
 init(autoreset=True)
 
 
@@ -31,7 +32,7 @@ def get_language(input_subject, input_body):
     """Returns the primary language used in the email"""
 
     template = """Given an email with subject: '{input_subject}' and body: '{input_body}',
-    IDENTIFY the primary language used (e.g., French, English, Russian), prioritizing the body over the subject.
+    IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
     
     Provide the answer in JSON format with the key 'language' (STRING).
     """

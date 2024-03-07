@@ -327,7 +327,7 @@ export default {
 
         if (this.formData.category) {
           // Fetch the category ID using fetchWithToken
-          const categoryUrl = `http://localhost:9000/MailAssistant/api/get-category-id/${this.formData.category}`;
+          const categoryUrl = `${API_BASE_URL}api/get-category-id/${this.formData.category}`;
           const categoryData = await fetchWithToken(categoryUrl, {
             method: 'GET'
           });

@@ -206,7 +206,7 @@ export default {
     },
     async fetchRuleById(id_rule) {
       try {
-        const url = `http://localhost:9000/MailAssistant/user/rules/${id_rule}/`;
+        const url = `${API_BASE_URL}user/rules/${id_rule}/`;
 
         const ruleData = await fetchWithToken(url, {
           method: 'GET',
@@ -260,7 +260,7 @@ export default {
           }
         });
 
-        console.log("email senders", data);
+        console.log("email senders=====>", data);
         this.emailSenders = data;
       } catch (error) {
         console.error('Error fetching email senders:', error);

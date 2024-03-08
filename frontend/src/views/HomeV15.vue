@@ -1201,20 +1201,6 @@ let totalUnread = ref(0);
 const isAuthenticated = ref(false);
 
 onMounted(async () => {
-
-    await new Promise(resolve => {
-        setTimeout(async () => {
-            const result = await isUserAuthenticated();
-            console.log('isUserAuthenticated result:', result);
-
-            if (!isAuthenticated.value) {
-                router.push({ name: 'not-authorized' });
-            } else {
-                resolve();
-            }
-        }, 1);
-    });
-
     getBackgroundColor();
 
     // Wait for fetchData completion

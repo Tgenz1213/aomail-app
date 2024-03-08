@@ -52,7 +52,7 @@ async function fetchWithToken(url, options = {}) {
         } catch (error) {
           console.error(error)
         }
-        
+
       }
     }
     // Access token is still valid
@@ -155,18 +155,24 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  // true if authenticated else false
-  const isAuthenticated = isUserAuthenticated();
+router.beforeEach(async (to, _, next) => {
+  try {
+    // true if authenticated else false
+    const isAuthenticated = await isUserAuthenticated();
 
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!isAuthenticated) {
-      next({ name: 'login' });
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (!isAuthenticated) {
+        next({ name: 'not-authorized' });
+      } else {
+        next();
+      }
     } else {
       next();
     }
-  } else {
-    next();
+  } catch (error) {
+    console.error('Error checking authentication:', error);
+    // Redirect to login on error
+    next({ name: 'login' });
   }
 });
 

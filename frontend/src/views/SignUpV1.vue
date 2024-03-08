@@ -47,7 +47,7 @@
               @click="updateCategoryHandler">Mettre à jour</button>
             <button type="button"
               class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
-              @click="deleteCategoryHandler">
+              @click="deleteCategoryOnUpdate">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor" class="w-6 h-6">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -718,6 +718,7 @@ let categoryName = ref('');
 let categoryDescription = ref('');
 let updateCategoryName = ref('');
 let updateCategoryDescription = ref('');
+let categoryOpened = ref(null);
 let categories = ref([]);
 let errorMessage = ref('');
 
@@ -736,6 +737,7 @@ onMounted(() => {
 function openUpdateModal(category) {
   updateCategoryName.value = category.name;
   updateCategoryDescription.value = category.description;
+  categoryOpened.value = category;
   isModalUpdateOpen.value = true;
 }
 function closeUpdateModal() {
@@ -747,8 +749,17 @@ function deleteCategoryHandler(category) {
     categories.value.splice(indexToRemove, 1);
   }
 }
-function updateCategoryHandler(category) {
-  //TODO
+function deleteCategoryOnUpdate() {
+  const indexToRemove = categories.value.indexOf(categoryOpened.value);
+  if (indexToRemove !== -1) {
+    categories.value.splice(indexToRemove, 1);
+  }
+  closeUpdateModal();
+}
+function updateCategoryHandler() {
+  categoryOpened.value.name = updateCategoryName.value;
+  categoryOpened.value.description = updateCategoryDescription.value;
+  closeUpdateModal();
 }
 
 
@@ -766,15 +777,27 @@ function handleKeyDown(event) {
       }
     } else if (step.value == 1) {
       //TODO select next color with tab
-    } else if (step.value == 2 && isModalOpen.value == true) {
-      if (categoryName.value == '' && document.activeElement.id != 'categoryName') {
-        document.getElementById('categoryName').focus();
-      } else if (categoryDescription.value == '' && document.activeElement.id != 'categoryDescription') {
-        document.getElementById('categoryDescription').focus();
-      } else if (document.activeElement.id === 'categoryName') {
-        document.getElementById('categoryDescription').focus();
-      } else {
-        document.getElementById('categoryName').focus();
+    } else if (step.value == 2) {
+      if (isModalOpen.value == true) {
+        if (categoryName.value == '' && document.activeElement.id != 'categoryName') {
+          document.getElementById('categoryName').focus();
+        } else if (categoryDescription.value == '' && document.activeElement.id != 'categoryDescription') {
+          document.getElementById('categoryDescription').focus();
+        } else if (document.activeElement.id === 'categoryName') {
+          document.getElementById('categoryDescription').focus();
+        } else {
+          document.getElementById('categoryName').focus();
+        }
+      } else if (isModalUpdateOpen.value == true) {
+        if (updateCategoryName.value == '' && document.activeElement.id != 'updateCategoryName') {
+          document.getElementById('updateCategoryName').focus();
+        } else if (updateCategoryDescription.value == '' && document.activeElement.id != 'updateCategoryDescription') {
+          document.getElementById('updateCategoryDescription').focus();
+        } else if (document.activeElement.id === 'updateCategoryName') {
+          document.getElementById('updateCategoryDescription').focus();
+        } else {
+          document.getElementById('updateCategoryName').focus();
+        }
       }
     }
   } else if (event.key === 'Enter' && !event.shiftKey) {
@@ -858,8 +881,7 @@ async function nextStep0() {
     notificationTitle.value = 'Erreur vérification identifiant';
     notificationMessage.value = error;
     displayPopup();
-    // TODO: remove comment
-    //return false;
+    return false;
   }
 
   // Checks passwords requirements

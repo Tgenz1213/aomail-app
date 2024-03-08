@@ -102,6 +102,7 @@ async function updateCategoryHandler() {
 
   if (/[,;:/\\.]/.test(categoryName.value)) {
     console.log("Name not accepted. It contains a special character.");
+    emits('updateCategory', { error: 'Nom de catégorie non conforme', description: 'Le nom contient un caractère interdit : , ; : / \\' });
   } else {
     try {
       const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -126,9 +127,9 @@ async function updateCategoryHandler() {
   }
 }
 
-const deleteCategoryHandler = () => {
+function deleteCategoryHandler() {
   emits('deleteCategory', categoryName.value);
-};
+}
 
 function handleKeyDown(event) {
   if (event.key === 'Escape') {

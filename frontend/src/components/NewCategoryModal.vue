@@ -82,7 +82,7 @@ onMounted(() => {
 async function addCategory() {
 
     if (/[,;:/\\.]/.test(categoryName.value)) {
-    console.log("Name not accepted. It contains a special character.");
+        console.log("Name not accepted. It contains a special character.");
         emits('addCategory', { error: 'Nom de catégorie non conforme', description: 'Le nom contient un caractère interdit : , ; : / \\' });
     } else {
         try {

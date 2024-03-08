@@ -21,7 +21,7 @@
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
-          <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
+          <p class="text-red-500" v-if="errorUpdateMessage">{{ errorUpdateMessage }}</p>
           <div>
             <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Nom de la catégorie</label>
             <div class="mt-2">
@@ -717,10 +717,12 @@ let isModalUpdateOpen = ref(false);
 let categoryName = ref('');
 let categoryDescription = ref('');
 let updateCategoryName = ref('');
+let updateOldCategoryName = ref('');
 let updateCategoryDescription = ref('');
 let categoryOpened = ref(null);
 let categories = ref([]);
 let errorMessage = ref('');
+let errorUpdateMessage = ref('');
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -736,6 +738,7 @@ onMounted(() => {
 
 function openUpdateModal(category) {
   updateCategoryName.value = category.name;
+  updateOldCategoryName.value = category.name;
   updateCategoryDescription.value = category.description;
   categoryOpened.value = category;
   isModalUpdateOpen.value = true;
@@ -757,12 +760,19 @@ function deleteCategoryOnUpdate() {
   closeUpdateModal();
 }
 function updateCategoryHandler() {
-  categoryOpened.value.name = updateCategoryName.value;
-  categoryOpened.value.description = updateCategoryDescription.value;
-  closeUpdateModal();
+
+  if (/[,;:/\\.]/.test(updateCategoryName.value)) {
+    errorUpdateMessage.value = 'Le nom de la catégorie contient un caractère interdit : , ; : / \\';
+  } else if (!updateCategoryName.value.trim() || !updateCategoryDescription.value.trim()) {
+    errorUpdateMessage.value = "Veuillez remplir tous les champs";
+  } else if (categories.value.some(cat => cat.name === updateCategoryName.value && cat.name != updateOldCategoryName.value)) {
+    errorUpdateMessage.value = "Le nom de la catégorie existe déjà";
+  } else {
+    categoryOpened.value.name = updateCategoryName.value;
+    categoryOpened.value.description = updateCategoryDescription.value;
+    closeUpdateModal();
+  }
 }
-
-
 function handleKeyDown(event) {
   if (event.key === 'Tab') {
     event.preventDefault();
@@ -807,18 +817,27 @@ function handleKeyDown(event) {
       nextStep0();
     } else if (step.value == 1) {
       nextStep1();
-    } else if (step.value == 2) {
-      if (isModalOpen.value == false) {
+    } else if (step.value === 2) {
+      if (isModalOpen.value) {
+        event.preventDefault();
+        addCategory();
+      } else if (isModalUpdateOpen.value) {
+        event.preventDefault();
+        updateCategoryHandler();
+      } else {
         nextStep0();
         nextStep1();
         submitSignupData();
-      } else {
-        event.preventDefault();
-        addCategory();
       }
     }
   } else if (event.key === 'Escape') {
-    closeModal();
+    if (isModalUpdateOpen.value == true) {
+      closeUpdateModal();
+    } else if (isModalOpen.value == true) {
+      closeModal();
+    }
+  } else if (event.key === 'Delete') {
+    deleteCategoryOnUpdate();
   }
 }
 function updateBgColor(newBgColor) {
@@ -946,14 +965,11 @@ function closeModal() {
 function addCategory() {
 
   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-    errorMessage.value = "Veuillez remplir tous les champs.";
-    return;
+    errorMessage.value = "Veuillez remplir tous les champs";
   } else if (categories.value.some(cat => cat.name === categoryName.value)) {
-    errorMessage.value = "Le nom de la catégorie existe déjà.";
-    return;
+    errorMessage.value = "Le nom de la catégorie existe déjà";
   } else if (/[,;:/\\.]/.test(categoryName.value)) {
     errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : , ; : / \\';
-    return;
   }
   else {
     categories.value.push({

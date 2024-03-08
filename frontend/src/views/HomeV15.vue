@@ -1163,6 +1163,7 @@
 
 <script setup>
 import { API_BASE_URL } from '@/main';
+import { isUserAuthenticated } from '@/services/authService'
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -1197,9 +1198,23 @@ let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
-
+const isAuthenticated = ref(false);
 
 onMounted(async () => {
+
+    await new Promise(resolve => {
+        setTimeout(async () => {
+            const result = await isUserAuthenticated();
+            console.log('isUserAuthenticated result:', result);
+
+            if (!isAuthenticated.value) {
+                router.push({ name: 'not-authorized' });
+            } else {
+                resolve();
+            }
+        }, 1);
+    });
+
     getBackgroundColor();
 
     // Wait for fetchData completion

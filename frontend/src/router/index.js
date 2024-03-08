@@ -10,7 +10,8 @@ import Rules from '@/views/RulesV2.vue';
 import Settings from '@/views/SettingsV1.vue';
 import Search from '@/views/SearchV2.vue';
 import ReplyLater from '@/views/ReplyLaterV1.vue';
-import NotFound from '@/views/NotFound.vue';
+import NotFound from '@/views/404NotFound.vue';
+import NotAuthorized from '@/views/401NotAuthorized.vue'
 import { API_BASE_URL } from '@/main';
 
 
@@ -46,8 +47,12 @@ async function fetchWithToken(url, options = {}) {
         options.headers['Authorization'] = `Bearer ${newAccessToken}`;
         response = await fetch(url, options);
       } else {
-        // TODO: Display a template page
-        throw new Error('Unauthorized: Please log in again');
+        try {
+          router.push({ name: 'not-authorized' });
+        } catch (error) {
+          console.error(error)
+        }
+        
       }
     }
     // Access token is still valid
@@ -59,7 +64,7 @@ async function fetchWithToken(url, options = {}) {
 
     // Failed to refresh the token
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      console.error(`HTTP error! Status: ${response.status}`);
     }
 
     return response.json();
@@ -132,6 +137,11 @@ const routes = [
     name: 'settings',
     meta: { requiresAuth: true },
     component: Settings,
+  },
+  {
+    path: '/not-authorized',
+    name: 'not-authorized',
+    component: NotAuthorized,
   },
   {
     path: '/:catchAll(.*)',

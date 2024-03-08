@@ -10,7 +10,9 @@
         </div>
       </div>
       <div
-        class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]">
+        class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+        <!-- WORKS FOR 1920*1200px screens <div
+        class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> -->
         <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full divide-y divide-gray-200">
           <div
@@ -63,7 +65,7 @@
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item.name
-                                    }}</p>
+                                      }}</p>
                                     <div
                                       class="hidden group-hover:block px-2 py-0.5 bg-red-300 text-white text-sm shadow rounded-xl">
                                       <div class="flex gap-x-1 items-center">
@@ -77,7 +79,7 @@
                                     </div>
                                   </div>
                                   <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
-                                    item.description }}</p>
+    item.description }}</p>
                                 </div>
                                 <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
                                   :ref="'parentElement' + item.id">
@@ -282,8 +284,9 @@
                               <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
-                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{ item.name
-                                    }}</p>
+                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{
+    item.name
+  }}</p>
                                     <div
                                       class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
                                       <div class="flex gap-x-1 items-center">
@@ -297,7 +300,7 @@
                                     </div>
                                   </div>
                                   <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
-                                    item.description }}</p>
+      item.description }}</p>
                                 </div>
                                 <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
                                   :ref="'parentElement' + item.id">
@@ -514,7 +517,7 @@
                                     </div>
                                   </div>
                                   <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
-                                    item.description }}</p>
+    item.description }}</p>
                                 </div>
                                 <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
                                   :ref="'parentElement' + item.id">

@@ -342,12 +342,10 @@ export default {
             info_AI: ''
           };
         } else {
-          // Handle error
-          return;
-          // ruleData = {
-          //   ...this.formData,
-          //   sender: senderId  // Replace sender object with sender ID
-          // };
+          ruleData = {
+            ...this.formData,
+            sender: senderId  // Replace sender object with sender ID
+          };
         }
         console.log("RuleData", ruleData);
 

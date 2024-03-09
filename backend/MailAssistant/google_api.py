@@ -537,7 +537,7 @@ def get_parsed_contacts(request) -> list:
         logging.exception("Error fetching contacts:")
         return Response({"error": str(e)}, status=500)
 
-
+'''
 def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
     start = time.time()
@@ -593,8 +593,89 @@ def set_all_contacts(user, email):
         )
 
     except Exception as e:
-        logging.exception(f"Error fetching contacts: {str(e)}")
+        logging.exception(f"Error fetching contacts: {str(e)}")'''
 
+def set_all_contacts(user, email):
+    """Stores all unique contacts of an email account in DB"""
+    start = time.time()
+
+    credentials = get_credentials(user, email)
+    services = build_services(credentials)
+    contacts_service = services["contacts"]
+    gmail_service = services["gmail.readonly"]
+
+    try:
+        all_contacts = defaultdict(set)
+
+        # Part 1 : Retreive from Google Contact
+        next_page_token = None
+        while True:
+            response = contacts_service.people().connections().list(
+                resourceName="people/me",
+                personFields="names,emailAddresses",
+                pageSize=1000,
+                pageToken=next_page_token,
+            ).execute()
+
+            connections = response.get("connections", [])
+            next_page_token = response.get("nextPageToken")
+
+            for contact in connections:
+                names = contact.get("names", [{}])
+                email_addresses = contact.get("emailAddresses", [])
+                name = names[0].get("displayName", "") if names else ""
+
+                for email_info in email_addresses:
+                    email_address = email_info.get("value", "")
+                    if email_address:
+                        all_contacts[name].add(email_address)
+
+            if not next_page_token:
+                break
+
+        # Part 2 : Retreiving from Gmail
+        response = gmail_service.users().messages().list(userId='me', q='').execute()
+        messages = response.get('messages', [])
+
+        for msg in messages[:500]:  # Limit to the first 500 messages
+            message = gmail_service.users().messages().get(userId='me', id=msg['id'], format='metadata', metadataHeaders=['From']).execute()
+            headers = message.get('payload', {}).get('headers', [])
+            from_header = next((item for item in headers if item["name"] == "From"), None)
+            if from_header:
+                from_value = from_header['value']
+                if 'reply' in from_value.lower():
+                    continue
+                    
+                email_match = re.search(r'[\w\.-]+@[\w\.-]+', from_value)
+                name_match = re.search(r'(?:"?([^"]*)"?\s)?', from_value)
+
+                email = email_match.group(0) if email_match else None
+                name = name_match.group(1) if name_match and name_match.group(1) else email
+
+                if not email:
+                    continue
+
+                if name in all_contacts:
+                    continue
+                else:
+                    all_contacts[name].add(email)
+
+        # Part 3 : Add the contact to the database
+        for name, emails in all_contacts.items():
+            for email in emails:
+                if name and email:  # Checking that name and email are not empty
+                    try:
+                        Contact.objects.create(email=email, username=name, user=user)
+                    except IntegrityError:
+                        pass  
+
+        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+        logging.info(
+            f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+        )
+
+    except Exception as e:
+        logging.exception(f"Error fetching contacts: {str(e)}")
 
 def get_unique_senders(services) -> dict:
     """Fetches unique sender information from Gmail messages"""

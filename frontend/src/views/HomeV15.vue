@@ -85,10 +85,9 @@
                                                         <a v-for="category in categories" :key="category" href="#"
                                                             @click="selectCategory(category)"
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
-                                                            <div class="flex">
+                                                            <div v-if="category.name !== 'Other' && category.name !== 'Autres'" class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
-        category.name }}
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{ category.name }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -112,6 +111,21 @@
                                                                             d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
                                                                     </svg>
                                                                 </span>
+                                                            </div>
+                                                            <div v-else class="flex">
+                                                                <span class="px-3 py-2"
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{ category.name }}
+                                                                </span>
+                                                                <div class="group-hover:bg-gray-500 group-hover:bg-opacity-10 flex items-center"
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
+                                                                    <span
+                                                                        v-if="totalEmailsInCategoryNotRead(category.name) > 0"
+                                                                        class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
+                                                                        :class="{ 'text-gray-800': selectedTopic === category.name, 'text-white bg-gray-800': selectedTopic !== category.name }">
+                                                                        {{ totalEmailsInCategoryNotRead(category.name)
+                                                                        }}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </a>
                                                     </div>

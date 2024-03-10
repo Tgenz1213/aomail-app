@@ -810,7 +810,8 @@ def processed_email_to_bdd(request, services):
         # print("DEBUG -------------> category", category_list)
 
         # Process the email data with AI/NLP
-        user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+        #user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+        user_description = ""
         topic, importance, answer, summary, sentence, relevance, importance_explain = (
             gpt_3_5_turbo.categorize_and_summarize_email(
                 subject, decoded_data, category_list, user_description

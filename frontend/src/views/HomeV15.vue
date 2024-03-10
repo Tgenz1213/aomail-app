@@ -212,10 +212,11 @@
                                                                 </div>
                                                                 <ul v-show="showHiddenParagraphs[item.id]" role="list"
                                                                     class="text-black text-sm/6 pt-2"
-                                                                    :ref="'parentElement' + item.id">
+                                                                    :ref="el => setParentRef(el, item.id)">
+                                                                    <!-- Potential design update : bg-white shadow rounded-xl -->
                                                                     <li v-for="detail in item.details" :key="detail.id"
-                                                                        class="pl-8 my-2" :ref="'hiddenText' + item.id"
-                                                                        :data-text="'- ' + detail.text">
+                                                                        class="pl-8" :ref="'hiddenText' + item.id"
+                                                                        :data-text="detail.text">
                                                                     </li>
                                                                 </ul>
                                                             </div>

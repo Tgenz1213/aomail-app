@@ -17,11 +17,15 @@ import { API_BASE_URL } from '@/main';
 
 async function fetchWithToken(url, options = {}) {
   const accessToken = localStorage.getItem('access_token');
+
   if (!options.headers) {
     options.headers = {};
   }
   if (accessToken) {
     options.headers['Authorization'] = `Bearer ${accessToken}`;
+  } else {
+    console.log("No access token provided");
+    return;
   }
 
   try {
@@ -170,8 +174,6 @@ router.beforeEach(async (to, _, next) => {
       next();
     }
   } catch (error) {
-    console.error('Error checking authentication:', error);
-    // Redirect to login on error
     next({ name: 'login' });
   }
 });

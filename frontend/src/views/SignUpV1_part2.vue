@@ -589,7 +589,7 @@ async function submitSignupData(event) {
       localStorage.setItem('email', data.email);
 
       sessionStorage.clear();
-      console.log('Signup successful');
+      localStorage.removeItem("categories");
       // Redirect to the home page once signed in
       router.push({ name: 'home' });
     } else if (data.error == 'Email address already used') {

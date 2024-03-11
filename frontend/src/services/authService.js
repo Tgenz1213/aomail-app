@@ -15,9 +15,9 @@ export async function isUserAuthenticated() {
                 'Authorization': `Bearer ${access_token}`
             },
         };
-        let response = await fetch(`${API_BASE_URL}api/is_authenticated/`, requestOptions);
+        let response = await fetchWithToken(`${API_BASE_URL}api/is_authenticated/`, requestOptions);
 
-        if (response.status === 200) {
+        if (response.isAuthenticated === true) {
             // Check if email is in localStorage
             const email = localStorage.getItem('email');
 
@@ -35,7 +35,7 @@ export async function isUserAuthenticated() {
             return false;
         }
     } catch (error) {
-        console.error("Error checking authentication:", error);
+        console.error('Error isUserAuthenticated =====>', error);
         return false;
     }
 }

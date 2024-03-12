@@ -49,7 +49,7 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
-                            @click="closeModal">Annulez</button>
+                            @click="closeModal">Annuler</button>
                         <button type="button"
                             class="ml-auto rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                             @click="deleteAccount">Supprimer</button>

@@ -117,7 +117,7 @@
                                                                 class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinataire(s)</label>
                                                         </div>
                                                         <Combobox as="div" v-model="selectedPerson"
-                                                            @update:model-value="personSelected" @blur="handleBlur2">
+                                                            @update:model-value="personSelected">
                                                             <ComboboxInput id="recipients"
                                                                 class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                                                 @change="query = $event.target.value"
@@ -273,7 +273,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-        item.name }}</a>
+                                                                    item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -560,6 +560,7 @@ function handleEnterKey(event) {
         handleAIClick();
     }
     else if (isFocused2.value) {
+        event.preventDefault();
         handleBlur2(event);
         // the user is still on the input
         handleFocusDestinary();
@@ -1919,13 +1920,13 @@ function handleKeyDown(event) {
 
         if (document.getElementById('editor').contains(document.activeElement)) {
             return;
+        } else if (selectedCCI.value.length == 0 && selectedCC.value.length == 0 && selectedPeople.value.length == 0 && document.activeElement.id != 'recipients') {
+            activeType.value = null;
+            document.getElementById('recipients').focus();
         } else if (inputValue.value == '' && isFocused.value == false) {
             document.getElementById('objectInput').focus();
         } else if (quill.value.root.innerHTML == '<p><br></p>') {
             quill.value.focus();
-        } else if (selectedCCI.value.length == 0 && selectedCC.value.length == 0 && selectedPeople.value.length == 0 && document.activeElement.id != 'recipients') {
-            activeType.value = null;
-            document.getElementById('recipients').focus();
         } else {
             // Logic to rotate
             if (document.activeElement.id === 'recipients') {

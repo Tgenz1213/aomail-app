@@ -31,7 +31,7 @@ async function fetchWithToken(url, options = {}) {
   try {
     let response = await fetch(url, options);
 
-    console.log("------------> DEBUG RESPONSE", response); // To delete after test (only Theo can delete)
+    //console.log("------------> DEBUG RESPONSE", response); // To delete after test (only Theo can delete)
 
     if (response.status == 401) {
       const refreshResponse = await fetch(`${API_BASE_URL}api/token/refresh/`, {
@@ -42,7 +42,7 @@ async function fetchWithToken(url, options = {}) {
         body: JSON.stringify({ access_token: accessToken })
       });
 
-      console.log("----------------> DEBUG", refreshResponse); // To delete after test (only Theo can delete)
+      //console.log("----------------> DEBUG", refreshResponse); // To delete after test (only Theo can delete)
 
       if (refreshResponse.ok) {
         const refreshData = await refreshResponse.json();
@@ -62,7 +62,7 @@ async function fetchWithToken(url, options = {}) {
     // Access token is still valid
     // Handles other errors
     else {
-      console.log("DEBUG 2", response); // To delete after test (only Theo can delete)
+      //console.log("DEBUG 2", response); // To delete after test (only Theo can delete)
       return response.json();
     }
 

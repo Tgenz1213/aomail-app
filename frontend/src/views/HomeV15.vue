@@ -1178,7 +1178,6 @@
 
 <script setup>
 import { API_BASE_URL } from '@/main';
-import { isUserAuthenticated } from '@/services/authService'
 
 // Variables to display a notification
 let showNotification = ref(false);

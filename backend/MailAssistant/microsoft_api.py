@@ -4,6 +4,7 @@ Handles authentication and HTTP requests for the Microsoft Graph API.
 
 import datetime
 import json
+import os
 import logging
 import time
 import httpx
@@ -313,6 +314,8 @@ def get_email(access_token):
         graph_api_endpoint = f"{GRAPH_URL}me"
         headers = get_headers(access_token)
         response = requests.get(graph_api_endpoint, headers=headers)
+
+        print(f"DEBUG reponse : {response}")
 
         if response.status_code == 200:
             email_data = response.json()

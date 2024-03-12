@@ -82,7 +82,7 @@
                                                 <nav class="flex flex-wrap space-x-2 justify-center items-center w-full"
                                                     aria-label="Tabs">
                                                     <div class="flex space-x-4">
-                                                        <a v-for="category in categories" :key="category" href="#"
+                                                        <a v-for="category in categories" :key="category"
                                                             @click="selectCategory(category)"
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
                                                             <div v-if="category.name !== 'Other' && category.name !== 'Autres'"
@@ -291,8 +291,8 @@
                                                                             class="group action-buttons">
                                                                             <div class="relative group">
                                                                                 <div
-                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
-                                                                                    Actions supplémentaire
+                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
+                                                                                    Actions supplémentaires
                                                                                 </div>
                                                                                 <Menu as="div"
                                                                                     class="relative inline-block text-left">
@@ -318,7 +318,6 @@
                                                                                                     <MenuItem
                                                                                                         v-slot="{ active }">
                                                                                                     <a @click.prevent="openRuleEditor(item.rule_id)"
-                                                                                                        href="#"
                                                                                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                         <span
                                                                                                             class="flex gap-x-2 items-center">
@@ -344,7 +343,6 @@
                                                                                                     <MenuItem
                                                                                                         v-slot="{ active }">
                                                                                                     <a @click.prevent="openNewRule(item.name, item.email)"
-                                                                                                        href="#"
                                                                                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                         <span
                                                                                                             class="flex gap-x-2 items-center">
@@ -371,7 +369,6 @@
                                                                                                 <MenuItem
                                                                                                     v-slot="{ active }">
                                                                                                 <a @click.prevent="markEmailReplyLater(item.id)"
-                                                                                                    href="#"
                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                     <span
                                                                                                         class="flex gap-x-2 items-center">
@@ -394,6 +391,34 @@
                                                                                                         <span>Répondre
                                                                                                             plus
                                                                                                             tard</span>
+                                                                                                    </span>
+                                                                                                </a>
+                                                                                                </MenuItem>
+                                                                                            </div>
+                                                                                            <div class="py-1">
+                                                                                                <MenuItem
+                                                                                                    v-slot="{ active }">
+                                                                                                <a @click.prevent="transferEmail(item.id)"
+                                                                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                                                                    <span
+                                                                                                        class="flex gap-x-2 items-center">
+                                                                                                        <svg class="w-4 h-4"
+                                                                                                            viewBox="0 0 28 28"
+                                                                                                            version="1.1"
+                                                                                                            stroke="currentColor"
+                                                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                                                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                                                                            xml:space="preserve"
+                                                                                                            xmlns:serif="http://www.serif.com/"
+                                                                                                            style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+                                                                                                            <path
+                                                                                                                d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
+                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                                                                            <path
+                                                                                                                d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
+                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                                                                        </svg>
+                                                                                                        <span>Transférer</span>
                                                                                                     </span>
                                                                                                 </a>
                                                                                                 </MenuItem>
@@ -532,8 +557,8 @@
                                                                             class="group action-buttons">
                                                                             <div class="relative group">
                                                                                 <div
-                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
-                                                                                    Actions supplémentaire
+                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
+                                                                                    Actions supplémentaires
                                                                                 </div>
                                                                                 <Menu as="div"
                                                                                     class="relative inline-block text-left">
@@ -559,7 +584,6 @@
                                                                                                     <MenuItem
                                                                                                         v-slot="{ active }">
                                                                                                     <a @click.prevent="openRuleEditor(item.rule_id)"
-                                                                                                        href="#"
                                                                                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                         <span
                                                                                                             class="flex gap-x-2 items-center">
@@ -585,7 +609,6 @@
                                                                                                     <MenuItem
                                                                                                         v-slot="{ active }">
                                                                                                     <a @click.prevent="openNewRule(item.name, item.email)"
-                                                                                                        href="#"
                                                                                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                         <span
                                                                                                             class="flex gap-x-2 items-center">
@@ -612,7 +635,6 @@
                                                                                                 <MenuItem
                                                                                                     v-slot="{ active }">
                                                                                                 <a @click.prevent="markEmailReplyLater(item.id)"
-                                                                                                    href="#"
                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                     <span
                                                                                                         class="flex gap-x-2 items-center">
@@ -776,8 +798,8 @@
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
                                                                                             <div
-                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
-                                                                                                Actions supplémentaire
+                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
+                                                                                                Actions supplémentaires
                                                                                             </div>
                                                                                             <Menu as="div"
                                                                                                 class="relative inline-block text-left">
@@ -806,7 +828,6 @@
                                                                                                                 <MenuItem
                                                                                                                     v-slot="{ active }">
                                                                                                                 <a @click.prevent="openRuleEditor(item.rule_id)"
-                                                                                                                    href="#"
                                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                     <span
                                                                                                                         class="flex gap-x-2 items-center">
@@ -832,7 +853,6 @@
                                                                                                                 <MenuItem
                                                                                                                     v-slot="{ active }">
                                                                                                                 <a @click.prevent="openNewRule(item.name, item.email)"
-                                                                                                                    href="#"
                                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                     <span
                                                                                                                         class="flex gap-x-2 items-center">
@@ -860,7 +880,6 @@
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
                                                                                                             <a @click.prevent="markEmailReplyLater(item.id)"
-                                                                                                                href="#"
                                                                                                                 :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                 <span
                                                                                                                     class="flex gap-x-2 items-center">
@@ -1035,8 +1054,8 @@
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
                                                                                             <div
-                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[180px]">
-                                                                                                Actions supplémentaire
+                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
+                                                                                                Actions supplémentaires
                                                                                             </div>
                                                                                             <Menu as="div"
                                                                                                 class="relative inline-block text-left">
@@ -1065,7 +1084,6 @@
                                                                                                                 <MenuItem
                                                                                                                     v-slot="{ active }">
                                                                                                                 <a @click.prevent="openRuleEditor(item.rule_id)"
-                                                                                                                    href="#"
                                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                     <span
                                                                                                                         class="flex gap-x-2 items-center">
@@ -1091,7 +1109,6 @@
                                                                                                                 <MenuItem
                                                                                                                     v-slot="{ active }">
                                                                                                                 <a @click.prevent="openNewRule(item.name, item.email)"
-                                                                                                                    href="#"
                                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                     <span
                                                                                                                         class="flex gap-x-2 items-center">
@@ -1119,7 +1136,6 @@
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
                                                                                                             <a @click.prevent="markEmailReplyLater(item.id)"
-                                                                                                                href="#"
                                                                                                                 :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                 <span
                                                                                                                     class="flex gap-x-2 items-center">

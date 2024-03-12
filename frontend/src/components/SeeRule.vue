@@ -196,6 +196,7 @@ export default {
         this.closeModal();
       }
       else if (event.key === 'Enter') {
+        event.preventDefault();
         this.createUserRule()
       }
     },

@@ -44,7 +44,8 @@ AUTHORITY = f"https://login.microsoftonline.com/common"
 # localhost authority
 # AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
-REDIRECT_URI = "http://localhost:8080/signup_part2"
+ENV = os.environ.get('ENV')
+REDIRECT_URI = f'https://{ENV}.aochange.com/signup_part2'
 
 
 ######################## AUTHENTIFICATION ########################

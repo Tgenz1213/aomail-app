@@ -171,7 +171,7 @@
                                 <div class="pb-4">
                                     <!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
-                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20">
+                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20 cursor-pointer">
                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                         <div class="float-right mt-[-25px] mr-[-10px]">
                                             <exclamation-triangle-icon class="w-6 h-6 text-red-500" />
@@ -414,7 +414,7 @@
                                     </li>
                                     <!-- More items... -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && countEmailsInCategoryAndPriority(selectedTopic, 'Information') > 0"
-                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-blue-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-blue-700 ring-opacity-20">
+                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-blue-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-blue-700 ring-opacity-20 cursor-pointer">
                                         <!-- ring-1 ring-blue-700 ring-opacity-20 -->
                                         <div class="float-right mt-[-25px] mr-[-10px]">
                                             <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -906,7 +906,7 @@
                                         </li>
                                     </div>
                                     <div v-if="readEmailsInSelectedTopic().length > 0"
-                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30"
+                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30 cursor-pointer"
                                         @click="toggleReadEmailVisibility">
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
@@ -937,11 +937,13 @@
                                                                 class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                 <div class="flex group gap-x-2">
                                                                     <p>Vous avez récemment lu <span
-                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">{{
-        readEmailsInSelectedTopic().length }}</span>
+                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">
+                                                                            {{ readEmailsInSelectedTopic().length }}
+                                                                        </span>
                                                                         <span
                                                                             v-if="readEmailsInSelectedTopic().length === 1">
-                                                                            mail</span><span v-else> mails</span>. Je
+                                                                            mail</span>
+                                                                        <span v-else> mails</span>. Je
                                                                         <span class="font-medium">vais nettoyer
                                                                             automatiquement</span> les mails lus.
                                                                     </p>
@@ -1231,7 +1233,7 @@ onMounted(async () => {
     setInterval(async () => {
         // TODO: auto update emails.value with google listener and this function will auto update itself
         const newTotalUnread = getNumberUnreadMail(emails.value);
-        
+
         if (initialAnimationDone.value === false) {
             animateText(getTextNumberUnreadMail(totalUnread.value));
             initialAnimationDone.value = true;

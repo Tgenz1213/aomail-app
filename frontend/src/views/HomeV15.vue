@@ -171,7 +171,7 @@
                                 <div class="pb-4">
                                     <!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
-                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20 cursor-pointer">
+                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-red-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-red-700 ring-opacity-20">
                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                         <div class="float-right mt-[-25px] mr-[-10px]">
                                             <exclamation-triangle-icon class="w-6 h-6 text-red-500" />
@@ -200,7 +200,7 @@
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
                                                             <!-- SAVE DO NOT DELETE : px-6 md:py-2 2xl:py-4 -->
-                                                            <div class="col-span-8"
+                                                            <div class="col-span-8 cursor-pointer"
                                                                 @click="toggleHiddenParagraph(item.id)">
                                                                 <div class="flex-auto group">
                                                                     <div class="flex gap-x-4">
@@ -414,7 +414,7 @@
                                     </li>
                                     <!-- More items... -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && countEmailsInCategoryAndPriority(selectedTopic, 'Information') > 0"
-                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-blue-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-blue-700 ring-opacity-20 cursor-pointer">
+                                        class="py-10 px-8 mx-4 mt-4 rounded-xl bg-blue-100 bg-opacity-50 hover:ring-1 ring-offset-0 ring-blue-700 ring-opacity-20">
                                         <!-- ring-1 ring-blue-700 ring-opacity-20 -->
                                         <div class="float-right mt-[-25px] mr-[-10px]">
                                             <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -442,7 +442,7 @@
                                                             class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
                                                             @mouseleave="clearHoveredItem">
-                                                            <div class="col-span-8"
+                                                            <div class="col-span-8 cursor-pointer"
                                                                 @click="toggleHiddenParagraph(item.id)">
                                                                 <div class="flex-auto group">
                                                                     <div class="flex gap-x-4">
@@ -1217,7 +1217,7 @@ let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
-let initialAnimationDone = ref(false);
+//let initialAnimationDone = ref(false);
 
 onMounted(async () => {
     getBackgroundColor();
@@ -1234,13 +1234,9 @@ onMounted(async () => {
         // TODO: auto update emails.value with google listener and this function will auto update itself
         const newTotalUnread = getNumberUnreadMail(emails.value);
 
-        if (initialAnimationDone.value === false) {
-            animateText(getTextNumberUnreadMail(totalUnread.value));
-            initialAnimationDone.value = true;
-        } else if (newTotalUnread !== totalUnread.value) {
+        if (newTotalUnread !== totalUnread.value) {
             totalUnread.value = newTotalUnread;
 
-            // TODO: Leave animation if 0 mail => 1 mail OR from 1 mail to 2 mails
             if (totalUnread.value > 0 && totalUnread.value <= 2) {
                 animateText(getTextNumberUnreadMail(totalUnread.value));
             } else {
@@ -1248,6 +1244,26 @@ onMounted(async () => {
             }
         }
     }, 5000);
+
+    // TODO: optimize and fix visual bugs
+    // setInterval(async () => {
+    //     // TODO: auto update emails.value with google listener and this function will auto update itself
+    //     const newTotalUnread = getNumberUnreadMail(emails.value);
+
+    //     if (initialAnimationDone.value === false) {
+    //         // TODO: emails.value should contains all mails and not only the selected category
+    //         animateText(getTextNumberUnreadMail(totalUnread.value));
+    //         initialAnimationDone.value = true;
+    //     } else if (newTotalUnread !== totalUnread.value) {
+    //         totalUnread.value = newTotalUnread;
+
+    //         if (totalUnread.value > 0 && totalUnread.value <= 2) {
+    //             animateText(getTextNumberUnreadMail(totalUnread.value));
+    //         } else {
+    //             animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
+    //         }
+    //     }
+    // }, 5000);
 });
 
 function getNumberUnreadMail(emailData) {
@@ -1837,15 +1853,15 @@ async function fetchData() {
     try {
         // Fetch the categories
         const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
-        console.log("VERY IMPORTANT: =======> CategoryData", categoryData);
+        //console.log("VERY IMPORTANT: =======> CategoryData", categoryData);
 
         for (let i = 0; i < categoryData.length; i++) {
             categories.value.push(categoryData[i]);
         }
-        console.log("Assigned categories:", categories.value);
+        //console.log("Assigned categories:", categories.value);
 
         const storedTopic = localStorage.getItem('selectedTopic');
-        console.log("selectedTopic", storedTopic)
+        //console.log("selectedTopic", storedTopic)
         if (storedTopic) {
             selectedTopic.value = storedTopic;
         } else if (categories.value.length > 0) {
@@ -1854,7 +1870,7 @@ async function fetchData() {
 
         // Fetch emails
         const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-        console.log('emailData: ', emailData)
+        //console.log('emailData: ', emailData)
         emails.value = emailData;
     } catch (error) {
         console.error('Failed to fetch data:', error);

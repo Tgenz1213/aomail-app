@@ -22,6 +22,42 @@
             </div>
         </div>
     </div>-->
+    <!-- Modal for Account Deletion -->
+    <transition name="modal-fade">
+        <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            v-if="isModalOpen">
+            <div class="bg-white rounded-lg relative w-[450px]">
+                <slot></slot>
+                <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+                    <button @click="closeModal" type="button"
+                        class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        <span class="sr-only">Close</span>
+                        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                    </button>
+                </div>
+                <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+                    <div class="ml-8 flex items-center space-x-1">
+                        <p class="block font-semibold leading-6 text-gray-900">Supprimer mon compte</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4 px-8 py-6">
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">
+                            Cette action est irréversible, nous supprimons votre compte de notre base de données
+                        </label>
+                    </div>
+                    <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
+                        <button type="button"
+                            class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
+                            @click="closeModal">Annulez</button>
+                        <button type="button"
+                            class="ml-auto rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                            @click="deleteAccount">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
             <div class="col-span-1 2xl:col-span-1">
@@ -223,7 +259,7 @@
                                                 de mon compte (action irréversible)</label>
                                         </div>
                                         <div class="flex justify-end pt-4">
-                                            <button @click="deleteAccount" type="submit"
+                                            <button @click="openModal" type="submit"
                                                 class="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Supprimer</button>
                                         </div>
                                     </div>
@@ -326,7 +362,7 @@
 </template>
 
 <script setup>
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL, BASE_URL } from '@/main';
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -341,6 +377,7 @@ let userData = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');
 
+let isModalOpen = ref(false);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -348,6 +385,24 @@ onMounted(() => {
     getBackgroundColor();
 })
 
+
+function openModal() {
+    const isChecked = document.querySelector('input[name="choice"]:checked');
+
+    if (isChecked) {
+        isModalOpen.value = true;
+    } else {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Confirmation nécessaire';
+        notificationMessage = 'Cochez la case pour approuver la suppression';
+        displayPopup();
+    }
+}
+
+function closeModal() {
+    isModalOpen.value = false;
+}
 function dismissPopup() {
     showNotification.value = false;
     // Cancel the timer
@@ -600,55 +655,45 @@ async function updateUsername() {
 }
 async function deleteAccount() {
 
-    const isChecked = document.querySelector('input[name="choice"]:checked');
+    try {
+        const access_token = localStorage.getItem('access_token');
+        const url = `${API_BASE_URL}api/delete_account/`;
 
-    if (isChecked) {
-        try {
-            const access_token = localStorage.getItem('access_token');
-            const url = `${API_BASE_URL}api/delete_account/`;
-
-            const requestOptions = {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${access_token}`
-                }
-            };
-
-            const responseData = await fetchWithToken(url, requestOptions);
-
-            // Check the response data for success or failure
-            if (responseData && responseData.message === 'User successfully deleted') {
-                localStorage.clear();
-                // Show the pop-up
-                backgroundColor = 'bg-green-300';
-                notificationTitle = 'Redirection en cours...';
-                notificationMessage = 'Votre compte a bien été supprimé';
-                displayPopup();
-
-                setTimeout(() => {
-                    // Redirect login page
-                    window.location.href = 'http://localhost:8080';
-                }, 4000);
-
-            } else {
-                // Show the pop-up
-                backgroundColor = 'bg-red-300';
-                notificationTitle = 'Erreur suppresion de votre compte';
-                notificationMessage = responseData.error;
-                displayPopup();
+        const requestOptions = {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${access_token}`
             }
-        } catch (error) {
+        };
+
+        const responseData = await fetchWithToken(url, requestOptions);
+
+        // Check the response data for success or failure
+        if (responseData && responseData.message === 'User successfully deleted') {
+            localStorage.clear();
+            // Show the pop-up
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Redirection en cours...';
+            notificationMessage = 'Votre compte a bien été supprimé';
+            displayPopup();
+
+            setTimeout(() => {
+                // Redirect login page
+                window.location.href = BASE_URL;
+            }, 4000);
+
+        } else {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Erreur suppresion de votre compte';
-            notificationMessage = error;
+            notificationMessage = responseData.error;
             displayPopup();
         }
-    } else {
+    } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Confirmation nécessaire';
-        notificationMessage = 'Cochez la case pour approuver la suppression';
+        notificationTitle = 'Erreur suppresion de votre compte';
+        notificationMessage = error;
         displayPopup();
     }
 }
@@ -663,6 +708,7 @@ import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import Theme from '../components/SettingsTheme.vue';
 import Color from '../components/SettingsColor.vue';
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 import Subscription from '../components/SettingsSubscription.vue'
 import {
     AdjustmentsVerticalIcon,
@@ -681,6 +727,7 @@ export default {
         Theme,
         Color,
         Subscription,
+        XMarkIcon,
         AdjustmentsVerticalIcon,
         UserIcon,
         EnvelopeIcon,

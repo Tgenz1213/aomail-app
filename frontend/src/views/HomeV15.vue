@@ -85,9 +85,11 @@
                                                         <a v-for="category in categories" :key="category" href="#"
                                                             @click="selectCategory(category)"
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
-                                                            <div v-if="category.name !== 'Other' && category.name !== 'Autres'" class="flex">
+                                                            <div v-if="category.name !== 'Other' && category.name !== 'Autres'"
+                                                                class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{ category.name }}
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
+        category.name }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -114,7 +116,8 @@
                                                             </div>
                                                             <div v-else class="flex">
                                                                 <span class="px-3 py-2"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{ category.name }}
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
+        category.name }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -1212,7 +1215,7 @@ let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
-const isAuthenticated = ref(false);
+let initialAnimationDone = ref(false);
 
 onMounted(async () => {
     getBackgroundColor();
@@ -1226,10 +1229,13 @@ onMounted(async () => {
     });
 
     setInterval(async () => {
-        // TODO: fix bug to display the good number
+        // TODO: auto update emails.value with google listener and this function will auto update itself
         const newTotalUnread = getNumberUnreadMail(emails.value);
-
-        if (newTotalUnread !== totalUnread.value) {
+        
+        if (initialAnimationDone.value === false) {
+            animateText(getTextNumberUnreadMail(totalUnread.value));
+            initialAnimationDone.value = true;
+        } else if (newTotalUnread !== totalUnread.value) {
             totalUnread.value = newTotalUnread;
 
             // TODO: Leave animation if 0 mail => 1 mail OR from 1 mail to 2 mails
@@ -1239,7 +1245,7 @@ onMounted(async () => {
                 animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
             }
         }
-    }, 3000);
+    }, 5000);
 });
 
 function getNumberUnreadMail(emailData) {
@@ -1769,15 +1775,11 @@ function animateHiddenText(element, delay = 0) {
     }, delay);
     return duration;
 }
-
-
 function selectCategory(category) {
     selectedTopic.value = category.name;
     localStorage.setItem('selectedTopic', category.name);
     //console.log("CHANGE CATEGORY");
 }
-
-
 function countEmailsInCategoryAndPriority(categoryName, priority) {
     let count = 0;
     if (emails.value[categoryName] && emails.value[categoryName][priority]) {

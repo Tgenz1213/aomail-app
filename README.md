@@ -50,7 +50,7 @@ This error typically indicates that your account does not have the proper licens
 curl -X GET \
      -H "Authorization: Bearer access_token" \
      -H "email: augurolet@gmail.com" \
-     "http://localhost:9000/MailAssistant/api/save_last_mail"
+     "https://augustin.aochange.com/MailAssistant/api/save_last_mail"
 
 # Database Suppression
 
@@ -90,7 +90,7 @@ To test Gmail API authentication, utilize the provided `curl` command. Replace `
 
 ### Testing Authentication:
 ```bash
-curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" http://localhost:9000/MailAssistant/api/authenticate-service
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" https://augustin.aochange.com/MailAssistant/api/authenticate-service
 ```
 
 ### Stopping the Backend Server:

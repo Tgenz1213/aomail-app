@@ -303,7 +303,7 @@ export default {
   },
   computed: {
     filteredRules() {
-      console.log("DEBUG =>", this.searchQuery);
+      //console.log("DEBUG =>", this.searchQuery);
       if (this.searchQuery == '') return this.rules;
       return this.rules.filter(rule =>
         rule.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||

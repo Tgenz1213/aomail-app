@@ -248,7 +248,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-        item.name }}</a>
+                                                                    item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -275,6 +275,7 @@ import ShowNotification from '../components/ShowNotification.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import Quill from 'quill';
 import { API_BASE_URL } from '@/main';
+import { useRoute } from 'vue-router';
 import {
     Combobox,
     ComboboxButton,
@@ -292,6 +293,9 @@ let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
+
+
+const route = useRoute();
 
 const items = [
     { name: 'Envoyer à une heure', href: '#' },
@@ -914,6 +918,24 @@ const bgColor = ref(''); // Initialize a reactive variable
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
+
+    const subject = JSON.parse(route.query.subject);
+    const email = JSON.parse(route.query.email);
+    const cc = JSON.parse(route.query.cc);
+    const cci = JSON.parse(route.query.bcc);
+    const decoded_data = JSON.parse(route.query.decoded_data);
+    const id_provider = JSON.parse(route.query.id_provider);
+    const details = JSON.parse(route.query.details);
+
+    console.log("Subject:", subject);
+    console.log("Email:", email);
+    console.log("cc", cc);
+    console.log("cci", cci);
+    console.log("ID Provider:", id_provider);
+    console.log("Details:", details);
+    console.log("Decoded_data", decoded_data);
+
+    inputValue.value = 'Tr : ' + subject;
 
     getBackgroundColor();
     bgColor.value = localStorage.getItem('bgColor');

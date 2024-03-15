@@ -399,8 +399,19 @@
                         </div>
                       </div>
                       <div class="pt-4">
-                        <div class="relative items-stretch mt-2">
-                          <button @click="authorize_microsoft">Lier mon compte Outlook</button>
+                        <div class="relative items-stretch mt-2 flex justify-center items-center">
+                          <button type="button"
+                            class="inline-flex items-center gap-x-1.5 rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            @click="authorize_microsoft">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
+                              <title>MS-SymbolLockup</title>
+                              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+                              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                            </svg>
+                            Lier mon compte Outlook
+                          </button>
                         </div>
                       </div>
                       <div>

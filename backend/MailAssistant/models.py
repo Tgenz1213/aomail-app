@@ -34,7 +34,7 @@ class Contact(models.Model):
 class Category(models.Model):
     """Model for storing category information."""
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=200)
+    description = models.TextField() # Put a charfield if there is a limit needed
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 

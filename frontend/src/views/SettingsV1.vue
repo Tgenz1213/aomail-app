@@ -671,6 +671,7 @@ async function deleteAccount() {
         // Check the response data for success or failure
         if (responseData && responseData.message === 'User successfully deleted') {
             localStorage.clear();
+            closeModal();
             // Show the pop-up
             backgroundColor = 'bg-green-300';
             notificationTitle = 'Redirection en cours...';

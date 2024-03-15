@@ -41,12 +41,12 @@ CONTACTS_READ_SCOPE = "Contacts.Read"
 SCOPES = [MAIL_READ_SCOPE, MAIL_SEND_SCOPE, CALENDAR_READ_SCOPE, CONTACTS_READ_SCOPE]
 CONFIG = json.load(open("creds/microsoft_creds.json", "r"))
 # PRODUCTION authority
-#AUTHORITY = f"https://login.microsoftonline.com/common"
+# AUTHORITY = f"https://login.microsoftonline.com/common"
 # localhost authority
 AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
-ENV = os.environ.get('ENV')
-REDIRECT_URI = f'https://{ENV}.aochange.com/signup_part2'
+ENV = os.environ.get("ENV")
+REDIRECT_URI = f"https://{ENV}.aochange.com/signup_part2"
 
 
 ######################## AUTHENTIFICATION ########################
@@ -379,20 +379,14 @@ def unread_mails(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def send_email(request):
-    print("DEBUG test")
     """Sends an email using the Microsoft Graph API."""
     user = request.user
-    print(user)
     email = request.headers.get("email")
-    print(email)
     access_token = refresh_access_token(get_social_api(user, email))
-    print(access_token)
     serializer = EmailDataSerializer(data=request.data)
-    print(serializer)
 
     if serializer.is_valid():
         data = serializer.validated_data
-        print("data :", data)
         try:
             # Prepare email data
             subject = data["subject"]
@@ -420,7 +414,6 @@ def send_email(request):
                 }
             }
 
-            '''
             if attachments:
                 message_body = MIMEMultipart()
                 message_body.attach(MIMEText(message, "html"))
@@ -437,12 +430,11 @@ def send_email(request):
                 encoded_message = urlsafe_b64encode(message_body.as_bytes()).decode(
                     "utf-8"
                 )
-                body["message"]["raw"] = encoded_message'''
+                body["message"]["raw"] = encoded_message
 
             try:
                 response = requests.post(graph_endpoint, headers=headers, json=body)
-                #print(response.json())
-                print(response)
+
                 if response.status_code == 202:
                     return JsonResponse(
                         {"message": "Email sent successfully!"}, status=202
@@ -452,8 +444,6 @@ def send_email(request):
                         {"error": "Failed to send email"}, status=response.status_code
                     )
             except Exception as e:
-                print(e)
-                print("test")
                 logging.exception(f"Error sending email: {e}")
                 return JsonResponse({"error": str(e)}, status=500)
 

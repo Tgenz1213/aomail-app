@@ -147,8 +147,6 @@ def validate_authorization_code(type_api, code):
         elif type_api == "microsoft":
             access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
             email = microsoft_api.get_email(access_token)
-            print(f"DEBUG access_token : {access_token} refresh token : {refresh_token}")
-            print(f"DEBUG email : {email}")
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -1148,7 +1146,6 @@ def get_user_emails(request):
         for priority in all_priorities:
             formatted_data[category].setdefault(priority, [])
 
-    print(f"{Fore.CYAN}formatted_data: {formatted_data}")
     return Response(formatted_data, status=status.HTTP_200_OK)
 
 

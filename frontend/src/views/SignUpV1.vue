@@ -882,17 +882,17 @@ async function nextStep0() {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'username': login
+      'username': login.value
     }
   };
 
   try {
     const response = await fetch(`${API_BASE_URL}check_username/`, requestOptions);
     const responseData = await response.json();
-
+    
     if (responseData.available === false) {
       credentialError.value = 'L\'identifiant est déjà utilisé';
-      return;
+      return false;
     }
   } catch (error) {
     // Show the pop-up

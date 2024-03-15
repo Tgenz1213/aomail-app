@@ -119,7 +119,6 @@ def refresh_access_token(social_api):
     access_token = social_api.access_token
 
     if is_token_valid(access_token):
-        print("---------------------> VALID ACCESS TOKEN")
         return access_token
 
     refresh_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
@@ -316,8 +315,6 @@ def get_email(access_token):
         graph_api_endpoint = f"{GRAPH_URL}me"
         headers = get_headers(access_token)
         response = requests.get(graph_api_endpoint, headers=headers)
-
-        print(f"DEBUG reponse : {response.json()}")
 
         if response.status_code == 200:
             email_data = response.json()
@@ -559,6 +556,9 @@ def set_all_contacts(access_token, user):
                 for email in emails:
                     try:
                         Contact.objects.create(email=email, username=name, user=user)
+                        print(
+                            f"{Fore.GREEN}[CONTACT]: {email} has been create successfuly"
+                        )
                     except IntegrityError:
                         # TODO: Handle duplicates gracefully (e.g., update existing records)
                         pass

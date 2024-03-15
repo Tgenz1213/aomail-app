@@ -1182,6 +1182,20 @@ def save_last_mail_view(request):
         return Response({"error": "Failed to authenticate"}, status=400)
 
 
+# [OUTLOOK] TO TEST Gmail Save in BDD Last Email
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def save_last_mail_outlook(request):
+    user = request.user
+    email = request.headers.get("email")
+    
+    try:
+        microsoft_api.processed_email_to_bdd(user, email)
+        return Response({"message": "Save successful"}, status=200)
+    except:
+        return Response({"error": "Failed to authenticate"}, status=400)
+
+
 # TO TEST Gmail GET the Mail from id
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

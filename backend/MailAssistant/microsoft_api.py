@@ -2,10 +2,12 @@
 Handles authentication and HTTP requests for the Microsoft Graph API.
 """
 
+import base64
 import datetime
 import json
 import os
 import logging
+import re
 import time
 import httpx
 import requests
@@ -27,7 +29,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import Contact, SocialAPI
 from requests.exceptions import HTTPError
+from .models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
+from MailAssistant import gpt_3_5_turbo
 
+from . import library
 
 ######################## LOGGING CONFIGURATION ########################
 init(autoreset=True)
@@ -110,7 +115,6 @@ def is_token_valid(access_token):
     sample_url = f"{GRAPH_URL}me"
     headers = get_headers(access_token)
     response = requests.get(sample_url, headers=headers)
-    print("test response : ", response.json())
     return response.status_code == 200
 
 
@@ -156,7 +160,9 @@ def get_parsed_contacts(request) -> list:
             headers = get_headers(access_token)
 
             # Get contacts using Microsoft Graph API
-            graph_endpoint = "https://graph.microsoft.com/v1.0/me/contacts?$select=displayName,emailAddresses"
+            graph_endpoint = (
+                f"{GRAPH_URL}me/contacts?$select=displayName,emailAddresses"
+            )
             response = requests.get(graph_endpoint, headers=headers)
 
             parsed_contacts = []
@@ -209,7 +215,7 @@ def get_parsed_contacts(request) -> list:
 
 def get_info_contacts(access_token):
     """Fetch the name and the email of the contacts of the user"""
-    graph_endpoint = "https://graph.microsoft.com/v1.0/me/contacts"
+    graph_endpoint = f"{GRAPH_URL}me/contacts"
 
     try:
         headers = get_headers(access_token)
@@ -246,9 +252,7 @@ def get_unique_senders(access_token) -> dict:
         headers = get_headers(access_token)
 
         limit = 50
-        graph_endpoint = (
-            f"https://graph.microsoft.com/v1.0/me/messages?$select=sender&$top={limit}"
-        )
+        graph_endpoint = f"{GRAPH_URL}me/messages?$select=sender&$top={limit}"
         response = requests.get(graph_endpoint, headers=headers)
 
         if response.status_code == 200:
@@ -279,7 +283,7 @@ def get_profile_image(request):
     try:
         headers = get_headers(access_token)
 
-        graph_endpoint = "https://graph.microsoft.com/v1.0/me/photo/$value"
+        graph_endpoint = f"{GRAPH_URL}me/photo/$value"
         response = requests.get(graph_endpoint, headers=headers)
 
         if response.status_code == 200:
@@ -341,11 +345,12 @@ def unread_mails(request):
             unread_count = 0
 
             # Get unread messages using Microsoft Graph API
-            graph_endpoint = "https://graph.microsoft.com/v1.0/me/messages"  # ?$count=true&$filter=isRead eq false'
+            graph_endpoint = (
+                f"{GRAPH_URL}me/messages"  # ?$count=true&$filter=isRead eq false'
+            )
             response = requests.get(graph_endpoint, headers=headers)
 
             response_json = response.json()
-            print(f"{Fore.YELLOW}RESPONSE: {response_json}")
 
             if response.status_code == 200:
                 unread_count = response_json.get("@odata.count", 0)
@@ -357,6 +362,7 @@ def unread_mails(request):
                 error_code = response_json.get("error", {}).get("code")
 
                 if error_code == "MailboxNotEnabledForRESTAPI":
+                    # TODO: display a pop-up
                     print(
                         f"{Fore.RED}The account you are using does not have a proper license to access the required endpoints"
                     )
@@ -393,9 +399,8 @@ def send_email(request):
             bcc = data.get("cci")
             attachments = data.get("attachments")
 
-            graph_endpoint = "https://graph.microsoft.com/v1.0/me/sendMail"
+            graph_endpoint = f"{GRAPH_URL}me/sendMail"
             headers = get_headers(access_token)
-            print("headers", headers)
 
             recipients = {"emailAddress": {"address": to}}
             if cc:
@@ -485,7 +490,7 @@ def find_user_in_emails(access_token, search_query):
 
 
 def search_emails(access_token, search_query, max_results=2):
-    graph_endpoint = "https://graph.microsoft.com/v1.0/me/messages"
+    graph_endpoint = f"{GRAPH_URL}me/messages"
 
     try:
         headers = get_headers(access_token)
@@ -529,7 +534,7 @@ def set_all_contacts(access_token, user):
     start = time.time()
 
     # Microsoft Graph API endpoint for getting contacts
-    graph_api_endpoint = "https://graph.microsoft.com/v1.0/me/contacts"
+    graph_api_endpoint = f"{GRAPH_URL}me/contacts"
     headers = get_headers(access_token)
 
     try:
@@ -556,9 +561,6 @@ def set_all_contacts(access_token, user):
                 for email in emails:
                     try:
                         Contact.objects.create(email=email, username=name, user=user)
-                        print(
-                            f"{Fore.GREEN}[CONTACT]: {email} has been create successfuly"
-                        )
                     except IntegrityError:
                         # TODO: Handle duplicates gracefully (e.g., update existing records)
                         pass
@@ -570,3 +572,138 @@ def set_all_contacts(access_token, user):
 
     except httpx.HTTPError as e:
         logging.exception(f"Error fetching contacts: {str(e)}")
+
+
+def parse_name_and_email(sender):
+    if not sender:
+        return None, None
+
+    name = sender.get("emailAddress", {}).get("name")
+    email = sender.get("emailAddress", {}).get("address")
+
+    return name, email
+
+
+def parse_recipients(recipients):
+    if not recipients:
+        return []
+
+    parsed_recipients = []
+    for recipient in recipients:
+        name, email = parse_name_and_email(recipient)
+        parsed_recipients.append((name, email))
+
+    return parsed_recipients
+
+
+def parse_message_body(message_data):
+    if "body" in message_data:
+        body = message_data["body"]
+        if body["contentType"] == "text":
+            return body["content"]
+        elif body["contentType"] == "html":
+            return body["content"]
+        elif body["contentType"] == "multipart":
+            return body["content"]
+    return None
+
+
+def get_mail(access_token, int_mail=None, id_mail=None):
+    """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
+
+    url = f"{GRAPH_URL}me/messages"
+    headers = get_headers(access_token)
+
+    if int_mail is not None:
+        # Fetch specific message by index
+        response = requests.get(url, headers=headers)
+        messages = response.json().get("value", [])
+
+        if not messages:
+            return None
+
+        message_id = messages[int_mail]["id"]
+    elif id_mail is not None:
+        # Fetch message by message id
+        message_id = id_mail
+    else:
+        return None
+
+    # Make request to fetch specific message
+    message_url = f"{url}/{message_id}"
+    response = requests.get(message_url, headers=headers)
+    message_data = response.json()
+
+    # Extract necessary information from the message data
+    subject = message_data.get("subject")
+    sender = message_data.get("from")
+    from_info = parse_name_and_email(sender)
+    cc_info = parse_recipients(message_data.get("ccRecipients"))
+    bcc_info = parse_recipients(message_data.get("bccRecipients"))
+    decoded_data = parse_message_body(message_data)
+
+    # Perform additional processing as needed
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    return subject, from_info, preprocessed_data, cc_info, bcc_info, message_id
+
+
+def processed_email_to_bdd(user, email):
+    access_token = refresh_access_token(get_social_api(user, email))
+    subject, from_name, decoded_data, cc, bcc, email_id = get_mail(access_token, 0, None)
+
+    if not Email.objects.filter(provider_id=email_id).exists():
+
+        if decoded_data:
+            decoded_data = library.format_mail(decoded_data)
+
+        category_list = library.get_db_categories(user)
+
+        user_description = ""
+        topic, importance, answer, summary, sentence, relevance, importance_explain = (
+            gpt_3_5_turbo.categorize_and_summarize_email(
+                subject, decoded_data, category_list, user_description
+            )
+        )
+
+        sender_name, sender_email = from_name[0], from_name[1]
+
+        sender, _ = Sender.objects.get_or_create(
+            name=sender_name, email=sender_email
+        )
+
+        category = Category.objects.get_or_create(name=topic, user=user)[0]
+
+        provider = "Outlook"
+
+        try:
+            email_entry = Email.objects.create(
+                provider_id=email_id,
+                email_provider=provider,
+                email_short_summary=sentence,
+                content=decoded_data,
+                subject=subject,
+                priority=importance[0],
+                read=False,
+                answer_later=False,
+                sender=sender,
+                category=category,
+                user=user,
+            )
+
+            if summary:
+                lines = summary.split("\n")
+                bullet_points = [
+                    line[2:].strip() for line in lines if line.strip().startswith("- ")
+                ]
+
+                for point in bullet_points:
+                    BulletPoint.objects.create(content=point, email=email_entry)
+
+        except IntegrityError:
+            pass
+
+    else:
+        pass
+
+    return

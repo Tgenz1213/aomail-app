@@ -116,7 +116,8 @@
                                                             </div>
                                                             <div v-else class="flex px-6">
                                                                 <span class="px-3 py-2"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{ category.name }}
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
+        category.name }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -311,7 +312,7 @@
                                                                                         leave-from-class="transform opacity-100 scale-100"
                                                                                         leave-to-class="transform opacity-0 scale-95">
                                                                                         <MenuItems v-show="isMenuOpen"
-                                                                                            class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                                                            class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                                                                                             <div class="py-1">
                                                                                                 <div v-if="item.rule">
                                                                                                     <MenuItem
@@ -577,7 +578,7 @@
                                                                                         leave-from-class="transform opacity-100 scale-100"
                                                                                         leave-to-class="transform opacity-0 scale-95">
                                                                                         <MenuItems v-show="isMenuOpen"
-                                                                                            class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                                                            class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                                                                                             <div class="py-1">
                                                                                                 <div v-if="item.rule">
                                                                                                     <MenuItem
@@ -703,8 +704,8 @@
                                         </div>
                                     </li>
                                     <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
-                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20"
-                                        @click="toggleEmailVisibility">
+                                        class="cursor-pointer group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20"
+                                        @click="toggleEmailVisibility" >
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
                                             <div class="float-right mt-[-25px] mr-[-10px]">
@@ -733,12 +734,18 @@
                                                                 class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                 <div class="flex gap-x-2">
                                                                     <p>Vous avez reçu <span
-                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
-        emails[selectedTopic]['Useless'].length
-    }}</span> <span
-                                                                            v-if="emails[selectedTopic]['Useless'].length === 1">mail
-                                                                            inutile</span><span v-else>mails
-                                                                            inutiles</span>.</p>
+                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
+                                                                            {{ emails[selectedTopic]['Useless'].length
+                                                                            }}
+                                                                        </span>
+                                                                        <span
+                                                                            v-if="emails[selectedTopic]['Useless'].length === 1">
+                                                                             mail inutile.
+                                                                        </span>
+                                                                        <span v-else>
+                                                                             mails inutiles.
+                                                                        </span>
+                                                                    </p>
                                                                     <div
                                                                         class="hidden group-hover/main:block px-2 py-0.5 bg-gray-500 text-white text-sm shadow rounded-xl">
                                                                         <div class="flex gap-x-1 items-center">

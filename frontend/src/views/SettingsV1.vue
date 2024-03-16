@@ -254,13 +254,14 @@
                                             <input type="radio"
                                                 class="form-radio text-red-600 border-red-400 focus:border-red-500 focus:ring-red-200 h-5 w-5"
                                                 name="choice">
-                                            <label for="push-everything" class="block text-sm font-medium leading-6">Je
-                                                confirme la supression
-                                                de mon compte (action irréversible)</label>
-                                        </div>
-                                        <div class="flex justify-end pt-4">
+                                            <label for="push-everything" class="block text-sm font-medium leading-6">
+                                                Je confirme la supression de mon compte
+                                            </label>
+                                            <div class="flex-grow"></div>
                                             <button @click="openModal" type="submit"
-                                                class="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Supprimer</button>
+                                                class="rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">
+                                                Supprimer
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

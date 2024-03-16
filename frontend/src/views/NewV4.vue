@@ -600,6 +600,7 @@ async function handleAIClick() {
     // Declare variables outside the fetch scope
     let messageHTML = '';
     let userInput = textareaValue.value;
+    let imageURL = require('@/assets/user.png');
 
     // Fetches the profile image URL from the server
     const requestOptions = {
@@ -613,7 +614,12 @@ async function handleAIClick() {
     // TODO: store the link in DB and check at each login or each time the page new is loaded
     // Goal: save number of requests and indeed money
     const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
-    let imageURL = data.profile_image_url || require('@/assets/user.png');
+
+    if (data.profile_image_url) {
+        // GMAIL
+        imageURL = data.profile_image_url;
+    }
+
     const profileImageHTML = `
       <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
     `;

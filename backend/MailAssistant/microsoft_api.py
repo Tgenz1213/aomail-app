@@ -137,6 +137,8 @@ def refresh_access_token(social_api):
     response = requests.post(refresh_url, data=data)
     response_data = response.json()
 
+    print(response_data)
+
     # Check if the refresh was successful
     if "access_token" in response_data:
         social_api.access_token = response_data["access_token"]
@@ -287,18 +289,22 @@ def get_profile_image(request):
         response = requests.get(graph_endpoint, headers=headers)
 
         if response.status_code == 200:
-            photo_url = response.url
-            if photo_url:
+            photo_data = response.content
+
+            if photo_data:
+                # convert image to url
+                photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
+                photo_url = f"data:image/png;base64,{photo_data_base64}"
                 return Response({"profile_image_url": photo_url}, status=200)
             else:
                 return Response(
-                    {"error": "Profile image URL not found in response"}, status=404
+                    {"error": "Profile image not found in response"}, status=404
                 )
         elif response.status_code == 404:
             return Response({"error": "Profile image not found"}, status=404)
         else:
             logging.error(
-                f"{Fore.RED}Failed to retrieve profile image: {response.status_code}\nReason: {response.reason}"
+                f"Failed to retrieve profile image: {response.status_code}\nReason: {response.reason}"
             )
             return Response(
                 {"error": f"Failed to retrieve profile image: {response.reason}"},
@@ -436,6 +442,8 @@ def send_email(request):
 
             try:
                 response = requests.post(graph_endpoint, headers=headers, json=body)
+
+                print(response.text)
 
                 if response.status_code == 202:
                     return JsonResponse(
@@ -650,7 +658,9 @@ def get_mail(access_token, int_mail=None, id_mail=None):
 
 def processed_email_to_bdd(user, email):
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, cc, bcc, email_id = get_mail(access_token, 0, None)
+    subject, from_name, decoded_data, cc, bcc, email_id = get_mail(
+        access_token, 0, None
+    )
 
     if not Email.objects.filter(provider_id=email_id).exists():
 
@@ -668,9 +678,7 @@ def processed_email_to_bdd(user, email):
 
         sender_name, sender_email = from_name[0], from_name[1]
 
-        sender, _ = Sender.objects.get_or_create(
-            name=sender_name, email=sender_email
-        )
+        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
         category = Category.objects.get_or_create(name=topic, user=user)[0]
 

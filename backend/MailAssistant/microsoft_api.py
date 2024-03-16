@@ -404,6 +404,7 @@ def send_email(request):
             cc = data.get("cc")
             bcc = data.get("cci")
             attachments = data.get("attachments")
+            print(attachment)
 
             graph_endpoint = f"{GRAPH_URL}me/sendMail"
             headers = get_headers(access_token)
@@ -423,6 +424,7 @@ def send_email(request):
             }
 
             if attachments:
+                print("THERE ARE ATTACHEMENTS +++++++++++++++++++++++++++++++++++++++")
                 message_body = MIMEMultipart()
                 message_body.attach(MIMEText(message, "html"))
 

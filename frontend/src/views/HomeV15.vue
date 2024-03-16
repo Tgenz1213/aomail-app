@@ -705,7 +705,7 @@
                                     </li>
                                     <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
                                         class="cursor-pointer group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20"
-                                        @click="toggleEmailVisibility" >
+                                        @click="toggleEmailVisibility">
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
                                             <div class="float-right mt-[-25px] mr-[-10px]">
@@ -740,10 +740,10 @@
                                                                         </span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].length === 1">
-                                                                             mail inutile.
+                                                                            mail inutile.
                                                                         </span>
                                                                         <span v-else>
-                                                                             mails inutiles.
+                                                                            mails inutiles.
                                                                         </span>
                                                                     </p>
                                                                     <div
@@ -936,6 +936,36 @@
                                                                                                                     <span>Répondre
                                                                                                                         plus
                                                                                                                         tard</span>
+                                                                                                                </span>
+                                                                                                            </a>
+                                                                                                            </MenuItem>
+                                                                                                        </div>
+
+                                                                                                        <div
+                                                                                                            class="py-1">
+                                                                                                            <MenuItem
+                                                                                                                v-slot="{ active }">
+                                                                                                            <a @click.prevent="transferEmail(item)"
+                                                                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                                                                                <span
+                                                                                                                    class="flex gap-x-2 items-center">
+                                                                                                                    <svg class="w-4 h-4"
+                                                                                                                        viewBox="0 0 28 28"
+                                                                                                                        version="1.1"
+                                                                                                                        stroke="currentColor"
+                                                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                                                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                                                                                        xml:space="preserve"
+                                                                                                                        xmlns:serif="http://www.serif.com/"
+                                                                                                                        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+                                                                                                                        <path
+                                                                                                                            d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
+                                                                                                                            style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                                                                                        <path
+                                                                                                                            d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
+                                                                                                                            style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                                                                                    </svg>
+                                                                                                                    <span>Transférer</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -1397,6 +1427,7 @@ function openNewRule(ruleName, ruleEmail) {
 
 function setHoveredItem(id) {
     hoveredItemId.value = id;
+    scrollToBottom();
 }
 
 function clearHoveredItem() {
@@ -1406,6 +1437,7 @@ function clearHoveredItem() {
 function toggleTooltip() {
     showTooltip.value = false;
     isDropdownOpen.value = true;
+    scrollToBottom();
 }
 
 async function markEmailAsRead(emailId) {

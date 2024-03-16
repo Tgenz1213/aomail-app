@@ -1076,6 +1076,7 @@ fetch(`${API_BASE_URL}api/get_unique_email_senders', {
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
+    localStorage.removeItem("uploadedFiles");
 
     getBackgroundColor();
     bgColor.value = localStorage.getItem('bgColor');

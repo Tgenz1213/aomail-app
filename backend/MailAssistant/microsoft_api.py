@@ -125,7 +125,7 @@ def refresh_access_token(social_api):
     if is_token_valid(access_token):
         return access_token
 
-    refresh_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+    refresh_url = f"{AUTHORITY}/oauth2/v2.0/token"
     data = {
         "grant_type": "refresh_token",
         "refresh_token": social_api.refresh_token,

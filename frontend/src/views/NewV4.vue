@@ -1858,12 +1858,11 @@ async function sendEmail() {
     formData.append('subject', emailSubject);
     formData.append('message', emailBody);
     fileObjects.value.forEach(file => formData.append('attachments', file));
-    console.log(fileObjects.value)// .forEach(file => console.log(file));
+    console.log(fileObjects.value)
 
     for (const file of fileObjects.value) {
         console.log(file);
     }
-
 
     console.log(formData);
 

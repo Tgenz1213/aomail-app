@@ -404,7 +404,6 @@ def send_email(request):
             cc = data.get("cc")
             bcc = data.get("cci")
             attachments = data.get("attachments")
-            print(attachment)
 
             graph_endpoint = f"{GRAPH_URL}me/sendMail"
             headers = get_headers(access_token)
@@ -415,7 +414,7 @@ def send_email(request):
             if bcc:
                 recipients["bccRecipients"] = [{"emailAddress": {"address": bcc}}]
 
-            body = {
+            email_content = {
                 "message": {
                     "subject": subject,
                     "body": {"contentType": "HTML", "content": message},
@@ -424,28 +423,24 @@ def send_email(request):
             }
 
             if attachments:
-                print("THERE ARE ATTACHEMENTS +++++++++++++++++++++++++++++++++++++++")
-                message_body = MIMEMultipart()
-                message_body.attach(MIMEText(message, "html"))
+                email_content["message"]["attachments"] = []
 
                 for file_data in attachments:
                     file_name = file_data.name
                     file_content = file_data.read()
-                    attachment = MIMEApplication(file_content)
-                    attachment.add_header(
-                        "Content-Disposition", "attachment", filename=file_name
+
+                    attachment = base64.b64encode(file_content).decode("utf-8")
+                    email_content["message"]["attachments"].append(
+                        {
+                            "@odata.type": "#microsoft.graph.fileAttachment",
+                            "name": file_name,
+                            "contentBytes": attachment,
+                        }
                     )
-                    message_body.attach(attachment)
-
-                encoded_message = urlsafe_b64encode(message_body.as_bytes()).decode(
-                    "utf-8"
-                )
-                body["message"]["raw"] = encoded_message
-
             try:
-                response = requests.post(graph_endpoint, headers=headers, json=body)
-
-                print(response.text)
+                response = requests.post(
+                    graph_endpoint, headers=headers, json=email_content
+                )
 
                 if response.status_code == 202:
                     return JsonResponse(

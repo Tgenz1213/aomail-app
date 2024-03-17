@@ -653,6 +653,7 @@ async function handleAIClick() {
                 try {
                     isLoading.value = true;
                     loading();
+                    scrollToBottom();
                     const result = await findUser(textareaValueSave.value);
 
                     hideLoading();

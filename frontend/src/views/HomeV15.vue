@@ -84,7 +84,7 @@
                                                     <div class="flex space-x-4">
                                                         <a v-for="category in categories" :key="category"
                                                             @click="selectCategory(category)"
-                                                            class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
+                                                            class="group items-center text-gray-600 text-sm font-medium cursor-pointer"><!-- To FIX => put category.name and adapt the design -->
                                                             <div v-if="category.name !== 'Other' && category.name !== 'Autres'"
                                                                 class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
@@ -1296,7 +1296,7 @@ let bgColor = ref('');
 bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
-//let initialAnimationDone = ref(false);
+let initialAnimationDone = ref(false);
 
 onMounted(async () => {
     getBackgroundColor();
@@ -1313,7 +1313,11 @@ onMounted(async () => {
         // TODO: auto update emails.value with google listener and this function will auto update itself
         const newTotalUnread = getNumberUnreadMail(emails.value);
 
-        if (newTotalUnread !== totalUnread.value) {
+        if (initialAnimationDone.value === false) {
+            animateText(getTextNumberUnreadMail(newTotalUnread));
+            totalUnread.value = newTotalUnread;
+            initialAnimationDone.value = true;
+        } else if (newTotalUnread !== totalUnread.value) {
             totalUnread.value = newTotalUnread;
 
             if (totalUnread.value > 0 && totalUnread.value <= 2) {
@@ -1323,26 +1327,6 @@ onMounted(async () => {
             }
         }
     }, 5000);
-
-    // TODO: optimize and fix visual bugs
-    // setInterval(async () => {
-    //     // TODO: auto update emails.value with google listener and this function will auto update itself
-    //     const newTotalUnread = getNumberUnreadMail(emails.value);
-
-    //     if (initialAnimationDone.value === false) {
-    //         // TODO: emails.value should contains all mails and not only the selected category
-    //         animateText(getTextNumberUnreadMail(totalUnread.value));
-    //         initialAnimationDone.value = true;
-    //     } else if (newTotalUnread !== totalUnread.value) {
-    //         totalUnread.value = newTotalUnread;
-
-    //         if (totalUnread.value > 0 && totalUnread.value <= 2) {
-    //             animateText(getTextNumberUnreadMail(totalUnread.value));
-    //         } else {
-    //             animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
-    //         }
-    //     }
-    // }, 5000);
 });
 
 function getNumberUnreadMail(emailData) {

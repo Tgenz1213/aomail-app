@@ -1205,7 +1205,7 @@ def get_mail_view(request):
     service = google_api.authenticate_service(user, email)
 
     if service is not None:
-        subject, from_name, decoded_data, email_id = google_api.get_mail(
+        subject, from_name, decoded_data, email_id, date = google_api.get_mail(
             service, 0, None
         )
         # Return a success response, along with any necessary information
@@ -1217,6 +1217,7 @@ def get_mail_view(request):
                     "from_name": from_name,
                     "decoded_data": decoded_data,
                     "email_id": email_id,
+                    "date": date
                 },
             },
             status=200,
@@ -1237,11 +1238,12 @@ def get_mail_by_id_view(request):
 
     if service is not None and mail_id is not None:
 
-        subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(
+        subject, from_name, decoded_data, cc, bcc, email_id, date = google_api.get_mail(
             service, None, mail_id
         )
         print(
-            f"{Fore.CYAN}from_name: {from_name}, cc: {Fore.YELLOW}{cc}, bcc: {Fore.LIGHTGREEN_EX}{bcc}"
+            f"{Fore.CYAN}from_name: {from_name}, cc: {Fore.YELLOW}{cc}, bcc: {Fore.LIGHTGREEN_EX}{bcc}",
+            f"Date: {date}"
         )
         return Response(
             {
@@ -1253,6 +1255,7 @@ def get_mail_by_id_view(request):
                     "cc": cc,
                     "bcc": bcc,
                     "email_id": email_id,
+                    "date": date
                 },
             },
             status=200,

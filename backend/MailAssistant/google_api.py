@@ -57,10 +57,9 @@ SCOPES = [
     OTHER_CONTACT_READONLY_SCOPE,
 ]
 GOOGLE_CREDS = "creds/google_creds.json"
-CONFIG = json.load(open(GOOGLE_CREDS, 'r'))['web']
-ENV = os.environ.get('ENV')
-REDIRECT_URI = f'https://{ENV}.aochange.com/signup_part2'
-
+CONFIG = json.load(open(GOOGLE_CREDS, "r"))["web"]
+ENV = os.environ.get("ENV")
+REDIRECT_URI = f"https://{ENV}.aochange.com/signup_part2"
 
 
 ######################## AUTHENTIFICATION ########################
@@ -369,6 +368,9 @@ def get_mail(services, int_mail=None, id_mail=None):
             cc_info = parse_name_and_email(values["value"])
         elif name == "Bcc":
             bcc_info = parse_name_and_email(values["value"])
+        elif name == "Date":
+            # Parse the date string into a datetime object
+            sent_date = datetime.datetime.strptime(values["value"], "%a, %d %b %Y %H:%M:%S %z")
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -384,7 +386,7 @@ def get_mail(services, int_mail=None, id_mail=None):
     preprocessed_data = library.preprocess_email(decoded_data)
 
     # TODO remove cc_info, bcc_info
-    return subject, from_info, preprocessed_data, cc_info, bcc_info, email_id
+    return subject, from_info, preprocessed_data, cc_info, bcc_info, email_id, sent_date
 
 
 # ----------------------- READ EMAIL -----------------------#
@@ -537,6 +539,7 @@ def get_parsed_contacts(request) -> list:
         logging.exception("Error fetching contacts:")
         return Response({"error": str(e)}, status=500)
 
+
 '''
 def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
@@ -595,6 +598,7 @@ def set_all_contacts(user, email):
     except Exception as e:
         logging.exception(f"Error fetching contacts: {str(e)}")'''
 
+
 def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
     start = time.time()
@@ -610,12 +614,17 @@ def set_all_contacts(user, email):
         # Part 1 : Retreive from Google Contact
         next_page_token = None
         while True:
-            response = contacts_service.people().connections().list(
-                resourceName="people/me",
-                personFields="names,emailAddresses",
-                pageSize=1000,
-                pageToken=next_page_token,
-            ).execute()
+            response = (
+                contacts_service.people()
+                .connections()
+                .list(
+                    resourceName="people/me",
+                    personFields="names,emailAddresses",
+                    pageSize=1000,
+                    pageToken=next_page_token,
+                )
+                .execute()
+            )
 
             connections = response.get("connections", [])
             next_page_token = response.get("nextPageToken")
@@ -634,23 +643,37 @@ def set_all_contacts(user, email):
                 break
 
         # Part 2 : Retreiving from Gmail
-        response = gmail_service.users().messages().list(userId='me', q='').execute()
-        messages = response.get('messages', [])
+        response = gmail_service.users().messages().list(userId="me", q="").execute()
+        messages = response.get("messages", [])
 
         for msg in messages[:500]:  # Limit to the first 500 messages
-            message = gmail_service.users().messages().get(userId='me', id=msg['id'], format='metadata', metadataHeaders=['From']).execute()
-            headers = message.get('payload', {}).get('headers', [])
-            from_header = next((item for item in headers if item["name"] == "From"), None)
+            message = (
+                gmail_service.users()
+                .messages()
+                .get(
+                    userId="me",
+                    id=msg["id"],
+                    format="metadata",
+                    metadataHeaders=["From"],
+                )
+                .execute()
+            )
+            headers = message.get("payload", {}).get("headers", [])
+            from_header = next(
+                (item for item in headers if item["name"] == "From"), None
+            )
             if from_header:
-                from_value = from_header['value']
-                if 'reply' in from_value.lower():
+                from_value = from_header["value"]
+                if "reply" in from_value.lower():
                     continue
-                    
-                email_match = re.search(r'[\w\.-]+@[\w\.-]+', from_value)
+
+                email_match = re.search(r"[\w\.-]+@[\w\.-]+", from_value)
                 name_match = re.search(r'(?:"?([^"]*)"?\s)?', from_value)
 
                 email = email_match.group(0) if email_match else None
-                name = name_match.group(1) if name_match and name_match.group(1) else email
+                name = (
+                    name_match.group(1) if name_match and name_match.group(1) else email
+                )
 
                 if not email:
                     continue
@@ -667,7 +690,7 @@ def set_all_contacts(user, email):
                     try:
                         Contact.objects.create(email=email, username=name, user=user)
                     except IntegrityError:
-                        pass  
+                        pass
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         logging.info(
@@ -676,6 +699,7 @@ def set_all_contacts(user, email):
 
     except Exception as e:
         logging.exception(f"Error fetching contacts: {str(e)}")
+
 
 def get_unique_senders(services) -> dict:
     """Fetches unique sender information from Gmail messages"""
@@ -794,9 +818,7 @@ def get_email(access_token, refresh_token):
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings
 def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, cc, bcc, email_id = get_mail(services, 0, None)
-
-    print(f"{Fore.YELLOW}{subject, from_name, decoded_data, cc, bcc, email_id}")
+    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(services, 0, None)
 
     if not Email.objects.filter(provider_id=email_id).exists():
 
@@ -810,7 +832,7 @@ def processed_email_to_bdd(request, services):
         # print("DEBUG -------------> category", category_list)
 
         # Process the email data with AI/NLP
-        #user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
         topic, importance, answer, summary, sentence, relevance, importance_explain = (
             gpt_3_5_turbo.categorize_and_summarize_email(
@@ -823,7 +845,7 @@ def processed_email_to_bdd(request, services):
         sender_name, sender_email = from_name[0], from_name[1]
 
         # Fetch or create the sender
-        sender, created = Sender.objects.get_or_create(
+        sender, _ = Sender.objects.get_or_create(
             name=sender_name, email=sender_email
         )  # assuming from_name contains the sender's name
 
@@ -847,6 +869,7 @@ def processed_email_to_bdd(request, services):
                 sender=sender,
                 category=category,
                 user=request.user,
+                date=date
             )
 
             # If the email has a summary, save it in the BulletPoint table

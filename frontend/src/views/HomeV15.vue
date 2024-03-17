@@ -1476,10 +1476,7 @@ async function transferEmail(email) {
                 'email': localStorage.getItem('email')
             }
         });
-        console.log("Received data:", data);
 
-        // TODO: get Date of email
-        // TODO: in email transfer write email transfered by MailAssistant + link
         router.push({
             name: 'transfer',
             query: {
@@ -1489,7 +1486,8 @@ async function transferEmail(email) {
                 decoded_data: JSON.stringify(data.email.decoded_data),
                 email: JSON.stringify(email.email),
                 id_provider: JSON.stringify(email.id_provider),
-                details: JSON.stringify(email.details)
+                details: JSON.stringify(email.details),
+                date: JSON.stringify(data.email.date)
             }
         });
     } catch (error) {
@@ -1816,7 +1814,7 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
-    console.log("DEBUG READ", combinedEmails);
+    //console.log("DEBUG READ", combinedEmails);
 
     return combinedEmails.filter(email => email.read);
 }

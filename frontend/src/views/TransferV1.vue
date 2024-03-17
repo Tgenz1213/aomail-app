@@ -929,6 +929,7 @@ onMounted(() => {
     const decoded_data = JSON.parse(route.query.decoded_data);
     const id_provider = JSON.parse(route.query.id_provider);
     const details = JSON.parse(route.query.details);
+    const date = JSON.parse(route.query.date)
 
     console.log("Subject:", subject);
     console.log("Email:", email);
@@ -937,6 +938,7 @@ onMounted(() => {
     console.log("ID Provider:", id_provider);
     console.log("Details:", details);
     console.log("Decoded_data", decoded_data);
+    console.log("date", date);
 
     inputValue.value = 'Tr : ' + subject;
 

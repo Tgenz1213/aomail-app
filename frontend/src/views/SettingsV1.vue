@@ -362,7 +362,7 @@
 </template>
 
 <script setup>
-import { API_BASE_URL, BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main';
 import { useRouter } from 'vue-router';
 
 // Variables to display a notification

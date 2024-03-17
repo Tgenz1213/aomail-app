@@ -4,13 +4,15 @@ Handles prompt engineering requests for Claude 3 API.
 
 import ast
 import json
-import time
+import os
 import anthropic
 from colorama import Fore, init
 
 
 ######################## Claude 3 API SETTINGS ########################
-CLAUDE_CREDS = json.load(open("creds/claude_creds.json", "r"))
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.dirname(CURRENT_DIR)
+CLAUDE_CREDS = json.load(open(f"{BACKEND_DIR}/creds/claude_creds.json", "r"))
 HUMAN = "\n\nHuman: "
 ASSISTANT = "Assistant:"
 init(autoreset=True)
@@ -21,7 +23,7 @@ def get_prompt_response(formatted_prompt):
     """Returns the prompt response"""
     client = anthropic.Anthropic(api_key=CLAUDE_CREDS["api_key"])
     response = client.messages.create(
-        model="claude-3-sonnet-20240229",
+        model="claude-3-haiku-20240307",
         max_tokens=1000,
         temperature=0.0,
         messages=[{"role": "user", "content": formatted_prompt}],
@@ -229,10 +231,3 @@ def correct_mail_language_mistakes(subject, body):
     )
 
     return corrected_subject, corrected_body, num_corrections
-
-
-"""start_time = time.time()
-correct_mail_language_mistakes("peti test appl", "c un  emai de test envoyer depus l'appl")
-execution_time = time.time() - start_time
-
-print(f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes.")"""

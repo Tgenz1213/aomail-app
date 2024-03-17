@@ -3,6 +3,7 @@ Handles prompt engineering requests for Mistral API.
 """
 
 import ast
+import os
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from colorama import Fore, init
@@ -11,7 +12,9 @@ import json
 
 
 ######################## MISTRAL API SETTINGS ########################
-MISTRAL_CREDS = json.load(open("creds/mistral_creds.json", "r"))
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.dirname(CURRENT_DIR)
+MISTRAL_CREDS = json.load(open(f"{BACKEND_DIR}/creds/mistral_creds.json", "r"))
 init(autoreset=True)
 
 
@@ -257,14 +260,3 @@ def correct_mail_language_mistakes(subject, body):
     )
 
     return corrected_subject, corrected_body, num_corrections
-
-
-"""start_time = time.time()
-correct_mail_language_mistakes(
-    "peti test appl", "c un  emai de test envoyer depus l'appl"
-)
-execution_time = time.time() - start_time
-
-print(
-    f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes."
-)"""

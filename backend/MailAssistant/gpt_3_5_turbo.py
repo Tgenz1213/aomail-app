@@ -4,14 +4,16 @@ Handles prompt engineering requests for GPT-3.5-turbo API.
 
 import json
 import re
-import time
 import openai
 import ast
+import os
 from colorama import Fore, init
 
 
 ######################## GPT - 3.5 turbo API SETTINGS ########################
-OPENAI_CREDS = json.load(open("creds/openai_creds.json", "r"))
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.dirname(CURRENT_DIR)
+OPENAI_CREDS = json.load(open(f"{BACKEND_DIR}/creds/openai_creds.json", "r"))
 init(autoreset=True)
 
 
@@ -182,7 +184,7 @@ def gpt_improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-def gpt_new_mail_recommendation(mail_content, email_subject, user_recommendation):
+def new_mail_recommendation(mail_content, email_subject, user_recommendation):
     """Enhance email subject and body in FRENCH based on user guideline"""
 
     template = """As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
@@ -211,7 +213,7 @@ def gpt_new_mail_recommendation(mail_content, email_subject, user_recommendation
     return subject_text, email_body
 
 
-def gpt_langchain_redaction(input_data, length, formality):
+def langchain_redaction(input_data, length, formality):
     """Generate a French email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
     template = """As an email assistant, write a {length} and {formality} email in FRENCH.

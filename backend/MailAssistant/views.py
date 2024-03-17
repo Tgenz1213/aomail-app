@@ -571,7 +571,7 @@ def new_email_ai(request):
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
 
-        subject_text, mail_text = gpt_3_5_turbo.gpt_langchain_redaction(
+        subject_text, mail_text = gpt_3_5_turbo.langchain_redaction(
             input_data, length, formality
         )
 
@@ -595,7 +595,7 @@ def new_email_recommendations(request):
         print(f"{Fore.CYAN}user_recommendation: {user_recommendation}")
         print(f"{Fore.CYAN}email_subject: {email_subject}")
 
-        subject_text, email_body = gpt_3_5_turbo.gpt_new_mail_recommendation(
+        subject_text, email_body = gpt_3_5_turbo.new_mail_recommendation(
             mail_content, user_recommendation, email_subject
         )
 

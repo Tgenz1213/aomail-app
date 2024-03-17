@@ -750,8 +750,6 @@ async function handleAIClick() {
                     console.error("Error finding user", error)
                 }
             }
-        } else if (stepcontainer == 1) {
-        } else if (stepcontainer == 2) {
         }
     }, 0);
 }

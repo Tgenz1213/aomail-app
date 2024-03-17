@@ -12,7 +12,12 @@ import gpt_3_5_turbo, claude, mistral
 # TODO: add a counter per ia in the try except to check the success rate
 # TODO: store errors for debugging
 LIST_AI_PROVIDERS = [gpt_3_5_turbo, claude, mistral]
-LIST_FUNCTIONS = ["new_mail_recommendation", "correct_mail_language_mistakes"]
+LIST_FUNCTIONS = [
+    "new_mail_recommendation",
+    "correct_mail_language_mistakes",
+    "get_language",
+    "extract_contacts_recipients",
+]
 
 # Créer une liste combinée des fournisseurs AI et des fonctions
 COMBINED_LIST = [
@@ -82,8 +87,95 @@ examples_correct_mail_language_mistakes = [
     ),
 ]
 
+# ----------------------- extract_contacts_recipients EXAMPLES -----------------------#
+examples_extract_contacts_recipients = [
+    (
+        "mets théo en principal et augustin ainsi que jean, rajoute esaip en copie cachée avec le directeur en copie"
+    ),
+    (
+        "Pour la réunion de demain, veuillez ajouter Pierre, Marie et Lucie dans la liste des destinataires."
+    ),
+    (
+        "Assurez-vous que Thomas et Sophie sont inclus dans la liste des destinataires pour la prochaine annonce."
+    ),
+    (
+        "Envoyez une copie du rapport à Martin, et n'oubliez pas d'inclure Julia et Paul dans les destinataires."
+    ),
+    (
+        "Veuillez ajouter les membres de l'équipe marketing, à savoir Anne, Marc et Émilie, aux destinataires du courriel."
+    ),
+    (
+        "Pour l'événement de cette semaine, ajoutez Camille et Mathieu en destinataires pour qu'ils reçoivent toutes les informations nécessaires."
+    ),
+    ("Besoin d'envoyer un message à John, Emma et Alex. Copie secrète pour Smith."),
+    ("Inclure Lisa et Tom. Copie cachée pour Taylor. Rajouter également Jessica."),
+    (
+        "Envoyer à Rachel et David. Mentionner Michael en copie. Ajouter Jane en copie cachée."
+    ),
+    ("Copier Megan et Ethan. Informer Liam en copie. Rajouter Emily en copie cachée."),
+    (
+        "John et Emily doivent être inclus. Copie secrète pour Ryan. Rajouter également Olivia."
+    ),
+]
+
+# ----------------------- generate_response_keywords EXAMPLES -----------------------#
+# generate_response_keywords(input_email, input_subject, language)
+examples_generate_response_keywords = []
+
+# ----------------------- improve_email_writing EXAMPLES -----------------------#
+# def improve_email_writing(body, subject):
+examples_improve_email_writing = []
 
 
+# ----------------------- generate_email EXAMPLES -----------------------#
+# def generate_email(input_data, length, formality):
+examples_generate_email = []
+
+
+# ----------------------- get_language EXAMPLES -----------------------#
+examples_get_language = [
+    (
+        "Yaxshimiziz",
+        "Assalomu Aleykum, Meining ismi Augustin. Men Uzbek tilini organypman",
+    ),
+    ("test d'email", "Salut, la team, cava? c'est juste un test"),
+    (
+        "Achtung bitte",
+        "Hallo, ich habe nur ein Frage, Warum bist du langsamer als mistral?",
+    ),
+    (
+        "Solicitud de información",
+        "Estimado Sr. / Sra., Me dirijo a usted para solicitar información detallada sobre los servicios de consultoría que ofrece su empresa. Agradecería recibir un folleto o cualquier material informativo disponible. Quedo a la espera de su pronta respuesta. Atentamente, [Tu nombre]",
+    ),
+    (
+        "Hola amigo",
+        "¡Hola! ¿Cómo estás? Solo quería saludarte y ver qué tal te va todo. ¿Te gustaría quedar para tomar un café esta semana? ¡Espero tu respuesta! Saludos, [Tu nombre]",
+    ),
+    (
+        "Anfrage bezüglich Ihrer Produktangebote",
+        "Sehr geehrte Damen und Herren, ich schreibe Ihnen, um weitere Informationen zu Ihren Produktangeboten anzufordern. Können Sie mir bitte Preislisten und technische Datenblätter zusenden? Ich bedanke mich im Voraus für Ihre Unterstützung. Mit freundlichen Grüßen, [Dein Name]",
+    ),
+    (
+        "Hallo mein Freund",
+        "Hi! Wie geht's dir? Ich hoffe, alles ist gut bei dir. Hast du Lust, diesen Samstagabend etwas zu unternehmen? Wir könnten ins Kino gehen oder einfach nur rumhängen. Lass es mich wissen! Liebe Grüße, [Dein Name]",
+    ),
+    (
+        "So'rovnoma bo'yicha ma'lumot so'ralgan",
+        "Hurmatli Xonim / Xanim, sizning kompaniyangiz tomonidan taklif etilayotgan xizmatlar haqida qo'llanmalar va narxlar haqida ma'lumot so'rayman. Iltimos, men uchun mavjud bo'lgan barcha ma'lumotlarni yuborish mumkinmi? Tez orada javobingizni kutib qolaman. Hurmat bilan, [Ismingiz]",
+    ),
+    (
+        "Salom do'stim",
+        "Salom! Qalaysan? Qachonlik yana ko'rishib qolasizmi? Shu hafta oxirida birgamiz uchun nimalar tuzatamiz? Meningcha, ketsangiz, biz sahifaga borib yemak yeyishga chiqishamiz! Xabaringizni kutib qolaman! Salomlar, [Ismingiz]",
+    ),
+    (
+        "Demande d'informations sur vos services de conseil",
+        "Madame, Monsieur, Je me permets de vous écrire pour solliciter des informations détaillées sur les services de conseil proposés par votre entreprise. Pourriez-vous m'envoyer une brochure ou tout autre matériel informatif disponible? Je vous remercie par avance pour votre aide. Cordialement, [Votre nom]",
+    ),
+    (
+        "Salut mon ami",
+        "Salut ! Comment ça va ? Je voulais juste te saluer et voir comment ça se passe pour toi. Tu veux qu'on se retrouve pour prendre un café cette semaine ? J'attends ta réponse ! Amitiés, [Ton nom]",
+    ),
+]
 
 
 # Dictionnaire pour stocker les résultats
@@ -91,7 +183,9 @@ results = {}
 
 # Parcourir les exemples
 for example in (
-    examples_new_mail_recommendation + examples_correct_mail_language_mistakes
+    examples_new_mail_recommendation
+    + examples_correct_mail_language_mistakes
+    + examples_get_language
 ):
     # Déterminer le nombre d'éléments par tuple
     num_elements = len(example)
@@ -101,6 +195,8 @@ for example in (
         mail_content, email_subject, user_recommendation = example
     elif num_elements == 2:
         mail_content, email_subject = example
+    elif num_elements == 1:
+        mail_content, email_subject = example
     else:
         continue
 
@@ -109,6 +205,7 @@ for example in (
         # Parcourir les fonctions AI
         for function in LIST_FUNCTIONS:
             start_time = time.time()
+            fail = False
             try:
                 # Appeler la fonction AI correspondante
                 if num_elements == 3:
@@ -119,23 +216,27 @@ for example in (
                     result = getattr(ai_provider, function)(mail_content, email_subject)
 
             except:
+                fail = True
                 pass
             elapsed_time = time.time() - start_time
 
             # Stocker les résultats
-            results[(mail_content, email_subject, ai_provider.__name__, function)] = {
-                "result": result,
-                "elapsed_time": elapsed_time,
-                "ai_provider": ai_provider.__name__,
-                "function_name": function,
-                "example": example,
-            }
-            ai_providers_stats[ai_provider.__name__][function].append(elapsed_time)
+            if fail == False:
+                results[
+                    (mail_content, email_subject, ai_provider.__name__, function)
+                ] = {
+                    "result": result,
+                    "elapsed_time": elapsed_time,
+                    "ai_provider": ai_provider.__name__,
+                    "function_name": function,
+                    "example": example,
+                }
+                ai_providers_stats[ai_provider.__name__][function].append(elapsed_time)
 
-            # Afficher les résultats
-            print(f"AI Provider: {ai_provider.__name__}, Function: {function}")
-            print(f"{Fore.LIGHTBLUE_EX}{result}")
-            print(f"Elapsed Time: {elapsed_time} seconds\n")
+                # Afficher les résultats
+                print(f"AI Provider: {ai_provider.__name__}, Function: {function}")
+                print(f"{Fore.LIGHTBLUE_EX}{result}")
+                print(f"Elapsed Time: {elapsed_time} seconds\n")
 
 # Extraire les temps écoulés pour tous les prompts
 all_elapsed_times = [result["elapsed_time"] for result in results.values()]

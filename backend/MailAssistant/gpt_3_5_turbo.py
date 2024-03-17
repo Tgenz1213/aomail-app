@@ -30,7 +30,7 @@ def get_prompt_response(formatted_prompt):
     return response
 
 
-def get_language(input_subject, input_body):
+def get_language(input_body, input_subject):
     """Returns the primary language used in the email"""
 
     template = """Given an email with subject: '{input_subject}' and body: '{input_body}',
@@ -116,7 +116,7 @@ def extract_contacts_recipients(query):
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_subject, input_email, language) -> list:
+def generate_response_keywords(input_email, input_subject, language) -> list:
     """Generate a list of keywords for responding to a given email."""
 
     template = """As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
@@ -239,7 +239,7 @@ def langchain_redaction(input_data, length, formality):
     return subject_text, email_body
 
 
-def correct_mail_language_mistakes(subject, body):
+def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
     template = """As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.

@@ -816,6 +816,21 @@
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
                                                                                             <div
+                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
+                                                                                                Supprimer
+                                                                                            </div>
+                                                                                            <button type="button"
+                                                                                                class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                                                                                <TrashIcon
+                                                                                                    @click.stop="deleteEmail(item.id)"
+                                                                                                    class="w-5 h-5 text-gray-500 group-hover:text-white" />
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div v-show="hoveredItemId === item.id"
+                                                                                        class="group action-buttons">
+                                                                                        <div class="relative group">
+                                                                                            <div
                                                                                                 class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
                                                                                                 Répondre
                                                                                             </div>

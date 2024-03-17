@@ -970,13 +970,22 @@ function askChoiceRecipier(list, type) {
 
                 if (type === 'main') {
                     const person = { username: username, email: email };
-                    selectedPeople.value.push(person);
+                    const isPersonAlreadySelected = selectedPeople.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedPeople.value.push(person);
+                    }
                 } else if (type === 'cc') {
                     const person = { username: username, email: email };
-                    selectedCC.value.push(person);
+                    const isPersonAlreadySelected = selectedCC.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedCC.value.push(person);
+                    }
                 } else {
                     const person = { username: username, email: email };
-                    selectedCCI.value.push(person);
+                    const isPersonAlreadySelected = selectedCCI.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedCCI.value.push(person);
+                    }
                 }
             });
         }, 0);

@@ -199,7 +199,7 @@
                                                         </div>
                                                         <input id="objectInput" v-model="inputValue" type="text"
                                                             class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
-                                                            @focus="handleFocusObject" @blur="handleBlur"/>
+                                                            @focus="handleFocusObject" @blur="handleBlur" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -286,7 +286,6 @@ import {
 
 // Variable to prevent the user from starting a prompt if AI is writing
 let isAIWriting = ref(false);
-
 // variables to display a notification
 let showNotification = ref(false);
 let notificationTitle = ref('');
@@ -295,15 +294,12 @@ let backgroundColor = ref('');
 let timerId = ref(null);
 
 let emailTransfered = ref(false);
-
 const route = useRoute();
 const router = useRouter();
 const userSearchResult = ref(null);
-
 const items = [
     { name: 'Envoyer à une heure', href: '#' },
 ]
-
 // lists of different types of recipients
 const people = [];
 
@@ -369,12 +365,28 @@ watch(selectedPerson, (newValue) => {
 });
 
 const inputValue = ref('');
-const isFirstTimeDestinary = ref(true); // to detect first letter object input
-const isFirstTimeEmail = ref(true); // to detect first letter email content input
+const isFirstTimeDestinary = ref(true);
 const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
-
+const AIContainer = ref(null);
+let stepcontainer = 0;
+const objectInput = ref(null);
+let counter_display = 0; // to create the animation of the text displayed
+// Quill editor
+const quill = ref(null);
+// To keep the navbar always at the bottom when new content is added
+const scrollableDiv = ref(null);
+const scrollToBottom = async () => {
+    await nextTick();
+    const element = scrollableDiv.value;
+    element.scrollTop = element.scrollHeight;
+};
+// AI instruction textarea input
+const textareaValue = ref('');
+const textareaValueSave = ref('');
+// Loading animation
+const isLoading = ref(false);
 
 function dismissPopup() {
     showNotification = false;
@@ -420,41 +432,6 @@ function handleBlur2(event) {
         displayPopup();
     }
 }
-
-const AIContainer = ref(null);
-let stepcontainer = 0;
-const objectInput = ref(null);
-const mailInput = ref(null);
-
-let counter_display = 0; // to create the animation of the text displayed
-
-// Quill editor
-const quill = ref(null);
-
-// To keep the navbar always at the bottom when new content is added
-const scrollableDiv = ref(null);
-const scrollToBottom = async () => {
-    await nextTick();
-    const element = scrollableDiv.value;
-    element.scrollTop = element.scrollHeight;
-};
-
-// AI instruction textarea input
-const textareaValue = ref('');
-const textareaValueSave = ref('');
-
-// AI instruction button parameters
-const lengthValue = ref('short');
-const formalityValue = ref('formal');
-
-// AI instruction to do revision on the mail
-const subject = ref('');
-const mail = ref('');
-const MailCreatedByAI = ref(false); // to check if the AI create the Mail or not
-
-// Loading animation
-const isLoading = ref(false);
-
 
 ////////////////////////////////////////////////////// To Handle files upload ///////////////////////////////////////////////////////
 const fileInput = ref(null);
@@ -553,22 +530,22 @@ function displayMessage(message, ai_icon) {
 
 async function findUser(searchQuery) {
 
-const requestOptions = {
-    method: 'GET',
-    headers: {
-        'Content-Type': 'application/json',
-        'email': localStorage.getItem('email')
-    },
-};
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'email': localStorage.getItem('email')
+        },
+    };
 
-try {
-    const data = await fetchWithToken(`${API_BASE_URL}api/find-user-ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
-    console.log(data);
-    userSearchResult.value = data; // Update the reactive variable
-    return data
-} catch (error) {
-    console.error("Error fetching user information:", error.message);
-}
+    try {
+        const data = await fetchWithToken(`${API_BASE_URL}api/find-user-ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
+        console.log(data);
+        userSearchResult.value = data; // Update the reactive variable
+        return data
+    } catch (error) {
+        console.error("Error fetching user information:", error.message);
+    }
 }
 
 async function handleAIClick() {
@@ -626,6 +603,7 @@ async function handleAIClick() {
                 try {
                     isLoading.value = true;
                     loading();
+                    scrollToBottom();
                     const result = await findUser(textareaValueSave.value);
 
                     hideLoading();
@@ -713,7 +691,6 @@ async function handleAIClick() {
                                         }
                                     }
                                 }
-                                console.log("emailList", emailList);
                                 askChoiceRecipier(emailList, "main");
                             }
                             if (cc_recipients.length > 0) {
@@ -774,161 +751,7 @@ async function handleAIClick() {
                 }
             }
         } else if (stepcontainer == 1) {
-            // if the user enter an empty value
-            if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucun brouillon, veuillez réessayer";
-                const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
-                displayMessage(message, ai_icon);
-            } else {
-
-                console.log('Length:', lengthValue.value, 'Formality:', formalityValue.value);
-
-                try {
-                    loading();
-                    scrollToBottom();
-                    const requestOptions = {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'email': localStorage.getItem('email')
-                        },
-                        body: JSON.stringify({
-                            input_data: textareaValueSave.value,
-                            length: lengthValue.value,
-                            formality: formalityValue.value,
-                        })
-                    };
-
-                    const result = await fetchWithToken(`${API_BASE_URL}api/new_email_ai/`, requestOptions);
-                    hideLoading();
-                    subject.value = result.subject;
-                    mail.value = result.mail;
-                    console.log(result);
-                    if (result.subject && result.mail) {
-                        stepcontainer = 2;
-                        // TO FINISH => animation
-                        const formattedMail = result.mail.replace(/\n/g, '<br>');
-                        const messageHTML = `
-                      <div class="flex pb-12">
-                          <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                                </svg>
-                              </span>   
-                          </div>
-                          <div>
-                              <p><strong>Objet:</strong> ${result.subject}</p>
-                              <p><strong>Email:</strong> ${formattedMail}</p>
-                          </div>
-                      </div>
-                  `;
-                        AIContainer.value.innerHTML += messageHTML;
-                        inputValue.value = result.subject;
-                        MailCreatedByAI.value = true;
-                        //quill.value.clipboard.dangerouslyPasteHTML(formattedMail); OLD WAY : works but impossible to manuallty delete on quill
-                        //const delta = quill.value.clipboard.convert(formattedMail); OLD 2
-                        //console.log(delta); // Check the structure of the delta OLD 2
-                        const quillEditorContainer = quill.value.root;
-                        let modified_email_body = result.mail.replace(/<\/p>/g, "</p><p></p>"); //DO NOT DELETE
-                        quillEditorContainer.innerHTML = modified_email_body;
-                        //quill.value.update();
-
-                        // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-                        const message = "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins";
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-                        displayMessage(message, ai_icon);
-                    } else {
-                        hideLoading();
-                        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                        displayMessage(message, ai_icon);
-                        console.log('Subject or Email is missing in the response');
-                    }
-                } catch (error) {
-                    hideLoading();
-                    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                    displayMessage(message, ai_icon);
-                    console.error('There was a problem with the fetch operation: ', error);
-                }
-            }
         } else if (stepcontainer == 2) {
-            // if the user enter an empty value
-            if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucune suggestion, veuillez réessayer.";
-                const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
-                displayMessage(message, ai_icon);
-            } else {
-                try {
-                    loading();
-                    scrollToBottom();
-
-                    const requestOptions = {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'email': localStorage.getItem('email')
-                        },
-                        body: JSON.stringify({
-                            mail_content: mail.value,
-                            user_recommendation: textareaValueSave.value,
-                            email_subject: inputValue.value,
-                        }),
-                    };
-
-                    const result = await fetchWithToken(`${API_BASE_URL}api/new_email_recommendations/`, requestOptions);
-
-                    hideLoading();
-                    subject.value = result.subject;
-                    mail.value = result.email_body;
-                    console.log(result);
-                    if (result.subject && result.email_body) {
-                        // TO FINISH => animation
-                        hideLoading();
-                        const formattedMail = result.email_body.replace(/\n/g, '<br>');
-                        const messageHTML = `
-                      <div class="flex pb-12">
-                          <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                                </svg>
-                              </span>   
-                          </div>
-                          <div>
-                              <p><strong>Objet:</strong> ${result.subject}</p>
-                              <p><strong>Email:</strong> ${formattedMail}</p>
-                          </div>
-                      </div>
-                  `;
-                        AIContainer.value.innerHTML += messageHTML;
-                        inputValue.value = result.subject;
-                        const quillEditorContainer = quill.value.root;
-                        quillEditorContainer.innerHTML = result.email_body;
-                        quillEditorContainer.style.cssText = 'p { margin-bottom: 20px; }';
-
-
-                        // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-                        const message = "Est-ce que ce mail vous convient mieux ?";
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-                        displayMessage(message, ai_icon);
-                    } else {
-                        hideLoading();
-                        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                        displayMessage(message, ai_icon);
-                        console.log('Subject or Email is missing in the response');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    hideLoading();
-                    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                    displayMessage(message, ai_icon);
-                    console.error('There was a problem with the fetch operation: ', error);
-                }
-            }
         }
     }, 0);
 }
@@ -1160,138 +983,6 @@ function askChoiceRecipier(list, type) {
     });
 }
 
-
-async function checkCopyWriting() {
-    try {
-        loading();
-        scrollToBottom();
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
-            },
-            body: JSON.stringify({
-                email_subject: inputValue.value,
-                email_body: mailInput.value,
-            }),
-        };
-
-        const result = await fetchWithToken(`${API_BASE_URL}api/check_email_copywriting/`, requestOptions);
-
-        hideLoading();
-        //subject.value = result.corrected_subject; TO DELETE ?
-        //mail.value = result.corrected_body; TO DELETE ?
-        // retrieve num of corrections
-        console.log(result);
-        if (result.feedback_copywriting) {
-            // TO FINISH => animation
-            const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
-
-            const messageHTML = `
-              <div class="flex pb-12">
-                  <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                        </svg>
-                      </span>   
-                  </div>
-                  <div>
-                      <p>${formattedCopWritingOutput}</p>
-                  </div>
-              </div>
-          `;
-            AIContainer.value.innerHTML += messageHTML;
-
-            // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-            const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-            displayMessage(message, ai_icon);
-        } else {
-            hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement."
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-            displayMessage(message, ai_icon);
-            console.log('Subject or Email is missing in the response');
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        hideLoading();
-        const message = "Je m'excuse, j'ai fait une erreur de traitement."
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-        displayMessage(message, ai_icon);
-    }
-}
-
-async function WriteBetter() {
-    try {
-        loading();
-        scrollToBottom();
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
-            },
-            body: JSON.stringify({
-                email_body: mailInput.value,
-                email_subject: inputValue.value,
-            }),
-        };
-
-        const result = await fetchWithToken(`${API_BASE_URL}api/gpt_improve_email_writing/`, requestOptions);
-
-        hideLoading();
-        console.log(result);
-        subject.value = result.subject;
-        mail.value = result.body;
-        if (result.subject && result.email_body) {
-            // TO FINISH => animation
-            const messageHTML = `
-            <div class="flex pb-12">
-                <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                      </svg>
-                    </span>   
-                </div>
-                <div>
-                    <p><strong>Objet:</strong> ${result.subject}</p>
-                    <p><strong>Email:</strong> ${result.email_body}</p>
-                </div>
-            </div>
-        `;
-            AIContainer.value.innerHTML += messageHTML;
-            inputValue.value = result.subject;
-            const quillEditorContainer = quill.value.root;
-            quillEditorContainer.innerHTML = result.email_body;
-
-            // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-            const message = "Est-ce que ce mail vous convient mieux ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-            displayMessage(message, ai_icon);
-        } else {
-            hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-            displayMessage(message, ai_icon);
-            console.log('Subject or Email is missing in the response');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        hideLoading();
-        // Handling error => TO PUT IN A FUNCTION
-        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-        displayMessage(message, ai_icon);
-        console.error('There was a problem with the fetch operation: ', error);
-    }
-}
-
 function loading() {
     // Use `nbr` in the template literal to set the reference dynamically
     const messageHTML = `
@@ -1324,11 +1015,9 @@ function hideLoading() {
 }
 
 async function sendEmail() {
-    // Send an email with input parameters
-
     const emailSubject = inputValue.value;
-    const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
-    const recipients = selectedPeople.value.map(person => person.email); // Adjust according to your data structure
+    const emailBody = quill.value.root.innerHTML;
+    const recipients = selectedPeople.value.map(person => person.email);
     const ccRecipients = selectedCC.value.map(person => person.email);
     const bccRecipients = selectedCCI.value.map(person => person.email);
 
@@ -1337,8 +1026,7 @@ async function sendEmail() {
     formData.append('message', emailBody);
     fileObjects.value.forEach(file => formData.append('attachments', file));
 
-    // Add recipients, CC, and BCC to formData if needed
-    // Adjust the field names according to your API's expected format
+    // Add recipients, CC, and BCC to formData
     formData.append('to', recipients.join(','));
     formData.append('cc', ccRecipients.join(','));
     formData.append('cci', bccRecipients.join(','));

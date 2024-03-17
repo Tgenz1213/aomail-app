@@ -226,7 +226,7 @@
                                         </div>
                                         <div class="flex mb-4">
                                             <div class="inline-flex rounded-lg shadow-lg">
-                                                <button @click="sendEmail"
+                                                <button @click="sendEmail" :disabled="emailTransfered"
                                                     class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
                                                 <Menu as="div" class="relative -ml-px block">
                                                     <MenuButton
@@ -248,7 +248,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                                                    item.name }}</a>
+        item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -295,6 +295,7 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
 
+let emailTransfered = ref(false);
 
 const route = useRoute();
 const router = useRouter();
@@ -1590,6 +1591,8 @@ async function sendEmail() {
             notificationMessage = 'Redirection en cours...';
             displayPopup();
 
+            // disable send button
+            emailTransfered.value = true;
             localStorage.removeItem("uploadedFiles");
             uploadedFiles.value = [];
             fileObjects.value = [];

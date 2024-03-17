@@ -61,7 +61,7 @@
                             <li v-for="item in emails['Important']" :key="item.id"
                               class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center"
                               @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                              <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                              <div class="col-span-8 cursor-pointer" @click="toggleHiddenParagraph(item.id)">
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item.name
@@ -281,7 +281,7 @@
                             <li v-for="item in emails['Information']" :key="item.id"
                               class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                               @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                              <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                              <div class="col-span-8 cursor-pointer" @click="toggleHiddenParagraph(item.id)">
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{
@@ -500,7 +500,7 @@
                             <li v-for="item in emails['Useless']" :key="item.id"
                               class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center"
                               @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                              <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                              <div class="col-span-8 cursor-pointer" @click="toggleHiddenParagraph(item.id)">
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-gray-800">{{ item.name }}</p>

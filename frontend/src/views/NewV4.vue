@@ -273,7 +273,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                                                    item.name }}</a>
+        item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -1571,13 +1571,22 @@ function askChoiceRecipier(list, type) {
 
                 if (type === 'main') {
                     const person = { username: username, email: email };
-                    selectedPeople.value.push(person);
+                    const isPersonAlreadySelected = selectedPeople.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedPeople.value.push(person);
+                    }
                 } else if (type === 'cc') {
                     const person = { username: username, email: email };
-                    selectedCC.value.push(person);
+                    const isPersonAlreadySelected = selectedCC.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedCC.value.push(person);
+                    }
                 } else {
                     const person = { username: username, email: email };
-                    selectedCCI.value.push(person);
+                    const isPersonAlreadySelected = selectedCCI.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedCCI.value.push(person);
+                    }
                 }
             });
         }, 0);

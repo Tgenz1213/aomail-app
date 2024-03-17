@@ -646,7 +646,7 @@ async function handleAIClick() {
     setTimeout(async () => {
         if (stepcontainer == 0) {
             if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucun destinataire(s), veuillez réessayer"
+                const message = "Vous n'avez saisi aucun destinataire, veuillez réessayer"
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
                 displayMessage(message, ai_icon);
             } else {

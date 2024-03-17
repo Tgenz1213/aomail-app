@@ -372,8 +372,6 @@ def get_mail(services, int_mail=None, id_mail=None):
             sent_date = datetime.datetime.strptime(
                 values["value"], "%a, %d %b %Y %H:%M:%S %z"
             )
-        elif name == "To":
-            to = parse_name_and_email(values["value"])
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:

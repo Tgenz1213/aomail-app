@@ -1482,10 +1482,8 @@ async function transferEmail(email) {
             query: {
                 subject: JSON.stringify(data.email.subject),
                 cc: JSON.stringify(data.email.cc),
-                bcc: JSON.stringify(data.email.bcc),
                 decoded_data: JSON.stringify(data.email.decoded_data),
                 email: JSON.stringify(email.email),
-                id_provider: JSON.stringify(email.id_provider),
                 details: JSON.stringify(email.details),
                 date: JSON.stringify(data.email.date)
             }

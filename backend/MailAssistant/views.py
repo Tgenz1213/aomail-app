@@ -1188,7 +1188,7 @@ def save_last_mail_view(request):
 def save_last_mail_outlook(request):
     user = request.user
     email = request.headers.get("email")
-    
+
     try:
         microsoft_api.processed_email_to_bdd(user, email)
         return Response({"message": "Save successful"}, status=200)
@@ -1217,7 +1217,7 @@ def get_mail_view(request):
                     "from_name": from_name,
                     "decoded_data": decoded_data,
                     "email_id": email_id,
-                    "date": date
+                    "date": date,
                 },
             },
             status=200,
@@ -1241,10 +1241,14 @@ def get_mail_by_id_view(request):
         subject, from_name, decoded_data, cc, bcc, email_id, date = google_api.get_mail(
             service, None, mail_id
         )
-        print(
-            f"{Fore.CYAN}from_name: {from_name}, cc: {Fore.YELLOW}{cc}, bcc: {Fore.LIGHTGREEN_EX}{bcc}",
-            f"Date: {date}"
-        )
+        # print(
+        #     f"{Fore.CYAN}from_name: {from_name}, cc: {Fore.YELLOW}{cc}, bcc: {Fore.LIGHTGREEN_EX}{bcc}"
+        # )
+
+        # clean cc
+        if cc:
+            cc = tuple(item for item in cc if item is not None)
+
         return Response(
             {
                 "message": "Authentication successful",
@@ -1255,7 +1259,7 @@ def get_mail_by_id_view(request):
                     "cc": cc,
                     "bcc": bcc,
                     "email_id": email_id,
-                    "date": date
+                    "date": date,
                 },
             },
             status=200,

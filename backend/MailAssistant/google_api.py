@@ -369,8 +369,11 @@ def get_mail(services, int_mail=None, id_mail=None):
         elif name == "Bcc":
             bcc_info = parse_name_and_email(values["value"])
         elif name == "Date":
-            # Parse the date string into a datetime object
-            sent_date = datetime.datetime.strptime(values["value"], "%a, %d %b %Y %H:%M:%S %z")
+            sent_date = datetime.datetime.strptime(
+                values["value"], "%a, %d %b %Y %H:%M:%S %z"
+            )
+        elif name == "To":
+            to = parse_name_and_email(values["value"])
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -818,7 +821,9 @@ def get_email(access_token, refresh_token):
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings
 def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(services, 0, None)
+    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(
+        services, 0, None
+    )
 
     if not Email.objects.filter(provider_id=email_id).exists():
 
@@ -869,7 +874,7 @@ def processed_email_to_bdd(request, services):
                 sender=sender,
                 category=category,
                 user=request.user,
-                date=date
+                date=date,
             )
 
             # If the email has a summary, save it in the BulletPoint table

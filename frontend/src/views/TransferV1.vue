@@ -920,27 +920,60 @@ async function handleAIClick() {
 const bgColor = ref(''); // Initialize a reactive variable
 
 onMounted(() => {
+    // Initialize Quill editor
+    quill.value = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: toolbarOptions
+        }
+    });
+
     document.addEventListener("keydown", handleKeyDown);
 
     const subject = JSON.parse(route.query.subject);
     const email = JSON.parse(route.query.email);
     const cc = JSON.parse(route.query.cc);
-    const cci = JSON.parse(route.query.bcc);
     const decoded_data = JSON.parse(route.query.decoded_data);
-    const id_provider = JSON.parse(route.query.id_provider);
     const details = JSON.parse(route.query.details);
     const date = JSON.parse(route.query.date)
 
     console.log("Subject:", subject);
     console.log("Email:", email);
     console.log("cc", cc);
-    console.log("cci", cci);
-    console.log("ID Provider:", id_provider);
     console.log("Details:", details);
     console.log("Decoded_data", decoded_data);
     console.log("date", date);
 
+    // Prepare the forwarded email
     inputValue.value = 'Tr : ' + subject;
+    const formattedDateVar = new Date(date);
+    const options = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+    const formattedDate = formattedDateVar.toLocaleDateString('fr-FR', options);
+
+    // TODO add this when its ready
+    // const userEmail = localStorage.getItem("email");
+    // forwardedMessage += `To: ${userEmail}\n`;
+
+    let forwardedMessage = '';
+
+    forwardedMessage += 'Résumé de l\'email:\n';
+    details.forEach(detail => {
+        forwardedMessage += `- ${detail.text}\n`;
+    });
+    forwardedMessage += '\n\n';
+    forwardedMessage += '---------- Message transféré ---------\n';
+    forwardedMessage += `From: ${email}\n`;
+    forwardedMessage += `Date: ${formattedDate}\n`;
+    forwardedMessage += `Subject: ${subject}\n`;
+
+    if (cc) {
+        forwardedMessage += `CC: ${cc}\n`;
+    }
+
+    forwardedMessage += '\n\n';
+    forwardedMessage += decoded_data;
+
+    quill.value.setText(forwardedMessage);
 
     getBackgroundColor();
     bgColor.value = localStorage.getItem('bgColor');
@@ -958,14 +991,6 @@ onMounted(() => {
         [{ 'align': [] }],
         ['blockquote', 'code-block']
     ];
-
-    // Initialize Quill editor
-    quill.value = new Quill('#editor', {
-        theme: 'snow',
-        modules: {
-            toolbar: toolbarOptions
-        }
-    });
 
 
     // DOM-related code

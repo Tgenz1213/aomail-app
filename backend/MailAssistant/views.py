@@ -4,7 +4,6 @@ Handles frontend requests and redirects them to the appropriate API.
 
 import json
 import logging
-import os
 import re
 import threading
 import jwt

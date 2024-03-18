@@ -27,7 +27,9 @@ GOOGLE_CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readon
 GOOGLE_PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile"
 GOOGLE_EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email"
 GOOGLE_OPENID_SCOPE = "openid"
-GOOGLE_OTHER_CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.other.readonly"
+GOOGLE_OTHER_CONTACT_READONLY_SCOPE = (
+    "https://www.googleapis.com/auth/contacts.other.readonly"
+)
 GOOGLE_SCOPES = [
     GOOGLE_READONLY_SCOPE,
     GOOGLE_SEND_SCOPE,
@@ -57,5 +59,7 @@ MICROSOFT_CONFIG = json.load(open(MICROSOFT_CREDS, "r"))
 # PRODUCTION authority
 # AUTHORITY = f"https://login.microsoftonline.com/common"
 # WHITE LIST authority
-MICROSOFT_AUTHORITY = f'https://login.microsoftonline.com/{MICROSOFT_CONFIG["tenant_id"]}'
+MICROSOFT_AUTHORITY = (
+    f'https://login.microsoftonline.com/{MICROSOFT_CONFIG["tenant_id"]}'
+)
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"

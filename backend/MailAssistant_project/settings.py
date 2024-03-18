@@ -8,6 +8,7 @@ import json
 import os
 from datetime import timedelta
 from pathlib import Path
+from MailAssistant.constants import HOSTS_URLS
 
 
 ######################## CHECKLIST FOR PRODUCTION ########################
@@ -135,9 +136,9 @@ STATIC_URL = "static/"
 
 
 ######################## SECURITY ########################
-CORS_ALLOW_ALL_ORIGINS = True
 DEBUG = True
-ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_ALL_ORIGINS = False
+ALLOWED_HOSTS = HOSTS_URLS
 
 SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Token expires in 1 day

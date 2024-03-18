@@ -11,7 +11,7 @@ BACKEND_DIR = os.path.dirname(CURRENT_DIR)
 CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
 BASE_URL = f"https://{ENV}.aochange.com/"
-REDIRECT_URI = f"{BASE_URL}/signup_part2"
+REDIRECT_URI = f"{BASE_URL}signup_part2"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]
 
 ######################## ARTIFICIAL INTELLIGENCE ########################

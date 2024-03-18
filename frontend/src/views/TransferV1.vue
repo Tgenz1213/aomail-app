@@ -1024,19 +1024,24 @@ function hideLoading() {
 async function sendEmail() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
-    const recipients = selectedPeople.value.map(person => person.email);
-    const ccRecipients = selectedCC.value.map(person => person.email);
-    const bccRecipients = selectedCCI.value.map(person => person.email);
-
     const formData = new FormData();
+
     formData.append('subject', emailSubject);
     formData.append('message', emailBody);
     fileObjects.value.forEach(file => formData.append('attachments', file));
-
     // Add recipients, CC, and BCC to formData
-    formData.append('to', recipients.join(','));
-    formData.append('cc', ccRecipients.join(','));
-    formData.append('cci', bccRecipients.join(','));
+    selectedPeople.value.forEach(person => formData.append('to', person.email));
+
+    if (selectedCC.value.length > 0) {
+        selectedCC.value.forEach(person => formData.append('cc', person.email));
+    } else {
+        formData.append('cc', '');
+    }
+    if (selectedCCI.value.length > 0) {
+        selectedCCI.value.forEach(person => formData.append('cci', person.email));
+    } else {
+        formData.append('cci', '');
+    }
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {

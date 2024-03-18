@@ -273,7 +273,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-        item.name }}</a>
+                                                                    item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -1856,24 +1856,26 @@ function hideLoading() {
 }
 
 async function sendEmail() {
-    // Send an email with input parameters
-
     const emailSubject = inputValue.value;
-    const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
-    const recipients = selectedPeople.value.map(person => person.email); // Adjust according to your data structure
-    const ccRecipients = selectedCC.value.map(person => person.email);
-    const bccRecipients = selectedCCI.value.map(person => person.email);
-
+    const emailBody = quill.value.root.innerHTML;
     const formData = new FormData();
+
     formData.append('subject', emailSubject);
     formData.append('message', emailBody);
     fileObjects.value.forEach(file => formData.append('attachments', file));
+    // Add recipients, CC, and BCC to formData
+    selectedPeople.value.forEach(person => formData.append('to', person.email));
 
-    // Add recipients, CC, and BCC to formData if needed
-    // Adjust the field names according to your API's expected format
-    formData.append('to', recipients.join(','));
-    formData.append('cc', ccRecipients.join(','));
-    formData.append('cci', bccRecipients.join(','));
+    if (selectedCC.value.length > 0) {
+        selectedCC.value.forEach(person => formData.append('cc', person.email));
+    } else {
+        formData.append('cc', '');
+    }
+    if (selectedCCI.value.length > 0) {
+        selectedCCI.value.forEach(person => formData.append('cci', person.email));
+    } else {
+        formData.append('cci', '');
+    }
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {

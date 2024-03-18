@@ -214,6 +214,8 @@ def send_email(request):
         service = authenticate_service(user, email)["gmail.send"]
         serializer = EmailDataSerializer(data=request.data)
 
+        print("DEBUG")
+        print(request.data)
         if serializer.is_valid():
             data = serializer.validated_data
 

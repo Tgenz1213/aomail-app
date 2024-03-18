@@ -15,7 +15,6 @@ from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from MailAssistant import google_api, microsoft_api
 from colorama import Fore, init
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -24,6 +23,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from MailAssistant.ai_providers import gpt_3_5_turbo
+from MailAssistant.email_providers import google_api, microsoft_api
 from .models import (
     Category,
     SocialAPI,

@@ -29,8 +29,8 @@ from MailAssistant.constants import (
     REDIRECT_URI,
     GOOGLE_SCOPES,
 )
-from . import library
-from .models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
+from .. import library
+from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from base64 import urlsafe_b64encode
 from rest_framework.response import Response
 from MailAssistant.ai_providers import gpt_3_5_turbo

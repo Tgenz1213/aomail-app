@@ -1,9 +1,10 @@
 """
 Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 """
+
 from django.urls import path
+from MailAssistant.email_providers import google_api, microsoft_api
 from . import views
-from MailAssistant import microsoft_api, google_api
 
 
 app_name = 'MailAssistant'
@@ -56,7 +57,7 @@ urlpatterns = [
     path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
     path('api/generate_email_answer/', views.generate_email_answer, name='generate_email_answer'), # ok
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
-    #----------------------- OAuth 2.0 EMAIL PROVIDER API -----------------------#
+    #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
     #----------------------- TESTING URLs -----------------------#

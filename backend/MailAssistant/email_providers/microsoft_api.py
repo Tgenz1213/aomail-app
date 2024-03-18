@@ -22,14 +22,14 @@ from MailAssistant.constants import (
     MICROSOFT_SCOPES,
     REDIRECT_URI,
 )
-from .serializers import EmailDataSerializer
+from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .models import Contact, SocialAPI
+from ..models import Contact, SocialAPI
 from requests.exceptions import HTTPError
-from .models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
+from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from MailAssistant.ai_providers import gpt_3_5_turbo
-from . import library
+from .. import library
 
 
 ######################## LOGGING CONFIGURATION ########################

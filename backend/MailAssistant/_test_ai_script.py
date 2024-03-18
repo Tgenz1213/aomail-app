@@ -346,13 +346,16 @@ print(f"Standard Deviation for All Prompts: {std_dev_all_prompts} seconds")
 for provider, functions in ai_providers_stats.items():
     print(f"\nAI Provider: {provider}")
     for function, elapsed_times in functions.items():
-        min_time_function = round(min(elapsed_times), 2)
-        max_time_function = round(max(elapsed_times), 2)
-        avg_time_function = round(statistics.mean(elapsed_times), 2)
-        std_dev_function = round(statistics.stdev(elapsed_times), 2)
+        if len(elapsed_times) > 1:
+            min_time_function = round(min(elapsed_times), 2)
+            max_time_function = round(max(elapsed_times), 2)
+            avg_time_function = round(statistics.mean(elapsed_times), 2)
+            std_dev_function = round(statistics.stdev(elapsed_times), 2)
 
-        print(f"\tFunction: {function}")
-        print(f"\tMin Time: {min_time_function} seconds")
-        print(f"\tMax Time: {max_time_function} seconds")
-        print(f"\tAvg Time: {avg_time_function} seconds")
-        print(f"\tStandard Deviation: {std_dev_function} seconds")
+            print(f"\tFunction: {function}")
+            print(f"\tMin Time: {min_time_function} seconds")
+            print(f"\tMax Time: {max_time_function} seconds")
+            print(f"\tAvg Time: {avg_time_function} seconds")
+            print(f"\tStandard Deviation: {std_dev_function} seconds")
+        else:            
+            print(f"\tFunction: {function}: no or only 1 result")

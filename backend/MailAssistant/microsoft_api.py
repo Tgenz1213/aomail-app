@@ -4,10 +4,7 @@ Handles authentication and HTTP requests for the Microsoft Graph API.
 
 import base64
 import datetime
-import json
-import os
 import logging
-import re
 import time
 import httpx
 import requests
@@ -18,69 +15,55 @@ from rest_framework.response import Response
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from colorama import init, Fore
-from rest_framework import status
+from MailAssistant.constants import (
+    GRAPH_URL,
+    MICROSOFT_AUTHORITY,
+    MICROSOFT_CONFIG,
+    MICROSOFT_SCOPES,
+    REDIRECT_URI,
+)
 from .serializers import EmailDataSerializer
-from base64 import urlsafe_b64encode
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from .models import Contact, SocialAPI
 from requests.exceptions import HTTPError
 from .models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
-from MailAssistant import gpt_3_5_turbo
-
+from MailAssistant.ai_providers import gpt_3_5_turbo
 from . import library
 
+
 ######################## LOGGING CONFIGURATION ########################
-init(autoreset=True)
-
-
-######################## MICROSOFT GRAPH API PROPERTIES ########################
-MAIL_READ_SCOPE = "Mail.Read"
-MAIL_SEND_SCOPE = "Mail.Send"
-CALENDAR_READ_SCOPE = "Calendars.Read"
-CONTACTS_READ_SCOPE = "Contacts.Read"
-SCOPES = [MAIL_READ_SCOPE, MAIL_SEND_SCOPE, CALENDAR_READ_SCOPE, CONTACTS_READ_SCOPE]
-CONFIG = json.load(open("creds/microsoft_creds.json", "r"))
-# PRODUCTION authority
-# AUTHORITY = f"https://login.microsoftonline.com/common"
-# localhost authority
-AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
-GRAPH_URL = "https://graph.microsoft.com/v1.0/"
-ENV = os.environ.get("ENV")
-REDIRECT_URI = f"https://{ENV}.aochange.com/signup_part2"
+# TODO: add logging conf in constants.py
 
 
 ######################## AUTHENTIFICATION ########################
 def generate_auth_url(request):
     """Generate a connection URL to obtain the authorization code"""
     params = {
-        "client_id": CONFIG["client_id"],
+        "client_id": MICROSOFT_CONFIG["client_id"],
         "response_type": "code",
         "redirect_uri": REDIRECT_URI,
         "response_mode": "query",
-        "scope": " ".join(SCOPES),
+        "scope": " ".join(MICROSOFT_SCOPES),
         "state": "0a590ac7-6a23-44b1-9237-287743818d32",
     }
-    authorization_url = f"{AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
+    authorization_url = (
+        f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
+    )
 
-    # Redirect the user to Microsoft's consent screen
     return redirect(authorization_url)
 
 
 def exchange_code_for_tokens(authorization_code):
     """Returns the access token and the refresh token"""
     app = ConfidentialClientApplication(
-        client_id=CONFIG["client_id"],
-        client_credential=CONFIG["client_secret"],
-        authority=AUTHORITY,
+        client_id=MICROSOFT_CONFIG["client_id"],
+        client_credential=MICROSOFT_CONFIG["client_secret"],
+        authority=MICROSOFT_AUTHORITY,
     )
 
     result = app.acquire_token_by_authorization_code(
-        authorization_code, scopes=SCOPES, redirect_uri=REDIRECT_URI
+        authorization_code, scopes=MICROSOFT_SCOPES, redirect_uri=REDIRECT_URI
     )
     if result:
         return result["access_token"], result["refresh_token"]
@@ -105,7 +88,7 @@ def get_social_api(user, email):
         return social_api
     except SocialAPI.DoesNotExist:
         logging.error(
-            f"{Fore.RED}No credentials found for user {user.username} and email {email}"
+            f"No credentials found for user {user.username} and email {email}"
         )
         return None
 
@@ -125,13 +108,13 @@ def refresh_access_token(social_api):
     if is_token_valid(access_token):
         return access_token
 
-    refresh_url = f"{AUTHORITY}/oauth2/v2.0/token"
+    refresh_url = f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/token"
     data = {
         "grant_type": "refresh_token",
         "refresh_token": social_api.refresh_token,
-        "client_id": CONFIG["client_id"],
-        "client_secret": CONFIG["client_secret"],
-        "scope": SCOPES,
+        "client_id": MICROSOFT_CONFIG["client_id"],
+        "client_secret": MICROSOFT_CONFIG["client_secret"],
+        "scope": MICROSOFT_SCOPES,
     }
 
     response = requests.post(refresh_url, data=data)
@@ -149,72 +132,6 @@ def refresh_access_token(social_api):
 
 
 ######################## PROFILE REQUESTS ########################
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_parsed_contacts(request) -> list:
-    """Returns a list of parsed unique contacts with email types"""
-    user = request.user
-    email = request.headers.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
-
-    try:
-        if access_token:
-            headers = get_headers(access_token)
-
-            # Get contacts using Microsoft Graph API
-            graph_endpoint = (
-                f"{GRAPH_URL}me/contacts?$select=displayName,emailAddresses"
-            )
-            response = requests.get(graph_endpoint, headers=headers)
-
-            parsed_contacts = []
-            if response.status_code == 200:
-                contacts = response.json().get("value", [])
-                for contact in contacts:
-                    names = contact.get("displayName", "")
-                    emails = contact.get("emailAddresses", [])
-                    if names and emails:
-                        for email_info in emails:
-                            email = email_info.get("address", "")
-                            email_type = email_info.get(
-                                "type", ""
-                            )  # Get the email type if available
-                            if email_type:
-                                name_with_type = f"[{email_type}] {names}"
-                                parsed_contacts.append(
-                                    {"name": name_with_type, "email": email}
-                                )
-                            else:
-                                parsed_contacts.append({"name": names, "email": email})
-
-                # Get unique sender information from Outlook
-                unique_senders = get_unique_senders(access_token)
-                for email, name in unique_senders.items():
-                    parsed_contacts.append({"name": name, "email": email})
-
-                logging.info(
-                    f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts"
-                )
-                return JsonResponse(parsed_contacts)
-
-            else:
-                error_message = (
-                    response.json()
-                    .get("error", {})
-                    .get("message", "Failed to fetch contacts")
-                )
-                return JsonResponse(
-                    {"error": error_message}, status=response.status_code
-                )
-
-        else:
-            return JsonResponse({"error": "Access token not found"}, status=400)
-
-    except Exception as e:
-        logging.exception(f"{Fore.YELLOW}Error fetching contacts: {e}")
-        return JsonResponse({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 def get_info_contacts(access_token):
     """Fetch the name and the email of the contacts of the user"""
     graph_endpoint = f"{GRAPH_URL}me/contacts"
@@ -242,7 +159,7 @@ def get_info_contacts(access_token):
         return names_emails
 
     except HTTPError as e:
-        logging.error(f"{Fore.RED}Error in Microsoft Graph API request: {str(e)}")
+        logging.error(f"Error in Microsoft Graph API request: {str(e)}")
         return []
 
 
@@ -265,12 +182,12 @@ def get_unique_senders(access_token) -> dict:
                 name = sender.get("emailAddress", {}).get("name", "")
                 senders_info[email_address] = name
         else:
-            logging.error(f"{Fore.RED}Failed to fetch messages: {response.text}")
+            logging.error(f"Failed to fetch messages: {response.text}")
 
         return senders_info
 
     except Exception as e:
-        logging.exception(f"{Fore.RED}Error fetching senders: {e}")
+        logging.exception(f"Error fetching senders: {e}")
         return senders_info
 
 
@@ -312,7 +229,7 @@ def get_profile_image(request):
             )
 
     except Exception as e:
-        logging.exception(f"{Fore.RED}An exception occurred: {str(e)}")
+        logging.exception(f"An exception occurred: {str(e)}")
         return Response({"error": f"An exception occurred: {str(e)}"}, status=500)
 
 
@@ -370,12 +287,10 @@ def unread_mails(request):
                 if error_code == "MailboxNotEnabledForRESTAPI":
                     # TODO: display a pop-up
                     print(
-                        f"{Fore.RED}The account you are using does not have a proper license to access the required endpoints"
+                        f"The account you are using does not have a proper license to access the required endpoints"
                     )
 
-                logging.error(
-                    f"{Fore.RED}Failed to retrieve unread count: {error_message}"
-                )
+                logging.error(f"Failed to retrieve unread count: {error_message}")
                 return JsonResponse({"unreadCount": 0}, status=response.status_code)
 
         return JsonResponse({"unreadCount": 0}, status=400)
@@ -458,7 +373,7 @@ def send_email(request):
             logging.exception(f"Error preparing email data: {e}")
             return JsonResponse({"error": str(e)}, status=500)
 
-    logging.error(f"{Fore.RED}Serializer errors: {serializer.errors}")
+    logging.error(f"Serializer errors: {serializer.errors}")
     return JsonResponse(serializer.errors, status=400)
 
 
@@ -529,7 +444,7 @@ def search_emails(access_token, search_query, max_results=2):
         return found_emails
 
     except HTTPError as e:
-        logging.error(f"{Fore.RED}ERROR in Microsoft Graph API request: {str(e)}")
+        logging.error(f"ERROR in Microsoft Graph API request: {str(e)}")
         return {}
 
 
@@ -572,7 +487,7 @@ def set_all_contacts(access_token, user):
 
             formatted_time = str(datetime.timedelta(seconds=time.time() - start))
             logging.info(
-                f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+                f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
             )
 
     except httpx.HTTPError as e:
@@ -712,3 +627,69 @@ def processed_email_to_bdd(user, email):
         pass
 
     return
+
+
+'''@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_parsed_contacts(request) -> list:
+    """Returns a list of parsed unique contacts with email types"""
+    user = request.user
+    email = request.headers.get("email")
+    access_token = refresh_access_token(get_social_api(user, email))
+
+    try:
+        if access_token:
+            headers = get_headers(access_token)
+
+            # Get contacts using Microsoft Graph API
+            graph_endpoint = (
+                f"{GRAPH_URL}me/contacts?$select=displayName,emailAddresses"
+            )
+            response = requests.get(graph_endpoint, headers=headers)
+
+            parsed_contacts = []
+            if response.status_code == 200:
+                contacts = response.json().get("value", [])
+                for contact in contacts:
+                    names = contact.get("displayName", "")
+                    emails = contact.get("emailAddresses", [])
+                    if names and emails:
+                        for email_info in emails:
+                            email = email_info.get("address", "")
+                            email_type = email_info.get(
+                                "type", ""
+                            )  # Get the email type if available
+                            if email_type:
+                                name_with_type = f"[{email_type}] {names}"
+                                parsed_contacts.append(
+                                    {"name": name_with_type, "email": email}
+                                )
+                            else:
+                                parsed_contacts.append({"name": names, "email": email})
+
+                # Get unique sender information from Outlook
+                unique_senders = get_unique_senders(access_token)
+                for email, name in unique_senders.items():
+                    parsed_contacts.append({"name": name, "email": email})
+
+                logging.info(
+                    f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts"
+                )
+                return JsonResponse(parsed_contacts)
+
+            else:
+                error_message = (
+                    response.json()
+                    .get("error", {})
+                    .get("message", "Failed to fetch contacts")
+                )
+                return JsonResponse(
+                    {"error": error_message}, status=response.status_code
+                )
+
+        else:
+            return JsonResponse({"error": "Access token not found"}, status=400)
+
+    except Exception as e:
+        logging.exception(f"{Fore.YELLOW}Error fetching contacts: {e}")
+        return JsonResponse({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)'''

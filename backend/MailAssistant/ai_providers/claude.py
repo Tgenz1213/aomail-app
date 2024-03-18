@@ -4,17 +4,12 @@ Handles prompt engineering requests for Claude 3 API.
 
 import ast
 import json
-import os
 import anthropic
 from colorama import Fore, init
+from MailAssistant.constants import CLAUDE_CREDS, HUMAN, ASSISTANT
 
 
 ######################## Claude 3 API SETTINGS ########################
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.dirname(CURRENT_DIR)
-CLAUDE_CREDS = json.load(open(f"{BACKEND_DIR}/creds/claude_creds.json", "r"))
-HUMAN = "\n\nHuman: "
-ASSISTANT = "Assistant:"
 init(autoreset=True)
 
 

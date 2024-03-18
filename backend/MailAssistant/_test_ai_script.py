@@ -1,11 +1,10 @@
 from colorama import Fore, init
 import time
 import statistics
-import gpt_3_5_turbo, claude, mistral
+from ai_providers import gpt_3_5_turbo, claude, mistral
 
 
 ######################## CONSTANTS ########################
-# TODO: add gpt_4
 # TODO: add role as a parameter in get_prompt_response for testing by role
 # TODO: generate a pdf file
 
@@ -357,5 +356,5 @@ for provider, functions in ai_providers_stats.items():
             print(f"\tMax Time: {max_time_function} seconds")
             print(f"\tAvg Time: {avg_time_function} seconds")
             print(f"\tStandard Deviation: {std_dev_function} seconds")
-        else:            
+        else:
             print(f"\tFunction: {function}: no or only 1 result")

@@ -2,18 +2,15 @@
 Handles prompt engineering requests for GPT-3.5-turbo API.
 """
 
+from colorama import Fore, init
+from MailAssistant.constants import OPENAI_CREDS
 import json
 import re
 import openai
 import ast
-import os
-from colorama import Fore, init
 
 
 ######################## GPT - 3.5 turbo API SETTINGS ########################
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.dirname(CURRENT_DIR)
-OPENAI_CREDS = json.load(open(f"{BACKEND_DIR}/creds/openai_creds.json", "r"))
 init(autoreset=True)
 
 
@@ -159,7 +156,7 @@ def shorten_keywords(keywords) -> dict:
 
 
 ######################## WRITING ########################
-def gpt_improve_email_writing(body, subject):
+def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
     template = """As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.

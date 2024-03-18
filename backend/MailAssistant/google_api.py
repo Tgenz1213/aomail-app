@@ -4,13 +4,10 @@ Handles authentication and HTTP requests for the Gmail API.
 
 import base64
 import datetime
-import json
 import logging
 import re
 import time
-import os
 from collections import defaultdict
-from colorama import Fore, init
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.db import IntegrityError
@@ -26,47 +23,28 @@ from google_auth_oauthlib.flow import Flow
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from MailAssistant.serializers import EmailDataSerializer
+from MailAssistant.constants import (
+    GOOGLE_CONFIG,
+    GOOGLE_CREDS,
+    REDIRECT_URI,
+    GOOGLE_SCOPES,
+)
 from . import library
 from .models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from base64 import urlsafe_b64encode
 from rest_framework.response import Response
-from MailAssistant import gpt_3_5_turbo
+from MailAssistant.ai_providers import gpt_3_5_turbo
 
 
 ######################## LOGGING CONFIGURATION ########################
-init(autoreset=True)
-
-
-######################## GOOGLE API PROPERTIES ########################
-GMAIL_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
-GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
-CALENDAR_READONLY_SCOPE = "https://www.googleapis.com/auth/calendar.readonly"
-CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readonly"
-PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile"
-EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email"
-OPENID_SCOPE = "openid"
-OTHER_CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.other.readonly"
-SCOPES = [
-    GMAIL_READONLY_SCOPE,
-    GMAIL_SEND_SCOPE,
-    CALENDAR_READONLY_SCOPE,
-    CONTACT_READONLY_SCOPE,
-    PROFILE_SCOPE,
-    EMAIL_SCOPE,
-    OPENID_SCOPE,
-    OTHER_CONTACT_READONLY_SCOPE,
-]
-GOOGLE_CREDS = "creds/google_creds.json"
-CONFIG = json.load(open(GOOGLE_CREDS, "r"))["web"]
-ENV = os.environ.get("ENV")
-REDIRECT_URI = f"https://{ENV}.aochange.com/signup_part2"
+# TODO: add logging conf in constants.py
 
 
 ######################## AUTHENTIFICATION ########################
 def generate_auth_url(request):
     """Generate a connection URL to obtain the authorization code"""
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=SCOPES, redirect_uri=REDIRECT_URI
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI
     )
 
     authorization_url, _ = flow.authorization_url(
@@ -79,9 +57,8 @@ def generate_auth_url(request):
 
 def exchange_code_for_tokens(authorization_code):
     """Return tokens Exchanged with authorization code"""
-    print("DEBUG --------------------------------->", authorization_code)
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=SCOPES, redirect_uri=REDIRECT_URI
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI
     )
     flow.fetch_token(code=authorization_code)
 
@@ -90,7 +67,6 @@ def exchange_code_for_tokens(authorization_code):
     if credentials:
         access_token = credentials.token
         refresh_token = credentials.refresh_token
-        print(access_token, refresh_token)
 
         return access_token, refresh_token
     else:
@@ -104,10 +80,10 @@ def get_credentials(user, email):
         creds_data = {
             "token": social_api.access_token,
             "refresh_token": social_api.refresh_token,
-            "token_uri": CONFIG["token_uri"],
-            "client_id": CONFIG["client_id"],
-            "client_secret": CONFIG["client_secret"],
-            "scopes": SCOPES,
+            "token_uri": GOOGLE_CONFIG["token_uri"],
+            "client_id": GOOGLE_CONFIG["client_id"],
+            "client_secret": GOOGLE_CONFIG["client_secret"],
+            "scopes": GOOGLE_SCOPES,
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
@@ -196,11 +172,11 @@ def unread_mails(request):
                     {"error": "Failed to retrieve unread count"}, status=500
                 )
 
-        logging.error(f"{Fore.RED}Failed to authenticate")
+        logging.error("Failed to authenticate")
         return JsonResponse({"unreadCount": unread_count}, status=400)
 
     except Exception as e:
-        logging.error(f"{Fore.RED}An error occurred: {e}")
+        logging.error("An error occurred: {e}")
         return JsonResponse({"unreadCount": 0}, status=400)
 
 
@@ -214,8 +190,6 @@ def send_email(request):
         service = authenticate_service(user, email)["gmail.send"]
         serializer = EmailDataSerializer(data=request.data)
 
-        print("DEBUG")
-        print(request.data)
         if serializer.is_valid():
             data = serializer.validated_data
 
@@ -465,12 +439,12 @@ def search_emails(services, search_query, max_results=2):
         return found_emails
 
     except Exception as e:
-        logging.error(f"{Fore.RED}ERROR in Gmail API request: {e}")
+        logging.error(f"ERROR in Gmail API request: {e}")
         return {}
 
 
 ######################## PROFILE REQUESTS ########################
-@api_view(["GET"])
+'''@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_parsed_contacts(request) -> list:
     """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
@@ -540,7 +514,7 @@ def get_parsed_contacts(request) -> list:
         return Response(parsed_contacts)
     except Exception as e:
         logging.exception("Error fetching contacts:")
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": str(e)}, status=500)'''
 
 
 '''
@@ -697,7 +671,7 @@ def set_all_contacts(user, email):
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         logging.info(
-            f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
         )
 
     except Exception as e:
@@ -791,10 +765,10 @@ def get_email(access_token, refresh_token):
     creds_data = {
         "token": access_token,
         "refresh_token": refresh_token,
-        "token_uri": CONFIG["token_uri"],
-        "client_id": CONFIG["client_id"],
-        "client_secret": CONFIG["client_secret"],
-        "scopes": SCOPES,
+        "token_uri": GOOGLE_CONFIG["token_uri"],
+        "client_id": GOOGLE_CONFIG["client_id"],
+        "client_secret": GOOGLE_CONFIG["client_secret"],
+        "scopes": GOOGLE_SCOPES,
     }
     creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
@@ -808,7 +782,7 @@ def get_email(access_token, refresh_token):
         email = user_info.get("emailAddresses", [{}])[0].get("value", "")
         return email
     except Exception as e:
-        print(f"{Fore.GREEN}Couldn't get email: {e}")
+        print(f"Couldn't get email: {e}")
         return None
 
 

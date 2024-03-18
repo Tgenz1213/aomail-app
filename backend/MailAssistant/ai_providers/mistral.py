@@ -3,18 +3,14 @@ Handles prompt engineering requests for Mistral API.
 """
 
 import ast
-import os
+import json
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
+from MailAssistant.constants import MISTRAL_CREDS
 from colorama import Fore, init
-import time
-import json
 
 
 ######################## MISTRAL API SETTINGS ########################
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.dirname(CURRENT_DIR)
-MISTRAL_CREDS = json.load(open(f"{BACKEND_DIR}/creds/mistral_creds.json", "r"))
 init(autoreset=True)
 
 

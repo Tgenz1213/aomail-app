@@ -4,6 +4,7 @@ Handles frontend requests and redirects them to the appropriate API.
 
 import json
 import logging
+import os
 import re
 import threading
 import jwt
@@ -15,7 +16,7 @@ from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from MailAssistant import gpt_3_5_turbo, google_api, microsoft_api
+from MailAssistant import google_api, microsoft_api
 from colorama import Fore, init
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -23,6 +24,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from MailAssistant.ai_providers import gpt_3_5_turbo
 from .models import (
     Category,
     SocialAPI,
@@ -615,7 +617,7 @@ def gpt_improve_email_writing(request):
         email_body = serializer.validated_data["email_body"]
         email_subject = serializer.validated_data["email_subject"]
 
-        email_body, subject_text = gpt_3_5_turbo.gpt_improve_email_writing(
+        email_body, subject_text = gpt_3_5_turbo.improve_email_writing(
             email_body, email_subject
         )
 
@@ -686,11 +688,7 @@ def generate_email_response_keywords(request):
         print("DEBUG --------->", response_keywords)
         print("DEBUG --------->", type(response_keywords))
 
-        return Response(
-            {
-                "response_keywords": response_keywords,
-            }
-        )
+        return Response({"response_keywords": response_keywords})
     else:
         return Response(serializer.errors, status=400)
 
@@ -708,11 +706,7 @@ def generate_email_answer(request):
             email_subject, email_content, response_type, "French"
         )
 
-        return Response(
-            {
-                "email_answer": email_answer,
-            }
-        )
+        return Response({"email_answer": email_answer})
     else:
         return Response(serializer.errors, status=400)
 
@@ -1248,6 +1242,10 @@ def get_mail_by_id_view(request):
         # clean cc
         if cc:
             cc = tuple(item for item in cc if item is not None)
+
+        # clean bcc
+        if bcc:
+            bcc = tuple(item for item in bcc if item is not None)
 
         return Response(
             {

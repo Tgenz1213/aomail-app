@@ -571,7 +571,7 @@ def new_email_ai(request):
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
 
-        subject_text, mail_text = gpt_3_5_turbo.langchain_redaction(
+        subject_text, mail_text = gpt_3_5_turbo.generate_email(
             input_data, length, formality
         )
 

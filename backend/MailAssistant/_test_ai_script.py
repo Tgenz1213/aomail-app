@@ -15,8 +15,11 @@ LIST_AI_PROVIDERS = [gpt_3_5_turbo, claude, mistral]
 LIST_FUNCTIONS = [
     "new_mail_recommendation",
     "correct_mail_language_mistakes",
+    "generate_response_keywords",
     "get_language",
     "extract_contacts_recipients",
+    "improve_email_writing",
+    "generate_email",
 ]
 
 # Créer une liste combinée des fournisseurs AI et des fonctions
@@ -71,66 +74,21 @@ examples_new_mail_recommendation = [
     ),
 ]
 
-# ----------------------- new_correct_mail_language_mistakes EXAMPLES -----------------------#
+# ----------------------- correct_mail_language_mistakes EXAMPLES -----------------------#
 examples_correct_mail_language_mistakes = [
-    ("Salut, cmt ça va?", "Juste pr prendre de tes nouvelles, cmt ça va?"),
-    ("Lol, tu là?", "Hey, lol, tu là?"),
-    ("A tooute à l'h", "A laproch  on se voit plus tard!"),
-    ("peti test appl", "c un  emai de test envoyer depus l'appl"),
-    ("Hey! Quoi de neuf?", "Hey! Quoi de neuf? Pas de news de toî depuis un moment."),
-    ("Attend ta réponse", "Toujours en atente de ta réponse o dernier mail."),
-    ("Merci", "Merci pr l'info, c'est simpà!"),
-    ("Coucou", "Coucou, t'as une minute? Besoin dton avis sur kke chose."),
+    ("Juste pr prendre de tes nouvelles, cmt ça va?", "Salut, cmt ça va?"),
+    ("Hey, lol, tu là?", "Lol, tu là?"),
+    ("A laproch  on se voit plus tard!", "A tooute à l'h"),
+    ("c un  emai de test envoyer depus l'appl", "peti test appl"),
+    ("Hey! Quoi de neuf? Pas de news de toî depuis un moment.", "Hey! Quoi de neuf?"),
+    ("Toujours en atente de ta réponse o dernier mail.", "Attend ta réponse"),
+    ("Merci pr l'info, c'est simpà!", "Merci"),
+    ("Coucou, t'as une minute? Besoin dton avis sur kke chose.", "Coucou"),
     (
-        "Discus proj entrprena",
         "Bonjour, j'espère que tu va bi1. Je voula discuter avec toi du proj",
+        "Discus proj entrprena",
     ),
 ]
-
-# ----------------------- extract_contacts_recipients EXAMPLES -----------------------#
-examples_extract_contacts_recipients = [
-    (
-        "mets théo en principal et augustin ainsi que jean, rajoute esaip en copie cachée avec le directeur en copie"
-    ),
-    (
-        "Pour la réunion de demain, veuillez ajouter Pierre, Marie et Lucie dans la liste des destinataires."
-    ),
-    (
-        "Assurez-vous que Thomas et Sophie sont inclus dans la liste des destinataires pour la prochaine annonce."
-    ),
-    (
-        "Envoyez une copie du rapport à Martin, et n'oubliez pas d'inclure Julia et Paul dans les destinataires."
-    ),
-    (
-        "Veuillez ajouter les membres de l'équipe marketing, à savoir Anne, Marc et Émilie, aux destinataires du courriel."
-    ),
-    (
-        "Pour l'événement de cette semaine, ajoutez Camille et Mathieu en destinataires pour qu'ils reçoivent toutes les informations nécessaires."
-    ),
-    ("Besoin d'envoyer un message à John, Emma et Alex. Copie secrète pour Smith."),
-    ("Inclure Lisa et Tom. Copie cachée pour Taylor. Rajouter également Jessica."),
-    (
-        "Envoyer à Rachel et David. Mentionner Michael en copie. Ajouter Jane en copie cachée."
-    ),
-    ("Copier Megan et Ethan. Informer Liam en copie. Rajouter Emily en copie cachée."),
-    (
-        "John et Emily doivent être inclus. Copie secrète pour Ryan. Rajouter également Olivia."
-    ),
-]
-
-# ----------------------- generate_response_keywords EXAMPLES -----------------------#
-# generate_response_keywords(input_email, input_subject, language)
-examples_generate_response_keywords = []
-
-# ----------------------- improve_email_writing EXAMPLES -----------------------#
-# def improve_email_writing(body, subject):
-examples_improve_email_writing = []
-
-
-# ----------------------- generate_email EXAMPLES -----------------------#
-# def generate_email(input_data, length, formality):
-examples_generate_email = []
-
 
 # ----------------------- get_language EXAMPLES -----------------------#
 examples_get_language = [
@@ -178,6 +136,133 @@ examples_get_language = [
 ]
 
 
+# ----------------------- generate_response_keywords EXAMPLES -----------------------#
+examples_generate_response_keywords = [
+    (
+        "Hallo, ich habe nur ein Frage, Warum bist du langsamer als mistral?",
+        "Achtung bitte",
+        "German",
+    ),
+    (
+        "Assalomu Aleykum, Meining ismi Augustin. Men Uzbek tilini organypman",
+        "Yaxshimiziz",
+        "Uzbek",
+    ),
+    (
+        "<p>Bonjour,</p><p>J'espère que vous allez bien. Je me permets de vous contacter pour solliciter une assistance au sujet de l'implémentation de Graph API dans une application. Serait-il possible de poser une question à ce sujet ici?</p><p>Je vous remercie d'avance pour votre attention et votre aide.</p>",
+        "Demande d'Assistance concernant l'Implémentation de Graph API dans une Application",
+        "French",
+    ),
+    (
+        "<p>Cher Monsieur Dupont,<br><br>Je vous présente mes meilleurs vœux pour cette année 2022. Je tiens à vous faire part de mes résultats en mathématiques au cours des deux dernières années académiques.<br><br>Au cours de cette période, j'ai reconnu les difficultés rencontrées en algèbre et ai fait de mon mieux pour les surmonter. Bien que la matière n'ait pas été ma plus grande force, j'ai travaillé dur pour améliorer mes compétences et ma compréhension. Je continue à m'efforcer pour obtenir de meilleurs résultats.<br><br>Cette année, je suis motivé et déterminé à donner le meilleur de moi-même. J'ai plusieurs projets en cours et j'ai rencontré des personnes incroyablement talentueuses qui m'ont inspiré et m'ont aidé à progresser. Je suis également en train d'apprendre de nouvelles compétences en informatique, ce qui me permettra de mieux réussir dans mes études de génie logiciel.<br><br>Je vous remercie de votre soutien continu et je reste à votre disposition pour toute information supplémentaire que vous pourriez souhaiter.<br><br>Bien cordialement,<br>Augustin<br><i>Étudiant en génie logiciel</i></p>",
+        "Bilan de performance en Mathématiques - Années académiques 2019-2021",
+        "French",
+    ),
+    (
+        "<p>Bonjour,\n\nJ'ai le plaisir de vous annoncer que j'ai fait une découverte intéressante dans le domaine de l'ingénierie de prompts. Cette trouvaille pourrait considérablement améliorer notre projet actuel.\n\nDe votre côté, j'espère que les choses avancent également. Une fois que vous aurez terminé votre partie en back-end et front-end, nous pourrons envisager de déployer en production.\n\nJe suis convaincu que nous sommes sur la bonne voie pour livrer un projet de qualité dans les délais impartis.\n\nCordialement,\n[Votre Nom]</p>",
+        "Projet - Découverte prometteuse en ingénierie de prompts",
+        "French",
+    ),
+    (
+        "<p>Cher Jean,</p><p>J'espère que votre alternance se passe bien jusqu'à présent. Je suis ravi d'avoir de vos nouvelles et de pouvoir discuter de votre parcours.</p><p>Comme vous le savez, je suis actuellement en deuxième année d'ingénierie et je me demandais si vous auriez des conseils à me donner pour bien gérer cette période délicate. Ce semestre a été particulièrement difficile pour moi, mais je suis déterminé à bien terminer et à me concentrer sur mes objectifs.</p><p>Par ailleurs, j'aimerais également vous solliciter pour un problème que je rencontre avec ma licence M365. Pourriez-vous me guider dans les démarches à suivre pour le résoudre ? Votre expertise serait grandement appréciée.</p><p>Je vous remercie par avance pour votre aide et votre soutien. J'espère avoir de vos nouvelles rapidement.</p><p>Cordialement,</p>",
+        "Mise à jour sur votre alternance et demande de conseil",
+        "French",
+    ),
+    (
+        "<p>Cher Jean,<br><br>J'espère que vous vous portez bien et que votre alternance se déroule à merveille. Je me permets de vous écrire aujourd'hui pour vous donner quelques nouvelles de mon côté.<br><br>Actuellement, je suis toujours en ING2 et je suis en train de finir mon semestre, qui s'avère être particulièrement exigeant. Néanmoins, je suis heureux de vous annoncer que j'envisage de vous rejoindre l'année prochaine, suite à l'obtention de mon diplôme.<br><br>Dans cette perspective, j'ai hâte de pouvoir travailler à nouveau sur le projet de Mail Assistant et de m'attaquer au problème de licence M365. Je reviendrai vers Théo dès que j'aurai terminé mon semestre et que je serai disponible à temps plein.<br><br>Je vous remercie par avance pour votre attention et je me réjouis de pouvoir collaborer avec vous à l'avenir.<br><br>Cordialement,<br>[Votre prénom et nom]</p>",
+        "État d'avancement de mon cursus et perspectives de collaboration professionnelle",
+        "French",
+    ),
+]
+
+# ----------------------- extract_contacts_recipients EXAMPLES -----------------------#
+examples_extract_contacts_recipients = [
+    (
+        "mets théo en principal et augustin ainsi que jean, rajoute esaip en copie cachée avec le directeur en copie"
+    ),
+    (
+        "Pour la réunion de demain, veuillez ajouter Pierre, Marie et Lucie dans la liste des destinataires."
+    ),
+    (
+        "Assurez-vous que Thomas et Sophie sont inclus dans la liste des destinataires pour la prochaine annonce."
+    ),
+    (
+        "Envoyez une copie du rapport à Martin, et n'oubliez pas d'inclure Julia et Paul dans les destinataires."
+    ),
+    (
+        "Veuillez ajouter les membres de l'équipe marketing, à savoir Anne, Marc et Émilie, aux destinataires du courriel."
+    ),
+    (
+        "Pour l'événement de cette semaine, ajoutez Camille et Mathieu en destinataires pour qu'ils reçoivent toutes les informations nécessaires."
+    ),
+    ("Besoin d'envoyer un message à John, Emma et Alex. Copie secrète pour Smith."),
+    ("Inclure Lisa et Tom. Copie cachée pour Taylor. Rajouter également Jessica."),
+    (
+        "Envoyer à Rachel et David. Mentionner Michael en copie. Ajouter Jane en copie cachée."
+    ),
+    ("Copier Megan et Ethan. Informer Liam en copie. Rajouter Emily en copie cachée."),
+    (
+        "John et Emily doivent être inclus. Copie secrète pour Ryan. Rajouter également Olivia."
+    ),
+]
+
+# ----------------------- improve_email_writing EXAMPLES -----------------------#
+examples_improve_email_writing = [
+    ("Juste pr prendre de tes nouvelles, cmt ça va?", "Salut, cmt ça va?"),
+    ("Hey, lol, tu là?", "Lol, tu là?"),
+    ("A laproch  on se voit plus tard!", "A tooute à l'h"),
+    ("c un  emai de test envoyer depus l'appl", "peti test appl"),
+    ("Hey! Quoi de neuf? Pas de news de toî depuis un moment.", "Hey! Quoi de neuf?"),
+    ("Toujours en atente de ta réponse o dernier mail.", "Attend ta réponse"),
+    ("Merci pr l'info, c'est simpà!", "Merci"),
+    ("Coucou, t'as une minute? Besoin dton avis sur kke chose.", "Coucou"),
+    (
+        "Bonjour, j'espère que tu va bi1. Je voula discuter avec toi du proj",
+        "Discus proj entrprena",
+    ),
+]
+
+
+# ----------------------- generate_email EXAMPLES -----------------------#
+examples_generate_email = [
+    (
+        "Hello, can I ask a question about Graph API implementation inside an app here?",
+        "long",
+        "very formal",
+    ),
+    (
+        "<p>bjr Msr DUPONT, je vous souahite une bonne année. Je c que l'algebre ct dure et je nai ps compris grand chse mais g fé de mon miux. Bonne continuatioN. G plein de projet et rencontré d personne fantastiques. Ctt année va etre incroyable, je sui mega focus et j'apprend bcp de ttrucs en info. Augustin <i>Software engineer student</i></p>",
+        "short",
+        "informal",
+    ),
+    (
+        "<p>Salut <strong>papi</strong> cv ? nous on séclate en Espagne!!! on ador la piscine. Claude et la fam</p>",
+        "very short",
+        "informal",
+    ),
+    (
+        "<p>slt cv jsp koi dir. si tu voi ca c que test a march ✌️😊</p>",
+        "very short",
+        "very informal",
+    ),
+    (
+        "<p>je crois que g trouvé quelquechose de pas mal en <strong>prompt engineering</strong>. jesp que cv de votr cote. un peu de taf en back en front et on pourra push en prod</p>",
+        "short",
+        "formal",
+    ),
+    (
+        "<p>Je vais sans doute vous rejoindre l'année prochaine car je ne suis qu'en ING2 pour l'instant. Et ce semestre est vraiment compliqué, il me reste une seule semaine et après je reviens vers Théo sur Mail Assistant et je me réattaque au pb de licence M365</p>",
+        "long",
+        "very formal",
+    ),
+    (
+        "<p>bsr madama. Je suis en 2eme année de cyle prépa. Est ce ke je peux av la lsit des entreprises ds lesquell les eleves en IR3, 4, 5 on fait soit 1 stage soi une alternance. Merc de votre retour. Augustin ROLET</p>",
+        "short",
+        "formal",
+    ),
+]
+
+
 # Dictionnaire pour stocker les résultats
 results = {}
 
@@ -185,7 +270,11 @@ results = {}
 for example in (
     examples_new_mail_recommendation
     + examples_correct_mail_language_mistakes
+    + examples_generate_response_keywords
     + examples_get_language
+    + examples_extract_contacts_recipients
+    + examples_improve_email_writing
+    + examples_generate_email
 ):
     # Déterminer le nombre d'éléments par tuple
     num_elements = len(example)

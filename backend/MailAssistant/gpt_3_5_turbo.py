@@ -213,7 +213,7 @@ def new_mail_recommendation(mail_content, email_subject, user_recommendation):
     return subject_text, email_body
 
 
-def langchain_redaction(input_data, length, formality):
+def generate_email(input_data, length, formality):
     """Generate a French email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
     template = """As an email assistant, write a {length} and {formality} email in FRENCH.

@@ -1,0 +1,3 @@
+2024-03-19 06:20:53,839 | django.request.py | WARNING - Unauthorized: /MailAssistant/api/is_authenticated/
+2024-03-19 06:23:45,971 | MailAssistant.email_providers.google_api.py | ERROR - This is just a test
+19/Mar/2024 06:26:18 | %(name)s.py | %(levelname)s - %(message)s

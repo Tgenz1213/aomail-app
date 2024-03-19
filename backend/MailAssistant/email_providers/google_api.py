@@ -37,7 +37,7 @@ from MailAssistant.ai_providers import gpt_3_5_turbo
 
 
 ######################## LOGGING CONFIGURATION ########################
-# TODO: add logging conf in constants.py
+LOGGER = logging.getLogger(__name__)
 
 
 ######################## AUTHENTIFICATION ########################
@@ -88,9 +88,8 @@ def get_credentials(user, email):
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
     except ObjectDoesNotExist:
-        print(
-            f"An unexpected error occurred while retrieving credentials for user {user.username} and email {email}"
-        )
+        # TODO: create a safe logging method with id and lookup table for email
+        LOGGER.error(f"No credentials for user with ID {user.id} and email: {email}")
         creds = None
     return creds
 
@@ -99,7 +98,7 @@ def refresh_credentials(creds):
     try:
         creds.refresh(Request())
     except auth_exceptions.RefreshError as e:
-        print(f"Failed to refresh credentials: {e}")
+        LOGGER.error(f"Failed to refresh credentials: {e}")
         creds = None
     return creds
 
@@ -111,7 +110,7 @@ def save_credentials(creds, user, email):
         social_api.access_token = creds.token
         social_api.save()
     except Exception as e:
-        print(f"Failed to save credentials: {e}")
+        LOGGER.error(f"Failed to save credentials: {e}")
 
 
 def build_services(creds) -> dict:
@@ -137,7 +136,9 @@ def authenticate_service(user, email) -> dict:
         if creds:
             save_credentials(creds, user, email)
         else:
-            print("Failed to authenticate")
+            LOGGER.error(
+                f"Failed to authenticate for user with ID {user.id} and email: {email}"
+            )
             return None
 
     services = build_services(creds)
@@ -318,14 +319,14 @@ def get_mail(services, int_mail=None, id_mail=None):
         )
         messages = results.get("messages", [])
         if not messages:
-            print("No new messages.")
+            LOGGER.info("No new messages.")
             return None
         message = messages[int_mail]
         email_id = message["id"]
     elif id_mail is not None:
         email_id = id_mail
     else:
-        print("Either int_mail or id_mail must be provided")
+        LOGGER.error("Either int_mail or id_mail must be provided")
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
@@ -693,7 +694,7 @@ def get_unique_senders(services) -> dict:
     senders_info = {}
 
     if not messages:
-        print("No messages found.")
+        LOGGER.info("No messages found")
     else:
         for message in messages:
             try:
@@ -725,7 +726,7 @@ def get_unique_senders(services) -> dict:
                 # Store the sender's name with the email address as the key
                 senders_info[sender_email] = sender_name
             except Exception as e:
-                print(f"Error processing message {message['id']}: {e}")
+                LOGGER.error(f"Error processing message with ID {message['id']}: {e}")
 
     return senders_info
 
@@ -781,8 +782,9 @@ def get_email(access_token, refresh_token):
         )
         email = user_info.get("emailAddresses", [{}])[0].get("value", "")
         return email
+
     except Exception as e:
-        print(f"Couldn't get email: {e}")
+        LOGGER.error(f"Could not get email: {e}")
         return None
 
 
@@ -828,7 +830,7 @@ def processed_email_to_bdd(request, services):
             name=sender_name, email=sender_email
         )  # assuming from_name contains the sender's name
 
-        print("DEBUG ----------------> topic", topic)
+        LOGGER.info(f"[processed_email_to_bdd] topic: {topic}")
         # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
         category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 
@@ -864,22 +866,19 @@ def processed_email_to_bdd(request, services):
                 for point in bullet_points:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
-        except IntegrityError:
-            print(
-                f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
+        except Exception as e:
+            LOGGER.error(
+                f"An error occurred when trying to create an email with ID {email_id}: {e}"
             )
 
         # Debug prints
-        print("topic:", topic)
-        print("importance:", importance)
-        print("answer:", answer)
-        print("summary:", summary)
-        print("sentence:", sentence)
-        print("relevance:", relevance)
-        print("importance_explain:", importance_explain)
+        LOGGER.info("topic:", topic)
+        LOGGER.info("importance:", importance)
+        LOGGER.info("answer:", answer)
+        LOGGER.info("summary:", summary)
+        LOGGER.info("sentence:", sentence)
+        LOGGER.info("relevance:", relevance)
+        LOGGER.info("importance_explain:", importance_explain)
 
     else:
-        print(f"Email with provider_id {email_id} already exists.")
-
-    # return email_entry  # Return the created email object, if needed
-    return
+        LOGGER.error(f"The email with ID {email_id} already exists.")

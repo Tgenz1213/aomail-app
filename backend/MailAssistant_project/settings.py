@@ -37,10 +37,12 @@ from MailAssistant.constants import HOSTS_URLS
 
 
 ######################## CREDENTIALS ########################
-# root of the project MailAssistant
+# backend folder of the project MailAssistant
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG = json.load(open("creds/django_creds.json", "r"))
 SECRET_KEY = CONFIG["secret_key"]
+BACKEND_LOG_PATH = "backend.log"
+CUSTOM_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 ######################## GENERAL CONFIGURATION ########################
@@ -102,48 +104,36 @@ TEMPLATES = [
     },
 ]
 
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "basic",
+            "level": "INFO",
         },
         "file": {
             "class": "logging.FileHandler",
-            "filename": "test.log",
-            "level": "WARNING",
-            "formatter": "simple"
-        }
+            "filename": BACKEND_LOG_PATH,
+            "level": "ERROR",
+            "formatter": "verbose",
+        },
     },
     "loggers": {
         "": {
             "handlers": ["console", "file"],
-            "level": "WARNING",
         },
     },
     "formatters": {
         "basic": {
-            "format": "{levelname} - {message}"
+            "format": "{name}.py | {levelname} - {message}",
+            "style": "{",
         },
         "verbose": {
-            "format": "{asctime} | {levelname} - {name} {module}.py"
-        }
-    }
-}
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "WARNING"),
+            "format": "{asctime} | %(name)s.py | Line %(lineno)d | %(levelname)s - %(message)s",
+            "style": "{",
+            "datefmt": CUSTOM_DATE_FORMAT,
         },
     },
 }

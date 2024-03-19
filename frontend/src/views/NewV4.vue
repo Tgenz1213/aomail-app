@@ -1774,7 +1774,7 @@ async function WriteBetter() {
             }),
         };
 
-        const result = await fetchWithToken(`${API_BASE_URL}api/gpt_improve_email_writing/`, requestOptions);
+        const result = await fetchWithToken(`${API_BASE_URL}api/improve_email_writing/`, requestOptions);
 
         hideLoading();
         console.log(result);

@@ -15,7 +15,6 @@ from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from colorama import Fore, init
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -53,10 +52,7 @@ from .serializers import (
 
 
 ######################## LOGGING CONFIGURATION ########################
-init(autoreset=True)
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+LOGGER = logging.getLogger(__name__)
 
 
 ######################## REGISTRATION ########################
@@ -154,6 +150,7 @@ def validate_authorization_code(type_api, code):
             "email": email,
         }
     except Exception as e:
+        LOGGER.error(f"Error in validate_authorization_code: {str(e)}")
         return {"error": str(e)}
 
 
@@ -219,6 +216,7 @@ def save_user_data(
         return {"message": "User data saved successfully"}
 
     except Exception as e:
+        LOGGER.error(f"Error in save_user_data: {str(e)}")
         return {"error": str(e)}
 
 
@@ -261,6 +259,9 @@ def forward_request(request, api_method):
         social_api = get_object_or_404(SocialAPI, user=user, email=email)
         type_api = social_api.type_api
     except SocialAPI.DoesNotExist:
+        LOGGER.error(
+            f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
+        )
         return JsonResponse(
             {"error": "SocialAPI entry not found for the user and email"}, status=404
         )
@@ -326,6 +327,7 @@ def refresh_token(request):
         return Response({"access_token": new_access_token})
 
     except Exception as e:
+        LOGGER.error(f"Error in refresh_token: {str(e)}")
         return Response({"error": str(e)}, status=400)
 
 
@@ -346,6 +348,7 @@ def get_user_categories(request):
         return Response({"error": "User not found"}, status=400)
 
     except Exception as e:
+        LOGGER.error(f"Error in get_user_categories: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
 
@@ -364,6 +367,7 @@ def update_category(request, currentName):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
+        LOGGER.error(f"Serializer errors in update_category: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -408,8 +412,7 @@ def set_category(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        print("Data:", request.data)
-        print("Errors:", serializer.errors)
+        LOGGER.error(f"Serializer errors set_category: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -432,9 +435,7 @@ def get_user_contacts(request):
             {"error": "No contacts found"}, status=status.HTTP_404_NOT_FOUND
         )
 
-    contacts_serializer = ContactSerializer(
-        user_contacts, many=True
-    )  # Note the 'many=True' for serializing multiple objects
+    contacts_serializer = ContactSerializer(user_contacts, many=True)
 
     return Response(contacts_serializer.data)
 
@@ -530,12 +531,9 @@ def find_user_view_ai(request):
                         {"username": recipient_name, "email": matching_emails}
                     )
 
-            # Print the result using Fore for color
-            print(f"{Fore.YELLOW}Matching emails for '{', '.join(recipient_list)}':")
+            print(f"Matching emails for '{', '.join(recipient_list)}':")
             for recipient in recipients_with_emails:
-                print(
-                    f"{Fore.GREEN}{recipient['username']}:{Fore.RESET} {recipient['email']}"
-                )
+                print(f"{recipient['username']}: {recipient['email']}")
 
             # Return the list of matching emails
             return recipients_with_emails
@@ -556,6 +554,7 @@ def find_user_view_ai(request):
             status=200,
         )
     else:
+        LOGGER.error("Failed to authenticate or no search query provided")
         return Response(
             {"error": "Failed to authenticate or no search query provided"}, status=400
         )
@@ -579,6 +578,7 @@ def new_email_ai(request):
         # Return the response
         return Response({"subject": subject_text, "mail": mail_text})
     else:
+        LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
 
@@ -592,9 +592,9 @@ def new_email_recommendations(request):
         user_recommendation = serializer.validated_data["user_recommendation"]
         email_subject = serializer.validated_data["email_subject"]
 
-        print(f"{Fore.CYAN}mail_content: {mail_content}")
-        print(f"{Fore.CYAN}user_recommendation: {user_recommendation}")
-        print(f"{Fore.CYAN}email_subject: {email_subject}")
+        print(f"mail_content: {mail_content}")
+        print(f"user_recommendation: {user_recommendation}")
+        print(f"email_subject: {email_subject}")
 
         subject_text, email_body = gpt_3_5_turbo.new_mail_recommendation(
             mail_content, user_recommendation, email_subject
@@ -602,13 +602,15 @@ def new_email_recommendations(request):
 
         return Response({"subject": subject_text, "email_body": email_body})
     else:
-        logging.error(f"{Fore.RED}Error: {serializer.errors}")
+        LOGGER.error(
+            f"Serializer errors in new_email_recommendations: {serializer.errors}"
+        )
         return Response(serializer.errors, status=400)
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def gpt_improve_email_writing(request):
+def improve_email_writing(request):
     """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
     serializer = EmailCorrectionSerializer(data=request.data)
 
@@ -622,7 +624,7 @@ def gpt_improve_email_writing(request):
 
         return Response({"subject": subject_text, "email_body": email_body})
     else:
-        logging.error(f"{Fore.RED}Error: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in improve_email_writing: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
 
@@ -648,6 +650,9 @@ def correct_email_language(request):
             }
         )
     else:
+        LOGGER.error(
+            f"Serializer errors in correct_email_language: {serializer.errors}"
+        )
         return Response(serializer.errors, status=400)
 
 
@@ -655,18 +660,20 @@ def correct_email_language(request):
 @permission_classes([IsAuthenticated])
 def check_email_copywriting(request):
     serializer = EmailCopyWritingSerializer(data=request.data)
-    print("Serializer :", serializer)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
 
         feedback_copywriting = gpt_3_5_turbo.improve_email_copywriting(
-            email_subject, email_body
+            email_body, email_subject
         )
 
         return Response({"feedback_copywriting": feedback_copywriting})
     else:
+        LOGGER.error(
+            f"Serializer errors in check_email_copywriting: {serializer.errors}"
+        )
         return Response(serializer.errors, status=400)
 
 
@@ -689,6 +696,9 @@ def generate_email_response_keywords(request):
 
         return Response({"response_keywords": response_keywords})
     else:
+        LOGGER.error(
+            f"Serializer errors in generate_email_response_keywords: {serializer.errors}"
+        )
         return Response(serializer.errors, status=400)
 
 
@@ -707,6 +717,7 @@ def generate_email_answer(request):
 
         return Response({"email_answer": email_answer})
     else:
+        LOGGER.error(f"Serializer errors in generate_email_answer: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
 
@@ -746,13 +757,13 @@ def get_answer_later_emails(request):
             }
             formatted_data[email.priority].append(email_data)
 
-        print(f"{Fore.CYAN}{formatted_data}")
+        print(f"{formatted_data}")
 
         return Response(formatted_data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        logging.error(f"Error fetching emails: {e}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Error fetching emails: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 ######################## DATABASE OPERATIONS ########################
@@ -785,6 +796,7 @@ def set_user_bg_color(request):
         serializer.save()
         return Response(serializer.data, status=201)
     else:
+        LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
 
@@ -807,7 +819,6 @@ def update_username(request):
     user.username = new_username
     user.save()
 
-    logging.info(f"{Fore.CYAN}User: {user} changed its name in {new_username}")
     return Response({"success": "Username updated successfully."})
 
 
@@ -848,6 +859,7 @@ def delete_account(request):
         return Response({"message": "User successfully deleted"}, status=200)
 
     except Exception as e:
+        LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
 
@@ -870,9 +882,17 @@ def set_rule_block_for_sender(request, email_id):
         rule.block = True
         rule.save()
 
-    # Serialize the data to return
     serializer = RuleBlockUpdateSerializer(rule)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        LOGGER.error(
+            f"Serializer errors in set_rule_block_for_sender: {serializer.errors}"
+        )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["GET"])
@@ -884,20 +904,30 @@ def get_user_rules(request):
     for rule in user_rules:
         # Serialize the basic rule data
         rule_serializer = RuleSerializer(rule)
-        rule_data = rule_serializer.data
 
-        # Manually add category name and sender details
-        category_name = rule.category.name if rule.category else None
-        sender_name = rule.sender.name if rule.sender else None
-        sender_email = rule.sender.email if rule.sender else None
+        if rule_serializer.is_valid():
+            rule_data = rule_serializer.data
 
-        rule_data["category_name"] = category_name
-        rule_data["sender_name"] = sender_name
-        rule_data["sender_email"] = sender_email
+            # Manually add category name and sender details
+            category_name = rule.category.name if rule.category else None
+            sender_name = rule.sender.name if rule.sender else None
+            sender_email = rule.sender.email if rule.sender else None
 
-        rules_data.append(rule_data)
+            rule_data["category_name"] = category_name
+            rule_data["sender_name"] = sender_name
+            rule_data["sender_email"] = sender_email
 
-    return Response(rules_data)
+            rules_data.append(rule_data)
+
+            return Response(rules_data)
+        else:
+            LOGGER.error(
+                f"Serializer errors in set_rule_block_for_sender: {rule_serializer.errors}"
+            )
+            return Response(
+                {"error": rule_serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 @api_view(["GET"])
@@ -912,18 +942,28 @@ def get_user_rule_by_id(request, id_rule):
 
     # Serialize the rule data
     rule_serializer = RuleSerializer(user_rule)
-    rule_data = rule_serializer.data
 
-    # Manually add category name and sender details if they exist
-    category_name = user_rule.category.name if user_rule.category else None
-    sender_name = user_rule.sender.name if user_rule.sender else None
-    sender_email = user_rule.sender.email if user_rule.sender else None
+    if rule_serializer.is_valid():
+        rule_data = rule_serializer.data
 
-    rule_data["category_name"] = category_name
-    rule_data["sender_name"] = sender_name
-    rule_data["sender_email"] = sender_email
+        # Manually add category name and sender details if they exist
+        category_name = user_rule.category.name if user_rule.category else None
+        sender_name = user_rule.sender.name if user_rule.sender else None
+        sender_email = user_rule.sender.email if user_rule.sender else None
 
-    return Response(rule_data)
+        rule_data["category_name"] = category_name
+        rule_data["sender_name"] = sender_name
+        rule_data["sender_email"] = sender_email
+
+        return Response(rule_data)
+    else:
+        LOGGER.error(
+            f"Serializer errors in get_user_rule_by_id: {rule_serializer.errors}"
+        )
+        return Response(
+            {"error": rule_serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @api_view(["DELETE"])
@@ -949,9 +989,11 @@ def create_user_rule(request):
         serializer.save()
         return Response(serializer.data, status=201)
     else:
-        print("Data:", request.data)
-        print("Errors:", serializer.errors)
-        return Response(serializer.errors, status=400)
+        LOGGER.error(f"Serializer errors in create_user_rule: {serializer.errors}")
+        return Response(
+            {"error": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @api_view(["PUT"])
@@ -969,9 +1011,11 @@ def update_user_rule(request):
         serializer.save()
         return Response(serializer.data, status=200)
     else:
-        print("Data:", request.data)
-        print("Errors:", serializer.errors)
-        return Response(serializer.errors, status=400)
+        LOGGER.error(f"Serializer errors in update_user_rule: {serializer.errors}")
+        return Response(
+            {"error": serializer.errors},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 # ----------------------- USER -----------------------#
@@ -1008,6 +1052,7 @@ def create_sender(request):
         serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
+        LOGGER.error(f"Serializer errors in create_sender: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1028,7 +1073,8 @@ def delete_email(request, email_id):
         )
 
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Error when deleting email: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ----------------------- CREDENTIALS AVAILABILITY -----------------------#
@@ -1076,7 +1122,11 @@ def set_email_read(request, email_id):
 
     # Serialize the data to return
     serializer = EmailReadUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        LOGGER.error(f"Serializer errors in set_email_read: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -1094,7 +1144,11 @@ def set_email_reply_later(request, email_id):
 
     # Serialize the data to return
     serializer = EmailReplyLaterUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        LOGGER.error(f"Serializer errors in set_email_read: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])

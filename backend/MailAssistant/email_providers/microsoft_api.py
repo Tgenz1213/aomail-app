@@ -127,6 +127,9 @@ def refresh_access_token(social_api):
         social_api.save()
         return response_data["access_token"]
     else:
+        LOGGER.error(
+            f"Failed to refresh access token for email {social_api.email}: {response_data.get('error_description', response.reason)}"
+        )
         return None
 
 
@@ -142,8 +145,9 @@ def get_info_contacts(access_token):
 
         response = requests.get(graph_endpoint, headers=headers, params=params)
         response.raise_for_status()
+        response_data = response.json()
 
-        contacts = response.json().get("value", [])
+        contacts = response_data.get("value", [])
 
         names_emails = []
         for contact in contacts:
@@ -157,8 +161,10 @@ def get_info_contacts(access_token):
 
         return names_emails
 
-    except HTTPError as e:
-        LOGGER.error(f"Error in Microsoft Graph API request: {str(e)}")
+    except:
+        LOGGER.error(
+            f"Failed to retrieve contacts: {response_data.get('error_description', response.reason)}"
+        )
         return []
 
 
@@ -172,21 +178,24 @@ def get_unique_senders(access_token) -> dict:
         limit = 50
         graph_endpoint = f"{GRAPH_URL}me/messages?$select=sender&$top={limit}"
         response = requests.get(graph_endpoint, headers=headers)
+        response_data = response.json()
 
         if response.status_code == 200:
-            messages = response.json().get("value", [])
+            messages = response_data.get("value", [])
             for message in messages:
                 sender = message.get("sender", {})
                 email_address = sender.get("emailAddress", {}).get("address", "")
                 name = sender.get("emailAddress", {}).get("name", "")
                 senders_info[email_address] = name
         else:
-            LOGGER.error(f"Failed to fetch messages: {response.text}")
+            LOGGER.error(
+                f"Failed to fetch messages: {response_data.get('error_description', response.reason)}"
+            )
 
         return senders_info
 
     except Exception as e:
-        logging.exception(f"Error fetching senders: {str(e)}")
+        LOGGER.error(f"Error fetching senders: {str(e)}")
         return senders_info
 
 
@@ -217,19 +226,24 @@ def get_profile_image(request):
                     {"error": "Profile image not found in response"}, status=404
                 )
         elif response.status_code == 404:
-            return Response({"error": "Profile image not found"}, status=404)
+            LOGGER.error(
+                f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
+            )
+            return Response({"error": "Failed to retrieve profile image"}, status=404)
         else:
             LOGGER.error(
-                f"Failed to retrieve profile image: {response.status_code}\nReason: {response.reason}"
+                f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
             )
             return Response(
-                {"error": f"Failed to retrieve profile image: {response.reason}"},
+                {"error": "Failed to retrieve profile image"},
                 status=404,
             )
 
     except Exception as e:
-        logging.exception(f"An exception occurred: {str(e)}")
-        return Response({"error": f"An exception occurred: {str(e)}"}, status=500)
+        LOGGER.error(f"Failed to retrieve profile image: {str(e)}")
+        return Response(
+            {"error": f"Failed to retrieve profile image: {str(e)}"}, status=500
+        )
 
 
 def get_email(access_token):
@@ -247,8 +261,13 @@ def get_email(access_token):
             email = email_data.get("mail")
             return email
         else:
+            LOGGER.error(
+                f"Failed to get email: {response.json().get('error_description', response.reason)}"
+            )
             return None
-    except:
+
+    except Exception as e:
+        LOGGER.error(f"Failed to get email: {str(e)}")
         return None
 
 
@@ -315,18 +334,21 @@ def send_email(request):
                         {"message": "Email sent successfully!"}, status=202
                     )
                 else:
+                    LOGGER.error(
+                        f"Failed to send email: {response.json().get('error_description', response.reason)}"
+                    )
                     return JsonResponse(
                         {"error": "Failed to send email"}, status=response.status_code
                     )
             except Exception as e:
-                logging.exception(f"Error sending email: {str(e)}")
+                LOGGER.error(f"Failed to send email: {str(e)}")
                 return JsonResponse({"error": str(e)}, status=500)
 
         except Exception as e:
-            logging.exception(f"Error preparing email data: {str(e)}")
+            LOGGER.error(f"Error preparing email data: {str(e)}")
             return JsonResponse({"error": str(e)}, status=500)
 
-    LOGGER.error(f"Serializer errors: {serializer.errors}")
+    LOGGER.error(f"Serializer errors preparing email data: {serializer.errors}")
     return JsonResponse(serializer.errors, status=400)
 
 
@@ -396,8 +418,8 @@ def search_emails(access_token, search_query, max_results=2):
 
         return found_emails
 
-    except HTTPError as e:
-        LOGGER.error(f"ERROR in Microsoft Graph API request: {str(e)}")
+    except Exception as e:
+        LOGGER.error(f"Failed to search emails: {str(e)}")
         return {}
 
 
@@ -439,12 +461,12 @@ def set_all_contacts(access_token, user):
                         pass
 
             formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-            logging.info(
+            LOGGER.info(
                 f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
             )
 
-    except httpx.HTTPError as e:
-        logging.exception(f"Error fetching contacts: {str(e)}")
+    except Exception as e:
+        LOGGER.error(f"Error fetching contacts: {str(e)}")
 
 
 def parse_name_and_email(sender):
@@ -493,6 +515,7 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         messages = response.json().get("value", [])
 
         if not messages:
+            LOGGER.info("No new messages.")
             return None
 
         message_id = messages[int_mail]["id"]
@@ -500,6 +523,7 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         # Fetch message by message id
         message_id = id_mail
     else:
+        LOGGER.info("Either int_mail or id_mail must be provided")
         return None
 
     # Make request to fetch specific message
@@ -573,13 +597,22 @@ def processed_email_to_bdd(user, email):
                 for point in bullet_points:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
-        except IntegrityError:
-            pass
+        except Exception as e:
+            LOGGER.error(
+                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
+            )
+
+        # Debug prints
+        LOGGER.info("topic:", topic)
+        LOGGER.info("importance:", importance)
+        LOGGER.info("answer:", answer)
+        LOGGER.info("summary:", summary)
+        LOGGER.info("sentence:", sentence)
+        LOGGER.info("relevance:", relevance)
+        LOGGER.info("importance_explain:", importance_explain)
 
     else:
-        pass
-
-    return
+        LOGGER.error(f"The email with ID {email_id} already exists.")
 
 
 '''@api_view(["GET"])

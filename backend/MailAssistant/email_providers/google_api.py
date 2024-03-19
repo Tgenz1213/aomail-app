@@ -98,7 +98,7 @@ def refresh_credentials(creds):
     try:
         creds.refresh(Request())
     except auth_exceptions.RefreshError as e:
-        LOGGER.error(f"Failed to refresh credentials: {e}")
+        LOGGER.error(f"Failed to refresh credentials: {str(e)}")
         creds = None
     return creds
 
@@ -110,7 +110,7 @@ def save_credentials(creds, user, email):
         social_api.access_token = creds.token
         social_api.save()
     except Exception as e:
-        LOGGER.error(f"Failed to save credentials: {e}")
+        LOGGER.error(f"Failed to save credentials: {str(e)}")
 
 
 def build_services(creds) -> dict:
@@ -208,7 +208,7 @@ def send_email(request):
                 return Response({"error": serializer.errors}, status=400)
 
     except Exception as e:
-        logging.error(f"Error in send_email view: {e}")
+        logging.error(f"Error in send_email view: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
 
@@ -291,7 +291,7 @@ def get_mail(services, int_mail=None, id_mail=None):
     elif id_mail is not None:
         email_id = id_mail
     else:
-        LOGGER.error("Either int_mail or id_mail must be provided")
+        LOGGER.info("Either int_mail or id_mail must be provided")
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
@@ -405,7 +405,7 @@ def search_emails(services, search_query, max_results=2):
         return found_emails
 
     except Exception as e:
-        logging.error(f"ERROR in Gmail API request: {e}")
+        logging.error(f"ERROR in Gmail API request: {str(e)}")
         return {}
 
 
@@ -559,7 +559,9 @@ def get_unique_senders(services) -> dict:
                 # Store the sender's name with the email address as the key
                 senders_info[sender_email] = sender_name
             except Exception as e:
-                LOGGER.error(f"Error processing message with ID {message['id']}: {e}")
+                LOGGER.error(
+                    f"Error processing message with ID {message['id']}: {str(e)}"
+                )
 
     return senders_info
 
@@ -591,7 +593,9 @@ def get_profile_image(request):
         )
 
     except Exception as e:
-        return Response({"error": f"Error retrieving profile image: {e}"}, status=505)
+        return Response(
+            {"error": f"Error retrieving profile image: {str(e)}"}, status=505
+        )
 
 
 def get_email(access_token, refresh_token):
@@ -617,7 +621,7 @@ def get_email(access_token, refresh_token):
         return email
 
     except Exception as e:
-        LOGGER.error(f"Could not get email: {e}")
+        LOGGER.error(f"Could not get email: {str(e)}")
         return None
 
 
@@ -701,7 +705,7 @@ def processed_email_to_bdd(request, services):
 
         except Exception as e:
             LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id}: {e}"
+                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
 
         # Debug prints
@@ -715,7 +719,6 @@ def processed_email_to_bdd(request, services):
 
     else:
         LOGGER.error(f"The email with ID {email_id} already exists.")
-
 
 
 '''@api_view(["GET"])
@@ -751,7 +754,6 @@ def unread_mails(request):
     except Exception as e:
         logging.error("An error occurred: {e}")
         return JsonResponse({"unreadCount": 0}, status=400)'''
-
 
 
 '''@api_view(["GET"])

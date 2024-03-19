@@ -9,7 +9,6 @@ import re
 import time
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse
 from django.db import IntegrityError
 from django.shortcuts import redirect
 from email.mime.application import MIMEApplication
@@ -22,7 +21,9 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from MailAssistant.serializers import EmailDataSerializer
+from MailAssistant.ai_providers import gpt_3_5_turbo
 from MailAssistant.constants import (
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
@@ -32,8 +33,6 @@ from MailAssistant.constants import (
 from .. import library
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from base64 import urlsafe_b64encode
-from rest_framework.response import Response
-from MailAssistant.ai_providers import gpt_3_5_turbo
 
 
 ######################## LOGGING CONFIGURATION ########################

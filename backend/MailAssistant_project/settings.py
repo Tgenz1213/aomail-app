@@ -5,7 +5,6 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 """
 
 import json
-import os
 from datetime import timedelta
 from pathlib import Path
 from MailAssistant.constants import HOSTS_URLS
@@ -22,15 +21,11 @@ from MailAssistant.constants import HOSTS_URLS
    - Avoid logging sensitive information like passwords or tokens.
    - Adjust log levels and handlers for effective monitoring.
 
-3. Remove Dangerous Print:
-   - Remove all print statements containing sensitive information.
-   - Enhance security by minimizing unnecessary print statements.
-
-4. Backup and Recovery:
+3. Backup and Recovery:
    - Implement a backup strategy for the database and logging files.
    - Set up a reliable backup server for data recovery.
 
-5. Setup Critical Auto Email:
+4. Setup Critical Auto Email:
    - Establish monitoring systems to detect critical issues.
    - Configure automatic email alerts for timely response to critical alerts.
 """
@@ -131,7 +126,7 @@ LOGGING = {
             "style": "{",
         },
         "verbose": {
-            "format": "{asctime} | %(name)s.py | Line %(lineno)d | %(levelname)s - %(message)s",
+            "format": "{asctime} | {name}.py | Line {lineno} | {levelname} - {message}",
             "style": "{",
             "datefmt": CUSTOM_DATE_FORMAT,
         },

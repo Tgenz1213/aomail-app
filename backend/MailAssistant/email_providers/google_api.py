@@ -208,7 +208,7 @@ def send_email(request):
                 return Response({"error": serializer.errors}, status=400)
 
     except Exception as e:
-        logging.error(f"Error in send_email view: {str(e)}")
+        LOGGER.error(f"Failed to send email: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
 
@@ -405,7 +405,7 @@ def search_emails(services, search_query, max_results=2):
         return found_emails
 
     except Exception as e:
-        logging.error(f"ERROR in Gmail API request: {str(e)}")
+        LOGGER.error(f"Failed to search emails: {str(e)}")
         return {}
 
 
@@ -504,12 +504,12 @@ def set_all_contacts(user, email):
                         pass
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        logging.info(
+        LOGGER.info(
             f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
         )
 
     except Exception as e:
-        logging.exception(f"Error fetching contacts: {str(e)}")
+        LOGGER.error(f"Error fetching contacts: {str(e)}")
 
 
 def get_unique_senders(services) -> dict:

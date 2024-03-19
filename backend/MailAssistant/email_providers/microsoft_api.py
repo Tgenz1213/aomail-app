@@ -46,6 +46,7 @@ def generate_auth_url(request):
         "response_mode": "query",
         "scope": " ".join(MICROSOFT_SCOPES),
         "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+        "prompt": "consent",
     }
     authorization_url = (
         f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
@@ -114,13 +115,11 @@ def refresh_access_token(social_api):
         "refresh_token": social_api.refresh_token,
         "client_id": MICROSOFT_CONFIG["client_id"],
         "client_secret": MICROSOFT_CONFIG["client_secret"],
-        "scope": MICROSOFT_SCOPES,
+        "scope": " ".join(MICROSOFT_SCOPES),
     }
 
     response = requests.post(refresh_url, data=data)
     response_data = response.json()
-
-    print(response_data)
 
     # Check if the refresh was successful
     if "access_token" in response_data:

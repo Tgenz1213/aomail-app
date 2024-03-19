@@ -17,31 +17,20 @@ from MailAssistant.constants import HOSTS_URLS
    - Turn off debug mode in production.
      DEBUG = False
 
-2. Allowed Hosts:
-   - Define a list of allowed hosts for serving the application.
-   - Add your domain name(s).
-     ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
-
-3. CORS Configuration:
-   - Review CORS_ALLOW_ALL_ORIGINS parameter for Cross-Origin Resource Sharing.
-   - Set to False and specify allowed origins if necessary.
-     CORS_ALLOW_ALL_ORIGINS = False
-     CORS_ALLOWED_ORIGINS = ['https://yourfrontenddomain.com']
-
-4. Logging Configuration:
+2. Logging Configuration:
    - Set appropriate logging configurations for production.
    - Avoid logging sensitive information like passwords or tokens.
    - Adjust log levels and handlers for effective monitoring.
 
-5. Remove Dangerous Print:
+3. Remove Dangerous Print:
    - Remove all print statements containing sensitive information.
    - Enhance security by minimizing unnecessary print statements.
 
-6. Backup and Recovery:
+4. Backup and Recovery:
    - Implement a backup strategy for the database and logging files.
    - Set up a reliable backup server for data recovery.
 
-7. Setup Critical Auto Email:
+5. Setup Critical Auto Email:
    - Establish monitoring systems to detect critical issues.
    - Configure automatic email alerts for timely response to critical alerts.
 """
@@ -112,6 +101,37 @@ TEMPLATES = [
         },
     },
 ]
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "test.log",
+            "level": "WARNING",
+            "formatter": "simple"
+        }
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console", "file"],
+            "level": "WARNING",
+        },
+    },
+    "formatters": {
+        "basic": {
+            "format": "{levelname} - {message}"
+        },
+        "verbose": {
+            "format": "{asctime} | {levelname} - {name} {module}.py"
+        }
+    }
+}
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

@@ -59,7 +59,7 @@ MICROSOFT_SCOPES = [
 MICROSOFT_CREDS = f"{CREDS_PATH}microsoft_creds.json"
 MICROSOFT_CONFIG = json.load(open(MICROSOFT_CREDS, "r"))
 # PRODUCTION authority
-# AUTHORITY = f"https://login.microsoftonline.com/common"
+# MICROSOFT_AUTHORITY = f"https://login.microsoftonline.com/common"
 # WHITE LIST authority
 MICROSOFT_AUTHORITY = (
     f'https://login.microsoftonline.com/{MICROSOFT_CONFIG["tenant_id"]}'

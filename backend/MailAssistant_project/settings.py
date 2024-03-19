@@ -5,7 +5,6 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 """
 
 import json
-import os
 from datetime import timedelta
 from pathlib import Path
 from MailAssistant.constants import HOSTS_URLS
@@ -131,7 +130,7 @@ LOGGING = {
             "style": "{",
         },
         "verbose": {
-            "format": "{asctime} | %(name)s.py | Line %(lineno)d | %(levelname)s - %(message)s",
+            "format": "{asctime} | {name}.py | Line {lineno} | {levelname} - {message}",
             "style": "{",
             "datefmt": CUSTOM_DATE_FORMAT,
         },

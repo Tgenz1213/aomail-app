@@ -531,11 +531,10 @@ def find_user_view_ai(request):
                         {"username": recipient_name, "email": matching_emails}
                     )
 
-            print(f"Matching emails for '{', '.join(recipient_list)}':")
+            LOGGER.info(f"Matching emails for '{', '.join(recipient_list)}':")
             for recipient in recipients_with_emails:
-                print(f"{recipient['username']}: {recipient['email']}")
+                LOGGER.info(f"{recipient['username']}: {recipient['email']}")
 
-            # Return the list of matching emails
             return recipients_with_emails
 
         # Find matching emails for each list of recipients
@@ -592,9 +591,9 @@ def new_email_recommendations(request):
         user_recommendation = serializer.validated_data["user_recommendation"]
         email_subject = serializer.validated_data["email_subject"]
 
-        print(f"mail_content: {mail_content}")
-        print(f"user_recommendation: {user_recommendation}")
-        print(f"email_subject: {email_subject}")
+        LOGGER.info(f"mail_content: {mail_content}")
+        LOGGER.info(f"user_recommendation: {user_recommendation}")
+        LOGGER.info(f"email_subject: {email_subject}")
 
         subject_text, email_body = gpt_3_5_turbo.new_mail_recommendation(
             mail_content, user_recommendation, email_subject
@@ -686,14 +685,13 @@ def generate_email_response_keywords(request):
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
-        # Rajouter une fonction qui récupère le language de l'user => request.user
+
+        # TODO: Add language parameter
         response_keywords = gpt_3_5_turbo.generate_response_keywords(
             email_subject, email_content, "French"
-        )  # To UPDATE : language parameter
+        )
 
-        print("DEBUG --------->", response_keywords)
-        print("DEBUG --------->", type(response_keywords))
-
+        LOGGER.info(f"response_keywords: {response_keywords}")
         return Response({"response_keywords": response_keywords})
     else:
         LOGGER.error(
@@ -756,8 +754,6 @@ def get_answer_later_emails(request):
                 "rule_id": email.rule_id,
             }
             formatted_data[email.priority].append(email_data)
-
-        print(f"{formatted_data}")
 
         return Response(formatted_data, status=status.HTTP_200_OK)
 

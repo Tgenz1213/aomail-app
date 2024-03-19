@@ -127,7 +127,7 @@ LOGGING = {
     },
     "formatters": {
         "basic": {
-            "format": "{name}.py | {levelname} - {message}",
+            "format": "{levelname} - {message}",
             "style": "{",
         },
         "verbose": {

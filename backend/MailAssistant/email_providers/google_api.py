@@ -146,41 +146,6 @@ def authenticate_service(user, email) -> dict:
 
 
 ######################## EMAIL REQUESTS ########################
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def unread_mails(request):
-    """Returns the number of unread emails"""
-    try:
-        user = request.user
-        email = request.headers.get("email")
-        unread_count = 0
-        service = authenticate_service(user, email)
-
-        if service is not None:
-            try:
-                response = (
-                    service["gmail.readonly"]
-                    .users()
-                    .messages()
-                    .list(userId="me", q="is:unread")
-                    .execute()
-                )
-                unread_count = len(response.get("messages", []))
-                return JsonResponse({"unreadCount": unread_count}, status=200)
-            except Exception as e:
-                logging.error(f"Error getting unread emails: {e}")
-                return JsonResponse(
-                    {"error": "Failed to retrieve unread count"}, status=500
-                )
-
-        logging.error("Failed to authenticate")
-        return JsonResponse({"unreadCount": unread_count}, status=400)
-
-    except Exception as e:
-        logging.error("An error occurred: {e}")
-        return JsonResponse({"unreadCount": 0}, status=400)
-
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def send_email(request):
@@ -445,138 +410,6 @@ def search_emails(services, search_query, max_results=2):
 
 
 ######################## PROFILE REQUESTS ########################
-'''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_parsed_contacts(request) -> list:
-    """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
-    start = time.time()
-
-    user = request.user
-    email = request.headers.get("email")
-    # Authenticate the user and build the service
-    credentials = get_credentials(user, email)
-    services = build_services(credentials)
-    contacts_service = services["contacts"]
-
-    try:
-        # Get contacts
-        contacts = (
-            contacts_service.people()
-            .connections()
-            .list(resourceName="people/me", personFields="names,emailAddresses")
-            .execute()
-        )
-
-        # Get other contacts
-        other_contacts = (
-            contacts_service.otherContacts()
-            .list(pageSize=1000, readMask="names,emailAddresses")
-            .execute()
-        )
-
-        # Get unique sender information from Gmail
-        unique_senders = get_unique_senders(services)
-
-        # Combine all contacts into a dictionary to ensure uniqueness
-        all_contacts = defaultdict(set)
-
-        # Parse contacts and other contacts
-        contact_types = {
-            "connections": contacts.get("connections", []),
-            "otherContacts": other_contacts.get("otherContacts", []),
-        }
-
-        # Parse contacts and other contacts
-        for _, contact_list in contact_types.items():
-            for contact in contact_list:
-                names = contact.get("names", [])
-                emails = contact.get("emailAddresses", [])
-                if names and emails:
-                    name = names[0].get("displayName", "")
-                    email = emails[0].get("value", "")
-                    all_contacts[email].add(name)
-
-        # Add unique sender information
-        for email, name in unique_senders.items():
-            all_contacts[email].add(name)
-
-        # Format the parsed contacts
-        parsed_contacts = [
-            {"name": ", ".join(names), "email": email}
-            for email, names in all_contacts.items()
-        ]
-
-        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        print(f"{Fore.BLUE}{parsed_contacts}")
-        logging.info(
-            f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts in {formatted_time}"
-        )
-
-        return Response(parsed_contacts)
-    except Exception as e:
-        logging.exception("Error fetching contacts:")
-        return Response({"error": str(e)}, status=500)'''
-
-
-'''
-def set_all_contacts(user, email):
-    """Stores all unique contacts of an email account in DB"""
-    start = time.time()
-
-    # Authenticate the user and build the service
-    credentials = get_credentials(user, email)
-    services = build_services(credentials)
-    contacts_service = services["contacts"]
-
-    try:
-        # Get all contacts without specifying a page size
-        all_contacts = defaultdict(set)
-        next_page_token = None
-
-        while True:
-            connections = (
-                contacts_service.people()
-                .connections()
-                .list(
-                    resourceName="people/me",
-                    personFields="names,emailAddresses",
-                    pageSize=1000,
-                    pageToken=next_page_token,
-                )
-                .execute()
-                .get("connections", [])
-            )
-
-            # Parse and add connections
-            for contact in connections:
-                name = contact.get("names", [{}])[0].get("displayName", "")
-                email_address = contact.get("emailAddresses", [{}])[0].get("value", "")
-                all_contacts[name].add(email_address)
-
-            # Update next_page_token directly from the list
-            next_page_token = connections[-1].get("nextPageToken")
-
-            if not next_page_token:
-                break
-
-        # Add contacts to the database
-        for name, emails in all_contacts.items():
-            for email in emails:
-                try:
-                    Contact.objects.create(email=email, username=name, user=user)
-                except IntegrityError:
-                    # TODO: Handle duplicates gracefully (e.g., update existing records)
-                    pass
-
-        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        logging.info(
-            f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
-        )
-
-    except Exception as e:
-        logging.exception(f"Error fetching contacts: {str(e)}")'''
-
-
 def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
     start = time.time()
@@ -882,3 +715,172 @@ def processed_email_to_bdd(request, services):
 
     else:
         LOGGER.error(f"The email with ID {email_id} already exists.")
+
+
+
+'''@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def unread_mails(request):
+    """Returns the number of unread emails"""
+    try:
+        user = request.user
+        email = request.headers.get("email")
+        unread_count = 0
+        service = authenticate_service(user, email)
+
+        if service is not None:
+            try:
+                response = (
+                    service["gmail.readonly"]
+                    .users()
+                    .messages()
+                    .list(userId="me", q="is:unread")
+                    .execute()
+                )
+                unread_count = len(response.get("messages", []))
+                return JsonResponse({"unreadCount": unread_count}, status=200)
+            except Exception as e:
+                logging.error(f"Error getting unread emails: {e}")
+                return JsonResponse(
+                    {"error": "Failed to retrieve unread count"}, status=500
+                )
+
+        logging.error("Failed to authenticate")
+        return JsonResponse({"unreadCount": unread_count}, status=400)
+
+    except Exception as e:
+        logging.error("An error occurred: {e}")
+        return JsonResponse({"unreadCount": 0}, status=400)'''
+
+
+
+'''@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_parsed_contacts(request) -> list:
+    """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
+    start = time.time()
+
+    user = request.user
+    email = request.headers.get("email")
+    # Authenticate the user and build the service
+    credentials = get_credentials(user, email)
+    services = build_services(credentials)
+    contacts_service = services["contacts"]
+
+    try:
+        # Get contacts
+        contacts = (
+            contacts_service.people()
+            .connections()
+            .list(resourceName="people/me", personFields="names,emailAddresses")
+            .execute()
+        )
+
+        # Get other contacts
+        other_contacts = (
+            contacts_service.otherContacts()
+            .list(pageSize=1000, readMask="names,emailAddresses")
+            .execute()
+        )
+
+        # Get unique sender information from Gmail
+        unique_senders = get_unique_senders(services)
+
+        # Combine all contacts into a dictionary to ensure uniqueness
+        all_contacts = defaultdict(set)
+
+        # Parse contacts and other contacts
+        contact_types = {
+            "connections": contacts.get("connections", []),
+            "otherContacts": other_contacts.get("otherContacts", []),
+        }
+
+        # Parse contacts and other contacts
+        for _, contact_list in contact_types.items():
+            for contact in contact_list:
+                names = contact.get("names", [])
+                emails = contact.get("emailAddresses", [])
+                if names and emails:
+                    name = names[0].get("displayName", "")
+                    email = emails[0].get("value", "")
+                    all_contacts[email].add(name)
+
+        # Add unique sender information
+        for email, name in unique_senders.items():
+            all_contacts[email].add(name)
+
+        # Format the parsed contacts
+        parsed_contacts = [
+            {"name": ", ".join(names), "email": email}
+            for email, names in all_contacts.items()
+        ]
+
+        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+        print(f"{Fore.BLUE}{parsed_contacts}")
+        logging.info(
+            f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts in {formatted_time}"
+        )
+
+        return Response(parsed_contacts)
+    except Exception as e:
+        logging.exception("Error fetching contacts:")
+        return Response({"error": str(e)}, status=500)'''
+
+
+'''
+def set_all_contacts(user, email):
+    """Stores all unique contacts of an email account in DB"""
+    start = time.time()
+
+    # Authenticate the user and build the service
+    credentials = get_credentials(user, email)
+    services = build_services(credentials)
+    contacts_service = services["contacts"]
+
+    try:
+        # Get all contacts without specifying a page size
+        all_contacts = defaultdict(set)
+        next_page_token = None
+
+        while True:
+            connections = (
+                contacts_service.people()
+                .connections()
+                .list(
+                    resourceName="people/me",
+                    personFields="names,emailAddresses",
+                    pageSize=1000,
+                    pageToken=next_page_token,
+                )
+                .execute()
+                .get("connections", [])
+            )
+
+            # Parse and add connections
+            for contact in connections:
+                name = contact.get("names", [{}])[0].get("displayName", "")
+                email_address = contact.get("emailAddresses", [{}])[0].get("value", "")
+                all_contacts[name].add(email_address)
+
+            # Update next_page_token directly from the list
+            next_page_token = connections[-1].get("nextPageToken")
+
+            if not next_page_token:
+                break
+
+        # Add contacts to the database
+        for name, emails in all_contacts.items():
+            for email in emails:
+                try:
+                    Contact.objects.create(email=email, username=name, user=user)
+                except IntegrityError:
+                    # TODO: Handle duplicates gracefully (e.g., update existing records)
+                    pass
+
+        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+        logging.info(
+            f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+        )
+
+    except Exception as e:
+        logging.exception(f"Error fetching contacts: {str(e)}")'''

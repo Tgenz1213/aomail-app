@@ -22,7 +22,6 @@ urlpatterns = [
     path('api/get_first_email/', views.get_first_email, name='get_first_email'), # ok
     path('signup/', views.signup, name='signup'), # ok
     path('check_username/', views.check_username, name='check_username'), # ok
-    path('api/unread_mails/', views.unread_mails, name='unread_mails'), # ok
     path('api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     #----------------------- CATEGORIES -----------------------#
     path('api/set_category/', views.set_category, name='set_category'), # ok
@@ -72,4 +71,5 @@ urlpatterns = [
     # path('user/emails/<int:email_id>/bullet-points/', views.get_email_bullet_points, name='email-bullet-points'),
     # path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'),
     # path('api/find-user/', views.find_user_view, name='find-user'),
+    # path('api/unread_mails/', views.unread_mails, name='unread_mails'),
 ]

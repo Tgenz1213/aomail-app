@@ -33,7 +33,7 @@ from .. import library
 
 
 ######################## LOGGING CONFIGURATION ########################
-# TODO: add logging conf in constants.py
+LOGGER = logging.getLogger(__name__)
 
 
 ######################## AUTHENTIFICATION ########################
@@ -88,8 +88,8 @@ def get_social_api(user, email):
         social_api = SocialAPI.objects.get(user=user, email=email)
         return social_api
     except SocialAPI.DoesNotExist:
-        logging.error(
-            f"No credentials found for user {user.username} and email {email}"
+        LOGGER.error(
+            f"No credentials found for user with ID {user.id} and email {email}"
         )
         return None
 
@@ -158,7 +158,7 @@ def get_info_contacts(access_token):
         return names_emails
 
     except HTTPError as e:
-        logging.error(f"Error in Microsoft Graph API request: {str(e)}")
+        LOGGER.error(f"Error in Microsoft Graph API request: {str(e)}")
         return []
 
 
@@ -181,12 +181,12 @@ def get_unique_senders(access_token) -> dict:
                 name = sender.get("emailAddress", {}).get("name", "")
                 senders_info[email_address] = name
         else:
-            logging.error(f"Failed to fetch messages: {response.text}")
+            LOGGER.error(f"Failed to fetch messages: {response.text}")
 
         return senders_info
 
     except Exception as e:
-        logging.exception(f"Error fetching senders: {e}")
+        logging.exception(f"Error fetching senders: {str(e)}")
         return senders_info
 
 
@@ -219,7 +219,7 @@ def get_profile_image(request):
         elif response.status_code == 404:
             return Response({"error": "Profile image not found"}, status=404)
         else:
-            logging.error(
+            LOGGER.error(
                 f"Failed to retrieve profile image: {response.status_code}\nReason: {response.reason}"
             )
             return Response(
@@ -253,52 +253,6 @@ def get_email(access_token):
 
 
 ######################## EMAIL REQUESTS ########################
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def unread_mails(request):
-    """Returns the number of unread emails"""
-    user = request.user
-    email = request.headers.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
-
-    try:
-        if access_token:
-            headers = get_headers(access_token)
-            unread_count = 0
-
-            # Get unread messages using Microsoft Graph API
-            graph_endpoint = (
-                f"{GRAPH_URL}me/messages"  # ?$count=true&$filter=isRead eq false'
-            )
-            response = requests.get(graph_endpoint, headers=headers)
-
-            response_json = response.json()
-
-            if response.status_code == 200:
-                unread_count = response_json.get("@odata.count", 0)
-                return JsonResponse({"unreadCount": unread_count}, status=200)
-            else:
-                error_message = response_json.get("error", {}).get(
-                    "message", "No error message"
-                )
-                error_code = response_json.get("error", {}).get("code")
-
-                if error_code == "MailboxNotEnabledForRESTAPI":
-                    # TODO: display a pop-up
-                    print(
-                        f"The account you are using does not have a proper license to access the required endpoints"
-                    )
-
-                logging.error(f"Failed to retrieve unread count: {error_message}")
-                return JsonResponse({"unreadCount": 0}, status=response.status_code)
-
-        return JsonResponse({"unreadCount": 0}, status=400)
-
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        return JsonResponse({"unreadCount": 0}, status=400)
-
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def send_email(request):
@@ -365,14 +319,14 @@ def send_email(request):
                         {"error": "Failed to send email"}, status=response.status_code
                     )
             except Exception as e:
-                logging.exception(f"Error sending email: {e}")
+                logging.exception(f"Error sending email: {str(e)}")
                 return JsonResponse({"error": str(e)}, status=500)
 
         except Exception as e:
-            logging.exception(f"Error preparing email data: {e}")
+            logging.exception(f"Error preparing email data: {str(e)}")
             return JsonResponse({"error": str(e)}, status=500)
 
-    logging.error(f"Serializer errors: {serializer.errors}")
+    LOGGER.error(f"Serializer errors: {serializer.errors}")
     return JsonResponse(serializer.errors, status=400)
 
 
@@ -443,7 +397,7 @@ def search_emails(access_token, search_query, max_results=2):
         return found_emails
 
     except HTTPError as e:
-        logging.error(f"ERROR in Microsoft Graph API request: {str(e)}")
+        LOGGER.error(f"ERROR in Microsoft Graph API request: {str(e)}")
         return {}
 
 
@@ -692,3 +646,48 @@ def get_parsed_contacts(request) -> list:
     except Exception as e:
         logging.exception(f"{Fore.YELLOW}Error fetching contacts: {e}")
         return JsonResponse({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)'''
+
+'''@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def unread_mails(request):
+    """Returns the number of unread emails"""
+    user = request.user
+    email = request.headers.get("email")
+    access_token = refresh_access_token(get_social_api(user, email))
+
+    try:
+        if access_token:
+            headers = get_headers(access_token)
+            unread_count = 0
+
+            # Get unread messages using Microsoft Graph API
+            graph_endpoint = (
+                f"{GRAPH_URL}me/messages"  # ?$count=true&$filter=isRead eq false'
+            )
+            response = requests.get(graph_endpoint, headers=headers)
+
+            response_json = response.json()
+
+            if response.status_code == 200:
+                unread_count = response_json.get("@odata.count", 0)
+                return JsonResponse({"unreadCount": unread_count}, status=200)
+            else:
+                error_message = response_json.get("error", {}).get(
+                    "message", "No error message"
+                )
+                error_code = response_json.get("error", {}).get("code")
+
+                if error_code == "MailboxNotEnabledForRESTAPI": 
+                    # TODO: display a pop-up                   
+                    LOGGER.error(
+                        "The account you are using does not have a proper license to access the required endpoints"
+                    )
+
+                LOGGER.error(f"Failed to retrieve unread count: {error_message}")
+                return JsonResponse({"unreadCount": 0}, status=response.status_code)
+
+        return JsonResponse({"unreadCount": 0}, status=400)
+
+    except Exception as e:
+        LOGGER.error(f"An error occurred: {str(e)}")
+        return JsonResponse({"unreadCount": 0}, status=400)'''

@@ -116,6 +116,10 @@ LOGGING = {
         },
     },
     "loggers": {
+        "django": {  # Exclude Django's logs
+            "handlers": ["console"],
+            "propagate": False,
+        },
         "": {
             "handlers": ["console", "file"],
         },

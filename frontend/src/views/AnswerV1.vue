@@ -480,22 +480,29 @@ function handleKeyDown(event) {
 
 // TO parse Email => TO CHECK
 function parseEmails(emailData) {
+  console.log("parsing emails", emailData)
   if (!emailData) {
     return [];
   }
-
   if (typeof emailData === 'string') {
     // Handle the case where emailData is just an email string
     return [{ email: emailData, username: emailData.split('@')[0] }];
   } else if (Array.isArray(emailData)) {
-    // Handle the case where emailData is an array of tuples
+    // Handle the case where emailData is an array of emails
     return emailData.map(data => {
-      const [name, email] = data;
       return {
-        email: email || '',
-        username: name || email.split('@')[0]
+        email: data,
+        username: ''
       };
     });
+    // TODO: Handle the case where emailData is an array of tuples
+    // return emailData.map(data => {
+    //     const [name, email] = data;
+    //     return {
+    //         email: email || '',
+    //         username: name || (email.split('@')[0] || '')
+    //     };
+    // });
   } else if (typeof emailData === 'object') {
     // Handle the case where emailData is a single tuple
     const [name, email] = emailData;

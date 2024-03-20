@@ -1373,21 +1373,25 @@ function getTextNumberUnreadMail(totalUnread) {
 
 function animateText(text) {
     // Clear text
-    animatedText.value.textContent = '';
+    try {
+        animatedText.value.textContent = '';
+        let target = animatedText.value;
+        let characters = text.split("");
+        let currentIndex = 0;
 
-    let target = animatedText.value;
-    let characters = text.split("");
-    let currentIndex = 0;
-
-    // Used to create an animation
-    const interval = setInterval(() => {
-        if (currentIndex < characters.length) {
-            target.textContent += characters[currentIndex];
-            currentIndex++;
-        } else {
-            clearInterval(interval);
-        }
-    }, 30);
+        // Used to create an animation
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                target.textContent += characters[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 30);
+    } catch {
+        // TODO: remove this try catch with a cleaner method
+        // We are no longer in Home
+    }
 }
 
 function dismissPopup() {
@@ -1625,6 +1629,7 @@ async function openAnswer(email) {
             let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
             cleanedCc = JSON.stringify(ccEmails);
         }
+        console.log(cleanedCc);
 
         router.push({
             name: 'answer',

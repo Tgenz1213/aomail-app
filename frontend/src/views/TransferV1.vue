@@ -247,7 +247,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-        item.name }}</a>
+                                                                    item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -793,7 +793,7 @@ onMounted(() => {
     forwardedMessage += `Date: ${formattedDate}\n`;
     forwardedMessage += `Subject: ${subject}\n`;
 
-    if (cc) {
+    if (cc.length > 0) {
         forwardedMessage += `CC: ${cc}\n`;
     }
 

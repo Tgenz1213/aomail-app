@@ -239,7 +239,7 @@
                     </div>
                     <div class="flex mb-4">
                       <div class="inline-flex rounded-lg shadow-lg">
-                        <button @click.prevent="sendEmail"
+                        <button @click.prevent="sendEmail" :disabled="emailAnswered"
                           class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
                         <Menu as="div" class="relative -ml-px block">
                           <MenuButton
@@ -329,6 +329,8 @@ let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
+
+let emailAnswered = ref(false);
 
 function dismissPopup() {
   showNotification = false;
@@ -1369,6 +1371,7 @@ async function sendEmail() {
       body: formData
     });
 
+    console.log("DEBUG===>", response.message)
     if (response.message === 'Email sent successfully!') {
       // Show the pop-up
       backgroundColor = 'bg-green-300';
@@ -1377,7 +1380,7 @@ async function sendEmail() {
       displayPopup();
 
       // disable send button
-      emailTransfered.value = true;
+      emailAnswered.value = true;
       localStorage.removeItem("uploadedFiles");
       uploadedFiles.value = [];
       fileObjects.value = [];

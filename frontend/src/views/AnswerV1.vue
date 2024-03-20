@@ -1441,17 +1441,26 @@ onMounted(() => {
   const cc = JSON.parse(route.query.cc);
   const cci = JSON.parse(route.query.bcc);
   const decoded_data = JSON.parse(route.query.decoded_data);
-  const id_provider = JSON.parse(route.query.id_provider);
   const details = JSON.parse(route.query.details);
+  //const id_provider = JSON.parse(route.query.id_provider);
+    
+  // Initialize Quill editor
+  quill.value = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: toolbarOptions
+    }
+  });
 
-  console.log("Subject:", subject);
-  console.log("Email:", email);
-  console.log("cc", cc);
-  console.log("cci", cci);
-  console.log("ID Provider:", id_provider);
-  console.log("Details:", details);
-  //console.log("Decoded_data", decoded_data);
-
+  // TODO: add a checkbox to add the summary of email in the body 
+  // Prepare the answer email
+  // let answerMessage = '';
+  // answerMessage += 'Résumé de l\'email:\n';
+  // details.forEach(detail => {
+  //   answerMessage += `- ${detail.text}\n`;
+  // });
+  // quill.value.setText(answerMessage);
+  
   window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
   var toolbarOptions = [
@@ -1463,14 +1472,6 @@ onMounted(() => {
     [{ 'align': [] }],
     ['blockquote', 'code-block']
   ];
-
-  // Initialize Quill editor
-  quill.value = new Quill('#editor', {
-    theme: 'snow',
-    modules: {
-      toolbar: toolbarOptions
-    }
-  });
 
   /*
   quill.on('selection-change', function(range, oldRange, source) {

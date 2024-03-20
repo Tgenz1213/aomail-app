@@ -260,7 +260,7 @@
                                 <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
                                 <a :href="item.href"
                                   :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                    item.name }}</a>
+    item.name }}</a>
                                 </MenuItem>
                               </div>
                             </MenuItems>
@@ -851,7 +851,7 @@ async function handleAIClick() {
 
 // To display the propositions => buttons
 function askContentAdvice() {
-  
+
   if (isAIWriting.value) {
     return;
   }
@@ -1315,37 +1315,73 @@ const router = useRouter();
 
 async function sendEmail() {
   const emailSubject = inputValue.value;
-  const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
-  const recipients = selectedPeople.value.map(person => person.username); // Adjust according to your data structure
-  const ccRecipients = selectedCC.value.map(person => person.username);
-  const bccRecipients = selectedCCI.value.map(person => person.username);
-
+  const emailBody = quill.value.root.innerHTML;
   const formData = new FormData();
+
   formData.append('subject', emailSubject);
   formData.append('message', emailBody);
   fileObjects.value.forEach(file => formData.append('attachments', file));
+  // Add recipients, CC, and BCC to formData
+  selectedPeople.value.forEach(person => formData.append('to', person.email));
 
-  // Add recipients, CC, and BCC to formData if needed
-  // Adjust the field names according to your API's expected format
-  formData.append('to', recipients.join(','));
-  formData.append('cc', ccRecipients.join(','));
-  formData.append('cci', bccRecipients.join(','));
-
-  for (var pair of formData.entries()) {
-    console.log(pair[0] + ', ' + pair[1]);
+  if (selectedCC.value.length > 0) {
+    selectedCC.value.forEach(person => formData.append('cc', person.email));
+  } else {
+    formData.append('cc', '');
+  }
+  if (selectedCCI.value.length > 0) {
+    selectedCCI.value.forEach(person => formData.append('cci', person.email));
+  } else {
+    formData.append('cci', '');
   }
 
   try {
-    const result = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {
+    const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {
       method: 'POST',
+      headers: {
+        email: localStorage.getItem('email')
+      },
       body: formData
     });
-    console.log(result.message);
-    localStorage.setItem('Email_sent', true);
-    router.push({ name: 'home' });
 
+    if (response.message === 'Email sent successfully!') {
+      // Show the pop-up
+      backgroundColor = 'bg-green-300';
+      notificationTitle = 'Réponse envoyée !';
+      notificationMessage = 'Redirection en cours...';
+      displayPopup();
+
+      // disable send button
+      emailTransfered.value = true;
+      localStorage.removeItem("uploadedFiles");
+      uploadedFiles.value = [];
+      fileObjects.value = [];
+
+      setTimeout(() => {
+        router.push({ name: 'home' })
+      }, 3000);
+    } else {
+      // Show the pop-up
+      // Translate serializer errors for the user
+      if (response.error == 'recipient is missing') {
+        notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+      }
+      else if (response.error == 'subject is missing') {
+        notificationMessage.value = 'Aucun objet n\'a été saisi';
+      }
+      else {
+        notificationMessage.value = response.error;
+      }
+      backgroundColor = 'bg-red-300';
+      notificationTitle.value = 'Erreur d\'envoi d\'email';
+      displayPopup();
+    }
   } catch (error) {
-    console.error('Error sending email:', error);
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle.value = 'Erreur d\'envoi d\'email';
+    notificationMessage.value = error;
+    displayPopup();
   }
 }
 
@@ -1366,6 +1402,7 @@ const bgColor = ref(''); // Initialize a reactive variable
 const route = useRoute();
 
 onMounted(() => {
+  localStorage.removeItem("uploadedFiles");
   document.addEventListener("keydown", handleKeyDown);
 
   bgColor.value = localStorage.getItem('bgColor');

@@ -1067,7 +1067,6 @@ async function sendEmail() {
             fileObjects.value = [];
 
             setTimeout(() => {
-                // Redirect home page
                 router.push({ name: 'home' })
             }, 3000);
         } else {

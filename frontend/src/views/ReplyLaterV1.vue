@@ -799,8 +799,7 @@ export default {
     async openAnswer(email) {
       console.log("EMAIL", email.id_provider);
 
-      // Define the API endpoint URL
-      const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
+      const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
       try {
         const data = await fetchWithToken(url, {
@@ -829,7 +828,7 @@ export default {
     },
     async deleteEmail(emailId) {
       try {
-        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/delete/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

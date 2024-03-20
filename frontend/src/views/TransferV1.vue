@@ -756,6 +756,7 @@ async function handleAIClick() {
 const bgColor = ref(''); // Initialize a reactive variable
 
 onMounted(() => {
+    localStorage.removeItem("uploadedFiles");
     // Initialize Quill editor
     quill.value = new Quill('#editor', {
         theme: 'snow',

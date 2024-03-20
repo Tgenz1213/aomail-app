@@ -1336,7 +1336,7 @@ async function sendEmail() {
   }
 
   try {
-    const result = await fetchWithToken(`${API_BASE_URL}api/send_mails/`, {
+    const result = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {
       method: 'POST',
       body: formData
     });

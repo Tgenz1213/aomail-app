@@ -48,8 +48,8 @@ This error typically indicates that your account does not have the proper licens
 
 # Test Reply Later
 curl -X GET \
-     -H "Authorization: Bearer access_token" \
-     -H "email: augurolet@gmail.com" \
+     -H "Authorization: Bearer access" \
+     -H "email: test.mailassistantprod@gmail.com" \
      "https://augustin.aochange.com/MailAssistant/api/save_last_mail"
 
 # Database Suppression

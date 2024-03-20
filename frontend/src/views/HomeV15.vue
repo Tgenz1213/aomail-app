@@ -1530,6 +1530,7 @@ async function markEmailReplyLater(emailId) {
             }
         });
         if (response.answer_later) {
+            // TODO: remove it from the home page
             console.log("Email marked for reply later successfully");
             markEmailAsRead(emailId);
             isMenuOpen.value = false;

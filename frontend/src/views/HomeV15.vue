@@ -1491,18 +1491,25 @@ async function transferEmail(email) {
                 'email': localStorage.getItem('email')
             }
         });
+        // Clean CC data
+        let cleanedCc = '';
+        if (data.email.cc && data.email.cc.length > 0) {
+            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
+            cleanedCc = JSON.stringify(ccEmails);
+        }
 
         router.push({
             name: 'transfer',
             query: {
                 subject: JSON.stringify(data.email.subject),
-                cc: JSON.stringify(data.email.cc),
+                cc: cleanedCc,
                 decoded_data: JSON.stringify(data.email.decoded_data),
                 email: JSON.stringify(email.email),
                 details: JSON.stringify(email.details),
                 date: JSON.stringify(data.email.date)
             }
         });
+
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
     }

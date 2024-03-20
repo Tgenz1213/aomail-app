@@ -1609,9 +1609,6 @@ function openInNewWindow(id_provider) {
 }
 
 async function openAnswer(email) {
-    console.log("EMAIL", email.id_provider);
-
-    // Define the API endpoint URL
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
     try {
@@ -1622,12 +1619,18 @@ async function openAnswer(email) {
                 'email': localStorage.getItem('email')
             }
         });
-        console.log("Received data:", data);
+        // Clean CC data
+        let cleanedCc = '';
+        if (data.email.cc && data.email.cc.length > 0) {
+            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
+            cleanedCc = JSON.stringify(ccEmails);
+        }
+
         router.push({
             name: 'answer',
             query: {
                 subject: JSON.stringify(data.email.subject),
-                cc: JSON.stringify(data.email.cc),
+                cc: cleanedCc,
                 bcc: JSON.stringify(data.email.bcc),
                 decoded_data: JSON.stringify(data.email.decoded_data),
                 email: JSON.stringify(email.email),

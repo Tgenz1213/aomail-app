@@ -319,8 +319,8 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
         console.error("Error fetching contacts:", error);
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur récupération des contacts';
-        notificationMessage.value = error;
+        notificationTitle = 'Erreur récupération des contacts';
+        notificationMessage = error;
         displayPopup();
     });
 
@@ -427,8 +427,8 @@ function handleBlur2(event) {
     } else if (!filteredPeople.value.length && inputValue) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Email invalide';
-        notificationMessage.value = 'Le format de l\'email est incorrect'
+        notificationTitle = 'Email invalide';
+        notificationMessage = 'Le format de l\'email est incorrect'
         displayPopup();
     }
 }
@@ -1073,23 +1073,23 @@ async function sendEmail() {
             // Show the pop-up
             // Translate serializer errors for the user
             if (response.error == 'recipient is missing') {
-                notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+                notificationMessage = 'Aucun destinataire n\'a été saisi';
             }
             else if (response.error == 'subject is missing') {
-                notificationMessage.value = 'Aucun objet n\'a été saisi';
+                notificationMessage = 'Aucun objet n\'a été saisi';
             }
             else {
-                notificationMessage.value = response.error;
+                notificationMessage = response.error;
             }
             backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Erreur d\'envoi d\'email';
+            notificationTitle = 'Erreur d\'envoi d\'email';
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = error;
+        notificationTitle = 'Erreur d\'envoi d\'email';
+        notificationMessage = error;
         displayPopup();
     }
 }

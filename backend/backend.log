@@ -211,3 +211,5 @@ Traceback (most recent call last):
 django.db.utils.IntegrityError: null value in column "name" of relation "MailAssistant_sender" violates not-null constraint
 DETAIL:  Failing row contains (26, augurolet@gmail.com, null, null).
 
+2024-03-20 07:15:45 | MailAssistant.email_providers.google_api.py | Line 210 | ERROR - Failed to send email: <HttpError 400 when requesting https://gmail.googleapis.com/gmail/v1/users/me/messages/send?alt=json returned "Invalid Cc header". Details: "[{'message': 'Invalid Cc header', 'domain': 'global', 'reason': 'invalidArgument'}]">
+2024-03-20 07:15:45 | django.request.py | Line 241 | ERROR - Internal Server Error: /MailAssistant/api/send_mail/

@@ -260,7 +260,7 @@
                                 <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
                                 <a :href="item.href"
                                   :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-    item.name }}</a>
+                                  item.name }}</a>
                                 </MenuItem>
                               </div>
                             </MenuItems>
@@ -570,10 +570,28 @@ const handleFileUpload = (event) => {
   const files = Array.from(event.target.files);
   files.forEach(file => {
     if (file.size <= MAX_FILE_SIZE) {
+      let localStorageuploadedFiles = localStorage.getItem("uploadedFiles");
+
+      for (const currentFile of localStorageuploadedFiles) {
+        if (currentFile.name == file) {
+          // Show the pop-up
+          backgroundColor = 'bg-red-300';
+          notificationTitle = 'Fichier en double';
+          notificationMessage = 'Vous avez déjà inséré ce fichier';
+          displayPopup();
+          return;
+        }
+      }
       uploadedFiles.value.push({ name: file.name, size: file.size });
       fileObjects.value.push(file);
     } else {
-      alert("File size exceeds Gmail's limit");
+      // Show the pop-up
+      backgroundColor = 'bg-red-300';
+      notificationTitle = 'Fichier trop volumineux';
+      notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
+      displayPopup();
+      console.error("File size exceeds Gmail's limit");
+      return;
     }
   });
   saveFileMetadataToLocalStorage();

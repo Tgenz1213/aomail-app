@@ -467,6 +467,7 @@ const handleFileUpload = (event) => {
             notificationTitle = 'Fichier trop volumineux';
             notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
             displayPopup();
+            console.error("File size exceeds Gmail's limit");
             return;
         }
     });

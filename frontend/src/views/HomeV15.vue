@@ -1500,6 +1500,8 @@ async function transferEmail(email) {
         if (data.email.cc && data.email.cc.length > 0) {
             let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
             cleanedCc = JSON.stringify(ccEmails);
+        } else {
+            cleanedCc = '[]';
         }
 
         router.push({
@@ -1628,8 +1630,9 @@ async function openAnswer(email) {
         if (data.email.cc && data.email.cc.length > 0) {
             let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
             cleanedCc = JSON.stringify(ccEmails);
+        } else {
+            cleanedCc = '[]';
         }
-        console.log(cleanedCc);
 
         router.push({
             name: 'answer',

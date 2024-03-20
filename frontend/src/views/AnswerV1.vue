@@ -260,7 +260,7 @@
                                 <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
                                 <a :href="item.href"
                                   :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                  item.name }}</a>
+    item.name }}</a>
                                 </MenuItem>
                               </div>
                             </MenuItems>
@@ -1443,7 +1443,7 @@ onMounted(() => {
   const decoded_data = JSON.parse(route.query.decoded_data);
   const details = JSON.parse(route.query.details);
   //const id_provider = JSON.parse(route.query.id_provider);
-    
+
   // Initialize Quill editor
   quill.value = new Quill('#editor', {
     theme: 'snow',
@@ -1460,7 +1460,7 @@ onMounted(() => {
   //   answerMessage += `- ${detail.text}\n`;
   // });
   // quill.value.setText(answerMessage);
-  
+
   window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
   var toolbarOptions = [

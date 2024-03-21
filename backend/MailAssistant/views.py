@@ -1057,6 +1057,7 @@ def create_sender(request):
 def delete_email(request, email_id):
     try:
         user = request.user
+        id_provider = request.headers.get("id_provider")
 
         # Check if the email belongs to the authenticated user
         email = get_object_or_404(Email, user=user, id=email_id)

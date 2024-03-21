@@ -28,6 +28,8 @@ GOOGLE_CALENDAR_READONLY_SCOPE = "https://www.googleapis.com/auth/calendar.reado
 GOOGLE_CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readonly"
 GOOGLE_PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile"
 GOOGLE_EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email"
+# TODO: add it in Google Project
+#GOOGLE_EMAIL_MODIFY = "https://www.googleapis.com/auth/gmail.modify"
 GOOGLE_OPENID_SCOPE = "openid"
 GOOGLE_OTHER_CONTACT_READONLY_SCOPE = (
     "https://www.googleapis.com/auth/contacts.other.readonly"

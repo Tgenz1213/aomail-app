@@ -27,6 +27,7 @@ from MailAssistant.ai_providers import gpt_3_5_turbo
 from MailAssistant.constants import (
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
+    # GOOGLE_EMAIL_MODIFY,
     REDIRECT_URI,
     GOOGLE_SCOPES,
 )
@@ -118,6 +119,9 @@ def build_services(creds) -> dict:
         "gmail.readonly": build(
             "gmail", "v1", cache_discovery=False, credentials=creds
         ),
+        # "gmail.modify": build("gmail", "v1", cache_discovery=False, credentials=creds, scopes=[
+        #    GOOGLE_EMAIL_MODIFY
+        # ]),
         "gmail.send": build("gmail", "v1", cache_discovery=False, credentials=creds),
         "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
         "contacts": build("people", "v1", cache_discovery=False, credentials=creds),
@@ -209,6 +213,22 @@ def send_email(request):
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
         return Response({"error": str(e)}, status=500)
+
+
+def delete_email(email_id, user, email):
+    """Moves the email to the bin of the user"""
+    gmail_service = build_services(user)["gmail.modify"]
+
+    if not gmail_service:
+        return
+
+    url = f"https://gmail.googleapis.com/gmail/v1/users/me/messages/{email_id}/trash"
+    response = gmail_service.post(url)
+
+    if response.status_code == 204:
+        print("Email moved to trash successfully.")
+    else:
+        LOGGER.error(f"Failed to move email to trash: {response.text}", )
 
 
 def get_unique_email_senders(request):

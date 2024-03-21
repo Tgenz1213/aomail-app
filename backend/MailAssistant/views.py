@@ -21,7 +21,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-from MailAssistant.ai_providers import gpt_3_5_turbo
+from MailAssistant.ai_providers import gpt_3_5_turbo, mistral
 from MailAssistant.email_providers import google_api, microsoft_api
 from .models import (
     Category,
@@ -470,9 +470,7 @@ def find_user_view_ai(request):
     search_query = request.GET.get("query")
 
     if search_query:
-        main_list, cc_list, bcc_list = gpt_3_5_turbo.extract_contacts_recipients(
-            search_query
-        )
+        main_list, cc_list, bcc_list = mistral.extract_contacts_recipients(search_query)
 
         if not main_list:
             return Response(
@@ -570,9 +568,7 @@ def new_email_ai(request):
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
 
-        subject_text, mail_text = gpt_3_5_turbo.generate_email(
-            input_data, length, formality
-        )
+        subject_text, mail_text = mistral.generate_email(input_data, length, formality)
 
         return Response({"subject": subject_text, "mail": mail_text})
     else:
@@ -594,8 +590,8 @@ def new_email_recommendations(request):
         LOGGER.info(f"user_recommendation: {user_recommendation}")
         LOGGER.info(f"email_subject: {email_subject}")
 
-        subject_text, email_body = gpt_3_5_turbo.new_mail_recommendation(
-            mail_content, user_recommendation, email_subject
+        subject_text, email_body = mistral.new_mail_recommendation(
+            mail_content, email_subject, user_recommendation
         )
 
         return Response({"subject": subject_text, "email_body": email_body})
@@ -616,7 +612,7 @@ def improve_email_writing(request):
         email_body = serializer.validated_data["email_body"]
         email_subject = serializer.validated_data["email_subject"]
 
-        email_body, subject_text = gpt_3_5_turbo.improve_email_writing(
+        email_body, subject_text = mistral.improve_email_writing(
             email_body, email_subject
         )
 
@@ -637,7 +633,7 @@ def correct_email_language(request):
         email_body = serializer.validated_data["email_body"]
 
         corrected_subject, corrected_body, num_corrections = (
-            gpt_3_5_turbo.correct_mail_language_mistakes(email_subject, email_body)
+            mistral.correct_mail_language_mistakes(email_body, email_subject)
         )
 
         return Response(
@@ -686,11 +682,9 @@ def generate_email_response_keywords(request):
         email_content = serializer.validated_data["email_content"]
 
         # TODO: Add language parameter
-        response_keywords = gpt_3_5_turbo.generate_response_keywords(
+        response_keywords = mistral.generate_response_keywords(
             email_subject, email_content, "French"
         )
-
-        LOGGER.info(f"response_keywords: {response_keywords}")
         return Response({"response_keywords": response_keywords})
     else:
         LOGGER.error(
@@ -779,13 +773,10 @@ def get_user_bg_color(request):
 @permission_classes([IsAuthenticated])
 def set_user_bg_color(request):
     try:
-        # Retrieve the user's Preference object
         preferences = Preference.objects.get(user=request.user)
     except Preference.DoesNotExist:
-        # Create a new Preference object if it doesn't exist
         preferences = Preference(user=request.user)
 
-    # Update the bg_color field from the request data
     serializer = PreferencesSerializer(preferences, data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -1102,7 +1093,7 @@ def set_email_read(request, email_id):
 def set_email_reply_later(request, email_id):
     """Mark a specific email for later reply for the authenticated user"""
     user = request.user
-    
+
     email = get_object_or_404(Email, user=user, id=email_id)
     email.answer_later = True
     email.save()

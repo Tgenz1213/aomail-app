@@ -143,16 +143,18 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
-    template = """As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
+    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {mail_content}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, mail_content=body)
-    response = get_prompt_response(formatted_prompt)
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
     clear_text = response.choices[0].message.content.strip()
+
     result_json = json.loads(clear_text)
 
     subject_text = result_json["subject"]
@@ -228,17 +230,16 @@ def generate_email(input_data, length, formality):
 def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
-    template = """As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    template = f"""As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be ONLY a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {email_body}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, email_body=body)
     model = "mistral-small-latest"
     role = "user"
-    response = get_prompt_response(formatted_prompt, model, role)
+    response = get_prompt_response(template, model, role)
     clear_text = response.choices[0].message.content.strip()
 
     result_json = json.loads(clear_text)
@@ -249,13 +250,55 @@ def correct_mail_language_mistakes(body, subject):
     print(f"{Fore.CYAN}EMAIL CORRECTED:")
     print(f"{Fore.GREEN}Subject: {corrected_subject}")
     print(f"{Fore.CYAN}Email Body: {corrected_body}")
-
-    # Count the number of corrections
+    
     num_corrections = count_corrections(
         subject, body, corrected_subject, corrected_body
     )
 
     return corrected_subject, corrected_body, num_corrections
+
+
+
+# TODO: improve prompt engineering + get a json response from GPT
+def improve_email_copywriting(email_subject, email_body):
+    """Provides feedback and suggestions for improving the copywriting in the email subject and body."""
+
+    # Simplified template for direct feedback and suggestions on copywriting
+    template = f"""Évaluez en français la qualité du copywriting du sujet et du corps de cet e-mail. Fournissez un retour et des suggestions d'amélioration.
+
+    Objet de l'e-mail :
+    "{email_subject}"
+
+    Corps de l'e-mail :
+    "{email_body}"
+
+    ---
+
+    <strong>Retour sur l'objet</strong> :
+    [Votre retour sur l'objet]
+
+    <strong>Suggestions pour l'objet</strong> :
+    [Vos suggestions pour l'objet]
+
+    <strong>Retour sur le corps de l'e-mail</strong> :
+    [Votre retour sur le corps de l'e-mail]
+
+    <strong>Suggestions pour le corps de l'e-mail</strong> :
+    [Vos suggestions pour le corps de l'e-mail]
+    """
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
+    clear_text = response.choices[0].message.content.strip()
+
+    result_json = json.loads(clear_text)
+    
+    print(f"{Fore.CYAN}EMAIL COPYWRITING:")
+    print(f"{Fore.GREEN}{clear_text}")
+
+    return clear_text
+
+
 
 
 ####################################################################

@@ -1445,7 +1445,6 @@ function toggleTooltip() {
 }
 
 async function markEmailAsRead(emailId) {
-    console.log("DEBUG========================>", emailId)
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-read/`, {
             method: 'POST',
@@ -1456,7 +1455,6 @@ async function markEmailAsRead(emailId) {
 
         if (response.read) {
             // Handle successful response
-            console.log("It is read!!!!!!!!!!!!!!")
             updateEmailReadStatus(emailId);
         } else {
             console.log("RESPONSE", response);

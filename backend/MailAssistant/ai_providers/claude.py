@@ -221,7 +221,6 @@ def correct_mail_language_mistakes(body, subject):
     print(f"{Fore.GREEN}Subject: {corrected_subject}")
     print(f"{Fore.CYAN}Email Body: {corrected_body}")
 
-    # Count the number of corrections
     num_corrections = count_corrections(
         subject, body, corrected_subject, corrected_body
     )

@@ -48,7 +48,7 @@ This error typically indicates that your account does not have the proper licens
 
 # Test Reply Later
 curl -X GET \
-     -H "Authorization: Bearer access" \
+     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzExMDQyMzM0LCJpYXQiOjE3MTEwNDIwMzQsImp0aSI6ImYwMzE0MWRmNjU4MDQ5MTViYmQ3MTVmMWVhYzM1MmQ4IiwidXNlcl9pZCI6MjB9.fHpZsnInMWLwW-1gZGITosADO4h4zUs1gV95UfF4_Rs" \
      -H "email: test.mailassistantprod@gmail.com" \
      "https://augustin.aochange.com/MailAssistant/api/save_last_mail"
 

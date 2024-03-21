@@ -1,7 +1,5 @@
 """
-Utility Functions for Email Processing.
-
-This file contains utility functions for processing email content, including clearing HTML, extracting text, checking for HTML presence, concatenating text, processing email parts, and preprocessing email content.
+Utility Functions for Email Processing
 """
 
 from .models import Category

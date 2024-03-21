@@ -23,7 +23,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from MailAssistant.serializers import EmailDataSerializer
-from MailAssistant.ai_providers import gpt_3_5_turbo
+from MailAssistant.ai_providers import gpt_3_5_turbo, claude
 from MailAssistant.constants import (
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
@@ -643,16 +643,25 @@ def processed_email_to_bdd(request, services):
         # Get user categories
         category_list = library.get_db_categories(request.user)
 
-        # print("DEBUG -------------> category", category_list)
+        #print("DEBUG -------------> category", category_list)
 
         # Process the email data with AI/NLP
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
-        topic, importance, answer, summary, sentence, relevance, importance_explain = (
-            gpt_3_5_turbo.categorize_and_summarize_email(
+        topic, importance_dict, answer, summary, sentence, relevance, importance_dict = (
+            # gpt_3_5_turbo
+            claude.categorize_and_summarize_email(
                 subject, decoded_data, category_list, user_description
             )
         )
+
+        # Extract the importance of the email
+        if importance_dict["important"] == 50:
+            importance = "important"
+        else:
+            for key, value in importance_dict.items():
+                if value >= 51:
+                    importance = key
 
         # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
         # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
@@ -661,7 +670,7 @@ def processed_email_to_bdd(request, services):
         # Fetch or create the sender
         sender, _ = Sender.objects.get_or_create(
             name=sender_name, email=sender_email
-        )  # assuming from_name contains the sender's name
+        )
 
         LOGGER.info(f"[processed_email_to_bdd] topic: {topic}")
         # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
@@ -677,9 +686,9 @@ def processed_email_to_bdd(request, services):
                 email_short_summary=sentence,
                 content=decoded_data,
                 subject=subject,
-                priority=importance[0],
-                read=False,  # Default value; adjust as necessary
-                answer_later=False,  # Default value; adjust as necessary
+                priority=importance,
+                read=False,
+                answer_later=False,
                 sender=sender,
                 category=category,
                 user=request.user,
@@ -711,7 +720,7 @@ def processed_email_to_bdd(request, services):
         LOGGER.info("summary:", summary)
         LOGGER.info("sentence:", sentence)
         LOGGER.info("relevance:", relevance)
-        LOGGER.info("importance_explain:", importance_explain)
+        LOGGER.info("importance_dict:", importance_dict)
 
     else:
         LOGGER.error(f"The email with ID {email_id} already exists.")

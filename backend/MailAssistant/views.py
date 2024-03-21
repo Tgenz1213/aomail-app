@@ -209,8 +209,8 @@ def save_user_data(
             except json.JSONDecodeError:
                 return {"error": "Invalid categories data"}
 
-        # Creation of the Other/default category => TO UPDATE WITH THE LANGUAGE
-        default_category = Category(name="Autres", description="", user=user)
+        # TODO: UPDATE WITH THE LANGUAGE => translate it in the UI
+        default_category = Category(name="Others", description="", user=user)
         default_category.save()
 
         return {"message": "User data saved successfully"}

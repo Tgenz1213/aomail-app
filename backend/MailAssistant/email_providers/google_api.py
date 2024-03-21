@@ -229,7 +229,7 @@ def delete_email(email_id, user, email) -> dict:
         return {"message": "Email moved to trash successfully!"}
     else:
         LOGGER.error(f"Failed to move email to trash: {response.text}")
-        return {"error": "No gmail service provided"}
+        return {"error": f"Failed to move email to trash: {response.text}"}
 
 
 def get_unique_email_senders(request):

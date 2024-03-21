@@ -352,6 +352,21 @@ def send_email(request):
     return JsonResponse(serializer.errors, status=400)
 
 
+def delete_email(email_id, user, email) -> dict:
+    """Moves the email to the bin of the user"""
+    access_token = refresh_access_token(get_social_api(user, email))
+    headers = get_headers(access_token)
+    url = f"{GRAPH_URL}{email_id}/move"
+    data = {"destinationId": "deleteditems"}
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code == 204:
+        return {"message": "Email moved to trash successfully!"}
+    else:
+        LOGGER.error(f"Failed to move email to trash: {response.text}")
+        return {"error": f"Failed to move email to trash: {response.text}"}
+
+
 def get_unique_email_senders(request):
     user = request.user
     email = request.headers.get("email")

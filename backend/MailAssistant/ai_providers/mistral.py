@@ -256,3 +256,109 @@ def correct_mail_language_mistakes(body, subject):
     )
 
     return corrected_subject, corrected_body, num_corrections
+
+
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
+
+
+def categorize_and_summarize_email(
+    subject, decoded_data, category_list, user_description
+):
+    """Categorizes and summarizes an email"""
+
+    importance_list = {
+        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
+        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
+        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+    }
+    response_list = {
+        "Answer Required": "Message requires an answer.",
+        "Might Require Answer": "Message might require an answer.",
+        "No Answer Required": "No answer is required.",
+    }
+    relevance_list = {
+        "Highly Relevant": "Message is highly relevant to the recipient.",
+        "Possibly Relevant": "Message might be relevant to the recipient.",
+        "Not Relevant": "Message is not relevant to the recipient.",
+    }
+
+    template = f"""Given the following email:
+
+    Subject:
+    {subject}
+
+    Text:
+    {decoded_data}
+
+    Description:
+    {user_description}
+
+    Using the provided categories:
+
+    Topic Categories:
+    {category_list}
+
+    Importance Categories:
+    {importance_list}
+
+    Response Categories:
+    {response_list}
+
+    Relevance Categories:
+    {relevance_list}
+
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
+    2. In French: Summarize the following message
+    3. In French: Provide a short sentence summarizing the email.
+
+    ---
+    Answer must be a Json format matching this template:
+    {{
+        "topic": Topic Title Category,
+        "response": Response Category,
+        "relevance": Relevance Category,
+        "summary": {{
+            "one_line": One-Sentence Summary in French,
+            "complete": [
+                "Short Bullet Point 1",
+                "Short Bullet Point 2",
+                ...
+            ]
+        }},
+        "importance": {{
+            "Important": Percentage for Important,
+            "Information": Percentage for Information,
+            "Useless": Percentage for Useless
+        }}
+    }}
+    """
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
+    clear_response = response.choices[0].message.content.strip()
+    result_json = json.loads(clear_response)
+
+    print(result_json)
+
+    topic_category = result_json["topic"]
+    response_category = result_json["response"]
+    relevance_category = result_json["relevance"]
+    short_sentence = result_json["summary"]["one_line"]
+    summary_list = result_json["summary"]["complete"]
+    importance_dict = result_json["importance"]
+
+    # convert percentages to int
+    for key, value in importance_dict.items():
+        importance_dict[key] = int(value)
+
+    return (
+        topic_category,
+        importance_dict,
+        response_category,
+        summary_list,
+        short_sentence,
+        relevance_category,
+        importance_dict,
+    )

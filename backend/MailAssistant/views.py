@@ -1228,7 +1228,6 @@ def save_last_mail_view(request):
 
     if service is not None:
         google_api.processed_email_to_bdd(request, service)
-        # processed_email_to_bdd(request,service)
         return Response({"message": "Save successful"}, status=200)
     else:
         return Response({"error": "Failed to authenticate"}, status=400)

@@ -167,3 +167,4 @@
 2024-03-21 17:35:07 | MailAssistant.email_providers.google_api.py | Line 735 | ERROR - The email with ID 18e61c1a08797517 already exists.
 2024-03-21 17:40:22 | MailAssistant.email_providers.google_api.py | Line 735 | ERROR - The email with ID 18e61c1a08797517 already exists.
 2024-03-21 18:05:17 | MailAssistant.email_providers.google_api.py | Line 735 | ERROR - The email with ID 18e621a1a1e923d5 already exists.
+2024-03-21 19:13:04 | MailAssistant.email_providers.google_api.py | Line 715 | ERROR - The email with ID 18e626526838e99f already exists.

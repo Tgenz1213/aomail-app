@@ -23,7 +23,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from MailAssistant.serializers import EmailDataSerializer
-from MailAssistant.ai_providers import gpt_3_5_turbo, claude
+from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral
 from MailAssistant.constants import (
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
@@ -635,15 +635,11 @@ def processed_email_to_bdd(request, services):
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
-
-        # Check if data is decoded, then format it
         if decoded_data:
             decoded_data = library.format_mail(decoded_data)
 
         # Get user categories
         category_list = library.get_db_categories(request.user)
-
-        # print("DEBUG -------------> category", category_list)
 
         # Process the email data with AI/NLP
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
@@ -658,7 +654,8 @@ def processed_email_to_bdd(request, services):
             importance_dict,
         ) = (
             # gpt_3_5_turbo
-            claude.categorize_and_summarize_email(
+            # claude
+            mistral.categorize_and_summarize_email(
                 subject, decoded_data, category_list, user_description
             )
         )
@@ -670,22 +667,16 @@ def processed_email_to_bdd(request, services):
             for key, value in importance_dict.items():
                 if value >= 51:
                     importance = key
-
-        # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
-        # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+        
         sender_name, sender_email = from_name[0], from_name[1]
-
-        # Fetch or create the sender
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
-        LOGGER.info(f"[processed_email_to_bdd] topic: {topic}")
-        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
+        # Get the relevant category based
         category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 
         provider = "Gmail"
 
         try:
-            # Create a new email record
             email_entry = Email.objects.create(
                 provider_id=email_id,
                 email_provider=provider,
@@ -705,17 +696,6 @@ def processed_email_to_bdd(request, services):
             if summary:
                 for point in summary:
                     BulletPoint.objects.create(content=point, email=email_entry)
-
-                # # Split summary by line breaks
-                # lines = summary.split("\n")
-
-                # # Filter lines that start with '- ' which indicates a bullet point
-                # bullet_points = [
-                #     line[2:].strip() for line in lines if line.strip().startswith("- ")
-                # ]
-
-                # for point in bullet_points:
-                #     BulletPoint.objects.create(content=point, email=email_entry)
 
         except Exception as e:
             LOGGER.error(
@@ -929,3 +909,114 @@ def set_all_contacts(user, email):
     }  # In case of duplicates, senders_info will overwrite contacts_dict
 
     return Response(merged_info, status=200)"""
+
+
+
+'''# TODO: handle all email providers
+# TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
+# TODO: add possibility to modify user_desription in settings
+def processed_email_to_bdd(request, services):
+    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(
+        services, 0, None
+    )
+
+    if not Email.objects.filter(provider_id=email_id).exists():
+
+        # Check if data is decoded, then format it
+        if decoded_data:
+            decoded_data = library.format_mail(decoded_data)
+
+        # Get user categories
+        category_list = library.get_db_categories(request.user)
+
+        # print("DEBUG -------------> category", category_list)
+
+        # Process the email data with AI/NLP
+        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+        user_description = ""
+        (
+            topic,
+            importance_dict,
+            answer,
+            summary,
+            sentence,
+            relevance,
+            importance_dict,
+        ) = (
+            # gpt_3_5_turbo
+            # claude
+            mistral.categorize_and_summarize_email(
+                subject, decoded_data, category_list, user_description
+            )
+        )
+
+        # Extract the importance of the email
+        if importance_dict["Important"] == 50:
+            importance = "Important"
+        else:
+            for key, value in importance_dict.items():
+                if value >= 51:
+                    importance = key
+
+        # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+        # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+        sender_name, sender_email = from_name[0], from_name[1]
+
+        # Fetch or create the sender
+        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+
+        LOGGER.info(f"[processed_email_to_bdd] topic: {topic}")
+        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
+        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
+
+        provider = "Gmail"
+
+        try:
+            # Create a new email record
+            email_entry = Email.objects.create(
+                provider_id=email_id,
+                email_provider=provider,
+                email_short_summary=sentence,
+                content=decoded_data,
+                subject=subject,
+                priority=importance,
+                read=False,
+                answer_later=False,
+                sender=sender,
+                category=category,
+                user=request.user,
+                date=date,
+            )
+
+            # If the email has a summary, save it in the BulletPoint table
+            if summary:
+                for point in summary:
+                    BulletPoint.objects.create(content=point, email=email_entry)
+
+                # # Split summary by line breaks
+                # lines = summary.split("\n")
+
+                # # Filter lines that start with '- ' which indicates a bullet point
+                # bullet_points = [
+                #     line[2:].strip() for line in lines if line.strip().startswith("- ")
+                # ]
+
+                # for point in bullet_points:
+                #     BulletPoint.objects.create(content=point, email=email_entry)
+
+        except Exception as e:
+            LOGGER.error(
+                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
+            )
+
+        # Debug prints
+        LOGGER.info("topic:", topic)
+        LOGGER.info("importance:", importance)
+        LOGGER.info("answer:", answer)
+        LOGGER.info("summary:", summary)
+        LOGGER.info("sentence:", sentence)
+        LOGGER.info("relevance:", relevance)
+        LOGGER.info("importance_dict:", importance_dict)
+
+    else:
+        LOGGER.error(f"The email with ID {email_id} already exists.")'''

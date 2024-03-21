@@ -133,7 +133,7 @@ def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
     language = get_language(body, subject).upper()
-    
+
     formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
@@ -232,8 +232,41 @@ def correct_mail_language_mistakes(body, subject):
     return corrected_subject, corrected_body, num_corrections
 
 
+def improve_email_copywriting(email_subject, email_body):
+    """Provides feedback and suggestions for improving the copywriting in the email subject and body."""
 
+    language = get_language(email_body, email_subject)
 
+    template = f"""{HUMAN}Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
+
+    Email Subject:
+    "{email_subject}"
+
+    Email Body:
+    "{email_body}"
+
+    ---
+
+    <strong>Subject Feedback</strong>:
+    [Your feedback on the subject]
+
+    <strong>Suggestions for the Subject</strong>:
+    [Your suggestions for the subject]
+
+    <strong>Email Body Feedback</strong>:
+    [Your feedback on the email body]
+
+    <strong>Suggestions for the Email Body</strong>:
+    [Your suggestions for the email body]
+    {ASSISTANT}
+    """
+    response = get_prompt_response(template)
+    feedback_ai = response.content[0].text.strip()
+
+    print(f"{Fore.CYAN}EMAIL COPYWRITING:")
+    print(f"{Fore.GREEN}{feedback_ai}")
+
+    return feedback_ai
 
 
 def generate_email_response(input_subject, input_body, response_type, language):

@@ -659,7 +659,7 @@ def check_email_copywriting(request):
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
 
-        feedback_copywriting = mistral.improve_email_copywriting(
+        feedback_copywriting = claude.improve_email_copywriting(
             email_body, email_subject
         )
 

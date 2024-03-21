@@ -1057,8 +1057,6 @@ def create_sender(request):
 def delete_email(request, email_id):
     try:
         user = request.user
-        # id_provider = request.headers.get("id_provider")
-        # user_email = request.data.get("email")
 
         # Check if the email belongs to the authenticated user
         email = get_object_or_404(Email, user=user, id=email_id)
@@ -1068,8 +1066,8 @@ def delete_email(request, email_id):
             {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
         )
 
-        # result = google_api.delete_email(id_provider, user, user_email)
-
+        # result = forward_request(request, "delete_email")
+        #
         # if result.get("message", "") == "Email moved to trash successfully!":
         #     return Response(
         #         {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
@@ -1705,22 +1703,6 @@ def get_message(request):
     serializer = MessageSerializer(message)
     return Response(serializer.data)'''
 
-
-"""@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_email(request, email_id):
-    user = request.user
-
-    # Check if the email belongs to the authenticated user
-    email = get_object_or_404(Email, user=user, id=email_id)
-
-    # Delete the email
-    email.delete()
-
-    # Prepare the response
-    response_data = {"message": "Email deleted successfully"}
-    return Response(response_data, status=status.HTTP_200_OK)
-"""
 
 """@api_view(['GET'])
 @permission_classes([IsAuthenticated])  # Ensure the user is authenticated

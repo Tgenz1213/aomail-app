@@ -352,12 +352,19 @@ def send_email(request):
     return JsonResponse(serializer.errors, status=400)
 
 
-def delete_email(email_id, user, email) -> dict:
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete_email(request) -> dict:
     """Moves the email to the bin of the user"""
+    user = request.user
+    email = request.headers.get("email")
+    email_id = request.headers.get("id_provider")
+
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}{email_id}/move"
     data = {"destinationId": "deleteditems"}
+
     response = requests.post(url, headers=headers, json=data)
 
     if response.status_code == 204:
@@ -365,29 +372,6 @@ def delete_email(email_id, user, email) -> dict:
     else:
         LOGGER.error(f"Failed to move email to trash: {response.text}")
         return {"error": f"Failed to move email to trash: {response.text}"}
-
-
-def get_unique_email_senders(request):
-    user = request.user
-    email = request.headers.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
-
-    senders_info = get_unique_senders(access_token)
-    contacts_info = get_info_contacts(access_token)
-    # Convert contacts_info to a dictionary format
-    contacts_dict = {
-        email: contact["name"]
-        for contact in contacts_info
-        for email in contact["emails"]
-    }
-
-    # Merge the two dictionaries and remove duplicates
-    merged_info = {
-        **contacts_dict,
-        **senders_info,
-    }  # In case of duplicates, senders_info will overwrite contacts_dict
-
-    return Response(merged_info, status=200)
 
 
 def find_user_in_emails(access_token, search_query):
@@ -739,3 +723,24 @@ def unread_mails(request):
     except Exception as e:
         LOGGER.error(f"An error occurred: {str(e)}")
         return JsonResponse({"unreadCount": 0}, status=400)'''
+"""def get_unique_email_senders(request):
+    user = request.user
+    email = request.headers.get("email")
+    access_token = refresh_access_token(get_social_api(user, email))
+
+    senders_info = get_unique_senders(access_token)
+    contacts_info = get_info_contacts(access_token)
+    # Convert contacts_info to a dictionary format
+    contacts_dict = {
+        email: contact["name"]
+        for contact in contacts_info
+        for email in contact["emails"]
+    }
+
+    # Merge the two dictionaries and remove duplicates
+    merged_info = {
+        **contacts_dict,
+        **senders_info,
+    }  # In case of duplicates, senders_info will overwrite contacts_dict
+
+    return Response(merged_info, status=200)"""

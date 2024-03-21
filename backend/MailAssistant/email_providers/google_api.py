@@ -215,8 +215,13 @@ def send_email(request):
         return Response({"error": str(e)}, status=500)
 
 
-def delete_email(email_id, user, email) -> dict:
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def delete_email(request) -> dict:
     """Moves the email to the bin of the user"""
+    user = request.user
+    email = request.headers.get("email")
+    email_id = request.headers.get("id_provider")
     gmail_service = authenticate_service(user, email)["gmail.modify"]
 
     if not gmail_service:
@@ -230,35 +235,6 @@ def delete_email(email_id, user, email) -> dict:
     else:
         LOGGER.error(f"Failed to move email to trash: {response.text}")
         return {"error": f"Failed to move email to trash: {response.text}"}
-
-
-def get_unique_email_senders(request):
-    user = request.user
-    email = request.headers.get("email")
-    services = authenticate_service(user, email)
-
-    if services:
-        senders_info = get_unique_senders(services)
-        contacts_info = get_info_contacts(services)
-    else:
-        return Response(
-            {"error": "Failed to authenticate or access services"}, status=400
-        )
-
-    # Convert contacts_info to a dictionary format
-    contacts_dict = {
-        email: contact["name"]
-        for contact in contacts_info
-        for email in contact["emails"]
-    }
-
-    # Merge the two dictionaries and remove duplicates
-    merged_info = {
-        **contacts_dict,
-        **senders_info,
-    }  # In case of duplicates, senders_info will overwrite contacts_dict
-
-    return Response(merged_info, status=200)
 
 
 def get_info_contacts(services):
@@ -906,3 +882,32 @@ def set_all_contacts(user, email):
 
     except Exception as e:
         logging.exception(f"Error fetching contacts: {str(e)}")'''
+
+
+"""def get_unique_email_senders(request):
+    user = request.user
+    email = request.headers.get("email")
+    services = authenticate_service(user, email)
+
+    if services:
+        senders_info = get_unique_senders(services)
+        contacts_info = get_info_contacts(services)
+    else:
+        return Response(
+            {"error": "Failed to authenticate or access services"}, status=400
+        )
+
+    # Convert contacts_info to a dictionary format
+    contacts_dict = {
+        email: contact["name"]
+        for contact in contacts_info
+        for email in contact["emails"]
+    }
+
+    # Merge the two dictionaries and remove duplicates
+    merged_info = {
+        **contacts_dict,
+        **senders_info,
+    }  # In case of duplicates, senders_info will overwrite contacts_dict
+
+    return Response(merged_info, status=200)"""

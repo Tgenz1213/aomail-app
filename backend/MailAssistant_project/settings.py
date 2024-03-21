@@ -7,7 +7,6 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 import json
 from datetime import timedelta
 from pathlib import Path
-import sys
 from MailAssistant.constants import HOSTS_URLS
 
 
@@ -108,7 +107,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "basic",
             "level": "INFO",
-            "stream": sys.stdout,
         },
         "file": {
             "class": "logging.FileHandler",
@@ -124,6 +122,7 @@ LOGGING = {
         },
         "": {
             "handlers": ["console", "file"],
+            "level": "INFO",
         },
     },
     "formatters": {

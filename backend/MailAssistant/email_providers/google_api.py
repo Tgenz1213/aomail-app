@@ -703,13 +703,13 @@ def processed_email_to_bdd(request, services):
             )
 
         # Debug prints
-        LOGGER.info("topic:", topic)
-        LOGGER.info("importance:", importance)
-        LOGGER.info("answer:", answer)
-        LOGGER.info("summary:", summary)
-        LOGGER.info("sentence:", sentence)
-        LOGGER.info("relevance:", relevance)
-        LOGGER.info("importance_dict:", importance_dict)
+        LOGGER.info(f"topic: {topic}")
+        LOGGER.info(f"importance: {importance}")
+        LOGGER.info(f"answer: {answer}")
+        LOGGER.info(f"summary: {summary}")
+        LOGGER.info(f"sentence:  {sentence}")
+        LOGGER.info(f"relevance: {relevance}")
+        LOGGER.info(f"importance_dict:  {importance_dict}")
 
     else:
         LOGGER.error(f"The email with ID {email_id} already exists.")

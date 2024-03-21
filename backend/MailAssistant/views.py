@@ -21,7 +21,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-from MailAssistant.ai_providers import gpt_3_5_turbo, mistral
+from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
 from .models import (
     Category,
@@ -702,7 +702,7 @@ def generate_email_answer(request):
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
         response_type = serializer.validated_data["response_type"]
-        email_answer = mistral.generate_email_response(
+        email_answer = claude.generate_email_response(
             email_subject, email_content, response_type, "French"
         )
 

@@ -228,6 +228,29 @@ def correct_mail_language_mistakes(body, subject):
     return corrected_subject, corrected_body, num_corrections
 
 
+
+
+
+
+def generate_email_response(input_subject, input_body, response_type, language):
+    """Generates a French email response based on the given response type"""
+    template = f"""{HUMAN}Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
+
+    ----
+
+    Answer must be above HTML without spaces
+    {ASSISTANT}
+    """
+    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
+    response = get_prompt_response(template)
+    body = response.content[0].text.strip()
+
+    print(f"{Fore.GREEN}[REPLY] body: {body}")
+
+    return body
+
+
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################

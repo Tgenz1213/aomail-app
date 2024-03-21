@@ -27,7 +27,7 @@ def get_prompt_response(formatted_prompt):
     return response
 
 
-def get_language(input_body, input_subject):
+def get_language(input_body, input_subject) -> str:
     """Returns the primary language used in the email"""
 
     template = """Given an email with subject: '{input_subject}' and body: '{input_body}',
@@ -159,15 +159,16 @@ def shorten_keywords(keywords) -> dict:
 def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
-    template = """As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {mail_content}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, mail_content=body)
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(template)
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 
@@ -239,15 +240,16 @@ def generate_email(input_data, length, formality):
 def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
-    template = """As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {email_body}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, email_body=body)
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(template)
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 

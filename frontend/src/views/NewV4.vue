@@ -1435,6 +1435,7 @@ function askContent() {
 }
 
 function askContentAdvice() {
+    // TODO: check if subject has been entered => if no => answer please enter it
     // Your previous code to display the message when the component is mounted
     const message = "Comment puis-je vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 

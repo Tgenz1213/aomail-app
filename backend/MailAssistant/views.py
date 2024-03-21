@@ -659,7 +659,7 @@ def check_email_copywriting(request):
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
 
-        feedback_copywriting = gpt_3_5_turbo.improve_email_copywriting(
+        feedback_copywriting = mistral.improve_email_copywriting(
             email_body, email_subject
         )
 
@@ -702,7 +702,7 @@ def generate_email_answer(request):
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
         response_type = serializer.validated_data["response_type"]
-        email_answer = claude.generate_email_response(
+        email_answer = mistral.generate_email_response(
             email_subject, email_content, response_type, "French"
         )
 

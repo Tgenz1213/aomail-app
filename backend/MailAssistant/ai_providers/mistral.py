@@ -23,7 +23,7 @@ def get_prompt_response(formatted_prompt, model, role):
     return response
 
 
-def get_language(input_body, input_subject):
+def get_language(input_body, input_subject) -> str:
     """Returns the primary language used in the email"""
 
     template = """Given an email with subject: '{input_subject}' and body: '{input_body}',
@@ -143,7 +143,9 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
-    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
@@ -230,7 +232,9 @@ def generate_email(input_data, length, formality):
 def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
-    template = f"""As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be ONLY a Json format with two keys: subject (STRING) AND body (HTML)
 
@@ -258,44 +262,42 @@ def correct_mail_language_mistakes(body, subject):
     return corrected_subject, corrected_body, num_corrections
 
 
-# TODO: improve prompt engineering + get a json response from GPT
 def improve_email_copywriting(email_subject, email_body):
     """Provides feedback and suggestions for improving the copywriting in the email subject and body."""
 
-    # Simplified template for direct feedback and suggestions on copywriting
-    template = f"""Évaluez en français la qualité du copywriting du sujet et du corps de cet e-mail. Fournissez un retour et des suggestions d'amélioration.
+    language = get_language(email_body, email_subject)
 
-    Objet de l'e-mail :
+    template = f"""Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
+
+    Email Subject:
     "{email_subject}"
 
-    Corps de l'e-mail :
+    Email Body:
     "{email_body}"
 
     ---
 
-    <strong>Retour sur l'objet</strong> :
-    [Votre retour sur l'objet]
+    <strong>Subject Feedback</strong>:
+    [Your feedback on the subject]
 
-    <strong>Suggestions pour l'objet</strong> :
-    [Vos suggestions pour l'objet]
+    <strong>Suggestions for the Subject</strong>:
+    [Your suggestions for the subject]
 
-    <strong>Retour sur le corps de l'e-mail</strong> :
-    [Votre retour sur le corps de l'e-mail]
+    <strong>Email Body Feedback</strong>:
+    [Your feedback on the email body]
 
-    <strong>Suggestions pour le corps de l'e-mail</strong> :
-    [Vos suggestions pour le corps de l'e-mail]
+    <strong>Suggestions for the Email Body</strong>:
+    [Your suggestions for the email body]
     """
     model = "mistral-small-latest"
     role = "user"
     response = get_prompt_response(template, model, role)
-    clear_text = response.choices[0].message.content.strip()
-
-    result_json = json.loads(clear_text)
+    feedback_ai = response.choices[0].message.content.strip()
 
     print(f"{Fore.CYAN}EMAIL COPYWRITING:")
-    print(f"{Fore.GREEN}{clear_text}")
+    print(f"{Fore.GREEN}{feedback_ai}")
 
-    return clear_text
+    return feedback_ai
 
 
 def generate_email_response(input_subject, input_body, response_type, language):

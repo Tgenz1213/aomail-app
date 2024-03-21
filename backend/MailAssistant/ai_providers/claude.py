@@ -27,7 +27,7 @@ def get_prompt_response(formatted_prompt):
     return response
 
 
-def get_language(input_body, input_subject):
+def get_language(input_body, input_subject) -> str:
     """Returns the primary language used in the email"""
 
     formatted_prompt = f"""{HUMAN}Given an email with subject: '{input_subject}' and body: '{input_body}',
@@ -132,7 +132,9 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
+    language = get_language(body, subject).upper()
+    
+    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
@@ -203,7 +205,9 @@ def generate_email(input_data, length, formality):
 def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    language = get_language(body, subject).upper()
+
+    formatted_prompt = f"""{HUMAN}As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 

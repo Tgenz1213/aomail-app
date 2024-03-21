@@ -215,20 +215,21 @@ def send_email(request):
         return Response({"error": str(e)}, status=500)
 
 
-def delete_email(email_id, user, email):
+def delete_email(email_id, user, email) -> dict:
     """Moves the email to the bin of the user"""
-    gmail_service = build_services(user)["gmail.modify"]
+    gmail_service = authenticate_service(user, email)["gmail.modify"]
 
     if not gmail_service:
-        return
+        return {"error": "No gmail service provided"}
 
     url = f"https://gmail.googleapis.com/gmail/v1/users/me/messages/{email_id}/trash"
     response = gmail_service.post(url)
 
     if response.status_code == 204:
-        print("Email moved to trash successfully.")
+        return {"message": "Email moved to trash successfully!"}
     else:
-        LOGGER.error(f"Failed to move email to trash: {response.text}", )
+        LOGGER.error(f"Failed to move email to trash: {response.text}")
+        return {"error": "No gmail service provided"}
 
 
 def get_unique_email_senders(request):

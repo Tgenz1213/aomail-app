@@ -1057,17 +1057,27 @@ def create_sender(request):
 def delete_email(request, email_id):
     try:
         user = request.user
-        id_provider = request.headers.get("id_provider")
+        # id_provider = request.headers.get("id_provider")
+        # user_email = request.data.get("email")
 
         # Check if the email belongs to the authenticated user
         email = get_object_or_404(Email, user=user, id=email_id)
-
-        # Delete the email
         email.delete()
 
         return Response(
             {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
         )
+
+        # result = google_api.delete_email(id_provider, user, user_email)
+
+        # if result.get("message", "") == "Email moved to trash successfully!":
+        #     return Response(
+        #         {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
+        #     )
+        # else:
+        #     return Response(
+        #         {"error": result.get("error")}, status=status.HTTP_400_BAD_REQUEST
+        #     )
 
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")

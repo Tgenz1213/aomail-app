@@ -835,14 +835,14 @@ export default {
     },
     async deleteEmail(email) {
       const emailId = email.id;
-      console.log(email.id_provider)
 
       try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            'id_provider': email.id_provider
+            // 'id_provider': email.id_provider,
+            // 'email': localStorage.getItem('email')
           }
         });
 

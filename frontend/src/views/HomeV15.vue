@@ -1445,6 +1445,7 @@ function toggleTooltip() {
 }
 
 async function markEmailAsRead(emailId) {
+    console.log("DEBUG========================>", emailId)
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-read/`, {
             method: 'POST',
@@ -1455,6 +1456,7 @@ async function markEmailAsRead(emailId) {
 
         if (response.read) {
             // Handle successful response
+            console.log("It is read!!!!!!!!!!!!!!")
             updateEmailReadStatus(emailId);
         } else {
             console.log("RESPONSE", response);
@@ -1940,9 +1942,9 @@ function countEmailsInCategoryAndPriority(categoryName, priority) {
 
 // To check if there is emails or not in the category
 function isEmptyTopic() {
-    console.log("----> DEBUG isEmpty", selectedTopic.value);
+    //console.log("----> DEBUG isEmpty", selectedTopic.value);
     if (totalEmailsInCategory(selectedTopic.value) == 0) {
-        console.log("Topic not found for selectedTopic:", selectedTopic.value); // Debugging log
+        //console.log("Topic not found for selectedTopic:", selectedTopic.value); // Debugging log
         return true; // or true, based on how you want to handle this case
     }
     else {
@@ -1998,7 +2000,7 @@ async function fetchData() {
 
         // Fetch emails
         const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-        console.log('emailData: ', emailData)
+        //console.log('emailData: ', emailData)
         emails.value = emailData;
     } catch (error) {
         console.error('Failed to fetch data:', error);

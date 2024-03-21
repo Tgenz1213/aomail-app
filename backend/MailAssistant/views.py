@@ -574,7 +574,6 @@ def new_email_ai(request):
             input_data, length, formality
         )
 
-        # Return the response
         return Response({"subject": subject_text, "mail": mail_text})
     else:
         LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
@@ -611,8 +610,8 @@ def new_email_recommendations(request):
 @permission_classes([IsAuthenticated])
 def improve_email_writing(request):
     """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
-    serializer = EmailCorrectionSerializer(data=request.data)
 
+    serializer = EmailCorrectionSerializer(data=request.data)
     if serializer.is_valid():
         email_body = serializer.validated_data["email_body"]
         email_subject = serializer.validated_data["email_subject"]
@@ -631,8 +630,8 @@ def improve_email_writing(request):
 @permission_classes([IsAuthenticated])
 def correct_email_language(request):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
-    serializer = EmailCorrectionSerializer(data=request.data)
 
+    serializer = EmailCorrectionSerializer(data=request.data)
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
@@ -879,16 +878,7 @@ def set_rule_block_for_sender(request, email_id):
         rule.save()
 
     serializer = RuleBlockUpdateSerializer(rule)
-
-    if serializer.is_valid():
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
-        LOGGER.error(
-            f"Serializer errors in set_rule_block_for_sender: {serializer.errors}"
-        )
-        return Response(
-            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-        )
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -898,32 +888,21 @@ def get_user_rules(request):
     rules_data = []
 
     for rule in user_rules:
-        # Serialize the basic rule data
         rule_serializer = RuleSerializer(rule)
+        rule_data = rule_serializer.data
 
-        if rule_serializer.is_valid():
-            rule_data = rule_serializer.data
+        # Manually add category name and sender details
+        category_name = rule.category.name if rule.category else None
+        sender_name = rule.sender.name if rule.sender else None
+        sender_email = rule.sender.email if rule.sender else None
 
-            # Manually add category name and sender details
-            category_name = rule.category.name if rule.category else None
-            sender_name = rule.sender.name if rule.sender else None
-            sender_email = rule.sender.email if rule.sender else None
+        rule_data["category_name"] = category_name
+        rule_data["sender_name"] = sender_name
+        rule_data["sender_email"] = sender_email
 
-            rule_data["category_name"] = category_name
-            rule_data["sender_name"] = sender_name
-            rule_data["sender_email"] = sender_email
+        rules_data.append(rule_data)
 
-            rules_data.append(rule_data)
-
-            return Response(rules_data)
-        else:
-            LOGGER.error(
-                f"Serializer errors in set_rule_block_for_sender: {rule_serializer.errors}"
-            )
-            return Response(
-                {"error": rule_serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        return Response(rules_data)
 
 
 @api_view(["GET"])
@@ -936,30 +915,19 @@ def get_user_rule_by_id(request, id_rule):
     except Rule.DoesNotExist:
         return Response({"error": "Rule not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    # Serialize the rule data
     rule_serializer = RuleSerializer(user_rule)
+    rule_data = rule_serializer.data
 
-    if rule_serializer.is_valid():
-        rule_data = rule_serializer.data
+    # Manually add category name and sender details if they exist
+    category_name = user_rule.category.name if user_rule.category else None
+    sender_name = user_rule.sender.name if user_rule.sender else None
+    sender_email = user_rule.sender.email if user_rule.sender else None
 
-        # Manually add category name and sender details if they exist
-        category_name = user_rule.category.name if user_rule.category else None
-        sender_name = user_rule.sender.name if user_rule.sender else None
-        sender_email = user_rule.sender.email if user_rule.sender else None
+    rule_data["category_name"] = category_name
+    rule_data["sender_name"] = sender_name
+    rule_data["sender_email"] = sender_email
 
-        rule_data["category_name"] = category_name
-        rule_data["sender_name"] = sender_name
-        rule_data["sender_email"] = sender_email
-
-        return Response(rule_data)
-    else:
-        LOGGER.error(
-            f"Serializer errors in get_user_rule_by_id: {rule_serializer.errors}"
-        )
-        return Response(
-            {"error": rule_serializer.errors},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    return Response(rule_data)
 
 
 @api_view(["DELETE"])
@@ -1125,13 +1093,8 @@ def set_email_read(request, email_id):
     email.read = True
     email.save()
 
-    # Serialize the data to return
     serializer = EmailReadUpdateSerializer(email)
-    if serializer.is_valid():
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
-        LOGGER.error(f"Serializer errors in set_email_read: {serializer.errors}")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -1139,21 +1102,13 @@ def set_email_read(request, email_id):
 def set_email_reply_later(request, email_id):
     """Mark a specific email for later reply for the authenticated user"""
     user = request.user
-
-    # Check if the email belongs to the authenticated user
+    
     email = get_object_or_404(Email, user=user, id=email_id)
-
-    # Update the reply_later field
     email.answer_later = True
     email.save()
 
-    # Serialize the data to return
     serializer = EmailReplyLaterUpdateSerializer(email)
-    if serializer.is_valid():
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
-        LOGGER.error(f"Serializer errors in set_email_read: {serializer.errors}")
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

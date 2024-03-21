@@ -337,9 +337,6 @@ def categorize_and_summarize_email(
     model = "mistral-small-latest"
     role = "user"
     response = get_prompt_response(template, model, role)
-
-    print(response)
-
     clear_response = response.choices[0].message.content.strip()
     result_json = json.loads(clear_response)
 

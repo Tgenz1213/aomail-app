@@ -643,12 +643,20 @@ def processed_email_to_bdd(request, services):
         # Get user categories
         category_list = library.get_db_categories(request.user)
 
-        #print("DEBUG -------------> category", category_list)
+        # print("DEBUG -------------> category", category_list)
 
         # Process the email data with AI/NLP
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
-        topic, importance_dict, answer, summary, sentence, relevance, importance_dict = (
+        (
+            topic,
+            importance_dict,
+            answer,
+            summary,
+            sentence,
+            relevance,
+            importance_dict,
+        ) = (
             # gpt_3_5_turbo
             claude.categorize_and_summarize_email(
                 subject, decoded_data, category_list, user_description
@@ -656,8 +664,8 @@ def processed_email_to_bdd(request, services):
         )
 
         # Extract the importance of the email
-        if importance_dict["important"] == 50:
-            importance = "important"
+        if importance_dict["Important"] == 50:
+            importance = "Important"
         else:
             for key, value in importance_dict.items():
                 if value >= 51:
@@ -668,9 +676,7 @@ def processed_email_to_bdd(request, services):
         sender_name, sender_email = from_name[0], from_name[1]
 
         # Fetch or create the sender
-        sender, _ = Sender.objects.get_or_create(
-            name=sender_name, email=sender_email
-        )
+        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
         LOGGER.info(f"[processed_email_to_bdd] topic: {topic}")
         # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
@@ -697,16 +703,19 @@ def processed_email_to_bdd(request, services):
 
             # If the email has a summary, save it in the BulletPoint table
             if summary:
-                # Split summary by line breaks
-                lines = summary.split("\n")
-
-                # Filter lines that start with '- ' which indicates a bullet point
-                bullet_points = [
-                    line[2:].strip() for line in lines if line.strip().startswith("- ")
-                ]
-
-                for point in bullet_points:
+                for point in summary:
                     BulletPoint.objects.create(content=point, email=email_entry)
+
+                # # Split summary by line breaks
+                # lines = summary.split("\n")
+
+                # # Filter lines that start with '- ' which indicates a bullet point
+                # bullet_points = [
+                #     line[2:].strip() for line in lines if line.strip().startswith("- ")
+                # ]
+
+                # for point in bullet_points:
+                #     BulletPoint.objects.create(content=point, email=email_entry)
 
         except Exception as e:
             LOGGER.error(

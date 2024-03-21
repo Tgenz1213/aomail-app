@@ -85,7 +85,8 @@
                                                         <a v-for="category in categories" :key="category"
                                                             @click="selectCategory(category)"
                                                             class="group items-center text-gray-600 text-sm font-medium cursor-pointer"><!-- To FIX => put category.name and adapt the design -->
-                                                            <!-- <div v-if="category.name !== 'Other' && category.name !== 'Autres'" -->
+                                                            <!-- <div v-if="category.name !== 'Other' && category.name !== 'Autres'"
+                                                                class="flex"> -->
                                                             <div v-if="category.name !== 'Others'" class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
@@ -1997,7 +1998,7 @@ async function fetchData() {
 
         // Fetch emails
         const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-        //console.log('emailData: ', emailData)
+        console.log('emailData: ', emailData)
         emails.value = emailData;
     } catch (error) {
         console.error('Failed to fetch data:', error);

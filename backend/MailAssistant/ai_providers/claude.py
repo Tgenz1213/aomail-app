@@ -299,9 +299,9 @@ def categorize_and_summarize_email(
             ]
         }},
         "importance": {{
-            "important": Percentage for Important,
-            "information": Percentage for Information,
-            "useless": Percentage for Useless
+            "Important": Percentage for Important,
+            "Information": Percentage for Information,
+            "Useless": Percentage for Useless
         }}
     }}
     {ASSISTANT}

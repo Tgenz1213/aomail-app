@@ -89,7 +89,7 @@ def extract_contacts_recipients(query):
     2. Utilize any linguistic or structural clues to infer if a recipient is intended for CC or BCC, focusing on the broader context rather than explicit markers
     
     ---
-    Answer must ONLY be a Json format matching this template:
+    Answer must ONLY be a Json format matching this template without ANY explanation:
     {{
         main_recipients: [Python list],
         cc_recipients: [Python list],

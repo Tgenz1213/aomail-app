@@ -702,7 +702,7 @@ import ShowNotification from '../components/ShowNotification.vue';
 
 const router = useRouter();
 
-let bgColor = ref('#ffffff'); // default background color
+let bgColor = ref('bg-gradient-to-r from-sky-300 to-blue-300');
 let showPassword = ref(false);
 let showConfirmPassword = ref(false);
 let step = ref(0);
@@ -711,7 +711,6 @@ let password = ref('');
 let confirmPassword = ref('');
 let credentialError = ref('');
 let theme = ref('');
-let color = ref('');
 let isModalOpen = ref(false);
 let isModalUpdateOpen = ref(false);
 let categoryName = ref('');
@@ -889,7 +888,7 @@ async function nextStep0() {
   try {
     const response = await fetch(`${API_BASE_URL}check_username/`, requestOptions);
     const responseData = await response.json();
-    
+
     if (responseData.available === false) {
       credentialError.value = 'L\'identifiant est déjà utilisé';
       return false;
@@ -940,8 +939,7 @@ async function nextStep0() {
   step.value++;
 }
 function nextStep1() {
-  color.value = bgColor;
-  localStorage.setItem('bgColor', bgColor);
+  localStorage.setItem('bgColor', bgColor.value);
   localStorage.setItem('theme', 'light');
   step.value++;
 }

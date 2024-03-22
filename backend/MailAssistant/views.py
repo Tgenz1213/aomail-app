@@ -1021,20 +1021,21 @@ def delete_email(request, email_id):
         email = get_object_or_404(Email, user=user, id=email_id)
         email.delete()
 
-        return Response(
-            {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
-        )
+        # return Response(
+        #     {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
+        # )
 
-        # result = forward_request(request, "delete_email")
-        #
-        # if result.get("message", "") == "Email moved to trash successfully!":
-        #     return Response(
-        #         {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
-        #     )
-        # else:
-        #     return Response(
-        #         {"error": result.get("error")}, status=status.HTTP_400_BAD_REQUEST
-        #     )
+        result = forward_request(request, "delete_email")
+        print("DEBUG=>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", result)
+        
+        if result.get("message", "") == "Email moved to trash successfully!":
+            return Response(
+                {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                {"error": result.get("error")}, status=status.HTTP_400_BAD_REQUEST
+            )
 
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")

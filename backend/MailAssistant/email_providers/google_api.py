@@ -667,7 +667,7 @@ def processed_email_to_bdd(request, services):
             for key, value in importance_dict.items():
                 if value >= 51:
                     importance = key
-        
+
         sender_name, sender_email = from_name[0], from_name[1]
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
@@ -911,8 +911,7 @@ def set_all_contacts(user, email):
     return Response(merged_info, status=200)"""
 
 
-
-'''# TODO: handle all email providers
+"""# TODO: handle all email providers
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings
 def processed_email_to_bdd(request, services):
@@ -1019,4 +1018,4 @@ def processed_email_to_bdd(request, services):
         LOGGER.info("importance_dict:", importance_dict)
 
     else:
-        LOGGER.error(f"The email with ID {email_id} already exists.")'''
+        LOGGER.error(f"The email with ID {email_id} already exists.")"""

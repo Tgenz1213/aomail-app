@@ -808,7 +808,7 @@
                                                                                             <button type="button"
                                                                                                 class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                                 <HandRaisedIcon
-                                                                                                    @click.stop="setRuleBlockForSender(item.id)"
+                                                                                                    @click.stop="setRuleBlockForSender(item)"
                                                                                                     class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                                                                             </button>
                                                                                         </div>
@@ -823,7 +823,7 @@
                                                                                             <button type="button"
                                                                                                 class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                                 <TrashIcon
-                                                                                                    @click.stop="deleteEmail(item.id)"
+                                                                                                    @click.stop="deleteEmail(item)"
                                                                                                     class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                                                                             </button>
                                                                                         </div>
@@ -1109,7 +1109,7 @@
                                                                                             <button type="button"
                                                                                                 class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                                 <TrashIcon
-                                                                                                    @click.stop="deleteEmail(item.id)"
+                                                                                                    @click.stop="deleteEmail(item)"
                                                                                                     class="w-5 h-5 text-emerald-500 group-hover:text-white" />
                                                                                             </button>
                                                                                         </div>
@@ -1563,7 +1563,9 @@ function deleteEmailFromState(emailId) {
     }
 }
 
-async function setRuleBlockForSender(emailId) {
+async function setRuleBlockForSender(email) {
+    const emailId = email.id;
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/block-sender/`, {
             method: 'POST',
@@ -1584,12 +1586,16 @@ async function setRuleBlockForSender(emailId) {
     }
 }
 
-async function deleteEmail(emailId) {
+async function deleteEmail(email) {
+    const emailId = email.id;
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
+                'email': localStorage.getItem("email"),
+                'id_provider': email.id_provider
             }
         });
 

@@ -29,7 +29,7 @@ GOOGLE_CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readon
 GOOGLE_PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile"
 GOOGLE_EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email"
 # TODO: add it in Google Project
-#GOOGLE_EMAIL_MODIFY = "https://www.googleapis.com/auth/gmail.modify"
+# GOOGLE_EMAIL_MODIFY = "https://www.googleapis.com/auth/gmail.modify"
 GOOGLE_OPENID_SCOPE = "openid"
 GOOGLE_OTHER_CONTACT_READONLY_SCOPE = (
     "https://www.googleapis.com/auth/contacts.other.readonly"
@@ -52,6 +52,7 @@ MICROSOFT_READ_SCOPE = "Mail.Read"
 MICROSOFT_SEND_SCOPE = "Mail.Send"
 MICROSOFT_CALENDAR_READ_SCOPE = "Calendars.Read"
 MICROSOFT_CONTACTS_READ_SCOPE = "Contacts.Read"
+# TODO: add it in Azure AD
 # MICROSOFT_EMAIL_MODIFY = "Mail.ReadWrite"
 MICROSOFT_SCOPES = [
     MICROSOFT_READ_SCOPE,

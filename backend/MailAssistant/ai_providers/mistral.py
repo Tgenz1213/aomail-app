@@ -87,17 +87,23 @@ def extract_contacts_recipients(query):
     If the input does not clearly differentiate between main, cc, and bcc recipients, use intuitive rules and a careful analysis of the text structure and any potential copying-related keywords or implications:
     1. Names appearing first or separated by phrases indicating inclusion (e.g., 'and', 'et') without clear copying context are considered as main recipients.
     2. Utilize any linguistic or structural clues to infer if a recipient is intended for CC or BCC, focusing on the broader context rather than explicit markers
-
-    Return the results in JSON format with three keys:
-    main_recipients: [Python list],
-    cc_recipients: [Python list],
-    bcc_recipients: [Python list]
+    
+    ---
+    Answer must ONLY be a Json format matching this template:
+    {{
+        main_recipients: [Python list],
+        cc_recipients: [Python list],
+        bcc_recipients: [Python list]
+    }}
     """
     model = "mistral-small-latest"
     role = "user"
     formatted_prompt = template.format(query=query)
     response = get_prompt_response(formatted_prompt, model, role)
     response_text = response.choices[0].message.content.strip()
+
+    print(response_text)
+
     recipients = json.loads(response_text)
 
     # Extract information based on markers

@@ -132,6 +132,10 @@ def signup(request):
     if "error" in result:
         return Response(result, status=400)
 
+    # Create the Google listener
+    if type_api == "google":
+        google_api.subscribe_to_email_notifications(user, email, 'chrome-cipher-268712', 'mail_push')
+
     return Response(
         {"user_id": user_id, "access_token": jwt_access_token, "email": email},
         status=201,
@@ -212,7 +216,7 @@ def save_user_data(
                 return {"error": "Invalid categories data"}
 
         # Creation of the Other/default category => TO UPDATE WITH THE LANGUAGE
-        default_category = Category(name="Autres", description="", user=user)
+        default_category = Category(name="Autres", description="Choose this category only as a last resort, if you can't place the mail in any other category", user=user)
         default_category.save()
 
         return {"message": "User data saved successfully"}

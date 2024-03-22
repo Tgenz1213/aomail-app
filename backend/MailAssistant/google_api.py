@@ -9,6 +9,7 @@ import logging
 import re
 import time
 import os
+import requests
 from collections import defaultdict
 from colorama import Fore, init
 from django.core.exceptions import ObjectDoesNotExist
@@ -23,8 +24,9 @@ from google.auth.transport.requests import Request
 from google.oauth2 import credentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
+from google.cloud import pubsub_v1
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from MailAssistant.serializers import EmailDataSerializer
 from . import library
 from .models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
@@ -785,6 +787,132 @@ def get_email(access_token, refresh_token):
         return None
 
 
+def subscribe_to_email_notifications(user, email, project_id, topic_name):
+    try:
+        print(f"DEBUG : user > {user}, email > {email}")
+        credentials = get_credentials(user, email)
+        services = build_services(credentials)
+        if services is None:
+            raise Exception("Failed to authenticate")
+
+        gmail_service = services["gmail.readonly"]
+
+        # projet id : chrome-cipher-268712, topic_name : mail_push
+        request_body = {
+            'labelIds': ['INBOX'],
+            'topicName': f'projects/{project_id}/topics/{topic_name}'
+        }
+
+        response = gmail_service.users().watch(userId='me', body=request_body).execute()
+
+        # Vérifier si l'abonnement a réussi
+        if 'historyId' in response:
+            print(f"Successfully subscribed to email notifications for user {user.username} and email {email}")
+            return True
+        else:
+            print(f"Failed to subscribe to email notifications for user {user.username} and email {email}")
+            return False
+
+    except Exception as e:
+        print(f"An error occurred while subscribing to email notifications: {str(e)}")
+        return False
+
+'''
+# Receive email fromt the google listener
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def receive_mail_notifications(request):
+
+    envelope = json.loads(request.body.decode('utf-8'))
+    message = envelope['message']
+
+    print("DEBUG 1 => RECEIVED NEW MAIL", message)
+
+    attributes = message.get('attributes', {})
+    email_id = attributes.get('emailId')
+    history_id = attributes.get('historyId')
+
+    # retrieving the content with Gmail API
+    email = request.headers.get('email')
+    print("DEBUG email => RECEIVED NEW MAIL", email)
+    social_api_entry = SocialAPI.objects.get(email=email)
+    print("DEBUG Social API => ", social_api_entry)
+    creds = get_credentials(social_api_entry.user, email)
+    gmail_service = build('gmail', 'v1', credentials=creds)
+
+    message = gmail_service.users().messages().get(userId='me', id=email_id).execute()
+    # Traitez le contenu de l'e-mail selon vos besoins
+    print("DEBUG 2 => RECEIVED NEW MAIL", message)
+
+    # Sending the reception message to Google so that it know the mail has been received
+    subscription_path = envelope['subscription']
+    subscriber = pubsub_v1.SubscriberClient()
+    subscriber.acknowledge(subscription_path, [message['ackId']])
+
+    return HttpResponse(status=200)'''
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def receive_mail_notifications(request):
+    try:
+        print("DEBUG 0 => ", request.headers)
+
+        envelope = json.loads(request.body.decode('utf-8'))
+        message_data = envelope['message']
+
+        print("DEBUG 1 => RECEIVED NEW MAIL", message_data)
+
+        decoded_data = base64.b64decode(message_data['data']).decode('utf-8')
+        print("DEBUG DECODED DATA => ", decoded_data)
+        decoded_json = json.loads(decoded_data)
+        print("DEBUG DECODED => ", decoded_json)
+
+        attributes = message_data.get('attributes', {})
+        email_id = attributes.get('emailId')
+        history_id = attributes.get('historyId')
+
+        # Retreiving the email gmail address
+        email = decoded_json.get('emailAddress')
+        print("DEBUG email => RECEIVED NEW MAIL", email)
+        
+        social_api_entry = SocialAPI.objects.get(email=email)
+        print("DEBUG Social API => ", social_api_entry)
+
+        #creds = get_credentials(social_api_entry.user, email)  # Supposons que cela renvoie un objet Credentials
+        #services = build_services(creds)
+        #gmail_service = services["gmail.readonly"]
+
+        #message_content = gmail_service.users().messages().get(userId='me', id=email_id).execute()
+        services = authenticate_service(social_api_entry.user, email)
+        subject, from_name, decoded_data, cc, bcc, email_id = get_mail(services, 0, email_id)
+        print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
+
+        # Sending the reception message to Google to confirm the email reception
+        subscription_path = envelope['subscription']
+        print("DEBUG 3 => Sub Path", subscription_path)
+        ack_id = message_data['messageId']
+        #subscriber = pubsub_v1.SubscriberClient()
+        #subscriber.acknowledge(subscription=subscription_path, ack_ids=[ack_id])
+        ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
+        ack_payload = {
+            "ackIds": [ack_id]
+        }
+        response = requests.post(ack_url, json=ack_payload)
+
+        if response.status_code == 200:
+            print("Acknowledgement sent successfully")
+        else:
+            print(response)
+            print(f"Failed to send acknowledgement. Status code: {response.status_code}")
+
+        return Response(status=200)
+    except SocialAPI.DoesNotExist:
+        print(f"Aucune entrée SocialAPI trouvée pour l'email : {email}")
+        return Response("Entrée SocialAPI non trouvée.", status=404)
+    except Exception as e:
+        print(f"Erreur lors du traitement de la notification : {str(e)}")
+        return Response("Erreur interne.", status=500)
+
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
@@ -800,81 +928,175 @@ def processed_email_to_bdd(request, services):
 
     if not Email.objects.filter(provider_id=email_id).exists():
 
-        # Check if data is decoded, then format it
-        if decoded_data:
-            decoded_data = library.format_mail(decoded_data)
+        # Use filter() to find senders with the given email. This returns a queryset.
+        sender = Sender.objects.filter(email=email)
 
-        # Get user categories
-        category_list = library.get_db_categories(request.user)
+        if sender.exists():
+            # Now, attempt to retrieve the associated Rule.
+            rule = Rule.objects.filter(sender=sender)
+        
+            if rule.block is False: 
+                # Check if data is decoded, then format it
+                if decoded_data:
+                    decoded_data = library.format_mail(decoded_data)
 
-        # print("DEBUG -------------> category", category_list)
+                # Get user categories
+                category_list = library.get_db_categories(request.user)
 
-        # Process the email data with AI/NLP
-        #user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-        user_description = ""
-        topic, importance, answer, summary, sentence, relevance, importance_explain = (
-            gpt_3_5_turbo.categorize_and_summarize_email(
-                subject, decoded_data, category_list, user_description
+                # print("DEBUG -------------> category", category_list)
+
+                # Process the email data with AI/NLP
+                #user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+                user_description = ""
+                topic, importance, answer, summary, sentence, relevance, importance_explain = (
+                    gpt_3_5_turbo.categorize_and_summarize_email(
+                        subject, decoded_data, category_list, user_description
+                    )
+                )
+
+                # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+                # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+                sender_name, sender_email = from_name[0], from_name[1]
+
+                # Fetch or create the sender
+                sender, created = Sender.objects.get_or_create(
+                    name=sender_name, email=sender_email
+                )  # assuming from_name contains the sender's name
+
+                print("DEBUG ----------------> topic", topic)
+
+                # Find the category by checking if a sender has a category
+                #category = Category.objects.get_or_create(name=topic, user=request.user)[0]
+                if rule.category: 
+                    category = rule.category
+                else : 
+                    if topic in category_list:
+                        category = Category.objects.get(name=topic, user=request.user)[0]
+                    else :
+                        # To avoid any error with the model creating a new category
+                        category = Category.objects.get(name="Autres", user=request.user)[0] # UPDATE WITH LANGUAGE
+
+                provider = "Gmail"
+
+                try:
+                    # Create a new email record
+                    email_entry = Email.objects.create(
+                        provider_id=email_id,
+                        email_provider=provider,
+                        email_short_summary=sentence,
+                        content=decoded_data,
+                        subject=subject,
+                        priority=importance[0],
+                        read=False,  # Default value; adjust as necessary
+                        answer_later=False,  # Default value; adjust as necessary
+                        sender=sender,
+                        category=category,
+                        user=request.user,
+                    )
+
+                    # If the email has a summary, save it in the BulletPoint table
+                    if summary:
+                        # Split summary by line breaks
+                        lines = summary.split("\n")
+
+                        # Filter lines that start with '- ' which indicates a bullet point
+                        bullet_points = [
+                            line[2:].strip() for line in lines if line.strip().startswith("- ")
+                        ]
+
+                        for point in bullet_points:
+                            BulletPoint.objects.create(content=point, email=email_entry)
+
+                except IntegrityError:
+                    print(
+                        f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
+                    )
+
+                # Debug prints
+                print("topic:", topic)
+                print("importance:", importance)
+                print("answer:", answer)
+                print("summary:", summary)
+                print("sentence:", sentence)
+                print("relevance:", relevance)
+                print("importance_explain:", importance_explain)
+        
+        else : 
+            # Check if data is decoded, then format it
+            if decoded_data:
+                decoded_data = library.format_mail(decoded_data)
+
+            # Get user categories
+            category_list = library.get_db_categories(request.user)
+
+            # print("DEBUG -------------> category", category_list)
+
+            # Process the email data with AI/NLP
+            #user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+            user_description = ""
+            topic, importance, answer, summary, sentence, relevance, importance_explain = (
+                gpt_3_5_turbo.categorize_and_summarize_email(
+                    subject, decoded_data, category_list, user_description
+                )
             )
-        )
 
-        # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
-        # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
-        sender_name, sender_email = from_name[0], from_name[1]
+            # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+            # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+            sender_name, sender_email = from_name[0], from_name[1]
 
-        # Fetch or create the sender
-        sender, created = Sender.objects.get_or_create(
-            name=sender_name, email=sender_email
-        )  # assuming from_name contains the sender's name
+            # Fetch or create the sender
+            sender, created = Sender.objects.get_or_create(
+                name=sender_name, email=sender_email
+            )  # assuming from_name contains the sender's name
 
-        print("DEBUG ----------------> topic", topic)
-        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
-        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
+            print("DEBUG ----------------> topic", topic)
+            # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
+            category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 
-        provider = "Gmail"
+            provider = "Gmail"
 
-        try:
-            # Create a new email record
-            email_entry = Email.objects.create(
-                provider_id=email_id,
-                email_provider=provider,
-                email_short_summary=sentence,
-                content=decoded_data,
-                subject=subject,
-                priority=importance[0],
-                read=False,  # Default value; adjust as necessary
-                answer_later=False,  # Default value; adjust as necessary
-                sender=sender,
-                category=category,
-                user=request.user,
-            )
+            try:
+                # Create a new email record
+                email_entry = Email.objects.create(
+                    provider_id=email_id,
+                    email_provider=provider,
+                    email_short_summary=sentence,
+                    content=decoded_data,
+                    subject=subject,
+                    priority=importance[0],
+                    read=False,  # Default value; adjust as necessary
+                    answer_later=False,  # Default value; adjust as necessary
+                    sender=sender,
+                    category=category,
+                    user=request.user,
+                )
 
-            # If the email has a summary, save it in the BulletPoint table
-            if summary:
-                # Split summary by line breaks
-                lines = summary.split("\n")
+                # If the email has a summary, save it in the BulletPoint table
+                if summary:
+                    # Split summary by line breaks
+                    lines = summary.split("\n")
 
-                # Filter lines that start with '- ' which indicates a bullet point
-                bullet_points = [
-                    line[2:].strip() for line in lines if line.strip().startswith("- ")
-                ]
+                    # Filter lines that start with '- ' which indicates a bullet point
+                    bullet_points = [
+                        line[2:].strip() for line in lines if line.strip().startswith("- ")
+                    ]
 
-                for point in bullet_points:
-                    BulletPoint.objects.create(content=point, email=email_entry)
+                    for point in bullet_points:
+                        BulletPoint.objects.create(content=point, email=email_entry)
 
-        except IntegrityError:
-            print(
-                f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
-            )
+            except IntegrityError:
+                print(
+                    f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
+                )
 
-        # Debug prints
-        print("topic:", topic)
-        print("importance:", importance)
-        print("answer:", answer)
-        print("summary:", summary)
-        print("sentence:", sentence)
-        print("relevance:", relevance)
-        print("importance_explain:", importance_explain)
+            # Debug prints
+            print("topic:", topic)
+            print("importance:", importance)
+            print("answer:", answer)
+            print("summary:", summary)
+            print("sentence:", sentence)
+            print("relevance:", relevance)
+            print("importance_explain:", importance_explain)
 
     else:
         print(f"Email with provider_id {email_id} already exists.")

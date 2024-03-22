@@ -46,7 +46,7 @@ CONTACTS_READ_SCOPE = "Contacts.Read"
 SCOPES = [MAIL_READ_SCOPE, MAIL_SEND_SCOPE, CALENDAR_READ_SCOPE, CONTACTS_READ_SCOPE]
 CONFIG = json.load(open("creds/microsoft_creds.json", "r"))
 # PRODUCTION authority
-# AUTHORITY = f"https://login.microsoftonline.com/common"
+#AUTHORITY = f"https://login.microsoftonline.com/common"
 # localhost authority
 AUTHORITY = f'https://login.microsoftonline.com/{CONFIG["tenant_id"]}'
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
@@ -64,6 +64,7 @@ def generate_auth_url(request):
         "response_mode": "query",
         "scope": " ".join(SCOPES),
         "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+        #"prompt": "consent",
     }
     authorization_url = f"{AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
 
@@ -83,6 +84,7 @@ def exchange_code_for_tokens(authorization_code):
         authorization_code, scopes=SCOPES, redirect_uri=REDIRECT_URI
     )
     if result:
+        print(result)
         return result["access_token"], result["refresh_token"]
     else:
         return Response({"error": "tokens not found"}, status=400)
@@ -131,7 +133,7 @@ def refresh_access_token(social_api):
         "refresh_token": social_api.refresh_token,
         "client_id": CONFIG["client_id"],
         "client_secret": CONFIG["client_secret"],
-        "scope": SCOPES,
+        "scope": " ".join(SCOPES),
     }
 
     response = requests.post(refresh_url, data=data)

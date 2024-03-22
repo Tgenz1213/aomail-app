@@ -59,6 +59,7 @@ urlpatterns = [
     #----------------------- OAuth 2.0 EMAIL PROVIDER API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
+    path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='receive_mail_notifications'), # ok
     #----------------------- TESTING URLs -----------------------#
     path('api/get_mail_by_id', views.get_mail_by_id_view, name='get_mail_by_id'), # testing
     path('api/get_mail', views.get_mail_view, name='get_mail'), # testing

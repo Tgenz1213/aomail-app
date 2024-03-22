@@ -63,9 +63,9 @@ urlpatterns = [
     path('api/get_mail_by_id', views.get_mail_by_id_view, name='get_mail_by_id'), # testing
     path('api/get_mail', views.get_mail_view, name='get_mail'), # testing
     path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
-    path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing    
-    path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'), # testing
+    path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing
     #----------------------- UNUSED URLs -----------------------#
+    # path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'), # testing
     # path('api/get_parsed_contacts/', views.get_parsed_contacts, name='get_parsed_contacts'),
     # path('api/get_unique_email_senders', views.è, name='get_unique_email_senders_view'),
     # path('user/emails/<int:email_id>/bullet-points/', views.get_email_bullet_points, name='email-bullet-points'),

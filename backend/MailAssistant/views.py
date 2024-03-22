@@ -1149,7 +1149,7 @@ def get_user_emails(request):
 
 
 ######################## TESTING FUNCTIONS ########################
-# TO TEST AUTH API
+'''# TO TEST AUTH API
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def authenticate_service_view(request):
@@ -1162,7 +1162,7 @@ def authenticate_service_view(request):
         return Response({"message": "Authentication successful"}, status=200)
     else:
         # Return an error response
-        return Response({"error": "Failed to authenticate"}, status=400)
+        return Response({"error": "Failed to authenticate"}, status=400)'''
 
 
 # TO TEST Gmail Save in BDD Last Email

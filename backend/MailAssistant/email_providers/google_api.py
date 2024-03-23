@@ -734,8 +734,6 @@ def email_to_bdd(user, services, id_email):
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
-
-        # Use filter() to find senders with the given email. This returns a queryset.
         sender = Sender.objects.filter(email=from_name[1]).first()
 
         print("DEBUG BDD 1 => sender", sender)
@@ -788,8 +786,6 @@ def email_to_bdd(user, services, id_email):
                     name=sender_name, email=sender_email
                 )
 
-                print("DEBUG ----------------> topic", topic)
-
                 if rule.exists():
                     if rule.category:
                         # Find the category by checking if a sender has a category
@@ -818,23 +814,13 @@ def email_to_bdd(user, services, id_email):
 
                     # If the email has a summary, save it in the BulletPoint table
                     if summary_list:
-                        for point in summary:
+                        for point in summary_list:
                             BulletPoint.objects.create(content=point, email=email_entry)
 
                 except Exception as e:
                     LOGGER.error(
                         f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
                     )
-
-                # Debug prints
-                LOGGER.info(f"topic: {topic}")
-                LOGGER.info(f"importance: {importance}")
-                LOGGER.info(f"answer: {answer}")
-                LOGGER.info(f"summary: {summary}")
-                LOGGER.info(f"sentence:  {sentence}")
-                LOGGER.info(f"relevance: {relevance}")
-                LOGGER.info(f"importance_dict:  {importance_dict}")
-
         else:
             if decoded_data:
                 decoded_data = library.format_mail(decoded_data)
@@ -849,7 +835,7 @@ def email_to_bdd(user, services, id_email):
                 topic,
                 importance_dict,
                 answer,
-                summary,
+                summary_list,
                 sentence,
                 relevance,
             ) = (
@@ -892,9 +878,10 @@ def email_to_bdd(user, services, id_email):
                 )
 
                 # If the email has a summary, save it in the BulletPoint table
-                if summary:
-                    for point in summary:
+                if summary_list:
+                    for point in summary_list:
                         BulletPoint.objects.create(content=point, email=email_entry)
+
             except Exception as e:
                 LOGGER.error(
                     f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
@@ -904,12 +891,10 @@ def email_to_bdd(user, services, id_email):
         LOGGER.info(f"topic: {topic}")
         LOGGER.info(f"importance: {importance}")
         LOGGER.info(f"answer: {answer}")
-        LOGGER.info(f"summary: {summary}")
+        LOGGER.info(f"summary: {summary_list}")
         LOGGER.info(f"sentence:  {sentence}")
         LOGGER.info(f"relevance: {relevance}")
         LOGGER.info(f"importance_dict:  {importance_dict}")
-    else:
-        print(f"Email with provider_id {email_id} already exists.")
 
 
 ####################################################################

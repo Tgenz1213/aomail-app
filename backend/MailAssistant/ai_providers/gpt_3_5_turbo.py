@@ -336,7 +336,7 @@ def generate_email_response(input_subject, input_body, response_type, language):
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
 
-
+# TODO: update with claude and mistral prompt engineering
 def categorize_and_summarize_email(
     subject, decoded_data, category_list, user_description
 ):

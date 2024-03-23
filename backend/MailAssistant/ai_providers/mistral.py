@@ -77,19 +77,16 @@ def count_corrections(
 
 
 def extract_contacts_recipients(query):
-    template = """"As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
+    template = """"As an intelligent email assistant, analyze the input: '{query}' to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying.
 
     Guidelines for classification:
-    - Main recipients are those directly mentioned or implied to be the primary audience, without specific indicators for copying.
-    - CC (carbon copy) recipients are identified through the context or subtle cues that imply they should be informed of the communication. Look for any keywords or phrases, even if indirectly stated, that traditionally associate with copying someone on an email.
-    - BCC (blind carbon copy) recipients are identified similarly by context or cues suggesting a need for discretion or privacy in copying, without directly mentioning them in the conversation.
-
-    If the input does not clearly differentiate between main, cc, and bcc recipients, use intuitive rules and a careful analysis of the text structure and any potential copying-related keywords or implications:
-    1. Names appearing first or separated by phrases indicating inclusion (e.g., 'and', 'et') without clear copying context are considered as main recipients.
-    2. Utilize any linguistic or structural clues to infer if a recipient is intended for CC or BCC, focusing on the broader context rather than explicit markers
+    - Main recipients: recipients name directly mentioned or implied to be the primary audience, without specific indicators for copying.
+    - CC (carbon copy): recipients explicitly identified through the context of being copied on an email.
+    - BCC (blind carbon copy): recipients explicitly identified through the context of a need for discretion or privacy in copying.
     
     ---
-    Answer must ONLY be a Json format matching this template without ANY explanation:
+    Do NOT provide explanations
+    Answer must ONLY be a Json format matching this template:
     {{
         main_recipients: [Python list],
         cc_recipients: [Python list],
@@ -101,6 +98,9 @@ def extract_contacts_recipients(query):
     formatted_prompt = template.format(query=query)
     response = get_prompt_response(formatted_prompt, model, role)
     response_text = response.choices[0].message.content.strip()
+
+    print(response_text)
+
     recipients = json.loads(response_text)
 
     # Extract information based on markers

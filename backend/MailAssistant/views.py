@@ -470,7 +470,7 @@ def find_user_view_ai(request):
     search_query = request.GET.get("query")
 
     if search_query:
-        main_list, cc_list, bcc_list = mistral.extract_contacts_recipients(search_query)
+        main_list, cc_list, bcc_list = claude.extract_contacts_recipients(search_query)
 
         if not main_list:
             return Response(

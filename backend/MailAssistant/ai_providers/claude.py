@@ -389,5 +389,4 @@ def categorize_and_summarize_email(
         summary_list,
         short_sentence,
         relevance_category,
-        importance_dict,
     )

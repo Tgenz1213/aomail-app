@@ -538,7 +538,7 @@ def get_mail(access_token, int_mail=None, id_mail=None):
             )
             break
     decoded_data = parse_message_body(message_data)
-    
+
     preprocessed_data = library.preprocess_email(decoded_data)
 
     return (
@@ -575,7 +575,6 @@ def processed_email_to_bdd(user, email):
             summary,
             sentence,
             relevance,
-            importance_dict,
         ) = mistral.categorize_and_summarize_email(
             subject, decoded_data, category_list, user_description
         )

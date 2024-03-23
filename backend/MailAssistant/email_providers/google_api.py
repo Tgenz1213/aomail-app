@@ -733,13 +733,14 @@ def email_to_bdd(user, services, id_email):
         services, 0, id_email
     )
 
-    print(f"{subject, from_name, decoded_data, cc, bcc, email_id, sent_date}")
-
     if not Email.objects.filter(provider_id=email_id).exists():
 
         # Use filter() to find senders with the given email. This returns a queryset.
         sender = Sender.objects.filter(email=from_name[1]).first()
+
         print("DEBUG BDD 1 => sender", sender)
+
+        category = Category.objects.get(name="Others", user=user)
 
         if sender:
             # Now, attempt to retrieve the associated Rule.
@@ -763,10 +764,9 @@ def email_to_bdd(user, services, id_email):
                     topic,
                     importance_dict,
                     answer,
-                    summary,
+                    summary_list,
                     sentence,
                     relevance,
-                    importance_dict,
                 ) = (
                     # gpt_3_5_turbo
                     # claude
@@ -793,14 +793,10 @@ def email_to_bdd(user, services, id_email):
                 if rule.exists():
                     if rule.category:
                         # Find the category by checking if a sender has a category
-                        # category = Category.objects.get_or_create(name=topic, user=user)[0]
                         category = rule.category
                     else:
                         if topic in category_list:
-                            category = Category.objects.get(name=topic, user=user)[0]
-                        else:
-                            # To avoid any error with the model creating a new category
-                            category = Category.objects.get(name="Others", user=user)[0]
+                            category = topic
 
                 provider = "Gmail"
 
@@ -821,7 +817,7 @@ def email_to_bdd(user, services, id_email):
                     )
 
                     # If the email has a summary, save it in the BulletPoint table
-                    if summary:
+                    if summary_list:
                         for point in summary:
                             BulletPoint.objects.create(content=point, email=email_entry)
 
@@ -856,7 +852,6 @@ def email_to_bdd(user, services, id_email):
                 summary,
                 sentence,
                 relevance,
-                importance_dict,
             ) = (
                 # gpt_3_5_turbo
                 # claude
@@ -877,9 +872,6 @@ def email_to_bdd(user, services, id_email):
             sender, _ = Sender.objects.get_or_create(
                 name=sender_name, email=sender_email
             )
-
-            # Get the relevant category based
-            category = Category.objects.get_or_create(name=topic, user=user)[0]
 
             provider = "Gmail"
 
@@ -908,14 +900,14 @@ def email_to_bdd(user, services, id_email):
                     f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
                 )
 
-            # Debug prints
-            LOGGER.info(f"topic: {topic}")
-            LOGGER.info(f"importance: {importance}")
-            LOGGER.info(f"answer: {answer}")
-            LOGGER.info(f"summary: {summary}")
-            LOGGER.info(f"sentence:  {sentence}")
-            LOGGER.info(f"relevance: {relevance}")
-            LOGGER.info(f"importance_dict:  {importance_dict}")
+        # Debug prints
+        LOGGER.info(f"topic: {topic}")
+        LOGGER.info(f"importance: {importance}")
+        LOGGER.info(f"answer: {answer}")
+        LOGGER.info(f"summary: {summary}")
+        LOGGER.info(f"sentence:  {sentence}")
+        LOGGER.info(f"relevance: {relevance}")
+        LOGGER.info(f"importance_dict:  {importance_dict}")
     else:
         print(f"Email with provider_id {email_id} already exists.")
 
@@ -948,7 +940,6 @@ def processed_email_to_bdd(request, services):
             summary,
             sentence,
             relevance,
-            importance_dict,
         ) = (
             # gpt_3_5_turbo
             # claude
@@ -969,6 +960,7 @@ def processed_email_to_bdd(request, services):
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
         # Get the relevant category based
+        # TODO: if not exist put in other
         category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 
         provider = "Gmail"

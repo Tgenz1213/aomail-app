@@ -404,9 +404,9 @@ def categorize_and_summarize_email(
 
     print(result_json)
 
-    topic_category = result_json["topic"]
-    response_category = result_json["response"]
-    relevance_category = result_json["relevance"]
+    topic = result_json["topic"]
+    response = result_json["response"]
+    relevance = result_json["relevance"]
     short_sentence = result_json["summary"]["one_line"]
     summary_list = result_json["summary"]["complete"]
     importance_dict = result_json["importance"]
@@ -416,11 +416,10 @@ def categorize_and_summarize_email(
         importance_dict[key] = int(value)
 
     return (
-        topic_category,
+        topic,
         importance_dict,
-        response_category,
+        response,
         summary_list,
         short_sentence,
-        relevance_category,
-        importance_dict,
+        relevance,
     )

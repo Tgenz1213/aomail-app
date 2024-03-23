@@ -60,6 +60,7 @@ urlpatterns = [
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
+    path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='receive_mail_notifications'), # ok
     #----------------------- TESTING URLs -----------------------#
     path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
     path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing

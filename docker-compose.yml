@@ -17,6 +17,7 @@ services:
     environment:
       - DATABASE_URL=postgres://django_admin:admin@2@db:5432/mailassistantdb
       - ENV=${ENV}
+      - TOPIC_NAME=${TOPIC_NAME}
     ports:
       - "${BACKEND_PORT}:8000"
     volumes:

@@ -10,6 +10,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.dirname(CURRENT_DIR)
 CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
+#TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 BASE_URL = f"https://{ENV}.aochange.com/"
 REDIRECT_URI = f"{BASE_URL}signup_part2"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]

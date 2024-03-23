@@ -53,6 +53,7 @@ GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS, "r"))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE_PROVIDER = "Gmail"
+# TODO: put the key in the creds.json!!!
 GOOGLE_LISTENER_API_KEY = ""
 
 

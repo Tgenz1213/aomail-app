@@ -1371,7 +1371,8 @@ onMounted(async () => {
                 animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
             }
         }
-    }, 5000);
+        fetchEmails();
+    }, 1000);
 });
 
 function getNumberUnreadMail(emailData) {
@@ -1529,7 +1530,7 @@ async function transferEmail(email) {
         // Clean CC data
         let cleanedCc = '';
         if (data.email.cc && data.email.cc.length > 0) {
-            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());            
+            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
             cleanedCc = JSON.stringify(ccEmails);
         } else {
             cleanedCc = '[]';
@@ -2006,7 +2007,11 @@ function totalEmailsInCategoryNotRead(categoryName) {
     }
     return totalCount;
 }
-
+async function fetchEmails() {
+    const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
+    //console.log('emailData: ', emailData)
+    emails.value = emailData;
+}
 async function fetchData() {
     try {
         // Fetch the categories
@@ -2026,17 +2031,9 @@ async function fetchData() {
             selectedTopic.value = categories.value[0].name;
         }
 
-        // Fetch emails
-        const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-        //console.log('emailData: ', emailData)
-        emails.value = emailData;
+        fetchEmails();
     } catch (error) {
         console.error('Failed to fetch data:', error);
-    }
-
-    // To handle answer sent
-    if (localStorage.getItem('Email_sent')) {
-        localStorage.setItem('Email_sent', '');
     }
 }
 </script>

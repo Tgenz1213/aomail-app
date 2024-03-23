@@ -185,6 +185,27 @@
                                                   </MenuItem>
                                                 </div>
                                               </div>
+                                              <div class="py-1">
+                                                <MenuItem v-slot="{ active }">
+                                                <a @click.prevent="transferEmail(item)"
+                                                  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                  <span class="flex gap-x-2 items-center">
+                                                    <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1"
+                                                      stroke="currentColor" xmlns="http://www.w3.org/2000/svg"
+                                                      xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
+                                                      xmlns:serif="http://www.serif.com/"
+                                                      style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+                                                      <path
+                                                        d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
+                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                      <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
+                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                    </svg>
+                                                    <span>Transférer</span>
+                                                  </span>
+                                                </a>
+                                                </MenuItem>
+                                              </div>
                                             </MenuItems>
                                           </transition>
                                         </Menu>
@@ -406,6 +427,27 @@
                                                   </MenuItem>
                                                 </div>
                                               </div>
+                                              <div class="py-1">
+                                                <MenuItem v-slot="{ active }">
+                                                <a @click.prevent="transferEmail(item)"
+                                                  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                  <span class="flex gap-x-2 items-center">
+                                                    <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1"
+                                                      stroke="currentColor" xmlns="http://www.w3.org/2000/svg"
+                                                      xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
+                                                      xmlns:serif="http://www.serif.com/"
+                                                      style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+                                                      <path
+                                                        d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
+                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                      <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
+                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                    </svg>
+                                                    <span>Transférer</span>
+                                                  </span>
+                                                </a>
+                                                </MenuItem>
+                                              </div>
                                             </MenuItems>
                                           </transition>
                                         </Menu>
@@ -623,6 +665,27 @@
                                                   </MenuItem>
                                                 </div>
                                               </div>
+                                              <div class="py-1">
+                                                <MenuItem v-slot="{ active }">
+                                                <a @click.prevent="transferEmail(item)"
+                                                  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                  <span class="flex gap-x-2 items-center">
+                                                    <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1"
+                                                      stroke="currentColor" xmlns="http://www.w3.org/2000/svg"
+                                                      xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
+                                                      xmlns:serif="http://www.serif.com/"
+                                                      style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+                                                      <path
+                                                        d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
+                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                      <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
+                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                    </svg>
+                                                    <span>Transférer</span>
+                                                  </span>
+                                                </a>
+                                                </MenuItem>
+                                              </div>
                                             </MenuItems>
                                           </transition>
                                         </Menu>
@@ -829,6 +892,43 @@ export default {
             details: JSON.stringify(email.details)
           }
         });
+      } catch (error) {
+        console.error("There was a problem with the fetch operation:", error);
+      }
+    },
+    async transferEmail(email) {
+      console.log(email.id_provider)
+      const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
+
+      try {
+        const data = await fetchWithToken(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'email': localStorage.getItem('email')
+          }
+        });
+        // Clean CC data
+        let cleanedCc = '';
+        if (data.email.cc && data.email.cc.length > 0) {
+          let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
+          cleanedCc = JSON.stringify(ccEmails);
+        } else {
+          cleanedCc = '[]';
+        }
+
+        this.$router.push({
+          name: 'transfer',
+          query: {
+            subject: JSON.stringify(data.email.subject),
+            cc: cleanedCc,
+            decoded_data: JSON.stringify(data.email.decoded_data),
+            email: JSON.stringify(email.email),
+            details: JSON.stringify(email.details),
+            date: JSON.stringify(data.email.date)
+          }
+        });
+
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
       }

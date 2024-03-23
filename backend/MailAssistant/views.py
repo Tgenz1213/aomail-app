@@ -1143,41 +1143,6 @@ def get_mail_by_id(request):
     else:
         return Response({"error": "Failed to authenticate"}, status=400)
 
-    """if service is not None and mail_id is not None:
-
-        subject, from_name, decoded_data, cc, bcc, email_id, date = google_api.get_mail(
-            service, None, mail_id
-        )
-        # print(
-        #     f"{Fore.CYAN}from_name: {from_name}, cc: {Fore.YELLOW}{cc}, bcc: {Fore.LIGHTGREEN_EX}{bcc}"
-        # )
-
-        # clean cc
-        if cc:
-            cc = tuple(item for item in cc if item is not None)
-
-        # clean bcc
-        if bcc:
-            bcc = tuple(item for item in bcc if item is not None)
-
-        return Response(
-            {
-                "message": "Authentication successful",
-                "email": {
-                    "subject": subject,
-                    "from_name": from_name,
-                    "decoded_data": decoded_data,
-                    "cc": cc,
-                    "bcc": bcc,
-                    "email_id": email_id,
-                    "date": date,
-                },
-            },
-            status=200,
-        )
-    else:
-        return Response({"error": "Failed to authenticate"}, status=400)"""
-
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])

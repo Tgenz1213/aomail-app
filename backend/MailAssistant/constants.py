@@ -10,7 +10,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 BACKEND_DIR = os.path.dirname(CURRENT_DIR)
 CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
-#TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
+# TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 BASE_URL = f"https://{ENV}.aochange.com/"
 REDIRECT_URI = f"{BASE_URL}signup_part2"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]
@@ -47,6 +47,8 @@ GOOGLE_SCOPES = [
 ]
 GOOGLE_CREDS = f"{CREDS_PATH}google_creds.json"
 GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS, "r"))["web"]
+GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
+GOOGLE_TOPIC_NAME = 'mail_push'
 
 ######################## MICROSOFT API ########################
 MICROSOFT_READ_SCOPE = "Mail.Read"

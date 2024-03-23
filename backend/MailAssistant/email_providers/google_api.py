@@ -8,6 +8,7 @@ import logging
 import re
 import time
 import json
+from django.http import JsonResponse
 import requests
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -41,6 +42,7 @@ from base64 import urlsafe_b64encode
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
+
 
 ######################## AUTHENTIFICATION ########################
 def generate_auth_url(request):
@@ -623,9 +625,13 @@ def get_email(access_token, refresh_token):
         LOGGER.error(f"Could not get email: {str(e)}")
         return None
 
+
 ######################## Google Listener ########################
 
-def subscribe_to_email_notifications(user, email, project_id, topic_name):
+
+def subscribe_to_email_notifications(user, email, project_id, topic_name) -> bool:
+    """Subscribe the user to email notifications for a specific topic in Google."""
+
     try:
         print(f"DEBUG : user > {user}, email > {email}")
         credentials = get_credentials(user, email)
@@ -635,20 +641,23 @@ def subscribe_to_email_notifications(user, email, project_id, topic_name):
 
         gmail_service = services["gmail.readonly"]
 
-        # projet id : chrome-cipher-268712, topic_name : mail_push
         request_body = {
-            'labelIds': ['INBOX'],
-            'topicName': f'projects/{project_id}/topics/{topic_name}'
+            "labelIds": ["INBOX"],
+            "topicName": f"projects/{project_id}/topics/{topic_name}",
         }
 
-        response = gmail_service.users().watch(userId='me', body=request_body).execute()
+        response = gmail_service.users().watch(userId="me", body=request_body).execute()
 
         # Vérifier si l'abonnement a réussi
-        if 'historyId' in response:
-            print(f"Successfully subscribed to email notifications for user {user.username} and email {email}")
+        if "historyId" in response:
+            print(
+                f"Successfully subscribed to email notifications for user {user.username} and email {email}"
+            )
             return True
         else:
-            print(f"Failed to subscribe to email notifications for user {user.username} and email {email}")
+            print(
+                f"Failed to subscribe to email notifications for user {user.username} and email {email}"
+            )
             return False
 
     except Exception as e:
@@ -662,77 +671,87 @@ def receive_mail_notifications(request):
     try:
         print("DEBUG 0 => ", request.headers)
 
-        envelope = json.loads(request.body.decode('utf-8'))
-        message_data = envelope['message']
+        envelope = json.loads(request.body.decode("utf-8"))
+        message_data = envelope["message"]
 
         print("DEBUG 1 => RECEIVED NEW MAIL", message_data)
 
-        decoded_data = base64.b64decode(message_data['data']).decode('utf-8')
+        decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
         print("DEBUG DECODED DATA => ", decoded_data)
         decoded_json = json.loads(decoded_data)
         print("DEBUG DECODED => ", decoded_json)
 
-        attributes = message_data.get('attributes', {})
-        email_id = attributes.get('emailId')
-        history_id = attributes.get('historyId')
+        attributes = message_data.get("attributes", {})
+        email_id = attributes.get("emailId")
+        # history_id = attributes.get("historyId")
 
         # Retreiving the email gmail address
-        email = decoded_json.get('emailAddress')
+        email = decoded_json.get("emailAddress")
         print("DEBUG email => RECEIVED NEW MAIL", email)
-        
+
         try:
-            social_api_entry = SocialAPI.objects.get(email=email)
-            print("DEBUG Social API => ", social_api_entry)
-            services = authenticate_service(social_api_entry.user, email)['gmail.readonly']
-            email_to_bdd(social_api_entry.user, services, email_id)
-            print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
-        except: 
-            print("DEBUG Social API => NO USER IN THE DB")
+            social_api = SocialAPI.objects.get(email=email)
+            # print("DEBUG Social API => ", social_api)
+            services = authenticate_service(social_api.user, email)
+            email_to_bdd(social_api.user, services, email_id)
+            # print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
+        except SocialAPI.DoesNotExist:
+            LOGGER.error(f"SocialAPI entry not found for the email: {email}")
+            return JsonResponse(
+                {"error": "SocialAPI entry not found for the user and email"},
+                status=404,
+            )
 
         # Sending the reception message to Google to confirm the email reception
-        subscription_path = envelope['subscription']
+        subscription_path = envelope["subscription"]
         print("DEBUG 3 => Sub Path", subscription_path)
-        ack_id = message_data['messageId']
+        ack_id = message_data["messageId"]
         ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
-        ack_payload = {
-            "ackIds": [ack_id]
-        }
+        ack_payload = {"ackIds": [ack_id]}
+
         response = requests.post(ack_url, json=ack_payload)
-        
+
         if response.status_code == 200:
             print("Acknowledgement sent successfully")
         else:
-            print(response)
-            print(f"Failed to send acknowledgement. Status code: {response.status_code}")
+            print("DEBUG RESPONSE====================>", response.json())
+            print(
+                f"Failed to send acknowledgement. Status code: {response.status_code}"
+            )
 
         return Response(status=200)
-    except SocialAPI.DoesNotExist:
-        print(f"Aucune entrée SocialAPI trouvée pour l'email : {email}")
-        return Response("Entrée SocialAPI non trouvée.", status=404)
+
     except Exception as e:
-        print(f"Erreur lors du traitement de la notification : {str(e)}")
-        return Response("Erreur interne.", status=500)
+        print(f"Error processing the notification: {str(e)}")
+        return Response({"error": str(e)}, status=500)
 
 
 def email_to_bdd(user, services, id_email):
-    
-    subject, from_name, decoded_data, cc, bcc, email_id, sent_date = get_mail(services, 0, id_email)
+    """Process the incoming email from Google listener to database"""
+
+    subject, from_name, decoded_data, cc, bcc, email_id, sent_date = get_mail(
+        services, 0, id_email
+    )
 
     print(f"{subject, from_name, decoded_data, cc, bcc, email_id, sent_date}")
 
     if not Email.objects.filter(provider_id=email_id).exists():
 
         # Use filter() to find senders with the given email. This returns a queryset.
-        sender = Sender.objects.filter(email=from_name[1])
+        sender = Sender.objects.filter(email=from_name[1]).first()
         print("DEBUG BDD 1 => sender", sender)
 
-        if sender.exists():
+        if sender:
             # Now, attempt to retrieve the associated Rule.
             rule = Rule.objects.filter(sender=sender)
-        
-            if rule.block is False: 
-                if decoded_data:
-                    decoded_data = library.format_mail(decoded_data)
+            print("DEBUG rule", rule)
+
+            if rule.exists():
+                if rule.block:
+                    return
+
+            if decoded_data:
+                decoded_data = library.format_mail(decoded_data)
 
                 # Get user categories
                 category_list = library.get_db_categories(user)
@@ -763,22 +782,25 @@ def email_to_bdd(user, services, id_email):
                     for key, value in importance_dict.items():
                         if value >= 51:
                             importance = key
-                
+
                 sender_name, sender_email = from_name[0], from_name[1]
-                sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+                sender, _ = Sender.objects.get_or_create(
+                    name=sender_name, email=sender_email
+                )
 
                 print("DEBUG ----------------> topic", topic)
 
-                # Find the category by checking if a sender has a category
-                #category = Category.objects.get_or_create(name=topic, user=user)[0]
-                if rule.category: 
-                    category = rule.category
-                else : 
-                    if topic in category_list:
-                        category = Category.objects.get(name=topic, user=user)[0]
-                    else :
-                        # To avoid any error with the model creating a new category
-                        category = Category.objects.get(name="Autres", user=user)[0] # UPDATE WITH LANGUAGE
+                if rule.exists():
+                    if rule.category:
+                        # Find the category by checking if a sender has a category
+                        # category = Category.objects.get_or_create(name=topic, user=user)[0]
+                        category = rule.category
+                    else:
+                        if topic in category_list:
+                            category = Category.objects.get(name=topic, user=user)[0]
+                        else:
+                            # To avoid any error with the model creating a new category
+                            category = Category.objects.get(name="Others", user=user)[0]
 
                 provider = "Gmail"
 
@@ -816,7 +838,8 @@ def email_to_bdd(user, services, id_email):
                 LOGGER.info(f"sentence:  {sentence}")
                 LOGGER.info(f"relevance: {relevance}")
                 LOGGER.info(f"importance_dict:  {importance_dict}")
-        else : 
+
+        else:
             if decoded_data:
                 decoded_data = library.format_mail(decoded_data)
 
@@ -849,9 +872,11 @@ def email_to_bdd(user, services, id_email):
                 for key, value in importance_dict.items():
                     if value >= 51:
                         importance = key
-            
+
             sender_name, sender_email = from_name[0], from_name[1]
-            sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+            sender, _ = Sender.objects.get_or_create(
+                name=sender_name, email=sender_email
+            )
 
             # Get the relevant category based
             category = Category.objects.get_or_create(name=topic, user=user)[0]
@@ -878,7 +903,6 @@ def email_to_bdd(user, services, id_email):
                 if summary:
                     for point in summary:
                         BulletPoint.objects.create(content=point, email=email_entry)
-
             except Exception as e:
                 LOGGER.error(
                     f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
@@ -894,9 +918,6 @@ def email_to_bdd(user, services, id_email):
             LOGGER.info(f"importance_dict:  {importance_dict}")
     else:
         print(f"Email with provider_id {email_id} already exists.")
-
-    # return email_entry  # Return the created email object, if needed
-    return
 
 
 ####################################################################

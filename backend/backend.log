@@ -396,3 +396,21 @@
 2024-03-23 09:19:37 | MailAssistant.email_providers.google_api.py | Line 102 | ERROR - Failed to refresh credentials: ('invalid_grant: Bad Request', {'error': 'invalid_grant', 'error_description': 'Bad Request'})
 2024-03-23 09:19:37 | MailAssistant.email_providers.google_api.py | Line 141 | ERROR - Failed to authenticate for user with ID 18 and email: augustin@MailAssistant.onmicrosoft.com
 2024-03-23 09:32:09 | MailAssistant.email_providers.microsoft_api.py | Line 634 | ERROR - The email with ID AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEMAAB_VFSuhQGVS7Rs2Ear7e7mAAAsz4kvAAA= already exists.
+2024-03-23 12:44:53 | MailAssistant.email_providers.google_api.py | Line 103 | ERROR - Failed to refresh credentials: ('invalid_scope: Bad Request', {'error': 'invalid_scope', 'error_description': 'Bad Request'})
+2024-03-23 12:44:53 | MailAssistant.email_providers.google_api.py | Line 142 | ERROR - Failed to authenticate for user with ID 25 and email: test.mailassistantprod@gmail.com
+2024-03-23 12:45:02 | MailAssistant.email_providers.google_api.py | Line 103 | ERROR - Failed to refresh credentials: ('invalid_scope: Bad Request', {'error': 'invalid_scope', 'error_description': 'Bad Request'})
+2024-03-23 12:45:02 | MailAssistant.email_providers.google_api.py | Line 142 | ERROR - Failed to authenticate for user with ID 25 and email: test.mailassistantprod@gmail.com
+2024-03-23 12:45:37 | MailAssistant.email_providers.google_api.py | Line 103 | ERROR - Failed to refresh credentials: ('invalid_scope: Bad Request', {'error': 'invalid_scope', 'error_description': 'Bad Request'})
+2024-03-23 12:45:37 | MailAssistant.email_providers.google_api.py | Line 142 | ERROR - Failed to authenticate for user with ID 25 and email: test.mailassistantprod@gmail.com
+2024-03-23 12:45:40 | MailAssistant.email_providers.google_api.py | Line 103 | ERROR - Failed to refresh credentials: ('invalid_scope: Bad Request', {'error': 'invalid_scope', 'error_description': 'Bad Request'})
+2024-03-23 12:45:40 | MailAssistant.email_providers.google_api.py | Line 142 | ERROR - Failed to authenticate for user with ID 25 and email: test.mailassistantprod@gmail.com
+2024-03-23 12:45:56 | MailAssistant.email_providers.google_api.py | Line 103 | ERROR - Failed to refresh credentials: ('invalid_scope: Bad Request', {'error': 'invalid_scope', 'error_description': 'Bad Request'})
+2024-03-23 12:45:56 | MailAssistant.email_providers.google_api.py | Line 142 | ERROR - Failed to authenticate for user with ID 25 and email: test.mailassistantprod@gmail.com
+2024-03-23 12:46:01 | MailAssistant.email_providers.google_api.py | Line 103 | ERROR - Failed to refresh credentials: ('invalid_scope: Bad Request', {'error': 'invalid_scope', 'error_description': 'Bad Request'})
+2024-03-23 12:46:01 | MailAssistant.email_providers.google_api.py | Line 142 | ERROR - Failed to authenticate for user with ID 25 and email: test.mailassistantprod@gmail.com
+2024-03-23 12:46:04 | MailAssistant.email_providers.google_api.py | Line 103 | ERROR - Failed to refresh credentials: ('invalid_scope: Bad Request', {'error': 'invalid_scope', 'error_description': 'Bad Request'})
+2024-03-23 12:46:04 | MailAssistant.email_providers.google_api.py | Line 142 | ERROR - Failed to authenticate for user with ID 25 and email: test.mailassistantprod@gmail.com
+2024-03-23 14:19:28 | MailAssistant.email_providers.google_api.py | Line 829 | ERROR - An error occurred when trying to create an email with ID 18e6bab2f5ad4fe8: cannot access local variable 'category' where it is not associated with a value
+2024-03-23 14:19:30 | MailAssistant.email_providers.google_api.py | Line 829 | ERROR - An error occurred when trying to create an email with ID 18e6bab2f5ad4fe8: cannot access local variable 'category' where it is not associated with a value
+2024-03-23 14:19:30 | MailAssistant.email_providers.google_api.py | Line 829 | ERROR - An error occurred when trying to create an email with ID 18e6bab2f5ad4fe8: cannot access local variable 'category' where it is not associated with a value
+2024-03-23 14:19:31 | MailAssistant.email_providers.google_api.py | Line 829 | ERROR - An error occurred when trying to create an email with ID 18e6bab2f5ad4fe8: cannot access local variable 'category' where it is not associated with a value

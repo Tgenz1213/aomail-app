@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
-from django.http import HttpRequest, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -23,6 +23,7 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.constants import GOOGLE_PROJECT_ID, GOOGLE_TOPIC_NAME
 from .models import (
     Category,
     SocialAPI,
@@ -131,7 +132,14 @@ def signup(request):
 
     # Create the Google listener
     if type_api == "google":
-        google_api.subscribe_to_email_notifications(user, email, 'chrome-cipher-268712', 'mail_push')
+        subscribed = google_api.subscribe_to_email_notifications(
+            user, email, GOOGLE_PROJECT_ID, GOOGLE_TOPIC_NAME
+        )
+        if subscribed:
+            return Response(
+                {"user_id": user_id, "access_token": jwt_access_token, "email": email},
+                status=201,
+            )
 
     return Response(
         {"user_id": user_id, "access_token": jwt_access_token, "email": email},
@@ -214,7 +222,11 @@ def save_user_data(
                 return {"error": "Invalid categories data"}
 
         # Creation of the Other/default category => TO UPDATE WITH THE LANGUAGE
-        default_category = Category(name="Autres", description="Choose this category only as a last resort, if you can't place the mail in any other category", user=user)
+        default_category = Category(
+            name="Others",
+            description="Choose this category only as a last resort, if you can't place the mail in any other category",
+            user=user,
+        )
         default_category.save()
 
         return {"message": "User data saved successfully"}

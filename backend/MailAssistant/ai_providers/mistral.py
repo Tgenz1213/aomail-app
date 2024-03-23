@@ -98,9 +98,6 @@ def extract_contacts_recipients(query):
     formatted_prompt = template.format(query=query)
     response = get_prompt_response(formatted_prompt, model, role)
     response_text = response.choices[0].message.content.strip()
-
-    print(response_text)
-
     recipients = json.loads(response_text)
 
     # Extract information based on markers

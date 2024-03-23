@@ -32,7 +32,9 @@ from MailAssistant.constants import (
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
     GOOGLE_EMAIL_MODIFY,
+    GOOGLE_LISTENER_API_KEY,
     GOOGLE_PROVIDER,
+    IMPORTANT,
     REDIRECT_URI,
     GOOGLE_SCOPES,
 )
@@ -627,9 +629,7 @@ def get_email(access_token, refresh_token):
         return None
 
 
-######################## Google Listener ########################
-
-
+######################## GOOGLE LISTENER ########################
 def subscribe_to_email_notifications(user, email, project_id, topic_name) -> bool:
     """Subscribe the user to email notifications for a specific topic in Google."""
 
@@ -669,6 +669,8 @@ def subscribe_to_email_notifications(user, email, project_id, topic_name) -> boo
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def receive_mail_notifications(request):
+    """Process email notifications from Google listener"""
+
     try:
         print("DEBUG 0 => ", request.headers)
 
@@ -705,8 +707,10 @@ def receive_mail_notifications(request):
 
         # Sending the reception message to Google to confirm the email reception
         subscription_path = envelope["subscription"]
-        print("DEBUG 3 => Sub Path", subscription_path)
+        # print("DEBUG 3 => Sub Path", subscription_path)
         ack_id = message_data["messageId"]
+        # TODO: add API key to avoid error 403
+        # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
         ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
         ack_payload = {"ackIds": [ack_id]}
 
@@ -715,6 +719,7 @@ def receive_mail_notifications(request):
         if response.status_code == 200:
             print("Acknowledgement sent successfully")
         else:
+            # TODO: handle casese where it fails
             print("DEBUG RESPONSE====================>", response.json())
             print(
                 f"Failed to send acknowledgement. Status code: {response.status_code}"
@@ -728,7 +733,7 @@ def receive_mail_notifications(request):
 
 
 def email_to_bdd(user, services, id_email):
-    """Process the incoming email from Google listener to database"""
+    """Saves email notifications from Google listener to database"""
 
     subject, from_name, decoded_data, _, _, email_id, sent_date = get_mail(
         services, 0, id_email
@@ -741,12 +746,11 @@ def email_to_bdd(user, services, id_email):
 
         if not decoded_data:
             return
-        
+
         category = Category.objects.get(name="Others", user=user)
         decoded_data = library.format_mail(decoded_data)
         category_list = library.get_db_categories(user)
 
-        # Process the email data with AI/NLP
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
         (
@@ -764,17 +768,15 @@ def email_to_bdd(user, services, id_email):
             )
         )
 
-        if importance_dict["Important"] == 50:
-            importance = "Important"
+        if importance_dict[IMPORTANT] == 50:
+            importance = IMPORTANT
         else:
             for key, value in importance_dict.items():
                 if value >= 51:
                     importance = key
 
         sender_name, sender_email = from_name[0], from_name[1]
-        sender, _ = Sender.objects.get_or_create(
-            name=sender_name, email=sender_email
-        )
+        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
         try:
             email_entry = Email.objects.create(
@@ -808,7 +810,6 @@ def email_to_bdd(user, services, id_email):
     LOGGER.info(f"sentence:  {sentence}")
     LOGGER.info(f"relevance: {relevance}")
     LOGGER.info(f"importance_dict:  {importance_dict}")
-
 
 
 ####################################################################
@@ -848,8 +849,8 @@ def processed_email_to_bdd(request, services):
         )
 
         # Extract the importance of the email
-        if importance_dict["Important"] == 50:
-            importance = "Important"
+        if importance_dict[IMPORTANT] == 50:
+            importance = IMPORTANT
         else:
             for key, value in importance_dict.items():
                 if value >= 51:
@@ -1133,8 +1134,8 @@ def processed_email_to_bdd(request, services):
         )
 
         # Extract the importance of the email
-        if importance_dict["Important"] == 50:
-            importance = "Important"
+        if importance_dict[IMPORTANT] == 50:
+            importance = IMPORTANT
         else:
             for key, value in importance_dict.items():
                 if value >= 51:

@@ -17,6 +17,7 @@ from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
 from MailAssistant.constants import (
     GRAPH_URL,
+    IMPORTANT,
     MICROSOFT_AUTHORITY,
     MICROSOFT_CONFIG,
     MICROSOFT_PROVIDER,
@@ -581,8 +582,8 @@ def processed_email_to_bdd(user, email):
         )
 
         # Extract the importance of the email
-        if importance_dict["Important"] == 50:
-            importance = "Important"
+        if importance_dict[IMPORTANT] == 50:
+            importance = IMPORTANT
         else:
             for key, value in importance_dict.items():
                 if value >= 51:

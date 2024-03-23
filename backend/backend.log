@@ -49,3 +49,18 @@ DETAIL:  Key (provider_id)=(18e6beae83fc2903) already exists.
 
 2024-03-23 15:26:12 | MailAssistant.email_providers.google_api.py | Line 802 | ERROR - An error occurred when trying to create an email with ID 18e6beb5177fa68c: value too long for type character varying(100)
 
+2024-03-23 15:37:40 | MailAssistant.email_providers.google_api.py | Line 802 | ERROR - An error occurred when trying to create an email with ID 18e6bf5c12100dba: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
+DETAIL:  Key (provider_id)=(18e6bf5c12100dba) already exists.
+
+2024-03-23 15:37:59 | MailAssistant.email_providers.google_api.py | Line 802 | ERROR - An error occurred when trying to create an email with ID 18e6bf61bfe12605: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
+DETAIL:  Key (provider_id)=(18e6bf61bfe12605) already exists.
+
+2024-03-23 15:38:25 | MailAssistant.email_providers.google_api.py | Line 802 | ERROR - An error occurred when trying to create an email with ID 18e6bf67ade9a2be: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
+DETAIL:  Key (provider_id)=(18e6bf67ade9a2be) already exists.
+
+2024-03-23 15:38:52 | MailAssistant.email_providers.google_api.py | Line 802 | ERROR - An error occurred when trying to create an email with ID 18e6bf6e7119e3b7: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
+DETAIL:  Key (provider_id)=(18e6bf6e7119e3b7) already exists.
+
+2024-03-23 15:39:07 | MailAssistant.email_providers.google_api.py | Line 802 | ERROR - An error occurred when trying to create an email with ID 18e6bf723e10ae90: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
+DETAIL:  Key (provider_id)=(18e6bf723e10ae90) already exists.
+

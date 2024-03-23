@@ -1351,7 +1351,7 @@ onMounted(async () => {
         fetchData().then(() => {
             resolve();
         });
-        animateText("Calcul des mails non lus en cours...");
+        animateText("Calcul des mails non lus en cours");
     });
 
     setInterval(async () => {

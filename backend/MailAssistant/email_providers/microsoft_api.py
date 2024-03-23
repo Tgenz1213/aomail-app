@@ -28,7 +28,7 @@ from rest_framework.permissions import IsAuthenticated
 from ..models import Contact, SocialAPI
 from requests.exceptions import HTTPError
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
-from MailAssistant.ai_providers import gpt_3_5_turbo
+from MailAssistant.ai_providers import gpt_3_5_turbo, mistral
 from .. import library
 
 
@@ -352,15 +352,9 @@ def send_email(request):
     return JsonResponse(serializer.errors, status=400)
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def delete_email(request) -> dict:
+def delete_email(email_id, social_api) -> dict:
     """Moves the email to the bin of the user"""
-    user = request.user
-    email = request.headers.get("email")
-    email_id = request.headers.get("id_provider")
-
-    access_token = refresh_access_token(get_social_api(user, email))
+    access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}{email_id}/move"
     data = {"destinationId": "deleteditems"}
@@ -536,38 +530,69 @@ def get_mail(access_token, int_mail=None, id_mail=None):
     from_info = parse_name_and_email(sender)
     cc_info = parse_recipients(message_data.get("ccRecipients"))
     bcc_info = parse_recipients(message_data.get("bccRecipients"))
+    sent_date = None
+    for header in message_data.get("internetMessageHeaders", []):
+        if header["name"] == "Date":
+            sent_date = datetime.datetime.strptime(
+                header["value"], "%a, %d %b %Y %H:%M:%S %z"
+            )
+            break
     decoded_data = parse_message_body(message_data)
 
     # Perform additional processing as needed
     preprocessed_data = library.preprocess_email(decoded_data)
 
-    return subject, from_info, preprocessed_data, cc_info, bcc_info, message_id
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        cc_info,
+        bcc_info,
+        message_id,
+        sent_date,
+    )
 
 
 def processed_email_to_bdd(user, email):
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, cc, bcc, email_id = get_mail(
+    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(
         access_token, 0, None
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
-
         if decoded_data:
             decoded_data = library.format_mail(decoded_data)
 
+        # Get user categories
         category_list = library.get_db_categories(user)
 
+        # Process the email data with AI/NLP
+        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
-        topic, importance, answer, summary, sentence, relevance, importance_explain = (
-            gpt_3_5_turbo.categorize_and_summarize_email(
-                subject, decoded_data, category_list, user_description
-            )
+        (
+            topic,
+            importance_dict,
+            answer,
+            summary,
+            sentence,
+            relevance,
+            importance_dict,
+        ) = mistral.categorize_and_summarize_email(
+            subject, decoded_data, category_list, user_description
         )
 
-        sender_name, sender_email = from_name[0], from_name[1]
+        # Extract the importance of the email
+        if importance_dict["Important"] == 50:
+            importance = "Important"
+        else:
+            for key, value in importance_dict.items():
+                if value >= 51:
+                    importance = key
 
+        sender_name, sender_email = from_name[0], from_name[1]
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
+        # Get the relevant category based
         category = Category.objects.get_or_create(name=topic, user=user)[0]
 
         provider = "Outlook"
@@ -579,21 +604,17 @@ def processed_email_to_bdd(user, email):
                 email_short_summary=sentence,
                 content=decoded_data,
                 subject=subject,
-                priority=importance[0],
+                priority=importance,
                 read=False,
                 answer_later=False,
                 sender=sender,
                 category=category,
                 user=user,
+                date=date,
             )
 
             if summary:
-                lines = summary.split("\n")
-                bullet_points = [
-                    line[2:].strip() for line in lines if line.strip().startswith("- ")
-                ]
-
-                for point in bullet_points:
+                for point in summary:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
         except Exception as e:
@@ -602,13 +623,13 @@ def processed_email_to_bdd(user, email):
             )
 
         # Debug prints
-        LOGGER.info("topic:", topic)
-        LOGGER.info("importance:", importance)
-        LOGGER.info("answer:", answer)
-        LOGGER.info("summary:", summary)
-        LOGGER.info("sentence:", sentence)
-        LOGGER.info("relevance:", relevance)
-        LOGGER.info("importance_explain:", importance_explain)
+        LOGGER.info(f"topic: {topic}")
+        LOGGER.info(f"importance: {importance}")
+        LOGGER.info(f"answer: {answer}")
+        LOGGER.info(f"summary: {summary}")
+        LOGGER.info(f"sentence:  {sentence}")
+        LOGGER.info(f"relevance: {relevance}")
+        LOGGER.info(f"importance_dict:  {importance_dict}")
 
     else:
         LOGGER.error(f"The email with ID {email_id} already exists.")

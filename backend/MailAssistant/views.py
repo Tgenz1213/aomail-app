@@ -1038,7 +1038,7 @@ def delete_email(request, email_id):
         if type_api == "google":
             result = google_api.delete_email(user, email_user, provider_id)
         elif type_api == "microsoft":
-            result = microsoft_api.delete_email()
+            result = microsoft_api.delete_email(provider_id, social_api)
 
         if result.get("message", "") == "Email moved to trash successfully!":
             return Response(

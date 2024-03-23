@@ -29,5 +29,5 @@ curl -X GET \
 # Test add email in DB
 curl -X GET \
      -H "Authorization: Bearer access_token" \
-     -H "email: test.mailassistantprod@gmail.com" \
+     -H "email: augustin@MailAssistant.onmicrosoft.com" \
      "https://augustin.aochange.com/MailAssistant/api/save_last_mail_outlook"

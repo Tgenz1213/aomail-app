@@ -95,9 +95,9 @@ def get_credentials(user, email):
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
     except ObjectDoesNotExist:
-        # TODO: create a safe logging method with id and lookup table for email
         LOGGER.error(f"No credentials for user with ID {user.id} and email: {email}")
         creds = None
+
     return creds
 
 
@@ -703,16 +703,21 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
             return JsonResponse(
-                {"error": "SocialAPI entry not found for the user and email"},
+                {"error": f"SocialAPI entry not found for the email: {email}"},
                 status=404,
             )
 
-        # Sending the reception message to Google to confirm the email reception
-        subscription_path = envelope["subscription"]
-        # print("DEBUG 3 => Sub Path", subscription_path)
-        ack_id = message_data["messageId"]
         # TODO: add API key to avoid error 403
         # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
+        # authenticate_service(social_api.user, email)
+        # social_api = SocialAPI.objects.get(email=email)
+        # headers = {"Authorization": f"Bearer {social_api.access_token}"}
+        # print(f"\n\n\ncreds: {social_api.access_token}\n\n\n")
+        # response = requests.post(ack_url, json=ack_payload, headers=headers)
+
+        # Sending the reception message to Google to confirm the email reception
+        subscription_path = envelope["subscription"]
+        ack_id = message_data["messageId"]
         ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
         ack_payload = {"ackIds": [ack_id]}
 
@@ -720,12 +725,15 @@ def receive_mail_notifications(request):
 
         if response.status_code == 200:
             print("Acknowledgement sent successfully")
+
+        # TODO: handle casese where it fails
+        elif response.status_code == 403:
+            print(
+                "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"
+            )
         else:
-            # TODO: handle casese where it fails
             print("DEBUG RESPONSE====================>", response.json())
-            # print(
-            #     f"Failed to send acknowledgement. Status code: {response.status_code}"
-            # )
+            print(f"Failed to send acknowledgement: {response.reason}")
 
         return Response(status=200)
 
@@ -743,7 +751,7 @@ def email_to_bdd(user, services, id_email):
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
-        # LOGGER.info(f"DEBUG BDD 1 => sender: {sender}")       
+        # LOGGER.info(f"DEBUG BDD 1 => sender: {sender}")
 
         if not decoded_data:
             return
@@ -753,7 +761,7 @@ def email_to_bdd(user, services, id_email):
         category = Category.objects.get(name="Others", user=user)
         rule = Rule.objects.filter(sender=sender)
         rule_category = None
-        
+
         if rule.exists():
             if rule.block:
                 return
@@ -819,14 +827,6 @@ def email_to_bdd(user, services, id_email):
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
-
-    LOGGER.info(f"topic: {topic}")
-    LOGGER.info(f"importance: {importance}")
-    LOGGER.info(f"answer: {answer}")
-    LOGGER.info(f"summary: {summary_list}")
-    LOGGER.info(f"sentence:  {sentence}")
-    LOGGER.info(f"relevance: {relevance}")
-    LOGGER.info(f"importance_dict:  {importance_dict}")
 
 
 ####################################################################

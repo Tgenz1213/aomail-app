@@ -505,7 +505,6 @@ def get_mail(access_token, int_mail=None, id_mail=None):
     headers = get_headers(access_token)
 
     if int_mail is not None:
-        # Fetch specific message by index
         response = requests.get(url, headers=headers)
         messages = response.json().get("value", [])
 
@@ -515,7 +514,6 @@ def get_mail(access_token, int_mail=None, id_mail=None):
 
         email_id = messages[int_mail]["id"]
     elif id_mail is not None:
-        # Fetch message by message id
         email_id = id_mail
     else:
         LOGGER.info("Either int_mail or id_mail must be provided")
@@ -540,8 +538,7 @@ def get_mail(access_token, int_mail=None, id_mail=None):
             )
             break
     decoded_data = parse_message_body(message_data)
-
-    # Perform additional processing as needed
+    
     preprocessed_data = library.preprocess_email(decoded_data)
 
     return (

@@ -1242,6 +1242,35 @@
                                                                                                             </a>
                                                                                                             </MenuItem>
                                                                                                         </div>
+                                                                                                        <div
+                                                                                                            class="py-1">
+                                                                                                            <MenuItem
+                                                                                                                v-slot="{ active }">
+                                                                                                            <a @click.prevent="transferEmail(item)"
+                                                                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                                                                                <span
+                                                                                                                    class="flex gap-x-2 items-center">
+                                                                                                                    <svg class="w-4 h-4"
+                                                                                                                        viewBox="0 0 28 28"
+                                                                                                                        version="1.1"
+                                                                                                                        stroke="currentColor"
+                                                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                                                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                                                                                        xml:space="preserve"
+                                                                                                                        xmlns:serif="http://www.serif.com/"
+                                                                                                                        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
+                                                                                                                        <path
+                                                                                                                            d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
+                                                                                                                            style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                                                                                        <path
+                                                                                                                            d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
+                                                                                                                            style="fill:none;stroke:#000;stroke-width:1.7px;" />
+                                                                                                                    </svg>
+                                                                                                                    <span>Transférer</span>
+                                                                                                                </span>
+                                                                                                            </a>
+                                                                                                            </MenuItem>
+                                                                                                        </div>
                                                                                                     </MenuItems>
                                                                                                 </transition>
                                                                                             </Menu>
@@ -1595,9 +1624,6 @@ async function deleteEmail(emailId) {
                 'email': localStorage.getItem("email"),
             }
         });
-
-        console.log("RESPONSE ------------> ", response);
-        console.log("EMAIL ---------------> ", emails.value);
 
         if (response.message) {
             console.log("Email deleted successfully", response);

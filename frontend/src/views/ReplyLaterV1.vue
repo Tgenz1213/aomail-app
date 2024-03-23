@@ -843,9 +843,6 @@ export default {
           }
         });
 
-        console.log("RESPONSE ------------> ", response);
-        console.log("EMAIL ---------------> ", this.emails);
-
         if (response.message) {
           console.log("Email deleted successfully", response);
           this.nbr_reply_answer -= 1;

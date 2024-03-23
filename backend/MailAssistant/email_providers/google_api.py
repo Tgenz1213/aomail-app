@@ -41,7 +41,6 @@ from base64 import urlsafe_b64encode
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 
-
 ######################## AUTHENTIFICATION ########################
 def generate_auth_url(request):
     """Generate a connection URL to obtain the authorization code"""

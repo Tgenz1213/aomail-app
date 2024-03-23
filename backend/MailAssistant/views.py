@@ -13,7 +13,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -1016,18 +1016,30 @@ def create_sender(request):
 def delete_email(request, email_id):
     try:
         user = request.user
+        email_user = request.headers.get("email")
 
         # Check if the email belongs to the authenticated user
         email = get_object_or_404(Email, user=user, id=email_id)
+        provider_id = email.provider_id
         email.delete()
 
-        # return Response(
-        #     {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
-        # )
+        try:
+            social_api = get_object_or_404(SocialAPI, user=user, email=email_user)
+            type_api = social_api.type_api
+        except SocialAPI.DoesNotExist:
+            LOGGER.error(
+                f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
+            )
+            return JsonResponse(
+                {"error": "SocialAPI entry not found for the user and email"},
+                status=404,
+            )
 
-        result = forward_request(request, "delete_email")
-        print("DEBUG=>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", result)
-        
+        if type_api == "google":
+            result = google_api.delete_email(user, email_user, provider_id)
+        elif type_api == "microsoft":
+            result = microsoft_api.delete_email()
+
         if result.get("message", "") == "Email moved to trash successfully!":
             return Response(
                 {"message": "Email deleted successfully"}, status=status.HTTP_200_OK
@@ -1149,7 +1161,7 @@ def get_user_emails(request):
 
 
 ######################## TESTING FUNCTIONS ########################
-'''# TO TEST AUTH API
+"""# TO TEST AUTH API
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def authenticate_service_view(request):
@@ -1162,7 +1174,7 @@ def authenticate_service_view(request):
         return Response({"message": "Authentication successful"}, status=200)
     else:
         # Return an error response
-        return Response({"error": "Failed to authenticate"}, status=400)'''
+        return Response({"error": "Failed to authenticate"}, status=400)"""
 
 
 # TO TEST Gmail Save in BDD Last Email

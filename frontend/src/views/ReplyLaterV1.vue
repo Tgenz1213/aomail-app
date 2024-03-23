@@ -124,7 +124,7 @@
                                         </div>
                                         <button type="button"
                                           class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
-                                          <TrashIcon @click.stop="deleteEmail(item)"
+                                          <TrashIcon @click.stop="deleteEmail(item.id)"
                                             class="w-5 h-5 text-red-400 group-hover:text-white" />
                                         </button>
                                       </div>
@@ -345,7 +345,7 @@
                                         </div>
                                         <button type="button"
                                           class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                          <TrashIcon @click.stop="deleteEmail(item)"
+                                          <TrashIcon @click.stop="deleteEmail(item.id)"
                                             class="w-5 h-5 text-blue-400 group-hover:text-white" />
                                         </button>
                                       </div>
@@ -562,7 +562,7 @@
                                         </div>
                                         <button type="button"
                                           class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                          <TrashIcon @click.stop="deleteEmail(item)"
+                                          <TrashIcon @click.stop="deleteEmail(item.id)"
                                             class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                         </button>
                                       </div>
@@ -833,16 +833,13 @@ export default {
         console.error("There was a problem with the fetch operation:", error);
       }
     },
-    async deleteEmail(email) {
-      const emailId = email.id;
-
+    async deleteEmail(emailId) {
       try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
-            // 'id_provider': email.id_provider,
-            // 'email': localStorage.getItem('email')
+            'email': localStorage.getItem('email')
           }
         });
 

@@ -177,3 +177,29 @@
 2024-03-22 21:27:43 | MailAssistant.views.py | Line 1041 | ERROR - Error when deleting email: No SocialAPI matches the given query.
 2024-03-22 21:36:13 | MailAssistant.views.py | Line 1041 | ERROR - Error when deleting email: No SocialAPI matches the given query.
 2024-03-22 21:37:49 | MailAssistant.views.py | Line 1041 | ERROR - Error when deleting email: No SocialAPI matches the given query.
+2024-03-22 21:40:22 | MailAssistant.views.py | Line 1041 | ERROR - Error when deleting email: The `request` argument must be an instance of `django.http.HttpRequest`, not `rest_framework.request.Request`.
+2024-03-22 21:46:24 | MailAssistant.views.py | Line 1042 | ERROR - Error when deleting email: The `request` argument must be an instance of `django.http.HttpRequest`, not `rest_framework.request.Request`.
+2024-03-22 21:48:59 | MailAssistant.views.py | Line 1042 | ERROR - Error when deleting email: The `request` argument must be an instance of `django.http.HttpRequest`, not `rest_framework.request.Request`.
+2024-03-22 21:52:26 | MailAssistant.views.py | Line 1050 | ERROR - Error when deleting email: property 'body' of 'HttpRequest' object has no setter
+2024-03-22 21:52:54 | MailAssistant.views.py | Line 1049 | ERROR - Error when deleting email: 'HttpRequest' object has no attribute 'user'
+2024-03-22 22:02:47 | MailAssistant.views.py | Line 1043 | ERROR - Error when deleting email: 'gmail.modify'
+2024-03-22 22:05:22 | MailAssistant.views.py | Line 1043 | ERROR - Error when deleting email: build() got an unexpected keyword argument 'scopes'
+2024-03-22 22:07:36 | MailAssistant.views.py | Line 1043 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-22 22:07:59 | MailAssistant.views.py | Line 1043 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-22 22:09:38 | MailAssistant.views.py | Line 1043 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-22 22:10:21 | MailAssistant.views.py | Line 1043 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-22 22:17:07 | MailAssistant.views.py | Line 1046 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-23 06:18:56 | MailAssistant.views.py | Line 1037 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-23 06:24:41 | MailAssistant.views.py | Line 1040 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-23 06:35:10 | MailAssistant.views.py | Line 1047 | ERROR - Error when deleting email: 'HttpHeaders' object has no attribute 'add'
+2024-03-23 06:35:21 | MailAssistant.views.py | Line 1047 | ERROR - Error when deleting email: 'HttpHeaders' object has no attribute 'add'
+2024-03-23 06:36:07 | MailAssistant.views.py | Line 1047 | ERROR - Error when deleting email: 'HttpHeaders' object does not support item assignment
+2024-03-23 06:45:06 | MailAssistant.views.py | Line 1044 | ERROR - Error when deleting email: 'str' object has no attribute 'provider_id'
+2024-03-23 06:46:38 | MailAssistant.views.py | Line 1044 | ERROR - Error when deleting email: 'str' object has no attribute 'provider_id'
+2024-03-23 06:52:10 | MailAssistant.views.py | Line 1053 | ERROR - Error when deleting email: No SocialAPI matches the given query.
+2024-03-23 06:52:48 | MailAssistant.views.py | Line 1054 | ERROR - Error when deleting email: No SocialAPI matches the given query.
+2024-03-23 06:53:16 | MailAssistant.views.py | Line 1054 | ERROR - Error when deleting email: 'Resource' object has no attribute 'post'
+2024-03-23 06:57:17 | MailAssistant.views.py | Line 1053 | ERROR - Error when deleting email: 'dict' object has no attribute 'status_code'
+2024-03-23 06:59:25 | MailAssistant.views.py | Line 1053 | ERROR - Error when deleting email: <HttpError 403 when requesting https://gmail.googleapis.com/gmail/v1/users/test/messages/18e627b2b21e5e53/trash?alt=json returned "Invalid user id specified in request/Delegation denied". Details: "[{'message': 'Invalid user id specified in request/Delegation denied', 'domain': 'global', 'reason': 'forbidden'}]">
+2024-03-23 07:02:41 | MailAssistant.views.py | Line 1053 | ERROR - Error when deleting email: <HttpError 404 when requesting https://gmail.googleapis.com/gmail/v1/users/me/messages/18e627b2b21e5e53/trash?alt=json returned "Requested entity was not found.". Details: "[{'message': 'Requested entity was not found.', 'domain': 'global', 'reason': 'notFound'}]">
+2024-03-23 07:06:00 | MailAssistant.views.py | Line 1053 | ERROR - Error when deleting email: <HttpError 404 when requesting https://gmail.googleapis.com/gmail/v1/users/me/messages/18e626e5ebb64998/trash?alt=json returned "Requested entity was not found.". Details: "[{'message': 'Requested entity was not found.', 'domain': 'global', 'reason': 'notFound'}]">

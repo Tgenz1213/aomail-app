@@ -19,6 +19,7 @@ from google.auth.transport.requests import Request
 from google.oauth2 import credentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow
+from httpx import HTTPError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -27,7 +28,7 @@ from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral
 from MailAssistant.constants import (
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
-    # GOOGLE_EMAIL_MODIFY,
+    GOOGLE_EMAIL_MODIFY,
     REDIRECT_URI,
     GOOGLE_SCOPES,
 )
@@ -119,9 +120,7 @@ def build_services(creds) -> dict:
         "gmail.readonly": build(
             "gmail", "v1", cache_discovery=False, credentials=creds
         ),
-        # "gmail.modify": build("gmail", "v1", cache_discovery=False, credentials=creds, scopes=[
-        #    GOOGLE_EMAIL_MODIFY
-        # ]),
+        "gmail.modify": build("gmail", "v1", cache_discovery=False, credentials=creds),
         "gmail.send": build("gmail", "v1", cache_discovery=False, credentials=creds),
         "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
         "contacts": build("people", "v1", cache_discovery=False, credentials=creds),
@@ -215,26 +214,30 @@ def send_email(request):
         return Response({"error": str(e)}, status=500)
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def delete_email(request) -> dict:
+def delete_email(user, email, email_id) -> dict:
     """Moves the email to the bin of the user"""
-    user = request.user
-    email = request.headers.get("email")
-    email_id = request.headers.get("id_provider")
     gmail_service = authenticate_service(user, email)["gmail.modify"]
 
     if not gmail_service:
         return {"error": "No gmail service provided"}
 
-    url = f"https://gmail.googleapis.com/gmail/v1/users/me/messages/{email_id}/trash"
-    response = gmail_service.post(url)
+    try:
+        response = (
+            gmail_service.users().messages().trash(userId="me", id=email_id).execute()
+        )
 
-    if response.status_code == 204:
-        return {"message": "Email moved to trash successfully!"}
-    else:
-        LOGGER.error(f"Failed to move email to trash: {response.text}")
-        return {"error": f"Failed to move email to trash: {response.text}"}
+        if "id" in response:
+            return {"message": "Email moved to trash successfully!"}
+        else:
+            LOGGER.error(f"Failed to move email with ID: {email_id} to trash")
+            return {"error": f"Failed to move email to trash"}
+    except HTTPError as e:
+        if "Requested entity was not found" in str(e):
+            # email has been deleted manually
+            return {"message": "Email moved to trash successfully!"}
+        else:
+            LOGGER.error(f"Error when deleting email: {str(e)}")
+            return {"error": str(e)}
 
 
 def get_info_contacts(services):

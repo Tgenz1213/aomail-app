@@ -239,7 +239,7 @@
                     </div>
                     <div class="flex mb-4">
                       <div class="inline-flex rounded-lg shadow-lg">
-                        <button @click.prevent="sendEmail"
+                        <button @click.prevent="sendEmail" :disabled="emailAnswered"
                           class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
                         <Menu as="div" class="relative -ml-px block">
                           <MenuButton
@@ -260,7 +260,7 @@
                                 <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
                                 <a :href="item.href"
                                   :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                    item.name }}</a>
+    item.name }}</a>
                                 </MenuItem>
                               </div>
                             </MenuItems>
@@ -330,6 +330,8 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
 
+let emailAnswered = ref(false);
+
 function dismissPopup() {
   showNotification = false;
   // Cancel the timer
@@ -367,8 +369,8 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     console.error("Error fetching contacts:", error);
     // Show the pop-up
     backgroundColor = 'bg-red-300';
-    notificationTitle.value = 'Erreur récupération des contacts';
-    notificationMessage.value = error;
+    notificationTitle = 'Erreur récupération des contacts';
+    notificationMessage = error;
     displayPopup();
   })
 
@@ -434,8 +436,8 @@ function handleBlur2(event) {
   } else if (!filteredPeople.value.length && inputValue) {
     // Show the pop-up
     backgroundColor = 'bg-red-300';
-    notificationTitle.value = 'Email invalide';
-    notificationMessage.value = 'Le format de l\'email est incorrect'
+    notificationTitle = 'Email invalide';
+    notificationMessage = 'Le format de l\'email est incorrect'
     displayPopup();
   }
 }
@@ -480,22 +482,29 @@ function handleKeyDown(event) {
 
 // TO parse Email => TO CHECK
 function parseEmails(emailData) {
+  console.log("parsing emails", emailData)
   if (!emailData) {
     return [];
   }
-
   if (typeof emailData === 'string') {
     // Handle the case where emailData is just an email string
     return [{ email: emailData, username: emailData.split('@')[0] }];
   } else if (Array.isArray(emailData)) {
-    // Handle the case where emailData is an array of tuples
+    // Handle the case where emailData is an array of emails
     return emailData.map(data => {
-      const [name, email] = data;
       return {
-        email: email || '',
-        username: name || email.split('@')[0]
+        email: data,
+        username: ''
       };
     });
+    // TODO: Handle the case where emailData is an array of tuples
+    // return emailData.map(data => {
+    //     const [name, email] = data;
+    //     return {
+    //         email: email || '',
+    //         username: name || (email.split('@')[0] || '')
+    //     };
+    // });
   } else if (typeof emailData === 'object') {
     // Handle the case where emailData is a single tuple
     const [name, email] = emailData;
@@ -570,10 +579,28 @@ const handleFileUpload = (event) => {
   const files = Array.from(event.target.files);
   files.forEach(file => {
     if (file.size <= MAX_FILE_SIZE) {
+      let localStorageuploadedFiles = localStorage.getItem("uploadedFiles");
+
+      for (const currentFile of localStorageuploadedFiles) {
+        if (currentFile.name == file) {
+          // Show the pop-up
+          backgroundColor = 'bg-red-300';
+          notificationTitle = 'Fichier en double';
+          notificationMessage = 'Vous avez déjà inséré ce fichier';
+          displayPopup();
+          return;
+        }
+      }
       uploadedFiles.value.push({ name: file.name, size: file.size });
       fileObjects.value.push(file);
     } else {
-      alert("File size exceeds Gmail's limit");
+      // Show the pop-up
+      backgroundColor = 'bg-red-300';
+      notificationTitle = 'Fichier trop volumineux';
+      notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
+      displayPopup();
+      console.error("File size exceeds Gmail's limit");
+      return;
     }
   });
   saveFileMetadataToLocalStorage();
@@ -851,7 +878,7 @@ async function handleAIClick() {
 
 // To display the propositions => buttons
 function askContentAdvice() {
-  
+
   if (isAIWriting.value) {
     return;
   }
@@ -1315,37 +1342,74 @@ const router = useRouter();
 
 async function sendEmail() {
   const emailSubject = inputValue.value;
-  const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
-  const recipients = selectedPeople.value.map(person => person.username); // Adjust according to your data structure
-  const ccRecipients = selectedCC.value.map(person => person.username);
-  const bccRecipients = selectedCCI.value.map(person => person.username);
-
+  const emailBody = quill.value.root.innerHTML;
   const formData = new FormData();
+
   formData.append('subject', emailSubject);
   formData.append('message', emailBody);
   fileObjects.value.forEach(file => formData.append('attachments', file));
+  // Add recipients, CC, and BCC to formData
+  selectedPeople.value.forEach(person => formData.append('to', person.email));
 
-  // Add recipients, CC, and BCC to formData if needed
-  // Adjust the field names according to your API's expected format
-  formData.append('to', recipients.join(','));
-  formData.append('cc', ccRecipients.join(','));
-  formData.append('cci', bccRecipients.join(','));
-
-  for (var pair of formData.entries()) {
-    console.log(pair[0] + ', ' + pair[1]);
+  if (selectedCC.value.length > 0) {
+    selectedCC.value.forEach(person => formData.append('cc', person.email));
+  } else {
+    formData.append('cc', '');
+  }
+  if (selectedCCI.value.length > 0) {
+    selectedCCI.value.forEach(person => formData.append('cci', person.email));
+  } else {
+    formData.append('cci', '');
   }
 
   try {
-    const result = await fetchWithToken(`${API_BASE_URL}api/send_mails/`, {
+    const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {
       method: 'POST',
+      headers: {
+        email: localStorage.getItem('email')
+      },
       body: formData
     });
-    console.log(result.message);
-    localStorage.setItem('Email_sent', true);
-    router.push({ name: 'home' });
 
+    console.log("DEBUG===>", response.message)
+    if (response.message === 'Email sent successfully!') {
+      // Show the pop-up
+      backgroundColor = 'bg-green-300';
+      notificationTitle = 'Réponse envoyée !';
+      notificationMessage = 'Redirection en cours...';
+      displayPopup();
+
+      // disable send button
+      emailAnswered.value = true;
+      localStorage.removeItem("uploadedFiles");
+      uploadedFiles.value = [];
+      fileObjects.value = [];
+
+      setTimeout(() => {
+        router.push({ name: 'home' })
+      }, 3000);
+    } else {
+      // Show the pop-up
+      // Translate serializer errors for the user
+      if (response.error == 'recipient is missing') {
+        notificationMessage = 'Aucun destinataire n\'a été saisi';
+      }
+      else if (response.error == 'subject is missing') {
+        notificationMessage = 'Aucun objet n\'a été saisi';
+      }
+      else {
+        notificationMessage = response.error;
+      }
+      backgroundColor = 'bg-red-300';
+      notificationTitle = 'Erreur d\'envoi d\'email';
+      displayPopup();
+    }
   } catch (error) {
-    console.error('Error sending email:', error);
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle = 'Erreur d\'envoi d\'email';
+    notificationMessage = error;
+    displayPopup();
   }
 }
 
@@ -1366,6 +1430,7 @@ const bgColor = ref(''); // Initialize a reactive variable
 const route = useRoute();
 
 onMounted(() => {
+  localStorage.removeItem("uploadedFiles");
   document.addEventListener("keydown", handleKeyDown);
 
   bgColor.value = localStorage.getItem('bgColor');
@@ -1376,16 +1441,25 @@ onMounted(() => {
   const cc = JSON.parse(route.query.cc);
   const cci = JSON.parse(route.query.bcc);
   const decoded_data = JSON.parse(route.query.decoded_data);
-  const id_provider = JSON.parse(route.query.id_provider);
   const details = JSON.parse(route.query.details);
+  //const id_provider = JSON.parse(route.query.id_provider);
 
-  console.log("Subject:", subject);
-  console.log("Email:", email);
-  console.log("cc", cc);
-  console.log("cci", cci);
-  console.log("ID Provider:", id_provider);
-  console.log("Details:", details);
-  //console.log("Decoded_data", decoded_data);
+  // Initialize Quill editor
+  quill.value = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: toolbarOptions
+    }
+  });
+
+  // TODO: add a checkbox to add the summary of email in the body 
+  // Prepare the answer email
+  // let answerMessage = '';
+  // answerMessage += 'Résumé de l\'email:\n';
+  // details.forEach(detail => {
+  //   answerMessage += `- ${detail.text}\n`;
+  // });
+  // quill.value.setText(answerMessage);
 
   window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
@@ -1398,14 +1472,6 @@ onMounted(() => {
     [{ 'align': [] }],
     ['blockquote', 'code-block']
   ];
-
-  // Initialize Quill editor
-  quill.value = new Quill('#editor', {
-    theme: 'snow',
-    modules: {
-      toolbar: toolbarOptions
-    }
-  });
 
   /*
   quill.on('selection-change', function(range, oldRange, source) {

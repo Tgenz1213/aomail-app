@@ -362,7 +362,8 @@
 </template>
 
 <script setup>
-import { API_BASE_URL, BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main';
+import { useRouter } from 'vue-router';
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -378,6 +379,7 @@ let newPassword = ref('');
 let confirmPassword = ref('');
 
 let isModalOpen = ref(false);
+const router = useRouter();
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -681,7 +683,7 @@ async function deleteAccount() {
 
             setTimeout(() => {
                 // Redirect login page
-                window.location.href = BASE_URL;
+                router.push({ name: 'login' })
             }, 4000);
 
         } else {

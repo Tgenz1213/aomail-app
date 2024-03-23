@@ -85,8 +85,9 @@
                                                         <a v-for="category in categories" :key="category"
                                                             @click="selectCategory(category)"
                                                             class="group items-center text-gray-600 text-sm font-medium cursor-pointer"><!-- To FIX => put category.name and adapt the design -->
-                                                            <div v-if="category.name !== 'Other' && category.name !== 'Autres'"
-                                                                class="flex">
+                                                            <!-- <div v-if="category.name !== 'Other' && category.name !== 'Autres'"
+                                                                class="flex"> -->
+                                                            <div v-if="category.name !== 'Others'" class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
         category.name }}
@@ -816,6 +817,21 @@
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
                                                                                             <div
+                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
+                                                                                                Supprimer
+                                                                                            </div>
+                                                                                            <button type="button"
+                                                                                                class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                                                                                <TrashIcon
+                                                                                                    @click.stop="deleteEmail(item.id)"
+                                                                                                    class="w-5 h-5 text-gray-500 group-hover:text-white" />
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div v-show="hoveredItemId === item.id"
+                                                                                        class="group action-buttons">
+                                                                                        <div class="relative group">
+                                                                                            <div
                                                                                                 class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
                                                                                                 Répondre
                                                                                             </div>
@@ -1358,21 +1374,25 @@ function getTextNumberUnreadMail(totalUnread) {
 
 function animateText(text) {
     // Clear text
-    animatedText.value.textContent = '';
+    try {
+        animatedText.value.textContent = '';
+        let target = animatedText.value;
+        let characters = text.split("");
+        let currentIndex = 0;
 
-    let target = animatedText.value;
-    let characters = text.split("");
-    let currentIndex = 0;
-
-    // Used to create an animation
-    const interval = setInterval(() => {
-        if (currentIndex < characters.length) {
-            target.textContent += characters[currentIndex];
-            currentIndex++;
-        } else {
-            clearInterval(interval);
-        }
-    }, 30);
+        // Used to create an animation
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                target.textContent += characters[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 30);
+    } catch {
+        // TODO: remove this try catch with a cleaner method
+        // We are no longer in Home
+    }
 }
 
 function dismissPopup() {
@@ -1476,22 +1496,27 @@ async function transferEmail(email) {
                 'email': localStorage.getItem('email')
             }
         });
-        console.log("Received data:", data);
+        // Clean CC data
+        let cleanedCc = '';
+        if (data.email.cc && data.email.cc.length > 0) {
+            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
+            cleanedCc = JSON.stringify(ccEmails);
+        } else {
+            cleanedCc = '[]';
+        }
 
-        // TODO: get Date of email
-        // TODO: in email transfer write email transfered by MailAssistant + link
         router.push({
             name: 'transfer',
             query: {
                 subject: JSON.stringify(data.email.subject),
-                cc: JSON.stringify(data.email.cc),
-                bcc: JSON.stringify(data.email.bcc),
+                cc: cleanedCc,
                 decoded_data: JSON.stringify(data.email.decoded_data),
                 email: JSON.stringify(email.email),
-                id_provider: JSON.stringify(email.id_provider),
-                details: JSON.stringify(email.details)
+                details: JSON.stringify(email.details),
+                date: JSON.stringify(data.email.date)
             }
         });
+
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
     }
@@ -1506,6 +1531,7 @@ async function markEmailReplyLater(emailId) {
             }
         });
         if (response.answer_later) {
+            // TODO: remove it from the home page
             console.log("Email marked for reply later successfully");
             markEmailAsRead(emailId);
             isMenuOpen.value = false;
@@ -1591,9 +1617,6 @@ function openInNewWindow(id_provider) {
 }
 
 async function openAnswer(email) {
-    console.log("EMAIL", email.id_provider);
-
-    // Define the API endpoint URL
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
     try {
@@ -1604,12 +1627,20 @@ async function openAnswer(email) {
                 'email': localStorage.getItem('email')
             }
         });
-        console.log("Received data:", data);
+        // Clean CC data
+        let cleanedCc = '';
+        if (data.email.cc && data.email.cc.length > 0) {
+            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
+            cleanedCc = JSON.stringify(ccEmails);
+        } else {
+            cleanedCc = '[]';
+        }
+
         router.push({
             name: 'answer',
             query: {
                 subject: JSON.stringify(data.email.subject),
-                cc: JSON.stringify(data.email.cc),
+                cc: cleanedCc,
                 bcc: JSON.stringify(data.email.bcc),
                 decoded_data: JSON.stringify(data.email.decoded_data),
                 email: JSON.stringify(email.email),
@@ -1816,7 +1847,7 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
-    console.log("DEBUG READ", combinedEmails);
+    //console.log("DEBUG READ", combinedEmails);
 
     return combinedEmails.filter(email => email.read);
 }
@@ -1909,9 +1940,9 @@ function countEmailsInCategoryAndPriority(categoryName, priority) {
 
 // To check if there is emails or not in the category
 function isEmptyTopic() {
-    console.log("----> DEBUG isEmpty", selectedTopic.value);
+    //console.log("----> DEBUG isEmpty", selectedTopic.value);
     if (totalEmailsInCategory(selectedTopic.value) == 0) {
-        console.log("Topic not found for selectedTopic:", selectedTopic.value); // Debugging log
+        //console.log("Topic not found for selectedTopic:", selectedTopic.value); // Debugging log
         return true; // or true, based on how you want to handle this case
     }
     else {

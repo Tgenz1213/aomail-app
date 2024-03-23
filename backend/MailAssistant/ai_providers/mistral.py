@@ -3,15 +3,14 @@ Handles prompt engineering requests for Mistral API.
 """
 
 import ast
+import json
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
+from MailAssistant.constants import MISTRAL_CREDS
 from colorama import Fore, init
-import time
-import json
 
 
 ######################## MISTRAL API SETTINGS ########################
-MISTRAL_CREDS = json.load(open("creds/mistral_creds.json", "r"))
 init(autoreset=True)
 
 
@@ -24,7 +23,7 @@ def get_prompt_response(formatted_prompt, model, role):
     return response
 
 
-def get_language(input_subject, input_body):
+def get_language(input_body, input_subject) -> str:
     """Returns the primary language used in the email"""
 
     template = """Given an email with subject: '{input_subject}' and body: '{input_body}',
@@ -114,7 +113,7 @@ def extract_contacts_recipients(query):
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_subject, input_email, language) -> list:
+def generate_response_keywords(input_email, input_subject, language) -> list:
     """Generate a list of keywords for responding to a given email."""
 
     template = """As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
@@ -144,16 +143,20 @@ def generate_response_keywords(input_subject, input_email, language) -> list:
 def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
-    template = """As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {mail_content}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, mail_content=body)
-    response = get_prompt_response(formatted_prompt)
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
     clear_text = response.choices[0].message.content.strip()
+
     result_json = json.loads(clear_text)
 
     subject_text = result_json["subject"]
@@ -226,20 +229,21 @@ def generate_email(input_data, length, formality):
     return subject_text, email_body
 
 
-def correct_mail_language_mistakes(subject, body):
+def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
-    template = """As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be ONLY a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {email_body}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, email_body=body)
     model = "mistral-small-latest"
     role = "user"
-    response = get_prompt_response(formatted_prompt, model, role)
+    response = get_prompt_response(template, model, role)
     clear_text = response.choices[0].message.content.strip()
 
     result_json = json.loads(clear_text)
@@ -251,7 +255,6 @@ def correct_mail_language_mistakes(subject, body):
     print(f"{Fore.GREEN}Subject: {corrected_subject}")
     print(f"{Fore.CYAN}Email Body: {corrected_body}")
 
-    # Count the number of corrections
     num_corrections = count_corrections(
         subject, body, corrected_subject, corrected_body
     )
@@ -259,12 +262,165 @@ def correct_mail_language_mistakes(subject, body):
     return corrected_subject, corrected_body, num_corrections
 
 
-"""start_time = time.time()
-correct_mail_language_mistakes(
-    "peti test appl", "c un  emai de test envoyer depus l'appl"
-)
-execution_time = time.time() - start_time
+def improve_email_copywriting(email_subject, email_body):
+    """Provides feedback and suggestions for improving the copywriting in the email subject and body."""
 
-print(
-    f"{Fore.GREEN}Le temps d'exécution du script n°2 est de {execution_time} secondes."
-)"""
+    language = get_language(email_body, email_subject)
+
+    template = f"""Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
+
+    Email Subject:
+    "{email_subject}"
+
+    Email Body:
+    "{email_body}"
+
+    ---
+
+    <strong>Subject Feedback</strong>:
+    [Your feedback on the subject]
+
+    <strong>Suggestions for the Subject</strong>:
+    [Your suggestions for the subject]
+
+    <strong>Email Body Feedback</strong>:
+    [Your feedback on the email body]
+
+    <strong>Suggestions for the Email Body</strong>:
+    [Your suggestions for the email body]
+    """
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
+    feedback_ai = response.choices[0].message.content.strip()
+
+    print(f"{Fore.CYAN}EMAIL COPYWRITING:")
+    print(f"{Fore.GREEN}{feedback_ai}")
+
+    return feedback_ai
+
+
+def generate_email_response(input_subject, input_body, response_type, language):
+    """Generates a French email response based on the given response type"""
+    template = f"""Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
+
+    ----
+
+    Answer must be above HTML without spaces
+    """
+    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
+    body = response.choices[0].message.content.strip()
+
+    print(f"{Fore.GREEN}[REPLY] body: {body}")
+
+    return body
+
+
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
+
+
+def categorize_and_summarize_email(
+    subject, decoded_data, category_list, user_description
+):
+    """Categorizes and summarizes an email"""
+
+    importance_list = {
+        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
+        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
+        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+    }
+    response_list = {
+        "Answer Required": "Message requires an answer.",
+        "Might Require Answer": "Message might require an answer.",
+        "No Answer Required": "No answer is required.",
+    }
+    relevance_list = {
+        "Highly Relevant": "Message is highly relevant to the recipient.",
+        "Possibly Relevant": "Message might be relevant to the recipient.",
+        "Not Relevant": "Message is not relevant to the recipient.",
+    }
+
+    template = f"""Given the following email:
+
+    Subject:
+    {subject}
+
+    Text:
+    {decoded_data}
+
+    Description:
+    {user_description}
+
+    Using the provided categories:
+
+    Topic Categories:
+    {category_list}
+
+    Importance Categories:
+    {importance_list}
+
+    Response Categories:
+    {response_list}
+
+    Relevance Categories:
+    {relevance_list}
+
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
+    2. In French: Summarize the following message
+    3. In French: Provide a short sentence summarizing the email.
+
+    ---
+    Answer must be a Json format matching this template:
+    {{
+        "topic": Topic Title Category,
+        "response": Response Category,
+        "relevance": Relevance Category,
+        "summary": {{
+            "one_line": One-Sentence Summary in French,
+            "complete": [
+                "Short Bullet Point 1",
+                "Short Bullet Point 2",
+                ...
+            ]
+        }},
+        "importance": {{
+            "Important": Percentage for Important,
+            "Information": Percentage for Information,
+            "Useless": Percentage for Useless
+        }}
+    }}
+    """
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
+    clear_response = response.choices[0].message.content.strip()
+    result_json = json.loads(clear_response)
+
+    print(result_json)
+
+    topic_category = result_json["topic"]
+    response_category = result_json["response"]
+    relevance_category = result_json["relevance"]
+    short_sentence = result_json["summary"]["one_line"]
+    summary_list = result_json["summary"]["complete"]
+    importance_dict = result_json["importance"]
+
+    # convert percentages to int
+    for key, value in importance_dict.items():
+        importance_dict[key] = int(value)
+
+    return (
+        topic_category,
+        importance_dict,
+        response_category,
+        summary_list,
+        short_sentence,
+        relevance_category,
+        importance_dict,
+    )

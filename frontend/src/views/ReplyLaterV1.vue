@@ -61,7 +61,7 @@
                             <li v-for="item in emails['Important']" :key="item.id"
                               class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center"
                               @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                              <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                              <div class="col-span-8 cursor-pointer" @click="toggleHiddenParagraph(item.id)">
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item.name
@@ -124,7 +124,7 @@
                                         </div>
                                         <button type="button"
                                           class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
-                                          <TrashIcon @click.stop="deleteEmail(item.id)"
+                                          <TrashIcon @click.stop="deleteEmail(item)"
                                             class="w-5 h-5 text-red-400 group-hover:text-white" />
                                         </button>
                                       </div>
@@ -281,7 +281,7 @@
                             <li v-for="item in emails['Information']" :key="item.id"
                               class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                               @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                              <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                              <div class="col-span-8 cursor-pointer" @click="toggleHiddenParagraph(item.id)">
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{
@@ -345,7 +345,7 @@
                                         </div>
                                         <button type="button"
                                           class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                          <TrashIcon @click.stop="deleteEmail(item.id)"
+                                          <TrashIcon @click.stop="deleteEmail(item)"
                                             class="w-5 h-5 text-blue-400 group-hover:text-white" />
                                         </button>
                                       </div>
@@ -500,7 +500,7 @@
                             <li v-for="item in emails['Useless']" :key="item.id"
                               class="px-6 md:py-2 2xl:py-4 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center"
                               @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                              <div class="col-span-8" @click="toggleHiddenParagraph(item.id)">
+                              <div class="col-span-8 cursor-pointer" @click="toggleHiddenParagraph(item.id)">
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-gray-800">{{ item.name }}</p>
@@ -562,7 +562,7 @@
                                         </div>
                                         <button type="button"
                                           class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                          <TrashIcon @click.stop="deleteEmail(item.id)"
+                                          <TrashIcon @click.stop="deleteEmail(item)"
                                             class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                         </button>
                                       </div>
@@ -799,8 +799,7 @@ export default {
     async openAnswer(email) {
       console.log("EMAIL", email.id_provider);
 
-      // Define the API endpoint URL
-      const url = `http://localhost:9000/MailAssistant/api/get_mail_by_id?email_id=${email.id_provider}`;
+      const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
       try {
         const data = await fetchWithToken(url, {
@@ -810,12 +809,19 @@ export default {
             'email': localStorage.getItem('email')
           }
         });
-        console.log("Received data:", data);
+        // Clean CC data
+        let cleanedCc = '';
+        if (data.email.cc && data.email.cc.length > 0) {
+          let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
+          cleanedCc = JSON.stringify(ccEmails);
+        } else {
+          cleanedCc = '[]';
+        }
         this.$router.push({
           name: 'answer',
           query: {
             subject: JSON.stringify(data.email.subject),
-            cc: JSON.stringify(data.email.cc),
+            cc: cleanedCc,
             bcc: JSON.stringify(data.email.bcc),
             decoded_data: JSON.stringify(data.email.decoded_data),
             email: JSON.stringify(email.email),
@@ -827,12 +833,16 @@ export default {
         console.error("There was a problem with the fetch operation:", error);
       }
     },
-    async deleteEmail(emailId) {
+    async deleteEmail(email) {
+      const emailId = email.id;
+
       try {
-        const response = await fetchWithToken(`http://localhost:9000/MailAssistant/user/emails/${emailId}/delete/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            // 'id_provider': email.id_provider,
+            // 'email': localStorage.getItem('email')
           }
         });
 

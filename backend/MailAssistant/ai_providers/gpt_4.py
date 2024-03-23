@@ -2,14 +2,13 @@
 Handles prompt engineering requests for GPT-4 API.
 """
 
-import json
 import openai
 from colorama import Fore, init
-from MailAssistant import gpt_3_5_turbo
+from . import gpt_3_5_turbo
+from MailAssistant.constants import OPENAI_CREDS
 
 
 ######################## GPT - 4 API SETTINGS ########################
-OPENAI_CREDS = json.load(open("creds/openai_creds.json", "r"))
 init(autoreset=True)
 
 

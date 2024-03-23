@@ -2,16 +2,15 @@
 Handles prompt engineering requests for GPT-3.5-turbo API.
 """
 
+from colorama import Fore, init
+from MailAssistant.constants import OPENAI_CREDS
 import json
 import re
-import time
 import openai
 import ast
-from colorama import Fore, init
 
 
 ######################## GPT - 3.5 turbo API SETTINGS ########################
-OPENAI_CREDS = json.load(open("creds/openai_creds.json", "r"))
 init(autoreset=True)
 
 
@@ -28,7 +27,7 @@ def get_prompt_response(formatted_prompt):
     return response
 
 
-def get_language(input_subject, input_body):
+def get_language(input_body, input_subject) -> str:
     """Returns the primary language used in the email"""
 
     template = """Given an email with subject: '{input_subject}' and body: '{input_body}',
@@ -114,7 +113,7 @@ def extract_contacts_recipients(query):
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_subject, input_email, language) -> list:
+def generate_response_keywords(input_email, input_subject, language) -> list:
     """Generate a list of keywords for responding to a given email."""
 
     template = """As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
@@ -157,18 +156,19 @@ def shorten_keywords(keywords) -> dict:
 
 
 ######################## WRITING ########################
-def gpt_improve_email_writing(body, subject):
+def improve_email_writing(body, subject):
     """Enhance email subject and body in French"""
 
-    template = """As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH, while preserving key details from the original version.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {mail_content}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, mail_content=body)
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(template)
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 
@@ -182,7 +182,7 @@ def gpt_improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-def gpt_new_mail_recommendation(mail_content, email_subject, user_recommendation):
+def new_mail_recommendation(mail_content, email_subject, user_recommendation):
     """Enhance email subject and body in FRENCH based on user guideline"""
 
     template = """As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
@@ -211,7 +211,7 @@ def gpt_new_mail_recommendation(mail_content, email_subject, user_recommendation
     return subject_text, email_body
 
 
-def gpt_langchain_redaction(input_data, length, formality):
+def generate_email(input_data, length, formality):
     """Generate a French email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
     template = """As an email assistant, write a {length} and {formality} email in FRENCH.
@@ -237,18 +237,19 @@ def gpt_langchain_redaction(input_data, length, formality):
     return subject_text, email_body
 
 
-def correct_mail_language_mistakes(subject, body):
+def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
-    template = """As an email assistant, check the following FRENCH text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    language = get_language(body, subject).upper()
+
+    template = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
-    subject: {email_subject},
-    body: {email_body}
+    subject: {subject},
+    body: {body}
     """
-    formatted_prompt = template.format(email_subject=subject, email_body=body)
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(template)
     clear_text = response.choices[0].message.content.strip()
     result_json = json.loads(clear_text)
 

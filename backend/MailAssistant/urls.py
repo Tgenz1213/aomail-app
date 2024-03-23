@@ -1,9 +1,10 @@
 """
 Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 """
+
 from django.urls import path
+from MailAssistant.email_providers import google_api, microsoft_api
 from . import views
-from MailAssistant import microsoft_api, google_api
 
 
 app_name = 'MailAssistant'
@@ -21,7 +22,6 @@ urlpatterns = [
     path('api/get_first_email/', views.get_first_email, name='get_first_email'), # ok
     path('signup/', views.signup, name='signup'), # ok
     path('check_username/', views.check_username, name='check_username'), # ok
-    path('api/unread_mails/', views.unread_mails, name='unread_mails'), # ok
     path('api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     #----------------------- CATEGORIES -----------------------#
     path('api/set_category/', views.set_category, name='set_category'), # ok
@@ -49,14 +49,14 @@ urlpatterns = [
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
     path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
-    path('api/gpt_improve_email_writing/', views.gpt_improve_email_writing, name='gpt_improve_email_writing'), # ok
+    path('api/improve_email_writing/', views.improve_email_writing, name='improve_email_writing'), # ok
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'), # ok
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'), # ok
     path('api/send_mail/', views.send_email, name='send_mail'), # ok
     path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
     path('api/generate_email_answer/', views.generate_email_answer, name='generate_email_answer'), # ok
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
-    #----------------------- OAuth 2.0 EMAIL PROVIDER API -----------------------#
+    #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='receive_mail_notifications'), # ok
@@ -72,4 +72,5 @@ urlpatterns = [
     # path('user/emails/<int:email_id>/bullet-points/', views.get_email_bullet_points, name='email-bullet-points'),
     # path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'),
     # path('api/find-user/', views.find_user_view, name='find-user'),
+    # path('api/unread_mails/', views.unread_mails, name='unread_mails'),
 ]

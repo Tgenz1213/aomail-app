@@ -646,13 +646,14 @@ async function handleAIClick() {
     setTimeout(async () => {
         if (stepcontainer == 0) {
             if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucun destinataire(s), veuillez réessayer"
+                const message = "Vous n'avez saisi aucun destinataire, veuillez réessayer"
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
                 displayMessage(message, ai_icon);
             } else {
                 try {
                     isLoading.value = true;
                     loading();
+                    scrollToBottom();
                     const result = await findUser(textareaValueSave.value);
 
                     hideLoading();
@@ -1434,6 +1435,7 @@ function askContent() {
 }
 
 function askContentAdvice() {
+    // TODO: check if subject has been entered => if no => answer please enter it
     // Your previous code to display the message when the component is mounted
     const message = "Comment puis-je vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
@@ -1571,13 +1573,22 @@ function askChoiceRecipier(list, type) {
 
                 if (type === 'main') {
                     const person = { username: username, email: email };
-                    selectedPeople.value.push(person);
+                    const isPersonAlreadySelected = selectedPeople.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedPeople.value.push(person);
+                    }
                 } else if (type === 'cc') {
                     const person = { username: username, email: email };
-                    selectedCC.value.push(person);
+                    const isPersonAlreadySelected = selectedCC.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedCC.value.push(person);
+                    }
                 } else {
                     const person = { username: username, email: email };
-                    selectedCCI.value.push(person);
+                    const isPersonAlreadySelected = selectedCCI.value.some(p => p.email === person.email);
+                    if (!isPersonAlreadySelected) {
+                        selectedCCI.value.push(person);
+                    }
                 }
             });
         }, 0);
@@ -1764,7 +1775,7 @@ async function WriteBetter() {
             }),
         };
 
-        const result = await fetchWithToken(`${API_BASE_URL}api/gpt_improve_email_writing/`, requestOptions);
+        const result = await fetchWithToken(`${API_BASE_URL}api/improve_email_writing/`, requestOptions);
 
         hideLoading();
         console.log(result);
@@ -1846,24 +1857,26 @@ function hideLoading() {
 }
 
 async function sendEmail() {
-    // Send an email with input parameters
-
     const emailSubject = inputValue.value;
-    const emailBody = quill.value.root.innerHTML; // or use quillEditor.value.getText() for plain text
-    const recipients = selectedPeople.value.map(person => person.email); // Adjust according to your data structure
-    const ccRecipients = selectedCC.value.map(person => person.email);
-    const bccRecipients = selectedCCI.value.map(person => person.email);
-
+    const emailBody = quill.value.root.innerHTML;
     const formData = new FormData();
+
     formData.append('subject', emailSubject);
     formData.append('message', emailBody);
     fileObjects.value.forEach(file => formData.append('attachments', file));
+    // Add recipients, CC, and BCC to formData
+    selectedPeople.value.forEach(person => formData.append('to', person.email));
 
-    // Add recipients, CC, and BCC to formData if needed
-    // Adjust the field names according to your API's expected format
-    formData.append('to', recipients.join(','));
-    formData.append('cc', ccRecipients.join(','));
-    formData.append('cci', bccRecipients.join(','));
+    if (selectedCC.value.length > 0) {
+        selectedCC.value.forEach(person => formData.append('cc', person.email));
+    } else {
+        formData.append('cc', '');
+    }
+    if (selectedCCI.value.length > 0) {
+        selectedCCI.value.forEach(person => formData.append('cci', person.email));
+    } else {
+        formData.append('cci', '');
+    }
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {

@@ -1461,7 +1461,7 @@ function openNewRule(ruleName, ruleEmail) {
 
 function setHoveredItem(id) {
     hoveredItemId.value = id;
-    scrollToBottom();
+    //scrollToBottom();
 }
 
 function clearHoveredItem() {

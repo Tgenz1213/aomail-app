@@ -656,13 +656,15 @@ def subscribe_to_email_notifications(user, email, project_id, topic_name) -> boo
             )
             return True
         else:
-            print(
-                f"Failed to subscribe to email notifications for user {user.username} and email {email}"
+            LOGGER.error(
+                f"Failed to subscribe to email notifications for user with ID: {user.id} and email {email}"
             )
             return False
 
     except Exception as e:
-        print(f"An error occurred while subscribing to email notifications: {str(e)}")
+        LOGGER.error(
+            f"An error occurred while subscribing to email notifications: {str(e)}"
+        )
         return False
 
 
@@ -672,17 +674,17 @@ def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
 
     try:
-        print("DEBUG 0 => ", request.headers)
+        # print("DEBUG 0 => ", request.headers)
 
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
 
-        print("DEBUG 1 => RECEIVED NEW MAIL", message_data)
+        # print("DEBUG 1 => RECEIVED NEW MAIL", message_data)
 
         decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
-        print("DEBUG DECODED DATA => ", decoded_data)
+        # print("DEBUG DECODED DATA => ", decoded_data)
         decoded_json = json.loads(decoded_data)
-        print("DEBUG DECODED => ", decoded_json)
+        # print("DEBUG DECODED => ", decoded_json)
 
         attributes = message_data.get("attributes", {})
         email_id = attributes.get("emailId")
@@ -690,7 +692,7 @@ def receive_mail_notifications(request):
 
         # Retreiving the email gmail address
         email = decoded_json.get("emailAddress")
-        print("DEBUG email => RECEIVED NEW MAIL", email)
+        # print("DEBUG email => RECEIVED NEW MAIL", email)
 
         try:
             social_api = SocialAPI.objects.get(email=email)
@@ -721,14 +723,14 @@ def receive_mail_notifications(request):
         else:
             # TODO: handle casese where it fails
             print("DEBUG RESPONSE====================>", response.json())
-            print(
-                f"Failed to send acknowledgement. Status code: {response.status_code}"
-            )
+            # print(
+            #     f"Failed to send acknowledgement. Status code: {response.status_code}"
+            # )
 
         return Response(status=200)
 
     except Exception as e:
-        print(f"Error processing the notification: {str(e)}")
+        LOGGER.error(f"Error processing the notification: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
 
@@ -741,15 +743,23 @@ def email_to_bdd(user, services, id_email):
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
-
-        LOGGER.info(f"DEBUG BDD 1 => sender: {sender}")
+        # LOGGER.info(f"DEBUG BDD 1 => sender: {sender}")       
 
         if not decoded_data:
             return
 
-        category = Category.objects.get(name="Others", user=user)
         decoded_data = library.format_mail(decoded_data)
         category_list = library.get_db_categories(user)
+        category = Category.objects.get(name="Others", user=user)
+        rule = Rule.objects.filter(sender=sender)
+
+        if rule.exists():
+            if rule.block:
+                return
+
+            if rule.category:
+                # Find the category by checking if a sender has a category
+                category = rule.category
 
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
@@ -774,6 +784,9 @@ def email_to_bdd(user, services, id_email):
             for key, value in importance_dict.items():
                 if value >= 51:
                     importance = key
+
+        if topic in category_list:
+            category = topic
 
         sender_name, sender_email = from_name[0], from_name[1]
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)

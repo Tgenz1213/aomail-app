@@ -884,7 +884,8 @@ def receive_mail_notifications(request):
 
         #message_content = gmail_service.users().messages().get(userId='me', id=email_id).execute()
         services = authenticate_service(social_api_entry.user, email)
-        subject, from_name, decoded_data, cc, bcc, email_id = get_mail(services, 0, email_id)
+        email_to_bdd(social_api_entry.user, services, email_id)
+        #subject, from_name, decoded_data, cc, bcc, email_id = get_mail(services, 0, email_id)
         print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
 
         # Sending the reception message to Google to confirm the email reception
@@ -912,6 +913,192 @@ def receive_mail_notifications(request):
     except Exception as e:
         print(f"Erreur lors du traitement de la notification : {str(e)}")
         return Response("Erreur interne.", status=500)
+
+
+def email_to_bdd(user, services, id_email):
+    
+    subject, from_name, decoded_data, cc, bcc, email_id = get_mail(services, 0, id_email)
+
+    print(f"{Fore.YELLOW}{subject, from_name, decoded_data, cc, bcc, email_id}")
+
+    if not Email.objects.filter(provider_id=email_id).exists():
+
+        # Use filter() to find senders with the given email. This returns a queryset.
+        sender = Sender.objects.filter(email=from_name[1])
+        print("DEBUG BDD 1 => sender", sender)
+
+        if sender.exists():
+            # Now, attempt to retrieve the associated Rule.
+            rule = Rule.objects.filter(sender=sender)
+        
+            if rule.block is False: 
+                # Check if data is decoded, then format it
+                if decoded_data:
+                    decoded_data = library.format_mail(decoded_data)
+
+                # Get user categories
+                category_list = library.get_db_categories(user)
+
+                # print("DEBUG -------------> category", category_list)
+
+                # Process the email data with AI/NLP
+                #user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+                user_description = ""
+                topic, importance, answer, summary, sentence, relevance, importance_explain = (
+                    gpt_3_5_turbo.categorize_and_summarize_email(
+                        subject, decoded_data, category_list, user_description
+                    )
+                )
+
+                # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+                # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+                sender_name, sender_email = from_name[0], from_name[1]
+
+                # Fetch or create the sender
+                sender, created = Sender.objects.get_or_create(
+                    name=sender_name, email=sender_email
+                )  # assuming from_name contains the sender's name
+
+                print("DEBUG ----------------> topic", topic)
+
+                # Find the category by checking if a sender has a category
+                #category = Category.objects.get_or_create(name=topic, user=user)[0]
+                if rule.category: 
+                    category = rule.category
+                else : 
+                    if topic in category_list:
+                        category = Category.objects.get(name=topic, user=user)[0]
+                    else :
+                        # To avoid any error with the model creating a new category
+                        category = Category.objects.get(name="Autres", user=user)[0] # UPDATE WITH LANGUAGE
+
+                provider = "Gmail"
+
+                try:
+                    # Create a new email record
+                    email_entry = Email.objects.create(
+                        provider_id=email_id,
+                        email_provider=provider,
+                        email_short_summary=sentence,
+                        content=decoded_data,
+                        subject=subject,
+                        priority=importance[0],
+                        read=False,  # Default value; adjust as necessary
+                        answer_later=False,  # Default value; adjust as necessary
+                        sender=sender,
+                        category=category,
+                        user=user,
+                    )
+
+                    # If the email has a summary, save it in the BulletPoint table
+                    if summary:
+                        # Split summary by line breaks
+                        lines = summary.split("\n")
+
+                        # Filter lines that start with '- ' which indicates a bullet point
+                        bullet_points = [
+                            line[2:].strip() for line in lines if line.strip().startswith("- ")
+                        ]
+
+                        for point in bullet_points:
+                            BulletPoint.objects.create(content=point, email=email_entry)
+
+                except IntegrityError:
+                    print(
+                        f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
+                    )
+
+                # Debug prints
+                print("topic:", topic)
+                print("importance:", importance)
+                print("answer:", answer)
+                print("summary:", summary)
+                print("sentence:", sentence)
+                print("relevance:", relevance)
+                print("importance_explain:", importance_explain)
+        
+        else : 
+            # Check if data is decoded, then format it
+            if decoded_data:
+                decoded_data = library.format_mail(decoded_data)
+
+            # Get user categories
+            category_list = library.get_db_categories(user)
+            print("DEBUG BDD 2 => sender", category_list)
+
+            # print("DEBUG -------------> category", category_list)
+
+            # Process the email data with AI/NLP
+            #user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+            user_description = ""
+            topic, importance, answer, summary, sentence, relevance, importance_explain = (
+                gpt_3_5_turbo.categorize_and_summarize_email(
+                    subject, decoded_data, category_list, user_description
+                )
+            )
+
+            # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
+            # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
+            sender_name, sender_email = from_name[0], from_name[1]
+
+            # Fetch or create the sender
+            sender, created = Sender.objects.get_or_create(
+                name=sender_name, email=sender_email
+            )  # assuming from_name contains the sender's name
+
+            print("DEBUG ----------------> topic", topic)
+            # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
+            category = Category.objects.get_or_create(name=topic, user=user)[0]
+
+            provider = "Gmail"
+
+            try:
+                # Create a new email record
+                email_entry = Email.objects.create(
+                    provider_id=email_id,
+                    email_provider=provider,
+                    email_short_summary=sentence,
+                    content=decoded_data,
+                    subject=subject,
+                    priority=importance[0],
+                    read=False,  # Default value; adjust as necessary
+                    answer_later=False,  # Default value; adjust as necessary
+                    sender=sender,
+                    category=category,
+                    user=user,
+                )
+
+                # If the email has a summary, save it in the BulletPoint table
+                if summary:
+                    # Split summary by line breaks
+                    lines = summary.split("\n")
+
+                    # Filter lines that start with '- ' which indicates a bullet point
+                    bullet_points = [
+                        line[2:].strip() for line in lines if line.strip().startswith("- ")
+                    ]
+
+                    for point in bullet_points:
+                        BulletPoint.objects.create(content=point, email=email_entry)
+
+            except IntegrityError:
+                print(
+                    f"An error occurred when trying to create an email with provider_id {email_id}. It might already exist."
+                )
+
+            # Debug prints
+            print("topic:", topic)
+            print("importance:", importance)
+            print("answer:", answer)
+            print("summary:", summary)
+            print("sentence:", sentence)
+            print("relevance:", relevance)
+            print("importance_explain:", importance_explain)
+    else:
+        print(f"Email with provider_id {email_id} already exists.")
+
+    # return email_entry  # Return the created email object, if needed
+    return
 
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################

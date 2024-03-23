@@ -140,7 +140,9 @@ function handleKeyDown(event) {
     updateCategoryHandler();
   }
   else if (event.key === 'Delete') {
-    deleteCategoryHandler();
+    if (document.activeElement.id != "categoryName" && document.activeElement.id != "categoryDescription") {
+      deleteCategoryHandler();
+    }
   }
   else if (event.key === 'Tab' && props.isOpen) {
     event.preventDefault();

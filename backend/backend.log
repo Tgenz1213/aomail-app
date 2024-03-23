@@ -64,3 +64,5 @@ DETAIL:  Key (provider_id)=(18e6bf6e7119e3b7) already exists.
 2024-03-23 15:39:07 | MailAssistant.email_providers.google_api.py | Line 802 | ERROR - An error occurred when trying to create an email with ID 18e6bf723e10ae90: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
 DETAIL:  Key (provider_id)=(18e6bf723e10ae90) already exists.
 
+2024-03-23 15:55:29 | MailAssistant.views.py | Line 431 | ERROR - Serializer errors set_category: {'name': [ErrorDetail(string='This field may not be blank.', code='blank')], 'description': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+2024-03-23 15:55:45 | MailAssistant.views.py | Line 431 | ERROR - Serializer errors set_category: {'name': [ErrorDetail(string='This field may not be blank.', code='blank')], 'description': [ErrorDetail(string='This field may not be blank.', code='blank')]}

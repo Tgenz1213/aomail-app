@@ -678,13 +678,14 @@ def receive_mail_notifications(request):
         email = decoded_json.get('emailAddress')
         print("DEBUG email => RECEIVED NEW MAIL", email)
         
-        social_api_entry = SocialAPI.objects.get(email=email)
-        print("DEBUG Social API => ", social_api_entry)
-
-        services = authenticate_service(social_api_entry.user, email)['gmail.readonly']
-        email_to_bdd(social_api_entry.user, services, email_id)
-        #subject, from_name, decoded_data, cc, bcc, email_id = get_mail(services, 0, email_id)
-        print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
+        try:
+            social_api_entry = SocialAPI.objects.get(email=email)
+            print("DEBUG Social API => ", social_api_entry)
+            services = authenticate_service(social_api_entry.user, email)['gmail.readonly']
+            email_to_bdd(social_api_entry.user, services, email_id)
+            print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
+        except: 
+            print("DEBUG Social API => NO USER IN THE DB")
 
         # Sending the reception message to Google to confirm the email reception
         subscription_path = envelope['subscription']
@@ -695,7 +696,7 @@ def receive_mail_notifications(request):
             "ackIds": [ack_id]
         }
         response = requests.post(ack_url, json=ack_payload)
-
+        
         if response.status_code == 200:
             print("Acknowledgement sent successfully")
         else:

@@ -1021,7 +1021,7 @@ def delete_email(request, email_id):
         # Check if the email belongs to the authenticated user
         email = get_object_or_404(Email, user=user, id=email_id)
         provider_id = email.provider_id
-        #email.delete()
+        email.delete()
 
         try:
             social_api = get_object_or_404(SocialAPI, user=user, email=email_user)
@@ -1031,7 +1031,7 @@ def delete_email(request, email_id):
                 f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
             )
             return JsonResponse(
-                {"error": "SocialAPI entry not found for the user and email"},
+                {"error": "SocialAPI entry not found"},
                 status=404,
             )
 

@@ -356,14 +356,14 @@ def delete_email(email_id, social_api) -> dict:
     """Moves the email to the bin of the user"""
     access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
-    url = f"{GRAPH_URL}{email_id}/move"
+    url = f"{GRAPH_URL}/me/messages/{email_id}/move"
     data = {"destinationId": "deleteditems"}
 
     response = requests.post(url, headers=headers, json=data)
 
-    print(response.json())
-
-    if response.status_code == 204:
+    if "id" in response.text:
+        return {"message": "Email moved to trash successfully!"}
+    elif "error" in response.text:
         return {"message": "Email moved to trash successfully!"}
     else:
         LOGGER.error(f"Failed to move email to trash: {response.text}")
@@ -501,7 +501,7 @@ def parse_message_body(message_data):
 def get_mail(access_token, int_mail=None, id_mail=None):
     """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
 
-    url = f"{GRAPH_URL}me/messages"
+    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
     headers = get_headers(access_token)
 
     if int_mail is not None:
@@ -514,8 +514,6 @@ def get_mail(access_token, int_mail=None, id_mail=None):
             return None
 
         email_id = messages[int_mail]["id"]
-        print("LONG", messages[int_mail])
-        print("\n\nDBEUG========> microsoft!!!   ", email_id)
     elif id_mail is not None:
         # Fetch message by message id
         email_id = id_mail

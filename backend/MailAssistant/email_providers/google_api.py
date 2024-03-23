@@ -233,7 +233,6 @@ def delete_email(user, email, email_id) -> dict:
             return {"error": f"Failed to move email to trash"}
     except HTTPError as e:
         if "Requested entity was not found" in str(e):
-            # email has been deleted manually
             return {"message": "Email moved to trash successfully!"}
         else:
             LOGGER.error(f"Error when deleting email: {str(e)}")
@@ -633,9 +632,7 @@ def get_email(access_token, refresh_token):
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings
 def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, _, _, email_id, date = get_mail(
-        services, 0, None
-    )
+    subject, from_name, decoded_data, _, _, email_id, date = get_mail(services, 0, None)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         if decoded_data:

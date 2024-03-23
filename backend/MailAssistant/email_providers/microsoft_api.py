@@ -361,6 +361,8 @@ def delete_email(email_id, social_api) -> dict:
 
     response = requests.post(url, headers=headers, json=data)
 
+    print(response.json())
+
     if response.status_code == 204:
         return {"message": "Email moved to trash successfully!"}
     else:
@@ -511,16 +513,18 @@ def get_mail(access_token, int_mail=None, id_mail=None):
             LOGGER.info("No new messages.")
             return None
 
-        message_id = messages[int_mail]["id"]
+        email_id = messages[int_mail]["id"]
+        print("LONG", messages[int_mail])
+        print("\n\nDBEUG========> microsoft!!!   ", email_id)
     elif id_mail is not None:
         # Fetch message by message id
-        message_id = id_mail
+        email_id = id_mail
     else:
         LOGGER.info("Either int_mail or id_mail must be provided")
         return None
 
     # Make request to fetch specific message
-    message_url = f"{url}/{message_id}"
+    message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
     message_data = response.json()
 
@@ -548,14 +552,14 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         preprocessed_data,
         cc_info,
         bcc_info,
-        message_id,
+        email_id,
         sent_date,
     )
 
 
 def processed_email_to_bdd(user, email):
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(
+    subject, from_name, decoded_data, _, _, email_id, date = get_mail(
         access_token, 0, None
     )
 

@@ -633,7 +633,7 @@ def get_email(access_token, refresh_token):
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings
 def processed_email_to_bdd(request, services):
-    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(
+    subject, from_name, decoded_data, _, _, email_id, date = get_mail(
         services, 0, None
     )
 

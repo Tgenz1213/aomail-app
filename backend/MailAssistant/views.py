@@ -1021,7 +1021,7 @@ def delete_email(request, email_id):
         # Check if the email belongs to the authenticated user
         email = get_object_or_404(Email, user=user, id=email_id)
         provider_id = email.provider_id
-        email.delete()
+        #email.delete()
 
         try:
             social_api = get_object_or_404(SocialAPI, user=user, email=email_user)

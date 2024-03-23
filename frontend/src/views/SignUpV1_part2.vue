@@ -611,8 +611,6 @@ async function submitSignupData(event) {
     const data = await response.json();
 
     if (response.status === 201) {
-      // Registration successful
-      localStorage.setItem('user_id', data.user_id);
       // Django access token
       localStorage.setItem('access_token', data.access_token);
       // Store the email and use it in request headers

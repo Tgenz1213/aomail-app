@@ -31,6 +31,7 @@ urlpatterns = [
     #----------------------- EMAIL ACCOUNT -----------------------#
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
+    path('api/get_mail_by_id', views.get_mail_by_id, name='get_mail_by_id'), # ok
     #----------------------- USER -----------------------#
     path('user/categories/', views.get_user_categories, name='user-categories'), # ok
     path('user/emails/', views.get_user_emails, name='user-emails'), # ok
@@ -60,11 +61,10 @@ urlpatterns = [
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
     #----------------------- TESTING URLs -----------------------#
-    path('api/get_mail_by_id', views.get_mail_by_id_view, name='get_mail_by_id'), # testing
-    path('api/get_mail', views.get_mail_view, name='get_mail'), # testing
     path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
     path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing
     #----------------------- UNUSED URLs -----------------------#
+    # path('api/get_mail', views.get_mail_view, name='get_mail'), # testing just to get the first email
     # path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'), # testing
     # path('api/get_parsed_contacts/', views.get_parsed_contacts, name='get_parsed_contacts'),
     # path('api/get_unique_email_senders', views.è, name='get_unique_email_senders_view'),

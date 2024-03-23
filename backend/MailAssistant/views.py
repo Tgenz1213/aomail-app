@@ -1084,6 +1084,101 @@ def get_first_email(request):
         return Response({"error": "No emails associated with the user"}, status=404)
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_mail_by_id(request):
+    user = request.user
+    email = request.headers.get("email")
+    mail_id = request.GET.get("email_id")
+
+    if mail_id is not None:
+        try:
+            social_api = get_object_or_404(SocialAPI, user=user, email=email)
+            type_api = social_api.type_api
+        except SocialAPI.DoesNotExist:
+            LOGGER.error(
+                f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
+            )
+            return JsonResponse(
+                {"error": "SocialAPI entry not found for the user and email"},
+                status=404,
+            )
+
+        if type_api == "google":
+            services = google_api.authenticate_service(user, email)
+            subject, from_name, decoded_data, cc, bcc, email_id, date = (
+                google_api.get_mail(services, None, mail_id)
+            )
+        elif type_api == "microsoft":
+            access_token = microsoft_api.refresh_access_token(
+                microsoft_api.get_social_api(user, email)
+            )
+            subject, from_name, decoded_data, cc, bcc, email_id, date = (
+                microsoft_api.get_mail(access_token, None, mail_id)
+            )
+
+        # clean cc
+        if cc:
+            cc = tuple(item for item in cc if item is not None)
+
+        # clean bcc
+        if bcc:
+            bcc = tuple(item for item in bcc if item is not None)
+
+        return Response(
+            {
+                "message": "Authentication successful",
+                "email": {
+                    "subject": subject,
+                    "from_name": from_name,
+                    "decoded_data": decoded_data,
+                    "cc": cc,
+                    "bcc": bcc,
+                    "email_id": email_id,
+                    "date": date,
+                },
+            },
+            status=200,
+        )
+    else:
+        return Response({"error": "Failed to authenticate"}, status=400)
+
+    """if service is not None and mail_id is not None:
+
+        subject, from_name, decoded_data, cc, bcc, email_id, date = google_api.get_mail(
+            service, None, mail_id
+        )
+        # print(
+        #     f"{Fore.CYAN}from_name: {from_name}, cc: {Fore.YELLOW}{cc}, bcc: {Fore.LIGHTGREEN_EX}{bcc}"
+        # )
+
+        # clean cc
+        if cc:
+            cc = tuple(item for item in cc if item is not None)
+
+        # clean bcc
+        if bcc:
+            bcc = tuple(item for item in bcc if item is not None)
+
+        return Response(
+            {
+                "message": "Authentication successful",
+                "email": {
+                    "subject": subject,
+                    "from_name": from_name,
+                    "decoded_data": decoded_data,
+                    "cc": cc,
+                    "bcc": bcc,
+                    "email_id": email_id,
+                    "date": date,
+                },
+            },
+            status=200,
+        )
+    else:
+        return Response({"error": "Failed to authenticate"}, status=400)"""
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def set_email_read(request, email_id):
@@ -1206,7 +1301,6 @@ def save_last_mail_outlook(request):
         return Response({"error": "Failed to authenticate"}, status=400)
 
 
-# TO TEST Gmail GET the Mail from id
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_mail_view(request):
@@ -1234,51 +1328,6 @@ def get_mail_view(request):
         )
     else:
         # Return an error response
-        return Response({"error": "Failed to authenticate"}, status=400)
-
-
-# TO TEST Gmail GET Last Email
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_mail_by_id_view(request):
-    user = request.user
-    email = request.headers.get("email")
-    service = google_api.authenticate_service(user, email)
-    mail_id = request.GET.get("email_id")
-
-    if service is not None and mail_id is not None:
-
-        subject, from_name, decoded_data, cc, bcc, email_id, date = google_api.get_mail(
-            service, None, mail_id
-        )
-        # print(
-        #     f"{Fore.CYAN}from_name: {from_name}, cc: {Fore.YELLOW}{cc}, bcc: {Fore.LIGHTGREEN_EX}{bcc}"
-        # )
-
-        # clean cc
-        if cc:
-            cc = tuple(item for item in cc if item is not None)
-
-        # clean bcc
-        if bcc:
-            bcc = tuple(item for item in bcc if item is not None)
-
-        return Response(
-            {
-                "message": "Authentication successful",
-                "email": {
-                    "subject": subject,
-                    "from_name": from_name,
-                    "decoded_data": decoded_data,
-                    "cc": cc,
-                    "bcc": bcc,
-                    "email_id": email_id,
-                    "date": date,
-                },
-            },
-            status=200,
-        )
-    else:
         return Response({"error": "Failed to authenticate"}, status=400)
 
 

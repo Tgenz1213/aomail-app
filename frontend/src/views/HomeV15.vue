@@ -1515,6 +1515,7 @@ function updateEmailReadStatus(emailId) {
 }
 
 async function transferEmail(email) {
+    console.log(email.id_provider)
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
     try {
@@ -1528,7 +1529,7 @@ async function transferEmail(email) {
         // Clean CC data
         let cleanedCc = '';
         if (data.email.cc && data.email.cc.length > 0) {
-            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
+            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());            
             cleanedCc = JSON.stringify(ccEmails);
         } else {
             cleanedCc = '[]';

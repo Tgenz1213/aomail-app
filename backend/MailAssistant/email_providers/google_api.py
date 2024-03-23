@@ -32,6 +32,7 @@ from MailAssistant.constants import (
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
     GOOGLE_EMAIL_MODIFY,
+    GOOGLE_PROVIDER,
     REDIRECT_URI,
     GOOGLE_SCOPES,
 )
@@ -729,172 +730,85 @@ def receive_mail_notifications(request):
 def email_to_bdd(user, services, id_email):
     """Process the incoming email from Google listener to database"""
 
-    subject, from_name, decoded_data, cc, bcc, email_id, sent_date = get_mail(
+    subject, from_name, decoded_data, _, _, email_id, sent_date = get_mail(
         services, 0, id_email
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
 
-        print("DEBUG BDD 1 => sender", sender)
+        LOGGER.info(f"DEBUG BDD 1 => sender: {sender}")
 
+        if not decoded_data:
+            return
+        
         category = Category.objects.get(name="Others", user=user)
+        decoded_data = library.format_mail(decoded_data)
+        category_list = library.get_db_categories(user)
 
-        if sender:
-            # Now, attempt to retrieve the associated Rule.
-            rule = Rule.objects.filter(sender=sender)
-            print("DEBUG rule", rule)
+        # Process the email data with AI/NLP
+        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+        user_description = ""
+        (
+            topic,
+            importance_dict,
+            answer,
+            summary_list,
+            sentence,
+            relevance,
+        ) = (
+            # gpt_3_5_turbo
+            # claude
+            mistral.categorize_and_summarize_email(
+                subject, decoded_data, category_list, user_description
+            )
+        )
 
-            if rule.exists():
-                if rule.block:
-                    return
-
-            if decoded_data:
-                decoded_data = library.format_mail(decoded_data)
-
-                # Get user categories
-                category_list = library.get_db_categories(user)
-
-                # Process the email data with AI/NLP
-                # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-                user_description = ""
-                (
-                    topic,
-                    importance_dict,
-                    answer,
-                    summary_list,
-                    sentence,
-                    relevance,
-                ) = (
-                    # gpt_3_5_turbo
-                    # claude
-                    mistral.categorize_and_summarize_email(
-                        subject, decoded_data, category_list, user_description
-                    )
-                )
-
-                # Extract the importance of the email
-                if importance_dict["Important"] == 50:
-                    importance = "Important"
-                else:
-                    for key, value in importance_dict.items():
-                        if value >= 51:
-                            importance = key
-
-                sender_name, sender_email = from_name[0], from_name[1]
-                sender, _ = Sender.objects.get_or_create(
-                    name=sender_name, email=sender_email
-                )
-
-                if rule.exists():
-                    if rule.category:
-                        # Find the category by checking if a sender has a category
-                        category = rule.category
-                    else:
-                        if topic in category_list:
-                            category = topic
-
-                provider = "Gmail"
-
-                try:
-                    email_entry = Email.objects.create(
-                        provider_id=email_id,
-                        email_provider=provider,
-                        email_short_summary=sentence,
-                        content=decoded_data,
-                        subject=subject,
-                        priority=importance,
-                        read=False,
-                        answer_later=False,
-                        sender=sender,
-                        category=category,
-                        user=user,
-                        date=sent_date,
-                    )
-
-                    # If the email has a summary, save it in the BulletPoint table
-                    if summary_list:
-                        for point in summary_list:
-                            BulletPoint.objects.create(content=point, email=email_entry)
-
-                except Exception as e:
-                    LOGGER.error(
-                        f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
-                    )
+        if importance_dict["Important"] == 50:
+            importance = "Important"
         else:
-            if decoded_data:
-                decoded_data = library.format_mail(decoded_data)
+            for key, value in importance_dict.items():
+                if value >= 51:
+                    importance = key
 
-            # Get user categories
-            category_list = library.get_db_categories(user)
+        sender_name, sender_email = from_name[0], from_name[1]
+        sender, _ = Sender.objects.get_or_create(
+            name=sender_name, email=sender_email
+        )
 
-            # Process the email data with AI/NLP
-            # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-            user_description = ""
-            (
-                topic,
-                importance_dict,
-                answer,
-                summary_list,
-                sentence,
-                relevance,
-            ) = (
-                # gpt_3_5_turbo
-                # claude
-                mistral.categorize_and_summarize_email(
-                    subject, decoded_data, category_list, user_description
-                )
+        try:
+            email_entry = Email.objects.create(
+                provider_id=email_id,
+                email_provider=GOOGLE_PROVIDER,
+                email_short_summary=sentence,
+                content=decoded_data,
+                subject=subject,
+                priority=importance,
+                read=False,
+                answer_later=False,
+                sender=sender,
+                category=category,
+                user=user,
+                date=sent_date,
             )
 
-            # Extract the importance of the email
-            if importance_dict["Important"] == 50:
-                importance = "Important"
-            else:
-                for key, value in importance_dict.items():
-                    if value >= 51:
-                        importance = key
+            if summary_list:
+                for point in summary_list:
+                    BulletPoint.objects.create(content=point, email=email_entry)
 
-            sender_name, sender_email = from_name[0], from_name[1]
-            sender, _ = Sender.objects.get_or_create(
-                name=sender_name, email=sender_email
+        except Exception as e:
+            LOGGER.error(
+                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
 
-            provider = "Gmail"
+    LOGGER.info(f"topic: {topic}")
+    LOGGER.info(f"importance: {importance}")
+    LOGGER.info(f"answer: {answer}")
+    LOGGER.info(f"summary: {summary_list}")
+    LOGGER.info(f"sentence:  {sentence}")
+    LOGGER.info(f"relevance: {relevance}")
+    LOGGER.info(f"importance_dict:  {importance_dict}")
 
-            try:
-                email_entry = Email.objects.create(
-                    provider_id=email_id,
-                    email_provider=provider,
-                    email_short_summary=sentence,
-                    content=decoded_data,
-                    subject=subject,
-                    priority=importance,
-                    read=False,
-                    answer_later=False,
-                    sender=sender,
-                    category=category,
-                    user=user,
-                    date=sent_date,
-                )
-
-                # If the email has a summary, save it in the BulletPoint table
-                if summary_list:
-                    for point in summary_list:
-                        BulletPoint.objects.create(content=point, email=email_entry)
-
-            except Exception as e:
-                LOGGER.error(
-                    f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
-                )
-
-        # Debug prints
-        LOGGER.info(f"topic: {topic}")
-        LOGGER.info(f"importance: {importance}")
-        LOGGER.info(f"answer: {answer}")
-        LOGGER.info(f"summary: {summary_list}")
-        LOGGER.info(f"sentence:  {sentence}")
-        LOGGER.info(f"relevance: {relevance}")
-        LOGGER.info(f"importance_dict:  {importance_dict}")
 
 
 ####################################################################
@@ -948,12 +862,10 @@ def processed_email_to_bdd(request, services):
         # TODO: if not exist put in other
         category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 
-        provider = "Gmail"
-
         try:
             email_entry = Email.objects.create(
                 provider_id=email_id,
-                email_provider=provider,
+                email_provider=GOOGLE_PROVIDER,
                 email_short_summary=sentence,
                 content=decoded_data,
                 subject=subject,
@@ -984,9 +896,6 @@ def processed_email_to_bdd(request, services):
         LOGGER.info(f"sentence:  {sentence}")
         LOGGER.info(f"relevance: {relevance}")
         LOGGER.info(f"importance_dict:  {importance_dict}")
-
-    else:
-        LOGGER.error(f"The email with ID {email_id} already exists.")
 
 
 '''@api_view(["GET"])

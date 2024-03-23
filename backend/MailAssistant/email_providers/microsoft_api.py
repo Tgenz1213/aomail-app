@@ -19,6 +19,7 @@ from MailAssistant.constants import (
     GRAPH_URL,
     MICROSOFT_AUTHORITY,
     MICROSOFT_CONFIG,
+    MICROSOFT_PROVIDER,
     MICROSOFT_SCOPES,
     REDIRECT_URI,
 )
@@ -593,12 +594,10 @@ def processed_email_to_bdd(user, email):
         # Get the relevant category based
         category = Category.objects.get_or_create(name=topic, user=user)[0]
 
-        provider = "Outlook"
-
         try:
             email_entry = Email.objects.create(
                 provider_id=email_id,
-                email_provider=provider,
+                email_provider=MICROSOFT_PROVIDER,
                 email_short_summary=sentence,
                 content=decoded_data,
                 subject=subject,
@@ -628,9 +627,6 @@ def processed_email_to_bdd(user, email):
         LOGGER.info(f"sentence:  {sentence}")
         LOGGER.info(f"relevance: {relevance}")
         LOGGER.info(f"importance_dict:  {importance_dict}")
-
-    else:
-        LOGGER.error(f"The email with ID {email_id} already exists.")
 
 
 '''@api_view(["GET"])

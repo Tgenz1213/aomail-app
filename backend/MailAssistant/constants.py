@@ -48,7 +48,8 @@ GOOGLE_SCOPES = [
 GOOGLE_CREDS = f"{CREDS_PATH}google_creds.json"
 GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS, "r"))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
-GOOGLE_TOPIC_NAME = 'mail_push'
+GOOGLE_TOPIC_NAME = "mail_push"
+GOOGLE_PROVIDER = "Gmail"
 
 ######################## MICROSOFT API ########################
 MICROSOFT_READ_SCOPE = "Mail.Read"
@@ -72,3 +73,4 @@ MICROSOFT_AUTHORITY = (
     f'https://login.microsoftonline.com/{MICROSOFT_CONFIG["tenant_id"]}'
 )
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
+MICROSOFT_PROVIDER = "Outlook"

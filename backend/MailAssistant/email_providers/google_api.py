@@ -752,7 +752,8 @@ def email_to_bdd(user, services, id_email):
         category_list = library.get_db_categories(user)
         category = Category.objects.get(name="Others", user=user)
         rule = Rule.objects.filter(sender=sender)
-
+        rule_category = None
+        
         if rule.exists():
             if rule.block:
                 return
@@ -760,6 +761,7 @@ def email_to_bdd(user, services, id_email):
             if rule.category:
                 # Find the category by checking if a sender has a category
                 category = rule.category
+                rule_category = True
 
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
@@ -785,8 +787,9 @@ def email_to_bdd(user, services, id_email):
                 if value >= 51:
                     importance = key
 
-        if topic in category_list:
-            category = topic
+        if not rule_category:
+            if topic in category_list:
+                category = Category.objects.get(name=topic)
 
         sender_name, sender_email = from_name[0], from_name[1]
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
@@ -806,6 +809,7 @@ def email_to_bdd(user, services, id_email):
                 user=user,
                 date=sent_date,
             )
+            print(f"DEBUG: {email_entry}")
 
             if summary_list:
                 for point in summary_list:

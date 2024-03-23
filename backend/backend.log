@@ -575,3 +575,75 @@ DETAIL:  Key (provider_id)=(18e6c0feccd02bb2) already exists.
 2024-03-23 16:22:48 | MailAssistant.email_providers.google_api.py | Line 815 | ERROR - An error occurred when trying to create an email with ID 18e6c1daf3ddc0c4: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
 2024-03-23 16:22:49 | MailAssistant.email_providers.google_api.py | Line 815 | ERROR - An error occurred when trying to create an email with ID 18e6c1daf3ddc0c4: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
 2024-03-23 16:22:50 | MailAssistant.email_providers.google_api.py | Line 815 | ERROR - An error occurred when trying to create an email with ID 18e6c1daf3ddc0c4: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:26:18 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:19 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:20 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:20 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:21 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:21 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:22 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:22 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:23 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:23 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:24 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:24 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:25 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:25 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:26 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:26:26 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:27:00 | MailAssistant.email_providers.google_api.py | Line 818 | ERROR - An error occurred when trying to create an email with ID 18e6c22c38270a2e: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:27:03 | MailAssistant.email_providers.google_api.py | Line 818 | ERROR - An error occurred when trying to create an email with ID 18e6c22c38270a2e: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:27:03 | MailAssistant.email_providers.google_api.py | Line 818 | ERROR - An error occurred when trying to create an email with ID 18e6c22c38270a2e: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:27:04 | MailAssistant.email_providers.google_api.py | Line 818 | ERROR - An error occurred when trying to create an email with ID 18e6c22c38270a2e: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:28:26 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:27 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:28 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:29 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:29 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:30 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:30 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:31 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:31 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:28:34 | MailAssistant.email_providers.google_api.py | Line 819 | ERROR - An error occurred when trying to create an email with ID 18e6c2475a4fa308: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:28:35 | MailAssistant.email_providers.google_api.py | Line 819 | ERROR - An error occurred when trying to create an email with ID 18e6c2475a4fa308: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:28:35 | MailAssistant.email_providers.google_api.py | Line 819 | ERROR - An error occurred when trying to create an email with ID 18e6c2475a4fa308: Cannot assign "'ESAIP'": "Email.category" must be a "Category" instance.
+2024-03-23 16:31:28 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:30 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:31 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:31 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:32 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:32 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:33 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:33 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:34 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:34 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:35 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:35 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:36 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:37 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:37 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:38 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:38 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:39 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:39 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:40 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:41 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:41 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot unpack non-iterable NoneType object
+2024-03-23 16:31:45 | MailAssistant.email_providers.google_api.py | Line 819 | ERROR - An error occurred when trying to create an email with ID 18e6c2759b87cd7d: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
+DETAIL:  Key (provider_id)=(18e6c2759b87cd7d) already exists.
+
+2024-03-23 16:31:46 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:47 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:48 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:50 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:51 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:52 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:53 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:54 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:55 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:57 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:58 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:31:59 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:32:00 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:32:02 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value
+2024-03-23 16:32:03 | MailAssistant.email_providers.google_api.py | Line 733 | ERROR - Error processing the notification: cannot access local variable 'topic' where it is not associated with a value

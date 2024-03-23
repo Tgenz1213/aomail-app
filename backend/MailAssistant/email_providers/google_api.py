@@ -34,7 +34,7 @@ from MailAssistant.constants import (
     GOOGLE_SCOPES,
 )
 from .. import library
-from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
+from ..models import Rule, SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from base64 import urlsafe_b64encode
 
 
@@ -733,7 +733,7 @@ def email_to_bdd(user, services, id_email):
                     decoded_data = library.format_mail(decoded_data)
 
                 # Get user categories
-                category_list = library.get_db_categories(request.user)
+                category_list = library.get_db_categories(user)
 
                 # Process the email data with AI/NLP
                 # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
@@ -792,8 +792,8 @@ def email_to_bdd(user, services, id_email):
                         answer_later=False,
                         sender=sender,
                         category=category,
-                        user=request.user,
-                        date=date,
+                        user=user,
+                        date=sent_date,
                     )
 
                     # If the email has a summary, save it in the BulletPoint table
@@ -819,7 +819,7 @@ def email_to_bdd(user, services, id_email):
                 decoded_data = library.format_mail(decoded_data)
 
             # Get user categories
-            category_list = library.get_db_categories(request.user)
+            category_list = library.get_db_categories(user)
 
             # Process the email data with AI/NLP
             # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
@@ -852,7 +852,7 @@ def email_to_bdd(user, services, id_email):
             sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
             # Get the relevant category based
-            category = Category.objects.get_or_create(name=topic, user=request.user)[0]
+            category = Category.objects.get_or_create(name=topic, user=user)[0]
 
             provider = "Gmail"
 
@@ -868,8 +868,8 @@ def email_to_bdd(user, services, id_email):
                     answer_later=False,
                     sender=sender,
                     category=category,
-                    user=request.user,
-                    date=date,
+                    user=user,
+                    date=sent_date,
                 )
 
                 # If the email has a summary, save it in the BulletPoint table

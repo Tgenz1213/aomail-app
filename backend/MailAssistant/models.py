@@ -17,7 +17,7 @@ class Message(models.Model):
 class Sender(models.Model):
     """Model for storing sender information."""
 
-    email = models.CharField(max_length=200)
+    email = models.CharField(max_length=200, unique=True)
     name = models.CharField(max_length=200)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True

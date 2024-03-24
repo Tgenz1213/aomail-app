@@ -23,6 +23,7 @@ CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json", "r"))
 HUMAN = "\n\nHuman: "
 ASSISTANT = "Assistant:"
 IMPORTANT = "Important"
+DEFAULT_CATEGORY = "Others"
 
 
 ######################## GOOGLE API ########################

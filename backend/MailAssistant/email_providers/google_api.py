@@ -29,6 +29,7 @@ from rest_framework.response import Response
 from MailAssistant.serializers import EmailDataSerializer
 from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral
 from MailAssistant.constants import (
+    DEFAULT_CATEGORY,
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
     GOOGLE_EMAIL_MODIFY,
@@ -703,10 +704,6 @@ def receive_mail_notifications(request):
             # print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
-            # return JsonResponse(
-            #     {"error": f"SocialAPI entry not found for the email: {email}"},
-            #     status=404,
-            # )
 
         # TODO: add API key to avoid error 403
         # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
@@ -725,16 +722,16 @@ def receive_mail_notifications(request):
         response = requests.post(ack_url, json=ack_payload)
 
         if response.status_code == 200:
-            print("Acknowledgement sent successfully")
+            LOGGER.info("Acknowledgement sent successfully")
 
         # TODO: handle casese where it fails
         elif response.status_code == 403:
-            print(
+            LOGGER.info(
                 "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"
             )
         else:
-            print("DEBUG RESPONSE====================>", response.json())
-            print(f"Failed to send acknowledgement: {response.reason}")
+            LOGGER.info("DEBUG RESPONSE====================>", response.json())
+            LOGGER.error(f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}")
 
         return Response(status=200)
 
@@ -758,8 +755,10 @@ def email_to_bdd(user, services, id_email):
             return
 
         decoded_data = library.format_mail(decoded_data)
-        category_list = library.get_db_categories(user)
-        category = Category.objects.get(name="Others", user=user)
+        category_dict = library.get_db_categories(user)
+        category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
+
+        print("IMPORTANT=====================================", category)
         rule = Rule.objects.filter(sender=sender)
         rule_category = None
 
@@ -785,7 +784,7 @@ def email_to_bdd(user, services, id_email):
             # gpt_3_5_turbo
             # claude
             mistral.categorize_and_summarize_email(
-                subject, decoded_data, category_list, user_description
+                subject, decoded_data, category_dict, user_description
             )
         )
 
@@ -797,8 +796,8 @@ def email_to_bdd(user, services, id_email):
                     importance = key
 
         if not rule_category:
-            if topic in category_list:
-                category = Category.objects.get(name=topic)
+            if topic in category_dict:
+                category = Category.objects.get(name=topic, user=user)
 
         sender_name, sender_email = from_name[0], from_name[1]
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
@@ -829,7 +828,7 @@ def email_to_bdd(user, services, id_email):
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
 
-
+'''
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
@@ -846,7 +845,7 @@ def processed_email_to_bdd(request, services):
             decoded_data = library.format_mail(decoded_data)
 
         # Get user categories
-        category_list = library.get_db_categories(request.user)
+        category_dict = library.get_db_categories(request.user)
 
         # Process the email data with AI/NLP
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
@@ -862,7 +861,7 @@ def processed_email_to_bdd(request, services):
             # gpt_3_5_turbo
             # claude
             mistral.categorize_and_summarize_email(
-                subject, decoded_data, category_list, user_description
+                subject, decoded_data, category_dict, user_description
             )
         )
 
@@ -914,7 +913,7 @@ def processed_email_to_bdd(request, services):
         LOGGER.info(f"summary: {summary}")
         LOGGER.info(f"sentence:  {sentence}")
         LOGGER.info(f"relevance: {relevance}")
-        LOGGER.info(f"importance_dict:  {importance_dict}")
+        LOGGER.info(f"importance_dict:  {importance_dict}")'''
 
 
 '''@api_view(["GET"])
@@ -1128,9 +1127,9 @@ def processed_email_to_bdd(request, services):
             decoded_data = library.format_mail(decoded_data)
 
         # Get user categories
-        category_list = library.get_db_categories(request.user)
+        category_dict = library.get_db_categories(request.user)
 
-        # print("DEBUG -------------> category", category_list)
+        # print("DEBUG -------------> category", category_dict)
 
         # Process the email data with AI/NLP
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
@@ -1147,7 +1146,7 @@ def processed_email_to_bdd(request, services):
             # gpt_3_5_turbo
             # claude
             mistral.categorize_and_summarize_email(
-                subject, decoded_data, category_list, user_description
+                subject, decoded_data, category_dict, user_description
             )
         )
 

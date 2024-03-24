@@ -13,11 +13,12 @@ from collections import defaultdict
 from django.db import IntegrityError
 from urllib.parse import urlencode
 from rest_framework.response import Response
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
 from MailAssistant.constants import (
     BASE_URL,
+    DEFAULT_CATEGORY,
     GRAPH_URL,
     IMPORTANT,
     MICROSOFT_AUTHORITY,
@@ -564,27 +565,28 @@ def subscribe_to_email_notifications(user, email) -> bool:
     notification_url = (
         f"{GRAPH_URL}/MailAssistant/microsoft/receive_mail_notifications/"
     )
-    expiration_date = (
-        datetime.datetime.now() + datetime.timedelta(days=36525)
-    ).isoformat()
+    expiration_date = datetime.datetime.now() + datetime.timedelta(days=7)
+    expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
     subscription_body = {
         "changeType": "created",
         "notificationUrl": notification_url,
         "resource": "me/mailFolders('inbox')/messages",
-        "expirationDateTime": expiration_date,
+        "expirationDateTime": expiration_date_str,
     }
     url = "https://graph.microsoft.com/v1.0/subscriptions"
     headers = get_headers(access_token)
 
     try:
         response = requests.post(url, json=subscription_body, headers=headers)
+        print(f"DEBUG Response >>> {response.json()}")
+
         if response.status_code == 200:
-            print("DEBUG MICROSOFT =====> Subscription created successfully.")
+            LOGGER.info("Subscription created successfully.")
             return True
         else:
             LOGGER.error(
-                f"Failed to subscribe to email notifications for user with ID: {user.id} and email {email}"
+                f"Failed to subscribe to email notifications for user with ID: {user.id} and email {email}: {response.reason}"
             )
             return False
 
@@ -599,19 +601,12 @@ def subscribe_to_email_notifications(user, email) -> bool:
 @permission_classes([AllowAny])
 def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
+    print("TRIGGERED THE RECEIVING URL receive_mail_notifications")
+    print(request.headers)
 
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-        print("DEBUG MICROSOFT DATA=>", data)
-
-        email_notification = data.get("value", {})
-        print("DEBUG MICROSOFT email_notification=>", email_notification)
-
-        return Response(status=200)
-
-    except Exception as e:
-        LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": str(e)}, status=500)
+    # if request.method == 'POST' and 'validationToken' in request.data:
+    #     validation_token = request.data['validationToken']
+    #     return HttpResponse(validation_token, content_type='text/plain')
 
 
 def email_to_bdd(user, email, id_email):
@@ -629,8 +624,8 @@ def email_to_bdd(user, email, id_email):
             return
 
         decoded_data = library.format_mail(decoded_data)
-        category_list = library.get_db_categories(user)
-        category = Category.objects.get(name="Others", user=user)
+        category_dict = library.get_db_categories(user)
+        category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
         rule = Rule.objects.filter(sender=sender)
         rule_category = None
 
@@ -652,7 +647,7 @@ def email_to_bdd(user, email, id_email):
             sentence,
             relevance,
         ) = mistral.categorize_and_summarize_email(
-            subject, decoded_data, category_list, user_description
+            subject, decoded_data, category_dict, user_description
         )
 
         if importance_dict[IMPORTANT] == 50:
@@ -663,7 +658,7 @@ def email_to_bdd(user, email, id_email):
                     importance = key
 
         if not rule_category:
-            if topic in category_list:
+            if topic in category_dict:
                 category = Category.objects.get(name=topic)
 
         sender_name, sender_email = from_name[0], from_name[1]
@@ -711,7 +706,7 @@ def processed_email_to_bdd(user, email):
             decoded_data = library.format_mail(decoded_data)
 
         # Get user categories
-        category_list = library.get_db_categories(user)
+        category_dict = library.get_db_categories(user)
 
         # Process the email data with AI/NLP
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
@@ -724,7 +719,7 @@ def processed_email_to_bdd(user, email):
             sentence,
             relevance,
         ) = mistral.categorize_and_summarize_email(
-            subject, decoded_data, category_list, user_description
+            subject, decoded_data, category_dict, user_description
         )
 
         # Extract the importance of the email

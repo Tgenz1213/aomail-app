@@ -7,7 +7,7 @@ import json
 import re
 import anthropic
 from colorama import Fore, init
-from MailAssistant.constants import CLAUDE_CREDS, HUMAN, ASSISTANT
+from MailAssistant.constants import CLAUDE_CREDS, DEFAULT_CATEGORY, HUMAN, ASSISTANT
 
 
 ######################## Claude 3 API SETTINGS ########################
@@ -294,9 +294,11 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
 
 def categorize_and_summarize_email(
-    subject, decoded_data, category_list, user_description
+    subject: str, decoded_data: str, category_dict: dict, user_description: str
 ):
     """Categorizes and summarizes an email"""
+
+    category_dict.pop(DEFAULT_CATEGORY)
 
     importance_list = {
         "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
@@ -328,7 +330,7 @@ def categorize_and_summarize_email(
     Using the provided categories:
 
     Topic Categories:
-    {category_list}
+    {category_dict}
 
     Importance Categories:
     {importance_list}

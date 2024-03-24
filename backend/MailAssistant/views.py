@@ -23,7 +23,7 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
-from MailAssistant.constants import GOOGLE_PROJECT_ID, GOOGLE_TOPIC_NAME
+from MailAssistant.constants import DEFAULT_CATEGORY, GOOGLE_PROJECT_ID, GOOGLE_TOPIC_NAME
 from .models import (
     Category,
     SocialAPI,
@@ -66,6 +66,15 @@ def signup(request):
         - Gmail API (Google)
         - Graph API (Microsoft)
     """
+    # DEBUG FOR microsoft listener
+    try:
+        SocialAPI.objects.filter(email="augustin@MailAssistant.onmicrosoft.com").delete()
+    except:
+        try:
+            User.objects.filter(username="testtest").delete()
+        except:
+            pass
+    
     # Extract user data from the request
     type_api = request.data.get("type_api")
     code = request.data.get("code")
@@ -107,7 +116,7 @@ def signup(request):
     user = User.objects.create_user(username, "", password)
     user_id = user.id
     refresh = RefreshToken.for_user(user)
-    jwt_access_token = str(refresh.access_token)
+    django_access_token = str(refresh.access_token)
     user.save()
 
     # Asynchronous function to store all contacts
@@ -135,12 +144,20 @@ def signup(request):
         subscribed = google_api.subscribe_to_email_notifications(user, email)
         if subscribed:
             return Response(
-                {"user_id": user_id, "access_token": jwt_access_token, "email": email},
+                {"user_id": user_id, "access_token": django_access_token, "email": email},
+                status=201,
+            )
+    elif type_api == "microsoft":
+        subscribed = microsoft_api.subscribe_to_email_notifications(user, email)
+        if subscribed:
+            return Response(
+                {"user_id": user_id, "access_token": django_access_token, "email": email},
                 status=201,
             )
 
+    # TOODO: remove when microsoft webhook will work
     return Response(
-        {"user_id": user_id, "access_token": jwt_access_token, "email": email},
+        {"user_id": user_id, "access_token": django_access_token, "email": email},
         status=201,
     )
 
@@ -221,8 +238,8 @@ def save_user_data(
 
         # Creation of the Other/default category => TO UPDATE WITH THE LANGUAGE
         default_category = Category(
-            name="Others",
-            description="Choose this category only as a last resort, if you can't place the mail in any other category",
+            name=DEFAULT_CATEGORY,
+            description="",
             user=user,
         )
         default_category.save()

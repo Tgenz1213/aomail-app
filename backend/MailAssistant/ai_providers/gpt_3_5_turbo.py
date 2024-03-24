@@ -3,7 +3,7 @@ Handles prompt engineering requests for GPT-3.5-turbo API.
 """
 
 from colorama import Fore, init
-from MailAssistant.constants import OPENAI_CREDS
+from MailAssistant.constants import DEFAULT_CATEGORY, OPENAI_CREDS
 import json
 import re
 import openai
@@ -336,11 +336,14 @@ def generate_email_response(input_subject, input_body, response_type, language):
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
 
+
 # TODO: update with claude and mistral prompt engineering
 def categorize_and_summarize_email(
-    subject, decoded_data, category_list, user_description
+    subject: str, decoded_data: str, category_dict: dict, user_description: str
 ):
     """Categorizes and summarizes an email"""
+
+    category_dict.pop(DEFAULT_CATEGORY)
 
     template = """Given the following email:
 
@@ -413,7 +416,7 @@ def categorize_and_summarize_email(
         subject=subject,
         text=decoded_data,
         user=user_description,
-        category=category_list,
+        category=category_dict,
         importance=importance_list,
         answer=response_list,
         relevance=relevance_list,

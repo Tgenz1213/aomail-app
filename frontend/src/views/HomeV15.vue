@@ -1563,7 +1563,6 @@ async function markEmailReplyLater(emailId) {
         if (response.answer_later) {
             // TODO: remove it from the home page
             console.log("Email marked for reply later successfully");
-            //markEmailAsRead(emailId);
             isMenuOpen.value = false;
         } else {
             console.error('Failed to mark email for reply later', response);
@@ -1877,7 +1876,7 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
-    return combinedEmails.filter(email => email.answer_later==false);
+    return combinedEmails.filter(email => email.answer_later==false && email.read);
 }
 
 function toggleReadEmailVisibility() {

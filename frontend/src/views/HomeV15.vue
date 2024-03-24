@@ -1382,7 +1382,7 @@ function getNumberUnreadMail(emailData) {
             const emailsInSubcategory = emailData[category][subcategory];
 
             for (const email of emailsInSubcategory) {
-                if (!email.read) {
+                if (!email.read && !email.answer_later) {
                     totalUnread++;
                 }
             }

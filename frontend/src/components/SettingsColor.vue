@@ -1,18 +1,38 @@
-<!-- TODO: Center the colors -->
 <template>
   <RadioGroup v-model="selectedColor">
-    <div class="flex flex-wrap mt-1 justify-center">
-      <RadioGroupOption v-for="(color, index) in colors" :key="color.name" :value="color" v-slot="{ active, checked }"
-        @click="$emit('colorSelected', color.bgColor)">
-        <div
-          :class="[color.selectedColor, active && checked ? 'ring ring-offset-1' : '', !active && checked ? 'ring-2' : '', 'relative -m-0.5 mt-3 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none mx-1 mb-2']">
-          <span aria-hidden="true"
-            :class="[color.bgColor, 'h-8 w-8 rounded-full border border-black border-opacity-10']"></span>
+    <!-- Split colors into three rows -->
+    <div class="flex flex-wrap justify-center">
+      <!-- Iterate over each row -->
+      <template v-for="rowIndex in 3" :key="rowIndex">
+        <!-- Start a new row -->
+        <div class="flex items-center mb-1">
+          <!-- Iterate over ten colors in each row -->
+          <template v-for="colIndex in 10" :key="(rowIndex - 1) * 10 + colIndex">
+            <!-- Calculate the index of the color -->
+            <template v-if="(rowIndex - 1) * 10 + colIndex <= colors.length">
+              <!-- Render the color -->
+              <RadioGroupOption :value="colors[(rowIndex - 1) * 10 + colIndex - 1]" v-slot="{ active, checked }"
+                @click="$emit('colorSelected', colors[(rowIndex - 1) * 10 + colIndex - 1].bgColor)">
+                <div :class="[
+    colors[(rowIndex - 1) * 10 + colIndex - 1].selectedColor,
+    active && checked ? 'ring ring-offset-1' : '',
+    !active && checked ? 'ring-2' : '',
+    'relative -m-0.5 mt-3 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none mx-1 mb-2'
+  ]">
+                  <span aria-hidden="true" :class="[
+    colors[(rowIndex - 1) * 10 + colIndex - 1].bgColor,
+    'h-8 w-8 rounded-full border border-black border-opacity-10'
+  ]"></span>
+                </div>
+              </RadioGroupOption>
+            </template>
+          </template>
         </div>
-      </RadioGroupOption>
+      </template>
     </div>
   </RadioGroup>
 </template>
+
 
 <script setup>
 import { ref } from 'vue'

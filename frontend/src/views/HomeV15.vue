@@ -1355,7 +1355,6 @@ onMounted(async () => {
     });
 
     setInterval(async () => {
-        // TODO: auto update emails.value with google listener and this function will auto update itself
         const newTotalUnread = getNumberUnreadMail(emails.value);
 
         if (initialAnimationDone.value === false) {
@@ -1564,7 +1563,7 @@ async function markEmailReplyLater(emailId) {
         if (response.answer_later) {
             // TODO: remove it from the home page
             console.log("Email marked for reply later successfully");
-            markEmailAsRead(emailId);
+            //markEmailAsRead(emailId);
             isMenuOpen.value = false;
         } else {
             console.error('Failed to mark email for reply later', response);
@@ -1878,7 +1877,7 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
-    //console.log("DEBUG READ", combinedEmails);
+    console.log("DEBUG answer_later", combinedEmails);
 
     return combinedEmails.filter(email => email.read);
 }
@@ -2009,7 +2008,6 @@ function totalEmailsInCategoryNotRead(categoryName) {
 }
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-    //console.log('emailData: ', emailData)
     emails.value = emailData;
 }
 async function fetchData() {

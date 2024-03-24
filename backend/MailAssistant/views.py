@@ -1223,6 +1223,7 @@ def get_user_emails(request):
             "read": email.read,
             "rule": email.has_rule,
             "rule_id": email.rule_id,
+            "answer_later": email.answer_later
         }
         formatted_data[email.category.name][email.priority].append(email_data)
 

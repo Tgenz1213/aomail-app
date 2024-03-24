@@ -1957,7 +1957,7 @@ function countEmailsInCategoryAndPriority(categoryName, priority) {
     let count = 0;
     if (emails.value[categoryName] && emails.value[categoryName][priority]) {
         for (let email of emails.value[categoryName][priority]) {
-            if (!email.read) {
+            if (!email.read && !email.answer_later) {
                 count++;
             }
         }
@@ -1997,7 +1997,7 @@ function totalEmailsInCategoryNotRead(categoryName) {
     if (emails.value[categoryName]) {
         for (let subcategory of Object.values(emails.value[categoryName])) {
             for (let email of subcategory) {
-                if (!email.read) {
+                if (!email.read && !email.answer_later) {
                     totalCount++;
                 }
             }

@@ -703,10 +703,10 @@ def receive_mail_notifications(request):
             # print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
-            return JsonResponse(
-                {"error": f"SocialAPI entry not found for the email: {email}"},
-                status=404,
-            )
+            # return JsonResponse(
+            #     {"error": f"SocialAPI entry not found for the email: {email}"},
+            #     status=404,
+            # )
 
         # TODO: add API key to avoid error 403
         # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"

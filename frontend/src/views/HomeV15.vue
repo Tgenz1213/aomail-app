@@ -1877,9 +1877,7 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
-    console.log("DEBUG answer_later", combinedEmails);
-
-    return combinedEmails.filter(email => email.read);
+    return combinedEmails.filter(email => email.answer_later==false);
 }
 
 function toggleReadEmailVisibility() {
@@ -1986,7 +1984,9 @@ function totalEmailsInCategory(categoryName) {
     if (emails.value[categoryName]) {
         for (let subcategory of Object.values(emails.value[categoryName])) {
             for (let email of subcategory) {
-                totalCount++;
+                if (email.answer_later == false) {
+                    totalCount++;
+                }
             }
         }
     }

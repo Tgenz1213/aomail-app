@@ -33,7 +33,9 @@ from MailAssistant.constants import (
     GOOGLE_CREDS,
     GOOGLE_EMAIL_MODIFY,
     GOOGLE_LISTENER_API_KEY,
+    GOOGLE_PROJECT_ID,
     GOOGLE_PROVIDER,
+    GOOGLE_TOPIC_NAME,
     IMPORTANT,
     REDIRECT_URI,
     GOOGLE_SCOPES,
@@ -630,7 +632,7 @@ def get_email(access_token, refresh_token):
 
 
 ######################## GOOGLE LISTENER ########################
-def subscribe_to_email_notifications(user, email, project_id, topic_name) -> bool:
+def subscribe_to_email_notifications(user, email) -> bool:
     """Subscribe the user to email notifications for a specific topic in Google."""
 
     try:
@@ -638,18 +640,17 @@ def subscribe_to_email_notifications(user, email, project_id, topic_name) -> boo
         credentials = get_credentials(user, email)
         services = build_services(credentials)
         if services is None:
-            raise Exception("Failed to authenticate")
+            return False
 
         gmail_service = services["gmail.readonly"]
 
         request_body = {
             "labelIds": ["INBOX"],
-            "topicName": f"projects/{project_id}/topics/{topic_name}",
+            "topicName": f"projects/{GOOGLE_PROJECT_ID}/topics/{GOOGLE_TOPIC_NAME}",
         }
 
         response = gmail_service.users().watch(userId="me", body=request_body).execute()
 
-        # Vérifier si l'abonnement a réussi
         if "historyId" in response:
             print(
                 f"Successfully subscribed to email notifications for user {user.username} and email {email}"

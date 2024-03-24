@@ -4,6 +4,7 @@ Handles authentication and HTTP requests for the Microsoft Graph API.
 
 import base64
 import datetime
+import json
 import logging
 import time
 import httpx
@@ -16,6 +17,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
 from MailAssistant.constants import (
+    BASE_URL,
     GRAPH_URL,
     IMPORTANT,
     MICROSOFT_AUTHORITY,
@@ -26,8 +28,8 @@ from MailAssistant.constants import (
 )
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from ..models import Contact, SocialAPI
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from ..models import Contact, Rule, SocialAPI
 from requests.exceptions import HTTPError
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral
@@ -552,6 +554,150 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         email_id,
         sent_date,
     )
+
+
+######################## MICROSOFT LISTENER ########################
+def subscribe_to_email_notifications(user, email) -> bool:
+    """Subscribe the user to a webhook for email notifications"""
+
+    access_token = refresh_access_token(get_social_api(user, email))
+    notification_url = (
+        f"{GRAPH_URL}/MailAssistant/microsoft/receive_mail_notifications/"
+    )
+    expiration_date = (
+        datetime.datetime.now() + datetime.timedelta(days=36525)
+    ).isoformat()
+
+    subscription_body = {
+        "changeType": "created",
+        "notificationUrl": notification_url,
+        "resource": "me/mailFolders('inbox')/messages",
+        "expirationDateTime": expiration_date,
+    }
+    url = "https://graph.microsoft.com/v1.0/subscriptions"
+    headers = get_headers(access_token)
+
+    try:
+        response = requests.post(url, json=subscription_body, headers=headers)
+        if response.status_code == 200:
+            print("DEBUG MICROSOFT =====> Subscription created successfully.")
+            return True
+        else:
+            LOGGER.error(
+                f"Failed to subscribe to email notifications for user with ID: {user.id} and email {email}"
+            )
+            return False
+
+    except Exception as e:
+        LOGGER.error(
+            f"An error occurred while subscribing to email notifications: {str(e)}"
+        )
+        return False
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def receive_mail_notifications(request):
+    """Process email notifications from Google listener"""
+
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        print("DEBUG MICROSOFT DATA=>", data)
+
+        email_notification = data.get("value", {})
+        print("DEBUG MICROSOFT email_notification=>", email_notification)
+
+        return Response(status=200)
+
+    except Exception as e:
+        LOGGER.error(f"Error processing the notification: {str(e)}")
+        return Response({"error": str(e)}, status=500)
+
+
+def email_to_bdd(user, email, id_email):
+    """Saves email notifications from Microsoft listener to database"""
+
+    access_token = refresh_access_token(get_social_api(user, email))
+    subject, from_name, decoded_data, _, _, email_id, sent_date = get_mail(
+        access_token, None, id_email
+    )
+
+    if not Email.objects.filter(provider_id=email_id).exists():
+        sender = Sender.objects.filter(email=from_name[1]).first()
+
+        if not decoded_data:
+            return
+
+        decoded_data = library.format_mail(decoded_data)
+        category_list = library.get_db_categories(user)
+        category = Category.objects.get(name="Others", user=user)
+        rule = Rule.objects.filter(sender=sender)
+        rule_category = None
+
+        if rule.exists():
+            if rule.block:
+                return
+
+            if rule.category:
+                category = rule.category
+                rule_category = True
+
+        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
+        user_description = ""
+        (
+            topic,
+            importance_dict,
+            answer,
+            summary_list,
+            sentence,
+            relevance,
+        ) = mistral.categorize_and_summarize_email(
+            subject, decoded_data, category_list, user_description
+        )
+
+        if importance_dict[IMPORTANT] == 50:
+            importance = IMPORTANT
+        else:
+            for key, value in importance_dict.items():
+                if value >= 51:
+                    importance = key
+
+        if not rule_category:
+            if topic in category_list:
+                category = Category.objects.get(name=topic)
+
+        sender_name, sender_email = from_name[0], from_name[1]
+        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+
+        try:
+            email_entry = Email.objects.create(
+                provider_id=email_id,
+                email_provider=MICROSOFT_PROVIDER,
+                email_short_summary=sentence,
+                content=decoded_data,
+                subject=subject,
+                priority=importance,
+                read=False,
+                answer_later=False,
+                sender=sender,
+                category=category,
+                user=user,
+                date=sent_date,
+            )
+
+            if summary_list:
+                for point in summary_list:
+                    BulletPoint.objects.create(content=point, email=email_entry)
+
+        except Exception as e:
+            LOGGER.error(
+                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
+            )
+
+
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
 
 
 def processed_email_to_bdd(user, email):

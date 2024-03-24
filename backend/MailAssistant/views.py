@@ -132,9 +132,7 @@ def signup(request):
 
     # Create the Google listener
     if type_api == "google":
-        subscribed = google_api.subscribe_to_email_notifications(
-            user, email, GOOGLE_PROJECT_ID, GOOGLE_TOPIC_NAME
-        )
+        subscribed = google_api.subscribe_to_email_notifications(user, email)
         if subscribed:
             return Response(
                 {"user_id": user_id, "access_token": jwt_access_token, "email": email},

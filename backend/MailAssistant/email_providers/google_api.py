@@ -757,8 +757,6 @@ def email_to_bdd(user, services, id_email):
         decoded_data = library.format_mail(decoded_data)
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
-
-        print("IMPORTANT=====================================", category)
         rule = Rule.objects.filter(sender=sender)
         rule_category = None
 
@@ -781,9 +779,9 @@ def email_to_bdd(user, services, id_email):
             sentence,
             relevance,
         ) = (
-            # gpt_3_5_turbo
+            # mistral
             # claude
-            mistral.categorize_and_summarize_email(
+            gpt_3_5_turbo.categorize_and_summarize_email(
                 subject, decoded_data, category_dict, user_description
             )
         )

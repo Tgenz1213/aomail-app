@@ -22,7 +22,7 @@ def get_prompt_response(formatted_prompt):
         model="claude-3-haiku-20240307",
         max_tokens=1000,
         temperature=0.0,
-        messages=[{"role": "user", "content": formatted_prompt}],
+        messages=[{"role": "assistant", "content": formatted_prompt}],
     )
     return response
 

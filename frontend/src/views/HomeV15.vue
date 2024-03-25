@@ -195,7 +195,7 @@
                                                 <div class="overflow-hidden border-l-4 border-red-500  hover:rounded-l-xl dark:border-red-300"
                                                     style="overflow: visible;">
                                                     <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
-                                                        <li v-for="item in emails[selectedTopic]['Important'].filter(email => !email.read)"
+                                                        <li v-for="item in emails[selectedTopic]['Important'].filter(email => !email.read && !email.answer_later)"
                                                             :key="item.id"
                                                             class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
@@ -463,7 +463,7 @@
                                                 <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300 dark:bg-blue-500"
                                                     style="overflow: visible;">
                                                     <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
-                                                        <li v-for="item in emails[selectedTopic]['Information'].filter(email => !email.read)"
+                                                        <li v-for="item in emails[selectedTopic]['Information'].filter(email => !email.read && !email.answer_later)"
                                                             :key="item.id"
                                                             class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
                                                             @mouseover="setHoveredItem(item.id)"
@@ -704,9 +704,10 @@
                                             </div>
                                         </div>
                                     </li>
+                                    <!-- add @click="toggleEmailVisibility"-->
                                     <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
                                         class="cursor-pointer group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20"
-                                        @click="toggleEmailVisibility">
+                                        >
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
                                             <div class="float-right mt-[-25px] mr-[-10px]">
@@ -734,7 +735,8 @@
                                                             <li
                                                                 class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                 <div class="flex gap-x-2">
-                                                                    <p>Vous avez reçu <span
+                                                                    <!-- remove @click="toggleEmailVisibility"-->
+                                                                    <p @click="toggleEmailVisibility" class="cursor-pointer">Vous avez reçu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
                                                                             {{ emails[selectedTopic]['Useless'].length
                                                                             }}
@@ -758,7 +760,8 @@
                                                                                     stroke-linejoin="round"
                                                                                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                             </svg>
-                                                                            <p>Cliquez pour voir les mails</p>
+                                                                            <!-- remove @click="toggleEmailVisibility"-->
+                                                                            <p @click="toggleEmailVisibility" class="cursor-pointer">Cliquez pour voir les mails</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1005,8 +1008,8 @@
                                         </li>
                                     </div>
                                     <div v-if="readEmailsInSelectedTopic().length > 0"
-                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30 cursor-pointer"
-                                        @click="toggleReadEmailVisibility">
+                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30"
+                                        >
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
                                             <div class="float-right mt-[-25px] mr-[-10px]">
@@ -1035,7 +1038,7 @@
                                                             <li
                                                                 class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                 <div class="flex group gap-x-2">
-                                                                    <p>Vous avez récemment lu <span
+                                                                    <p @click="toggleReadEmailVisibility" class="cursor-pointer">Vous avez récemment lu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">
                                                                             {{ readEmailsInSelectedTopic().length }}
                                                                         </span>
@@ -1057,7 +1060,7 @@
                                                                                     stroke-linejoin="round"
                                                                                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                             </svg>
-                                                                            <p>Cliquez pour voir les mails</p>
+                                                                            <p @click="toggleReadEmailVisibility" class="cursor-pointer">Cliquez pour voir les mails</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1068,17 +1071,44 @@
                                                                         :key="item.id"
                                                                         @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem">
-                                                                        <div class="col-span-8">
-                                                                            <div class="flex-auto">
-                                                                                <div
-                                                                                    class="flex items-baseline justify-between gap-x-4">
-                                                                                    <p
-                                                                                        class="text-sm font-semibold leading-6 text-emerald-800 dark:text-white">
-                                                                                        {{ item.name }}</p>
-                                                                                </div>
-                                                                                <p>{{ item.description }}</p>
+                                                                        
+                                                                        <div class="col-span-8 cursor-pointer"
+                                                                @click="toggleHiddenParagraph(item.id)">
+                                                                <div class="flex-auto group">
+                                                                    <div class="flex gap-x-4">
+                                                                        <p
+                                                                            class="text-sm font-semibold leading-6 text-emerald-500 dark:text-white">
+                                                                            {{ item.name }}</p>
+                                                                        <div
+                                                                            class="hidden group-hover:block px-2 py-0.5 bg-emerald-400 text-white text-sm shadow rounded-xl">
+                                                                            <div class="flex gap-x-1 items-center">
+                                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                    fill="none" viewBox="0 0 24 24"
+                                                                                    stroke-width="1.5"
+                                                                                    stroke="currentColor"
+                                                                                    class="w-4 h-4">
+                                                                                    <path stroke-linecap="round"
+                                                                                        stroke-linejoin="round"
+                                                                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+                                                                                </svg>
+                                                                                <p>Cliquez pour voir le résumé</p>
                                                                             </div>
                                                                         </div>
+                                                                    </div>
+                                                                    <p
+                                                                        class="mt-1 text-md text-gray-700 leading-relaxed dark:text-emerald-500">
+                                                                        {{ item.description }}</p>
+                                                                </div>
+                                                                <ul v-show="showHiddenParagraphs[item.id]" role="list"
+                                                                    class="text-black text-sm/6 pt-2"
+                                                                    :ref="el => setParentRef(el, item.id)">
+                                                                    <!-- Potential design update : bg-white shadow rounded-xl -->
+                                                                    <li v-for="detail in item.details" :key="detail.id"
+                                                                        class="pl-8" :ref="'hiddenText' + item.id"
+                                                                        :data-text="detail.text">
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
                                                                         <div class="col-span-2 pt-2">
                                                                             <div class="flex justify-center">
                                                                                 <span
@@ -1468,9 +1498,35 @@ function clearHoveredItem() {
 }
 
 function toggleTooltip() {
+    // Set isMenuOpen to true, indicating the menu or tooltip is open
     isMenuOpen.value = true;
-    scrollToBottom();
+
+    // Wait for the next tick to ensure DOM update
+    nextTick(() => {
+        // Retrieve the scrollable div element
+        const element = scrollableDiv;
+
+        // Get the height of the scrollable div before opening the menu
+        const prevHeight = element.value.scrollHeight;
+        console.log("prevHeight", prevHeight)
+        // Open the dropdown menu
+
+        // Wait for the next tick to ensure DOM update after opening the menu
+        nextTick(() => {
+            // Get the height of the scrollable div after opening the menu
+            const newHeight = scrollableDiv.value.scrollHeight;
+
+            console.log("newHeight", newHeight)
+
+            // Check if the new height is greater than the previous height
+            if (newHeight > prevHeight) {
+                // If the new height is greater, scroll to the bottom of the scrollable div
+                scrollableDiv.scrollTop = newHeight;
+            }
+        });
+    });
 }
+
 
 async function markEmailAsRead(emailId) {
     try {
@@ -1908,17 +1964,17 @@ function scrollAlmostToBottom() {
 }
 
 function toggleHiddenParagraph(index) {
-    console.log("Item ID:", index)
-    console.log("All refs:", parentElementRefs.value)
-    console.log('parentElement: ', parentElementRefs.value[index])
-    console.log("Test: ", parentElementRefs.value[index].children)
+    // console.log("Item ID:", index)
+    // console.log("All refs:", parentElementRefs.value)
+    // console.log('parentElement: ', parentElementRefs.value[index])
+    // console.log("Test: ", parentElementRefs.value[index].children)
 
     showHiddenParagraphs.value[index] = !showHiddenParagraphs.value[index];
     nextTick(() => {
         if (showHiddenParagraphs.value[index] && !animationTriggered.value[index]) {
             const parentElement = parentElementRefs.value[index];
             const elements = parentElement.children;
-            console.log("Elements:", elements)
+            //console.log("Elements:", elements)
 
             const delays = [0];
             for (let i = 0; i < elements.length; i++) {

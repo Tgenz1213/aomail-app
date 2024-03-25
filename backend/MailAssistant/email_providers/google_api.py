@@ -781,7 +781,7 @@ def email_to_bdd(user, services, id_email):
         ) = (
             # mistral
             # claude
-            gpt_3_5_turbo.categorize_and_summarize_email(
+            claude.categorize_and_summarize_email(
                 subject, decoded_data, category_dict, user_description
             )
         )

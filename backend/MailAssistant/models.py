@@ -86,6 +86,7 @@ class Email(models.Model):
     subject = models.CharField(max_length=100)
     priority = models.CharField(max_length=50)
     read = models.BooleanField()
+    read_date = models.DateTimeField(null=True)
     answer_later = models.BooleanField()
     sender = models.ForeignKey(
         Sender, on_delete=models.CASCADE, related_name="related_emails"

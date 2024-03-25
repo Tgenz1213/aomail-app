@@ -2,6 +2,7 @@
 Handles frontend requests and redirects them to the appropriate API.
 """
 
+import datetime
 import json
 import logging
 import re
@@ -66,14 +67,14 @@ def signup(request):
         - Gmail API (Google)
         - Graph API (Microsoft)
     """
-    # DEBUG FOR microsoft listener
-    try:
-        SocialAPI.objects.filter(email="augustin@MailAssistant.onmicrosoft.com").delete()
-    except:
-        try:
-            User.objects.filter(username="testtest").delete()
-        except:
-            pass
+    # # DEBUG FOR microsoft listener
+    # try:
+    #     SocialAPI.objects.filter(email="augustin@MailAssistant.onmicrosoft.com").delete()
+    # except:
+    #     try:
+    #         User.objects.filter(username="testtest").delete()
+    #     except:
+    #         pass
     
     # Extract user data from the request
     type_api = request.data.get("type_api")
@@ -1186,6 +1187,7 @@ def set_email_read(request, email_id):
 
     # Update the read field
     email.read = True
+    email.read_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     email.save()
 
     serializer = EmailReadUpdateSerializer(email)
@@ -1228,6 +1230,11 @@ def get_user_emails(request):
     formatted_data = defaultdict(lambda: defaultdict(list))
 
     for email in emails:
+        # delete read email since 2 weeks
+        if email.read_date:
+            if datetime.datetime.now() - email.read_date > datetime.timedelta(weeks=2):
+                email.delete()
+
         email_data = {
             "id": email.id,
             "id_provider": email.provider_id,

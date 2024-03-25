@@ -677,10 +677,8 @@ def receive_mail_notifications(request):
 
     try:
         # print("DEBUG 0 => ", request.headers)
-
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
-
         # print("DEBUG 1 => RECEIVED NEW MAIL", message_data)
 
         decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
@@ -704,13 +702,6 @@ def receive_mail_notifications(request):
             # print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
-<<<<<<< HEAD
-            return JsonResponse(
-                {"error": f"SocialAPI entry not found for the email: {email}"},
-                status=404,
-            )
-=======
->>>>>>> origin
 
         # TODO: add API key to avoid error 403
         # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
@@ -731,7 +722,6 @@ def receive_mail_notifications(request):
         if response.status_code == 200:
             LOGGER.info("Acknowledgement sent successfully")
 
-        # TODO: handle casese where it fails
         elif response.status_code == 403:
             LOGGER.info(
                 "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"

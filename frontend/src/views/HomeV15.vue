@@ -369,7 +369,7 @@
                                                                                             <div class="py-1">
                                                                                                 <MenuItem
                                                                                                     v-slot="{ active }">
-                                                                                                <a @click.prevent="markEmailReplyLater(item.id)"
+                                                                                                <a @click.prevent="markEmailReplyLater(item)"
                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                     <span
                                                                                                         class="flex gap-x-2 items-center">
@@ -635,7 +635,7 @@
                                                                                             <div class="py-1">
                                                                                                 <MenuItem
                                                                                                     v-slot="{ active }">
-                                                                                                <a @click.prevent="markEmailReplyLater(item.id)"
+                                                                                                <a @click.prevent="markEmailReplyLater(item)"
                                                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                     <span
                                                                                                         class="flex gap-x-2 items-center">
@@ -934,7 +934,7 @@
                                                                                                             class="py-1">
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
-                                                                                                            <a @click.prevent="markEmailReplyLater(item.id)"
+                                                                                                            <a @click.prevent="markEmailReplyLater(item)"
                                                                                                                 :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                 <span
                                                                                                                     class="flex gap-x-2 items-center">
@@ -1255,7 +1255,7 @@
                                                                                                             class="py-1">
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
-                                                                                                            <a @click.prevent="markEmailReplyLater(item.id)"
+                                                                                                            <a @click.prevent="markEmailReplyLater(item)"
                                                                                                                 :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                 <span
                                                                                                                     class="flex gap-x-2 items-center">
@@ -1617,7 +1617,9 @@ async function transferEmail(email) {
     }
 }
 
-async function markEmailReplyLater(emailId) {
+async function markEmailReplyLater(email) {
+    const emailId = email.id
+    email.answer_later = true;
     isMenuOpen.value = false;
 
     try {
@@ -1628,7 +1630,6 @@ async function markEmailReplyLater(emailId) {
             }
         });
         if (response.answer_later) {
-            // TODO: remove it from the home page
             console.log("Email marked for reply later successfully");
         } else {
             console.error('Failed to mark email for reply later', response);

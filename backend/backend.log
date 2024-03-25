@@ -530,3 +530,6 @@ DETAIL:  Key (provider_id)=(18e74efb9bcf7124) already exists.
 2024-03-25 10:16:12 | MailAssistant.email_providers.google_api.py | Line 739 | ERROR - Error processing the notification: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'messages: first message must use the "user" role'}}
 2024-03-25 10:16:16 | MailAssistant.email_providers.google_api.py | Line 739 | ERROR - Error processing the notification: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'messages: first message must use the "user" role'}}
 2024-03-25 10:16:18 | MailAssistant.email_providers.google_api.py | Line 739 | ERROR - Error processing the notification: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'messages: first message must use the "user" role'}}
+2024-03-25 11:09:58 | MailAssistant.email_providers.google_api.py | Line 825 | ERROR - An error occurred when trying to create an email with ID 18e7518e1e4f5f91: duplicate key value violates unique constraint "MailAssistant_email_provider_id_key"
+DETAIL:  Key (provider_id)=(18e7518e1e4f5f91) already exists.
+

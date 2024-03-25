@@ -855,7 +855,7 @@
                                                                                                 class="relative inline-block text-left">
                                                                                                 <div>
                                                                                                     <MenuButton
-                                                                                                        @click.stop="toggleTooltip"
+                                                                                                        @click="toggleTooltip"
                                                                                                         class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                                         <ellipsis-horizontal-icon
                                                                                                             class="w-5 h-5 group-hover:text-white text-gray-500 group-active:text-gray-500 group-focus:text-red focus:text-gray-500" />
@@ -1141,7 +1141,7 @@
                                                                                                 class="relative inline-block text-left">
                                                                                                 <div>
                                                                                                     <MenuButton
-                                                                                                        @click.stop="toggleTooltip"
+                                                                                                        @click="toggleTooltip"
                                                                                                         class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-emerald-500 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                                         <ellipsis-horizontal-icon
                                                                                                             class="w-5 h-5 group-hover:text-white text-emerald-500 group-active:text-emerald-500 group-focus:text-red focus:text-emerald-500" />
@@ -1330,7 +1330,7 @@ let hoveredItemId = ref(null);
 let oldCategoryName = ref('');
 let showEmailDescriptions = ref(false);
 let showEmailReadDescriptions = ref(false);
-let showTooltip = ref(true);
+//let showTooltip = ref(true);
 let isMenuOpen = ref(true);
 let isDropdownOpen = ref(false);
 let emails = ref({});
@@ -1468,8 +1468,7 @@ function clearHoveredItem() {
 }
 
 function toggleTooltip() {
-    showTooltip.value = false;
-    isDropdownOpen.value = true;
+    isMenuOpen.value = true;
     scrollToBottom();
 }
 

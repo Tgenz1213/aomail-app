@@ -613,7 +613,6 @@
                             <p>Créer vos différentes catégories dans lesquelles vous
                               souhaitez que l'assistant place
                               automatiquement vos emails.</p>
-                            <a class="underline text-gray-500">En savoir plus</a>
                             <div v-if="categories.length === 0">
                               <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">

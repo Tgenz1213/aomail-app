@@ -20,13 +20,7 @@ If you encounter the following error while accessing data:
 ```
 This error typically indicates that your account does not have the proper license to access the requested data thus you have to pay a M365 license.
 
-# Test Reply Later Gmail
-curl -X GET \
-     -H "Authorization: Bearer access_token" \
-     -H "email: test.mailassistantprod@gmail.com" \
-     "https://augustin.aochange.com/MailAssistant/api/save_last_mail"
-
-# Test add email in DB
+# Test Reply Later Microsoft
 curl -X GET \
      -H "Authorization: Bearer access_token" \
      -H "email: augustin@MailAssistant.onmicrosoft.com" \

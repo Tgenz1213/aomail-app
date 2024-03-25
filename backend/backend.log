@@ -914,3 +914,9 @@ DETAIL:  Key (provider_id)=(18e76b2bbe59add1) already exists.
 2024-03-25 18:06:10 | MailAssistant.views.py | Line 1236 | ERROR - 2024-03-25 18:04:10.823451+00:00
 2024-03-25 18:06:11 | MailAssistant.views.py | Line 1235 | ERROR - now: 2024-03-25 18:06:11.114717
 2024-03-25 18:06:11 | MailAssistant.views.py | Line 1236 | ERROR - 2024-03-25 18:04:10.823451+00:00
+2024-03-25 18:46:02 | MailAssistant.email_providers.microsoft_api.py | Line 588 | ERROR - Failed to subscribe to email notifications for user with ID: 2 and email augustin@MailAssistant.onmicrosoft.com: Bad Request
+2024-03-25 18:48:49 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 19:47:40 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 19:47:54 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 19:50:16 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 19:50:16 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com

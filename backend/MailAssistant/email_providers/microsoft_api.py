@@ -529,6 +529,8 @@ def get_mail(access_token, int_mail=None, id_mail=None):
     response = requests.get(message_url, headers=headers)
     message_data = response.json()
 
+    print("DEBUG RESPONSE IMPORTANT", message_data.get("webLink"))
+
     # Extract necessary information from the message data
     subject = message_data.get("subject")
     sender = message_data.get("from")

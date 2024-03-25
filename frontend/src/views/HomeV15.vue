@@ -706,8 +706,7 @@
                                     </li>
                                     <!-- add @click="toggleEmailVisibility"-->
                                     <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
-                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20"
-                                        >
+                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20">
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
                                             <div class="float-right mt-[-25px] mr-[-10px]">
@@ -736,7 +735,8 @@
                                                                 class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                 <div class="flex gap-x-2">
                                                                     <!-- remove @click="toggleEmailVisibility"-->
-                                                                    <p @click="toggleEmailVisibility" class="cursor-pointer">Vous avez reçu <span
+                                                                    <p @click="toggleEmailVisibility"
+                                                                        class="cursor-pointer">Vous avez reçu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
                                                                             {{ emails[selectedTopic]['Useless'].length
                                                                             }}
@@ -761,7 +761,9 @@
                                                                                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                             </svg>
                                                                             <!-- remove @click="toggleEmailVisibility"-->
-                                                                            <p @click="toggleEmailVisibility" class="cursor-pointer">Cliquez pour voir les mails</p>
+                                                                            <p @click="toggleEmailVisibility"
+                                                                                class="cursor-pointer">Cliquez pour voir
+                                                                                les mails</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1000,7 +1002,6 @@
                                                                     </li>
                                                                 </ul>
                                                             </li>
-                                                            <!-- More items... -->
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -1008,8 +1009,7 @@
                                         </li>
                                     </div>
                                     <div v-if="readEmailsInSelectedTopic().length > 0"
-                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30"
-                                        >
+                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-emerald-100 hover:ring-1 ring-offset-0 ring-emerald-700 ring-opacity-30">
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
                                             <div class="float-right mt-[-25px] mr-[-10px]">
@@ -1038,7 +1038,9 @@
                                                             <li
                                                                 class="px-6 py-4 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                 <div class="flex group gap-x-2">
-                                                                    <p @click="toggleReadEmailVisibility" class="cursor-pointer">Vous avez récemment lu <span
+                                                                    <p @click="toggleReadEmailVisibility"
+                                                                        class="cursor-pointer">Vous avez récemment lu
+                                                                        <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">
                                                                             {{ readEmailsInSelectedTopic().length }}
                                                                         </span>
@@ -1060,7 +1062,9 @@
                                                                                     stroke-linejoin="round"
                                                                                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                             </svg>
-                                                                            <p @click="toggleReadEmailVisibility" class="cursor-pointer">Cliquez pour voir les mails</p>
+                                                                            <p @click="toggleReadEmailVisibility"
+                                                                                class="cursor-pointer">Cliquez pour voir
+                                                                                les mails</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1071,44 +1075,50 @@
                                                                         :key="item.id"
                                                                         @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem">
-                                                                        
+
                                                                         <div class="col-span-8 cursor-pointer"
-                                                                @click="toggleHiddenParagraph(item.id)">
-                                                                <div class="flex-auto group">
-                                                                    <div class="flex gap-x-4">
-                                                                        <p
-                                                                            class="text-sm font-semibold leading-6 text-emerald-500 dark:text-white">
-                                                                            {{ item.name }}</p>
-                                                                        <div
-                                                                            class="hidden group-hover:block px-2 py-0.5 bg-emerald-400 text-white text-sm shadow rounded-xl">
-                                                                            <div class="flex gap-x-1 items-center">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke-width="1.5"
-                                                                                    stroke="currentColor"
-                                                                                    class="w-4 h-4">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-                                                                                </svg>
-                                                                                <p>Cliquez pour voir le résumé</p>
+                                                                            @click="toggleHiddenParagraph(item.id)">
+                                                                            <div class="flex-auto group">
+                                                                                <div class="flex gap-x-4">
+                                                                                    <p
+                                                                                        class="text-sm font-semibold leading-6 text-emerald-500 dark:text-white">
+                                                                                        {{ item.name }}</p>
+                                                                                    <div
+                                                                                        class="hidden group-hover:block px-2 py-0.5 bg-emerald-400 text-white text-sm shadow rounded-xl">
+                                                                                        <div
+                                                                                            class="flex gap-x-1 items-center">
+                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                                fill="none"
+                                                                                                viewBox="0 0 24 24"
+                                                                                                stroke-width="1.5"
+                                                                                                stroke="currentColor"
+                                                                                                class="w-4 h-4">
+                                                                                                <path
+                                                                                                    stroke-linecap="round"
+                                                                                                    stroke-linejoin="round"
+                                                                                                    d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+                                                                                            </svg>
+                                                                                            <p>Cliquez pour voir le
+                                                                                                résumé</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <p
+                                                                                    class="mt-1 text-md text-gray-700 leading-relaxed dark:text-emerald-500">
+                                                                                    {{ item.description }}</p>
                                                                             </div>
+                                                                            <ul v-show="showHiddenParagraphs[item.id]"
+                                                                                role="list"
+                                                                                class="text-black text-sm/6 pt-2"
+                                                                                :ref="el => setParentRef(el, item.id)">
+                                                                                <!-- Potential design update : bg-white shadow rounded-xl -->
+                                                                                <li v-for="detail in item.details"
+                                                                                    :key="detail.id" class="pl-8"
+                                                                                    :ref="'hiddenText' + item.id"
+                                                                                    :data-text="detail.text">
+                                                                                </li>
+                                                                            </ul>
                                                                         </div>
-                                                                    </div>
-                                                                    <p
-                                                                        class="mt-1 text-md text-gray-700 leading-relaxed dark:text-emerald-500">
-                                                                        {{ item.description }}</p>
-                                                                </div>
-                                                                <ul v-show="showHiddenParagraphs[item.id]" role="list"
-                                                                    class="text-black text-sm/6 pt-2"
-                                                                    :ref="el => setParentRef(el, item.id)">
-                                                                    <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                    <li v-for="detail in item.details" :key="detail.id"
-                                                                        class="pl-8" :ref="'hiddenText' + item.id"
-                                                                        :data-text="detail.text">
-                                                                    </li>
-                                                                </ul>
-                                                            </div>
                                                                         <div class="col-span-2 pt-2">
                                                                             <div class="flex justify-center">
                                                                                 <span
@@ -1608,6 +1618,8 @@ async function transferEmail(email) {
 }
 
 async function markEmailReplyLater(emailId) {
+    isMenuOpen.value = false;
+    
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-reply-later/`, {
             method: 'POST',
@@ -1618,7 +1630,6 @@ async function markEmailReplyLater(emailId) {
         if (response.answer_later) {
             // TODO: remove it from the home page
             console.log("Email marked for reply later successfully");
-            isMenuOpen.value = false;
         } else {
             console.error('Failed to mark email for reply later', response);
         }
@@ -1671,6 +1682,8 @@ async function setRuleBlockForSender(email) {
 }
 
 async function deleteEmail(emailId) {
+    deleteEmailFromState(emailId);
+    
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
             method: 'DELETE',
@@ -1682,7 +1695,6 @@ async function deleteEmail(emailId) {
 
         if (response.message) {
             console.log("Email deleted successfully", response);
-            deleteEmailFromState(emailId);
         } else {
             console.error('Failed to delete email', response);
         }
@@ -1931,7 +1943,7 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
-    return combinedEmails.filter(email => email.answer_later==false && email.read);
+    return combinedEmails.filter(email => email.answer_later == false && email.read);
 }
 
 function toggleReadEmailVisibility() {

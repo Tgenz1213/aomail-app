@@ -3,7 +3,7 @@ Handles prompt engineering requests for GPT-3.5-turbo API.
 """
 
 from colorama import Fore, init
-from MailAssistant.constants import OPENAI_CREDS
+from MailAssistant.constants import DEFAULT_CATEGORY, OPENAI_CREDS
 import json
 import re
 import openai
@@ -336,64 +336,14 @@ def generate_email_response(input_subject, input_body, response_type, language):
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
 
-# TODO: update with claude and mistral prompt engineering
+
 def categorize_and_summarize_email(
-    subject, decoded_data, category_list, user_description
+    subject: str, decoded_data: str, category_dict: dict, user_description: str
 ):
     """Categorizes and summarizes an email"""
 
-    template = """Given the following email:
+    category_dict.pop(DEFAULT_CATEGORY)
 
-    Subject:
-    {subject}
-
-    Text:
-    {text}
-
-    Description:
-    {user}
-
-    Using the provided categories:
-
-    Topic Categories:
-    {category}
-
-    Importance Categories:
-    {importance}
-
-    Response Categories:
-    {answer}
-
-    Relevance Categories:
-    {relevance}
-
-    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
-    2. In French: Summarize the following message
-    3. In French: Provide a short sentence summarizing the email.
-
-    ---
-
-    Topic Categorization: [Model's Response for Topic Category]
-
-    Importance Categorization (Taking User Description into account and only using Importance Categories):
-    - Category 1: [Model's Response for Importance Category 1]
-    - Percentage 1: [Model's Percentage for Importance Category 1]
-    - Category 2: [Model's Response for Importance Category 2]
-    - Percentage 2: [Model's Percentage for Importance Category 2]
-    - Category 3: [Model's Response for Importance Category 3]
-    - Percentage 3: [Model's Percentage for Importance Category 3]
-
-    Response Categorization: [Model's Response for Response Category]
-
-    Relevance Categorization: [Model's Response for Relevance Category]
-
-    Résumé court en français: [Model's One-Sentence Summary en français without using response/relevance categorization]
-
-    Résumé en français (without using importance, response or relevance categorization):
-    - [Model's Bullet Point 1 en français]
-    - [Model's Bullet Point 2 en français]
-    ...
-    """
     importance_list = {
         "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
         "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
@@ -409,77 +359,79 @@ def categorize_and_summarize_email(
         "Possibly Relevant": "Message might be relevant to the recipient.",
         "Not Relevant": "Message is not relevant to the recipient.",
     }
-    formatted_template = template.format(
-        subject=subject,
-        text=decoded_data,
-        user=user_description,
-        category=category_list,
-        importance=importance_list,
-        answer=response_list,
-        relevance=relevance_list,
-    )
 
-    response = get_prompt_response(formatted_template)
+    template = f"""Given the following email:
+
+    Subject:
+    {subject}
+
+    Text:
+    {decoded_data}
+
+    Description:
+    {user_description}
+
+    Using the provided categories:
+
+    Topic Categories:
+    {category_dict}
+
+    Importance Categories:
+    {importance_list}
+
+    Response Categories:
+    {response_list}
+
+    Relevance Categories:
+    {relevance_list}
+
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
+    2. In French: Summarize the following message
+    3. In French: Provide a short sentence summarizing the email.
+
+    ---
+    Answer must be a Json format matching this template:
+    {{
+        "topic": Topic Title Category,
+        "response": Response Category,
+        "relevance": Relevance Category,
+        "summary": {{
+            "one_line": One-Sentence Summary in French,
+            "complete": [
+                "Short Bullet Point 1",
+                "Short Bullet Point 2",
+                ...
+            ]
+        }},
+        "importance": {{
+            "Important": Percentage for Important,
+            "Information": Percentage for Information,
+            "Useless": Percentage for Useless
+        }}
+    }}
+    """
+    response = get_prompt_response(template)
     clear_response = response.choices[0].message.content.strip()
+    result_json = json.loads(clear_response)
 
-    # Extracting Topic Categorization
-    topic_category = clear_response.split("Topic Categorization: ")[1].split("\n")[0]
+    print(result_json)
 
-    # Extracting Importance/Action Categorization
-    importance_categories = []
-    importance_percentages = []
-    for i in range(1, 4):
-        cat_str = f"Category {i}: "
-        perc_str = f"Percentage {i}: "
-        importance_categories.append(clear_response.split(cat_str)[1].split("\n")[0])
-        importance_percentages.append(clear_response.split(perc_str)[1].split("\n")[0])
+    topic = result_json["topic"]
+    response = result_json["response"]
+    relevance = result_json["relevance"]
+    short_sentence = result_json["summary"]["one_line"]
+    summary_list = result_json["summary"]["complete"]
+    importance_dict = result_json["importance"]
 
-    # Extracting Response Categorization
-    response_category = clear_response.split("Response Categorization: ")[1].split(
-        "\n"
-    )[0]
-
-    # Extracting Relevance Categorization
-    relevance_category = clear_response.split("Relevance Categorization: ")[1].split(
-        "\n"
-    )[0]
-
-    # Extracting one sentence summary
-    short_sentence = clear_response.split("Résumé court en français: ")[1].split("\n")[
-        0
-    ]
-
-    # Finding start of the summary
-    match = re.search(
-        r"Résumé en français(\s\(without using importance, response or relevance categorization\))?:",
-        clear_response,
-    )
-
-    if match:
-        # Adjusting the start index based on the match found
-        summary_start = match.end()
-    else:
-        # Fallback or default behavior if the pattern is not found
-        summary_start = -1  # Or handle this case as needed
-
-    # Finding the end of the summary
-    summary_end = clear_response.find("\n\n", summary_start)
-    # If there's no double newline after the start, consider till the end of the string
-    if summary_end == -1:
-        summary_end = len(clear_response)
-
-    # Extracting the summary if a valid start index was found
-    if summary_start != -1:
-        summary_text = clear_response[summary_start:summary_end].strip()
-    else:
-        summary_text = "Summary not found."
+    # convert percentages to int
+    for key, value in importance_dict.items():
+        importance_dict[key] = int(value)
 
     return (
-        topic_category,
-        importance_categories,
-        response_category,
-        summary_text,
+        topic,
+        importance_dict,
+        response,
+        summary_list,
         short_sentence,
-        relevance_category,
-        importance_percentages,
+        relevance,
     )

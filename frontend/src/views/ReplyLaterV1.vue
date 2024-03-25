@@ -745,13 +745,11 @@ export default {
     ExclamationTriangleIcon
   },
   setup() {
-    // Main variables
     const bgColor = ref('');
     const answerLaterEmails = ref([]);
     const emails = ref({});
     const nbr_reply_answer = ref(0);
 
-    // Mounted lifecycle hook
     onMounted(() => {
 
       getBackgroundColor();
@@ -759,7 +757,6 @@ export default {
       fetchAnswerLaterEmails();
     });
 
-    // To fetch the email to reply later
     async function fetchAnswerLaterEmails() {
       try {
         const data = await fetchWithToken(`${API_BASE_URL}api/get_answer_later_emails/`, {
@@ -769,7 +766,6 @@ export default {
           }
         });
 
-        console.log("DATA", data);
         emails.value = data; // Assuming emails is a reactive variable
         console.log("Length", Object.keys(emails.value).length);
         nbr_reply_answer.value = Object.keys(emails.value).length; // Assuming nbr_reply_answer is a reactive variable
@@ -934,6 +930,8 @@ export default {
       }
     },
     async deleteEmail(emailId) {
+      this.deleteEmailFromState(emailId);
+
       try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
           method: 'DELETE',
@@ -946,7 +944,6 @@ export default {
         if (response.message) {
           console.log("Email deleted successfully", response);
           this.nbr_reply_answer -= 1;
-          this.deleteEmailFromState(emailId);
         } else {
           console.error('Failed to delete email', response);
         }

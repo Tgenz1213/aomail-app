@@ -1619,7 +1619,7 @@ async function transferEmail(email) {
 
 async function markEmailReplyLater(emailId) {
     isMenuOpen.value = false;
-    
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-reply-later/`, {
             method: 'POST',
@@ -1683,7 +1683,7 @@ async function setRuleBlockForSender(email) {
 
 async function deleteEmail(emailId) {
     deleteEmailFromState(emailId);
-    
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
             method: 'DELETE',

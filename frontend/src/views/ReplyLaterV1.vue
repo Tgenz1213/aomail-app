@@ -934,6 +934,8 @@ export default {
       }
     },
     async deleteEmail(emailId) {
+      this.deleteEmailFromState(emailId);
+
       try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
           method: 'DELETE',
@@ -946,7 +948,6 @@ export default {
         if (response.message) {
           console.log("Email deleted successfully", response);
           this.nbr_reply_answer -= 1;
-          this.deleteEmailFromState(emailId);
         } else {
           console.error('Failed to delete email', response);
         }

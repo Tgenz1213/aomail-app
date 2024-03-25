@@ -168,10 +168,8 @@ const router = createRouter({
 
 router.beforeEach(async (to, _, next) => {
   try {
-    // true if authenticated else false
-    const isAuthenticated = await isUserAuthenticated();
-
     if (to.matched.some(record => record.meta.requiresAuth)) {
+      const isAuthenticated = await isUserAuthenticated();
       if (!isAuthenticated) {
         next({ name: 'not-authorized' });
       } else {

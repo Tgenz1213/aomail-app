@@ -24,7 +24,11 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
-from MailAssistant.constants import DEFAULT_CATEGORY, GOOGLE_PROJECT_ID, GOOGLE_TOPIC_NAME
+from MailAssistant.constants import (
+    DEFAULT_CATEGORY,
+    GOOGLE_PROJECT_ID,
+    GOOGLE_TOPIC_NAME,
+)
 from .models import (
     Category,
     SocialAPI,
@@ -75,7 +79,7 @@ def signup(request):
     #         User.objects.filter(username="testtest").delete()
     #     except:
     #         pass
-    
+
     # Extract user data from the request
     type_api = request.data.get("type_api")
     code = request.data.get("code")
@@ -145,14 +149,22 @@ def signup(request):
         subscribed = google_api.subscribe_to_email_notifications(user, email)
         if subscribed:
             return Response(
-                {"user_id": user_id, "access_token": django_access_token, "email": email},
+                {
+                    "user_id": user_id,
+                    "access_token": django_access_token,
+                    "email": email,
+                },
                 status=201,
             )
     elif type_api == "microsoft":
         subscribed = microsoft_api.subscribe_to_email_notifications(user, email)
         if subscribed:
             return Response(
-                {"user_id": user_id, "access_token": django_access_token, "email": email},
+                {
+                    "user_id": user_id,
+                    "access_token": django_access_token,
+                    "email": email,
+                },
                 status=201,
             )
 
@@ -1187,7 +1199,7 @@ def set_email_read(request, email_id):
 
     # Update the read field
     email.read = True
-    email.read_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    email.read_date = datetime.datetime.now()
     email.save()
 
     serializer = EmailReadUpdateSerializer(email)
@@ -1225,15 +1237,20 @@ def get_user_emails(request):
     )[:1]
     emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
 
-    # Set of all possible priorities
     all_priorities = {"Important", "Information", "Useless"}
     formatted_data = defaultdict(lambda: defaultdict(list))
 
     for email in emails:
-        # delete read email since 2 weeks
         if email.read_date:
-            if datetime.datetime.now() - email.read_date > datetime.timedelta(weeks=2):
+            current_datetime_utc = datetime.datetime.now().replace(
+                tzinfo=datetime.timezone.utc
+            )
+            delta_time = current_datetime_utc - email.read_date
+
+            # delete read email since 2 weeks
+            if delta_time > datetime.timedelta(weeks=2):
                 email.delete()
+                continue
 
         email_data = {
             "id": email.id,
@@ -1247,7 +1264,7 @@ def get_user_emails(request):
             "read": email.read,
             "rule": email.has_rule,
             "rule_id": email.rule_id,
-            "answer_later": email.answer_later
+            "answer_later": email.answer_later,
         }
         formatted_data[email.category.name][email.priority].append(email_data)
 

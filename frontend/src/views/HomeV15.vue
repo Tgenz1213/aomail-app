@@ -1172,7 +1172,7 @@
                                                                                     </div>
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
-                                                                                        <div class="relative group">
+                                                                                        <div class="cursor-pointer relative group">
                                                                                             <div
                                                                                                 class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
                                                                                                 Actions supplémentaires

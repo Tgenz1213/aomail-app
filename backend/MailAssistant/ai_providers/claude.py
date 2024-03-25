@@ -4,7 +4,6 @@ Handles prompt engineering requests for Claude 3 API.
 
 import ast
 import json
-import re
 import anthropic
 from colorama import Fore, init
 from MailAssistant.constants import CLAUDE_CREDS, DEFAULT_CATEGORY, HUMAN, ASSISTANT
@@ -22,7 +21,7 @@ def get_prompt_response(formatted_prompt):
         model="claude-3-haiku-20240307",
         max_tokens=1000,
         temperature=0.0,
-        messages=[{"role": "assistant", "content": formatted_prompt}],
+        messages=[{"role": "user", "content": formatted_prompt}],
     )
     return response
 

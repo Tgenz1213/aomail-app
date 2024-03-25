@@ -706,7 +706,7 @@
                                     </li>
                                     <!-- add @click="toggleEmailVisibility"-->
                                     <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
-                                        class="cursor-pointer group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20"
+                                        class="group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20"
                                         >
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
@@ -848,7 +848,7 @@
                                                                                         </div>
                                                                                     </div>
                                                                                     <div v-show="hoveredItemId === item.id"
-                                                                                        class="group action-buttons">
+                                                                                        class="group action-buttons cursor-pointer">
                                                                                         <div class="relative group">
                                                                                             <div
                                                                                                 class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">

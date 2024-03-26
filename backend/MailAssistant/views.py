@@ -1150,14 +1150,14 @@ def get_mail_by_id(request):
 
         if type_api == "google":
             services = google_api.authenticate_service(user, email)
-            subject, from_name, decoded_data, cc, bcc, email_id, date = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
                 google_api.get_mail(services, None, mail_id)
             )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
             )
-            subject, from_name, decoded_data, cc, bcc, email_id, date = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
                 microsoft_api.get_mail(access_token, None, mail_id)
             )
 
@@ -1265,6 +1265,7 @@ def get_user_emails(request):
             "rule": email.has_rule,
             "rule_id": email.rule_id,
             "answer_later": email.answer_later,
+            "web_link": email.web_link,
         }
         formatted_data[email.category.name][email.priority].append(email_data)
 
@@ -1330,7 +1331,7 @@ def get_mail_view(request):
     service = google_api.authenticate_service(user, email)
 
     if service is not None:
-        subject, from_name, decoded_data, email_id, date = google_api.get_mail(
+        subject, from_name, decoded_data, email_id, date, _ = google_api.get_mail(
             service, 0, None
         )
         # Return a success response, along with any necessary information

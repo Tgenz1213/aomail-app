@@ -303,9 +303,9 @@ def get_mail(services, int_mail=None, id_mail=None):
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
 
-    # Initialize variables
     subject = from_info = cc_info = bcc_info = decoded_data = None
     email_data = msg["payload"]["headers"]
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
     for values in email_data:
         name = values["name"]
@@ -335,8 +335,16 @@ def get_mail(services, int_mail=None, id_mail=None):
 
     preprocessed_data = library.preprocess_email(decoded_data)
 
-    # TODO remove cc_info, bcc_info
-    return subject, from_info, preprocessed_data, cc_info, bcc_info, email_id, sent_date
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        cc_info,
+        bcc_info,
+        email_id,
+        sent_date,
+        web_link,
+    )
 
 
 # ----------------------- READ EMAIL -----------------------#
@@ -728,7 +736,9 @@ def receive_mail_notifications(request):
             )
         else:
             LOGGER.info("DEBUG RESPONSE====================>", response.json())
-            LOGGER.error(f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}")
+            LOGGER.error(
+                f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}"
+            )
 
         return Response(status=200)
 
@@ -740,7 +750,7 @@ def receive_mail_notifications(request):
 def email_to_bdd(user, services, id_email):
     """Saves email notifications from Google listener to database"""
 
-    subject, from_name, decoded_data, _, _, email_id, sent_date = get_mail(
+    subject, from_name, decoded_data, _, _, email_id, sent_date, web_link = get_mail(
         services, 0, id_email
     )
 
@@ -811,8 +821,8 @@ def email_to_bdd(user, services, id_email):
                 category=category,
                 user=user,
                 date=sent_date,
+                web_link=web_link,
             )
-            print(f"DEBUG: {email_entry}")
 
             if summary_list:
                 for point in summary_list:
@@ -823,7 +833,8 @@ def email_to_bdd(user, services, id_email):
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
 
-'''
+
+"""
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
@@ -908,7 +919,7 @@ def processed_email_to_bdd(request, services):
         LOGGER.info(f"summary: {summary}")
         LOGGER.info(f"sentence:  {sentence}")
         LOGGER.info(f"relevance: {relevance}")
-        LOGGER.info(f"importance_dict:  {importance_dict}")'''
+        LOGGER.info(f"importance_dict:  {importance_dict}")"""
 
 
 '''@api_view(["GET"])

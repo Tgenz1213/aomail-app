@@ -16,6 +16,7 @@ from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
+import urllib.parse
 from MailAssistant.constants import (
     BASE_URL,
     DEFAULT_CATEGORY,
@@ -524,28 +525,28 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         LOGGER.info("Either int_mail or id_mail must be provided")
         return None
 
-    # Make request to fetch specific message
     message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
     message_data = response.json()
 
-    print("DEBUG RESPONSE IMPORTANT", message_data.get("webLink"))
+    conversation_id = message_data.get("conversationId")
+    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
 
-    # Extract necessary information from the message data
     subject = message_data.get("subject")
     sender = message_data.get("from")
     from_info = parse_name_and_email(sender)
     cc_info = parse_recipients(message_data.get("ccRecipients"))
     bcc_info = parse_recipients(message_data.get("bccRecipients"))
     sent_date = None
+
     for header in message_data.get("internetMessageHeaders", []):
         if header["name"] == "Date":
             sent_date = datetime.datetime.strptime(
                 header["value"], "%a, %d %b %Y %H:%M:%S %z"
             )
             break
-    decoded_data = parse_message_body(message_data)
 
+    decoded_data = parse_message_body(message_data)
     preprocessed_data = library.preprocess_email(decoded_data)
 
     return (
@@ -556,6 +557,7 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         bcc_info,
         email_id,
         sent_date,
+        web_link,
     )
 
 
@@ -615,7 +617,7 @@ def email_to_bdd(user, email, id_email):
     """Saves email notifications from Microsoft listener to database"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, _, _, email_id, sent_date = get_mail(
+    subject, from_name, decoded_data, _, _, email_id, sent_date, web_link = get_mail(
         access_token, None, id_email
     )
 
@@ -699,7 +701,7 @@ def email_to_bdd(user, email, id_email):
 
 def processed_email_to_bdd(user, email):
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, _, _, email_id, date = get_mail(
+    subject, from_name, decoded_data, _, _, email_id, date, web_link = get_mail(
         access_token, 0, None
     )
 
@@ -752,6 +754,7 @@ def processed_email_to_bdd(user, email):
                 category=category,
                 user=user,
                 date=date,
+                web_link=web_link,
             )
 
             if summary:
@@ -762,15 +765,6 @@ def processed_email_to_bdd(user, email):
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
-
-        # Debug prints
-        LOGGER.info(f"topic: {topic}")
-        LOGGER.info(f"importance: {importance}")
-        LOGGER.info(f"answer: {answer}")
-        LOGGER.info(f"summary: {summary}")
-        LOGGER.info(f"sentence:  {sentence}")
-        LOGGER.info(f"relevance: {relevance}")
-        LOGGER.info(f"importance_dict:  {importance_dict}")
 
 
 '''@api_view(["GET"])

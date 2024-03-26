@@ -920,3 +920,31 @@ DETAIL:  Key (provider_id)=(18e76b2bbe59add1) already exists.
 2024-03-25 19:47:54 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
 2024-03-25 19:50:16 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
 2024-03-25 19:50:16 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 19:55:02 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 19:57:02 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 19:57:03 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:02:14 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:02:15 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:07:34 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:07:34 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:09:30 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:09:31 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:13:01 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:17:20 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:19:35 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:25:44 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:25:48 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:25:49 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:26:34 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:26:35 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-25 20:28:04 | MailAssistant.email_providers.google_api.py | Line 704 | ERROR - SocialAPI entry not found for the email: theohubert45@gmail.com
+2024-03-26 03:53:06 | MailAssistant.email_providers.google_api.py | Line 826 | ERROR - An error occurred when trying to create an email with ID 18e78e3dd57a0087: column "web_link" of relation "MailAssistant_email" does not exist
+LINE 1: INSERT INTO "MailAssistant_email" ("provider_id", "web_link"...
+                                                          ^
+
+2024-03-26 03:53:07 | MailAssistant.email_providers.google_api.py | Line 826 | ERROR - An error occurred when trying to create an email with ID 18e78e3dd57a0087: column "web_link" of relation "MailAssistant_email" does not exist
+LINE 1: INSERT INTO "MailAssistant_email" ("provider_id", "web_link"...
+                                                          ^
+
+2024-03-26 04:34:25 | MailAssistant.email_providers.google_api.py | Line 821 | ERROR - An error occurred when trying to create an email with ID 18e7909afd84e468: cannot access local variable 'importance' where it is not associated with a value
+2024-03-26 04:38:16 | MailAssistant.email_providers.google_api.py | Line 821 | ERROR - An error occurred when trying to create an email with ID 18e7909afd84e468: cannot access local variable 'importance' where it is not associated with a value

@@ -249,7 +249,7 @@
                                                                                     Ouvrir
                                                                                 </div>
                                                                                 <button
-                                                                                    @click="openInNewWindow(item.id_provider)"
+                                                                                    @click="openInNewWindow(item.web_link)"
                                                                                     type="button"
                                                                                     class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
                                                                                     <eye-icon
@@ -516,7 +516,7 @@
                                                                                     Ouvrir
                                                                                 </div>
                                                                                 <button
-                                                                                    @click="openInNewWindow(item.id_provider)"
+                                                                                    @click="openInNewWindow(item.web_link)"
                                                                                     type="button"
                                                                                     class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
                                                                                     <eye-icon
@@ -795,7 +795,7 @@
                                                                                                 Ouvrir
                                                                                             </div>
                                                                                             <button
-                                                                                                @click.stop="openInNewWindow(item.id_provider)"
+                                                                                                @click.stop="openInNewWindow(item.web_link)"
                                                                                                 type="button"
                                                                                                 class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                                 <eye-icon
@@ -1131,7 +1131,7 @@
                                                                                                 Ouvrir
                                                                                             </div>
                                                                                             <button
-                                                                                                @click.stop="openInNewWindow(item.id_provider)"
+                                                                                                @click.stop="openInNewWindow(item.web_link)"
                                                                                                 type="button"
                                                                                                 class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-emerald-400 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                                 <eye-icon
@@ -1172,7 +1172,8 @@
                                                                                     </div>
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
-                                                                                        <div class="cursor-pointer relative group">
+                                                                                        <div
+                                                                                            class="cursor-pointer relative group">
                                                                                             <div
                                                                                                 class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
                                                                                                 Actions supplémentaires
@@ -1370,9 +1371,7 @@ let hoveredItemId = ref(null);
 let oldCategoryName = ref('');
 let showEmailDescriptions = ref(false);
 let showEmailReadDescriptions = ref(false);
-//let showTooltip = ref(true);
 let isMenuOpen = ref(true);
-let isDropdownOpen = ref(false);
 let emails = ref({});
 let scrollableDiv = ref(null);
 let selectedTopic = ref('');
@@ -1694,9 +1693,7 @@ async function deleteEmail(emailId) {
             }
         });
 
-        if (response.message) {
-            console.log("Email deleted successfully", response);
-        } else {
+        if (!response.message) {
             console.error('Failed to delete email', response);
         }
     } catch (error) {
@@ -1704,13 +1701,9 @@ async function deleteEmail(emailId) {
     }
 }
 
-function openInNewWindow(id_provider) {
-    console.log("EMAIL", id_provider);
-    const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
-    // Construct the URL with the Gmail message ID
-    const urlToOpen = `${gmailBaseUrl}${id_provider}`;
-
-    window.open(urlToOpen, '_blank');
+function openInNewWindow(web_link) {
+    console.log(web_link)
+    window.open(web_link, '_blank');
 }
 
 async function openAnswer(email) {

@@ -80,6 +80,7 @@ class Email(models.Model):
     """Model for storing email information."""
 
     provider_id = models.CharField(max_length=200, unique=True)
+    web_link = models.CharField(max_length=200, null=True)
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
     content = models.TextField()

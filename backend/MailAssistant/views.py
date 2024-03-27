@@ -342,6 +342,14 @@ def login(request):
         # TODO: update the code to handle when the user has several emails
         email = social_api_instance.email
 
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR') # source port
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+            
+        print('Your log message... IP:' + ip)
+
         return Response({"access_token": access_token, "email": email}, status=200)
 
     return Response(status=400)
@@ -921,7 +929,7 @@ def set_rule_block_for_sender(request, email_id):
 def get_user_rules(request):
     user_rules = Rule.objects.filter(user=request.user)
     rules_data = []
-
+    
     for rule in user_rules:
         rule_serializer = RuleSerializer(rule)
         rule_data = rule_serializer.data
@@ -939,6 +947,7 @@ def get_user_rules(request):
 
         return Response(rules_data)
 
+    return Response(None)
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

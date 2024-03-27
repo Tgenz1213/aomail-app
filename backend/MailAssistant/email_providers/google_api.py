@@ -764,17 +764,21 @@ def email_to_bdd(user, services, id_email):
         decoded_data = library.format_mail(decoded_data)
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
-        rule = Rule.objects.filter(sender=sender)
+        rules = Rule.objects.filter(sender=sender)
+
+        print(rules)
         rule_category = None
 
-        if rule.exists():
-            if rule.block:
-                return
+        if rules.exists():
+            # TODO: fix whith block rule bug
+            for rule in rules:
+                if rule.block:
+                    return
 
-            if rule.category:
-                # Find the category by checking if a sender has a category
-                category = rule.category
-                rule_category = True
+                if rule.category:
+                    # Find the category by checking if a sender has a category
+                    category = rule.category
+                    rule_category = True
 
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
@@ -788,7 +792,7 @@ def email_to_bdd(user, services, id_email):
         ) = (
             # mistral
             # claude
-            claude.categorize_and_summarize_email(
+            mistral.categorize_and_summarize_email(
                 subject, decoded_data, category_dict, user_description
             )
         )

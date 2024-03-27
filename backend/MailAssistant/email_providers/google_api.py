@@ -754,8 +754,6 @@ def email_to_bdd(user, services, id_email):
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
         rules = Rule.objects.filter(sender=sender)
-
-        print(rules)
         rule_category = None
 
         if rules.exists():

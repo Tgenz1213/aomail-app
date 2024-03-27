@@ -50,7 +50,7 @@
                 <li v-for="rule in filteredRules" :key="rule.email"
                   class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative">
                   <div class="absolute right-4 top-4">
-                    <PencilSquareIcon @click="editRule(rule)" class="w-6 h-6 text-gray-300 hover:text-gray-800" />
+                    <PencilSquareIcon @click="editRule(rule)" class="w-6 h-6 text-gray-300 hover:text-gray-800 cursor-pointer" />
                   </div>
                   <div class="flex w-full items-center justify-between space-x-6 p-6">
                     <div class="flex-1 truncate">

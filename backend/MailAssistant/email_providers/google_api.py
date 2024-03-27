@@ -645,7 +645,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
     """Subscribe the user to email notifications for a specific topic in Google."""
 
     try:
-        print(f"DEBUG : user > {user}, email > {email}")
+        LOGGER.info(f"Initiationg the subscription to Google listener for: {user} with email: {email}")
         credentials = get_credentials(user, email)
         services = build_services(credentials)
         if services is None:
@@ -661,9 +661,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
         response = gmail_service.users().watch(userId="me", body=request_body).execute()
 
         if "historyId" in response:
-            print(
-                f"Successfully subscribed to email notifications for user {user.username} and email {email}"
-            )
+            LOGGER.info(f"Successfully subscribed to email notifications for user {user.username} and email {email}")
             return True
         else:
             LOGGER.error(
@@ -684,30 +682,19 @@ def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
 
     try:
-        # print("DEBUG 0 => ", request.headers)
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
-        # print("DEBUG 1 => RECEIVED NEW MAIL", message_data)
 
         decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
-        # print("DEBUG DECODED DATA => ", decoded_data)
         decoded_json = json.loads(decoded_data)
-        # print("DEBUG DECODED => ", decoded_json)
-
         attributes = message_data.get("attributes", {})
         email_id = attributes.get("emailId")
-        # history_id = attributes.get("historyId")
-
-        # Retreiving the email gmail address
         email = decoded_json.get("emailAddress")
-        # print("DEBUG email => RECEIVED NEW MAIL", email)
 
         try:
             social_api = SocialAPI.objects.get(email=email)
-            # print("DEBUG Social API => ", social_api)
             services = authenticate_service(social_api.user, email)
             email_to_bdd(social_api.user, services, email_id)
-            # print("DEBUG 2 => RECEIVED NEW MAIL id", email_id)
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
@@ -741,7 +728,9 @@ def receive_mail_notifications(request):
             )
 
         return Response(status=200)
-
+    
+    except IntegrityError:
+        return Response(status=200)
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
         return Response({"error": str(e)}, status=500)
@@ -770,7 +759,6 @@ def email_to_bdd(user, services, id_email):
         rule_category = None
 
         if rules.exists():
-            # TODO: fix whith block rule bug
             for rule in rules:
                 if rule.block:
                     return

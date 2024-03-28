@@ -923,9 +923,7 @@ def get_user_rules(request):
 
         rules_data.append(rule_data)
 
-        return Response(rules_data)
-
-    return Response(None)
+    return Response(rules_data)
 
 
 @api_view(["GET"])

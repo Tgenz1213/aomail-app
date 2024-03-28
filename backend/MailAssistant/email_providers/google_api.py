@@ -784,11 +784,12 @@ def email_to_bdd(user, services, id_email):
             importance = IMPORTANT
         else:
             importance = INFORMATION
-            max_percentage = 0
+            max_percentage = importance_dict[INFORMATION]
 
             for key, value in importance_dict.items():
                 if value > max_percentage:
                     importance = key
+                    max_percentage = importance_dict[key]
                     
         if not rule_category:
             if topic in category_dict:

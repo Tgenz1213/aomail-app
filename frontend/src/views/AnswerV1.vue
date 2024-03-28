@@ -476,6 +476,9 @@ function handleKeyDown(event) {
         document.getElementById('objectInput').focus();
         event.preventDefault();
         break;
+      case 'Enter':
+        sendEmail();
+        break;
     }
   }
 }

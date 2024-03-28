@@ -739,10 +739,9 @@ def email_to_bdd(user, services, id_email):
     subject, from_name, decoded_data, _, _, email_id, sent_date, web_link = get_mail(
         services, 0, id_email
     )
-
+    
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
-        # LOGGER.info(f"DEBUG BDD 1 => sender: {sender}")
 
         if not decoded_data:
             return
@@ -786,13 +785,16 @@ def email_to_bdd(user, services, id_email):
             for key, value in importance_dict.items():
                 if value >= 51:
                     importance = key
-
+                    
         if not rule_category:
+            print("not rule category ")
             if topic in category_dict:
+                print("category_dict", category_dict)
                 category = Category.objects.get(name=topic, user=user)
-
-        sender_name, sender_email = from_name[0], from_name[1]
-        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+        
+        if not sender:
+            sender_name, sender_email = from_name[0], from_name[1]
+            sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
         try:
             email_entry = Email.objects.create(

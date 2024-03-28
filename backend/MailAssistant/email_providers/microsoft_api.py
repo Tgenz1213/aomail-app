@@ -22,6 +22,7 @@ from MailAssistant.constants import (
     DEFAULT_CATEGORY,
     GRAPH_URL,
     IMPORTANT,
+    INFORMATION,
     MICROSOFT_AUTHORITY,
     MICROSOFT_CONFIG,
     MICROSOFT_PROVIDER,
@@ -653,16 +654,21 @@ def email_to_bdd(user, email, id_email):
         if importance_dict[IMPORTANT] == 50:
             importance = IMPORTANT
         else:
+            importance = INFORMATION
+            max_percentage = importance_dict[INFORMATION]
+
             for key, value in importance_dict.items():
-                if value >= 51:
+                if value > max_percentage:
                     importance = key
+                    max_percentage = importance_dict[key]
 
         if not rule_category:
             if topic in category_dict:
                 category = Category.objects.get(name=topic)
 
-        sender_name, sender_email = from_name[0], from_name[1]
-        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+        if not sender:
+            sender_name, sender_email = from_name[0], from_name[1]
+            sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
         try:
             email_entry = Email.objects.create(

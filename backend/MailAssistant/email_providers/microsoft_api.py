@@ -428,9 +428,6 @@ def search_emails(access_token, search_query, max_results=2):
 ######################## UNDER CONSTRUCTION ########################
 def set_all_contacts(access_token, user):
     """Stores all unique contacts of an email account in DB"""
-    start = time.time()
-
-    # Microsoft Graph API endpoint for getting contacts
     graph_api_endpoint = f"{GRAPH_URL}me/contacts"
     headers = get_headers(access_token)
 
@@ -457,11 +454,6 @@ def set_all_contacts(access_token, user):
             for name, emails in all_contacts.items():
                 for email in emails:                    
                     library.save_email_sender(user, name, email)
-
-            formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-            LOGGER.info(
-                f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
-            )
 
     except Exception as e:
         LOGGER.error(f"Error fetching contacts: {str(e)}")
@@ -512,14 +504,14 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         messages = response.json().get("value", [])
 
         if not messages:
-            LOGGER.info("No new messages.")
+            LOGGER.error("No new messages.")
             return None
 
         email_id = messages[int_mail]["id"]
     elif id_mail is not None:
         email_id = id_mail
     else:
-        LOGGER.info("Either int_mail or id_mail must be provided")
+        LOGGER.error("Either int_mail or id_mail must be provided")
         return None
 
     message_url = f"{url}/{email_id}"

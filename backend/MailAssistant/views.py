@@ -559,10 +559,6 @@ def find_user_view_ai(request):
                         {"username": recipient_name, "email": matching_emails}
                     )
 
-            LOGGER.info(f"Matching emails for '{', '.join(recipient_list)}':")
-            for recipient in recipients_with_emails:
-                LOGGER.info(f"{recipient['username']}: {recipient['email']}")
-
             return recipients_with_emails
 
         # Find matching emails for each list of recipients
@@ -615,10 +611,6 @@ def new_email_recommendations(request):
         mail_content = serializer.validated_data["mail_content"]
         user_recommendation = serializer.validated_data["user_recommendation"]
         email_subject = serializer.validated_data["email_subject"]
-
-        LOGGER.info(f"mail_content: {mail_content}")
-        LOGGER.info(f"user_recommendation: {user_recommendation}")
-        LOGGER.info(f"email_subject: {email_subject}")
 
         subject_text, email_body = mistral.new_mail_recommendation(
             mail_content, email_subject, user_recommendation

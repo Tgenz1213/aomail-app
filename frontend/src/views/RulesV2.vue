@@ -42,7 +42,8 @@
             </div>
             <SearchbarV2 @input="updateSearchQuery"></SearchbarV2>
           </div>
-          <div v-if="rules.length > 0" class="flex-grow overflow-y-auto" style="margin-right: 2px; margin-bottom: 105px;">
+          <div v-if="rules.length > 0" class="flex-grow overflow-y-auto"
+            style="margin-right: 2px; margin-bottom: 105px;">
             <div class="p-6">
               <!-- IF AT LEAST ONE RULE EXIST -->
               <ul v-if="filteredRules.length > 0" category="list"
@@ -50,7 +51,8 @@
                 <li v-for="rule in filteredRules" :key="rule.email"
                   class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative">
                   <div class="absolute right-4 top-4">
-                    <PencilSquareIcon @click="editRule(rule)" class="w-6 h-6 text-gray-300 hover:text-gray-800 cursor-pointer" />
+                    <PencilSquareIcon @click="editRule(rule)"
+                      class="w-6 h-6 text-gray-300 hover:text-gray-800 cursor-pointer" />
                   </div>
                   <div class="flex w-full items-center justify-between space-x-6 p-6">
                     <div class="flex-1 truncate">
@@ -65,7 +67,7 @@
                         </div>
                         <span
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/20">{{
-                            rule.category }}</span>
+    rule.category }}</span>
                       </div>
                       <div v-if="rule.priority !== ''" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">
@@ -74,13 +76,13 @@
                         </div>
                         <span v-if="rule.priority === 'Important'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{
-                            rule.priority }}</span>
+    rule.priority }}</span>
                         <span v-if="rule.priority === 'Informatif'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{
-                            rule.priority }}</span>
+    rule.priority }}</span>
                         <span v-if="rule.priority === 'Inutile'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">{{
-                            rule.priority }}</span>
+    rule.priority }}</span>
                       </div>
                       <div v-if="rule.mail_stop === true" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">
@@ -95,7 +97,9 @@
             </div>
           </div>
           <div v-if="rules.length == 0" class="flex p-4 w-full h-full">
-            <div class="cursor-pointer flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center" @click="showModal = true">
+            <div
+              class="cursor-pointer flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
+              @click="showModal = true">
               <div class="flex-col">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                   stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
@@ -123,9 +127,9 @@
     </div>
   </div>
   <ModalSeeRule :isOpen="showModal" @update:isOpen="updateModalStatus" :emailSenders="emailSenders"
-    :categories="categories" :sender="senderSelected" />
+    :categories="categories" :sender="senderSelected" @fetch-rules="fetchRules"/>
   <UpdateRule :isOpen="showUpdateModal" :rule="ruleSelected" :categories="categories" :emailSenders="emailSenders"
-    @update:isOpen="updateModalUpdateStatus" />
+    @update:isOpen="updateModalUpdateStatus" @fetch-rules="fetchRules"/>
 </template>
 
 <script>
@@ -326,26 +330,8 @@ export default {
       selectedEmailSender: {},
       ruleSelected: null,
       searchQuery: '',
-      people: [
-        {
-          name: 'Jane Cooper',
-          email: 'janecooper@example.com',
-          category: 'ESAIP',
-          priority: 'Non définie',
-          telephone: '+1-202-555-0170',
-          mail_stop: 'True',
-        },
-        // ... (other people objects)
-        {
-          name: 'Harry Potter',
-          email: 'harrypotter@example.com',
-          category: 'Non définie',
-          priority: 'Important',
-          telephone: '+1-202-555-0377',
-          mail_stop: 'False',
-        }
-      ],
+      people: [],
     }
-  },
+  }
 }
 </script>

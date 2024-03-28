@@ -276,7 +276,8 @@
 
           if (deleteResponse.message) {
             console.log('Rule deleted successfully');
-            window.location.reload(); // To reload and update the list of rules
+            this.closeModal();
+            this.$emit('fetch-rules');
           } else {
             console.error('Failed to delete the rule:', deleteResponse.status);
           }

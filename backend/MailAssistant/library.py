@@ -9,6 +9,7 @@ import re
 import base64
 from bs4 import BeautifulSoup
 
+
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 

@@ -360,7 +360,8 @@ export default {
         });
 
         console.log('Rule created:', ruleResponseData);
-        window.location.reload(); // To reload
+        this.closeModal();
+        this.$emit('fetch-rules');
 
       } catch (error) {
         console.error('Error in creating rule:', error);

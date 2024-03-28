@@ -513,7 +513,7 @@ def set_all_contacts(user, email):
         for name, emails in all_contacts.items():
             for email in emails:
                 if name and email:
-                    library.save_email_sender(user=user, username=name, email=email)
+                    library.save_email_sender(user, name, email)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(

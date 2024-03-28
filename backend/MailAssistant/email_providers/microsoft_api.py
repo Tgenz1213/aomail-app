@@ -454,8 +454,8 @@ def set_all_contacts(access_token, user):
 
             # Add contacts to the database
             for name, emails in all_contacts.items():
-                for email in emails:
-                    library.save_email_sender(user=user, username=name, email=email)
+                for email in emails:                    
+                    library.save_email_sender(user, name, email)
 
             formatted_time = str(datetime.timedelta(seconds=time.time() - start))
             LOGGER.info(

@@ -2,14 +2,37 @@
 Utility Functions for Email Processing
 """
 
+import logging
 from django.db import IntegrityError
 from .models import Category, Contact
 import re
 import base64
 from bs4 import BeautifulSoup
 
+######################## LOGGING CONFIGURATION ########################
+LOGGER = logging.getLogger(__name__)
 
-######################## UTILS FOR OTHER FUNCTIONS ########################
+
+# ----------------------- LOGGING -----------------------#
+def get_ip_with_port(request):
+    """Returns the ip with the connection port"""
+    try:
+        source_port = request.META.get("SERVER_PORT", None)
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(",")[0]
+        else:
+            ip = request.META.get("REMOTE_ADDR")
+
+        ip_with_port = f"{ip}:{source_port}"
+        return ip_with_port
+
+    except Exception as e:
+        LOGGER.error(f"An error occurred while generating IP with port: {str(e)}")
+
+
+# ----------------------- NO REPLY CHECKING -----------------------#
 def is_no_reply_email(sender_email):
     """Returns True if the email is a no-reply address."""
     no_reply_patterns = ["no-reply", "donotreply", "noreply", "do-not-reply"]
@@ -30,6 +53,8 @@ def save_email_sender(user, sender_name, sender_email):
             except IntegrityError:
                 pass
 
+
+######################## EMAIL DATA PROCESSING ########################
 def html_clear(text):
     """Uses BeautifulSoup to clear HTML tags from the given text."""
     soup = BeautifulSoup(text, "html.parser")

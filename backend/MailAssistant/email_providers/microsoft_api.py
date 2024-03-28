@@ -455,11 +455,7 @@ def set_all_contacts(access_token, user):
             # Add contacts to the database
             for name, emails in all_contacts.items():
                 for email in emails:
-                    try:
-                        Contact.objects.create(email=email, username=name, user=user)
-                    except IntegrityError:
-                        # TODO: Handle duplicates gracefully (e.g., update existing records)
-                        pass
+                    library.save_email_sender(user=user, username=name, email=email)
 
             formatted_time = str(datetime.timedelta(seconds=time.time() - start))
             LOGGER.info(

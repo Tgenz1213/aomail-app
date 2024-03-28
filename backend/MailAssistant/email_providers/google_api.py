@@ -512,11 +512,8 @@ def set_all_contacts(user, email):
         # Part 3 : Add the contact to the database
         for name, emails in all_contacts.items():
             for email in emails:
-                if name and email:  # Checking that name and email are not empty
-                    try:
-                        Contact.objects.create(email=email, username=name, user=user)
-                    except IntegrityError:
-                        pass
+                if name and email:
+                    library.save_email_sender(user=user, username=name, email=email)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(

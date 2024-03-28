@@ -342,13 +342,13 @@ def login(request):
         # TODO: update the code to handle when the user has several emails
         email = social_api_instance.email
 
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR') # source port
+        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")  # source port
         if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+            ip = x_forwarded_for.split(",")[0]
         else:
-            ip = request.META.get('REMOTE_ADDR')
-            
-        print('Your log message... IP:' + ip)
+            ip = request.META.get("REMOTE_ADDR")
+
+        print("Your log message... IP:" + ip)
 
         return Response({"access_token": access_token, "email": email}, status=200)
 
@@ -490,28 +490,6 @@ def get_user_contacts(request):
     contacts_serializer = ContactSerializer(user_contacts, many=True)
 
     return Response(contacts_serializer.data)
-
-
-def is_no_reply_email(sender_email):
-    """Returns True if the email is a no-reply address."""
-    no_reply_patterns = ["no-reply", "donotreply", "noreply", "do-not-reply"]
-
-    return any(pattern in sender_email.lower() for pattern in no_reply_patterns)
-
-
-def save_email_sender(user, sender_name, sender_email):
-    """Saves the sender if the mail is relevant"""
-    if not is_no_reply_email(sender_email):
-        existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
-
-        if not existing_contact:
-            try:
-                Contact.objects.create(
-                    email=sender_email, username=sender_name, user=user
-                )
-            except IntegrityError:
-                # TODO: Handle duplicates gracefully (e.g., update existing records)
-                pass
 
 
 ######################## PROMPT ENGINEERING ########################
@@ -929,7 +907,7 @@ def set_rule_block_for_sender(request, email_id):
 def get_user_rules(request):
     user_rules = Rule.objects.filter(user=request.user)
     rules_data = []
-    
+
     for rule in user_rules:
         rule_serializer = RuleSerializer(rule)
         rule_data = rule_serializer.data
@@ -948,6 +926,7 @@ def get_user_rules(request):
         return Response(rules_data)
 
     return Response(None)
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

@@ -410,8 +410,9 @@
             body: JSON.stringify(ruleData),
           });
 
-          console.log('Rule updated:', ruleResponseData);
-          window.location.reload(); // To reload
+          console.log('Rule updated:', ruleResponseData);          
+          this.closeModal();
+          this.$emit('fetch-rules');
 
         } catch (error) {
           console.error('Error in updating rule:', error);

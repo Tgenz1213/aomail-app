@@ -738,10 +738,9 @@
                                                                     <!-- remove @click="toggleEmailVisibility"-->
                                                                     <p @click="toggleEmailVisibility"
                                                                         class="cursor-pointer">Vous avez reçu <span
-                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                                                                            {{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length
-                                                                            }}
-                                                                        </span>
+                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
+        emails[selectedTopic]['Useless'].filter(email =>
+            !email.answer_later).length }}</span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
@@ -1395,22 +1394,26 @@ onMounted(async () => {
     });
 
     setInterval(async () => {
-        const newTotalUnread = getNumberUnreadMail(emails.value);
+        try {
+            const newTotalUnread = getNumberUnreadMail(emails.value);
 
-        if (initialAnimationDone.value === false) {
-            animateText(getTextNumberUnreadMail(newTotalUnread));
-            totalUnread.value = newTotalUnread;
-            initialAnimationDone.value = true;
-        } else if (newTotalUnread !== totalUnread.value) {
-            totalUnread.value = newTotalUnread;
+            if (initialAnimationDone.value === false) {
+                animateText(getTextNumberUnreadMail(newTotalUnread));
+                totalUnread.value = newTotalUnread;
+                initialAnimationDone.value = true;
+            } else if (newTotalUnread !== totalUnread.value) {
+                totalUnread.value = newTotalUnread;
 
-            if (totalUnread.value > 0 && totalUnread.value <= 2) {
-                animateText(getTextNumberUnreadMail(totalUnread.value));
-            } else {
-                animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
+                if (totalUnread.value > 0 && totalUnread.value <= 2) {
+                    animateText(getTextNumberUnreadMail(totalUnread.value));
+                } else {
+                    animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
+                }
             }
+            fetchEmails();
+        } catch (error) {
+            console.log("An error occured", error)
         }
-        fetchEmails();
     }, 1000);
 });
 

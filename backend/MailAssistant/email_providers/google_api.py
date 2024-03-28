@@ -38,6 +38,7 @@ from MailAssistant.constants import (
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
     IMPORTANT,
+    INFORMATION,
     REDIRECT_URI,
     GOOGLE_SCOPES,
 )
@@ -782,14 +783,15 @@ def email_to_bdd(user, services, id_email):
         if importance_dict[IMPORTANT] == 50:
             importance = IMPORTANT
         else:
+            importance = INFORMATION
+            max_percentage = 0
+
             for key, value in importance_dict.items():
-                if value >= 51:
+                if value > max_percentage:
                     importance = key
                     
         if not rule_category:
-            print("not rule category ")
             if topic in category_dict:
-                print("category_dict", category_dict)
                 category = Category.objects.get(name=topic, user=user)
         
         if not sender:

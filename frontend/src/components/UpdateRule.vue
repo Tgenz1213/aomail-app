@@ -276,6 +276,7 @@
 
           if (deleteResponse.message) {
             console.log('Rule deleted successfully');
+            this.selectedPerson = null;        
             this.closeModal();
             this.$emit('fetch-rules');
           } else {
@@ -410,7 +411,8 @@
             body: JSON.stringify(ruleData),
           });
 
-          console.log('Rule updated:', ruleResponseData);          
+          console.log('Rule updated:', ruleResponseData);  
+          this.selectedPerson = null;        
           this.closeModal();
           this.$emit('fetch-rules');
 

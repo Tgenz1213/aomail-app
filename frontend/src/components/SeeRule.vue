@@ -102,7 +102,7 @@
     </div>
   </transition>
 </template>
-  
+
 <script setup>
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
@@ -360,6 +360,7 @@ export default {
         });
 
         console.log('Rule created:', ruleResponseData);
+        this.selectedPerson = null;
         this.closeModal();
         this.$emit('fetch-rules');
 

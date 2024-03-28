@@ -95,7 +95,7 @@
             </div>
           </div>
           <div v-if="rules.length == 0" class="flex p-4 w-full h-full">
-            <div class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center" @click="showModal = true">
+            <div class="cursor-pointer flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center" @click="showModal = true">
               <div class="flex-col">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                   stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
@@ -107,7 +107,7 @@
             </div>
           </div>
           <div v-if="rules.length > 0"
-            class="flex items-center justify-center w-auto right-6 left-6 absolute bottom-6 h-[85px] rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
+            class="cursor-pointer flex items-center justify-center w-auto right-6 left-6 absolute bottom-6 h-[85px] rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
             @click="showModal = true">
             <div class="flex-col">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"

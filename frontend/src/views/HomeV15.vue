@@ -1458,9 +1458,9 @@ function animateText(text) {
                 clearInterval(interval);
             }
         }, 30);
-    } catch {
-        // TODO: remove this try catch with a cleaner method
-        // We are no longer in Home
+    } catch (error) {
+        // TODO: Remove this try-catch with a cleaner method
+        console.error('An error occurred:', error);
     }
 }
 
@@ -1508,33 +1508,7 @@ function clearHoveredItem() {
 }
 
 function toggleTooltip() {
-    // Set isMenuOpen to true, indicating the menu or tooltip is open
     isMenuOpen.value = true;
-
-    // Wait for the next tick to ensure DOM update
-    nextTick(() => {
-        // Retrieve the scrollable div element
-        const element = scrollableDiv;
-
-        // Get the height of the scrollable div before opening the menu
-        const prevHeight = element.value.scrollHeight;
-        console.log("prevHeight", prevHeight)
-        // Open the dropdown menu
-
-        // Wait for the next tick to ensure DOM update after opening the menu
-        nextTick(() => {
-            // Get the height of the scrollable div after opening the menu
-            const newHeight = scrollableDiv.value.scrollHeight;
-
-            console.log("newHeight", newHeight)
-
-            // Check if the new height is greater than the previous height
-            if (newHeight > prevHeight) {
-                // If the new height is greater, scroll to the bottom of the scrollable div
-                scrollableDiv.scrollTop = newHeight;
-            }
-        });
-    });
 }
 
 

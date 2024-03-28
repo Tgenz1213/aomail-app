@@ -706,7 +706,7 @@
                                         </div>
                                     </li>
                                     <!-- add @click="toggleEmailVisibility"-->
-                                    <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'] && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
+                                    <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'].filter(email => !email.answer_later) && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
                                         class="group/main flex-1 mx-4 mt-4 rounded-xl bg-gray-100 hover:ring-1 ring-offset-0 ring-gray-700 ring-opacity-20">
                                         <li class="py-10 px-8"> <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                             <!-- BUG A CORRIGER : ESPACE BLANC BOTTOM -->
@@ -739,11 +739,11 @@
                                                                     <p @click="toggleEmailVisibility"
                                                                         class="cursor-pointer">Vous avez reçu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                                                                            {{ emails[selectedTopic]['Useless'].length
+                                                                            {{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length
                                                                             }}
                                                                         </span>
                                                                         <span
-                                                                            v-if="emails[selectedTopic]['Useless'].length === 1">
+                                                                            v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
                                                                         </span>
                                                                         <span v-else>
@@ -771,7 +771,7 @@
                                                                 <ul v-if="showEmailDescriptions"
                                                                     class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-200">
                                                                     <li class="py-5 grid grid-cols-10 w-full"
-                                                                        v-for="item in emails[selectedTopic]['Useless']"
+                                                                        v-for="item in emails[selectedTopic]['Useless'].filter(email => !email.answer_later)"
                                                                         :key="item.id"
                                                                         @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem">

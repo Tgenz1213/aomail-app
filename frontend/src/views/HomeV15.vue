@@ -1768,6 +1768,8 @@ async function handleAddCategory(categoryData) {
             }),
         });
 
+        console.log(response)
+
         if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-300';

@@ -409,14 +409,24 @@ def get_user_categories(request):
 def update_category(request, current_name):
     if current_name == DEFAULT_CATEGORY:
         return Response(
-            {"detail": f"Can not modify: {DEFAULT_CATEGORY}"},
+            {"error": f"Can not modify: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(current_name) > 50:
+        return Response(
+            {"error": f"Name length greater than 50"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(request.data["description"]) > 100:
+        return Response(
+            {"error": f"Description length greater than 100"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return Response(
-            {"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
     serializer = CategoryNameSerializer(category, data=request.data)
@@ -433,20 +443,20 @@ def update_category(request, current_name):
 def delete_category(request, current_name):
     if current_name == DEFAULT_CATEGORY:
         return Response(
-            {"detail": f"Can not delete: {DEFAULT_CATEGORY}"},
+            {"error": f"Can not delete: {DEFAULT_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return Response(
-            {"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
     category.delete()
 
     return Response(
-        {"detail": "Category deleted successfully"}, status=status.HTTP_200_OK
+        {"error": "Category deleted successfully"}, status=status.HTTP_200_OK
     )
 
 
@@ -460,6 +470,16 @@ def create_category(request):
     if name == DEFAULT_CATEGORY:
         return Response(
             {"error": f"Can not create: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(name) > 50:
+        return Response(
+            {"error": f"Name length greater than 50"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(data["description"]) > 100:
+        return Response(
+            {"error": f"Description length greater than 100"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 

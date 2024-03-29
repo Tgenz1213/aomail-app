@@ -452,14 +452,18 @@ def delete_category(request, current_name):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def set_category(request):
+def create_category(request):
     data = request.data.copy()
     data["user"] = request.user.id
+    name = data["name"]
 
-    # Check if the category already exists for the user
-    existing_category = Category.objects.filter(
-        user=request.user, name=data["name"]
-    ).exists()
+    if name == DEFAULT_CATEGORY:
+        return Response(
+            {"error": f"Can not create: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    existing_category = Category.objects.filter(user=request.user, name=name).exists()
 
     if existing_category:
         return Response(
@@ -473,7 +477,7 @@ def set_category(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors set_category: {serializer.errors}")
+        LOGGER.error(f"Serializer errors create_category: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

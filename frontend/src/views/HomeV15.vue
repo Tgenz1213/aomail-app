@@ -1757,7 +1757,7 @@ async function handleAddCategory(categoryData) {
     }
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}api/set_category/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}api/create_category/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

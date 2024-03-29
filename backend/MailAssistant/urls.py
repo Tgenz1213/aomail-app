@@ -24,10 +24,10 @@ urlpatterns = [
     path('check_username/', views.check_username, name='check_username'), # ok
     path('api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     #----------------------- CATEGORIES -----------------------#
-    path('api/set_category/', views.set_category, name='set_category'), # ok
+    path('api/create_category/', views.create_category, name='create_category'), # ok
     path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'), # ok
-    path('api/update_category/<str:currentName>/', views.update_category, name='update_category'), # ok
-    path('api/delete_category/<str:currentName>/', views.delete_category, name='delete_category'), # ok
+    path('api/update_category/<str:current_name>/', views.update_category, name='update_category'), # ok
+    path('api/delete_category/<str:current_name>/', views.delete_category, name='delete_category'), # ok
     #----------------------- EMAIL ACCOUNT -----------------------#
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok

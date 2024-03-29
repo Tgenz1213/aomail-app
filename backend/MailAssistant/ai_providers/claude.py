@@ -129,7 +129,7 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 
 ######################## WRITING ########################
 def improve_email_writing(body, subject):
-    """Enhance email subject and body in French"""
+    """Enhance email subject and body"""
 
     language = get_language(body, subject).upper()
 
@@ -152,18 +152,17 @@ def improve_email_writing(body, subject):
 
     return email_body, subject_text
 
+def new_mail_recommendation(mail_content, email_subject, user_recommendation, language="FRENCH"):
+    """Enhance email subject and body based on user guideline"""
 
-def new_mail_recommendation(mail_content, email_subject, user_recommendation):
-    """Enhance email subject and body in FRENCH based on user guideline"""
-
-    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
+    template = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {email_subject},
     body: {mail_content}
     {ASSISTANT}"""
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
     # TODO: handle when the response is not a json format with an algorithm

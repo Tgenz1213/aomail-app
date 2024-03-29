@@ -406,9 +406,14 @@ def get_user_categories(request):
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
-def update_category(request, currentName):
+def update_category(request, current_name):
+    if current_name == DEFAULT_CATEGORY:
+        return Response(
+            {"detail": f"Can not modify: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     try:
-        category = Category.objects.get(name=currentName, user=request.user)
+        category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return Response(
             {"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND
@@ -425,10 +430,14 @@ def update_category(request, currentName):
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
-def delete_category(request, currentName):
+def delete_category(request, current_name):
+    if current_name == DEFAULT_CATEGORY:
+        return Response(
+            {"detail": f"Can not delete: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     try:
-        # Retrieve the category to be deleted
-        category = Category.objects.get(name=currentName, user=request.user)
+        category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return Response(
             {"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND

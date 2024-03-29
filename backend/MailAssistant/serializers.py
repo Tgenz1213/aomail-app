@@ -91,7 +91,7 @@ class EmailGenerateAnswer(serializers.Serializer):
     response_type = serializers.CharField()
 
 
-# ----------------------- USER  SERIALIZER-----------------------#
+# ----------------------- USER  SERIALIZER -----------------------#
 class PreferencesSerializer(serializers.ModelSerializer):
     """Serializer for handling 'Preferences' model data in API interactions."""
 
@@ -114,7 +114,7 @@ class ContactSerializer(serializers.ModelSerializer):
         fields = ["id", "email", "username"]
 
 
-# ----------------------- RULE  SERIALIZER-----------------------#
+# ----------------------- RULE  SERIALIZER -----------------------#
 class RuleSerializer(serializers.ModelSerializer):
     """Serializer for handling 'Rule' model data in API interactions."""
 

@@ -455,7 +455,7 @@ def set_all_contacts(access_token, user):
 
             # Add contacts to the database
             for name, emails in all_contacts.items():
-                for email in emails:                    
+                for email in emails:
                     library.save_email_sender(user, name, email)
 
     except Exception as e:
@@ -558,9 +558,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
     """Subscribe the user to a webhook for email notifications"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    notification_url = (
-        f"https://theo.aochange.com/MailAssistant/microsoft/receive_mail_notifications/"
-    )
+    notification_url = f"{BASE_URL}/MailAssistant/microsoft/receive_mail_notifications/"
     expiration_date = datetime.datetime.now() + datetime.timedelta(days=1)
     expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
@@ -596,6 +594,8 @@ def subscribe_to_email_notifications(user, email) -> bool:
         )
         return False
 
+
+@api_view(["POST", "GET"])
 @method_decorator(csrf_exempt, name='dispatch')
 class MicrosoftNotificationView(View):
     def post(self, request, *args, **kwargs):
@@ -621,10 +621,17 @@ class MicrosoftNotificationView(View):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def receive_mail_notifications(request):
-    """Process email notifications from Google listener"""
     print("TRIGGERED THE RECEIVING URL receive_mail_notifications")
     print(request.headers)
 
+    if request.method == "GET":
+        validation_token = request.GET.get("validationToken")
+        if validation_token:
+            print("Validation token received:", validation_token)
+            return HttpResponse(validation_token, content_type="text/plain")
+
+    if request.method == "POST":
+        print("request.method == POST", request.headers)
     # if request.method == 'POST' and 'validationToken' in request.data:
     #     validation_token = request.data['validationToken']
     #     return HttpResponse(validation_token, content_type='text/plain')'''
@@ -688,7 +695,9 @@ def email_to_bdd(user, email, id_email):
 
         if not sender:
             sender_name, sender_email = from_name[0], from_name[1]
-            sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+            sender, _ = Sender.objects.get_or_create(
+                name=sender_name, email=sender_email
+            )
 
         try:
             email_entry = Email.objects.create(

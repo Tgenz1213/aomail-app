@@ -129,7 +129,7 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 
 ######################## WRITING ########################
 def improve_email_writing(body, subject):
-    """Enhance email subject and body in French"""
+    """Enhance email subject and body"""
 
     language = get_language(body, subject).upper()
 
@@ -152,18 +152,17 @@ def improve_email_writing(body, subject):
 
     return email_body, subject_text
 
+def new_mail_recommendation(mail_content, email_subject, user_recommendation, language="FRENCH"):
+    """Enhance email subject and body based on user guideline"""
 
-def new_mail_recommendation(mail_content, email_subject, user_recommendation):
-    """Enhance email subject and body in FRENCH based on user guideline"""
-
-    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in FRENCH according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
+    template = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {email_subject},
     body: {mail_content}
     {ASSISTANT}"""
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
     # TODO: handle when the response is not a json format with an algorithm
@@ -178,15 +177,15 @@ def new_mail_recommendation(mail_content, email_subject, user_recommendation):
     return subject_text, email_body
 
 
-def generate_email(input_data, length, formality):
-    """Generate a French email, enhancing both QUANTITY and QUALITY according to user guidelines."""
+def generate_email(input_data, length, formality, language="FRENCH"):
+    """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, write a {length} and {formality} email in FRENCH.
-    Improve the QUANTITY and QUALITY in FRENCH according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
+    template = f"""{HUMAN}As an email assistant, write a {length} and {formality} email in {language}.
+    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
 
     Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
     {ASSISTANT}"""
-    response = get_prompt_response(formatted_prompt)
+    response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
     result_json = json.loads(clear_text)
@@ -269,7 +268,7 @@ def improve_email_copywriting(email_subject, email_body):
 
 
 def generate_email_response(input_subject, input_body, response_type, language):
-    """Generates a French email response based on the given response type"""
+    """Generates an email response based on the given response type"""
     template = f"""{HUMAN}Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
     <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
 
@@ -293,7 +292,7 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
 
 def categorize_and_summarize_email(
-    subject: str, decoded_data: str, category_dict: dict, user_description: str
+    subject: str, decoded_data: str, category_dict: dict, user_description: str, language="French"
 ):
     """Categorizes and summarizes an email"""
 
@@ -341,8 +340,8 @@ def categorize_and_summarize_email(
     {relevance_list}
 
     1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
-    2. In French: Summarize the following message
-    3. In French: Provide a short sentence summarizing the email.
+    2. In {language}: Summarize the following message
+    3. In {language}: Provide a short sentence summarizing the email.
 
     ---
     Answer must be a Json format matching this template:
@@ -351,7 +350,7 @@ def categorize_and_summarize_email(
         "response": Response Category,
         "relevance": Relevance Category,
         "summary": {{
-            "one_line": One-Sentence Summary in French,
+            "one_line": One-Sentence Summary in {language},
             "complete": [
                 "Short Bullet Point 1",
                 "Short Bullet Point 2",

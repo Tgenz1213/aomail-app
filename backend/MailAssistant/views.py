@@ -406,12 +406,45 @@ def get_user_categories(request):
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
-def update_category(request, currentName):
+def update_category(request, current_name):
+    if current_name == DEFAULT_CATEGORY:
+        return Response(
+            {"error": f"Can not modify: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(current_name) > 50:
+        return Response(
+            {"error": "Name length greater than 50"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(request.data["description"]) > 100:
+        return Response(
+            {"error": "Description length greater than 100"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if re.search(r"[^a-zA-Z\s]", current_name):
+        return Response(
+            {
+                "error": "The category name contains an invalid character: only letters and spaces are allowed"
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    existing_category = Category.objects.filter(
+        user=request.user, name=current_name
+    ).exists()
+
+    if existing_category:
+        return Response(
+            {"error": "Category already exists"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     try:
-        category = Category.objects.get(name=currentName, user=request.user)
+        category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return Response(
-            {"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
     serializer = CategoryNameSerializer(category, data=request.data)
@@ -425,36 +458,61 @@ def update_category(request, currentName):
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
-def delete_category(request, currentName):
+def delete_category(request, current_name):
+    if current_name == DEFAULT_CATEGORY:
+        return Response(
+            {"error": f"Can not delete: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     try:
-        # Retrieve the category to be deleted
-        category = Category.objects.get(name=currentName, user=request.user)
+        category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return Response(
-            {"detail": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
     category.delete()
 
     return Response(
-        {"detail": "Category deleted successfully"}, status=status.HTTP_200_OK
+        {"error": "Category deleted successfully"}, status=status.HTTP_200_OK
     )
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def set_category(request):
+def create_category(request):
     data = request.data.copy()
     data["user"] = request.user.id
+    name = data["name"]
 
-    # Check if the category already exists for the user
-    existing_category = Category.objects.filter(
-        user=request.user, name=data["name"]
-    ).exists()
+    if name == DEFAULT_CATEGORY:
+        return Response(
+            {"error": f"Can not create: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(name) > 50:
+        return Response(
+            {"error": f"Name length greater than 50"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if len(data["description"]) > 100:
+        return Response(
+            {"error": f"Description length greater than 100"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if re.search(r"[^a-zA-Z\s]", name):
+        return Response(
+            {
+                "error": "The category name contains an invalid character: only letters and spaces are allowed"
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    existing_category = Category.objects.filter(user=request.user, name=name).exists()
 
     if existing_category:
         return Response(
-            {"error": "Category already exists for the user"},
+            {"error": "Category already exists"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -464,7 +522,7 @@ def set_category(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors set_category: {serializer.errors}")
+        LOGGER.error(f"Serializer errors create_category: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -71,7 +71,7 @@ const props = defineProps({
   isOpen: Boolean,
   category: {
     type: Object,
-    default: () => ({ name: '', description: '' }) // Default category structure
+    default: () => ({ name: '', description: '', errorMessage: '' }) // Default category structure
   }
 });
 
@@ -79,6 +79,7 @@ const emits = defineEmits(['closeModal', 'updateCategory', 'deleteCategory']);
 
 const categoryName = ref(props.category?.name || '');
 const categoryDescription = ref(props.category?.description || '');
+let errorMessage = ref('');
 
 watch(() => props.category, (newVal) => {
   categoryName.value = newVal?.name || '';
@@ -86,6 +87,7 @@ watch(() => props.category, (newVal) => {
 }, { immediate: true });
 
 const closeModal = () => {
+  errorMessage.value = '';
   emits('closeModal');
 };
 
@@ -94,15 +96,21 @@ onMounted(() => {
 });
 
 async function updateCategoryHandler() {
+  errorMessage.value = '';
 
   const updatedCategory = {
     name: categoryName.value,
     description: categoryDescription.value,
   };
 
-  if (/[,;:/\\.]/.test(categoryName.value)) {
-    console.log("Name not accepted. It contains a special character.");
-    emits('updateCategory', { error: 'Nom de catégorie non conforme', description: 'Le nom contient un caractère interdit : , ; : / \\' });
+  if (/[^a-zA-Z\s]/.test(categoryName.value)) {
+    errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
+  } else if (categoryDescription.value.length > 100) {
+    errorMessage.value = "Pas plus de 100 caractères pour la description";
+  } else if (categoryName.value.length > 50) {
+    errorMessage.value = "Pas plus de 50 caractères pour le nom";
+  } else if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
+    errorMessage.value = "Veuillez remplir tous les champs";
   } else {
     try {
       const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -110,7 +118,7 @@ async function updateCategoryHandler() {
 
       for (let i = 0; i < fetchedCategories.length; i++) {
         if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {
-          emits('updateCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
+          errorMessage.value = 'La catégorie: ' + categoryName.value + ' existe déjà'
           categoryName.value = props.category?.name || '';
           return;
         }

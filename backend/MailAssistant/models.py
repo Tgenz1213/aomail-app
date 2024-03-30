@@ -25,7 +25,18 @@ class Sender(models.Model):
 
 
 class Language(models.Model):
+    """Stores language of users"""
+
     language = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class MicrosoftListener(models.Model):
+    """Stores information about Microsoft subscriptions"""
+
+    microsoft_id = models.CharField(max_length=50)
+    subscription_id = models.CharField(max_length=50)
+    email = models.CharField(max_length=320)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
@@ -57,7 +68,7 @@ class SocialAPI(models.Model):
     """Table that contains email credentials."""
 
     type_api = models.CharField(max_length=50)
-    email = models.CharField(max_length=320, null=True)
+    email = models.CharField(max_length=320, null=True, unique=True)
     access_token = models.CharField(max_length=3000, null=True)
     refresh_token = models.CharField(max_length=2000, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

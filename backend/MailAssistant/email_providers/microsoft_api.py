@@ -6,6 +6,7 @@ import base64
 import datetime
 import json
 import logging
+import threading
 import time
 import httpx
 import requests
@@ -36,7 +37,7 @@ from MailAssistant.constants import (
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from ..models import Contact, Rule, SocialAPI
+from ..models import Contact, MicrosoftListener, Rule, SocialAPI
 from requests.exceptions import HTTPError
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral
@@ -575,6 +576,18 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
     try:
         response = requests.post(url, json=subscription_body, headers=headers)
+        response_data = response.json()
+
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        subscription_id = response_data["id"]
+        microsoft_id = response_data["creatorId"]
+
+        MicrosoftListener.objects.create(
+            microsoft_id=microsoft_id,
+            subscription_id=subscription_id,
+            user=social_api.user,
+            email=email,
+        )
 
         if response.status_code == 201:
             print("Subscription created successfully.")
@@ -592,8 +605,10 @@ def subscribe_to_email_notifications(user, email) -> bool:
         )
         return False
 
+
 # TODO: create a lifeCycleNotification listener
 # if subscription is about to expire => create a new one AND delete the old
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftNotificationView(View):
@@ -607,13 +622,23 @@ class MicrosoftNotificationView(View):
 
         try:
             email_data = json.loads(request.body.decode("utf-8"))
-            print(email_data)
             id_email = email_data["value"][0]["resourceData"]["id"]
 
-            email_to_bdd(user, email, id_email)
+            if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
+                microsoft_id = email_data["value"][0]["resource"].split("/")[1]
+                subscription_id = email_data["value"][0]["subscriptionId"]
+                subscription = MicrosoftListener.objects.get(
+                    microsoft_id=microsoft_id, subscription_id=subscription_id
+                )
 
-            if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:                
-                return JsonResponse({"status": "Notification received"}, status=202)
+                threading.Thread(
+                    target=email_to_bdd,
+                    args=(subscription.user, subscription.email, id_email),
+                ).start()
+
+                return Response({"status": "Notification received"}, status=202)
+            else:
+                return Response({"error": "Internal Server Error"}, status=500)
 
             {
                 "value": [
@@ -634,9 +659,6 @@ class MicrosoftNotificationView(View):
                 ]
             }
 
-            # TODO: create a thread and return 202 + do it for google too
-
-            return Response({"status": "Notification received"}, status=200)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 

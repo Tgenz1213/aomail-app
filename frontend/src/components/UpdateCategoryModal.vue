@@ -87,6 +87,7 @@ watch(() => props.category, (newVal) => {
 }, { immediate: true });
 
 const closeModal = () => {
+  errorMessage.value = '';
   emits('closeModal');
 };
 
@@ -95,6 +96,7 @@ onMounted(() => {
 });
 
 async function updateCategoryHandler() {
+  errorMessage.value = '';
 
   const updatedCategory = {
     name: categoryName.value,

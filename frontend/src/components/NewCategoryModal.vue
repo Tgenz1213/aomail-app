@@ -73,6 +73,7 @@ let categoryDescription = ref('');
 let errorMessage = ref('');
 
 const closeModal = () => {
+    errorMessage.value = '';
     emits('closeModal');
 };
 
@@ -81,6 +82,7 @@ onMounted(() => {
 });
 
 async function addCategory() {
+    errorMessage.value = '';
 
     if (/[^a-zA-Z\s]/.test(categoryName.value)) {
         errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';

@@ -71,7 +71,7 @@ const props = defineProps({
   isOpen: Boolean,
   category: {
     type: Object,
-    default: () => ({ name: '', description: '' }) // Default category structure
+    default: () => ({ name: '', description: '', errorMessage: '' }) // Default category structure
   }
 });
 
@@ -79,6 +79,7 @@ const emits = defineEmits(['closeModal', 'updateCategory', 'deleteCategory']);
 
 const categoryName = ref(props.category?.name || '');
 const categoryDescription = ref(props.category?.description || '');
+let errorMessage = ref('');
 
 watch(() => props.category, (newVal) => {
   categoryName.value = newVal?.name || '';
@@ -100,17 +101,17 @@ async function updateCategoryHandler() {
     description: categoryDescription.value,
   };
 
-  if (/[,;:/\\.]/.test(categoryName.value)) {
-    console.log("Name not accepted. It contains a special character.");
-    emits('updateCategory', { error: 'Nom de catégorie non conforme', description: 'Le nom contient un caractère interdit : , ; : / \\' });
+  if (/[^a-zA-Z\s]/.test(categoryName.value)) {
+    errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
   } else {
     try {
       const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
       const currentName = props.category?.name;
 
       for (let i = 0; i < fetchedCategories.length; i++) {
-        if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {
-          emits('updateCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
+        if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {          
+          errorMessage.value = 'La catégorie: ' + categoryName.value + ' existe déjà'
+          //emits('updateCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
           categoryName.value = props.category?.name || '';
           return;
         }

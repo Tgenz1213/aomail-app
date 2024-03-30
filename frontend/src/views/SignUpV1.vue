@@ -969,8 +969,8 @@ function addCategory() {
     errorMessage.value = "Veuillez remplir tous les champs";
   } else if (categories.value.some(cat => cat.name === categoryName.value)) {
     errorMessage.value = "Le nom de la catégorie existe déjà";
-  } else if (/[,;:/\\.]/.test(categoryName.value)) {
-    errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : , ; : / \\';
+  } else if (/[^a-zA-Z\s]/.test(categoryName.value)) {
+    errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
   } else if (categoryDescription.value.length > 100) {
     errorMessage.value = "Pas plus de 100 caractères pour la description";
   } else if (categoryName.value.length > 50) {

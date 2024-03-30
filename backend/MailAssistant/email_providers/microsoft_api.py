@@ -27,6 +27,7 @@ from MailAssistant.constants import (
     IMPORTANT,
     INFORMATION,
     MICROSOFT_AUTHORITY,
+    MICROSOFT_CLIENT_STATE,
     MICROSOFT_CONFIG,
     MICROSOFT_PROVIDER,
     MICROSOFT_SCOPES,
@@ -591,6 +592,8 @@ def subscribe_to_email_notifications(user, email) -> bool:
         )
         return False
 
+# TODO: create a lifeCycleNotification listener
+# if subscription is about to expire => create a new one AND delete the old
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftNotificationView(View):
@@ -605,6 +608,12 @@ class MicrosoftNotificationView(View):
         try:
             email_data = json.loads(request.body.decode("utf-8"))
             print(email_data)
+            id_email = email_data["value"][0]["resourceData"]["id"]
+
+            email_to_bdd(user, email, id_email)
+
+            if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:                
+                return JsonResponse({"status": "Notification received"}, status=202)
 
             {
                 "value": [
@@ -627,10 +636,9 @@ class MicrosoftNotificationView(View):
 
             # TODO: create a thread and return 202 + do it for google too
 
-            return JsonResponse({"status": "Notification received"}, status=200)
+            return Response({"status": "Notification received"}, status=200)
         except Exception as e:
-            # Gérer les erreurs éventuelles
-            return JsonResponse({"error": str(e)}, status=500)
+            return Response({"error": str(e)}, status=500)
 
     # not needed (tested to create subscription and worked)
     # def get(self, request, *args, **kwargs):

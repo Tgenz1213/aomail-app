@@ -6,6 +6,7 @@ import base64
 import datetime
 import logging
 import re
+import threading
 import time
 import json
 from django.http import JsonResponse
@@ -692,7 +693,9 @@ def receive_mail_notifications(request):
         try:
             social_api = SocialAPI.objects.get(email=email)
             services = authenticate_service(social_api.user, email)
-            email_to_bdd(social_api.user, services, email_id)
+            threading.Thread(
+                target=email_to_bdd, args=(social_api.user, services, email_id)
+            ).start()
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
@@ -729,6 +732,7 @@ def receive_mail_notifications(request):
     
     except IntegrityError:
         return Response(status=200)
+    
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
         return Response({"error": str(e)}, status=500)

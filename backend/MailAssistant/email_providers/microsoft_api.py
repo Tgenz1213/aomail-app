@@ -561,12 +561,14 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
     access_token = refresh_access_token(get_social_api(user, email))
     notification_url = f"{BASE_URL}MailAssistant/microsoft/receive_mail_notifications/"
-    expiration_date = datetime.datetime.now() + datetime.timedelta(days=1)
+    lifecycle_notification_url = f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
+    expiration_date = datetime.datetime.now() + datetime.timedelta(minutes=30)
     expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
     subscription_body = {
         "changeType": "created",
         "notificationUrl": notification_url,
+        "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/mailFolders('inbox')/messages",
         "expirationDateTime": expiration_date_str,
         "clientState": MICROSOFT_CLIENT_STATE,
@@ -605,12 +607,31 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
 
 # TODO: create a lifeCycleNotification listener
-# if subscription is about to expire => create a new one AND delete the old
+@method_decorator(csrf_exempt, name="dispatch")
+class MicrosoftSubscriptionNotification(View):
+    """Handles subscription expiration"""
 
+    def post(self, request):
+        # Handle subscription
+        validation_token = request.GET.get("validationToken")
+        if validation_token:
+            return HttpResponse(validation_token, content_type="text/plain")
+
+        try:
+            print(request.headers)
+            subscription_data = json.loads(request.body.decode("utf-8"))
+            print(subscription_data)
+            
+            # check if the user is still in db
+            # if no do not renew
+            # else 
+            # create a new one AND delete the old
+        except Exception as e:
+            print(str(e))
 
 @method_decorator(csrf_exempt, name="dispatch")
-class MicrosoftNotificationView(View):
-    """Handles subscription and reeceiving emails from Microsoft email notification listener"""
+class MicrosoftEmailNotification(View):
+    """Handles subscription and receiving emails from Microsoft email notification listener"""
 
     def post(self, request):
         # Handle subscription

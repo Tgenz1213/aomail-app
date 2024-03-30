@@ -59,7 +59,7 @@ urlpatterns = [
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
-    path('microsoft/receive_mail_notifications/', google_api.receive_mail_notifications, name='receive_mail_notifications'), # dev
+    path('microsoft/receive_mail_notifications/', microsoft_api.MicrosoftNotificationView.as_view(), name='receive_mail_notifications'), # dev
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='receive_mail_notifications'), # ok
     #----------------------- TESTING URLs -----------------------#

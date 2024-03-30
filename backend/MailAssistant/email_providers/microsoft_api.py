@@ -11,9 +11,12 @@ import httpx
 import requests
 from collections import defaultdict
 from django.db import IntegrityError
+from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlencode
 from rest_framework.response import Response
 from django.http import HttpResponse, JsonResponse
+from rest_framework.views import View
+from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
 import urllib.parse
@@ -556,25 +559,29 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
     access_token = refresh_access_token(get_social_api(user, email))
     notification_url = (
-        f"{GRAPH_URL}/MailAssistant/microsoft/receive_mail_notifications/"
+        f"https://theo.aochange.com/MailAssistant/microsoft/receive_mail_notifications/"
     )
-    expiration_date = datetime.datetime.now() + datetime.timedelta(days=7)
+    expiration_date = datetime.datetime.now() + datetime.timedelta(days=1)
     expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
     subscription_body = {
         "changeType": "created",
-        "notificationUrl": notification_url,
+        "notificationUrl": "https://theo.aochange.com/MailAssistant/microsoft/receive_mail_notifications/",
         "resource": "me/mailFolders('inbox')/messages",
         "expirationDateTime": expiration_date_str,
     }
     url = "https://graph.microsoft.com/v1.0/subscriptions"
     headers = get_headers(access_token)
+    #headers = {
+    #    "Content-Type": "application/json",
+    #}
 
     try:
         response = requests.post(url, json=subscription_body, headers=headers)
+        print('reponse : ',response)
         print(f"DEBUG Response >>> {response.json()}")
 
-        if response.status_code == 200:
+        if response.status_code == 201:
             LOGGER.info("Subscription created successfully.")
             return True
         else:
@@ -589,7 +596,28 @@ def subscribe_to_email_notifications(user, email) -> bool:
         )
         return False
 
+@method_decorator(csrf_exempt, name='dispatch')
+class MicrosoftNotificationView(View):
+    def post(self, request, *args, **kwargs):
+        # Microsoft envoie un jeton de validation lors de la création d'une souscription
+        validation_token = request.GET.get('validationToken')
 
+        # Si le jeton de validation est présent, retournez-le dans la réponse
+        if validation_token:
+            return HttpResponse(validation_token, content_type="text/plain")
+        try:
+            notification_data = request.json()
+            # Traiter les données de notification ici
+            return JsonResponse({"status": "Processed notification data"})
+        except Exception as e:
+            # Gérer les erreurs éventuelles
+            return JsonResponse({"error": str(e)}, status=400)
+
+    def get(self, request, *args, **kwargs):
+        # Microsoft utilise GET pour envoyer le jeton de validation, donc nous devons répondre également aux requêtes GET.
+        return self.post(request, *args, **kwargs)
+
+'''
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def receive_mail_notifications(request):
@@ -599,7 +627,7 @@ def receive_mail_notifications(request):
 
     # if request.method == 'POST' and 'validationToken' in request.data:
     #     validation_token = request.data['validationToken']
-    #     return HttpResponse(validation_token, content_type='text/plain')
+    #     return HttpResponse(validation_token, content_type='text/plain')'''
 
 
 def email_to_bdd(user, email, id_email):

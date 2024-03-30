@@ -558,34 +558,31 @@ def subscribe_to_email_notifications(user, email) -> bool:
     """Subscribe the user to a webhook for email notifications"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    notification_url = f"{BASE_URL}/MailAssistant/microsoft/receive_mail_notifications/"
+    notification_url = f"{BASE_URL}MailAssistant/microsoft/receive_mail_notifications/"
     expiration_date = datetime.datetime.now() + datetime.timedelta(days=1)
     expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
     subscription_body = {
         "changeType": "created",
-        "notificationUrl": "https://theo.aochange.com/MailAssistant/microsoft/receive_mail_notifications/",
+        "notificationUrl": notification_url,
         "resource": "me/mailFolders('inbox')/messages",
         "expirationDateTime": expiration_date_str,
+        "clientState": MICROSOFT_CLIENT_STATE,
     }
     url = "https://graph.microsoft.com/v1.0/subscriptions"
     headers = get_headers(access_token)
-    #headers = {
-    #    "Content-Type": "application/json",
-    #}
 
     try:
         response = requests.post(url, json=subscription_body, headers=headers)
-        print('reponse : ',response)
-        print(f"DEBUG Response >>> {response.json()}")
 
         if response.status_code == 201:
-            LOGGER.info("Subscription created successfully.")
+            print("Subscription created successfully.")
             return True
         else:
             LOGGER.error(
                 f"Failed to subscribe to email notifications for user with ID: {user.id} and email {email}: {response.reason}"
             )
+            print(f"Debug error: response.json()")
             return False
 
     except Exception as e:
@@ -595,46 +592,50 @@ def subscribe_to_email_notifications(user, email) -> bool:
         return False
 
 
-@api_view(["POST", "GET"])
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftNotificationView(View):
+    """Handles subscription and reeceiving emails from Microsoft email notification listener"""
+
     def post(self, request, *args, **kwargs):
-        # Microsoft envoie un jeton de validation lors de la création d'une souscription
-        validation_token = request.GET.get('validationToken')
-
-        # Si le jeton de validation est présent, retournez-le dans la réponse
-        if validation_token:
-            return HttpResponse(validation_token, content_type="text/plain")
-        try:
-            notification_data = request.json()
-            # Traiter les données de notification ici
-            return JsonResponse({"status": "Processed notification data"})
-        except Exception as e:
-            # Gérer les erreurs éventuelles
-            return JsonResponse({"error": str(e)}, status=400)
-
-    def get(self, request, *args, **kwargs):
-        # Microsoft utilise GET pour envoyer le jeton de validation, donc nous devons répondre également aux requêtes GET.
-        return self.post(request, *args, **kwargs)
-
-'''
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def receive_mail_notifications(request):
-    print("TRIGGERED THE RECEIVING URL receive_mail_notifications")
-    print(request.headers)
-
-    if request.method == "GET":
+        # Handle subscription
         validation_token = request.GET.get("validationToken")
         if validation_token:
-            print("Validation token received:", validation_token)
             return HttpResponse(validation_token, content_type="text/plain")
 
-    if request.method == "POST":
-        print("request.method == POST", request.headers)
-    # if request.method == 'POST' and 'validationToken' in request.data:
-    #     validation_token = request.data['validationToken']
-    #     return HttpResponse(validation_token, content_type='text/plain')'''
+        try:
+            email_data = json.loads(request.body.decode("utf-8"))
+            print(email_data)
+
+            {
+                "value": [
+                    {
+                        "subscriptionId": "13cd7cf9-bf8a-40f3-a02a-d69c7c5e9541",
+                        "subscriptionExpirationDateTime": "2024-03-31T16:38:43+00:00",
+                        "changeType": "created",
+                        "resource": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Messages/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEMAAB_VFSuhQGVS7Rs2Ear7e7mAAAxySzrAAA=",
+                        "resourceData": {
+                            "@odata.type": "#Microsoft.Graph.Message",
+                            "@odata.id": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Messages/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEMAAB_VFSuhQGVS7Rs2Ear7e7mAAAxySzrAAA=",
+                            "@odata.etag": 'W/"CQAAABYAAAB+VFSuhQGVS7Rs2Ear7e7mAAAxuqIa"',
+                            "id": "AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEMAAB_VFSuhQGVS7Rs2Ear7e7mAAAxySzrAAA=",
+                        },
+                        "clientState": None,
+                        "tenantId": "43791c93-76a4-4993-ac2d-cc700725db0a",
+                    }
+                ]
+            }
+
+            # TODO: create a thread and return 202 + do it for google too
+
+            return JsonResponse({"status": "Notification received"}, status=200)
+        except Exception as e:
+            # Gérer les erreurs éventuelles
+            return JsonResponse({"error": str(e)}, status=500)
+
+    # not needed (tested to create subscription and worked)
+    # def get(self, request, *args, **kwargs):
+    #     """Returns the validationToken to Microsoft Graph API"""
+    #     return self.post(request, *args, **kwargs)
 
 
 def email_to_bdd(user, email, id_email):

@@ -82,3 +82,4 @@ MICROSOFT_AUTHORITY = (
 )
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
 MICROSOFT_PROVIDER = "Outlook"
+MICROSOFT_CLIENT_STATE = MICROSOFT_CONFIG["client_state"]

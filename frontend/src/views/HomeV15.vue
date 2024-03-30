@@ -738,9 +738,7 @@
                                                                     <!-- remove @click="toggleEmailVisibility"-->
                                                                     <p @click="toggleEmailVisibility"
                                                                         class="cursor-pointer">Vous avez reçu <span
-                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
-        emails[selectedTopic]['Useless'].filter(email =>
-            !email.answer_later).length }}</span>
+                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}</span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
@@ -1768,8 +1766,8 @@ async function handleAddCategory(categoryData) {
             }),
         });
 
-        console.log(response)
-
+        console.log("response", response)
+        // TODO : check if it really works => print error if there are
         if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-300';

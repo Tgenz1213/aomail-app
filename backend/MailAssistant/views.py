@@ -422,20 +422,24 @@ def update_category(request, current_name):
             {"error": "Description length greater than 100"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if re.search(r'[^a-zA-Z\s]', current_name):
+    if re.search(r"[^a-zA-Z\s]", current_name):
         return Response(
-            {"error": 'The category name contains an invalid character: only letters and spaces are allowed'},
+            {
+                "error": "The category name contains an invalid character: only letters and spaces are allowed"
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
-    
-    existing_category = Category.objects.filter(user=request.user, name=current_name).exists()
+
+    existing_category = Category.objects.filter(
+        user=request.user, name=current_name
+    ).exists()
 
     if existing_category:
         return Response(
             {"error": "Category already exists"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    
+
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
@@ -496,9 +500,11 @@ def create_category(request):
             {"error": f"Description length greater than 100"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if re.search(r'[^a-zA-Z\s]', name):
+    if re.search(r"[^a-zA-Z\s]", name):
         return Response(
-            {"error": 'The category name contains an invalid character: only letters and spaces are allowed'},
+            {
+                "error": "The category name contains an invalid character: only letters and spaces are allowed"
+            },
             status=status.HTTP_400_BAD_REQUEST,
         )
 

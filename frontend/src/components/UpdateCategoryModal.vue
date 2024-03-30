@@ -103,15 +103,20 @@ async function updateCategoryHandler() {
 
   if (/[^a-zA-Z\s]/.test(categoryName.value)) {
     errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
+  } else if (categoryDescription.value.length > 100) {
+    errorMessage.value = "Pas plus de 100 caractères pour la description";
+  } else if (categoryName.value.length > 50) {
+    errorMessage.value = "Pas plus de 50 caractères pour le nom";
+  } else if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
+    errorMessage.value = "Veuillez remplir tous les champs";
   } else {
     try {
       const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
       const currentName = props.category?.name;
 
       for (let i = 0; i < fetchedCategories.length; i++) {
-        if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {          
+        if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {
           errorMessage.value = 'La catégorie: ' + categoryName.value + ' existe déjà'
-          //emits('updateCategory', { error: 'Catégorie déjà existante', description: 'La catégorie: ' + categoryName.value + ' existe déjà' });
           categoryName.value = props.category?.name || '';
           return;
         }

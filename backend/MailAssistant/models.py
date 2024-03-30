@@ -34,7 +34,6 @@ class Language(models.Model):
 class MicrosoftListener(models.Model):
     """Stores information about Microsoft subscriptions"""
 
-    microsoft_id = models.CharField(max_length=50)
     subscription_id = models.CharField(max_length=50)
     email = models.CharField(max_length=320)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

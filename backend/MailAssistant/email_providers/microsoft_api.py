@@ -580,10 +580,8 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
         social_api = SocialAPI.objects.get(user=user, email=email)
         subscription_id = response_data["id"]
-        microsoft_id = response_data["creatorId"]
 
         MicrosoftListener.objects.create(
-            microsoft_id=microsoft_id,
             subscription_id=subscription_id,
             user=social_api.user,
             email=email,
@@ -614,7 +612,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
 class MicrosoftNotificationView(View):
     """Handles subscription and reeceiving emails from Microsoft email notification listener"""
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         # Handle subscription
         validation_token = request.GET.get("validationToken")
         if validation_token:
@@ -622,13 +620,12 @@ class MicrosoftNotificationView(View):
 
         try:
             email_data = json.loads(request.body.decode("utf-8"))
-            id_email = email_data["value"][0]["resourceData"]["id"]
 
             if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
-                microsoft_id = email_data["value"][0]["resource"].split("/")[1]
+                id_email = email_data["value"][0]["resourceData"]["id"]
                 subscription_id = email_data["value"][0]["subscriptionId"]
                 subscription = MicrosoftListener.objects.get(
-                    microsoft_id=microsoft_id, subscription_id=subscription_id
+                    subscription_id=subscription_id
                 )
 
                 threading.Thread(
@@ -636,31 +633,11 @@ class MicrosoftNotificationView(View):
                     args=(subscription.user, subscription.email, id_email),
                 ).start()
 
-                return Response({"status": "Notification received"}, status=202)
+                return JsonResponse({"status": "Notification received"}, status=202)
             else:
-                return Response({"error": "Internal Server Error"}, status=500)
-
-            {
-                "value": [
-                    {
-                        "subscriptionId": "13cd7cf9-bf8a-40f3-a02a-d69c7c5e9541",
-                        "subscriptionExpirationDateTime": "2024-03-31T16:38:43+00:00",
-                        "changeType": "created",
-                        "resource": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Messages/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEMAAB_VFSuhQGVS7Rs2Ear7e7mAAAxySzrAAA=",
-                        "resourceData": {
-                            "@odata.type": "#Microsoft.Graph.Message",
-                            "@odata.id": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Messages/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEMAAB_VFSuhQGVS7Rs2Ear7e7mAAAxySzrAAA=",
-                            "@odata.etag": 'W/"CQAAABYAAAB+VFSuhQGVS7Rs2Ear7e7mAAAxuqIa"',
-                            "id": "AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEMAAB_VFSuhQGVS7Rs2Ear7e7mAAAxySzrAAA=",
-                        },
-                        "clientState": None,
-                        "tenantId": "43791c93-76a4-4993-ac2d-cc700725db0a",
-                    }
-                ]
-            }
-
+                return JsonResponse({"error": "Internal Server Error"}, status=500)
         except Exception as e:
-            return Response({"error": str(e)}, status=500)
+            return JsonResponse({"error": str(e)}, status=500)
 
     # not needed (tested to create subscription and worked)
     # def get(self, request, *args, **kwargs):

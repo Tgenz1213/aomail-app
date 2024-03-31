@@ -432,13 +432,16 @@ def search_emails(access_token, search_query, max_results=2):
 def set_all_contacts(access_token, user):
     """Stores all unique contacts of an email account in DB"""
     start = time.time()
+
     graph_api_contacts_endpoint = f"{GRAPH_URL}me/contacts"
     graph_api_messages_endpoint = f"{GRAPH_URL}me/messages?$top=500"
     headers = get_headers(access_token)
 
     try:
+        all_contacts = defaultdict(set)
+
         # Part 1: Retrieve contacts from Microsoft Contacts
-        response = httpx.get(graph_api_contacts_endpoint, headers=headers)
+        response = requests.get(graph_api_contacts_endpoint, headers=headers)
         response.raise_for_status()
         contacts = response.json().get("value", [])
 
@@ -446,10 +449,10 @@ def set_all_contacts(access_token, user):
             name = contact.get("displayName", "")
             email_address = contact.get("emailAddresses", [{}])[0].get("address", "")
             provider_id = contact.get("id", "")
-            library.save_email_sender(user, name, email_address, provider_id)
+            all_contacts[(user, name, email_address, provider_id)].add(email_address)
 
-        # Part 2: Retrieve contacts from the first 500 emails in the inbox
-        response = httpx.get(graph_api_messages_endpoint, headers=headers)
+        # Part 2: Retrieving from Outlook
+        response = requests.get(graph_api_messages_endpoint, headers=headers)
         response.raise_for_status()
         messages = response.json().get("value", [])
 
@@ -457,10 +460,18 @@ def set_all_contacts(access_token, user):
             sender = message.get("from", {}).get("emailAddress", {}).get("address", "")
             if sender:
                 name = sender.split("@")[0]
-                library.save_email_sender(user, name, sender, "")
+                all_contacts[(user, name, sender, "")].add(sender)
+
+        # Part 3: Add the contacts to the database
+        for contact_info, emails in all_contacts.items():
+            _, name, email_address, provider_id = contact_info
+            for _ in emails:
+                library.save_email_sender(user, name, email_address, provider_id)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        LOGGER.info(f"Retrieved unique contacts in {formatted_time}")
+        LOGGER.info(
+            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+        )
 
     except Exception as e:
         LOGGER.error(f"Error fetching contacts: {str(e)}")

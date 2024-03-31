@@ -431,25 +431,36 @@ def search_emails(access_token, search_query, max_results=2):
 ######################## UNDER CONSTRUCTION ########################
 def set_all_contacts(access_token, user):
     """Stores all unique contacts of an email account in DB"""
-    graph_api_endpoint = f"{GRAPH_URL}me/contacts"
+    start = time.time()
+    graph_api_contacts_endpoint = f"{GRAPH_URL}me/contacts"
+    graph_api_messages_endpoint = f"{GRAPH_URL}me/messages?$top=500"
     headers = get_headers(access_token)
 
     try:
-        # Get all contacts without specifying a page size
-        with httpx.Client() as client:
-            response = client.get(graph_api_endpoint, headers=headers)
-            response.raise_for_status()
-            response_data = response.json()
-            contacts = response_data.get("value", [])
+        # Part 1: Retrieve contacts from Microsoft Contacts
+        response = httpx.get(graph_api_contacts_endpoint, headers=headers)
+        response.raise_for_status()
+        contacts = response.json().get("value", [])
 
-            # Add contacts to the database
-            for contact in contacts:
-                name = contact.get("displayName", "")
-                email_address = contact.get("emailAddresses", [{}])[0].get(
-                    "address", ""
-                )
-                provider_id = contact.get("id", "")
-                library.save_email_sender(user, name, email_address, provider_id)
+        for contact in contacts:
+            name = contact.get("displayName", "")
+            email_address = contact.get("emailAddresses", [{}])[0].get("address", "")
+            provider_id = contact.get("id", "")
+            library.save_email_sender(user, name, email_address, provider_id)
+
+        # Part 2: Retrieve contacts from the first 500 emails in the inbox
+        response = httpx.get(graph_api_messages_endpoint, headers=headers)
+        response.raise_for_status()
+        messages = response.json().get("value", [])
+
+        for message in messages:
+            sender = message.get("from", {}).get("emailAddress", {}).get("address", "")
+            if sender:
+                name = sender.split("@")[0]
+                library.save_email_sender(user, name, sender, "")
+
+        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+        LOGGER.info(f"Retrieved unique contacts in {formatted_time}")
 
     except Exception as e:
         LOGGER.error(f"Error fetching contacts: {str(e)}")

@@ -615,10 +615,10 @@ def set_all_contacts(user, email):
                     all_contacts[(name, email, user.id, "")].add(email)
 
         # Part 3: Add the contacts to the database
-        for contact_info, emails in all_contacts.items():
-            name, email, user_id, contact_id = contact_info
+        for contact_info, _ in all_contacts.items():
+            name, email, _, contact_id = contact_info
             if name and email:
-                library.save_email_sender(user, name, email, user_id, contact_id)
+                library.save_email_sender(user, name, email, contact_id)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(

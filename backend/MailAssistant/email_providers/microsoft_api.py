@@ -625,7 +625,7 @@ def subscribe_to_contact_notifications(user, email) -> bool:
     )
 
     subscription_body = {
-        "changeType": "created",
+        "changeType": "created,updated,deleted",
         "notificationUrl": notification_url,
         "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/contacts",
@@ -706,6 +706,8 @@ def reauthorize_subscription(user, email, subscription_id):
             LOGGER.error(
                 f"Could not reauthorize the subscription {subscription_id}: {response.reason}"
             )
+        else:
+            print("successfully reauthotirezs")
 
     except Exception as e:
         LOGGER.error(
@@ -764,7 +766,7 @@ class MicrosoftSubscriptionNotification(View):
                     )
 
                 # TODO: handle "subscriptionRemoved or missed"
-                return JsonResponse({"status": "Notification received"}, status=202)
+                return JsonResponse({"status": "Notification received"}, status=200)
 
         except Exception as e:
             print(
@@ -822,17 +824,63 @@ class MicrosoftContactNotification(View):
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
+            print("=============received data contact!!!")
             contact_data = json.loads(request.body.decode("utf-8"))
 
-            print("CONTACT NOTIF", contact_data)
+            {
+                "value": [
+                    {
+                        "subscriptionId": "5b8bedaf-9f1f-4bbe-9bd8-3492d3ad11ba",
+                        "subscriptionExpirationDateTime": "2024-03-31T11:25:35.102+00:00",
+                        "changeType": "created",
+                        "resource": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Contacts/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEOAAB_VFSuhQGVS7Rs2Ear7e7mAAAx_UOsAAA=",
+                        "resourceData": {
+                            "@odata.type": "#Microsoft.Graph.Contact",
+                            "@odata.id": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Contacts/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEOAAB_VFSuhQGVS7Rs2Ear7e7mAAAx_UOsAAA=",
+                            "@odata.etag": 'W/"EQAAABYAAAB+VFSuhQGVS7Rs2Ear7e7mAAAx6jXU"',
+                            "id": "AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEOAAB_VFSuhQGVS7Rs2Ear7e7mAAAx_UOsAAA=",
+                        },
+                        "clientState": "MailAssistantOutlookChangesListener",
+                        "tenantId": "43791c93-76a4-4993-ac2d-cc700725db0a",
+                    }
+                ]
+            }
 
             if contact_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
-                id_email = contact_data["value"][0]["resourceData"]["id"]
+                id_contact = contact_data["value"][0]["resourceData"]["id"]
                 subscription_id = contact_data["value"][0]["subscriptionId"]
-
                 subscription = MicrosoftListener.objects.get(
                     subscription_id=subscription_id
                 )
+                access_token = refresh_access_token(
+                    get_social_api(subscription.user, subscription.email)
+                )
+                change_type = contact_data["value"][0]["changeType"]
+
+                if change_type == "created":
+                    print(change_type)
+                    url = f"https://graph.microsoft.com/v1.0/me/contacts/{id_contact}"
+                    headers = get_headers(access_token)
+
+                    try:
+                        response = requests.get(url, headers=headers)
+
+                        if response.status_code == 200:
+                            contact_data = response.json()
+                            name = contact_data.get("displayName")
+                            email = contact_data.get("emailAddresses")[0].get("address")
+                            library.save_email_sender(subscription.user, name, email)
+                        else:
+                            print("Error get contact inof fail:", response.reason)
+
+                    except Exception as e:
+                        print("DEBUG>>>> get contact inof fail", str(e))
+
+                else:
+                    # TODO: handle delete and modified
+                    print(change_type)
+                    print(contact_data)
+
 
                 return JsonResponse({"status": "Notification received"}, status=202)
             else:

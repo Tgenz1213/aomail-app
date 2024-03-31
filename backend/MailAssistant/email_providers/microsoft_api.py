@@ -553,6 +553,16 @@ def get_mail(access_token, int_mail=None, id_mail=None):
 
 
 ######################## MICROSOFT LISTENER ########################
+def calculate_expiration_date(days=0, hours=0, minutes=0) -> str:
+    """Returns the expiration date according to a delta time"""
+
+    expiration_date = datetime.datetime.now() + datetime.timedelta(
+        days=days, hours=hours, minutes=minutes
+    )
+    expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
+    return expiration_date_str
+
+
 def subscribe_to_email_notifications(user, email) -> bool:
     """Subscribe the user to a webhook for email notifications"""
 
@@ -561,15 +571,13 @@ def subscribe_to_email_notifications(user, email) -> bool:
     lifecycle_notification_url = (
         f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
     )
-    expiration_date = datetime.datetime.now() + datetime.timedelta(minutes=5)
-    expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
     subscription_body = {
         "changeType": "created",
         "notificationUrl": notification_url,
         "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/mailFolders('inbox')/messages",
-        "expirationDateTime": expiration_date_str,
+        "expirationDateTime": calculate_expiration_date(minutes=5),
         "clientState": MICROSOFT_CLIENT_STATE,
     }
     url = f"{GRAPH_URL}subscriptions"
@@ -595,7 +603,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
             LOGGER.error(
                 f"Failed to subscribe to email notifications for user with ID: {user.id} and email {email}: {response.reason}"
             )
-            print(f"Debug error: response.json()")
+            print(f"Debug error: {response.json()}")
             return False
 
     except Exception as e:
@@ -605,20 +613,91 @@ def subscribe_to_email_notifications(user, email) -> bool:
         return False
 
 
+def subscribe_to_contact_notifications(user, email) -> bool:
+    """Subscribe the user to a webhook for email notifications"""
+
+    access_token = refresh_access_token(get_social_api(user, email))
+    notification_url = (
+        f"{BASE_URL}MailAssistant/microsoft/receive_contact_notifications/"
+    )
+    lifecycle_notification_url = (
+        f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
+    )
+
+    subscription_body = {
+        "changeType": "created",
+        "notificationUrl": notification_url,
+        "lifecycleNotificationUrl": lifecycle_notification_url,
+        "resource": "me/contacts",
+        "expirationDateTime": calculate_expiration_date(minutes=5),
+        "clientState": MICROSOFT_CLIENT_STATE,
+    }
+    url = f"{GRAPH_URL}subscriptions"
+    headers = get_headers(access_token)
+
+    try:
+        response = requests.post(url, json=subscription_body, headers=headers)
+        response_data = response.json()
+
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        subscription_id = response_data["id"]
+
+        MicrosoftListener.objects.create(
+            subscription_id=subscription_id,
+            user=social_api.user,
+            email=email,
+        )
+
+        if response.status_code == 201:
+            print("Subscription contact created successfully.")
+            return True
+        else:
+            LOGGER.error(
+                f"Failed to subscribe to contact notifications for user with ID: {user.id} and email {email}: {response.reason}"
+            )
+            print(f"Debug error: {response.json()}")
+            return False
+
+    except Exception as e:
+        LOGGER.error(
+            f"An error occurred while subscribing to contact notifications: {str(e)}"
+        )
+        return False
+
+
+def renew_subscription(headers, subscription_id):
+    """Renew a Microsoft subscription"""
+
+    url = f"{GRAPH_URL}subscriptions/{subscription_id}"
+    payload = {"expirationDateTime": calculate_expiration_date(minutes=5)}
+    response = requests.patch(url, headers=headers, json=payload)
+
+    if response.status_code != 200:
+        LOGGER.error(
+            f"Failed to renew the subscription {subscription_id}: {response.reason}"
+        )
+        return False
+
+    return True
+
+
 def reauthorize_subscription(user, email, subscription_id):
     """Reauthorize a Microsoft subscription"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    url = f"{GRAPH_URL}subscriptions/{subscription_id}/reauthorize"
     headers = get_headers(access_token)
 
     try:
-        response = requests.post(url, headers=headers)
+        renewed = renew_subscription(headers, subscription_id)
 
-        if response.status_code != 200:
-            LOGGER.error(
-                f"Could not reauthorize the subscription {subscription_id}: {response.reason}"
-            )
+        if renewed:
+            url = f"{GRAPH_URL}subscriptions/{subscription_id}/reauthorize"
+            response = requests.post(url, headers=headers)
+
+            if response.status_code != 200:
+                LOGGER.error(
+                    f"Could not reauthorize the subscription {subscription_id}: {response.reason}"
+                )
 
     except Exception as e:
         LOGGER.error(
@@ -628,7 +707,7 @@ def reauthorize_subscription(user, email, subscription_id):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftSubscriptionNotification(View):
-    """Handles subscription expiration"""
+    """Handles subscription expiration notifications"""
 
     def post(self, request):
         validation_token = request.GET.get("validationToken")
@@ -636,16 +715,16 @@ class MicrosoftSubscriptionNotification(View):
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
-            email_data = json.loads(request.body.decode("utf-8"))
+            subscription_data = json.loads(request.body.decode("utf-8"))
 
-            if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
-                subscription_id = email_data["value"][0]["subscriptionId"]
+            if subscription_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
+                subscription_id = subscription_data["value"][0]["subscriptionId"]
                 subscription = MicrosoftListener.objects.get(
                     subscription_id=subscription_id
                 )
 
                 if (
-                    email_data["value"][0]["lifecycleEvent"]
+                    subscription_data["value"][0]["lifecycleEvent"]
                     == "reauthorizationRequired"
                 ):
                     threading.Thread(
@@ -662,10 +741,44 @@ class MicrosoftSubscriptionNotification(View):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftEmailNotification(View):
-    """Handles subscription and receiving emails from Microsoft email notification listener"""
+    """Handles subscriptions and receives emails from Microsoft's email notification listener"""
 
     def post(self, request):
-        # Handle subscription
+        validation_token = request.GET.get("validationToken")
+        if validation_token:
+            return HttpResponse(validation_token, content_type="text/plain")
+
+        try:
+            print("EMAIL RECEIVED !!!")
+            email_data = json.loads(request.body.decode("utf-8"))
+
+            print(email_data)
+
+            if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
+                id_email = email_data["value"][0]["resourceData"]["id"]
+                subscription_id = email_data["value"][0]["subscriptionId"]
+                subscription = MicrosoftListener.objects.get(
+                    subscription_id=subscription_id
+                )
+
+                threading.Thread(
+                    target=email_to_bdd,
+                    args=(subscription.user, subscription.email, id_email),
+                ).start()
+
+                return JsonResponse({"status": "Notification received"}, status=202)
+            else:
+                return JsonResponse({"error": "Internal Server Error"}, status=500)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class MicrosoftContactNotification(View):
+    """Handles subscription and Microsoft contact changes notifications listener"""
+
+    def post(self, request):
         validation_token = request.GET.get("validationToken")
         if validation_token:
             return HttpResponse(validation_token, content_type="text/plain")

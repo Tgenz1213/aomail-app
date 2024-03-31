@@ -439,23 +439,16 @@ def set_all_contacts(access_token, user):
             response = client.get(graph_api_endpoint, headers=headers)
             response.raise_for_status()
             response_data = response.json()
-            connections = response_data.get("value", [])
+            contacts = response_data.get("value", [])
 
-            # Combine all contacts into a dictionary to ensure uniqueness
-            all_contacts = defaultdict(set)
-
-            # Parse and add connections
-            for contact in connections:
+            # Add contacts to the database
+            for contact in contacts:
                 name = contact.get("displayName", "")
                 email_address = contact.get("emailAddresses", [{}])[0].get(
                     "address", ""
                 )
-                all_contacts[name].add(email_address)
-
-            # Add contacts to the database
-            for name, emails in all_contacts.items():
-                for email in emails:
-                    library.save_email_sender(user, name, email)
+                provider_id = contact.get("id", "")
+                library.save_email_sender(user, name, email_address, provider_id)
 
     except Exception as e:
         LOGGER.error(f"Error fetching contacts: {str(e)}")
@@ -826,7 +819,6 @@ class MicrosoftContactNotification(View):
         try:
             print("=============received data contact!!!")
             contact_data = json.loads(request.body.decode("utf-8"))
-           
 
             if contact_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
                 id_contact = contact_data["value"][0]["resourceData"]["id"]

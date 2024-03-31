@@ -7,11 +7,9 @@ import datetime
 import json
 import logging
 import threading
-import time
 import httpx
 import requests
 from collections import defaultdict
-from django.db import IntegrityError
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlencode
 from rest_framework.response import Response
@@ -20,7 +18,6 @@ from rest_framework.views import View
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
-from django.contrib.auth.models import User
 import urllib.parse
 from MailAssistant.constants import (
     BASE_URL,
@@ -37,9 +34,8 @@ from MailAssistant.constants import (
 )
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from ..models import Contact, MicrosoftListener, Rule, SocialAPI
-from requests.exceptions import HTTPError
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral
 from .. import library
@@ -565,7 +561,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
     lifecycle_notification_url = (
         f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
     )
-    expiration_date = datetime.datetime.now() + datetime.timedelta(minutes=30)
+    expiration_date = datetime.datetime.now() + datetime.timedelta(minutes=5)
     expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
     subscription_body = {
@@ -609,25 +605,25 @@ def subscribe_to_email_notifications(user, email) -> bool:
         return False
 
 
-def delete_subscription(user, email, subscription_id) -> bool:
-    """Deletes a Microsoft subscription"""
+def reauthorize_subscription(user, email, subscription_id):
+    """Reauthorize a Microsoft subscription"""
+
     access_token = refresh_access_token(get_social_api(user, email))
-    url = f"{GRAPH_URL}subscriptions/{subscription_id}"
+    url = f"{GRAPH_URL}subscriptions/{subscription_id}/reauthorize"
     headers = get_headers(access_token)
 
     try:
-        response = requests.delete(url, headers=headers)
-        if response.status_code == 204:
-            return True
-        else:
-            LOGGER.error(f"Could not delete the subscription {subscription_id}: {response.reason}")
-            return False
+        response = requests.post(url, headers=headers)
+
+        if response.status_code != 200:
+            LOGGER.error(
+                f"Could not reauthorize the subscription {subscription_id}: {response.reason}"
+            )
 
     except Exception as e:
         LOGGER.error(
-            f"Could not delete the subscription {subscription_id}: {str(e)}"
+            f"Could not reauthorize the subscription {subscription_id}: {str(e)}"
         )
-        return False
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -635,7 +631,6 @@ class MicrosoftSubscriptionNotification(View):
     """Handles subscription expiration"""
 
     def post(self, request):
-        # Handle subscription
         validation_token = request.GET.get("validationToken")
         if validation_token:
             return HttpResponse(validation_token, content_type="text/plain")
@@ -648,19 +643,21 @@ class MicrosoftSubscriptionNotification(View):
                 subscription = MicrosoftListener.objects.get(
                     subscription_id=subscription_id
                 )
-                # new subscription
-                subscribe_to_email_notifications(subscription.user, subscription.email)
-                # delete the old
 
-                # TODO: handle the 3 cases
-                # "lifecycleEvent": "subscriptionRemoved or missed or reauthorizationRequired"
+                if (
+                    email_data["value"][0]["lifecycleEvent"]
+                    == "reauthorizationRequired"
+                ):
+                    threading.Thread(
+                        target=reauthorize_subscription,
+                        args=(subscription.user, subscription.email, subscription_id),
+                    ).start()
 
-        except MicrosoftListener.DoesNotExist:
-            # delete the subscription
-            ...
+                # TODO: handle "subscriptionRemoved or missed"
+                return JsonResponse({"status": "Notification received"}, status=202)
 
         except Exception as e:
-            print(str(e))
+            return JsonResponse({"error": str(e)}, status=500)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -693,11 +690,6 @@ class MicrosoftEmailNotification(View):
                 return JsonResponse({"error": "Internal Server Error"}, status=500)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-
-    # not needed (tested to create subscription and worked)
-    # def get(self, request, *args, **kwargs):
-    #     """Returns the validationToken to Microsoft Graph API"""
-    #     return self.post(request, *args, **kwargs)
 
 
 def email_to_bdd(user, email, id_email):

@@ -333,14 +333,6 @@ def login(request):
         # TODO: update the code to handle when the user has several emails
         email = social_api_instance.email
 
-        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")  # source port
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR")
-
-        print("Your log message... IP:" + ip)
-
         return Response({"access_token": access_token, "email": email}, status=200)
 
     return Response(status=400)

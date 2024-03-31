@@ -753,9 +753,10 @@ class MicrosoftSubscriptionNotification(View):
 
                 print("IN BETWEEN")
 
+                # TODO: change with 15m
                 if (
                     subscription_expiration_date - current_datetime
-                    <= datetime.timedelta(minutes=15)
+                    <= datetime.timedelta(minutes=5)
                 ):
                     print("STARTING NORMALLLLLLLLLLLLLLLLLl TO RENEW SUB")
                     renew_subscription(

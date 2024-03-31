@@ -826,25 +826,7 @@ class MicrosoftContactNotification(View):
         try:
             print("=============received data contact!!!")
             contact_data = json.loads(request.body.decode("utf-8"))
-
-            {
-                "value": [
-                    {
-                        "subscriptionId": "5b8bedaf-9f1f-4bbe-9bd8-3492d3ad11ba",
-                        "subscriptionExpirationDateTime": "2024-03-31T11:25:35.102+00:00",
-                        "changeType": "created",
-                        "resource": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Contacts/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEOAAB_VFSuhQGVS7Rs2Ear7e7mAAAx_UOsAAA=",
-                        "resourceData": {
-                            "@odata.type": "#Microsoft.Graph.Contact",
-                            "@odata.id": "Users/87928e8e-6970-4b36-a4c4-8ed3f5f5b778/Contacts/AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEOAAB_VFSuhQGVS7Rs2Ear7e7mAAAx_UOsAAA=",
-                            "@odata.etag": 'W/"EQAAABYAAAB+VFSuhQGVS7Rs2Ear7e7mAAAx6jXU"',
-                            "id": "AAMkAGZjMzdmNWRkLWNjYTAtNDBiZS1iYmVjLWNkZDg5MzZkYWU3YQBGAAAAAAArblejjozlSbwxEWg-8PadBwB_VFSuhQGVS7Rs2Ear7e7mAAAAAAEOAAB_VFSuhQGVS7Rs2Ear7e7mAAAx_UOsAAA=",
-                        },
-                        "clientState": "MailAssistantOutlookChangesListener",
-                        "tenantId": "43791c93-76a4-4993-ac2d-cc700725db0a",
-                    }
-                ]
-            }
+           
 
             if contact_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
                 id_contact = contact_data["value"][0]["resourceData"]["id"]
@@ -878,9 +860,9 @@ class MicrosoftContactNotification(View):
 
                 else:
                     # TODO: handle delete and modified
+                    Sender.objects.get(name, email)
                     print(change_type)
                     print(contact_data)
-
 
                 return JsonResponse({"status": "Notification received"}, status=202)
             else:

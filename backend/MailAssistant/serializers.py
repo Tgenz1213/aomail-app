@@ -111,7 +111,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
-        fields = ["id", "email", "username"]
+        fields = ["id", "email", "username", "provider_id"]
 
 
 # ----------------------- RULE  SERIALIZER -----------------------#

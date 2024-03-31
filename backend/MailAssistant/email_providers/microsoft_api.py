@@ -722,8 +722,6 @@ class MicrosoftSubscriptionNotification(View):
 
             print("DEBUG=> MicrosoftSubscriptionNotification")
 
-            print(subscription_data)
-
             if subscription_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
                 expiration_date_str = subscription_data["value"][0][
                     "subscriptionExpirationDateTime"
@@ -778,10 +776,8 @@ class MicrosoftEmailNotification(View):
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
-            print("EMAIL RECEIVED !!!")
+            print("!!! EMAIL RECEIVED !!!")
             email_data = json.loads(request.body.decode("utf-8"))
-
-            # print(email_data)
 
             if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
                 id_email = email_data["value"][0]["resourceData"]["id"]
@@ -799,12 +795,10 @@ class MicrosoftEmailNotification(View):
 
                 return JsonResponse({"status": "Notification received"}, status=202)
             else:
-                # TODO : change by 500 when debuging is finished
-                return JsonResponse({"error": "Internal Server Error"}, status=202)
+                return JsonResponse({"error": "Internal Server Error"}, status=500)
 
         except Exception as e:
-            # TODO : change by 500 when debuging is finished
-            return JsonResponse({"error": str(e)}, status=202)
+            return JsonResponse({"error": str(e)}, status=500)
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -817,7 +811,6 @@ class MicrosoftContactNotification(View):
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
-            print("=============received data contact!!!")
             contact_data = json.loads(request.body.decode("utf-8"))
 
             if contact_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
@@ -831,8 +824,11 @@ class MicrosoftContactNotification(View):
                 )
                 change_type = contact_data["value"][0]["changeType"]
 
-                if change_type == "created":
-                    print(change_type)
+                if change_type == "deleted":
+                    contact = Contact.objects.get(provider_id=id_contact)
+                    contact.delete()
+
+                else:
                     url = f"https://graph.microsoft.com/v1.0/me/contacts/{id_contact}"
                     headers = get_headers(access_token)
 
@@ -843,18 +839,22 @@ class MicrosoftContactNotification(View):
                             contact_data = response.json()
                             name = contact_data.get("displayName")
                             email = contact_data.get("emailAddresses")[0].get("address")
-                            library.save_email_sender(subscription.user, name, email)
                         else:
                             print("Error get contact inof fail:", response.reason)
 
                     except Exception as e:
                         print("DEBUG>>>> get contact inof fail", str(e))
 
-                else:
-                    # TODO: handle delete and modified
-                    Sender.objects.get(name, email)
-                    print(change_type)
-                    print(contact_data)
+                    if change_type == "created":
+                        library.save_email_sender(
+                            subscription.user, name, email, id_contact
+                        )
+
+                    if change_type == "updated":
+                        contact = Contact.objects.get(provider_id=id_contact)
+                        contact.username = name
+                        contact.email = email
+                        contact.save()
 
                 return JsonResponse({"status": "Notification received"}, status=202)
             else:

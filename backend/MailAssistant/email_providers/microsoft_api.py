@@ -7,6 +7,7 @@ import datetime
 import json
 import logging
 import threading
+import time
 import httpx
 import requests
 from collections import defaultdict
@@ -664,14 +665,11 @@ def renew_subscription(user, email, subscription_id):
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
-    payload = {
-        "expirationDateTime": calculate_expiration_date(minutes=15)
-    }  # minutes=4_230
+    new_expiration_date = calculate_expiration_date(minutes=15)  # minutes=4_230
 
     try:
+        payload = {"expirationDateTime": new_expiration_date}
         response = requests.patch(url, headers=headers, json=payload)
-
-        print("RESPONSE RENEW", response.status_code, response.content)
 
         if response.status_code != 200:
             LOGGER.error(
@@ -680,9 +678,10 @@ def renew_subscription(user, email, subscription_id):
         else:
             print("\nSuccessfully increased the expiration time\n")
             print(response.json())
+            time.sleep(15)
 
     except Exception as e:
-        print("CAN NOT RENWE", str(e))
+        print("CAN NOT RENEW", str(e))
 
 
 def reauthorize_subscription(user, email, subscription_id):
@@ -694,6 +693,8 @@ def reauthorize_subscription(user, email, subscription_id):
     try:
         url = f"{GRAPH_URL}subscriptions/{subscription_id}/reauthorize"
         response = requests.post(url, headers=headers)
+
+        print(response.reason)
 
         if response.status_code != 200:
             LOGGER.error(
@@ -723,6 +724,7 @@ class MicrosoftSubscriptionNotification(View):
             print("DEBUG=> MicrosoftSubscriptionNotification")
 
             if subscription_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
+                lifecycle_event = subscription_data["value"][0]["lifecycleEvent"]
                 expiration_date_str = subscription_data["value"][0][
                     "subscriptionExpirationDateTime"
                 ]
@@ -735,17 +737,6 @@ class MicrosoftSubscriptionNotification(View):
                 )
                 current_datetime = datetime.datetime.now(datetime.timezone.utc)
 
-                if (
-                    subscription_data["value"][0]["lifecycleEvent"]
-                    == "reauthorizationRequired"
-                ):
-                    print("STartin th thread to re auth")
-                    reauthorize_subscription(
-                        subscription.user, subscription.email, subscription_id
-                    )
-
-                print("IN BETWEEN")
-
                 # TODO: change with 15m
                 if (
                     subscription_expiration_date - current_datetime
@@ -756,7 +747,21 @@ class MicrosoftSubscriptionNotification(View):
                         subscription.user, subscription.email, subscription_id
                     )
 
+                if lifecycle_event == "reauthorizationRequired":
+                    print("STartin th thread to re auth")
+                    reauthorize_subscription(
+                        subscription.user, subscription.email, subscription_id
+                    )
+
                 # TODO: handle "subscriptionRemoved or missed"
+                if lifecycle_event == "subscriptionRemoved":
+                    # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#actions-to-take-1
+                    return JsonResponse({"status": "Notification received"}, status=202)
+
+                if lifecycle_event == "missed":
+                    # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#responding-to-missed-notifications
+                    return JsonResponse({"status": "Notification received"}, status=202)
+
                 return JsonResponse({"status": "Notification received"}, status=200)
 
         except Exception as e:

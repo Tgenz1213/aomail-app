@@ -665,9 +665,11 @@ def subscribe_to_contact_notifications(user, email) -> bool:
         return False
 
 
-def renew_subscription(headers, subscription_id):
+def renew_subscription(user, email, subscription_id):
     """Renew a Microsoft subscription"""
 
+    access_token = refresh_access_token(get_social_api(user, email))
+    headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
     payload = {"expirationDateTime": calculate_expiration_date(minutes=5)}
     response = requests.patch(url, headers=headers, json=payload)
@@ -718,6 +720,9 @@ class MicrosoftSubscriptionNotification(View):
             subscription_data = json.loads(request.body.decode("utf-8"))
 
             if subscription_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
+                subscription_expiration_date = subscription_data["value"][0][
+                    "subscriptionExpirationDateTime"
+                ]
                 subscription_id = subscription_data["value"][0]["subscriptionId"]
                 subscription = MicrosoftListener.objects.get(
                     subscription_id=subscription_id
@@ -731,6 +736,15 @@ class MicrosoftSubscriptionNotification(View):
                         target=reauthorize_subscription,
                         args=(subscription.user, subscription.email, subscription_id),
                     ).start()
+
+                if (
+                    subscription_expiration_date - datetime.datetime.now()
+                    <= datetime.timedelta(minutes=15)
+                ):
+                    threading.Thread(
+                        target=renew_subscription,
+                        args=(subscription.user, subscription.email, subscription_id),
+                    )
 
                 # TODO: handle "subscriptionRemoved or missed"
                 return JsonResponse({"status": "Notification received"}, status=202)

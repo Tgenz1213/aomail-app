@@ -20,6 +20,7 @@ from rest_framework.views import View
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
+from django.contrib.auth.models import User
 import urllib.parse
 from MailAssistant.constants import (
     BASE_URL,
@@ -561,7 +562,9 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
     access_token = refresh_access_token(get_social_api(user, email))
     notification_url = f"{BASE_URL}MailAssistant/microsoft/receive_mail_notifications/"
-    lifecycle_notification_url = f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
+    lifecycle_notification_url = (
+        f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
+    )
     expiration_date = datetime.datetime.now() + datetime.timedelta(minutes=30)
     expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
 
@@ -573,7 +576,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
         "expirationDateTime": expiration_date_str,
         "clientState": MICROSOFT_CLIENT_STATE,
     }
-    url = "https://graph.microsoft.com/v1.0/subscriptions"
+    url = f"{GRAPH_URL}subscriptions"
     headers = get_headers(access_token)
 
     try:
@@ -606,7 +609,27 @@ def subscribe_to_email_notifications(user, email) -> bool:
         return False
 
 
-# TODO: create a lifeCycleNotification listener
+def delete_subscription(user, email, subscription_id) -> bool:
+    """Deletes a Microsoft subscription"""
+    access_token = refresh_access_token(get_social_api(user, email))
+    url = f"{GRAPH_URL}subscriptions/{subscription_id}"
+    headers = get_headers(access_token)
+
+    try:
+        response = requests.delete(url, headers=headers)
+        if response.status_code == 204:
+            return True
+        else:
+            LOGGER.error(f"Could not delete the subscription {subscription_id}: {response.reason}")
+            return False
+
+    except Exception as e:
+        LOGGER.error(
+            f"Could not delete the subscription {subscription_id}: {str(e)}"
+        )
+        return False
+
+
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftSubscriptionNotification(View):
     """Handles subscription expiration"""
@@ -618,16 +641,27 @@ class MicrosoftSubscriptionNotification(View):
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
-            print(request.headers)
-            subscription_data = json.loads(request.body.decode("utf-8"))
-            print(subscription_data)
-            
-            # check if the user is still in db
-            # if no do not renew
-            # else 
-            # create a new one AND delete the old
+            email_data = json.loads(request.body.decode("utf-8"))
+
+            if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
+                subscription_id = email_data["value"][0]["subscriptionId"]
+                subscription = MicrosoftListener.objects.get(
+                    subscription_id=subscription_id
+                )
+                # new subscription
+                subscribe_to_email_notifications(subscription.user, subscription.email)
+                # delete the old
+
+                # TODO: handle the 3 cases
+                # "lifecycleEvent": "subscriptionRemoved or missed or reauthorizationRequired"
+
+        except MicrosoftListener.DoesNotExist:
+            # delete the subscription
+            ...
+
         except Exception as e:
             print(str(e))
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftEmailNotification(View):
@@ -757,7 +791,7 @@ def email_to_bdd(user, email, id_email):
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
-
+"""
 
 def processed_email_to_bdd(user, email):
     access_token = refresh_access_token(get_social_api(user, email))
@@ -825,7 +859,7 @@ def processed_email_to_bdd(user, email):
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
-
+"""
 
 '''@api_view(["GET"])
 @permission_classes([IsAuthenticated])

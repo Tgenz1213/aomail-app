@@ -71,15 +71,6 @@ def signup(request):
         - Gmail API (Google)
         - Graph API (Microsoft)
     """
-    # # DEBUG FOR microsoft listener
-    # try:
-    #     SocialAPI.objects.filter(email="augustin@MailAssistant.onmicrosoft.com").delete()
-    # except:
-    #     try:
-    #         User.objects.filter(username="testtest").delete()
-    #     except:
-    #         pass
-
     # Extract user data from the request
     type_api = request.data.get("type_api")
     code = request.data.get("code")

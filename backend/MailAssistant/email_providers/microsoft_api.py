@@ -665,7 +665,7 @@ def renew_subscription(user, email, subscription_id):
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
-    new_expiration_date = calculate_expiration_date(minutes=15)  # minutes=4_230
+    new_expiration_date = calculate_expiration_date(hours=1)  # minutes=4_230
 
     try:
         payload = {"expirationDateTime": new_expiration_date}
@@ -673,12 +673,10 @@ def renew_subscription(user, email, subscription_id):
 
         if response.status_code != 200:
             LOGGER.error(
-                f"Failed to renew the subscription {subscription_id}: {response.reason}"
+                f"Failed to renew the subscription {subscription_id}: {response.content}"
             )
         else:
             print("\nSuccessfully increased the expiration time\n")
-            print(response.json())
-            time.sleep(15)
 
     except Exception as e:
         print("CAN NOT RENEW", str(e))
@@ -740,7 +738,7 @@ class MicrosoftSubscriptionNotification(View):
                 # TODO: change with 15m
                 if (
                     subscription_expiration_date - current_datetime
-                    <= datetime.timedelta(minutes=5)
+                    <= datetime.timedelta(minutes=15)
                 ):
                     print("STARTING NORMALLLLLLLLLLLLLLLLLl TO RENEW SUB")
                     renew_subscription(
@@ -762,7 +760,7 @@ class MicrosoftSubscriptionNotification(View):
                     # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#responding-to-missed-notifications
                     return JsonResponse({"status": "Notification received"}, status=202)
 
-                return JsonResponse({"status": "Notification received"}, status=200)
+                return JsonResponse({"status": "Notification received"}, status=202)
 
         except Exception as e:
             print(

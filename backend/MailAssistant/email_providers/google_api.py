@@ -690,6 +690,7 @@ def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
 
     try:
+        print("!!! [GOOGLE] EMAIL RECEIVED !!!")
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
 
@@ -702,6 +703,9 @@ def receive_mail_notifications(request):
         try:
             social_api = SocialAPI.objects.get(email=email)
             services = authenticate_service(social_api.user, email)
+
+            print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
+
             threading.Thread(
                 target=email_to_bdd, args=(social_api.user, services, email_id)
             ).start()

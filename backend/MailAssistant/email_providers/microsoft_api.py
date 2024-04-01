@@ -770,11 +770,15 @@ class MicrosoftSubscriptionNotification(View):
                 # TODO: handle "subscriptionRemoved or missed"
                 if lifecycle_event == "subscriptionRemoved":
                     # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#actions-to-take-1
-                    LOGGER.error(f"subscriptionRemoved: current time: {current_datetime}, expiration time: {expiration_date_str}")
+                    LOGGER.error(
+                        f"subscriptionRemoved: current time: {current_datetime}, expiration time: {expiration_date_str}"
+                    )
 
                 if lifecycle_event == "missed":
                     # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#responding-to-missed-notifications
-                    LOGGER.error(f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}")
+                    LOGGER.error(
+                        f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}"
+                    )
 
             return JsonResponse({"status": "Notification received"}, status=202)
 
@@ -795,7 +799,7 @@ class MicrosoftEmailNotification(View):
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
-            print("!!! EMAIL RECEIVED !!!")
+            print("!!! [OUTLOOK] EMAIL RECEIVED !!!")
             email_data = json.loads(request.body.decode("utf-8"))
 
             if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
@@ -887,7 +891,6 @@ def email_to_bdd(user, email, id_email):
     """Saves email notifications from Microsoft listener to database"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    # print("access_token", access_token)
     subject, from_name, decoded_data, _, _, email_id, sent_date, web_link = get_mail(
         access_token, None, id_email
     )
@@ -944,10 +947,12 @@ def email_to_bdd(user, email, id_email):
                     elif importance == "UrgentWorkInformation":
                         importance = IMPORTANT
                     max_percentage = importance_dict[key]
+            if max_percentage == 0:
+                importance = INFORMATION
 
         if not rule_category:
             if topic in category_dict.keys():
-                category = Category.objects.get(name=topic)
+                category = Category.objects.get(name=topic, user=user)
 
         if not sender:
             sender_name, sender_email = from_name[0], from_name[1]

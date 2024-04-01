@@ -38,7 +38,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..models import Contact, MicrosoftListener, Rule, SocialAPI
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
-from MailAssistant.ai_providers import gpt_3_5_turbo, mistral
+from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from .. import library
 
 
@@ -927,7 +927,7 @@ def email_to_bdd(user, email, id_email):
             summary_list,
             sentence,
             relevance,
-        ) = mistral.categorize_and_summarize_email(
+        ) = claude.categorize_and_summarize_email(
             subject, decoded_data, category_dict, user_description
         )
 
@@ -943,7 +943,7 @@ def email_to_bdd(user, email, id_email):
                     max_percentage = importance_dict[key]
 
         if not rule_category:
-            if topic in category_dict:
+            if topic in category_dict.keys():
                 category = Category.objects.get(name=topic)
 
         if not sender:
@@ -966,6 +966,7 @@ def email_to_bdd(user, email, id_email):
                 category=category,
                 user=user,
                 date=sent_date,
+                web_link=web_link
             )
 
             if summary_list:

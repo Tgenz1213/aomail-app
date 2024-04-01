@@ -1291,6 +1291,9 @@ def get_user_emails(request):
             "answer_later": email.answer_later,
             "web_link": email.web_link,
         }
+
+        print(email_data)
+
         formatted_data[email.category.name][email.priority].append(email_data)
 
     # Ensuring all priorities are present for each category
@@ -1302,51 +1305,6 @@ def get_user_emails(request):
 
 
 ######################## TESTING FUNCTIONS ########################
-"""# TO TEST AUTH API
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def authenticate_service_view(request):
-    user = request.user
-    email = request.headers.get("email")
-    service = google_api.authenticate_service(user, email)
-
-    if service is not None:
-        # Return a success response, along with any necessary information
-        return Response({"message": "Authentication successful"}, status=200)
-    else:
-        # Return an error response
-        return Response({"error": "Failed to authenticate"}, status=400)"""
-
-
-# TO TEST Gmail Save in BDD Last Email
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def save_last_mail_view(request):
-    user = request.user
-    email = request.headers.get("email")
-    service = google_api.authenticate_service(user, email)
-
-    if service is not None:
-        google_api.processed_email_to_bdd(request, service)
-        return Response({"message": "Save successful"}, status=200)
-    else:
-        return Response({"error": "Failed to authenticate"}, status=400)
-
-
-# [OUTLOOK] TO TEST Gmail Save in BDD Last Email
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def save_last_mail_outlook(request):
-    user = request.user
-    email = request.headers.get("email")
-
-    try:
-        microsoft_api.processed_email_to_bdd(user, email)
-        return Response({"message": "Save successful"}, status=200)
-    except:
-        return Response({"error": "Failed to authenticate"}, status=400)
-
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_mail_view(request):
@@ -1377,10 +1335,54 @@ def get_mail_view(request):
         return Response({"error": "Failed to authenticate"}, status=400)
 
 
-###############################################################################################################
-######################## THESE FUNCTIONS WORKS ONLY WITH GMAIL => DEPRECATED & USELESS ########################
-###############################################################################################################
+######################################################################################
+######################## THESE FUNCTIONS ARE NOT USED ANYMORE ########################
+######################################################################################
 
+
+"""# TO TEST AUTH API
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def authenticate_service_view(request):
+    user = request.user
+    email = request.headers.get("email")
+    service = google_api.authenticate_service(user, email)
+
+    if service is not None:
+        # Return a success response, along with any necessary information
+        return Response({"message": "Authentication successful"}, status=200)
+    else:
+        # Return an error response
+        return Response({"error": "Failed to authenticate"}, status=400)"""
+
+
+'''# TO TEST Gmail Save in BDD Last Email
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def save_last_mail_view(request):
+    user = request.user
+    email = request.headers.get("email")
+    service = google_api.authenticate_service(user, email)
+
+    if service is not None:
+        google_api.processed_email_to_bdd(request, service)
+        return Response({"message": "Save successful"}, status=200)
+    else:
+        return Response({"error": "Failed to authenticate"}, status=400)
+
+
+# [OUTLOOK] TO TEST Gmail Save in BDD Last Email
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def save_last_mail_outlook(request):
+    user = request.user
+    email = request.headers.get("email")
+
+    try:
+        microsoft_api.processed_email_to_bdd(user, email)
+        return Response({"message": "Save successful"}, status=200)
+    except:
+        return Response({"error": "Failed to authenticate"}, status=400)'''
 
 """@api_view(['GET'])
 @permission_classes([IsAuthenticated])  

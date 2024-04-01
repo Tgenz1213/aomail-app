@@ -786,8 +786,6 @@ def email_to_bdd(user, services, id_email):
             sentence,
             relevance,
         ) = (
-            # mistral
-            # claude
             claude.categorize_and_summarize_email(
                 subject, decoded_data, category_dict, user_description
             )
@@ -811,7 +809,7 @@ def email_to_bdd(user, services, id_email):
                 importance = INFORMATION
 
         if not rule_category:
-            if topic in category_dict:
+            if topic in category_dict.keys():
                 category = Category.objects.get(name=topic, user=user)
 
         if not sender:

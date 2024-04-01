@@ -121,7 +121,7 @@
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
         "Autres" }}
                                                                 </span>
-                                                                <div class="group-hover:bg-gray-500 group-hover:bg-opacity-10 flex items-center"
+                                                                <div class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
                                                                     <span
                                                                         v-if="totalEmailsInCategoryNotRead(category.name) > 0"

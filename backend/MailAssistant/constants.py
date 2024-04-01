@@ -24,6 +24,7 @@ HUMAN = "\n\nHuman: "
 ASSISTANT = "Assistant:"
 IMPORTANT = "Important"
 INFORMATION = "Information"
+USELESS = "Useless"
 DEFAULT_CATEGORY = "Others"
 
 

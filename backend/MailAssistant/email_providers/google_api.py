@@ -39,6 +39,7 @@ from MailAssistant.constants import (
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
     IMPORTANT,
+    USELESS,
     INFORMATION,
     REDIRECT_URI,
     GOOGLE_SCOPES,
@@ -790,15 +791,19 @@ def email_to_bdd(user, services, id_email):
             )
         )
 
-        if importance_dict[IMPORTANT] == 50:
+        if importance_dict['UrgentWorkInformation'] >= 50: # MAYBE TO UPDATE TO >50 =>  To test
             importance = IMPORTANT
         else:
-            importance = INFORMATION
-            max_percentage = importance_dict[INFORMATION]
-
+            max_percentage = 0
             for key, value in importance_dict.items():
                 if value > max_percentage:
                     importance = key
+                    if importance == 'Promotional' or importance == 'News':
+                        importance = USELESS
+                    elif importance == 'RoutineWorkUpdates' or importance == 'InternalCommunications':
+                        importance = INFORMATION
+                    elif importance == 'UrgentWorkInformation':
+                        importance = IMPORTANT
                     max_percentage = importance_dict[key]
 
         if not rule_category:

@@ -808,6 +808,8 @@ def email_to_bdd(user, services, id_email):
                     elif importance == "UrgentWorkInformation":
                         importance = IMPORTANT
                     max_percentage = importance_dict[key]
+            if max_percentage == 0:
+                importance = INFORMATION
 
         if not rule_category:
             if topic in category_dict.keys():

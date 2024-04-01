@@ -95,7 +95,7 @@ class Email(models.Model):
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
     content = models.TextField()
-    subject = models.CharField(max_length=100)
+    subject = models.CharField(max_length=400)
     priority = models.CharField(max_length=50)
     read = models.BooleanField()
     read_date = models.DateTimeField(null=True)

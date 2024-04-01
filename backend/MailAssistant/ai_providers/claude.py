@@ -298,10 +298,38 @@ def categorize_and_summarize_email(
 
     category_dict.pop(DEFAULT_CATEGORY)
 
+    ''' OLD v1 Ask Theo before DELETE
     importance_list = {
         "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
         "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
         "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+    }'''
+    ''' OLD v2 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
+        "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
+        "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
+    }'''
+    ''' OLD v3 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
+        "Information": "Details relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
+    }'''
+    ''' OLD v4 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority and require immediate attention or action (truly relevant to the user).",
+        "WorkInformation": "Messages relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
+    }'''
+    importance_list = {
+        "UrgentWorkInformation": "Critical updates or information requiring immediate attention related to projects, deadlines, or time-sensitive matters.",
+        "RoutineWorkUpdates": "Regular updates or communications important for work but not requiring immediate action, such as team updates or general announcements.",
+        "InternalCommunications": "Internal company matters including policy updates, HR announcements, or events.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
     }
     response_list = {
         "Answer Required": "Message requires an answer.",
@@ -339,9 +367,10 @@ def categorize_and_summarize_email(
     Relevance Categories:
     {relevance_list}
 
-    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description.
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
     2. In {language}: Summarize the following message
     3. In {language}: Provide a short sentence summarizing the email.
+    Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
 
     ---
     Answer must be a Json format matching this template:
@@ -358,9 +387,11 @@ def categorize_and_summarize_email(
             ]
         }},
         "importance": {{
-            "Important": Percentage for Important,
-            "Information": Percentage for Information,
-            "Useless": Percentage for Useless
+            "UrgentWorkInformation": Percentage for UrgentWorkInformation,
+            "RoutineWorkUpdates": Percentage for RoutineWorkUpdates,
+            "InternalCommunications": Percentage for InternalCommunications,
+            "Promotional": Percentage for Promotional,
+            "News": Percentage for News 
         }}
     }}
     {ASSISTANT}

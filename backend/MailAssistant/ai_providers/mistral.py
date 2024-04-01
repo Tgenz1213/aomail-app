@@ -325,9 +325,9 @@ def categorize_and_summarize_email(
     category_dict.pop(DEFAULT_CATEGORY)
 
     importance_list = {
-        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
-        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
-        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
+        "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
+        "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are unsolicited newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
     }
     response_list = {
         "Answer Required": "Message requires an answer.",

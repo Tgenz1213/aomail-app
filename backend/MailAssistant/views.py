@@ -135,35 +135,40 @@ def signup(request):
     if "error" in result:
         return Response(result, status=400)
 
-    # Create the Google listener
+    # Subscribe to listeners
+    subscribed = subscribe_listeners(type_api, user, email)
+    if subscribed:
+        return Response(
+            {
+                "user_id": user_id,
+                "access_token": django_access_token,
+                "email": email,
+            },
+            status=201,
+        )
+    else:
+        user.delete()
+
+    return Response({"error": "Could not subscribe to listener"}, status=400)
+
+
+def subscribe_listeners(type_api, user, email) -> bool:
+    """Subscribe the user to listeners"""
+
     if type_api == "google":
         subscribed = google_api.subscribe_to_email_notifications(user, email)
         if subscribed:
-            return Response(
-                {
-                    "user_id": user_id,
-                    "access_token": django_access_token,
-                    "email": email,
-                },
-                status=201,
-            )
-    elif type_api == "microsoft":
-        subscribed = microsoft_api.subscribe_to_email_notifications(user, email)
-        if subscribed:
-            return Response(
-                {
-                    "user_id": user_id,
-                    "access_token": django_access_token,
-                    "email": email,
-                },
-                status=201,
-            )
+            return True
 
-    # TOODO: remove when microsoft webhook will work
-    return Response(
-        {"user_id": user_id, "access_token": django_access_token, "email": email},
-        status=201,
-    )
+    elif type_api == "microsoft":
+        subscribed_email = microsoft_api.subscribe_to_email_notifications(user, email)
+        subscribed_contact = microsoft_api.subscribe_to_contact_notifications(
+            user, email
+        )
+        if subscribed_email and subscribed_contact:
+            return True
+
+    return False
 
 
 def validate_authorization_code(type_api, code):

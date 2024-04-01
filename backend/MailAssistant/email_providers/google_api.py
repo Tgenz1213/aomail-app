@@ -440,7 +440,7 @@ def set_all_contacts(user, email):
     try:
         all_contacts = defaultdict(set)
 
-        # Part 1 : Retreive from Google Contact
+        # Part 1: Retrieve from Google Contacts
         next_page_token = None
         while True:
             response = (
@@ -448,7 +448,7 @@ def set_all_contacts(user, email):
                 .connections()
                 .list(
                     resourceName="people/me",
-                    personFields="names,emailAddresses",
+                    personFields="names,emailAddresses,metadata",
                     pageSize=1000,
                     pageToken=next_page_token,
                 )
@@ -461,17 +461,21 @@ def set_all_contacts(user, email):
             for contact in connections:
                 names = contact.get("names", [{}])
                 email_addresses = contact.get("emailAddresses", [])
+                metadata = contact.get("metadata", {})
+                contact_id = metadata.get("sources", [{}])[0].get("id", "")
                 name = names[0].get("displayName", "") if names else ""
 
                 for email_info in email_addresses:
                     email_address = email_info.get("value", "")
                     if email_address:
-                        all_contacts[name].add(email_address)
+                        all_contacts[(name, email_address, user.id, contact_id)].add(
+                            email_address
+                        )
 
             if not next_page_token:
                 break
 
-        # Part 2 : Retreiving from Gmail
+        # Part 2: Retrieving from Gmail
         response = gmail_service.users().messages().list(userId="me", q="").execute()
         messages = response.get("messages", [])
 
@@ -507,16 +511,16 @@ def set_all_contacts(user, email):
                 if not email:
                     continue
 
-                if name in all_contacts:
+                if (name, email, user.id, "") in all_contacts:
                     continue
                 else:
-                    all_contacts[name].add(email)
+                    all_contacts[(name, email, user.id, "")].add(email)
 
-        # Part 3 : Add the contact to the database
-        for name, emails in all_contacts.items():
-            for email in emails:
-                if name and email:
-                    library.save_email_sender(user, name, email)
+        # Part 3: Add the contacts to the database
+        for contact_info, _ in all_contacts.items():
+            name, email, _, contact_id = contact_info
+            if name and email:
+                library.save_email_sender(user, name, email, contact_id)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
@@ -645,7 +649,9 @@ def subscribe_to_email_notifications(user, email) -> bool:
     """Subscribe the user to email notifications for a specific topic in Google."""
 
     try:
-        LOGGER.info(f"Initiationg the subscription to Google listener for: {user} with email: {email}")
+        LOGGER.info(
+            f"Initiationg the subscription to Google listener for: {user} with email: {email}"
+        )
         credentials = get_credentials(user, email)
         services = build_services(credentials)
         if services is None:
@@ -661,7 +667,9 @@ def subscribe_to_email_notifications(user, email) -> bool:
         response = gmail_service.users().watch(userId="me", body=request_body).execute()
 
         if "historyId" in response:
-            LOGGER.info(f"Successfully subscribed to email notifications for user {user.username} and email {email}")
+            LOGGER.info(
+                f"Successfully subscribed to email notifications for user {user.username} and email {email}"
+            )
             return True
         else:
             LOGGER.error(
@@ -730,10 +738,10 @@ def receive_mail_notifications(request):
             )
 
         return Response(status=200)
-    
+
     except IntegrityError:
         return Response(status=200)
-    
+
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
         return Response({"error": str(e)}, status=500)
@@ -745,7 +753,7 @@ def email_to_bdd(user, services, id_email):
     subject, from_name, decoded_data, _, _, email_id, sent_date, web_link = get_mail(
         services, 0, id_email
     )
-    
+
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
 
@@ -799,14 +807,16 @@ def email_to_bdd(user, services, id_email):
                     elif importance == 'UrgentWorkInformation':
                         importance = IMPORTANT
                     max_percentage = importance_dict[key]
-                    
+
         if not rule_category:
             if topic in category_dict:
                 category = Category.objects.get(name=topic, user=user)
-        
+
         if not sender:
             sender_name, sender_email = from_name[0], from_name[1]
-            sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
+            sender, _ = Sender.objects.get_or_create(
+                name=sender_name, email=sender_email
+            )
 
         try:
             email_entry = Email.objects.create(
@@ -1227,3 +1237,101 @@ def processed_email_to_bdd(request, services):
 
     else:
         LOGGER.error(f"The email with ID {email_id} already exists.")"""
+
+'''def set_all_contacts(user, email):
+    """Stores all unique contacts of an email account in DB"""
+    start = time.time()
+
+    credentials = get_credentials(user, email)
+    services = build_services(credentials)
+    contacts_service = services["contacts"]
+    gmail_service = services["gmail.readonly"]
+
+    try:
+        all_contacts = defaultdict(set)
+
+        # Part 1 : Retreive from Google Contact
+        next_page_token = None
+        while True:
+            response = (
+                contacts_service.people()
+                .connections()
+                .list(
+                    resourceName="people/me",
+                    personFields="names,emailAddresses",
+                    pageSize=1000,
+                    pageToken=next_page_token,
+                )
+                .execute()
+            )
+
+            connections = response.get("connections", [])
+            next_page_token = response.get("nextPageToken")
+
+            for contact in connections:
+                names = contact.get("names", [{}])
+                email_addresses = contact.get("emailAddresses", [])
+                name = names[0].get("displayName", "") if names else ""
+
+                for email_info in email_addresses:
+                    email_address = email_info.get("value", "")
+                    if email_address:
+                        all_contacts[name].add(email_address)
+
+            if not next_page_token:
+                break
+
+        # Part 2 : Retreiving from Gmail
+        response = gmail_service.users().messages().list(userId="me", q="").execute()
+        messages = response.get("messages", [])
+
+        for msg in messages[:500]:  # Limit to the first 500 messages
+            message = (
+                gmail_service.users()
+                .messages()
+                .get(
+                    userId="me",
+                    id=msg["id"],
+                    format="metadata",
+                    metadataHeaders=["From"],
+                )
+                .execute()
+            )
+            headers = message.get("payload", {}).get("headers", [])
+            from_header = next(
+                (item for item in headers if item["name"] == "From"), None
+            )
+            if from_header:
+                from_value = from_header["value"]
+                if "reply" in from_value.lower():
+                    continue
+
+                email_match = re.search(r"[\w\.-]+@[\w\.-]+", from_value)
+                name_match = re.search(r'(?:"?([^"]*)"?\s)?', from_value)
+
+                email = email_match.group(0) if email_match else None
+                name = (
+                    name_match.group(1) if name_match and name_match.group(1) else email
+                )
+
+                if not email:
+                    continue
+
+                if name in all_contacts:
+                    continue
+                else:
+                    all_contacts[name].add(email)
+
+        # Part 3 : Add the contact to the database
+        for name, emails in all_contacts.items():
+            for email in emails:
+                if name and email:
+                    library.save_email_sender(user, name, email)
+
+        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+        LOGGER.info(
+            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+        )
+
+    except Exception as e:
+        LOGGER.error(f"Error fetching contacts: {str(e)}")'''

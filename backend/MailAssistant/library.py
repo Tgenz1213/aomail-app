@@ -41,7 +41,7 @@ def is_no_reply_email(sender_email):
     return any(pattern in sender_email.lower() for pattern in no_reply_patterns)
 
 
-def save_email_sender(user, sender_name, sender_email):
+def save_email_sender(user, sender_name, sender_email, sender_id):
     """Saves the sender if the mail is relevant"""
     if not is_no_reply_email(sender_email):
         existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
@@ -49,7 +49,7 @@ def save_email_sender(user, sender_name, sender_email):
         if not existing_contact:
             try:
                 Contact.objects.create(
-                    email=sender_email, username=sender_name, user=user
+                    email=sender_email, username=sender_name, user=user, provider_id=sender_id
                 )
             except IntegrityError:
                 pass

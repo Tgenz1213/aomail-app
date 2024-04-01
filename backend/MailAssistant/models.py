@@ -45,6 +45,7 @@ class Contact(models.Model):
     email = models.CharField(max_length=320, null=True)
     username = models.CharField(max_length=50, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    provider_id = models.CharField(max_length=320, null=True)
 
 
 class Category(models.Model):

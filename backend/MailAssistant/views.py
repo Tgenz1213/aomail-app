@@ -640,7 +640,8 @@ def new_email_ai(request):
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
 
-        subject_text, mail_text = mistral.generate_email(input_data, length, formality)
+        print("FORMALITY >>>>", formality)
+        subject_text, mail_text = claude.generate_email(input_data, length, formality)
 
         return Response({"subject": subject_text, "mail": mail_text})
     else:

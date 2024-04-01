@@ -722,6 +722,7 @@ def receive_mail_notifications(request):
 
         # Sending the reception message to Google to confirm the email reception
         subscription_path = envelope["subscription"]
+        #print("DEBUG subscription path >>>>>>>>>>>>", subscription_path)
         ack_id = message_data["messageId"]
         ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
         ack_payload = {"ackIds": [ack_id]}
@@ -796,7 +797,9 @@ def email_to_bdd(user, services, id_email):
         if (
             importance_dict["UrgentWorkInformation"] >= 50
         ):  # MAYBE TO UPDATE TO >50 =>  To test
-            importance = IMPORTANT
+            importance = IMPORTANT 
+        elif importance_dict['Promotional'] > 50 and importance_dict['RoutineWorkUpdates'] > 10: # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
+            importance = INFORMATION
         else:
             max_percentage = 0
             for key, value in importance_dict.items():

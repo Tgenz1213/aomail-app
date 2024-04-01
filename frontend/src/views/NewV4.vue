@@ -1400,8 +1400,8 @@ function askContent() {
                     </div>
                     <div>
                         <select id="formalitySelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
-                            <option value="very informal">Non formel</option>
-                            <option value="informal">Peu formel</option>
+                            <option value="very informal">Informel</option>
+                            <!--<option value="informal">Peu formel</option>-->
                             <option value="formal" selected>Formel</option>
                             <option value="very formal">Très formel</option>
                         </select>

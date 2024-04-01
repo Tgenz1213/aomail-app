@@ -32,6 +32,7 @@ from MailAssistant.constants import (
     MICROSOFT_PROVIDER,
     MICROSOFT_SCOPES,
     REDIRECT_URI,
+    USELESS,
 )
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
@@ -593,7 +594,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
         "notificationUrl": notification_url,
         "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/mailFolders('inbox')/messages",
-        "expirationDateTime": calculate_expiration_date(minutes=15),  # minutes=4_230
+        "expirationDateTime": calculate_expiration_date(minutes=4_230),
         "clientState": MICROSOFT_CLIENT_STATE,
     }
     url = f"{GRAPH_URL}subscriptions"
@@ -645,7 +646,7 @@ def subscribe_to_contact_notifications(user, email) -> bool:
         "notificationUrl": notification_url,
         "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/contacts",
-        "expirationDateTime": calculate_expiration_date(minutes=15),  # minutes=4_230
+        "expirationDateTime": calculate_expiration_date(minutes=4_230),
         "clientState": MICROSOFT_CLIENT_STATE,
     }
     url = f"{GRAPH_URL}subscriptions"
@@ -687,7 +688,7 @@ def renew_subscription(user, email, subscription_id):
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
-    new_expiration_date = calculate_expiration_date(hours=1)  # minutes=4_230
+    new_expiration_date = calculate_expiration_date(minutes=4_230)
 
     try:
         payload = {"expirationDateTime": new_expiration_date}
@@ -701,7 +702,7 @@ def renew_subscription(user, email, subscription_id):
             print("\nSuccessfully increased the expiration time\n")
 
     except Exception as e:
-        print("CAN NOT RENEW", str(e))
+        LOGGER.error("CAN NOT RENEW", str(e))
 
 
 def reauthorize_subscription(user, email, subscription_id):
@@ -713,8 +714,6 @@ def reauthorize_subscription(user, email, subscription_id):
     try:
         url = f"{GRAPH_URL}subscriptions/{subscription_id}/reauthorize"
         response = requests.post(url, headers=headers)
-
-        print(response.reason)
 
         if response.status_code != 200:
             LOGGER.error(
@@ -741,8 +740,6 @@ class MicrosoftSubscriptionNotification(View):
         try:
             subscription_data = json.loads(request.body.decode("utf-8"))
 
-            print("DEBUG=> MicrosoftSubscriptionNotification")
-
             if subscription_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
                 lifecycle_event = subscription_data["value"][0]["lifecycleEvent"]
                 expiration_date_str = subscription_data["value"][0][
@@ -757,18 +754,15 @@ class MicrosoftSubscriptionNotification(View):
                 )
                 current_datetime = datetime.datetime.now(datetime.timezone.utc)
 
-                # TODO: change with 15m
                 if (
                     subscription_expiration_date - current_datetime
                     <= datetime.timedelta(minutes=15)
                 ):
-                    print("STARTING NORMALLLLLLLLLLLLLLLLLl TO RENEW SUB")
                     renew_subscription(
                         subscription.user, subscription.email, subscription_id
                     )
 
                 if lifecycle_event == "reauthorizationRequired":
-                    print("STartin th thread to re auth")
                     reauthorize_subscription(
                         subscription.user, subscription.email, subscription_id
                     )
@@ -776,13 +770,13 @@ class MicrosoftSubscriptionNotification(View):
                 # TODO: handle "subscriptionRemoved or missed"
                 if lifecycle_event == "subscriptionRemoved":
                     # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#actions-to-take-1
-                    return JsonResponse({"status": "Notification received"}, status=202)
+                    LOGGER.error(f"subscriptionRemoved: current time: {current_datetime}, expiration time: {expiration_date_str}")
 
                 if lifecycle_event == "missed":
                     # https://github.com/microsoftgraph/microsoft-graph-docs-contrib/blob/main/concepts/change-notifications-lifecycle-events.md#responding-to-missed-notifications
-                    return JsonResponse({"status": "Notification received"}, status=202)
+                    LOGGER.error(f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}")
 
-                return JsonResponse({"status": "Notification received"}, status=202)
+            return JsonResponse({"status": "Notification received"}, status=202)
 
         except Exception as e:
             print(
@@ -893,7 +887,7 @@ def email_to_bdd(user, email, id_email):
     """Saves email notifications from Microsoft listener to database"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    print("access_token", access_token)
+    # print("access_token", access_token)
     subject, from_name, decoded_data, _, _, email_id, sent_date, web_link = get_mail(
         access_token, None, id_email
     )
@@ -931,15 +925,24 @@ def email_to_bdd(user, email, id_email):
             subject, decoded_data, category_dict, user_description
         )
 
-        if importance_dict[IMPORTANT] == 50:
+        if (
+            importance_dict["UrgentWorkInformation"] >= 50
+        ):  # MAYBE TO UPDATE TO >50 =>  To test
             importance = IMPORTANT
         else:
-            importance = INFORMATION
-            max_percentage = importance_dict[INFORMATION]
-
+            max_percentage = 0
             for key, value in importance_dict.items():
                 if value > max_percentage:
                     importance = key
+                    if importance == "Promotional" or importance == "News":
+                        importance = USELESS
+                    elif (
+                        importance == "RoutineWorkUpdates"
+                        or importance == "InternalCommunications"
+                    ):
+                        importance = INFORMATION
+                    elif importance == "UrgentWorkInformation":
+                        importance = IMPORTANT
                     max_percentage = importance_dict[key]
 
         if not rule_category:
@@ -966,7 +969,7 @@ def email_to_bdd(user, email, id_email):
                 category=category,
                 user=user,
                 date=sent_date,
-                web_link=web_link
+                web_link=web_link,
             )
 
             if summary_list:

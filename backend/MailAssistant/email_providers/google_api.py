@@ -785,24 +785,27 @@ def email_to_bdd(user, services, id_email):
             summary_list,
             sentence,
             relevance,
-        ) = (
-            claude.categorize_and_summarize_email(
-                subject, decoded_data, category_dict, user_description
-            )
+        ) = claude.categorize_and_summarize_email(
+            subject, decoded_data, category_dict, user_description
         )
 
-        if importance_dict['UrgentWorkInformation'] >= 50: # MAYBE TO UPDATE TO >50 =>  To test
+        if (
+            importance_dict["UrgentWorkInformation"] >= 50
+        ):  # MAYBE TO UPDATE TO >50 =>  To test
             importance = IMPORTANT
         else:
             max_percentage = 0
             for key, value in importance_dict.items():
                 if value > max_percentage:
                     importance = key
-                    if importance == 'Promotional' or importance == 'News':
+                    if importance == "Promotional" or importance == "News":
                         importance = USELESS
-                    elif importance == 'RoutineWorkUpdates' or importance == 'InternalCommunications':
+                    elif (
+                        importance == "RoutineWorkUpdates"
+                        or importance == "InternalCommunications"
+                    ):
                         importance = INFORMATION
-                    elif importance == 'UrgentWorkInformation':
+                    elif importance == "UrgentWorkInformation":
                         importance = IMPORTANT
                     max_percentage = importance_dict[key]
 

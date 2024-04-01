@@ -1292,8 +1292,6 @@ def get_user_emails(request):
             "web_link": email.web_link,
         }
 
-        print(email_data)
-
         formatted_data[email.category.name][email.priority].append(email_data)
 
     # Ensuring all priorities are present for each category
@@ -1356,7 +1354,7 @@ def authenticate_service_view(request):
         return Response({"error": "Failed to authenticate"}, status=400)"""
 
 
-'''# TO TEST Gmail Save in BDD Last Email
+"""# TO TEST Gmail Save in BDD Last Email
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def save_last_mail_view(request):
@@ -1382,7 +1380,7 @@ def save_last_mail_outlook(request):
         microsoft_api.processed_email_to_bdd(user, email)
         return Response({"message": "Save successful"}, status=200)
     except:
-        return Response({"error": "Failed to authenticate"}, status=400)'''
+        return Response({"error": "Failed to authenticate"}, status=400)"""
 
 """@api_view(['GET'])
 @permission_classes([IsAuthenticated])  

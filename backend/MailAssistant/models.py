@@ -8,6 +8,21 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Subscription(models.Model):
+    """Model for storing subscriptions informations."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    plan = models.CharField(max_length=20)
+    stripe_subscription_id = models.CharField(max_length=100, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True)
+    billing_interval = models.CharField(max_length=10, choices=[('monthly'), ('yearly')])
+    billing_address = models.CharField(max_length=300)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='EUR')
+
+
 class Message(models.Model):
     """Model for storing text messages."""
 

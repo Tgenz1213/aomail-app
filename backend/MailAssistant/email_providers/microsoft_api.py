@@ -461,7 +461,10 @@ def set_all_contacts(access_token, user):
             sender = message.get("from", {}).get("emailAddress", {}).get("address", "")
             if sender:
                 name = sender.split("@")[0]
-                all_contacts[(user, name, sender, "")].add(sender)
+                if (user, name, sender, "") in all_contacts:
+                    continue
+                else:
+                    all_contacts[(user, name, sender, "")].add(sender)
 
         # Part 3: Add the contacts to the database
         for contact_info, emails in all_contacts.items():

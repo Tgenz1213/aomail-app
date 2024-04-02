@@ -1007,6 +1007,8 @@ def delete_user_rule_by_id(request, id_rule):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_user_rule(request):
+    print(request.data)
+
     serializer = RuleSerializer(data=request.data, context={"user": request.user})
     if serializer.is_valid():
         serializer.save()
@@ -1048,7 +1050,6 @@ def check_sender_for_user(request):
     user_email = request.data.get("email")
 
     try:
-        # Check if a sender with the given email exists for the authenticated user
         sender = Sender.objects.get(email=user_email, user=request.user)
         return Response(
             {"exists": True, "sender_id": sender.id}, status=status.HTTP_200_OK

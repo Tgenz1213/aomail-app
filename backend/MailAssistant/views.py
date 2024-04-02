@@ -1007,8 +1007,6 @@ def delete_user_rule_by_id(request, id_rule):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_user_rule(request):
-    print(request.data)
-
     serializer = RuleSerializer(data=request.data, context={"user": request.user})
     if serializer.is_valid():
         serializer.save()

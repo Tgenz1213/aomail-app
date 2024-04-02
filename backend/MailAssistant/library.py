@@ -3,11 +3,13 @@ Utility Functions for Email Processing
 """
 
 import logging
-from django.db import IntegrityError
-from .models import Category, Contact
 import re
 import base64
+from django.db import IntegrityError
+from .models import Category, Contact
 from bs4 import BeautifulSoup
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -33,6 +35,31 @@ def get_ip_with_port(request):
         LOGGER.error(f"An error occurred while generating IP with port: {str(e)}")
 
 
+# ----------------------- CRYPTOGRAPHY -----------------------#
+def encrypt_text(encryption_key, plaintext):
+    """Encrypts input plaintext"""
+    aes_key = base64.b64decode(encryption_key.encode("utf-8"))
+    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(), backend=default_backend())
+    encryptor = cipher.encryptor()
+    padded_plaintext = plaintext + " " * (16 - len(plaintext) % 16)
+    ciphertext = (
+        encryptor.update(padded_plaintext.encode("utf-8")) + encryptor.finalize()
+    )
+    ciphertext_base64 = base64.b64encode(ciphertext).decode("utf-8")
+    return ciphertext_base64
+
+
+def decrypt_text(encryption_key, ciphertext_base64):
+    """Decrypts input encrypted ciphertext"""
+    aes_key = base64.b64decode(encryption_key.encode("utf-8"))
+    ciphertext = base64.b64decode(ciphertext_base64.encode("utf-8"))
+    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(), backend=default_backend())
+    decryptor = cipher.decryptor()
+    decrypted_text = decryptor.update(ciphertext) + decryptor.finalize()
+    unpadded_text = decrypted_text.rstrip()
+    return unpadded_text.decode("utf-8")
+
+
 # ----------------------- NO REPLY CHECKING -----------------------#
 def is_no_reply_email(sender_email):
     """Returns True if the email is a no-reply address."""
@@ -49,7 +76,10 @@ def save_email_sender(user, sender_name, sender_email, sender_id):
         if not existing_contact:
             try:
                 Contact.objects.create(
-                    email=sender_email, username=sender_name, user=user, provider_id=sender_id
+                    email=sender_email,
+                    username=sender_name,
+                    user=user,
+                    provider_id=sender_id,
                 )
             except IntegrityError:
                 pass

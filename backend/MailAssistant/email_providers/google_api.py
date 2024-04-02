@@ -27,6 +27,7 @@ from httpx import HTTPError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from email.utils import parsedate_to_datetime
 from MailAssistant.serializers import EmailDataSerializer
 from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral
 from MailAssistant.constants import (
@@ -321,9 +322,7 @@ def get_mail(services, int_mail=None, id_mail=None):
         elif name == "Bcc":
             bcc_info = parse_name_and_email(values["value"])
         elif name == "Date":
-            sent_date = datetime.datetime.strptime(
-                values["value"], "%a, %d %b %Y %H:%M:%S %z"
-            )
+            sent_date = parsedate_to_datetime(values["value"])
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -751,6 +750,9 @@ def receive_mail_notifications(request):
         LOGGER.error(f"Error processing the notification: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
+#######################################################################################################
+############################################# UNDER TEST ##############################################
+#######################################################################################################
 
 def email_to_bdd(user, services, id_email):
     """Saves email notifications from Google listener to database"""
@@ -798,7 +800,7 @@ def email_to_bdd(user, services, id_email):
             importance_dict["UrgentWorkInformation"] >= 50
         ):  # MAYBE TO UPDATE TO >50 =>  To test
             importance = IMPORTANT 
-        elif importance_dict['Promotional'] > 50 and importance_dict['RoutineWorkUpdates'] > 10: # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
+        elif importance_dict['Promotional'] <= 50 and importance_dict['RoutineWorkUpdates'] > 10: # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
             importance = INFORMATION
         else:
             max_percentage = 0
@@ -824,6 +826,8 @@ def email_to_bdd(user, services, id_email):
 
         if not sender:
             sender_name, sender_email = from_name[0], from_name[1]
+            if not sender_name:
+                sender_name = sender_email
             sender, _ = Sender.objects.get_or_create(
                 name=sender_name, email=sender_email
             )

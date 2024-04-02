@@ -777,7 +777,6 @@ def email_to_bdd(user, services, id_email):
                     return
 
                 if rule.category:
-                    # Find the category by checking if a sender has a category
                     category = rule.category
                     rule_category = True
 

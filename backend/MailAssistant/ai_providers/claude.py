@@ -177,6 +177,7 @@ def new_mail_recommendation(mail_content, email_subject, user_recommendation, la
     return subject_text, email_body
 
 
+''' OLD Ask Theo Before Delete'''
 def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
@@ -198,6 +199,41 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     print(f"{Fore.CYAN}Email Body: {email_body}")
 
     return subject_text, email_body
+
+''' IN DEV => DO NOT DELETE OR IMPLEMENT => Reserved for Theo => Ask Theo if you want to delete
+def generate_email(input_data, length, formality, language="FRENCH"):
+    """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
+
+    input_word_count = len(input_data.split())
+
+    if length == "very short":
+        word_count_factor = 1.0
+    elif length == "short":
+        word_count_factor = 1.5
+    else:  # "long"
+        word_count_factor = 3.0
+
+    word_count = int(input_word_count * word_count_factor)
+    word_count_range = f"{word_count - 20}-{word_count + 20} words"
+
+    template = f"""{HUMAN}As an email assistant, write a {formality} email in {language} with a length of {word_count_range}.
+    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
+
+    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
+    {ASSISTANT}"""
+    response = get_prompt_response(template)
+    clear_text = response.content[0].text.strip()
+
+    result_json = json.loads(clear_text)
+
+    subject_text = result_json.get("subject")
+    email_body = result_json.get("body")
+
+    print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
+    print(f"{Fore.GREEN}Subject: {subject_text}")
+    print(f"{Fore.CYAN}Email Body: {email_body}")
+
+    return subject_text, email_body'''
 
 
 def correct_mail_language_mistakes(body, subject):

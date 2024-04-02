@@ -659,7 +659,7 @@ def new_email_recommendations(request):
         user_recommendation = serializer.validated_data["user_recommendation"]
         email_subject = serializer.validated_data["email_subject"]
 
-        subject_text, email_body = mistral.new_mail_recommendation(
+        subject_text, email_body = claude.new_mail_recommendation(
             mail_content, email_subject, user_recommendation
         )
 
@@ -681,7 +681,7 @@ def improve_email_writing(request):
         email_body = serializer.validated_data["email_body"]
         email_subject = serializer.validated_data["email_subject"]
 
-        email_body, subject_text = mistral.improve_email_writing(
+        email_body, subject_text = claude.improve_email_writing(
             email_body, email_subject
         )
 
@@ -702,7 +702,7 @@ def correct_email_language(request):
         email_body = serializer.validated_data["email_body"]
 
         corrected_subject, corrected_body, num_corrections = (
-            mistral.correct_mail_language_mistakes(email_body, email_subject)
+            claude.correct_mail_language_mistakes(email_body, email_subject)
         )
 
         return Response(
@@ -751,7 +751,7 @@ def generate_email_response_keywords(request):
         email_content = serializer.validated_data["email_content"]
 
         # TODO: Add language parameter
-        response_keywords = mistral.generate_response_keywords(
+        response_keywords = claude.generate_response_keywords(
             email_subject, email_content, "French"
         )
         return Response({"response_keywords": response_keywords})
@@ -771,7 +771,7 @@ def generate_email_answer(request):
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
         response_type = serializer.validated_data["response_type"]
-        email_answer = mistral.generate_email_response(
+        email_answer = claude.generate_email_response(
             email_subject, email_content, response_type, "French"
         )
 
@@ -1008,7 +1008,14 @@ def delete_user_rule_by_id(request, id_rule):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_user_rule(request):
-    serializer = RuleSerializer(data=request.data, context={"user": request.user})
+    data = request.data
+    user = request.user
+
+    rule = Rule.objects.filter(sender_id=data["sender"], user=user)
+    if rule.exists():
+        return Response({"error": "A rule already exists for that sender"}, status=400)
+
+    serializer = RuleSerializer(data=request.data, context={"user": user})
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=201)
@@ -1049,7 +1056,6 @@ def check_sender_for_user(request):
     user_email = request.data.get("email")
 
     try:
-        # Check if a sender with the given email exists for the authenticated user
         sender = Sender.objects.get(email=user_email, user=request.user)
         return Response(
             {"exists": True, "sender_id": sender.id}, status=status.HTTP_200_OK

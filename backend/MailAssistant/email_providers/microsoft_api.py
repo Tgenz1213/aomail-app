@@ -461,7 +461,10 @@ def set_all_contacts(access_token, user):
             sender = message.get("from", {}).get("emailAddress", {}).get("address", "")
             if sender:
                 name = sender.split("@")[0]
-                all_contacts[(user, name, sender, "")].add(sender)
+                if (user, name, sender, "") in all_contacts:
+                    continue
+                else:
+                    all_contacts[(user, name, sender, "")].add(sender)
 
         # Part 3: Add the contacts to the database
         for contact_info, emails in all_contacts.items():
@@ -792,6 +795,7 @@ class MicrosoftSubscriptionNotification(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftEmailNotification(View):
     """Handles subscriptions and receives emails from Microsoft's email notification listener"""
+    # TODO: Remove subscription when user deletes its account
 
     def post(self, request):
         validation_token = request.GET.get("validationToken")
@@ -827,6 +831,7 @@ class MicrosoftEmailNotification(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftContactNotification(View):
     """Handles subscription and Microsoft contact changes notifications listener"""
+    # TODO: Remove subscription when user deletes its account
 
     def post(self, request):
         validation_token = request.GET.get("validationToken")
@@ -896,7 +901,7 @@ def email_to_bdd(user, email, id_email):
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
-        sender = Sender.objects.filter(email=from_name[1]).first()
+        sender = Sender.objects.filter(email=from_name[1], user=user).first()
 
         if not decoded_data:
             return
@@ -904,16 +909,17 @@ def email_to_bdd(user, email, id_email):
         decoded_data = library.format_mail(decoded_data)
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
-        rule = Rule.objects.filter(sender=sender)
+        rules = Rule.objects.filter(sender=sender)
         rule_category = None
 
-        if rule.exists():
-            if rule.block:
-                return
+        if rules.exists():
+            for rule in rules:
+                if rule.block:
+                    return
 
-            if rule.category:
-                category = rule.category
-                rule_category = True
+                if rule.category:
+                    category = rule.category
+                    rule_category = True
 
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
         user_description = ""
@@ -957,7 +963,7 @@ def email_to_bdd(user, email, id_email):
         if not sender:
             sender_name, sender_email = from_name[0], from_name[1]
             sender, _ = Sender.objects.get_or_create(
-                name=sender_name, email=sender_email
+                name=sender_name, email=sender_email, user=user
             )
 
         try:

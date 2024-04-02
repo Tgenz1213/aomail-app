@@ -762,7 +762,7 @@ def email_to_bdd(user, services, id_email):
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
-        sender = Sender.objects.filter(email=from_name[1]).first()
+        sender = Sender.objects.filter(email=from_name[1], user=user).first()
 
         if not decoded_data:
             return
@@ -779,7 +779,6 @@ def email_to_bdd(user, services, id_email):
                     return
 
                 if rule.category:
-                    # Find the category by checking if a sender has a category
                     category = rule.category
                     rule_category = True
 
@@ -829,7 +828,7 @@ def email_to_bdd(user, services, id_email):
             if not sender_name:
                 sender_name = sender_email
             sender, _ = Sender.objects.get_or_create(
-                name=sender_name, email=sender_email
+                name=sender_name, email=sender_email, user=user
             )
 
         try:

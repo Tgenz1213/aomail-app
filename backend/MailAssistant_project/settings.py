@@ -8,6 +8,7 @@ import json
 from datetime import timedelta
 from pathlib import Path
 from MailAssistant.constants import HOSTS_URLS
+from MailAssistant.schedule_tasks import Command
 
 
 ######################## CHECKLIST FOR PRODUCTION ########################
@@ -74,6 +75,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "django_crontab",
 ]
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -111,7 +113,7 @@ LOGGING = {
         "file": {
             "class": "logging.FileHandler",
             "filename": BACKEND_LOG_PATH,
-            "level": "ERROR",
+            "level": "INFO",
             "formatter": "verbose",
         },
     },
@@ -188,4 +190,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
+]
+CRONJOBS = [
+    (
+        "0 3 * * *",
+        Command.update_subscription_status,
+    ),  # Run the task every day at 3 am
 ]

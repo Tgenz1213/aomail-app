@@ -20,5 +20,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Set the entrypoint script
 ENTRYPOINT ["entrypoint.sh"]
 
+# Ajouter les taches planifiées
+CMD ["python", "manage.py", "crontab", "add"]
+
 # Commande pour démarrer votre application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

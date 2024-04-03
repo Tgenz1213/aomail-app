@@ -37,7 +37,7 @@ from .models import (
     Preference,
     Sender,
     Contact,
-    #Subscription,
+    Subscription,
 )
 from .serializers import (
     CategoryNameSerializer,
@@ -246,7 +246,6 @@ def save_user_data(
             except json.JSONDecodeError:
                 return {"error": "Invalid categories data"}
 
-        # Creation of the Other/default category => TO UPDATE WITH THE LANGUAGE
         default_category = Category(
             name=DEFAULT_CATEGORY,
             description="",
@@ -255,7 +254,14 @@ def save_user_data(
         default_category.save()
 
         # Creation of default subscription plan
-        #Subscription.objects.create(user=user)
+        Subscription.objects.create(
+            user=user,
+            plan="free_plan",
+            stripe_subscription_id=None,
+            end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+            billing_interval=None,
+            amount=0.00,
+        )
 
         return {"message": "User data saved successfully"}
 

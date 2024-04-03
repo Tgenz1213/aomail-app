@@ -878,7 +878,7 @@ async function nextStep0() {
     credentialError.value = 'L\'identifiant ne doit pas contenir d\'espaces';
     return false;
   }
-  if (username.value.length > 150) {
+  if (login.value.length > 150) {
     credentialError.value = 'Longueur max nom d\'utilisateur : 150 caractères';
     return false;
   }

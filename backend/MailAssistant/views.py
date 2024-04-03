@@ -37,6 +37,7 @@ from .models import (
     Preference,
     Sender,
     Contact,
+    #Subscription,
 )
 from .serializers import (
     CategoryNameSerializer,
@@ -252,6 +253,9 @@ def save_user_data(
             user=user,
         )
         default_category.save()
+
+        # Creation of default subscription plan
+        #Subscription.objects.create(user=user)
 
         return {"message": "User data saved successfully"}
 

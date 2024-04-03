@@ -8,19 +8,34 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# class Subscription(models.Model):
-#     """Model for storing subscriptions informations."""
+'''class BillingInfo(models.Model):
+    """Model for storing billing informations."""
 
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     plan = models.CharField(max_length=20)
-#     stripe_subscription_id = models.CharField(max_length=100, blank=True, null=True)
-#     is_active = models.BooleanField(default=True)
-#     start_date = models.DateTimeField(auto_now_add=True)
-#     end_date = models.DateTimeField(null=True)
-#     billing_interval = models.CharField(max_length=10, choices=[('monthly'), ('yearly')])
-#     billing_address = models.CharField(max_length=300)
-#     amount = models.DecimalField(max_digits=10, decimal_places=2)
-#     currency = models.CharField(max_length=3, default='EUR')
+    stripe_subscription_id = models.ForeignKey(models.CharField, on_delete=models.CASCADE)
+    billing_address = models.CharField(max_length=300)
+    name = models.CharField(max_length=30)
+    first_name = models.CharField(max_length=20)
+    country = models.CharField(max_length=30)
+    postal_code = models.IntegerField(max_digits=5)
+    invoice_number = models.CharField(max_length=30)
+    invoice_date = models.DateField()
+    invoice_plan = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='EUR')
+
+
+class Subscription(models.Model):
+    """Model for storing subscriptions informations."""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    plan = models.CharField(max_length=20)
+    stripe_subscription_id = models.CharField(max_length=100, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True)
+    billing_interval = models.CharField(max_length=10, choices=[('monthly'), ('yearly')])    
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='EUR')'''
 
 
 class Message(models.Model):

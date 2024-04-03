@@ -127,6 +127,16 @@ function displayPopup() {
 
 // Function to handle login
 async function login() {
+
+    if (username.value.length > 150) {
+        // Show the pop-up
+        backgroundColor.value = 'bg-red-300';
+        notificationTitle.value = 'Erreur lors de la connexion';
+        notificationMessage.value = 'Longueur max nom d\'utilisateur : 150 caractères';
+        displayPopup();
+        return;
+    }
+
     try {
         const response = await axios.post(`${API_BASE_URL}api/login/`, {
             username: username.value,

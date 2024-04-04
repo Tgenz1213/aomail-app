@@ -115,7 +115,9 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
     USE as few verbs in {language} as possible while keeping a relevant meaning.
     KEYWORDS must look like buttons the user WILL click to reply to the email.
 
-    Answer must be a list (Python) format: ["...", "..."]
+    ---------------------
+
+    Answer FORMAT must be ONLY A LIST (Python) format: ["...", "..."]
     {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
     keywords = response.content[0].text.strip()
@@ -184,7 +186,7 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     template = f"""{HUMAN}As an email assistant, write a {length} and {formality} email in {language}.
     Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
 
-    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT in ONE line (HTML)
+    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT
     {ASSISTANT}"""
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()

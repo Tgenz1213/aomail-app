@@ -61,13 +61,11 @@ urlpatterns = [
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('microsoft/receive_mail_notifications/', microsoft_api.MicrosoftEmailNotification.as_view(), name='receive_mail_notifications'), # ok
     path('microsoft/receive_contact_notifications/', microsoft_api.MicrosoftContactNotification.as_view(), name='receive_contact_notifications'), # ok
-    path('microsoft/receive_subscription_notifications/', microsoft_api.MicrosoftSubscriptionNotification.as_view(), name='receive_subscription_notifications'), # dev
+    path('microsoft/receive_subscription_notifications/', microsoft_api.MicrosoftSubscriptionNotification.as_view(), name='receive_subscription_notifications'), # ok
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
-    #path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
-    #path('stripe/payment_successful', views.payment_successful, name='stripe_payment_successful'), # dev
-    #path('stripe/payment_cancelled', views.payment_cancelled, name='stripe_payment_cancelled'), # dev
+    path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
     #----------------------- TESTING URLs -----------------------#
     # path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
     # path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing

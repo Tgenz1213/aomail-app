@@ -8,6 +8,7 @@ import logging
 import re
 import threading
 import jwt
+import stripe  # type: ignore
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -24,10 +25,15 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
+from django.views.decorators.csrf import csrf_exempt
 from MailAssistant.constants import (
     DEFAULT_CATEGORY,
     GOOGLE_PROJECT_ID,
     GOOGLE_TOPIC_NAME,
+    STRIPE_PAYMENT_FAILED_URL,
+    STRIPE_PAYMENT_SUCCESS_URL,
+    STRIPE_PRICES,
+    STRIPE_SECRET_KEY,
 )
 from .models import (
     Category,
@@ -135,6 +141,16 @@ def signup(request):
     )
     if "error" in result:
         return Response(result, status=400)
+    
+
+    Subscription.objects.create(
+        user=user,
+        plan="start_plan",
+        stripe_subscription_id=None,
+        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+        billing_interval=None,
+        amount=0.0,
+    )
 
     # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
@@ -253,21 +269,36 @@ def save_user_data(
         )
         default_category.save()
 
-        # Creation of default subscription plan
-        Subscription.objects.create(
-            user=user,
-            plan="free_plan",
-            stripe_subscription_id=None,
-            end_date=datetime.datetime.now() + datetime.timedelta(days=30),
-            billing_interval=None,
-            amount=0.00,
-        )
-
         return {"message": "User data saved successfully"}
 
     except Exception as e:
         LOGGER.error(f"Error in save_user_data: {str(e)}")
         return {"error": str(e)}
+
+# UNDER CONSTRUCTION #
+def create_subscription(user, stripe_plan_id, email="nothingForNow"):
+    stripe_customer = stripe.Customer.create(email=email)
+    stripe_customer_id = stripe_customer.id
+
+    stripe_subscription = stripe.Subscription.create(
+        customer=stripe_customer_id,
+        items=[
+            {
+                "plan": stripe_plan_id,
+            },
+        ],
+        trial_period_days=30,
+    )
+
+    # Creation of default subscription plan
+    Subscription.objects.create(
+        user=user,
+        plan="start_plan",
+        stripe_subscription_id=stripe_subscription.id,
+        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+        billing_interval=None,
+        amount=STRIPE_PRICES[stripe_plan_id],
+    )
 
 
 @api_view(["GET"])
@@ -275,6 +306,40 @@ def save_user_data(
 def is_authenticated(request):
     """Used in index.js by the router to check if the user can access enpoints"""
     return JsonResponse({"isAuthenticated": True}, status=200)
+
+
+######################## STRIPE ########################
+@csrf_exempt
+def receive_payment_notifications(request):
+    """Handles Stripe notifications"""
+
+    if request.method == "POST":
+        payload = request.body
+        sig_header = request.headers["Stripe-Signature"]
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, STRIPE_SECRET_KEY
+            )
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=400)
+        except stripe.WebhookSignature as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+        if event["type"] == "invoice.payment_succeeded":
+            # TODO: Handle successful + informations for customer
+            ...  # data base operations
+            # Subscription.objects.get(...)
+            redirect(STRIPE_PAYMENT_SUCCESS_URL)
+        elif event["type"] == "invoice.payment_failed":
+            # TODO: Handle failed payment + add error message
+            redirect(STRIPE_PAYMENT_FAILED_URL)
+        else:
+            return JsonResponse({"error": "Unhandled event type"}, status=400)
+
+        return JsonResponse({"message": "Received"}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################

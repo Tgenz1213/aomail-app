@@ -18,6 +18,18 @@ HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]
 ENCRYPTION_CREDS = json.load(open(f"{CREDS_PATH}encryption_keys.json", "r"))
 
 
+######################## STRIPE ########################
+STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json", "r"))
+STRIPE_SECRET_KEY = STRIPE_CREDS["secret_key"]
+STRIPE_PUBLISHABLE_KEY = STRIPE_CREDS["publishable_key"]
+STRIPE_PAYMENT_FAILED_URL = f"{BASE_URL}stripe/payment_failed/"
+STRIPE_PAYMENT_SUCCESS_URL = f"{BASE_URL}stripe/payment_successful/"
+STRIPE_PRICES = {
+    "start_plan_id": {"name": "start_plan", "price": 0.0},
+    "pro_plan_id": {"name": "pro_plan", "price": 0.0},
+}
+
+
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json", "r"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json", "r"))

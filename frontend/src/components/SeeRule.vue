@@ -18,6 +18,7 @@
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <Combobox as="div" v-model="selectedPerson">
+            <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
             <div class="flex space-x-1 items-center">
               <UserIcon class="w-4 h-4" />
               <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
@@ -26,7 +27,7 @@
               <ComboboxInput
                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                 @change="query = $event.target.value" :display-value="(person) => person?.username || person?.email"
-                @blur="handleBlur2($event)" />
+                @blur="handleBlur2($event)" id="emailInput" />
               <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
               </ComboboxButton>
@@ -156,6 +157,7 @@ export default {
         priority: '',
         block: false,
         category: '',
+        errorMessage: ''
       },
     };
   },
@@ -196,8 +198,12 @@ export default {
         this.closeModal();
       }
       else if (event.key === 'Enter') {
-        event.preventDefault();
-        this.createUserRule()
+        if (!document.activeElement.id == 'emailInput') {
+          event.preventDefault();
+          this.createUserRule();
+        } else {
+          // TODO: handleblur avec l'input 
+        }
       }
     },
     handleBlur2(event) {
@@ -218,7 +224,7 @@ export default {
         }
       }
       else {
-        console.error("The format of the email is incorrect")
+        this.errorMessage = "Le format de l\'email est incorrect";
       }
     },
     setSelectedPerson() {
@@ -235,7 +241,10 @@ export default {
     },
     async postSender() {
       if (!this.selectedPerson) {
-        throw new Error('No sender selected');
+        console.log("Aucune adresse email sélectionnée")
+        this.errorMessage = "Aucune adresse email sélectionnée";
+        console.log(this.errorMessage)
+        return;
       }
 
       let username = this.selectedPerson.username;
@@ -273,7 +282,9 @@ export default {
     },
     async checkSenderExists() {
       if (!this.selectedPerson) {
-        throw new Error('No sender selected');
+        console.log("Aucune adresse email sélectionnée")
+        this.errorMessage = "Aucune adresse email sélectionnée";
+        return;
       }
 
       const senderData = {

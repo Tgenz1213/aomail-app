@@ -142,7 +142,7 @@ def signup(request):
     if "error" in result:
         return Response(result, status=400)
     
-
+    # (useless for now): TODO: use create_subscription function
     Subscription.objects.create(
         user=user,
         plan="start_plan",

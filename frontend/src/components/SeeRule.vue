@@ -1,4 +1,6 @@
 <template>
+  <ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
+    :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor" />
   <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isOpen">
@@ -107,6 +109,7 @@
 <script setup>
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
+import ShowNotification from '../components/ShowNotification.vue';
 import { API_BASE_URL } from '@/main';
 import {
   Combobox,
@@ -116,6 +119,10 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/vue';
+
+
+
+
 </script>
 
 <script>
@@ -130,6 +137,7 @@ import {
 
 export default {
   components: {
+    ShowNotification,
     XMarkIcon,
     UserIcon,
     ArchiveBoxIcon,
@@ -157,7 +165,12 @@ export default {
         priority: '',
         block: false,
         category: '',
-        errorMessage: ''
+        errorMessage: '',
+        showNotification: false,
+        notificationTitle: '',
+        notificationMessage: '',
+        backgroundColor: '',
+        timerId: null
       },
     };
   },
@@ -193,6 +206,18 @@ export default {
     }
   },
   methods: {
+    dismissPopup() {
+      this.showNotification = false;
+      // Cancel the timer
+      clearTimeout(this.timerId);
+    },
+    displayPopup() {
+      this.showNotification = true;
+
+      this.timerId = setTimeout(() => {
+        this.dismissPopup();
+      }, 4000);
+    },
     handleKeyDown(event) {
       if (event.key === 'Escape') {
         this.closeModal();
@@ -277,7 +302,12 @@ export default {
         return responseData.id;
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
-        throw error; // Rethrowing the error can be useful if this function is used in a context where the error needs to be handled further up the chain.
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur dans postSender';
+        this.notificationMessage = error;
+        this.displayPopup();
+        this.closeModal();
+        //throw error; // Rethrowing the error can be useful if this function is used in a context where the error needs to be handled further up the chain.
       }
     },
     async checkSenderExists() {
@@ -316,7 +346,11 @@ export default {
         }
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
-        throw error;
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur dans checkSenderExists';
+        this.notificationMessage = error;
+        this.displayPopup();
+        this.closeModal();
       }
     },
     async createUserRule() {
@@ -331,10 +365,6 @@ export default {
         if (!exists) {
           // If the sender does not exist, POST the sender and get the ID
           senderId = await this.postSender();
-          console.log("New SenderId", senderId);
-        } else {
-          // If the sender already exists, use the existing senderId
-          console.log("Existing SenderId", senderId);
         }
 
         if (this.formData.category) {
@@ -377,10 +407,16 @@ export default {
 
       } catch (error) {
         console.error('Error in creating rule:', error);
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur lors de la création de la règle';
+        this.notificationMessage = error;
+        this.displayPopup();
+        this.closeModal();
         // Handle errors appropriately
       }
     },
     closeModal() {
+      this.errorMessage = "";
       this.$emit('update:isOpen', false);
     }
   }

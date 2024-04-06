@@ -177,25 +177,25 @@ def send_email(request):
             subject = data["subject"]
             message = data["message"]
             to = data["to"]
-            cc = data["cc"]
-            bcc = data["cci"]
-            attachments = data.get("attachments", "")
+            cc = data.get("cc")
+            bcc = data.get("cci")
+            attachments = data.get("attachments")
             all_recipients = to
 
             multipart_message = MIMEMultipart()
-            multipart_message["Subject"] = subject
+
+            multipart_message["subject"] = subject
             multipart_message["from"] = "me"
-            multipart_message["to"] = to
+            multipart_message["to"] = ", ".join(to)
 
             if cc:
-                multipart_message["cc"] = cc
+                multipart_message["cc"] = ", ".join(cc)
                 all_recipients += cc
             if bcc:
-                multipart_message["bcc"] = bcc
+                multipart_message["bcc"] = ", ".join(bcc)
                 all_recipients += bcc
 
             multipart_message.attach(MIMEText(message, "html"))
-
             if attachments:
                 for uploaded_file in attachments:
                     file_content = uploaded_file.read()
@@ -208,6 +208,7 @@ def send_email(request):
             raw_message = urlsafe_b64encode(
                 multipart_message.as_string().encode("UTF-8")
             ).decode()
+
             body = {"raw": raw_message}
             service.users().messages().send(userId="me", body=body).execute()
 

@@ -1876,7 +1876,7 @@ async function sendEmail() {
     if (selectedCCI.value.length > 0) {
         selectedCCI.value.forEach(person => formData.append('cci', person.email));
     }
-    
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
             method: 'POST',

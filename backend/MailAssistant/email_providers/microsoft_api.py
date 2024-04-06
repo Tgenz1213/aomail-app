@@ -6,6 +6,7 @@ import base64
 import datetime
 import json
 import logging
+import re
 import threading
 import time
 import httpx
@@ -287,6 +288,7 @@ def get_email(access_token):
 @permission_classes([IsAuthenticated])
 def send_email(request):
     """Sends an email using the Microsoft Graph API."""
+
     user = request.user
     email = request.headers.get("email")
     access_token = refresh_access_token(get_social_api(user, email))
@@ -295,30 +297,38 @@ def send_email(request):
     if serializer.is_valid():
         data = serializer.validated_data
         try:
-            # Prepare email data
             subject = data["subject"]
             message = data["message"]
             to = data["to"]
             cc = data.get("cc")
             bcc = data.get("cci")
             attachments = data.get("attachments")
+            all_recipients = to
 
             graph_endpoint = f"{GRAPH_URL}me/sendMail"
             headers = get_headers(access_token)
-
-            recipients = {"emailAddress": {"address": to}}
-            if cc:
-                recipients["ccRecipients"] = [{"emailAddress": {"address": cc}}]
-            if bcc:
-                recipients["bccRecipients"] = [{"emailAddress": {"address": bcc}}]
 
             email_content = {
                 "message": {
                     "subject": subject,
                     "body": {"contentType": "HTML", "content": message},
-                    "toRecipients": [recipients],
+                    "toRecipients": [
+                        {"emailAddress": {"address": email}} for email in to
+                    ],
                 }
             }
+
+            if cc:
+                email_content["message"]["ccRecipients"] = [
+                    {"emailAddress": {"address": email}} for email in cc
+                ]
+                all_recipients += cc
+
+            if bcc:
+                email_content["message"]["bccRecipients"] = [
+                    {"emailAddress": {"address": email}} for email in bcc
+                ]
+                all_recipients += bcc
 
             if attachments:
                 email_content["message"]["attachments"] = []
@@ -341,15 +351,21 @@ def send_email(request):
                 )
 
                 if response.status_code == 202:
+
+                    threading.Thread(
+                        target=library.save_contacts, args=(user, email, all_recipients)
+                    ).start()
+
                     return JsonResponse(
                         {"message": "Email sent successfully!"}, status=202
                     )
                 else:
                     LOGGER.error(
-                        f"Failed to send email: {response.json().get('error_description', response.reason)}"
+                        f"Failed to send email: {response.json().get('error', response.reason)}"
                     )
                     return JsonResponse(
-                        {"error": "Failed to send email"}, status=response.status_code
+                        {"error": response.json().get("error", response.reason)},
+                        status=response.status_code,
                     )
             except Exception as e:
                 LOGGER.error(f"Failed to send email: {str(e)}")
@@ -795,6 +811,7 @@ class MicrosoftSubscriptionNotification(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftEmailNotification(View):
     """Handles subscriptions and receives emails from Microsoft's email notification listener"""
+
     # TODO: Remove subscription when user deletes its account
 
     def post(self, request):
@@ -831,6 +848,7 @@ class MicrosoftEmailNotification(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftContactNotification(View):
     """Handles subscription and Microsoft contact changes notifications listener"""
+
     # TODO: Remove subscription when user deletes its account
 
     def post(self, request):

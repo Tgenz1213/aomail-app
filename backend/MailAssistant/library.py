@@ -85,6 +85,25 @@ def save_email_sender(user, sender_name, sender_email, sender_id):
                 pass
 
 
+# ----------------------- SAVE CONTACTS AFTER SENDING EMAIL -----------------------#
+def save_contacts(user, email, all_recipients):
+    """Saves contacts if they do not exist"""
+
+    for recipient_email in all_recipients:
+        contact = Contact.objects.filter(email=recipient_email)
+
+        if not is_no_reply_email(recipient_email):
+            if contact.exists() == False:
+                username = " ".join(
+                    [
+                        part.capitalize()
+                        for part in re.split(r"[.-]", recipient_email.split("@")[0])
+                        if part
+                    ]
+                )
+                Contact.objects.create(email=email, user=user, username=username)
+
+
 ######################## EMAIL DATA PROCESSING ########################
 def html_clear(text):
     """Uses BeautifulSoup to clear HTML tags from the given text."""

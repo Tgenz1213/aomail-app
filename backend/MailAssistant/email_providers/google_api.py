@@ -165,6 +165,7 @@ def authenticate_service(user, email) -> dict:
 @permission_classes([IsAuthenticated])
 def send_email(request):
     """Sends an email using the Gmail API."""
+
     try:
         user = request.user
         email = request.headers.get("email")
@@ -173,13 +174,13 @@ def send_email(request):
 
         if serializer.is_valid():
             data = serializer.validated_data
-
             subject = data["subject"]
             message = data["message"]
             to = data["to"]
             cc = data["cc"]
             bcc = data["cci"]
             attachments = data.get("attachments", "")
+            all_recipients = to
 
             multipart_message = MIMEMultipart()
             multipart_message["Subject"] = subject
@@ -188,15 +189,15 @@ def send_email(request):
 
             if cc:
                 multipart_message["cc"] = cc
+                all_recipients += cc
             if bcc:
                 multipart_message["bcc"] = bcc
+                all_recipients += bcc
 
             multipart_message.attach(MIMEText(message, "html"))
 
-            # Attach each file in the attachments list
             if attachments:
                 for uploaded_file in attachments:
-                    # Read the contents of the uploaded file
                     file_content = uploaded_file.read()
                     part = MIMEApplication(file_content)
                     part.add_header(
@@ -209,6 +210,10 @@ def send_email(request):
             ).decode()
             body = {"raw": raw_message}
             service.users().messages().send(userId="me", body=body).execute()
+
+            threading.Thread(
+                target=library.save_contacts, args=(user, email, all_recipients)
+            ).start()
 
             return Response({"message": "Email sent successfully!"}, status=200)
 
@@ -721,7 +726,7 @@ def receive_mail_notifications(request):
 
         # Sending the reception message to Google to confirm the email reception
         subscription_path = envelope["subscription"]
-        #print("DEBUG subscription path >>>>>>>>>>>>", subscription_path)
+        # print("DEBUG subscription path >>>>>>>>>>>>", subscription_path)
         ack_id = message_data["messageId"]
         ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
         ack_payload = {"ackIds": [ack_id]}
@@ -750,9 +755,11 @@ def receive_mail_notifications(request):
         LOGGER.error(f"Error processing the notification: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
+
 #######################################################################################################
 ############################################# UNDER TEST ##############################################
 #######################################################################################################
+
 
 def email_to_bdd(user, services, id_email):
     """Saves email notifications from Google listener to database"""
@@ -798,8 +805,11 @@ def email_to_bdd(user, services, id_email):
         if (
             importance_dict["UrgentWorkInformation"] >= 50
         ):  # MAYBE TO UPDATE TO >50 =>  To test
-            importance = IMPORTANT 
-        elif importance_dict['Promotional'] <= 50 and importance_dict['RoutineWorkUpdates'] > 10: # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
+            importance = IMPORTANT
+        elif (
+            importance_dict["Promotional"] <= 50
+            and importance_dict["RoutineWorkUpdates"] > 10
+        ):  # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
             importance = INFORMATION
         else:
             max_percentage = 0

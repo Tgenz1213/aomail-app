@@ -115,7 +115,7 @@ class Rule(models.Model):
         Category, on_delete=models.CASCADE, blank=True, null=True
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    sender = models.ForeignKey(Sender, on_delete=models.CASCADE, unique=True)
+    sender = models.OneToOneField(Sender, on_delete=models.CASCADE)
 
 
 class Email(models.Model):

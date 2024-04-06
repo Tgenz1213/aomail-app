@@ -22,11 +22,11 @@ from .models import (
 class EmailDataSerializer(serializers.Serializer):
     """Serializer for sending emails (POST request)."""
 
-    to = serializers.EmailField(required=True)
+    to = serializers.ListField(required=True)
     subject = serializers.CharField(required=True)
     message = serializers.CharField(required=False, allow_blank=True)
-    cc = serializers.CharField(required=False, allow_blank=True)
-    cci = serializers.CharField(required=False, allow_blank=True)
+    cc = serializers.ListField(required=False)
+    cci = serializers.ListField(required=False)
     attachments = serializers.ListField(child=serializers.FileField(), required=False)
 
 

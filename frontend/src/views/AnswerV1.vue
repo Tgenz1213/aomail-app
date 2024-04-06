@@ -1366,7 +1366,7 @@ async function sendEmail() {
   }
 
   try {
-    const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {
+    const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
       method: 'POST',
       headers: {
         email: localStorage.getItem('email')

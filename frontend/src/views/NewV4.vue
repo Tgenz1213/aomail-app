@@ -273,7 +273,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-        item.name }}</a>
+                                                                        item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -1864,22 +1864,21 @@ async function sendEmail() {
     formData.append('subject', emailSubject);
     formData.append('message', emailBody);
     fileObjects.value.forEach(file => formData.append('attachments', file));
-    // Add recipients, CC, and BCC to formData
+
+    // Add recipients to formData
     selectedPeople.value.forEach(person => formData.append('to', person.email));
 
+    // Add CC recipients to formData
     if (selectedCC.value.length > 0) {
         selectedCC.value.forEach(person => formData.append('cc', person.email));
-    } else {
-        formData.append('cc', '');
     }
+    // Add BCC recipients to formData
     if (selectedCCI.value.length > 0) {
         selectedCCI.value.forEach(person => formData.append('cci', person.email));
-    } else {
-        formData.append('cci', '');
     }
-
+    
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}api/send_mail/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
             method: 'POST',
             headers: {
                 email: localStorage.getItem('email')

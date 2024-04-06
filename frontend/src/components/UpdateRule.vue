@@ -299,13 +299,25 @@ export default {
         if (deleteResponse.message) {
           console.log('Rule deleted successfully');
           this.selectedPerson = null;
+          this.backgroundColor = 'bg-green-300';
+          this.notificationTitle = 'Succès !';
+          this.notificationMessage = 'Votre règle a bien été supprimée';
+          this.displayPopup();
           this.closeModal();
           this.$emit('fetch-rules');
         } else {
-          console.error('Failed to delete the rule:', deleteResponse.status);
+          console.error('Failed to delete the rule:', deleteResponse.error);
+          this.backgroundColor = 'bg-red-300';
+          this.notificationTitle = 'Erreur lors de la suppression';
+          this.notificationMessage = deleteResponse.error;
+          this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleting rule:', error);
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur lors de la suppression';
+        this.notificationMessage = error;
+        this.displayPopup();
       }
     },
     async postSender() {

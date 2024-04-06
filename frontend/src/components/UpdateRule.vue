@@ -246,7 +246,7 @@ export default {
         this.closeModal();
       } else if (event.key === 'Enter') {
         event.preventDefault();
-        if (event.target.id === 'inputField') {
+        if (event.target.id === 'inputField' && !this.selectedPerson) {
           this.handleBlur2(event)
         } else {
           this.updateUserRule();
@@ -403,7 +403,12 @@ export default {
 
         // Assuming the ID of the rule is stored in this.formData
         if (!this.formData.id) {
-          throw new Error("Rule ID is required for updating.");
+          this.backgroundColor = 'bg-red-300';
+          this.notificationTitle = 'Erreur lors de la mise à jour de la règle';
+          this.notificationMessage = "L'identifiant de règle est requis pour la mise à jour.";
+          this.displayPopup();
+          this.closeModal();
+          return;
         }
 
         // First, check if the sender already exists
@@ -437,12 +442,10 @@ export default {
             info_AI: ''
           };
         } else {
-          // Handle error
-          return;
-          // ruleData = {
-          //   ...this.formData,
-          //   sender: senderId  // Replace sender object with sender ID
-          // };
+          ruleData = {
+            ...this.formData,
+            sender: senderId
+          };
         }
         console.log("RuleData", ruleData);
 
@@ -455,9 +458,13 @@ export default {
         });
 
         if ('error' in ruleResponseData) {
+          if (ruleResponseData.error === 'A rule already exists for that sender') {
+            this.notificationMessage = "Une règle existe déjà pour cet expéditeur";
+          } else {
+            this.notificationMessage = ruleResponseData.error;
+          }
           this.backgroundColor = 'bg-red-300';
           this.notificationTitle = 'Erreur lors de la création de la règle';
-          this.notificationMessage = ruleResponseData.error;
           this.displayPopup();
           this.closeModal();
         } else {
@@ -468,6 +475,7 @@ export default {
           this.displayPopup();
           this.closeModal();
           this.$emit('fetch-rules');
+          return;
         }
       } catch (error) {
         console.error('Error in updating rule:', error);

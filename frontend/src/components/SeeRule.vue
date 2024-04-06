@@ -20,7 +20,7 @@
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <Combobox as="div" v-model="selectedPerson">
-            <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
+            <p class="text-red-500">{{ errorMessage }}</p>
             <div class="flex space-x-1 items-center">
               <UserIcon class="w-4 h-4" />
               <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
@@ -30,7 +30,7 @@
                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                 @change="query = $event.target.value"
                 :display-value="(person) => person ? (person.username ? `${person.username} <${person?.email || ''}>` : `<${person?.email || ''}>`) : ''"
-                @blur="handleBlur2($event)" @click="handleInputClick" @keydown="handleKeyDown($event)" />
+                @blur="handleBlur2($event)" @keydown="handleKeyDown($event)" @click="handleInputClick" />
               <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
               </ComboboxButton>
@@ -221,10 +221,10 @@ export default {
         this.closeModal();
       } else if (event.key === 'Enter') {
         event.preventDefault();
-        if (event.target.id === 'inputField') {
+        if (event.target.id === 'inputField' && !this.selectedPerson) {
           this.handleBlur2(event)
         } else {
-          this.updateUserRule();
+          this.createUserRule();
         }
       }
     },
@@ -405,9 +405,13 @@ export default {
         });
 
         if ('error' in ruleResponseData) {
+          if (ruleResponseData.error === 'A rule already exists for that sender') {
+            this.notificationMessage = "Une règle existe déjà pour cet expéditeur";
+          } else {
+            this.notificationMessage = ruleResponseData.error;
+          }
           this.backgroundColor = 'bg-red-300';
           this.notificationTitle = 'Erreur lors de la création de la règle';
-          this.notificationMessage = ruleResponseData.error;
           this.displayPopup();
           this.closeModal();
         } else {
@@ -418,6 +422,7 @@ export default {
           this.displayPopup();
           this.closeModal();
           this.$emit('fetch-rules');
+          return;
         }
       } catch (error) {
         console.error('Error in creating rule:', error);

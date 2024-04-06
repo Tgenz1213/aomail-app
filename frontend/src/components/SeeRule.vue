@@ -237,8 +237,6 @@ export default {
       const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (inputValue && emailFormat.test(inputValue)) {
-        // Add the input email to the list of recipients
-        // TODO: ask if we save it in DB or if we wait till the email is sent
         this.selectedPerson = {
           email: inputValue,
           username: inputValue
@@ -248,8 +246,9 @@ export default {
             .join(' ') // Join with spaces
         }
       }
-      else {
+      else if (!this.selectedPerson) {
         this.errorMessage = "Le format de l\'email est incorrect";
+        this.selectedPerson = null;
       }
     },
     setSelectedPerson() {

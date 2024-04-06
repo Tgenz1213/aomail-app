@@ -432,7 +432,11 @@ export default {
         });
 
         console.log('Rule updated:', ruleResponseData);
-        this.selectedPerson = null;
+        this.selectedPerson = null;        
+        this.backgroundColor = 'bg-green-300';
+        this.notificationTitle = 'Succès !';
+        this.notificationMessage = 'Votre règle a été mise à jour';
+        this.displayPopup();
         this.closeModal();
         this.$emit('fetch-rules');
 

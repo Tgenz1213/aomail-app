@@ -399,11 +399,21 @@ export default {
           body: JSON.stringify(ruleData),
         });
 
-        console.log('Rule created:', ruleResponseData);
-        this.selectedPerson = null;
-        this.closeModal();
-        this.$emit('fetch-rules');
-
+        if ('error' in ruleResponseData) {
+          this.backgroundColor = 'bg-red-300';
+          this.notificationTitle = 'Erreur lors de la création de la règle';
+          this.notificationMessage = ruleResponseData.error;
+          this.displayPopup();
+          this.closeModal();
+        } else {
+          this.selectedPerson = null;
+          this.backgroundColor = 'bg-green-300';
+          this.notificationTitle = 'Succès !';
+          this.notificationMessage = 'Votre règle a été créée';
+          this.displayPopup();
+          this.closeModal();
+          this.$emit('fetch-rules');
+        }
       } catch (error) {
         console.error('Error in creating rule:', error);
         this.backgroundColor = 'bg-red-300';

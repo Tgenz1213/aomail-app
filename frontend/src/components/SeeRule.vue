@@ -26,11 +26,11 @@
               <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
             </div>
             <div class="relative mt-2">
-              <ComboboxInput
+              <ComboboxInput id="inputField"
                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                 @change="query = $event.target.value"
                 :display-value="(person) => person ? (person.username ? `${person.username} <${person?.email || ''}>` : `<${person?.email || ''}>`) : ''"
-                @blur="handleBlur2($event)" @click="handleInputClick" />
+                @blur="handleBlur2($event)" @click="handleInputClick" @keydown="handleKeyDown($event)" />
               <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
               </ComboboxButton>
@@ -120,10 +120,6 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/vue';
-
-
-
-
 </script>
 
 <script>
@@ -223,19 +219,17 @@ export default {
     handleKeyDown(event) {
       if (event.key === 'Escape') {
         this.closeModal();
-      }
-      else if (event.key === 'Enter') {
-        if (!document.activeElement.id == 'emailInput') {
-          event.preventDefault();
-          this.createUserRule();
+      } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (event.target.id === 'inputField') {
+          this.handleBlur2(event)
         } else {
-          // TODO: handleblur avec l'input 
+          this.updateUserRule();
         }
       }
     },
     handleInputClick() {
       this.currentSelectedPersonUsername = this.selectedPerson;
-      console.log("this.currentSelectedPersonUsername", this.currentSelectedPersonUsername);
       this.selectedPerson = null;
     },
     handleBlur2(event) {

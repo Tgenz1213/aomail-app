@@ -28,8 +28,9 @@
             <div class="relative mt-2">
               <ComboboxInput
                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                @change="query = $event.target.value" :display-value="(person) => person?.username || person?.email"
-                @blur="handleBlur2($event)" id="emailInput" />
+                @change="query = $event.target.value" 
+                :display-value="(person) => person ? (person.username ? `${person.username} <${person?.email || ''}>` : `<${person?.email || ''}>`) : ''"
+                @blur="handleBlur2($event)" @click="handleInputClick" />
               <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                 <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
               </ComboboxButton>
@@ -160,6 +161,7 @@ export default {
     return {
       query: '',
       selectedPerson: null,
+      currentSelectedPersonUsername: '',
       formData: {
         info_AI: '',
         priority: '',
@@ -231,8 +233,17 @@ export default {
         }
       }
     },
+    handleInputClick() {
+      this.currentSelectedPersonUsername = this.selectedPerson;
+      console.log("this.currentSelectedPersonUsername", this.currentSelectedPersonUsername);
+      this.selectedPerson = null;
+    },
     handleBlur2(event) {
       // Checks for a valid input email and adds it to the recipients list
+      if (event.target.value == '') {
+        this.selectedPerson = this.currentSelectedPersonUsername;
+        return;
+      }
       const inputValue = event.target.value.trim().toLowerCase();
       const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -246,9 +257,8 @@ export default {
             .join(' ') // Join with spaces
         }
       }
-      else if (!this.selectedPerson) {
+      else {
         this.errorMessage = "Le format de l\'email est incorrect";
-        this.selectedPerson = null;
       }
     },
     setSelectedPerson() {

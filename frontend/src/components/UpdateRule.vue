@@ -1,4 +1,6 @@
 <template>
+<ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
+  :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor" />
   <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isOpen">
@@ -18,6 +20,7 @@
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <Combobox as="div" v-model="selectedPerson">
+            <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
             <div class="flex space-x-1 items-center">
               <UserIcon class="w-4 h-4" />
               <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
@@ -120,6 +123,7 @@ import { fetchWithToken } from '../router/index.js';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
 import { API_BASE_URL } from '@/main';
+import ShowNotification from '../components/ShowNotification.vue';
 import {
   Combobox,
   ComboboxButton,
@@ -141,6 +145,7 @@ import {
 
 export default {
   components: {
+    ShowNotification,
     XMarkIcon,
     UserIcon,
     ArchiveBoxIcon,
@@ -169,7 +174,12 @@ export default {
         priority: '',
         block: false,
         category: '',
-        errorMessage: ''
+        errorMessage: '',
+        showNotification: false,
+        notificationTitle: '',
+        notificationMessage: '',
+        backgroundColor: '',
+        timerId: null
       },
     };
   },
@@ -218,7 +228,18 @@ export default {
       }
     }
   },
-  methods: {
+  methods: {dismissPopup() {
+      this.showNotification = false;
+      // Cancel the timer
+      clearTimeout(this.timerId);
+    },
+    displayPopup() {
+      this.showNotification = true;
+
+      this.timerId = setTimeout(() => {
+        this.dismissPopup();
+      }, 4000);
+    },
     handleKeyDown(event) {
       if (event.key === 'Escape') {
         this.closeModal();
@@ -301,7 +322,11 @@ export default {
         return responseData.id;
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
-        throw error; // Rethrowing the error can be useful if this function is used in a context where the error needs to be handled further up the chain.
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur dans postSender';
+        this.notificationMessage = error;
+        this.displayPopup();
+        this.closeModal();
       }
     },
     async checkSenderExists() {
@@ -339,7 +364,11 @@ export default {
         }
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
-        throw error;
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur dans checkSenderExists';
+        this.notificationMessage = error;
+        this.displayPopup();
+        this.closeModal();
       }
     },
     async updateUserRule() {
@@ -409,9 +438,15 @@ export default {
 
       } catch (error) {
         console.error('Error in updating rule:', error);
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur lors de la création de la règle';
+        this.notificationMessage = error;
+        this.displayPopup();
+        this.closeModal();
       }
     },
     closeModal() {
+      this.errorMessage = "";
       this.$emit('update:isOpen', false);
     }
   }

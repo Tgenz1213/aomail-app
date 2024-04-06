@@ -268,7 +268,6 @@ export default {
       if (!this.selectedPerson) {
         console.log("Aucune adresse email sélectionnée")
         this.errorMessage = "Aucune adresse email sélectionnée";
-        console.log(this.errorMessage)
         return;
       }
 

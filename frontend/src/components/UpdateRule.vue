@@ -259,8 +259,11 @@ export default {
     },
     handleBlur2(event) {
       // Checks for a valid input email and adds it to the recipients list
+      console.log('this.filteredPeople', this.filteredPeople)
       if (event.target.value == '') {
         this.selectedPerson = this.currentSelectedPersonUsername;
+        return;
+      } else if (this.filteredPeople.length > 0) {
         return;
       }
       const inputValue = event.target.value.trim().toLowerCase();

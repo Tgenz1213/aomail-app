@@ -1,6 +1,6 @@
 <template>
-<ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
-  :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor" />
+  <ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
+    :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor" />
   <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isOpen">
@@ -228,7 +228,8 @@ export default {
       }
     }
   },
-  methods: {dismissPopup() {
+  methods: {
+    dismissPopup() {
       this.showNotification = false;
       // Cancel the timer
       clearTimeout(this.timerId);
@@ -421,8 +422,7 @@ export default {
           // };
         }
         console.log("RuleData", ruleData);
-
-        // Use fetchWithToken for the PUT request to update the rule
+        
         const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/update-rule/`, {
           method: 'PUT',
           headers: {
@@ -431,15 +431,21 @@ export default {
           body: JSON.stringify(ruleData),
         });
 
-        console.log('Rule updated:', ruleResponseData);
-        this.selectedPerson = null;        
-        this.backgroundColor = 'bg-green-300';
-        this.notificationTitle = 'Succès !';
-        this.notificationMessage = 'Votre règle a été mise à jour';
-        this.displayPopup();
-        this.closeModal();
-        this.$emit('fetch-rules');
-
+        if ('error' in ruleResponseData) {
+          this.backgroundColor = 'bg-red-300';
+          this.notificationTitle = 'Erreur lors de la création de la règle';
+          this.notificationMessage = ruleResponseData.error;
+          this.displayPopup();
+          this.closeModal();
+        } else {
+          this.selectedPerson = null;
+          this.backgroundColor = 'bg-green-300';
+          this.notificationTitle = 'Succès !';
+          this.notificationMessage = 'Votre règle a été mise à jour';
+          this.displayPopup();
+          this.closeModal();
+          this.$emit('fetch-rules');
+        }
       } catch (error) {
         console.error('Error in updating rule:', error);
         this.backgroundColor = 'bg-red-300';

@@ -421,7 +421,6 @@ export default {
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();
-        // Handle errors appropriately
       }
     },
     closeModal() {

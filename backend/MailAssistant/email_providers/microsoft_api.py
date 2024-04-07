@@ -531,8 +531,18 @@ def parse_message_body(message_data):
     return None
 
 
+def get_attachment_data(access_token, email_id, attachment_id):
+    attachment_url = (
+        f"{GRAPH_URL}me/messages/{email_id}/attachments/{attachment_id}/$value"
+    )
+    headers = get_headers(access_token)
+    response = requests.get(attachment_url, headers=headers)
+    attachment_data = response.content
+    return base64.b64encode(attachment_data).decode("utf-8")
+
+
 def get_mail(access_token, int_mail=None, id_mail=None):
-    """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
+    """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
 
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
     headers = get_headers(access_token)
@@ -566,6 +576,16 @@ def get_mail(access_token, int_mail=None, id_mail=None):
     bcc_info = parse_recipients(message_data.get("bccRecipients"))
     sent_date = None
 
+    attachments_data = []
+
+    for attachment in message_data.get("attachments", []):
+        attachment_name = attachment.get("name")
+        attachment_id = attachment.get("id")
+        attachment_data = get_attachment_data(access_token, email_id, attachment_id)
+        attachments_data.append(
+            {"attachmentName": attachment_name, "data": attachment_data}
+        )
+
     for header in message_data.get("internetMessageHeaders", []):
         if header["name"] == "Date":
             sent_date = datetime.datetime.strptime(
@@ -585,6 +605,7 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         email_id,
         sent_date,
         web_link,
+        attachments_data,
     )
 
 

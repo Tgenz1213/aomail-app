@@ -29,7 +29,9 @@ from django.views.decorators.csrf import csrf_exempt
 from MailAssistant.constants import (
     DEFAULT_CATEGORY,
     GOOGLE_PROJECT_ID,
+    GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
+    MICROSOFT_PROVIDER,
     STRIPE_PAYMENT_FAILED_URL,
     STRIPE_PAYMENT_SUCCESS_URL,
     STRIPE_PRICES,
@@ -141,7 +143,7 @@ def signup(request):
     )
     if "error" in result:
         return Response(result, status=400)
-    
+
     # (useless for now): TODO: use create_subscription function
     Subscription.objects.create(
         user=user,
@@ -274,6 +276,7 @@ def save_user_data(
     except Exception as e:
         LOGGER.error(f"Error in save_user_data: {str(e)}")
         return {"error": str(e)}
+
 
 # UNDER CONSTRUCTION #
 def create_subscription(user, stripe_plan_id, email="nothingForNow"):
@@ -1256,14 +1259,14 @@ def get_mail_by_id(request):
 
         if type_api == "google":
             services = google_api.authenticate_service(user, email)
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date, _, _ = (
                 google_api.get_mail(services, None, mail_id)
             )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
             )
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date, _, _ = (
                 microsoft_api.get_mail(access_token, None, mail_id)
             )
 
@@ -1353,10 +1356,31 @@ def get_user_emails(request):
             )
             delta_time = current_datetime_utc - email.read_date
 
-            # delete read email since 2 weeks
+            # delete read email after 2 weeks
             if delta_time > datetime.timedelta(weeks=2):
                 email.delete()
                 continue
+
+        if email.email_provider == GOOGLE_PROVIDER:
+            # TODO: change this with by providing user_email in headers
+            # cuz the user will have several emails
+            email_user = SocialAPI.objects.get(user=user).email
+            creds = google_api.get_credentials(user, email_user)
+            services = google_api.build_services(creds)
+            (
+                subject,
+                from_info,
+                preprocessed_data,
+                cc_info,
+                bcc_info,
+                email_id,
+                sent_date,
+                web_link,
+                attachments_data,
+            ) = google_api.get_mail(services, id_mail=email.provider_id)
+
+        elif email.email_provider == MICROSOFT_PROVIDER:
+            ...
 
         email_data = {
             "id": email.id,
@@ -1372,6 +1396,7 @@ def get_user_emails(request):
             "rule_id": email.rule_id,
             "answer_later": email.answer_later,
             "web_link": email.web_link,
+            "attachments": attachments_data,
         }
 
         formatted_data[email.category.name][email.priority].append(email_data)
@@ -1393,7 +1418,7 @@ def get_mail_view(request):
     service = google_api.authenticate_service(user, email)
 
     if service is not None:
-        subject, from_name, decoded_data, email_id, date, _ = google_api.get_mail(
+        subject, from_name, decoded_data, email_id, date, _, _ = google_api.get_mail(
             service, 0, None
         )
         # Return a success response, along with any necessary information

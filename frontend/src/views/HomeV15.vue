@@ -2052,6 +2052,7 @@ function totalEmailsInCategoryNotRead(categoryName) {
 }
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
+    console.log("IMPORTANTNAIAUTNATINTI", emailData)
     emails.value = emailData;
 }
 async function fetchData() {

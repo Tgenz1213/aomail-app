@@ -532,7 +532,29 @@ def parse_message_body(message_data):
     return None
 
 
-def get_attachment_data(access_token, email_id, attachment_id):
+def get_attachments(access_token, email_id) -> list:
+    """Returns all attachments data encoded in base 64"""
+    attachments_url = f"{GRAPH_URL}me/messages/{email_id}/attachments"
+    headers = get_headers(access_token)
+    response = requests.get(attachments_url, headers=headers)
+    attachments_data = []
+
+    if response.status_code == 200:
+        attachments = response.json().get("value", [])
+        for attachment in attachments:
+            attachment_name = attachment.get("name")
+            attachment_data = download_attachment(
+                access_token, email_id, attachment["id"]
+            )
+            attachments_data.append(
+                {"attachmentName": attachment_name, "data": attachment_data}
+            )
+
+    return attachments_data
+
+
+def download_attachment(access_token, email_id, attachment_id):
+    """Returns the data of the attachment in base 64"""
     attachment_url = (
         f"{GRAPH_URL}me/messages/{email_id}/attachments/{attachment_id}/$value"
     )
@@ -579,20 +601,8 @@ def get_mail(access_token, int_mail=None, id_mail=None):
 
     attachments_data = []
 
-    # if message_data.get("attachments") == True:
-    #     attachment_name = attachment.get("name")
-    #     attachment_id = attachment.get("id")
-    #     attachment_data = get_attachment_data(access_token, email_id, attachment_id)
-    #     attachments_data.append(
-    #         {"attachmentName": attachment_name, "data": attachment_data}
-    #     )
-
-    for header in message_data.get("internetMessageHeaders", []):
-        if header["name"] == "Date":
-            sent_date = datetime.datetime.strptime(
-                header["value"], "%a, %d %b %Y %H:%M:%S %z"
-            )
-            break
+    if message_data["hasAttachments"]:
+        attachments_data = get_attachments(access_token, email_id)
 
     decoded_data = parse_message_body(message_data)
     preprocessed_data = library.preprocess_email(decoded_data)
@@ -941,7 +951,7 @@ def email_to_bdd(user, email, id_email):
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
-        sender = Sender.objects.filter(email=from_name[1], user=user).first()
+        sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
             return

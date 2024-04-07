@@ -90,7 +90,7 @@
                                                             <div v-if="category.name !== 'Others'" class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
-        category.name }}
+                                                                    category.name }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -119,7 +119,7 @@
                                                                 <!-- TODO: var language and retrieve the good translation -->
                                                                 <span class="px-3 py-2"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
-        "Autres" }}
+                                                                    "Autres" }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -738,7 +738,9 @@
                                                                     <!-- remove @click="toggleEmailVisibility"-->
                                                                     <p @click="toggleEmailVisibility"
                                                                         class="cursor-pointer">Vous avez reçu <span
-                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{ emails[selectedTopic]['Useless'].filter(email=> !email.answer_later).length }}</span>
+                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
+                                                                                emails[selectedTopic]['Useless'].filter(email=>
+                                                                            !email.answer_later).length }}</span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
@@ -2052,7 +2054,7 @@ function totalEmailsInCategoryNotRead(categoryName) {
 }
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-    console.log("IMPORTANTNAIAUTNATINTI", emailData)
+    console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)
     emails.value = emailData;
 }
 async function fetchData() {

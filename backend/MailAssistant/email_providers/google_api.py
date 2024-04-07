@@ -129,6 +129,7 @@ def save_credentials(creds, user, email):
 
 def build_services(creds) -> dict:
     """Returns a dictionary of endpoints"""
+    # TODO: remove duplicates and update code
     services = {
         "gmail.readonly": build(
             "gmail", "v1", cache_discovery=False, credentials=creds

@@ -40,3 +40,16 @@ print("Encrypted Text:", encrypted_text)
 
 decrypted_text = decrypt_text(encrypted_text, encryption_key)
 print("Decrypted Text:", decrypted_text)
+
+
+"""
+BulletPoint:
+content
+
+Category:
+name
+description
+
+
+
+"""

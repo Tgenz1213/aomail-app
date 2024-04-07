@@ -105,8 +105,8 @@ async function updateCategoryHandler() {
 
   if (/[^a-zA-Z\s]/.test(categoryName.value)) {
     errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
-  } else if (categoryDescription.value.length > 100) {
-    errorMessage.value = "Pas plus de 100 caractères pour la description";
+  } else if (categoryDescription.value.length > 300) {
+    errorMessage.value = "Pas plus de 300 caractères pour la description";
   } else if (categoryName.value.length > 50) {
     errorMessage.value = "Pas plus de 50 caractères pour le nom";
   } else if (!categoryName.value.trim() || !categoryDescription.value.trim()) {

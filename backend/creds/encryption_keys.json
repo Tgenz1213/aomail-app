@@ -1,36 +1,24 @@
 {
     "BillingInfo": {
-        "billing_address": "mMNZ2YXlCiprS3BHjcaAeIwqgXN3SeqirWkxjcEjXXY=",
-        "billing_email": "cajnKOlrzCHeZR60KZNsM3oSQ41Mu7WE5juLS4PEkoE=",
-        "name": "WqW4644zxp3FN7eTLn4Jhjtw03jQXrsGaOjBfgWNjPM=",
-        "first_name": "UeAEI715MSeEosXsR18pOBBjZdDswmYAC/oqkRHLF1c=",
-        "country": "JbGAl1akjuq5T/gZgf9KJm6xZ5y4Hcj/2NYdcsPkvd4=",
-        "zip_code": "mSSOBsoIBiBhURF7rUJicUtCI9U35d60TzUyFIhg65Y="
+        "billing_address": "reQ4WM0yoBphQMvhe0vMuvQ8N6bn5gVzDFeQ-MsIqSg=",
+        "name": "0ogs3EGL3fNV8S9bqifY4Egy1Ys3vm7RnFdr_olW0WM=",
+        "first_name": "Zmy0_MC1sIUX_cJEJENCVeQWEjTfl-hlDb42eeOnVQg=",
+        "country": "TuRFVj-eiLmafLVL_WkznqNDKcxzhVgq60ZNP9CBtf8=",
+        "zip_code": "D3imKeASje29RHO8_rRcdQYQy5kE5Yhvnw7d8pBBEbE="
     },
     "Email": {
-        "subject": "907aY+hvXNEiN9/GcCdsC46Paa6ffZNdAhJ7YwX2zUo=",
-        "email_short_summary": "V2DHu5Ue6+XYe/Sb0Fq3zb6itkZqLJ+pgHIE28XJowE=",
-        "provider_id": "Gn9i5s36r6tAEY5ZDmUOseHLfJQlUdW3+zNYyOH1I3E=",
-        "web_link": "UNpJacKrWcrnbcH5ym7TzktT1WSRnRiRgxR5uHlzK08=",
-        "content": "k/vwyI4dN2KC3g5YYvcVPFU88ATVRAUhnCPWpOZxXG4="
+        "subject": "DgMaEbG60uSlMHTIdUC3NCh3ZEeiBQ_MwwPIT6DAGEs=",
+        "email_short_summary": "MkVt-TM0UWV2G_YavUr0lnSZ72PzKXsVnHvSdqEiA2E=",
+        "content": "0psMXaChXZFK0O3Atai4Mz-rrTyeQ1yhsQBHjGPqpgg="
     },
     "Category": {
-        "name": "V6OFkaiCHsHgDTi/u91uPmnT/oKakf96vPEPhzYLhRY=",
-        "description": "QaJag7C4ImSgSBgQM7k1P016Onik+sDx8MfICPtqhNI="
-    },
-    "Contact": {
-        "email": "uk9weytjfemAW/xiC++RXg7A/+61IRE+BQqv+OEwu7k=",
-        "username": "tCSpp9fXz2MjsvXUICKwhA5lDkmXmjFfS0jmqj53pEY="
-    },
-    "Sender": {
-        "email": "ljTjwbYBLuN3eJ7faWaNFhvKZrnqFvqK4bjupE2dNsw=",
-        "name": "KUr7DupZsBxLIM/gKtbVP1QcaC4kQxFJaHJZBgHKMDk="
-    },
-    "SocialAPI": {
-        "refresh_token": "nK+PGLbT05vxn2GjVZqfPuWQ2CDoci0n9wV14Pcj1kM=",
-        "email": "P+aoSvyT8YYjuKdCj2EhMdOj/lihoiJ9uGuzDPkqbUo="
+        "name": "nnWzkSgeacdAQt9swplGNtj8GfVbqhznP99-C18_m0g=",
+        "description": "BZlqn2NoguB3-EOFYoh6qCSJRbej0MIo4OvDWPtz2mg="
     },
     "BulletPoint": {
-        "content": "w/cqA8bT09FYIwx/ZGRAWUWqMiEK6ndENwrNnNhRA9E="
+        "content": "RUKj-u_yrJYz1oWOgqh7wkVS_RkTL7AacBdYCC3693g="
+    },
+    "Rule": {
+        "info_AI": "hyNViSNN5ZzjCiRBheJbP-8dtFKls8S7ELCF__ZbVhY="
     }
 }

@@ -1361,10 +1361,11 @@ def get_user_emails(request):
                 email.delete()
                 continue
 
+        # TODO: change this with by providing user_email in headers
+        # cuz the user will have several emails
+        email_user = SocialAPI.objects.get(user=user).email
+
         if email.email_provider == GOOGLE_PROVIDER:
-            # TODO: change this with by providing user_email in headers
-            # cuz the user will have several emails
-            email_user = SocialAPI.objects.get(user=user).email
             creds = google_api.get_credentials(user, email_user)
             services = google_api.build_services(creds)
             (
@@ -1380,7 +1381,20 @@ def get_user_emails(request):
             ) = google_api.get_mail(services, id_mail=email.provider_id)
 
         elif email.email_provider == MICROSOFT_PROVIDER:
-            ...
+            access_token = microsoft_api.refresh_access_token(
+                microsoft_api.get_social_api(user, email_user)
+            )
+            (
+                subject,
+                from_info,
+                preprocessed_data,
+                cc_info,
+                bcc_info,
+                email_id,
+                sent_date,
+                web_link,
+                attachments_data,
+            ) = microsoft_api.get_mail(access_token, id_mail=email.provider_id)
 
         email_data = {
             "id": email.id,

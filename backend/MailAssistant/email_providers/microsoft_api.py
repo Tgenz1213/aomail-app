@@ -579,13 +579,13 @@ def get_mail(access_token, int_mail=None, id_mail=None):
 
     attachments_data = []
 
-    for attachment in message_data.get("attachments", []):
-        attachment_name = attachment.get("name")
-        attachment_id = attachment.get("id")
-        attachment_data = get_attachment_data(access_token, email_id, attachment_id)
-        attachments_data.append(
-            {"attachmentName": attachment_name, "data": attachment_data}
-        )
+    # if message_data.get("attachments") == True:
+    #     attachment_name = attachment.get("name")
+    #     attachment_id = attachment.get("id")
+    #     attachment_data = get_attachment_data(access_token, email_id, attachment_id)
+    #     attachments_data.append(
+    #         {"attachmentName": attachment_name, "data": attachment_data}
+    #     )
 
     for header in message_data.get("internetMessageHeaders", []):
         if header["name"] == "Date":
@@ -1002,12 +1002,12 @@ def email_to_bdd(user, email, id_email):
 
         if not sender:
             sender_name, sender_email = from_name[0], from_name[1]
-            try:
-                sender, _ = Sender.objects.get_or_create(
-                    name=sender_name, email=sender_email, user=user
-                )
-            except IntegrityError:
-                sender = Sender.objects.get(email=sender_email)
+            if not sender_name:
+                sender_name = sender_email
+
+            sender = Sender.objects.filter(email=sender_email).first()
+            if not sender:
+                sender = Sender.objects.create(email=sender_email, name=sender_name)
 
         try:
             email_entry = Email.objects.create(

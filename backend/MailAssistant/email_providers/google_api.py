@@ -882,9 +882,12 @@ def email_to_bdd(user, services, id_email):
             sender_name, sender_email = from_name[0], from_name[1]
             if not sender_name:
                 sender_name = sender_email
-            sender, _ = Sender.objects.get_or_create(
-                name=sender_name, email=sender_email, user=user
-            )
+            try:
+                sender, _ = Sender.objects.get_or_create(
+                    name=sender_name, email=sender_email, user=user
+                )
+            except IntegrityError:
+                sender = Sender.objects.get(email=sender_email)
 
         try:
             email_entry = Email.objects.create(

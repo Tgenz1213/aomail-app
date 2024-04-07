@@ -9,6 +9,7 @@ import logging
 import re
 import threading
 import time
+from django.db import IntegrityError
 import httpx
 import requests
 from collections import defaultdict
@@ -935,7 +936,7 @@ def email_to_bdd(user, email, id_email):
     """Saves email notifications from Microsoft listener to database"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, _, _, email_id, sent_date, web_link = get_mail(
+    subject, from_name, decoded_data, _, _, email_id, sent_date, web_link, _ = get_mail(
         access_token, None, id_email
     )
 
@@ -1001,9 +1002,12 @@ def email_to_bdd(user, email, id_email):
 
         if not sender:
             sender_name, sender_email = from_name[0], from_name[1]
-            sender, _ = Sender.objects.get_or_create(
-                name=sender_name, email=sender_email, user=user
-            )
+            try:
+                sender, _ = Sender.objects.get_or_create(
+                    name=sender_name, email=sender_email, user=user
+                )
+            except IntegrityError:
+                sender = Sender.objects.get(email=sender_email)
 
         try:
             email_entry = Email.objects.create(

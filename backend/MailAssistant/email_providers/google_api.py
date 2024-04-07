@@ -814,7 +814,7 @@ def email_to_bdd(user, services, id_email):
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
-        sender = Sender.objects.filter(email=from_name[1], user=user).first()
+        sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
             return

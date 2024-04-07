@@ -483,9 +483,9 @@ def update_category(request, current_name):
             {"error": "Name length greater than 50"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if len(request.data["description"]) > 100:
+    if len(request.data["description"]) > 300:
         return Response(
-            {"error": "Description length greater than 100"},
+            {"error": "Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     if re.search(r"[^a-zA-Z\s]", current_name):
@@ -561,9 +561,9 @@ def create_category(request):
             {"error": f"Name length greater than 50"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if len(data["description"]) > 100:
+    if len(data["description"]) > 300:
         return Response(
-            {"error": f"Description length greater than 100"},
+            {"error": f"Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     if re.search(r"[^a-zA-Z\s]", name):
@@ -1131,10 +1131,10 @@ def update_user_rule(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def check_sender_for_user(request):
-    user_email = request.data.get("email")
+    email = request.data.get("email")
 
     try:
-        sender = Sender.objects.get(email=user_email, user=request.user)
+        sender = Sender.objects.get(email=email)
         return Response(
             {"exists": True, "sender_id": sender.id}, status=status.HTTP_200_OK
         )

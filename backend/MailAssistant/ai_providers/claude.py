@@ -111,13 +111,13 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 
     formatted_prompt = f"""{HUMAN}As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
 
-    IDENTIFY up to 4 different ways to respond to this email.
-    USE as few verbs in {language} as possible while keeping a relevant meaning.
+    IDENTIFY up to 4 different ways to respond to this email. Only identify relevant way to respond if you can't find 4 different ways only give 2 or 3 ways to respond.
+    USE few words in {language} while keeping a relevant meaning.
     KEYWORDS must look like buttons the user WILL click to reply to the email.
 
-    ---------------------
+    ---
 
-    Answer FORMAT must be ONLY A LIST (Python) format: ["...", "..."]
+    As an answer ONLY give a Python List format: ["...", "..."] dont use any other caracters otherwise it will create errors
     {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
     keywords = response.content[0].text.strip()

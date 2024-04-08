@@ -260,7 +260,7 @@
                                 <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
                                 <a :href="item.href"
                                   :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                  item.name }}</a>
+                                    item.name }}</a>
                                 </MenuItem>
                               </div>
                             </MenuItems>
@@ -1500,14 +1500,16 @@ onMounted(() => {
                 </svg>
             </span>   
         </div>
-        <p>Sujet: ${subject}</p>
-        <iframe srcdoc="${decoded_data}"></iframe>
+        <div>
+            <p><strong>${subject}</strong></p>
+            <br>
+            <div>${decoded_data.replace(/\n/g, "<br>")}</div>
+        </div>
     </div>
 `;
 
   // Append the email HTML to the container
   AIContainer.value.innerHTML += emailHTML;
-  
 
   const message = "Résumé de l'email : ";
 

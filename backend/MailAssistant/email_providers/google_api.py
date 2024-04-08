@@ -319,16 +319,16 @@ def get_mail(services, int_mail=None, id_mail=None):
     web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
     for values in email_data:
-        name = values["name"]
-        if name == "Subject":
+        name = values["name"].lower()
+        if name == "subject":
             subject = values["value"]
-        elif name == "From":
+        elif name == "from":
             from_info = parse_name_and_email(values["value"])
-        elif name == "Cc":
+        elif name == "cc":
             cc_info = parse_name_and_email(values["value"])
-        elif name == "Bcc":
+        elif name == "bcc":
             bcc_info = parse_name_and_email(values["value"])
-        elif name == "Date":
+        elif name == "date":
             sent_date = parsedate_to_datetime(values["value"])
 
     if "parts" in msg["payload"]:
@@ -801,17 +801,14 @@ def receive_mail_notifications(request):
         return Response({"error": str(e)}, status=500)
 
 
-#######################################################################################################
-############################################# UNDER TEST ##############################################
-#######################################################################################################
-
-
 def email_to_bdd(user, services, id_email):
     """Saves email notifications from Google listener to database"""
 
     subject, from_name, decoded_data, _, _, email_id, sent_date, web_link, _ = get_mail(
         services, 0, id_email
     )
+
+    print("subject", subject)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()

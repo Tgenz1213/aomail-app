@@ -58,6 +58,76 @@
             </div>
         </div>
     </transition>
+
+    <!-- Modal for Billing Information -->
+    <transition name="modal-fade">
+        <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            v-if="isBillingModalOpen">
+            <div class="bg-white rounded-lg relative w-[450px]">
+                <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+                    <button @click="closeBillingModal" type="button"
+                        class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        <span class="sr-only">Close</span>
+                        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                    </button>
+                </div>
+                <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+                    <div class="ml-8 flex items-center space-x-1">
+                        <p class="block font-semibold leading-6 text-gray-900">Billing Information</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4 px-8 py-6">
+                    <!-- Billing information modal -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                        <input id="email" type="text" v-model="billingInfo.email"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Nom</label>
+                        <input id="name" type="text" v-model="billingInfo.name"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium leading-6 text-gray-900">Prénom</label>
+                        <input id="firstName" type="text" v-model="billingInfo.firstName"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="country" class="block text-sm font-medium leading-6 text-gray-900">Pays</label>
+                        <input id="country" type="text" v-model="billingInfo.country"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="city" class="block text-sm font-medium leading-6 text-gray-900">Ville</label>
+                        <input id="city" type="text" v-model="billingInfo.city"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="postalCode" class="block text-sm font-medium leading-6 text-gray-900">Postal
+                            Code</label>
+                        <input id="postalCode" type="text" v-model="billingInfo.postalCode"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium leading-6 text-gray-900">Address</label>
+                        <input id="address" type="text" v-model="billingInfo.address"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
+                    </div>
+
+
+                    <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
+                        <button type="button"
+                            class="inline-flex w-full sm:w-auto rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-400 sm:mr-2"
+                            @click="closeBillingModal">Cancel</button>
+                        <button type="button"
+                            class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+                            @click="submitBillingInfo">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
             <div class="col-span-1 2xl:col-span-1">
@@ -279,7 +349,7 @@
                         <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
                         <div class="mx-8 2xl:mx-16">
                             <!-- Content goes here -->
-                            <subscription></subscription>
+                            <subscription @openBillingModal="openBillingModal"></subscription>
                         </div>
                     </div>
                     <div v-if="activeSection === 'data'"
@@ -379,7 +449,19 @@ let newPassword = ref('');
 let confirmPassword = ref('');
 
 let isModalOpen = ref(false);
+let isBillingModalOpen = ref(false);
 const router = useRouter();
+
+
+const billingInfo = ref({
+    address: '',
+    email: '',
+    name: '',
+    firstName: '',
+    postalCode: '',
+    country: '',
+    city: ''
+});
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -387,6 +469,18 @@ onMounted(() => {
     getBackgroundColor();
 })
 
+function submitBillingInfo() {
+    console.log('Billing information submitted:', billingInfo.value);
+    closeModal();
+}
+
+function openBillingModal() {
+    isBillingModalOpen.value = true;
+}
+
+function closeBillingModal() {
+    isBillingModalOpen.value = false;
+}
 
 function openModal() {
     const isChecked = document.querySelector('input[name="choice"]:checked');
@@ -421,9 +515,22 @@ function displayPopup() {
 }
 
 function handleKeyDown(event) {
-    if (event.key === 'Tab') {
-        event.preventDefault();
-        switchActiveSection();
+    if (event.key === 'Tab' && !openModal.value) {
+        if (isBillingModalOpen.value) {
+            // if ( == "address") {
+            //     city
+            //     billing_address
+            //     billing_email
+            //     name
+            //     first_name
+            //     country
+            //     zip_code
+            // }
+        } else {
+            switchActiveSection();
+        }
+    } else if (event.key === 'Escape') {
+        closeBillingModal();
     }
 }
 

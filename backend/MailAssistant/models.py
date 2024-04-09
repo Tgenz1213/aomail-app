@@ -31,6 +31,7 @@ class BillingInfo(models.Model):
     name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
     country = models.CharField(max_length=50)
+    city = models.CharField(max_length=100)
     zip_code = models.CharField(max_length=50)
     invoice_number = models.CharField(max_length=50)
     invoice_date = models.DateField()

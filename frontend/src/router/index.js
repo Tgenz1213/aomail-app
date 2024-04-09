@@ -9,6 +9,7 @@ import Answer from '@/views/AnswerV1.vue';
 import Transfer from '@/views/TransferV1.vue';
 import Rules from '@/views/RulesV2.vue';
 import Settings from '@/views/SettingsV1.vue';
+import Subscriptions from '@/views/SubscriptionsV1.vue';
 import StripePaymentFailed from '@/views/StripePaymentFailed.vue'
 import StripePaymentSuccess from '@/views/StripePaymentSuccess.vue';
 import Search from '@/views/SearchV2.vue';
@@ -150,6 +151,12 @@ const routes = [
     name: 'settings',
     meta: { requiresAuth: true },
     component: Settings,
+  },
+  {
+    path: '/subscriptions',
+    name: 'subscriptions',
+    meta: { requiresAuth: true },
+    component: Subscriptions,
   },
   {
     path: '/stripe/payment_failed/',

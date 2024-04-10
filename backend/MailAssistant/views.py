@@ -1228,7 +1228,10 @@ def set_user_billing_informations(request):
         return Response({"error": "All fields are required"}, status=400)
     elif " " in billing_email:
         return Response({"error": "Email address must not contain spaces"}, status=400)
-    elif re.match("^[a-z0-9_.+-]+@[a-z0-9+-]+\.[a-z0-9-.]+$", billing_email.lower()):
+    elif (
+        re.match("^[a-z0-9_.+-]+@[a-z0-9+-]+\.[a-z0-9-.]+$", billing_email.lower())
+        == None
+    ):
         return Response({"error": "Email address does not look right"}, status=400)
     elif re.match("^[0-9]+$", postal_code):
         return Response(

@@ -505,10 +505,29 @@ async function submitBillingInfo() {
         try {
             const response = await fetchWithToken(`${API_BASE_URL}user/set_billing_informations/`, requestOptions);
 
-            console.log(response)
-
+            if (response.message) {
+                backgroundColor = 'bg-green-300';
+                notificationTitle = 'Succès !';
+                if (response.message == "Billing informations updated successfully") {
+                    notificationMessage = 'Les informations de facturation ont été mises à jour avec succès';
+                } else {
+                    notificationMessage = 'Les informations de facturation ont été créées avec succès';
+                }
+            } else {
+                backgroundColor = 'bg-red-300';
+                notificationTitle = 'Erreur lors de la mise à jour des informations de facturation';
+                // TODO: translate known error in the language
+                notificationMessage = response.error;
+            }
+            // Show the pop-up
+            displayPopup();
         } catch (error) {
             console.error("Error set_billing_informations", error);
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Erreur lors de la mise à jour des informations de facturation';
+            notificationMessage = error;
+            displayPopup();
         }
     }
     closeBillingModal();

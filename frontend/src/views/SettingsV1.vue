@@ -472,7 +472,7 @@ onMounted(() => {
 })
 
 async function submitBillingInfo() {
-    console.log('Billing information submitted:', billingInfo.value);
+    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // TODO: implement an Address Input with Autocomplete
     if (!billingInfo.value.billingAddress.trim() ||
@@ -483,6 +483,8 @@ async function submitBillingInfo() {
         !billingInfo.value.country.trim() ||
         !billingInfo.value.postalCode.trim()) {
         errorBillingMessage.value = "Veuillez remplir tous les champs";
+    } else if (!emailFormat.test(billingInfo.value.billingEmail)) {
+        errorBillingMessage.value = "Le format de l\'email est incorrect";
     } else {
         const data = {
             billingEmail: billingInfo.value.billingEmail.trim(),
@@ -529,8 +531,8 @@ async function submitBillingInfo() {
             notificationMessage = error;
             displayPopup();
         }
+        closeBillingModal();
     }
-    closeBillingModal();
 }
 
 function openBillingModal() {
@@ -577,20 +579,14 @@ function displayPopup() {
 function handleKeyDown(event) {
     if (event.key === 'Tab' && !openModal.value) {
         if (isBillingModalOpen.value) {
-            // if ( == "address") {
-            //     city
-            //     billing_address
-            //     billing_email
-            //     name
-            //     first_name
-            //     country
-            //     zip_code
-            // }
+            // TODO: implement field switcher properly + checker if one field is empty
         } else {
             switchActiveSection();
         }
     } else if (event.key === 'Escape') {
         closeBillingModal();
+    } else if (event.key === 'Enter' && isBillingModalOpen.value) {
+        submitBillingInfo()
     }
 }
 

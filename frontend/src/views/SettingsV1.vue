@@ -78,9 +78,11 @@
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <!-- Billing information modal -->
+                    <p class="text-red-500" v-if="errorBillingMessage">{{ errorBillingMessage }}</p>
                     <div>
-                        <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
-                        <input id="email" type="text" v-model="billingInfo.email"
+                        <label for="billingEmail"
+                            class="block text-sm font-medium leading-6 text-gray-900">Email</label>
+                        <input id="billingEmail" type="text" v-model="billingInfo.billingEmail"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
                     </div>
                     <div>
@@ -110,19 +112,18 @@
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
                     </div>
                     <div>
-                        <label for="address" class="block text-sm font-medium leading-6 text-gray-900">Address</label>
-                        <input id="address" type="text" v-model="billingInfo.address"
+                        <label for="billingAddress"
+                            class="block text-sm font-medium leading-6 text-gray-900">Address</label>
+                        <input id="billingAddress" type="text" v-model="billingInfo.billingAddress"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
                     </div>
-
-
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="inline-flex w-full sm:w-auto rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-400 sm:mr-2"
-                            @click="closeBillingModal">Cancel</button>
+                            @click="closeBillingModal">Annuler</button>
                         <button type="button"
                             class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
-                            @click="submitBillingInfo">Submit</button>
+                            @click="submitBillingInfo">Envoyer</button>
                     </div>
                 </div>
             </div>
@@ -145,15 +146,15 @@
                             <div class="flex items-center pb-5">
                                 <div class="w-full flex items-center justify-center pt-5">
                                     <div class="sm:hidden">
-                                        <label for="tabs" class="sr-only">Select a tab</label>
-                                        <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+                                        <!-- <label for="tabs" class="sr-only">Select a tab</label>
+                                        <-- Use an "onChange" listener to redirect the user to the selected tab URL. ->
                                         <select id="tabs" name="tabs"
                                             class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
                                             <option>Ecole ESAIP</option>
                                             <option>Entrepreneuriat</option>
                                             <option selected>Administratif</option>
                                             <option>Autres</option>
-                                        </select>
+                                        </select> -->
                                     </div>
                                     <div class="hidden sm:block w-full">
                                         <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
@@ -448,14 +449,15 @@ let userData = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');
 
+let errorBillingMessage = ref('');
 let isModalOpen = ref(false);
 let isBillingModalOpen = ref(false);
 const router = useRouter();
 
 
 const billingInfo = ref({
-    address: '',
-    email: '',
+    billingAddress: '',
+    billingEmail: '',
     name: '',
     firstName: '',
     postalCode: '',
@@ -469,9 +471,47 @@ onMounted(() => {
     getBackgroundColor();
 })
 
-function submitBillingInfo() {
+async function submitBillingInfo() {
     console.log('Billing information submitted:', billingInfo.value);
-    closeModal();
+
+    // TODO: implement an Address Input with Autocomplete
+    if (!billingInfo.value.billingAddress.trim() ||
+        !billingInfo.value.city.trim() ||
+        !billingInfo.value.billingEmail.trim() ||
+        !billingInfo.value.name.trim() ||
+        !billingInfo.value.firstName.trim() ||
+        !billingInfo.value.country.trim() ||
+        !billingInfo.value.postalCode.trim()) {
+        errorBillingMessage.value = "Veuillez remplir tous les champs";
+    } else {
+        const data = {
+            billingEmail: billingInfo.value.billingEmail.trim(),
+            name: billingInfo.value.name.trim(),
+            firstName: billingInfo.value.firstName.trim(),
+            city: billingInfo.value.city.trim(),
+            billingAddress: billingInfo.value.billingAddress.trim(),
+            country: billingInfo.value.country.trim(),
+            postalCode: billingInfo.value.postalCode.trim()
+        };
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        };
+
+        try {
+            const response = await fetchWithToken(`${API_BASE_URL}user/set_billing_informations/`, requestOptions);
+
+            console.log(response)
+
+        } catch (error) {
+            console.error("Error set_billing_informations", error);
+        }
+    }
+    closeBillingModal();
 }
 
 function openBillingModal() {
@@ -480,6 +520,7 @@ function openBillingModal() {
 
 function closeBillingModal() {
     isBillingModalOpen.value = false;
+    errorBillingMessage.value = '';
 }
 
 function openModal() {

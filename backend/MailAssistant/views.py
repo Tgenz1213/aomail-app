@@ -38,6 +38,7 @@ from MailAssistant.constants import (
     STRIPE_SECRET_KEY,
 )
 from .models import (
+    BillingInfo,
     Category,
     SocialAPI,
     Email,
@@ -1205,6 +1206,50 @@ def delete_email(request, email_id):
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_user_billing_informations(request):
+    """Saves user billing information in database."""
+
+    user = request.user
+    billing_email = request.data.get("billingEmail")
+    name = request.data.get("name")
+    first_name = request.data.get("firstName")
+    city = request.data.get("city")
+    billing_address = request.data.get("billingAddress")
+    country = request.data.get("country")
+    postal_code = request.data.get("postalCode")
+
+    billing_info = BillingInfo.objects.filter(user=user)
+    if billing_info.exists():
+        billing_info.update(
+            billing_email=billing_email,
+            name=name,
+            first_name=first_name,
+            city=city,
+            billing_address=billing_address,
+            country=country,
+            postal_code=postal_code,
+        )
+        return Response(
+            {"message": "Billing informations updated successfully"}, status=200
+        )
+    else:
+        BillingInfo.objects.create(
+            user=user,
+            billing_email=billing_email,
+            name=name,
+            first_name=first_name,
+            city=city,
+            billing_address=billing_address,
+            country=country,
+            postal_code=postal_code,
+        )
+        return Response(
+            {"message": "Billing informations created successfully"}, status=200
+        )
 
 
 # ----------------------- CREDENTIALS AVAILABILITY -----------------------#

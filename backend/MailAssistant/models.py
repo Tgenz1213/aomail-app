@@ -25,19 +25,14 @@ class Subscription(models.Model):
 class BillingInfo(models.Model):
     """Model for storing billing information."""
 
-    stripe_subscription = models.ForeignKey(Subscription, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     billing_address = models.CharField(max_length=500)
     billing_email = models.CharField(max_length=500)
     name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
     country = models.CharField(max_length=50)
     city = models.CharField(max_length=100)
-    zip_code = models.CharField(max_length=50)
-    invoice_number = models.CharField(max_length=50)
-    invoice_date = models.DateField()
-    invoice_plan = models.CharField(max_length=50)
-    amount = models.DecimalField(max_digits=9, decimal_places=2)
-    currency = models.CharField(max_length=3, default="EUR")
+    postal_code = models.CharField(max_length=50)
 
 
 class Message(models.Model):

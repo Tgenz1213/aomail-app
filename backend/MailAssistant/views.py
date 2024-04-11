@@ -31,6 +31,7 @@ from MailAssistant.email_providers import google_api, microsoft_api
 from django.views.decorators.csrf import csrf_exempt
 from MailAssistant.constants import (
     DEFAULT_CATEGORY,
+    ENCRYPTION_CREDS,
     GOOGLE_PROJECT_ID,
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
@@ -40,6 +41,7 @@ from MailAssistant.constants import (
     STRIPE_PRICES,
     STRIPE_SECRET_KEY,
 )
+from MailAssistant import library
 from .models import (
     BillingInfo,
     Category,
@@ -1236,7 +1238,7 @@ def set_user_billing_informations(request):
         == None
     ):
         return Response({"error": "Email address does not look right"}, status=400)
-    elif re.match("^[0-9]+$", postal_code):
+    elif re.match("^[0-9]+$", postal_code) == False:
         return Response(
             {"error": "Only digits are allowed for postal code"}, status=400
         )
@@ -1245,12 +1247,20 @@ def set_user_billing_informations(request):
     if billing_info.exists():
         billing_info.update(
             billing_email=billing_email,
-            name=name,
-            first_name=first_name,
-            city=city,
-            billing_address=billing_address,
-            country=country,
-            postal_code=postal_code,
+            name=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["name"], name),
+            first_name=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["first_name"], first_name
+            ),
+            city=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["city"], city),
+            billing_address=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["billing_address"], billing_address
+            ),
+            country=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["country"], country
+            ),
+            postal_code=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["postal_code"], postal_code
+            ),
         )
         return Response(
             {"message": "Billing informations updated successfully"}, status=200
@@ -1259,12 +1269,20 @@ def set_user_billing_informations(request):
         BillingInfo.objects.create(
             user=user,
             billing_email=billing_email,
-            name=name,
-            first_name=first_name,
-            city=city,
-            billing_address=billing_address,
-            country=country,
-            postal_code=postal_code,
+            name=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["name"], name),
+            first_name=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["first_name"], first_name
+            ),
+            city=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["city"], city),
+            billing_address=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["billing_address"], billing_address
+            ),
+            country=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["country"], country
+            ),
+            postal_code=library.encrypt_text(
+                ENCRYPTION_CREDS["BillingInfo"]["postal_code"], postal_code
+            ),
         )
         return Response(
             {"message": "Billing informations created successfully"}, status=200
@@ -1485,6 +1503,7 @@ def get_user_emails(request):
             formatted_data[category].setdefault(priority, [])
 
     return Response(formatted_data, status=status.HTTP_200_OK)'''
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

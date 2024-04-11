@@ -28,11 +28,11 @@ class BillingInfo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     billing_address = models.CharField(max_length=500)
     billing_email = models.CharField(max_length=500)
-    name = models.CharField(max_length=50)
-    first_name = models.CharField(max_length=50)
-    country = models.CharField(max_length=50)
-    city = models.CharField(max_length=100)
-    postal_code = models.CharField(max_length=50)
+    name = models.CharField(max_length=200)
+    first_name = models.CharField(max_length=200)
+    country = models.CharField(max_length=200)
+    city = models.CharField(max_length=200)
+    postal_code = models.CharField(max_length=100)
 
 
 class Message(models.Model):

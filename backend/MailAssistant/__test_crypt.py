@@ -3,7 +3,7 @@ from cryptography.hazmat.backends import default_backend
 import base64
 import os
 
-# USED TO GENERATE KEYS (always the same for the same input)
+'''# USED TO GENERATE KEYS (always the same for the same input)
 def generate_encryption_key():
     # Generate a random AES key
     aes_key = os.urandom(32)  # 32 bytes for AES-256
@@ -27,24 +27,11 @@ def decrypt_text(ciphertext_base64, encryption_key):
     decryptor = cipher.decryptor()
     decrypted_text = decryptor.update(ciphertext) + decryptor.finalize()
     unpadded_text = decrypted_text.rstrip()
-    return unpadded_text.decode("utf-8")
-
-
-"""encryption_key = generate_encryption_key()
-print("Generated Encryption Key:", encryption_key)
-
-plaintext = "Augustin"
-print("Original Plaintext:", plaintext)
-
-encrypted_text = encrypt_text(plaintext, encryption_key)
-print("Encrypted Text:", encrypted_text)
-
-decrypted_text = decrypt_text(encrypted_text, encryption_key)
-print("Decrypted Text:", decrypted_text)"""
-
+    return unpadded_text.decode("utf-8")'''
+import json
+import base64
 from cryptography.fernet import Fernet
 
-# USING SALT => not same output for the same input
 def generate_encryption_key():
     return Fernet.generate_key()
 
@@ -58,6 +45,8 @@ def decrypt_text(encrypted_text, encryption_key):
     decrypted_text = fernet.decrypt(encrypted_text.encode())
     return decrypted_text.decode()
 
-for i in range(5):
-    print(generate_encryption_key().decode())
-
+# Generate encryption key
+for i in range(12):
+    encryption_key_bytes = generate_encryption_key()
+    encryption_key_str = base64.urlsafe_b64encode(encryption_key_bytes).decode()
+    print(encryption_key_str)

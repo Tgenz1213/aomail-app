@@ -9,7 +9,6 @@ import re
 import threading
 import time
 import json
-from django.http import JsonResponse
 import requests
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -46,7 +45,7 @@ from MailAssistant.constants import (
     GOOGLE_SCOPES,
 )
 from .. import library
-from ..models import Rule, SocialAPI, Contact, BulletPoint, Category, Email, Sender
+from ..models import Rule, SocialAPI, BulletPoint, Category, Email, Sender
 from base64 import urlsafe_b64encode
 
 
@@ -288,6 +287,68 @@ def get_info_contacts(services):
         names_emails.append({"name": name, "emails": email_addresses})
 
     return names_emails
+
+def get_mail_to_db(services, int_mail=None, id_mail=None):
+    """Retrieve email information for processing email to database."""
+
+    service = services["gmail.readonly"]
+    plaintext_var = [0]
+    plaintext_var[0] = 0
+
+    if int_mail is not None:
+        results = (
+            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+        )
+        messages = results.get("messages", [])
+        if not messages:
+            LOGGER.info("No new messages.")
+            return None
+        message = messages[int_mail]
+        email_id = message["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        LOGGER.info("Either int_mail or id_mail must be provided")
+        return None
+
+    msg = service.users().messages().get(userId="me", id=email_id).execute()
+    subject = from_info = decoded_data = None
+    headers = msg["payload"]["headers"]
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
+    is_reply = any(header["name"] == "In-Reply-To" for header in headers)
+
+    for values in headers:
+        name = values["name"].lower()
+        if name == "subject":
+            subject = values["value"]
+        elif name == "from":
+            from_info = parse_name_and_email(values["value"])
+        elif name == "date":
+            sent_date = parsedate_to_datetime(values["value"])
+
+    if "parts" in msg["payload"]:
+        for part in msg["payload"]["parts"]:
+            decoded_data_temp = library.process_part(part, plaintext_var)
+            if decoded_data_temp:
+                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+
+    elif "body" in msg["payload"]:
+        data = msg["payload"]["body"]["data"]
+        data = data.replace("-", "+").replace("_", "/")
+        decoded_data_temp = base64.b64decode(data).decode("utf-8")
+        decoded_data = library.html_clear(decoded_data_temp)
+
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        email_id,
+        sent_date,
+        web_link,
+        is_reply
+    )
 
 
 def get_mail(services, int_mail=None, id_mail=None):
@@ -755,7 +816,7 @@ def receive_mail_notifications(request):
             print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
 
             threading.Thread(
-                target=email_to_bdd, args=(social_api.user, services, email_id)
+                target=email_to_db, args=(social_api.user, services, email_id)
             ).start()
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
@@ -799,14 +860,12 @@ def receive_mail_notifications(request):
         return Response({"error": str(e)}, status=500)
 
 
-def email_to_bdd(user, services, id_email):
+def email_to_db(user, services, id_email):
     """Saves email notifications from Google listener to database"""
 
-    subject, from_name, decoded_data, _, _, email_id, sent_date, web_link, _ = get_mail(
+    subject, from_name, decoded_data, email_id, sent_date, web_link, is_reply = get_mail_to_db(
         services, 0, id_email
     )
-
-    print("subject", subject)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
@@ -933,7 +992,7 @@ def email_to_bdd(user, services, id_email):
 # TODO: handle all email providers
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings
-def processed_email_to_bdd(request, services):
+def processed_email_to_db(request, services):
     subject, from_name, decoded_data, _, _, email_id, date = get_mail(services, 0, None)
 
     if not Email.objects.filter(provider_id=email_id).exists():
@@ -1211,7 +1270,7 @@ def set_all_contacts(user, email):
 """# TODO: handle all email providers
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings
-def processed_email_to_bdd(request, services):
+def processed_email_to_db(request, services):
     subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(
         services, 0, None
     )
@@ -1261,7 +1320,7 @@ def processed_email_to_bdd(request, services):
         # Fetch or create the sender
         sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
 
-        LOGGER.info(f"[processed_email_to_bdd] topic: {topic}")
+        LOGGER.info(f"[processed_email_to_db] topic: {topic}")
         # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
         category = Category.objects.get_or_create(name=topic, user=request.user)[0]
 

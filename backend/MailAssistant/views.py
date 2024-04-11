@@ -1646,7 +1646,7 @@ def save_last_mail_view(request):
     service = google_api.authenticate_service(user, email)
 
     if service is not None:
-        google_api.processed_email_to_bdd(request, service)
+        google_api.processed_email_to_db(request, service)
         return Response({"message": "Save successful"}, status=200)
     else:
         return Response({"error": "Failed to authenticate"}, status=400)
@@ -1660,7 +1660,7 @@ def save_last_mail_outlook(request):
     email = request.headers.get("email")
 
     try:
-        microsoft_api.processed_email_to_bdd(user, email)
+        microsoft_api.processed_email_to_db(user, email)
         return Response({"message": "Save successful"}, status=200)
     except:
         return Response({"error": "Failed to authenticate"}, status=400)"""
@@ -2073,7 +2073,7 @@ relevance_list = {
 }
 
 
-def processed_email_to_bdd(request, services):
+def processed_email_to_db(request, services):
     subject, from_name, decoded_data, cc, bcc, email_id = google_api.get_mail(
         services, 0, None
     )  # microsoft non fonctionnel

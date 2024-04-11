@@ -6,11 +6,8 @@ import base64
 import datetime
 import json
 import logging
-import re
 import threading
 import time
-from django.db import IntegrityError
-import httpx
 import requests
 from collections import defaultdict
 from django.views.decorators.csrf import csrf_exempt
@@ -553,6 +550,51 @@ def get_attachments(access_token, email_id) -> list:
     return attachments_data
 
 
+def get_mail_to_db(access_token, int_mail=None, id_mail=None):
+    """Retrieve email information for processing email to database."""
+
+    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    headers = get_headers(access_token)
+
+    if int_mail is not None:
+        response = requests.get(url, headers=headers)
+        messages = response.json().get("value", [])
+
+        if not messages:
+            LOGGER.error("No new messages.")
+            return None
+
+        email_id = messages[int_mail]["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        LOGGER.error("Either int_mail or id_mail must be provided")
+        return None
+
+    message_url = f"{url}/{email_id}"
+    response = requests.get(message_url, headers=headers)
+    message_data = response.json()
+
+    conversation_id = message_data.get("conversationId")
+    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
+
+    subject = message_data.get("subject")
+    sender = message_data.get("from")
+    from_info = parse_name_and_email(sender)
+    sent_date = None
+    decoded_data = parse_message_body(message_data)
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        email_id,
+        sent_date,
+        web_link,
+    )
+
+
 def download_attachment(access_token, email_id, attachment_id):
     """Returns the data of the attachment in base 64"""
     attachment_url = (
@@ -865,7 +907,7 @@ class MicrosoftEmailNotification(View):
                 print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
 
                 threading.Thread(
-                    target=email_to_bdd,
+                    target=email_to_db,
                     args=(subscription.user, subscription.email, id_email),
                 ).start()
 
@@ -942,11 +984,11 @@ class MicrosoftContactNotification(View):
             return JsonResponse({"error": str(e)}, status=500)
 
 
-def email_to_bdd(user, email, id_email):
+def email_to_db(user, email, id_email):
     """Saves email notifications from Microsoft listener to database"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, _, _, email_id, sent_date, web_link, _ = get_mail(
+    subject, from_name, decoded_data, email_id, sent_date, web_link = get_mail_to_db(
         access_token, None, id_email
     )
 
@@ -1051,7 +1093,7 @@ def email_to_bdd(user, email, id_email):
 ####################################################################
 """
 
-def processed_email_to_bdd(user, email):
+def processed_email_to_db(user, email):
     access_token = refresh_access_token(get_social_api(user, email))
     subject, from_name, decoded_data, _, _, email_id, date, web_link = get_mail(
         access_token, 0, None

@@ -484,7 +484,7 @@ async function submitBillingInfo() {
         !billingInfo.value.postalCode.trim()) {
         errorBillingMessage.value = "Veuillez remplir tous les champs";
     } else if (!emailFormat.test(billingInfo.value.billingEmail)) {
-        errorBillingMessage.value = "Le format de l\'email est incorrect";
+        errorBillingMessage.value = "Le format de l'email est incorrect";
     } else {
         const data = {
             billingEmail: billingInfo.value.billingEmail.trim(),

@@ -114,6 +114,7 @@ class Rule(models.Model):
 class Email(models.Model):
     """Model for storing email information."""
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_emails")
     provider_id = models.CharField(max_length=200, unique=True)
     web_link = models.CharField(max_length=200, null=True)
     email_provider = models.CharField(max_length=50)
@@ -128,8 +129,8 @@ class Email(models.Model):
         Sender, on_delete=models.CASCADE, related_name="related_emails"
     )
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_emails")
     date = models.DateTimeField(blank=True, null=True)
+    has_attachment = models.BooleanField(default=False)
 
 
 class BulletPoint(models.Model):

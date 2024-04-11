@@ -254,7 +254,7 @@ export default {
         }
       }
       else {
-        this.errorMessage = "Le format de l\'email est incorrect";
+        this.errorMessage = "Le format de l'email est incorrect";
       }
     },
     setSelectedPerson() {

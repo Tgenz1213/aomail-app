@@ -1479,10 +1479,11 @@ def set_email_reply_later(request, email_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-'''@api_view(["GET"])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
+
     user = request.user
     emails = Email.objects.filter(user=user).prefetch_related(
         "category", "bulletpoint_set"
@@ -1495,9 +1496,13 @@ def get_user_emails(request):
         "id"
     )[:1]
     emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
-
-    all_priorities = {"Important", "Information", "Useless"}
     formatted_data = defaultdict(lambda: defaultdict(list))
+
+    emails_first = emails[:]
+    emails_second = emails[:]
+    emails_third = emails[:]
+
+    threading.Thread(target=..., args=(...)).start()
 
     for email in emails:
         if email.read_date:
@@ -1506,45 +1511,10 @@ def get_user_emails(request):
             )
             delta_time = current_datetime_utc - email.read_date
 
-            # delete read email after 2 weeks
+            # delete read email since 2 weeks
             if delta_time > datetime.timedelta(weeks=2):
                 email.delete()
                 continue
-
-        # TODO: change this with by providing user_email in headers
-        # cuz the user will have several emails
-        email_user = SocialAPI.objects.get(user=user).email
-
-        if email.email_provider == GOOGLE_PROVIDER:
-            creds = google_api.get_credentials(user, email_user)
-            services = google_api.build_services(creds)
-            (
-                subject,
-                from_info,
-                preprocessed_data,
-                cc_info,
-                bcc_info,
-                email_id,
-                sent_date,
-                web_link,
-                attachments_data,
-            ) = google_api.get_mail(services, id_mail=email.provider_id)
-
-        elif email.email_provider == MICROSOFT_PROVIDER:
-            access_token = microsoft_api.refresh_access_token(
-                microsoft_api.get_social_api(user, email_user)
-            )
-            (
-                subject,
-                from_info,
-                preprocessed_data,
-                cc_info,
-                bcc_info,
-                email_id,
-                sent_date,
-                web_link,
-                attachments_data,
-            ) = microsoft_api.get_mail(access_token, id_mail=email.provider_id)
 
         email_data = {
             "id": email.id,
@@ -1560,115 +1530,17 @@ def get_user_emails(request):
             "rule_id": email.rule_id,
             "answer_later": email.answer_later,
             "web_link": email.web_link,
-            "attachments": attachments_data,
+            "has_attachment": email.has_attachment,
         }
 
         formatted_data[email.category.name][email.priority].append(email_data)
 
     # Ensuring all priorities are present for each category
-    for category in formatted_data:
-        for priority in all_priorities:
-            formatted_data[category].setdefault(priority, [])
-
-    return Response(formatted_data, status=status.HTTP_200_OK)'''
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_user_emails(request):
-    """Retrieves and formats user emails grouped by category and priority"""
-    start = time.time()
-    user = request.user
-    emails = Email.objects.filter(user=user).prefetch_related(
-        "category", "bulletpoint_set"
-    )
-
-    emails = emails.annotate(
-        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
-    )
-    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
-        "id"
-    )[:1]
-    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
-
     all_priorities = {"Important", "Information", "Useless"}
-    formatted_data = defaultdict(lambda: defaultdict(list))
-
-    def fetch_mail_data(api_function, auth, id_mail):
-        return api_function(auth, id_mail=id_mail)
-
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        futures = []
-
-        for email in emails:
-            if email.read_date:
-                current_datetime_utc = datetime.datetime.now().replace(
-                    tzinfo=datetime.timezone.utc
-                )
-                delta_time = current_datetime_utc - email.read_date
-
-                if delta_time > datetime.timedelta(weeks=2):
-                    email.delete()
-                    continue
-
-            email_user = SocialAPI.objects.get(user=user).email
-
-            if email.email_provider == GOOGLE_PROVIDER:
-                api_function = google_api.get_mail
-                creds = google_api.get_credentials(user, email_user)
-                services = google_api.build_services(creds)
-                auth = services
-            elif email.email_provider == MICROSOFT_PROVIDER:
-                api_function = microsoft_api.get_mail
-                access_token = microsoft_api.refresh_access_token(
-                    microsoft_api.get_social_api(user, email_user)
-                )
-                auth = access_token
-
-            future = executor.submit(
-                fetch_mail_data, api_function, auth, email.provider_id
-            )
-            futures.append((future, email))
-
-        for future, email in futures:
-            (
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                _,
-                attachments_data,
-            ) = future.result()
-
-            email_data = {
-                "id": email.id,
-                "id_provider": email.provider_id,
-                "email": email.sender.email,
-                "name": email.sender.name,
-                "description": email.email_short_summary,
-                "details": [
-                    {"id": bp.id, "text": bp.content}
-                    for bp in email.bulletpoint_set.all()
-                ],
-                "read": email.read,
-                "rule": email.has_rule,
-                "rule_id": email.rule_id,
-                "answer_later": email.answer_later,
-                "web_link": email.web_link,
-                "attachments": attachments_data,
-            }
-
-            formatted_data[email.category.name][email.priority].append(email_data)
-
     for category in formatted_data:
         for priority in all_priorities:
             formatted_data[category].setdefault(priority, [])
 
-    formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-    print(f"------Retrieved user emails in {formatted_time}--------")
     return Response(formatted_data, status=status.HTTP_200_OK)
 
 
@@ -2491,3 +2363,197 @@ def gpt_langchain_response(subject, decoded_data, category_list):
         importance_percentages,
     )
 '''
+
+
+'''@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_emails(request):
+    """Retrieves and formats user emails grouped by category and priority"""
+    user = request.user
+    emails = Email.objects.filter(user=user).prefetch_related(
+        "category", "bulletpoint_set"
+    )
+
+    emails = emails.annotate(
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
+    )
+    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
+        "id"
+    )[:1]
+    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+
+    all_priorities = {"Important", "Information", "Useless"}
+    formatted_data = defaultdict(lambda: defaultdict(list))
+
+    for email in emails:
+        if email.read_date:
+            current_datetime_utc = datetime.datetime.now().replace(
+                tzinfo=datetime.timezone.utc
+            )
+            delta_time = current_datetime_utc - email.read_date
+
+            # delete read email after 2 weeks
+            if delta_time > datetime.timedelta(weeks=2):
+                email.delete()
+                continue
+
+        # TODO: change this with by providing user_email in headers
+        # cuz the user will have several emails
+        email_user = SocialAPI.objects.get(user=user).email
+
+        if email.email_provider == GOOGLE_PROVIDER:
+            creds = google_api.get_credentials(user, email_user)
+            services = google_api.build_services(creds)
+            (
+                subject,
+                from_info,
+                preprocessed_data,
+                cc_info,
+                bcc_info,
+                email_id,
+                sent_date,
+                web_link,
+                attachments_data,
+            ) = google_api.get_mail(services, id_mail=email.provider_id)
+
+        elif email.email_provider == MICROSOFT_PROVIDER:
+            access_token = microsoft_api.refresh_access_token(
+                microsoft_api.get_social_api(user, email_user)
+            )
+            (
+                subject,
+                from_info,
+                preprocessed_data,
+                cc_info,
+                bcc_info,
+                email_id,
+                sent_date,
+                web_link,
+                attachments_data,
+            ) = microsoft_api.get_mail(access_token, id_mail=email.provider_id)
+
+        email_data = {
+            "id": email.id,
+            "id_provider": email.provider_id,
+            "email": email.sender.email,
+            "name": email.sender.name,
+            "description": email.email_short_summary,
+            "details": [
+                {"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()
+            ],
+            "read": email.read,
+            "rule": email.has_rule,
+            "rule_id": email.rule_id,
+            "answer_later": email.answer_later,
+            "web_link": email.web_link,
+            "attachments": attachments_data,
+        }
+
+        formatted_data[email.category.name][email.priority].append(email_data)
+
+    # Ensuring all priorities are present for each category
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    return Response(formatted_data, status=status.HTTP_200_OK)
+'''
+
+'''
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_emails(request):
+    """Retrieves and formats user emails grouped by category and priority"""
+    start = time.time()
+    user = request.user
+    emails = Email.objects.filter(user=user).prefetch_related(
+        "category", "bulletpoint_set"
+    )
+
+    emails = emails.annotate(
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
+    )
+    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
+        "id"
+    )[:1]
+    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+
+    all_priorities = {"Important", "Information", "Useless"}
+    formatted_data = defaultdict(lambda: defaultdict(list))
+
+    def fetch_mail_data(api_function, auth, id_mail):
+        return api_function(auth, id_mail=id_mail)
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = []
+
+        for email in emails:
+            if email.read_date:
+                current_datetime_utc = datetime.datetime.now().replace(
+                    tzinfo=datetime.timezone.utc
+                )
+                delta_time = current_datetime_utc - email.read_date
+
+                if delta_time > datetime.timedelta(weeks=2):
+                    email.delete()
+                    continue
+
+            email_user = SocialAPI.objects.get(user=user).email
+
+            if email.email_provider == GOOGLE_PROVIDER:
+                api_function = google_api.get_mail
+                creds = google_api.get_credentials(user, email_user)
+                services = google_api.build_services(creds)
+                auth = services
+            elif email.email_provider == MICROSOFT_PROVIDER:
+                api_function = microsoft_api.get_mail
+                access_token = microsoft_api.refresh_access_token(
+                    microsoft_api.get_social_api(user, email_user)
+                )
+                auth = access_token
+
+            future = executor.submit(
+                fetch_mail_data, api_function, auth, email.provider_id
+            )
+            futures.append((future, email))
+
+        for future, email in futures:
+            (
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                attachments_data,
+            ) = future.result()
+
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "details": [
+                    {"id": bp.id, "text": bp.content}
+                    for bp in email.bulletpoint_set.all()
+                ],
+                "read": email.read,
+                "rule": email.has_rule,
+                "rule_id": email.rule_id,
+                "answer_later": email.answer_later,
+                "web_link": email.web_link,
+                "attachments": attachments_data,
+            }
+
+            formatted_data[email.category.name][email.priority].append(email_data)
+
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+    print(f"------Retrieved user emails in {formatted_time}--------")
+    return Response(formatted_data, status=status.HTTP_200_OK)'''

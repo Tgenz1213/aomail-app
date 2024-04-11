@@ -997,7 +997,9 @@ def delete_account(request):
         microsoft_listeners = MicrosoftListener.objects.filter(user=user)
         if microsoft_listeners.exists():
             for listener in microsoft_listeners:
-                microsoft_api.delete_subscription(user, listener.email, listener.subscription_id)
+                microsoft_api.delete_subscription(
+                    user, listener.email, listener.subscription_id
+                )
 
         user.delete()
         return Response({"message": "User successfully deleted"}, status=200)
@@ -1536,7 +1538,7 @@ def get_user_emails(request):
                 "rule_id": email.rule_id,
                 "answer_later": email.answer_later,
                 "web_link": email.web_link,
-                "has_attachment": email.has_attachment,
+                "has_attachments": email.has_attachments,
             }
 
             formatted_data[email.category.name][email.priority].append(email_data)

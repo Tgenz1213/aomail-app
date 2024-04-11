@@ -654,7 +654,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
     )
 
     subscription_body = {
-        "changeType": "created",
+        "changeType": "created,deleted",
         "notificationUrl": notification_url,
         "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/mailFolders('inbox')/messages",
@@ -748,7 +748,6 @@ def subscribe_to_contact_notifications(user, email) -> bool:
 
 def delete_subscription(user, email, subscription_id):
     access_token = refresh_access_token(get_social_api(user, email))
-
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
 
@@ -887,18 +886,28 @@ class MicrosoftEmailNotification(View):
             email_data = json.loads(request.body.decode("utf-8"))
 
             if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
+                change_type = email_data["value"][0]["changeType"]
                 id_email = email_data["value"][0]["resourceData"]["id"]
                 subscription_id = email_data["value"][0]["subscriptionId"]
-                subscription = MicrosoftListener.objects.get(
+                subscription = MicrosoftListener.objects.filter(
                     subscription_id=subscription_id
                 )
 
-                print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
+                if change_type == "deleted":
+                    if subscription.exists():
+                        subscription.delete()
 
-                threading.Thread(
-                    target=email_to_db,
-                    args=(subscription.user, subscription.email, id_email),
-                ).start()
+                else:
+                    print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
+
+                    threading.Thread(
+                        target=email_to_db,
+                        args=(
+                            subscription.first().user,
+                            subscription.first().email,
+                            id_email,
+                        ),
+                    ).start()
 
                 return JsonResponse({"status": "Notification received"}, status=202)
             else:
@@ -911,8 +920,6 @@ class MicrosoftEmailNotification(View):
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftContactNotification(View):
     """Handles subscription and Microsoft contact changes notifications listener"""
-
-    # TODO: Remove subscription when user deletes its account
 
     def post(self, request):
         validation_token = request.GET.get("validationToken")

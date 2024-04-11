@@ -31,7 +31,7 @@ from MailAssistant.email_providers import google_api, microsoft_api
 from django.views.decorators.csrf import csrf_exempt
 from MailAssistant.constants import (
     DEFAULT_CATEGORY,
-    ENCRYPTION_CREDS,
+    ENCRYPTION_KEYS,
     GOOGLE_PROJECT_ID,
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
@@ -1217,17 +1217,65 @@ def delete_email(request, email_id):
 @permission_classes([IsAuthenticated])
 def get_billing_informations(request):
     """Returns billing informations if they exist."""
+
     user = request.user
     billing_info = BillingInfo.objects.filter(user=user)
     if billing_info.exists():
         billing_info = billing_info[0]
-        name = billing_info.name
-        first_name = billing_info.first_name
-        postal_code = billing_info.postal_code
-        country = billing_info.country
-        billing_address = billing_info.billing_address
-        city = billing_info.city
-        billing_email = billing_info.billing_email
+        name = (
+            library.decrypt_text(
+                billing_info.name, ENCRYPTION_KEYS["BillingInfo"]["name"]
+            ),
+        )
+        first_name = (
+            library.decrypt_text(
+                billing_info.first_name, ENCRYPTION_KEYS["BillingInfo"]["first_name"]
+            ),
+        )
+        postal_code = (
+            library.decrypt_text(
+                billing_info.postal_code, ENCRYPTION_KEYS["BillingInfo"]["postal_code"]
+            ),
+        )
+        country = (
+            library.decrypt_text(
+                billing_info.country, ENCRYPTION_KEYS["BillingInfo"]["country"]
+            ),
+        )
+        billing_address = (
+            library.decrypt_text(
+                billing_info.billing_address,
+                ENCRYPTION_KEYS["BillingInfo"]["billing_address"],
+            ),
+        )
+        city = (
+            library.decrypt_text(
+                billing_info.city, ENCRYPTION_KEYS["BillingInfo"]["city"]
+            ),
+        )
+        billing_email = (
+            library.decrypt_text(
+                billing_info.billing_email,
+                ENCRYPTION_KEYS["BillingInfo"]["billing_email"],
+            ),
+        )
+        return Response(
+            {
+                "data": {
+                    "name": name,
+                    "first_name": first_name,
+                    "postal_code": postal_code,
+                    "country": country,
+                    "billing_address": billing_address,
+                    "city": city,
+                    "billing_email": billing_email,
+                }
+            }
+        )
+    else:
+        return Response(
+            {"message": "The user does not have billing informations"}, status=404
+        )
 
 
 @api_view(["POST"])
@@ -1264,21 +1312,21 @@ def set_user_billing_informations(request):
     if billing_info.exists():
         billing_info.update(
             billing_email=library.encrypt_text(
-                billing_email, ENCRYPTION_CREDS["BillingInfo"]["billing_email"]
+                billing_email, ENCRYPTION_KEYS["BillingInfo"]["billing_email"]
             ),
-            name=library.encrypt_text(name, ENCRYPTION_CREDS["BillingInfo"]["name"]),
+            name=library.encrypt_text(name, ENCRYPTION_KEYS["BillingInfo"]["name"]),
             first_name=library.encrypt_text(
-                first_name, ENCRYPTION_CREDS["BillingInfo"]["first_name"]
+                first_name, ENCRYPTION_KEYS["BillingInfo"]["first_name"]
             ),
-            city=library.encrypt_text(city, ENCRYPTION_CREDS["BillingInfo"]["city"]),
+            city=library.encrypt_text(city, ENCRYPTION_KEYS["BillingInfo"]["city"]),
             billing_address=library.encrypt_text(
-                billing_address, ENCRYPTION_CREDS["BillingInfo"]["billing_address"]
+                billing_address, ENCRYPTION_KEYS["BillingInfo"]["billing_address"]
             ),
             country=library.encrypt_text(
-                country, ENCRYPTION_CREDS["BillingInfo"]["country"]
+                country, ENCRYPTION_KEYS["BillingInfo"]["country"]
             ),
             postal_code=library.encrypt_text(
-                postal_code, ENCRYPTION_CREDS["BillingInfo"]["postal_code"]
+                postal_code, ENCRYPTION_KEYS["BillingInfo"]["postal_code"]
             ),
         )
         return Response(
@@ -1288,21 +1336,21 @@ def set_user_billing_informations(request):
         BillingInfo.objects.create(
             user=user,
             billing_email=library.encrypt_text(
-                billing_email, ENCRYPTION_CREDS["BillingInfo"]["billing_email"]
+                billing_email, ENCRYPTION_KEYS["BillingInfo"]["billing_email"]
             ),
-            name=library.encrypt_text(name, ENCRYPTION_CREDS["BillingInfo"]["name"]),
+            name=library.encrypt_text(name, ENCRYPTION_KEYS["BillingInfo"]["name"]),
             first_name=library.encrypt_text(
-                first_name, ENCRYPTION_CREDS["BillingInfo"]["first_name"]
+                first_name, ENCRYPTION_KEYS["BillingInfo"]["first_name"]
             ),
-            city=library.encrypt_text(city, ENCRYPTION_CREDS["BillingInfo"]["city"]),
+            city=library.encrypt_text(city, ENCRYPTION_KEYS["BillingInfo"]["city"]),
             billing_address=library.encrypt_text(
-                billing_address, ENCRYPTION_CREDS["BillingInfo"]["billing_address"]
+                billing_address, ENCRYPTION_KEYS["BillingInfo"]["billing_address"]
             ),
             country=library.encrypt_text(
-                country, ENCRYPTION_CREDS["BillingInfo"]["country"]
+                country, ENCRYPTION_KEYS["BillingInfo"]["country"]
             ),
             postal_code=library.encrypt_text(
-                postal_code, ENCRYPTION_CREDS["BillingInfo"]["postal_code"]
+                postal_code, ENCRYPTION_KEYS["BillingInfo"]["postal_code"]
             ),
         )
         return Response(

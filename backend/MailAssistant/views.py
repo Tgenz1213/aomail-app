@@ -1213,6 +1213,23 @@ def delete_email(request, email_id):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_billing_informations(request):
+    """Returns billing informations if they exist."""
+    user = request.user
+    billing_info = BillingInfo.objects.filter(user=user)
+    if billing_info.exists():
+        billing_info = billing_info[0]
+        name = billing_info.name
+        first_name = billing_info.first_name
+        postal_code = billing_info.postal_code
+        country = billing_info.country
+        billing_address = billing_info.billing_address
+        city = billing_info.city
+        billing_email = billing_info.billing_email
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def set_user_billing_informations(request):
@@ -1246,7 +1263,9 @@ def set_user_billing_informations(request):
     billing_info = BillingInfo.objects.filter(user=user)
     if billing_info.exists():
         billing_info.update(
-            billing_email=billing_email,
+            billing_email=library.encrypt_text(
+                billing_email, ENCRYPTION_CREDS["BillingInfo"]["billing_email"]
+            ),
             name=library.encrypt_text(name, ENCRYPTION_CREDS["BillingInfo"]["name"]),
             first_name=library.encrypt_text(
                 first_name, ENCRYPTION_CREDS["BillingInfo"]["first_name"]
@@ -1268,7 +1287,9 @@ def set_user_billing_informations(request):
     else:
         BillingInfo.objects.create(
             user=user,
-            billing_email=billing_email,
+            billing_email=library.encrypt_text(
+                billing_email, ENCRYPTION_CREDS["BillingInfo"]["billing_email"]
+            ),
             name=library.encrypt_text(name, ENCRYPTION_CREDS["BillingInfo"]["name"]),
             first_name=library.encrypt_text(
                 first_name, ENCRYPTION_CREDS["BillingInfo"]["first_name"]

@@ -45,6 +45,7 @@ from MailAssistant import library
 from .models import (
     BillingInfo,
     Category,
+    MicrosoftListener,
     SocialAPI,
     Email,
     Rule,
@@ -993,6 +994,11 @@ def delete_account(request):
     user = request.user
 
     try:
+        microsoft_listeners = MicrosoftListener.objects.filter(user=user)
+        if microsoft_listeners.exists():
+            for listener in microsoft_listeners:
+                microsoft_api.delete_subscription(user, listener.email, listener.subscription_id)
+
         user.delete()
         return Response({"message": "User successfully deleted"}, status=200)
 

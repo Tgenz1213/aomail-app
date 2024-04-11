@@ -529,27 +529,6 @@ def parse_message_body(message_data):
     return None
 
 
-def get_attachments(access_token, email_id) -> list:
-    """Returns all attachments data encoded in base 64"""
-    attachments_url = f"{GRAPH_URL}me/messages/{email_id}/attachments"
-    headers = get_headers(access_token)
-    response = requests.get(attachments_url, headers=headers)
-    attachments_data = []
-
-    if response.status_code == 200:
-        attachments = response.json().get("value", [])
-        for attachment in attachments:
-            attachment_name = attachment.get("name")
-            attachment_data = download_attachment(
-                access_token, email_id, attachment["id"]
-            )
-            attachments_data.append(
-                {"attachmentName": attachment_name, "data": attachment_data}
-            )
-
-    return attachments_data
-
-
 def get_mail_to_db(access_token, int_mail=None, id_mail=None):
     """Retrieve email information for processing email to database."""
 
@@ -577,6 +556,7 @@ def get_mail_to_db(access_token, int_mail=None, id_mail=None):
 
     conversation_id = message_data.get("conversationId")
     web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
+    has_attachments = message_data["hasAttachments"]
 
     subject = message_data.get("subject")
     sender = message_data.get("from")
@@ -592,22 +572,12 @@ def get_mail_to_db(access_token, int_mail=None, id_mail=None):
         email_id,
         sent_date,
         web_link,
+        has_attachments,
     )
-
-
-def download_attachment(access_token, email_id, attachment_id):
-    """Returns the data of the attachment in base 64"""
-    attachment_url = (
-        f"{GRAPH_URL}me/messages/{email_id}/attachments/{attachment_id}/$value"
-    )
-    headers = get_headers(access_token)
-    response = requests.get(attachment_url, headers=headers)
-    attachment_data = response.content
-    return base64.b64encode(attachment_data).decode("utf-8")
 
 
 def get_mail(access_token, int_mail=None, id_mail=None):
-    """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
+    """Retrieve email information for processing."""
 
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
     headers = get_headers(access_token)
@@ -641,10 +611,12 @@ def get_mail(access_token, int_mail=None, id_mail=None):
     bcc_info = parse_recipients(message_data.get("bccRecipients"))
     sent_date = None
 
-    attachments_data = []
-
-    if message_data["hasAttachments"]:
-        attachments_data = get_attachments(access_token, email_id)
+    for header in message_data.get("internetMessageHeaders", []):
+        if header["name"] == "Date":
+            sent_date = datetime.datetime.strptime(
+                header["value"], "%a, %d %b %Y %H:%M:%S %z"
+            )
+            break
 
     decoded_data = parse_message_body(message_data)
     preprocessed_data = library.preprocess_email(decoded_data)
@@ -658,7 +630,6 @@ def get_mail(access_token, int_mail=None, id_mail=None):
         email_id,
         sent_date,
         web_link,
-        attachments_data,
     )
 
 
@@ -988,8 +959,8 @@ def email_to_db(user, email, id_email):
     """Saves email notifications from Microsoft listener to database"""
 
     access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, email_id, sent_date, web_link = get_mail_to_db(
-        access_token, None, id_email
+    subject, from_name, decoded_data, email_id, sent_date, web_link, has_attachments = (
+        get_mail_to_db(access_token, None, id_email)
     )
 
     if not Email.objects.filter(provider_id=email_id).exists():
@@ -1076,6 +1047,7 @@ def email_to_db(user, email, id_email):
                 user=user,
                 date=sent_date,
                 web_link=web_link,
+                has_attachments=has_attachments,
             )
 
             if summary_list:
@@ -1291,3 +1263,92 @@ def unread_mails(request):
     }  # In case of duplicates, senders_info will overwrite contacts_dict
 
     return Response(merged_info, status=200)"""
+
+
+'''def get_mail(access_token, int_mail=None, id_mail=None):
+    """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
+
+    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    headers = get_headers(access_token)
+
+    if int_mail is not None:
+        response = requests.get(url, headers=headers)
+        messages = response.json().get("value", [])
+
+        if not messages:
+            LOGGER.error("No new messages.")
+            return None
+
+        email_id = messages[int_mail]["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        LOGGER.error("Either int_mail or id_mail must be provided")
+        return None
+
+    message_url = f"{url}/{email_id}"
+    response = requests.get(message_url, headers=headers)
+    message_data = response.json()
+
+    conversation_id = message_data.get("conversationId")
+    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
+
+    subject = message_data.get("subject")
+    sender = message_data.get("from")
+    from_info = parse_name_and_email(sender)
+    cc_info = parse_recipients(message_data.get("ccRecipients"))
+    bcc_info = parse_recipients(message_data.get("bccRecipients"))
+    sent_date = None
+
+    attachments_data = []
+
+    if message_data["hasAttachments"]:
+        attachments_data = get_attachments(access_token, email_id)
+
+    decoded_data = parse_message_body(message_data)
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        cc_info,
+        bcc_info,
+        email_id,
+        sent_date,
+        web_link,
+        attachments_data,
+    )'''
+
+
+'''def get_attachments(access_token, email_id) -> list:
+    """Returns all attachments data encoded in base 64"""
+    attachments_url = f"{GRAPH_URL}me/messages/{email_id}/attachments"
+    headers = get_headers(access_token)
+    response = requests.get(attachments_url, headers=headers)
+    attachments_data = []
+
+    if response.status_code == 200:
+        attachments = response.json().get("value", [])
+        for attachment in attachments:
+            attachment_name = attachment.get("name")
+            attachment_data = download_attachment(
+                access_token, email_id, attachment["id"]
+            )
+            attachments_data.append(
+                {"attachmentName": attachment_name, "data": attachment_data}
+            )
+
+    return attachments_data
+
+
+
+def download_attachment(access_token, email_id, attachment_id):
+    """Returns the data of the attachment in base 64"""
+    attachment_url = (
+        f"{GRAPH_URL}me/messages/{email_id}/attachments/{attachment_id}/$value"
+    )
+    headers = get_headers(access_token)
+    response = requests.get(attachment_url, headers=headers)
+    attachment_data = response.content
+    return base64.b64encode(attachment_data).decode("utf-8")'''

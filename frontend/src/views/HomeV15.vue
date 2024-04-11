@@ -1528,14 +1528,14 @@ async function markEmailAsRead(emailId) {
         } else {
             console.log("RESPONSE", response);
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de marquer l\'email comme lu';
+            notificationTitle = 'Échec de marquage de l\'email comme lu';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsRead:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de marquer l\'email comme lu';
+        notificationTitle = 'Échec de marquage de l\'email comme lu';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1597,7 +1597,7 @@ async function transferEmail(email) {
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de transfer';
+        notificationTitle = 'Échec de transfer d\'email';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1620,14 +1620,14 @@ async function markEmailReplyLater(email) {
         } else {
             console.error('Failed to mark email for reply later', response);
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de mark email for reply later';
+            notificationTitle = 'Échec de marquage d\'email pour répondre pour plus tard';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailReplyLater:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de marquer l\'email à répondre pour plus tard';
+        notificationTitle = 'Échec de marquage d\'email pour répondre pour plus tard';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1669,14 +1669,14 @@ async function setRuleBlockForSender(email) {
         } else {
             console.error('Failed to set block rule for sender', response);
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de bloquer cet addresse email';
+            notificationTitle = 'Échec du bloquage de l\'addresse email';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in setRuleBlockForSender:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de bloquer cet addresse email';
+        notificationTitle = 'Échec du bloquage de l\'addresse email';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1696,14 +1696,14 @@ async function deleteEmail(emailId) {
 
         if (!response.message) {
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de supprimer cet email';
+            notificationTitle = 'Échec de suppression d\'email';
             notificationMessage = response.error;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in deleteEmail:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de supprimer cet email';
+        notificationTitle = 'Échec de suppression d\'email';
         notificationMessage = error.message;
         displayPopup();
     }

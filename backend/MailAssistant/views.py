@@ -1409,14 +1409,14 @@ def get_mail_by_id(request):
 
         if type_api == "google":
             services = google_api.authenticate_service(user, email)
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _, _ = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
                 google_api.get_mail(services, None, mail_id)
             )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
             )
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _, _ = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
                 microsoft_api.get_mail(access_token, None, mail_id)
             )
 
@@ -1488,7 +1488,6 @@ def get_user_emails(request):
     emails = Email.objects.filter(user=user).prefetch_related(
         "category", "bulletpoint_set"
     )
-
     emails = emails.annotate(
         has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
     )
@@ -1537,13 +1536,15 @@ def get_user_emails(request):
             formatted_data[email.category.name][email.priority].append(email_data)
 
     # Multi Threading for faster computation with large amount of emails
-    thread1 = threading.Thread(target=process_emails, args=(emails1))
+    thread1 = threading.Thread(target=process_emails, args=(emails1,))
     thread1.start()
     thread1.join()
-    thread2 = threading.Thread(target=process_emails, args=(emails2))
+
+    thread2 = threading.Thread(target=process_emails, args=(emails2,))
     thread2.start()
     thread2.join()
-    thread3 = threading.Thread(target=process_emails, args=(emails3))
+
+    thread3 = threading.Thread(target=process_emails, args=(emails3,))
     thread3.start()
     thread3.join()
 
@@ -1556,8 +1557,12 @@ def get_user_emails(request):
     return Response(formatted_data, status=status.HTTP_200_OK)
 
 
+######################################################################################
+######################## THESE FUNCTIONS ARE NOT USED ANYMORE ########################
+######################################################################################
+
 ######################## TESTING FUNCTIONS ########################
-@api_view(["GET"])
+"""@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_mail_view(request):
     user = request.user
@@ -1584,12 +1589,7 @@ def get_mail_view(request):
         )
     else:
         # Return an error response
-        return Response({"error": "Failed to authenticate"}, status=400)
-
-
-######################################################################################
-######################## THESE FUNCTIONS ARE NOT USED ANYMORE ########################
-######################################################################################
+        return Response({"error": "Failed to authenticate"}, status=400)"""
 
 
 """# TO TEST AUTH API

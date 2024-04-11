@@ -288,6 +288,7 @@ def get_info_contacts(services):
 
     return names_emails
 
+
 def get_mail_to_db(services, int_mail=None, id_mail=None):
     """Retrieve email information for processing email to database."""
 
@@ -313,6 +314,7 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
     subject = from_info = decoded_data = None
+    has_attachments = False
     headers = msg["payload"]["headers"]
     web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
     is_reply = any(header["name"] == "In-Reply-To" for header in headers)
@@ -328,6 +330,9 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
+            if part.get("filename"):
+                has_attachments = True
+
             decoded_data_temp = library.process_part(part, plaintext_var)
             if decoded_data_temp:
                 decoded_data = library.concat_text(decoded_data, decoded_data_temp)
@@ -347,12 +352,13 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
         email_id,
         sent_date,
         web_link,
-        is_reply
+        has_attachments,
+        is_reply,
     )
 
 
 def get_mail(services, int_mail=None, id_mail=None):
-    """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
+    """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
     service = services["gmail.readonly"]
     plaintext_var = [0]
     plaintext_var[0] = 0
@@ -374,70 +380,29 @@ def get_mail(services, int_mail=None, id_mail=None):
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
-    subject = from_info = cc_info = bcc_info = decoded_data = attachments_data = None
-    headers = msg["payload"]["headers"]
+
+    subject = from_info = cc_info = bcc_info = decoded_data = None
+    email_data = msg["payload"]["headers"]
     web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
-    for values in headers:
-        name = values["name"].lower()
-        if name == "subject":
+    for values in email_data:
+        name = values["name"]
+        if name == "Subject":
             subject = values["value"]
-        elif name == "from":
+        elif name == "From":
             from_info = parse_name_and_email(values["value"])
-        elif name == "cc":
+        elif name == "Cc":
             cc_info = parse_name_and_email(values["value"])
-        elif name == "bcc":
+        elif name == "Bcc":
             bcc_info = parse_name_and_email(values["value"])
-        elif name == "date":
+        elif name == "Date":
             sent_date = parsedate_to_datetime(values["value"])
 
     if "parts" in msg["payload"]:
-        attachments_data = []
         for part in msg["payload"]["parts"]:
-            if part.get("filename"):
-                attachment_name = part["filename"]
-                if "body" in part:
-                    if "attachmentId" in part["body"]:
-                        attachment_id = part["body"]["attachmentId"]
-                        attachment_data = (
-                            service.users()
-                            .messages()
-                            .attachments()
-                            .get(userId="me", messageId=email_id, id=attachment_id)
-                            .execute()
-                        )
-                        data = attachment_data["data"]
-                        attachment_data_decoded = base64.urlsafe_b64decode(
-                            data.encode("UTF-8")
-                        )
-                        attachment_data_encoded = base64.b64encode(
-                            attachment_data_decoded
-                        ).decode("utf-8")
-                        attachments_data.append(
-                            {
-                                "attachment_name": attachment_name,
-                                "data": attachment_data_encoded,
-                            }
-                        )
-                    elif "attachment" in part["body"]:
-                        attachment_data = part["body"]["attachment"]["data"]
-                        attachment_data_decoded = base64.urlsafe_b64decode(
-                            attachment_data.encode("UTF-8")
-                        )
-                        attachment_data_encoded = base64.b64encode(
-                            attachment_data_decoded
-                        ).decode("utf-8")
-                        attachments_data.append(
-                            {
-                                "attachment_name": attachment_name,
-                                "data": attachment_data_encoded,
-                            }
-                        )
-
             decoded_data_temp = library.process_part(part, plaintext_var)
             if decoded_data_temp:
                 decoded_data = library.concat_text(decoded_data, decoded_data_temp)
-
     elif "body" in msg["payload"]:
         data = msg["payload"]["body"]["data"]
         data = data.replace("-", "+").replace("_", "/")
@@ -455,7 +420,6 @@ def get_mail(services, int_mail=None, id_mail=None):
         email_id,
         sent_date,
         web_link,
-        attachments_data,
     )
 
 
@@ -863,9 +827,16 @@ def receive_mail_notifications(request):
 def email_to_db(user, services, id_email):
     """Saves email notifications from Google listener to database"""
 
-    subject, from_name, decoded_data, email_id, sent_date, web_link, is_reply = get_mail_to_db(
-        services, 0, id_email
-    )
+    (
+        subject,
+        from_name,
+        decoded_data,
+        email_id,
+        sent_date,
+        web_link,
+        has_attachments,
+        is_reply,
+    ) = get_mail_to_db(services, 0, id_email)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
@@ -971,6 +942,7 @@ def email_to_db(user, services, id_email):
                 user=user,
                 date=sent_date,
                 web_link=web_link,
+                has_attachments=has_attachments,
             )
 
             if summary_list:
@@ -1473,3 +1445,111 @@ def processed_email_to_db(request, services):
 
     except Exception as e:
         LOGGER.error(f"Error fetching contacts: {str(e)}")'''
+
+
+'''def get_mail(services, int_mail=None, id_mail=None):
+    """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
+    service = services["gmail.readonly"]
+    plaintext_var = [0]
+    plaintext_var[0] = 0
+
+    if int_mail is not None:
+        results = (
+            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+        )
+        messages = results.get("messages", [])
+        if not messages:
+            LOGGER.info("No new messages.")
+            return None
+        message = messages[int_mail]
+        email_id = message["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        LOGGER.info("Either int_mail or id_mail must be provided")
+        return None
+
+    msg = service.users().messages().get(userId="me", id=email_id).execute()
+    subject = from_info = cc_info = bcc_info = decoded_data = attachments_data = None
+    headers = msg["payload"]["headers"]
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
+
+    for values in headers:
+        name = values["name"].lower()
+        if name == "subject":
+            subject = values["value"]
+        elif name == "from":
+            from_info = parse_name_and_email(values["value"])
+        elif name == "cc":
+            cc_info = parse_name_and_email(values["value"])
+        elif name == "bcc":
+            bcc_info = parse_name_and_email(values["value"])
+        elif name == "date":
+            sent_date = parsedate_to_datetime(values["value"])
+
+    if "parts" in msg["payload"]:
+        attachments_data = []
+        for part in msg["payload"]["parts"]:
+            if part.get("filename"):
+                attachment_name = part["filename"]
+                if "body" in part:
+                    if "attachmentId" in part["body"]:
+                        attachment_id = part["body"]["attachmentId"]
+                        attachment_data = (
+                            service.users()
+                            .messages()
+                            .attachments()
+                            .get(userId="me", messageId=email_id, id=attachment_id)
+                            .execute()
+                        )
+                        data = attachment_data["data"]
+                        attachment_data_decoded = base64.urlsafe_b64decode(
+                            data.encode("UTF-8")
+                        )
+                        attachment_data_encoded = base64.b64encode(
+                            attachment_data_decoded
+                        ).decode("utf-8")
+                        attachments_data.append(
+                            {
+                                "attachment_name": attachment_name,
+                                "data": attachment_data_encoded,
+                            }
+                        )
+                    elif "attachment" in part["body"]:
+                        attachment_data = part["body"]["attachment"]["data"]
+                        attachment_data_decoded = base64.urlsafe_b64decode(
+                            attachment_data.encode("UTF-8")
+                        )
+                        attachment_data_encoded = base64.b64encode(
+                            attachment_data_decoded
+                        ).decode("utf-8")
+                        attachments_data.append(
+                            {
+                                "attachment_name": attachment_name,
+                                "data": attachment_data_encoded,
+                            }
+                        )
+
+            decoded_data_temp = library.process_part(part, plaintext_var)
+            if decoded_data_temp:
+                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+
+    elif "body" in msg["payload"]:
+        data = msg["payload"]["body"]["data"]
+        data = data.replace("-", "+").replace("_", "/")
+        decoded_data_temp = base64.b64decode(data).decode("utf-8")
+        decoded_data = library.html_clear(decoded_data_temp)
+
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        cc_info,
+        bcc_info,
+        email_id,
+        sent_date,
+        web_link,
+        attachments_data,
+    )'''

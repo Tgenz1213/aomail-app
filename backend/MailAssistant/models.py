@@ -130,7 +130,7 @@ class Email(models.Model):
     )
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     date = models.DateTimeField(blank=True, null=True)
-    has_attachment = models.BooleanField(default=False)
+    has_attachments = models.BooleanField(default=False)
 
 
 class BulletPoint(models.Model):

@@ -1498,42 +1498,54 @@ def get_user_emails(request):
     emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
     formatted_data = defaultdict(lambda: defaultdict(list))
 
-    emails_first = emails[:]
-    emails_second = emails[:]
-    emails_third = emails[:]
+    one_third = len(emails) // 3
+    emails1 = emails[:one_third]
+    emails2 = emails[one_third : 2 * one_third]
+    emails3 = emails[2 * one_third :]
 
-    threading.Thread(target=..., args=(...)).start()
+    def process_emails(email_list: list[Email]):
+        for email in email_list:
+            if email.read_date:
+                current_datetime_utc = datetime.datetime.now().replace(
+                    tzinfo=datetime.timezone.utc
+                )
+                delta_time = current_datetime_utc - email.read_date
 
-    for email in emails:
-        if email.read_date:
-            current_datetime_utc = datetime.datetime.now().replace(
-                tzinfo=datetime.timezone.utc
-            )
-            delta_time = current_datetime_utc - email.read_date
+                # delete read email since 2 weeks
+                if delta_time > datetime.timedelta(weeks=2):
+                    email.delete()
+                    continue
 
-            # delete read email since 2 weeks
-            if delta_time > datetime.timedelta(weeks=2):
-                email.delete()
-                continue
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "details": [
+                    {"id": bp.id, "text": bp.content}
+                    for bp in email.bulletpoint_set.all()
+                ],
+                "read": email.read,
+                "rule": email.has_rule,
+                "rule_id": email.rule_id,
+                "answer_later": email.answer_later,
+                "web_link": email.web_link,
+                "has_attachment": email.has_attachment,
+            }
 
-        email_data = {
-            "id": email.id,
-            "id_provider": email.provider_id,
-            "email": email.sender.email,
-            "name": email.sender.name,
-            "description": email.email_short_summary,
-            "details": [
-                {"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()
-            ],
-            "read": email.read,
-            "rule": email.has_rule,
-            "rule_id": email.rule_id,
-            "answer_later": email.answer_later,
-            "web_link": email.web_link,
-            "has_attachment": email.has_attachment,
-        }
+            formatted_data[email.category.name][email.priority].append(email_data)
 
-        formatted_data[email.category.name][email.priority].append(email_data)
+    # Multi Threading for faster computation with large amount of emails
+    thread1 = threading.Thread(target=process_emails, args=(emails1))
+    thread1.start()
+    thread1.join()
+    thread2 = threading.Thread(target=process_emails, args=(emails2))
+    thread2.start()
+    thread2.join()
+    thread3 = threading.Thread(target=process_emails, args=(emails3))
+    thread3.start()
+    thread3.join()
 
     # Ensuring all priorities are present for each category
     all_priorities = {"Important", "Information", "Useless"}

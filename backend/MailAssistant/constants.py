@@ -15,11 +15,14 @@ ENV = os.environ.get("ENV")
 BASE_URL = f"https://{ENV}.aochange.com/"
 REDIRECT_URI = f"{BASE_URL}signup_part2"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]
-ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json", "r"))
+ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
+NO_REPLY_CREDS = json.load(open(f"{CREDS_PATH}no_reply_creds.json"))
+EMAIL_NO_REPLY = NO_REPLY_CREDS["email"]
+EMAIL_NO_REPLY_PASSWORD = NO_REPLY_CREDS["password"]
 
 
 ######################## STRIPE ########################
-STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json", "r"))
+STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json"))
 STRIPE_SECRET_KEY = STRIPE_CREDS["secret_key"]
 STRIPE_PUBLISHABLE_KEY = STRIPE_CREDS["publishable_key"]
 STRIPE_PAYMENT_FAILED_URL = f"{BASE_URL}stripe/payment_failed/"
@@ -31,9 +34,9 @@ STRIPE_PRICES = {
 
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
-OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json", "r"))
-MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json", "r"))
-CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json", "r"))
+OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
+MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
+CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json"))
 HUMAN = "\n\nHuman: "
 ASSISTANT = "Assistant:"
 IMPORTANT = "Important"
@@ -66,7 +69,7 @@ GOOGLE_SCOPES = [
     GOOGLE_EMAIL_MODIFY,
 ]
 GOOGLE_CREDS = f"{CREDS_PATH}google_creds.json"
-GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS, "r"))["web"]
+GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE_PROVIDER = "Gmail"
@@ -88,7 +91,7 @@ MICROSOFT_SCOPES = [
     MICROSOFT_EMAIL_MODIFY,
 ]
 MICROSOFT_CREDS = f"{CREDS_PATH}microsoft_creds.json"
-MICROSOFT_CONFIG = json.load(open(MICROSOFT_CREDS, "r"))
+MICROSOFT_CONFIG = json.load(open(MICROSOFT_CREDS))
 # PRODUCTION authority
 # MICROSOFT_AUTHORITY = f"https://login.microsoftonline.com/common"
 # WHITE LIST authority

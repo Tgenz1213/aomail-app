@@ -7,7 +7,7 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 import json
 from datetime import timedelta
 from pathlib import Path
-from MailAssistant.constants import HOSTS_URLS
+from MailAssistant.constants import EMAIL_NO_REPLY, EMAIL_NO_REPLY_PASSWORD, HOSTS_URLS
 from MailAssistant.schedule_tasks import Command
 
 
@@ -151,6 +151,13 @@ STATIC_URL = "static/"
 DEBUG = True
 CORS_ALLOW_ALL_ORIGINS = False
 ALLOWED_HOSTS = HOSTS_URLS
+# ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = EMAIL_NO_REPLY
+EMAIL_HOST_PASSWORD = EMAIL_NO_REPLY_PASSWORD
 
 SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Token expires in 1 day
@@ -191,9 +198,10 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-CRONJOBS = [
+# TODO: check if it works
+"""CRONJOBS = [
     (
         "0 3 * * *",
         Command.update_subscription_status,
     ),  # Run the task every day at 3 am
-]
+]"""

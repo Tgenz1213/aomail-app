@@ -1247,19 +1247,19 @@ def set_user_billing_informations(request):
     if billing_info.exists():
         billing_info.update(
             billing_email=billing_email,
-            name=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["name"], name),
+            name=library.encrypt_text(name, ENCRYPTION_CREDS["BillingInfo"]["name"]),
             first_name=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["first_name"], first_name
+                first_name, ENCRYPTION_CREDS["BillingInfo"]["first_name"]
             ),
-            city=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["city"], city),
+            city=library.encrypt_text(city, ENCRYPTION_CREDS["BillingInfo"]["city"]),
             billing_address=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["billing_address"], billing_address
+                billing_address, ENCRYPTION_CREDS["BillingInfo"]["billing_address"]
             ),
             country=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["country"], country
+                country, ENCRYPTION_CREDS["BillingInfo"]["country"]
             ),
             postal_code=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["postal_code"], postal_code
+                postal_code, ENCRYPTION_CREDS["BillingInfo"]["postal_code"]
             ),
         )
         return Response(
@@ -1269,19 +1269,19 @@ def set_user_billing_informations(request):
         BillingInfo.objects.create(
             user=user,
             billing_email=billing_email,
-            name=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["name"], name),
+            name=library.encrypt_text(name, ENCRYPTION_CREDS["BillingInfo"]["name"]),
             first_name=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["first_name"], first_name
+                first_name, ENCRYPTION_CREDS["BillingInfo"]["first_name"]
             ),
-            city=library.encrypt_text(ENCRYPTION_CREDS["BillingInfo"]["city"], city),
+            city=library.encrypt_text(city, ENCRYPTION_CREDS["BillingInfo"]["city"]),
             billing_address=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["billing_address"], billing_address
+                billing_address, ENCRYPTION_CREDS["BillingInfo"]["billing_address"]
             ),
             country=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["country"], country
+                country, ENCRYPTION_CREDS["BillingInfo"]["country"]
             ),
             postal_code=library.encrypt_text(
-                ENCRYPTION_CREDS["BillingInfo"]["postal_code"], postal_code
+                postal_code, ENCRYPTION_CREDS["BillingInfo"]["postal_code"]
             ),
         )
         return Response(

@@ -29,7 +29,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from email.utils import parsedate_to_datetime
 from MailAssistant.serializers import EmailDataSerializer
-from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral
+from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
 from MailAssistant.constants import (
     DEFAULT_CATEGORY,
     GOOGLE_CONFIG,
@@ -832,7 +832,22 @@ def email_to_bdd(user, services, id_email):
                     rule_category = True
 
         # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-        user_description = ""
+        user_description = "Augustin ROLET est un étudiant en école d'ingénieurs spécialisée dans l'informatique et la cybersécurité"
+
+        # issue cuz of a pointer make a copy to avoid
+        """c_d = category_dict.copy()
+        c_d2 = c_d.copy()
+
+        threading.Thread(
+            target=gpt_4.categorize_and_summarize_email,
+            args=(subject, decoded_data, c_d, user_description),
+        ).start()
+
+        threading.Thread(
+            target=gpt_3_5_turbo.categorize_and_summarize_email,
+            args=(subject, decoded_data, c_d2, user_description),
+        ).start()"""
+
         (
             topic,
             importance_dict,

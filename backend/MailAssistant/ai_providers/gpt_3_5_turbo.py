@@ -182,7 +182,9 @@ def improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-def new_mail_recommendation(mail_content, email_subject, user_recommendation, language="FRENCH"):
+def new_mail_recommendation(
+    mail_content, email_subject, user_recommendation, language="FRENCH"
+):
     """Enhance email subject and body based on user guideline"""
 
     template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
@@ -330,7 +332,11 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
 
 def categorize_and_summarize_email(
-    subject: str, decoded_data: str, category_dict: dict, user_description: str, language="French"
+    subject: str,
+    decoded_data: str,
+    category_dict: dict,
+    user_description: str,
+    language="French",
 ):
     """Categorizes and summarizes an email"""
 
@@ -378,8 +384,9 @@ def categorize_and_summarize_email(
     {relevance_list}
 
     1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
-    2. In {language}: Summarize the following message
-    3. In {language}: Provide a short sentence summarizing the email.
+    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
+    3. In {language}: Provide up to 3 short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
+    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
     Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
 
     ---
@@ -397,9 +404,11 @@ def categorize_and_summarize_email(
             ]
         }},
         "importance": {{
-            "Important": Percentage for Important,
-            "Information": Percentage for Information,
-            "Useless": Percentage for Useless
+            "UrgentWorkInformation": Percentage for UrgentWorkInformation,
+            "RoutineWorkUpdates": Percentage for RoutineWorkUpdates,
+            "InternalCommunications": Percentage for InternalCommunications,
+            "Promotional": Percentage for Promotional,
+            "News": Percentage for News 
         }}
     }}
     """
@@ -407,7 +416,8 @@ def categorize_and_summarize_email(
     clear_response = response.choices[0].message.content.strip()
     result_json = json.loads(clear_response)
 
-    print(result_json)
+    print("GPT 3.5 turbo")
+    print(clear_response)
 
     topic = result_json["topic"]
     response = result_json["response"]

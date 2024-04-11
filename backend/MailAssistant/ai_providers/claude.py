@@ -408,8 +408,9 @@ def categorize_and_summarize_email(
     {relevance_list}
 
     1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
-    2. In {language}: Summarize the following message
-    3. In {language}: Provide a short sentence summarizing the email.
+    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
+    3. In {language}: Provide up to 3 short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
+    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
     Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
 
     ---
@@ -438,9 +439,11 @@ def categorize_and_summarize_email(
     """
     response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
 
-    print(result_json)
+    print("Claude")
+    print(clear_response)
+
+    result_json = json.loads(clear_response)
 
     topic_category = result_json["topic"]
     response_category = result_json["response"]

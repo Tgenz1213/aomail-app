@@ -2,10 +2,11 @@
 Handles prompt engineering requests for GPT-4 API.
 """
 
+import json
 import openai
 from colorama import Fore, init
 from . import gpt_3_5_turbo
-from MailAssistant.constants import OPENAI_CREDS
+from MailAssistant.constants import OPENAI_CREDS, DEFAULT_CATEGORY
 
 
 ######################## GPT - 4 API SETTINGS ########################
@@ -49,7 +50,124 @@ def generate_email_response(input_subject, input_body, response_type, language):
     return body
 
 
+def categorize_and_summarize_email(
+    subject: str,
+    decoded_data: str,
+    category_dict: dict,
+    user_description: str,
+    language="French",
+):
+    """Categorizes and summarizes an email"""
+
+    category_dict.pop(DEFAULT_CATEGORY)
+
+    importance_list = {
+        "UrgentWorkInformation": "Critical updates or information requiring immediate attention related to projects, deadlines, or time-sensitive matters.",
+        "RoutineWorkUpdates": "Regular updates or communications important for work but not requiring immediate action, such as team updates or general announcements.",
+        "InternalCommunications": "Internal company matters including policy updates, HR announcements, or events.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
+    }
+    response_list = {
+        "Answer Required": "Message requires an answer.",
+        "Might Require Answer": "Message might require an answer.",
+        "No Answer Required": "No answer is required.",
+    }
+    relevance_list = {
+        "Highly Relevant": "Message is highly relevant to the recipient.",
+        "Possibly Relevant": "Message might be relevant to the recipient.",
+        "Not Relevant": "Message is not relevant to the recipient.",
+    }
+
+    template = f"""Given the following email:
+
+    Subject:
+    {subject}
+
+    Text:
+    {decoded_data}
+
+    Description:
+    {user_description}
+
+    Using the provided categories:
+
+    Topic Categories:
+    {category_dict}
+
+    Importance Categories:
+    {importance_list}
+
+    Response Categories:
+    {response_list}
+
+    Relevance Categories:
+    {relevance_list}
+
+    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
+    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
+    3. In {language}: Provide up to 3 short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
+    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
+    Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
+
+    ---
+    Answer must be a Json format (without ) matching this template:
+    {{
+        "topic": Topic Title Category,
+        "response": Response Category,
+        "relevance": Relevance Category,
+        "summary": {{
+            "one_line": One-Sentence Summary in {language},
+            "complete": [
+                "Short Bullet Point 1",
+                "Short Bullet Point 2",
+                ...
+            ]
+        }},
+        "importance": {{
+            "UrgentWorkInformation": Percentage for UrgentWorkInformation,
+            "RoutineWorkUpdates": Percentage for RoutineWorkUpdates,
+            "InternalCommunications": Percentage for InternalCommunications,
+            "Promotional": Percentage for Promotional,
+            "News": Percentage for News 
+        }}
+    }}
+    """
+    response = get_prompt_response(template)
+    clear_response = response.choices[0].message.content.strip()
+    if "```json" in clear_response:
+        clear_response = clear_response.removeprefix("```json")
+        clear_response = clear_response.removesuffix("```")
+
+    print("GPT 4 turbo")
+    print(clear_response)
+
+    result_json = json.loads(clear_response)
+
+    topic_category = result_json["topic"]
+    response_category = result_json["response"]
+    relevance_category = result_json["relevance"]
+    short_sentence = result_json["summary"]["one_line"]
+    summary_list = result_json["summary"]["complete"]
+    importance_dict = result_json["importance"]
+
+    # convert percentages to int
+    for key, value in importance_dict.items():
+        importance_dict[key] = int(value)
+
+    return (
+        topic_category,
+        importance_dict,
+        response_category,
+        summary_list,
+        short_sentence,
+        relevance_category,
+    )
+
+
+######################################################################
 ######################## DEPRECATED FUNCTIONS ########################
+######################################################################
 def gpt_langchain_redaction(input_data, length, formality):
     template = """
         Given the following draft:

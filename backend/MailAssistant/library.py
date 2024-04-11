@@ -105,6 +105,11 @@ def save_contacts(user, email, all_recipients):
 
 
 ######################## EMAIL DATA PROCESSING ########################
+def is_reply_email(headers) -> bool:
+    """Checks if the email is a response or not."""
+    return any(header["name"] == "In-Reply-To" for header in headers)
+
+
 def html_clear(text):
     """Uses BeautifulSoup to clear HTML tags from the given text."""
     soup = BeautifulSoup(text, "html.parser")

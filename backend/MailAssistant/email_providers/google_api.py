@@ -313,12 +313,11 @@ def get_mail(services, int_mail=None, id_mail=None):
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
-
     subject = from_info = cc_info = bcc_info = decoded_data = attachments_data = None
-    email_data = msg["payload"]["headers"]
+    headers = msg["payload"]["headers"]
     web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
-    for values in email_data:
+    for values in headers:
         name = values["name"].lower()
         if name == "subject":
             subject = values["value"]
@@ -771,7 +770,6 @@ def receive_mail_notifications(request):
 
         # Sending the reception message to Google to confirm the email reception
         subscription_path = envelope["subscription"]
-        # print("DEBUG subscription path >>>>>>>>>>>>", subscription_path)
         ack_id = message_data["messageId"]
         ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
         ack_payload = {"ackIds": [ack_id]}

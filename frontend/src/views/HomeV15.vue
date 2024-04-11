@@ -90,7 +90,7 @@
                                                             <div v-if="category.name !== 'Others'" class="flex">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
-                                                                    category.name }}
+                                                                        category.name }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -119,7 +119,7 @@
                                                                 <!-- TODO: var language and retrieve the good translation -->
                                                                 <span class="px-3 py-2"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
-                                                                    "Autres" }}
+                                                                        "Autres" }}
                                                                 </span>
                                                                 <div class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
@@ -739,8 +739,9 @@
                                                                     <p @click="toggleEmailVisibility"
                                                                         class="cursor-pointer">Vous avez reçu <span
                                                                             class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
-                                                                                emails[selectedTopic]['Useless'].filter(email=>
-                                                                            !email.answer_later).length }}</span>
+                                                                                emails[selectedTopic]['Useless'].filter(email
+                                                                                    =>
+                                                                                    !email.answer_later).length }}</span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
@@ -1525,14 +1526,20 @@ async function markEmailAsRead(emailId) {
         });
 
         if (response.read) {
-            // Handle successful response
             updateEmailReadStatus(emailId);
         } else {
             console.log("RESPONSE", response);
-            console.error('Failed to mark email as read');
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Échec de marquer l\'email comme lu';
+            notificationMessage = response;
+            displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsRead:', error.message);
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Échec de marquer l\'email comme lu';
+        notificationMessage = error.message;
+        displayPopup();
     }
 }
 
@@ -1590,7 +1597,11 @@ async function transferEmail(email) {
         });
 
     } catch (error) {
-        console.error("There was a problem with the fetch operation:", error);
+        console.error("There was a problem with the fetch operation:", error.message);
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Échec de transfer';
+        notificationMessage = error.message;
+        displayPopup();
     }
 }
 
@@ -1610,9 +1621,17 @@ async function markEmailReplyLater(email) {
             console.log("Email marked for reply later successfully");
         } else {
             console.error('Failed to mark email for reply later', response);
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Échec de mark email for reply later';
+            notificationMessage = response;
+            displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailReplyLater:', error.message);
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Échec de marquer l\'email à répondre pour plus tard';
+        notificationMessage = error.message;
+        displayPopup();
     }
 }
 
@@ -1648,14 +1667,20 @@ async function setRuleBlockForSender(email) {
         });
         console.log("RESPONSE", response);
         if (response.block) {
-            console.log("Rule set successfully");
-            // You can now update the UI or state to reflect this change
             deleteEmail(emailId);
         } else {
-            console.error('Failed to set block rule for sender');
+            console.error('Failed to set block rule for sender', response);
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Échec de bloquer cet addresse email';
+            notificationMessage = response;
+            displayPopup();
         }
     } catch (error) {
         console.error('Error in setRuleBlockForSender:', error.message);
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Échec de bloquer cet addresse email';
+        notificationMessage = error.message;
+        displayPopup();
     }
 }
 
@@ -1672,10 +1697,17 @@ async function deleteEmail(emailId) {
         });
 
         if (!response.message) {
-            console.error('Failed to delete email', response);
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Échec de supprimer cet email';
+            notificationMessage = response.error;
+            displayPopup();
         }
     } catch (error) {
         console.error('Error in deleteEmail:', error.message);
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Échec de supprimer cet email';
+        notificationMessage = error.message;
+        displayPopup();
     }
 }
 
@@ -1717,7 +1749,11 @@ async function openAnswer(email) {
             }
         });
     } catch (error) {
-        console.error("There was a problem with the fetch operation:", error);
+        console.error("There was a problem with the fetch operation:", error.message);
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Échec d\'ouverture de la page de réponse';
+        notificationMessage = error.message;
+        displayPopup();
     }
 }
 
@@ -1866,7 +1902,6 @@ async function handleUpdateCategory(updatedCategory) {
     }
 }
 async function handleCategoryDelete(categoryNameToDelete) {
-    console.log("Category to delete", categoryNameToDelete);
 
     if (!categoryNameToDelete.trim()) {
         // Show the pop-up

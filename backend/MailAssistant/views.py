@@ -834,7 +834,6 @@ def generate_email_response_keywords(request):
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
 
-        # TODO: Add language parameter
         response_keywords = claude.generate_response_keywords(
             email_subject, email_content, "French"
         )

@@ -7,6 +7,7 @@ import json
 import logging
 import re
 import threading
+import time
 import jwt
 import stripe  # type: ignore
 from collections import defaultdict
@@ -23,6 +24,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from concurrent.futures import ThreadPoolExecutor
+from collections import defaultdict
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
 from django.views.decorators.csrf import csrf_exempt
@@ -1390,7 +1393,7 @@ def set_email_reply_later(request, email_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
+'''@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
@@ -1481,6 +1484,104 @@ def get_user_emails(request):
         for priority in all_priorities:
             formatted_data[category].setdefault(priority, [])
 
+    return Response(formatted_data, status=status.HTTP_200_OK)'''
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_emails(request):
+    """Retrieves and formats user emails grouped by category and priority"""
+    start = time.time()
+    user = request.user
+    emails = Email.objects.filter(user=user).prefetch_related(
+        "category", "bulletpoint_set"
+    )
+
+    emails = emails.annotate(
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
+    )
+    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
+        "id"
+    )[:1]
+    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+
+    all_priorities = {"Important", "Information", "Useless"}
+    formatted_data = defaultdict(lambda: defaultdict(list))
+
+    def fetch_mail_data(api_function, auth, id_mail):
+        return api_function(auth, id_mail=id_mail)
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = []
+
+        for email in emails:
+            if email.read_date:
+                current_datetime_utc = datetime.datetime.now().replace(
+                    tzinfo=datetime.timezone.utc
+                )
+                delta_time = current_datetime_utc - email.read_date
+
+                if delta_time > datetime.timedelta(weeks=2):
+                    email.delete()
+                    continue
+
+            email_user = SocialAPI.objects.get(user=user).email
+
+            if email.email_provider == GOOGLE_PROVIDER:
+                api_function = google_api.get_mail
+                creds = google_api.get_credentials(user, email_user)
+                services = google_api.build_services(creds)
+                auth = services
+            elif email.email_provider == MICROSOFT_PROVIDER:
+                api_function = microsoft_api.get_mail
+                access_token = microsoft_api.refresh_access_token(
+                    microsoft_api.get_social_api(user, email_user)
+                )
+                auth = access_token
+
+            future = executor.submit(
+                fetch_mail_data, api_function, auth, email.provider_id
+            )
+            futures.append((future, email))
+
+        for future, email in futures:
+            (
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                attachments_data,
+            ) = future.result()
+
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "details": [
+                    {"id": bp.id, "text": bp.content}
+                    for bp in email.bulletpoint_set.all()
+                ],
+                "read": email.read,
+                "rule": email.has_rule,
+                "rule_id": email.rule_id,
+                "answer_later": email.answer_later,
+                "web_link": email.web_link,
+                "attachments": attachments_data,
+            }
+
+            formatted_data[email.category.name][email.priority].append(email_data)
+
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+    print(f"------Retrieved user emails in {formatted_time}--------")
     return Response(formatted_data, status=status.HTTP_200_OK)
 
 

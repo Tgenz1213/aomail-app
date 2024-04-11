@@ -1414,7 +1414,7 @@ onMounted(async () => {
         } catch (error) {
             console.log("An error occured", error)
         }
-    }, 1000);
+    }, 5000);
 });
 
 function getNumberUnreadMail(emailData) {

@@ -35,7 +35,7 @@ from MailAssistant.schedule_tasks import Command
 ######################## CREDENTIALS ########################
 # backend folder of the project MailAssistant
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-CONFIG = json.load(open("creds/django_creds.json", "r"))
+CONFIG = json.load(open("creds/django_creds.json"))
 SECRET_KEY = CONFIG["secret_key"]
 BACKEND_LOG_PATH = "backend.log"
 CUSTOM_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"

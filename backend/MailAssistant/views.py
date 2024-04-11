@@ -29,8 +29,15 @@ from collections import defaultdict
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.core.mail import send_mail
 from MailAssistant.constants import (
+    BASE_URL,
+    BASE_URL_MA,
     DEFAULT_CATEGORY,
+    EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
     GOOGLE_PROJECT_ID,
     GOOGLE_PROVIDER,
@@ -316,6 +323,34 @@ def create_subscription(user, stripe_plan_id, email="nothingForNow"):
 def is_authenticated(request):
     """Used in index.js by the router to check if the user can access enpoints"""
     return JsonResponse({"isAuthenticated": True}, status=200)
+
+
+# ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def password_reset(request):
+    email = request.POST.get("email")
+    user = User.objects.get(email=email)
+    token = PasswordResetTokenGenerator().make_token(user)
+    reset_link = f"{BASE_URL_MA}reset_password/?token={token}"
+
+    context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
+    email_html = render_to_string("password_reset_email.html", context)
+
+    try:
+        send_mail(
+            subject="Password Reset",
+            recipient_list=[email],
+            html_message=email_html,
+            fail_silently=False,
+        )
+        # TODO: dev template with Vue.js
+        redirect(f"{BASE_URL}password_reset_complete")
+
+    except Exception as e:
+        return Response(
+            {"error": f"Failed to send password reset email: {str(e)}"}, status=500
+        )
 
 
 ######################## STRIPE ########################

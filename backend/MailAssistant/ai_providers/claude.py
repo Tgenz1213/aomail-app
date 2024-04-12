@@ -116,7 +116,7 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
     KEYWORDS must look like ACTIONS buttons the user WILL click to reply to the email.
 
     ---
-    As an answer ONLY give a Python List format: ["...", "..."] dont use any other caracters otherwise it will create errors
+    As an answer ONLY give a Python List format: ["...", "..."] dont use any other caracters otherwise it will create errors. Do not give ANY explanations, RETURN only the list.
     {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
     keywords = response.content[0].text.strip()
@@ -153,7 +153,10 @@ def improve_email_writing(body, subject):
 
     return email_body, subject_text
 
-def new_mail_recommendation(mail_content, email_subject, user_recommendation, language="FRENCH"):
+
+def new_mail_recommendation(
+    mail_content, email_subject, user_recommendation, language="FRENCH"
+):
     """Enhance email subject and body based on user guideline"""
 
     template = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
@@ -178,7 +181,9 @@ def new_mail_recommendation(mail_content, email_subject, user_recommendation, la
     return subject_text, email_body
 
 
-''' OLD Ask Theo Before Delete'''
+""" OLD Ask Theo Before Delete"""
+
+
 def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
@@ -191,7 +196,7 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     clear_text = response.content[0].text.strip()
 
     print(clear_text)
-    
+
     result_json = json.loads(clear_text)
 
     subject_text = result_json.get("subject")
@@ -202,6 +207,7 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     print(f"{Fore.CYAN}Email Body: {email_body}")
 
     return subject_text, email_body
+
 
 ''' IN DEV => DO NOT DELETE OR IMPLEMENT => Reserved for Theo => Ask Theo if you want to delete
 def generate_email(input_data, length, formality, language="FRENCH"):
@@ -308,15 +314,27 @@ def improve_email_copywriting(email_subject, email_body):
 
 def generate_email_response(input_subject, input_body, response_type, language):
     """Generates an email response based on the given response type"""
-    template = f"""{HUMAN}Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+
+    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
+    # OLD prompt
+    '''template = f"""{HUMAN}As an smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
     <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
 
     ----
 
     Answer must be above HTML without spaces
     {ASSISTANT}
+    """'''
+    template = f"""{HUMAN}As an smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{response_type}'.
+    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
+    2. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
+
+    ----
+
+    Answer must be above HTML without spaces
+    {ASSISTANT}
     """
-    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
     response = get_prompt_response(template)
     body = response.content[0].text.strip()
 
@@ -331,38 +349,42 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
 
 def categorize_and_summarize_email(
-    subject: str, decoded_data: str, category_dict: dict, user_description: str, language="French"
+    subject: str,
+    decoded_data: str,
+    category_dict: dict,
+    user_description: str,
+    language="French",
 ):
     """Categorizes and summarizes an email"""
 
     category_dict.pop(DEFAULT_CATEGORY)
 
-    ''' OLD v1 Ask Theo before DELETE
+    """ OLD v1 Ask Theo before DELETE
     importance_list = {
         "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
         "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
         "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
-    }'''
-    ''' OLD v2 Ask Theo before DELETE
+    }"""
+    """ OLD v2 Ask Theo before DELETE
     importance_list = {
         "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
         "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
         "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
-    }'''
-    ''' OLD v3 Ask Theo before DELETE
+    }"""
+    """ OLD v3 Ask Theo before DELETE
     importance_list = {
         "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
         "Information": "Details relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
         "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
         "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }'''
-    ''' OLD v4 Ask Theo before DELETE
+    }"""
+    """ OLD v4 Ask Theo before DELETE
     importance_list = {
         "Important": "Messages that are high priority and require immediate attention or action (truly relevant to the user).",
         "WorkInformation": "Messages relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
         "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
         "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }'''
+    }"""
     importance_list = {
         "UrgentWorkInformation": "Critical updates or information requiring immediate attention related to projects, deadlines, or time-sensitive matters.",
         "RoutineWorkUpdates": "Regular updates or communications important for work but not requiring immediate action, such as team updates or general announcements.",

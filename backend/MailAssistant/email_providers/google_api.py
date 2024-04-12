@@ -28,9 +28,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from email.utils import parsedate_to_datetime
 from MailAssistant.serializers import EmailDataSerializer
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
 from MailAssistant.constants import (
+    ADMIN_EMAIL_LIST,
     DEFAULT_CATEGORY,
+    EMAIL_NO_REPLY,
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
     GOOGLE_EMAIL_MODIFY,
@@ -788,6 +792,21 @@ def receive_mail_notifications(request):
                 except Exception as e:
                     LOGGER.error(
                         f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                    )
+                    context = {
+                        "attempt_number": i,
+                        "email_id": email_id,
+                        "email_provider": GOOGLE_PROVIDER,
+                        "user": social_api.user,
+                    }
+                    email_html = render_to_string("ai_failed_email.html", context)
+                    send_mail(
+                        subject="Critical Alert: Email Processing Failure",
+                        message="",
+                        recipient_list=[ADMIN_EMAIL_LIST],
+                        from_email=EMAIL_NO_REPLY,
+                        html_message=email_html,
+                        fail_silently=False,
                     )
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")

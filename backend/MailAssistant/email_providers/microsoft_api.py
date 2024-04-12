@@ -916,18 +916,25 @@ class MicrosoftEmailNotification(View):
                             ).start()
                             break
                         except Exception as e:
-                            context = {"attempt_number": i, "email_id": email_id, "email_provider": MICROSOFT_PROVIDER, "user": subscription.first().user}
-                            email_html = render_to_string("ai_failed_email.html", context)
+                            LOGGER.critical(
+                                f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                            )
+                            context = {
+                                "attempt_number": i,
+                                "email_id": email_id,
+                                "email_provider": MICROSOFT_PROVIDER,
+                                "user": subscription.first().user,
+                            }
+                            email_html = render_to_string(
+                                "ai_failed_email.html", context
+                            )
                             send_mail(
-                                subject="Password Reset for MailAssistant",
+                                subject="Critical Alert: Email Processing Failure",
                                 message="",
                                 recipient_list=[ADMIN_EMAIL_LIST],
                                 from_email=EMAIL_NO_REPLY,
                                 html_message=email_html,
                                 fail_silently=False,
-                            )
-                            LOGGER.critical(
-                                f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
                             )
 
                 return JsonResponse({"status": "Notification received"}, status=202)

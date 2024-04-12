@@ -1,5 +1,5 @@
 <template>
-        <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @updateShowPopup="dismissPopup" />
     <div class="password-reset-form">
         <h1>Réinitialisation du Mot de Passe</h1>
@@ -18,10 +18,12 @@
 <script setup>
 import { ref } from 'vue';
 import { API_BASE_URL } from '@/main';
+import { useRouter } from 'vue-router';
 import { fetchWithToken } from '../router/index.js';
 import ShowNotification from '../components/ShowNotification.vue';
 
 let email = ref('');
+const router = useRouter();
 // Variables to display a notification
 let showNotification = ref(false);
 let notificationTitle = ref('');
@@ -45,16 +47,20 @@ function displayPopup() {
 }
 
 
-function resetPassword() {
+async function resetPassword() {
     try {
-        const response = fetchWithToken(`${API_BASE_URL}generate_reset_token/`, {
+        console.log(email.value)
+        const response = await fetchWithToken(`${API_BASE_URL}generate_reset_token/`, {
             method: 'POST',
-            body: {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
                 email: email.value
-            }
+            }),
         });
 
-        console.log("test")
+        console.log(response)
 
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up

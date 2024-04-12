@@ -7,14 +7,12 @@ import json
 import logging
 import re
 import threading
-import time
 import jwt
 import stripe  # type: ignore
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -24,25 +22,18 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from MailAssistant.email_providers import google_api, microsoft_api
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.template.loader import render_to_string
-from django.utils.html import strip_tags
 from django.core.mail import send_mail
 from MailAssistant.constants import (
-    BASE_URL,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
-    GOOGLE_PROJECT_ID,
-    GOOGLE_PROVIDER,
-    GOOGLE_TOPIC_NAME,
-    MICROSOFT_PROVIDER,
     STRIPE_PAYMENT_FAILED_URL,
     STRIPE_PAYMENT_SUCCESS_URL,
     STRIPE_PRICES,
@@ -331,28 +322,31 @@ def is_authenticated(request):
 def generate_reset_token(request):
     """Sends an email with the reset password link."""
 
-    email = request.POST.get("email")
-    user = User.objects.get(email=email)
-    token = PasswordResetTokenGenerator().make_token(user)
-    reset_link = f"{BASE_URL_MA}reset_password/?token={token}"
+    email = request.data.get("email")
+    social_api = SocialAPI.objects.filter(email=email)
+    if social_api.exists() == False:
+        return Response(
+            {"error": "Email address is not linked with an account"}, status=400
+        )
 
+    token = PasswordResetTokenGenerator().make_token(social_api.first().user)
+    reset_link = f"{BASE_URL_MA}reset_password/?token={token}"
     context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
-    # TODO: check if path is good
-    email_html = render_to_string("./templates/password_reset_email.html", context)
+    email_html = render_to_string("password_reset_email.html", context)
 
     try:
         send_mail(
-            subject="Password Reset",
+            subject="Password Reset for MailAssistant",
+            message="",
             recipient_list=[email],
+            from_email=EMAIL_NO_REPLY,
             html_message=email_html,
             fail_silently=False,
         )
         return Response({"message": "Email sent successfully!"}, status=200)
 
     except Exception as e:
-        return Response(
-            {"error": f"Failed to send password reset email: {str(e)}"}, status=500
-        )
+        return Response({"error": str(e)}, status=500)
 
 
 ######################## STRIPE ########################

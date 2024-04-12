@@ -7,7 +7,12 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 import json
 from datetime import timedelta
 from pathlib import Path
-from MailAssistant.constants import EMAIL_NO_REPLY, EMAIL_NO_REPLY_PASSWORD, HOSTS_URLS
+from MailAssistant.constants import (
+    BACKEND_DIR,
+    EMAIL_NO_REPLY,
+    EMAIL_NO_REPLY_PASSWORD,
+    HOSTS_URLS,
+)
 from MailAssistant.schedule_tasks import Command
 
 
@@ -33,8 +38,8 @@ from MailAssistant.schedule_tasks import Command
 
 
 ######################## CREDENTIALS ########################
-# backend folder of the project MailAssistant
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# root of linux => dangerous
+#BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG = json.load(open("creds/django_creds.json"))
 SECRET_KEY = CONFIG["secret_key"]
 BACKEND_LOG_PATH = "backend.log"
@@ -88,7 +93,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [f"{BACKEND_DIR}/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

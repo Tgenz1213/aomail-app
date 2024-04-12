@@ -22,8 +22,7 @@
                         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Mot de
                             passe</label>
                         <div class="text-sm">
-                            <a href="#" class="font-semibold text-gray-900 hover:text-gray-600">Mot de passe oublié
-                                ?</a>
+                            <a :href="`reset_password_form/`" class="font-semibold text-gray-900 hover:text-gray-600">Mot de passe oublié ?</a>
                         </div>
                     </div>
                     <div class="relative items-stretch mt-2 flex">

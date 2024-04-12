@@ -328,14 +328,17 @@ def is_authenticated(request):
 # ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def password_reset(request):
+def generate_reset_token(request):
+    """Sends an email with the reset password link."""
+
     email = request.POST.get("email")
     user = User.objects.get(email=email)
     token = PasswordResetTokenGenerator().make_token(user)
     reset_link = f"{BASE_URL_MA}reset_password/?token={token}"
 
     context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
-    email_html = render_to_string("password_reset_email.html", context)
+    # TODO: check if path is good
+    email_html = render_to_string("./templates/password_reset_email.html", context)
 
     try:
         send_mail(
@@ -344,8 +347,7 @@ def password_reset(request):
             html_message=email_html,
             fail_silently=False,
         )
-        # TODO: dev template with Vue.js
-        redirect(f"{BASE_URL}password_reset_complete")
+        return Response({"message": "Email sent successfully!"}, status=200)
 
     except Exception as e:
         return Response(

@@ -11,7 +11,9 @@ app_name = 'MailAssistant'
 
 urlpatterns = [
     #----------------------- ACCOUNT -----------------------#
-    path("reset/<token>/", views.password_reset, name="password_reset"), # dev
+    path("reset_password/<token>/", ..., name="password_reset"), # dev
+    path("generate_reset_token/", views.generate_reset_token, name="generate_reset_token"), # dev
+
     path('api/is_authenticated/', views.is_authenticated, name='is_authenticated'), # ok
     path('api/login/', views.login, name='login'), # ok
     path('api/token/refresh/', views.refresh_token, name='refresh_token'), # ok

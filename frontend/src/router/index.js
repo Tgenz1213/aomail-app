@@ -16,6 +16,7 @@ import ReplyLater from '@/views/ReplyLaterV1.vue';
 import NotFound from '@/views/404NotFound.vue';
 import NotAuthorized from '@/views/401NotAuthorized.vue'
 import { API_BASE_URL } from '@/main';
+import ResetPasswordForm from '@/views/ResetPasswordForm.vue';
 
 
 async function fetchWithToken(url, options = {}) {
@@ -162,6 +163,11 @@ const routes = [
     name: 'stripe_payment_successful',
     meta: { requiresAuth: true },
     component: StripePaymentSuccess,
+  },
+  {
+    path: '/reset_password_form',
+    name: 'reset_password_form',
+    component: ResetPasswordForm,
   },
   {
     path: '/not-authorized',

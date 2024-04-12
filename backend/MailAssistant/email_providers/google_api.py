@@ -39,6 +39,7 @@ from MailAssistant.constants import (
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
     IMPORTANT,
+    MAX_RETRIES,
     USELESS,
     INFORMATION,
     REDIRECT_URI,
@@ -777,11 +778,17 @@ def receive_mail_notifications(request):
             social_api = SocialAPI.objects.get(email=email)
             services = authenticate_service(social_api.user, email)
 
-            print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
-
-            threading.Thread(
-                target=email_to_db, args=(social_api.user, services, email_id)
-            ).start()
+            for i in range(MAX_RETRIES):
+                print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
+                try:
+                    threading.Thread(
+                        target=email_to_db, args=(social_api.user, services, email_id)
+                    ).start()
+                    break
+                except Exception as e:
+                    LOGGER.error(
+                        f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                    )
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 

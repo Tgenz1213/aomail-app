@@ -349,6 +349,14 @@ def generate_reset_token(request):
         return Response({"error": str(e)}, status=500)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def reset_password(request):
+    """Checks if the token is valid and reset the password of user"""
+    ...
+
+
+
 ######################## STRIPE ########################
 @csrf_exempt
 def receive_payment_notifications(request):

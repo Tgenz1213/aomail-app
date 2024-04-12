@@ -20,6 +20,7 @@ ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
 NO_REPLY_CREDS = json.load(open(f"{CREDS_PATH}no_reply_creds.json"))
 EMAIL_NO_REPLY = NO_REPLY_CREDS["email"]
 EMAIL_NO_REPLY_PASSWORD = NO_REPLY_CREDS["password"]
+ADMIN_EMAIL_LIST = ["theo...", "jean...", "augustin.rolet.pro@gmail.com"]
 
 
 ######################## STRIPE ########################
@@ -44,6 +45,7 @@ IMPORTANT = "Important"
 INFORMATION = "Information"
 USELESS = "Useless"
 DEFAULT_CATEGORY = "Others"
+MAX_RETRIES = 3
 
 
 ######################## GOOGLE API ########################

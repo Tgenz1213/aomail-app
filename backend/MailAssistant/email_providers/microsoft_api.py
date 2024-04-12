@@ -19,12 +19,17 @@ from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
 from msal import ConfidentialClientApplication
 import urllib.parse
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from MailAssistant.constants import (
+    ADMIN_EMAIL_LIST,
     BASE_URL,
     DEFAULT_CATEGORY,
+    EMAIL_NO_REPLY,
     GRAPH_URL,
     IMPORTANT,
     INFORMATION,
+    MAX_RETRIES,
     MICROSOFT_AUTHORITY,
     MICROSOFT_CLIENT_STATE,
     MICROSOFT_CONFIG,
@@ -887,7 +892,7 @@ class MicrosoftEmailNotification(View):
 
             if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
                 change_type = email_data["value"][0]["changeType"]
-                id_email = email_data["value"][0]["resourceData"]["id"]
+                email_id = email_data["value"][0]["resourceData"]["id"]
                 subscription_id = email_data["value"][0]["subscriptionId"]
                 subscription = MicrosoftListener.objects.filter(
                     subscription_id=subscription_id
@@ -898,16 +903,32 @@ class MicrosoftEmailNotification(View):
                         subscription.delete()
 
                 else:
-                    print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
-
-                    threading.Thread(
-                        target=email_to_db,
-                        args=(
-                            subscription.first().user,
-                            subscription.first().email,
-                            id_email,
-                        ),
-                    ).start()
+                    for i in range(MAX_RETRIES):
+                        print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
+                        try:
+                            threading.Thread(
+                                target=email_to_db,
+                                args=(
+                                    subscription.first().user,
+                                    subscription.first().email,
+                                    email_id,
+                                ),
+                            ).start()
+                            break
+                        except Exception as e:
+                            context = {"attempt_number": i, "email_id": email_id, "email_provider": MICROSOFT_PROVIDER, "user": subscription.first().user}
+                            email_html = render_to_string("ai_failed_email.html", context)
+                            send_mail(
+                                subject="Password Reset for MailAssistant",
+                                message="",
+                                recipient_list=[ADMIN_EMAIL_LIST],
+                                from_email=EMAIL_NO_REPLY,
+                                html_message=email_html,
+                                fail_silently=False,
+                            )
+                            LOGGER.critical(
+                                f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                            )
 
                 return JsonResponse({"status": "Notification received"}, status=202)
             else:

@@ -93,6 +93,7 @@ def signup(request):
     theme = request.data.get("theme")
     color = request.data.get("color")
     categories = request.data.get("categories")
+    user_description = request.data.get("userDescription")
 
     # Validate user data
     validation_result = validate_signup_data(username, password, code)
@@ -144,7 +145,7 @@ def signup(request):
 
     # Save user data
     result = save_user_data(
-        user, type_api, email, access_token, refresh_token, theme, color, categories
+        user, type_api, user_description, email, access_token, refresh_token, theme, color, categories
     )
     if "error" in result:
         return Response(result, status=400)
@@ -237,12 +238,13 @@ def validate_signup_data(username, password, code):
 
 
 def save_user_data(
-    user, type_api, email, access_token, refresh_token, theme, color, categories
+    user, type_api, user_description, email, access_token, refresh_token, theme, color, categories
 ):
     """Store user creds and settings in DB"""
     try:
         social_api = SocialAPI(
             user=user,
+            user_description=user_description,
             type_api=type_api,
             email=email,
             access_token=access_token,

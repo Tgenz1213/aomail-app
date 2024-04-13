@@ -624,7 +624,8 @@ async function submitSignupData(event) {
         color: localStorage.getItem('bgColor'),
         categories: localStorage.getItem('categories'),
         code: sessionStorage.getItem('code'),
-        type_api: sessionStorage.getItem("type_api")
+        type_api: sessionStorage.getItem("type_api"),
+        userDescription: sessionStorage.getItem('userDescription')
       })
     };
 

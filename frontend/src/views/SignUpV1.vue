@@ -557,6 +557,20 @@
                       </div>
                     </div>
                     <div>
+                      <div class="flex gap-x-1 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                          stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
+                      </div>
+                      <div class="mt-2">
+                        <input v-model="userDescription" placeholder="Résumez-vous en quelques mots afin d'aider l'assistant"
+                          class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                      </div>
+                    </div>
+                    <div>
                       <div class="pt-6">
                         <button @click.prevent="nextStep0"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Continuer</button>
@@ -706,6 +720,7 @@ let showPassword = ref(false);
 let showConfirmPassword = ref(false);
 let step = ref(0);
 let login = ref('');
+let userDescription = ref('');
 let password = ref('');
 let confirmPassword = ref('');
 let credentialError = ref('');
@@ -940,6 +955,7 @@ async function nextStep0() {
   }
 
   sessionStorage.setItem('login', login.value);
+  sessionStorage.setItem('userDescription', userDescription.value);
   sessionStorage.setItem('password', password.value);
 
   clearError();

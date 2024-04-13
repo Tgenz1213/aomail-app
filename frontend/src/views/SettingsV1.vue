@@ -328,8 +328,20 @@
                                                 class="block text-sm font-medium leading-6 text-gray-900">Email</label>
                                         </div>
                                         <div class="relative items-stretch mt-2 pb-6">
-                                            <input v-model="emailInput" type="text"
+                                            <input v-model="emailInput" type="email"
                                                 class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                        </div>
+                                        <div class="flex space-x-1 items-center">
+                                            <envelope-icon class="w-4 h-4" />
+                                            <label
+                                                class="block text-sm font-medium leading-6 text-gray-900">Description</label>
+                                        </div>
+                                        <div class="relative items-stretch mt-2 pb-6">
+                                            <input v-model="userEmailDescription" 
+       type="text"
+       placeholder="Résumez-vous/votre métier en quelques mots pour aider l'assistant"
+       class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
+
                                         </div>
                                         <div class="overflow-y-auto" style="max-height: 120px;">
                                             <!-- TODO: set dynamicelly -->
@@ -568,6 +580,7 @@ let activeSection = ref('preferences'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
 let userData = ref('');
 let emailInput = ref('');
+let userEmailDescription = ref('');
 let emailsLinked = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');

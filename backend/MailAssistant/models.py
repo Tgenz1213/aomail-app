@@ -117,7 +117,7 @@ class Email(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_emails")
     # TODO: remove null = True after test
-    email = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, null=True)
+    #email_linked = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, null=True)
     provider_id = models.CharField(max_length=200, unique=True)
     web_link = models.CharField(max_length=200, null=True)
     email_provider = models.CharField(max_length=50)

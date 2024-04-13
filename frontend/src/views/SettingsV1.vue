@@ -212,7 +212,7 @@
 
 
 
-                            <div class="flex justify-between">
+                            <div class="flex justify-center gap-32">
 
 
 
@@ -353,7 +353,7 @@
                                                     <ul role="list" class="space-y-1">
                                                         <li v-for="email in emailsLinked" :key="email.email"
                                                             class="flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-1 shadow hover:shadow-md text-gray-700 relative">
-                                                            
+
 
 
                                                             <svg v-if="email.type_api === 'microsoft'"
@@ -424,7 +424,7 @@
                                                         <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
                                                         <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                                                     </svg>
-                                                    Lier mon compte Outlook
+                                                    Lier un compte Outlook
                                                 </button>
                                             </div>
                                         </div>
@@ -448,7 +448,7 @@
                                                             d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
                                                             id="Shape" fill="#EB4335"></path>
                                                     </svg>
-                                                    Lier mon compte Google
+                                                    Lier un compte Google
                                                 </button>
                                             </div>
                                         </div>
@@ -464,8 +464,7 @@
 
 
 
-
-                            <div>
+                            <div class="mx-auto max-w-lg">
                                 <div class="relative">
                                     <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                         <div class="w-full border-t border-gray-300"></div>
@@ -491,8 +490,29 @@
                                 </div>
                             </div>
 
+
                         </div>
+
                     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     <div v-if="activeSection === 'subscription'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
@@ -628,6 +648,42 @@ onMounted(() => {
     fetchUserData();
     getBackgroundColor();
 })
+
+
+function checkEmailInput(event) {
+    event.preventDefault();
+    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailInput.value.trim()) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Aucun email';
+        notificationMessage.value = 'Veuillez saisir un email s\'il vous plaît';
+        displayPopup();
+        return false;
+    } else if (!emailFormat.test(emailInput.value)) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Email invalide';
+        notificationMessage.value = 'Le format de l\'email est incorrect'
+        displayPopup();
+        return false;
+    }
+    return true;
+}
+function authorize_google(event) {
+    if (checkEmailInput(event)) {
+        // CHANGE URL redirection
+        // CHANGE URL and USE an other window
+        window.location.replace(`${API_BASE_URL}google/auth_url/`);
+    }
+}
+function authorize_microsoft(event) {
+    if (checkEmailInput(event)) {
+        // CHANGE URL redirection
+        window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
+    }
+}
 
 async function fetchEmailLinked() {
     const requestOptions = {

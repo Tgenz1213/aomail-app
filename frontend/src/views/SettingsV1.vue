@@ -621,15 +621,13 @@ async function unLinkAccount(email) {
         const response = await fetchWithToken(`${API_BASE_URL}user/preferences/unlink/`, requestOptions);
 
         if ("error" in response) {
-            // TODO
-
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Erreur unLinkAccount';
+            notificationTitle.value = 'Erreur lors de la désassociation de l\'adresse e-mail';
             notificationMessage.value = response.error;
             displayPopup();
         } else if (response.message == "Email unlinked successfully!") {
-            emailsLinked.value = response.emails;
+            fetchEmailLinked();
             // Show the pop-up
             backgroundColor = 'bg-green-300';
             notificationTitle.value = 'Succès !';
@@ -637,15 +635,12 @@ async function unLinkAccount(email) {
             displayPopup();
         }
     } catch (error) {
-        // TODO
-
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur unLinkAccount';
+        notificationTitle.value = 'Erreur lors de la désassociation de l\'adresse e-mail';
         notificationMessage.value = error.message;
         displayPopup();
     }
-
 }
 
 function checkEmailInput(event) {

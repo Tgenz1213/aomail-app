@@ -1227,8 +1227,14 @@ def unlink_email(request):
     user = request.user
     email = request.data.get("email")
 
-    # try:
-    #     social_api = 
+    try:
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        social_api.delete()
+        return Response({"message": "Email unlinked successfully!"}, status=202)
+    except SocialAPI.DoesNotExist:
+        return Response({"error": "SocialAPI entry not found"}, status=400)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 
 @api_view(["POST"])

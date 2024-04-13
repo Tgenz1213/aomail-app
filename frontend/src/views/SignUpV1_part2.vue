@@ -575,7 +575,6 @@ function authorize_microsoft(event) {
   // Redirect the user to the authorization URL
   window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
 }
-
 function dismissPopup() {
   showNotification.value = false;
   // Cancel the timer

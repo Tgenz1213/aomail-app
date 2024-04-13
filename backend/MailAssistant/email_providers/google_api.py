@@ -44,6 +44,7 @@ from MailAssistant.constants import (
     GOOGLE_TOPIC_NAME,
     IMPORTANT,
     MAX_RETRIES,
+    REDIRECT_URI_LINK_EMAIL,
     USELESS,
     INFORMATION,
     REDIRECT_URI_SIGNUP,
@@ -64,12 +65,22 @@ def generate_auth_url(request):
     flow = Flow.from_client_secrets_file(
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
-
     authorization_url, _ = flow.authorization_url(
         access_type="offline", include_granted_scopes="true"
     )
 
-    # Redirect the user to Google's consent screen
+    return redirect(authorization_url)
+
+
+def auth_url_link_email(request):
+    """Generate a connection URL to obtain the authorization code"""
+    flow = Flow.from_client_secrets_file(
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
+    )
+    authorization_url, _ = flow.authorization_url(
+        access_type="offline", include_granted_scopes="true"
+    )
+
     return redirect(authorization_url)
 
 
@@ -899,7 +910,9 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                     rule_category = True
 
         # user_description = "Augustin ROLET est un étudiant en école d'ingénieurs spécialisée dans l'informatique et la cybersécurité"
-        user_description = social_api.user_description if social_api.user_description != None else ""
+        user_description = (
+            social_api.user_description if social_api.user_description != None else ""
+        )
 
         # issue cuz of a pointer make a copy to avoid
         """c_d = category_dict.copy()

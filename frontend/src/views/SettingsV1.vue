@@ -321,7 +321,7 @@
                                                 email</span>
                                         </div>
                                     </div>
-                                    <div class="pt-6">                                        
+                                    <div class="pt-6">
                                         <div class="flex space-x-1 items-center">
                                             <envelope-icon class="w-4 h-4" />
                                             <label
@@ -578,7 +578,7 @@ let errorBillingMessage = ref('');
 let isModalOpen = ref(false);
 let isBillingModalOpen = ref(false);
 const router = useRouter();
-
+const intervalId = setInterval(checkAuthorizationCode, 1000);
 
 const billingInfo = ref({
     billingAddress: '',
@@ -645,49 +645,55 @@ async function unLinkAccount(email) {
     }
 }
 
-function authorize_google(event) {
-    
-        type_api.value = "google";
-        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
-
+function authorize_google() {
+    type_api.value = "google";
+    // TOOD: signout user and then redirect to grant page (only solution for multi account)
+    window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
 }
-function authorize_microsoft(event) {
-    
-        type_api.value = "microsoft";
-        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
-    
+function authorize_microsoft() {
+    type_api.value = "microsoft";
+    window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
 }
+function checkAuthorizationCode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authorizationCode = urlParams.get('code');
 
-// async function saveEmail() {
-//     const urlParams = new URLSearchParams(window.location.search);
-//     const authorizationCode = urlParams.get('code');
+    if (authorizationCode) {
+        clearInterval(intervalId);
+        linkEmail(authorizationCode);
+    }
+}
+async function linkEmail(authorizationCode) {
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            code: authorizationCode,
+            type_api: type_api.value,
+            user_description: userEmailDescription.value
+        })
+    };
 
-//     if (authorizationCode) {
-//         const requestOptions = {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify({
-//         code: authorizationCode,
-//         type_api: type_api.value,
-//         user_description: userEmailDescription.value
-//       })
-//     };
+    const response = await fetch(`${API_BASE_URL}user/preferences/link/`, requestOptions);
 
-//     // READY TO REGISTER THE USER IN DATABASE
-//     const response = await fetch(`${API_BASE_URL}user/preferences/link/`, requestOptions);
-//     const data = await response.json();
+    if (response.message == "Email linked to account successfully!") {
+        // Show the pop-up
+        backgroundColor.value = 'bg-green-300';
+        notificationTitle.value = 'Succès !';
+        notificationMessage.value = 'Votre email a été lié à votre compte';
+        displayPopup();
+    } else {
+        // Show the pop-up
+        backgroundColor.value = 'bg-red-300';
+        notificationTitle.value = 'Échec de liaison d\'email';
+        notificationMessage.value = response.error;
+        displayPopup();
+    }
 
-//     console.log("data received:", data)
-//     } else {
-//         // Show the pop-up
-//         backgroundColor.value = 'bg-red-300';
-//         notificationTitle.value = 'Erreur d\'autorisation';
-//         notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
-//         displayPopup();
-//     }
-// }
+    console.log("data received:", response)
+}
 
 async function fetchEmailLinked() {
     const requestOptions = {

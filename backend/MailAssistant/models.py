@@ -92,9 +92,9 @@ class SocialAPI(models.Model):
     """Table that contains email credentials."""
 
     type_api = models.CharField(max_length=50)
-    email = models.CharField(max_length=320, null=True, unique=True)
-    access_token = models.CharField(max_length=3000, null=True)
-    refresh_token = models.CharField(max_length=2000, null=True)
+    email = models.CharField(max_length=320, unique=True)
+    access_token = models.CharField(max_length=3000)
+    refresh_token = models.CharField(max_length=2000)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     user_description = models.CharField(max_length=200, null=True)
 
@@ -116,8 +116,9 @@ class Email(models.Model):
     """Model for storing email information."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_emails")
-    # TODO: remove null = True after test
-    #email_linked = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, null=True)
+    social_api = models.ForeignKey(
+        SocialAPI, on_delete=models.CASCADE, related_name="social_api_emails", null=True
+    )
     provider_id = models.CharField(max_length=200, unique=True)
     web_link = models.CharField(max_length=200, null=True)
     email_provider = models.CharField(max_length=50)
@@ -140,16 +141,12 @@ class BulletPoint(models.Model):
     """Model for storing bullet points."""
 
     content = models.TextField()
-    email = models.ForeignKey(
-        Email, on_delete=models.CASCADE
-    )  # renamed from 'id_email'
+    email = models.ForeignKey(Email, on_delete=models.CASCADE)
 
 
-class CC(models.Model):
+'''class CC(models.Model):
     """Model for storing CC (Carbon Copy) information."""
 
     email = models.CharField(max_length=100)
     name = models.CharField(max_length=50)
-    email_reference = models.ForeignKey(
-        Email, on_delete=models.CASCADE
-    )  # 'id_email' is renamed
+    email_reference = models.ForeignKey(Email, on_delete=models.CASCADE)'''

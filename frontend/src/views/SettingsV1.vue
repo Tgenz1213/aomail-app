@@ -658,36 +658,36 @@ function authorize_microsoft(event) {
     
 }
 
-function saveEmail() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorizationCode = urlParams.get('code');
+// async function saveEmail() {
+//     const urlParams = new URLSearchParams(window.location.search);
+//     const authorizationCode = urlParams.get('code');
 
-    if (authorizationCode) {
-        const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        code: authorizationCode,
-        type_api: type_api.value,
-        user_description: userEmailDescription.value
-      })
-    };
+//     if (authorizationCode) {
+//         const requestOptions = {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify({
+//         code: authorizationCode,
+//         type_api: type_api.value,
+//         user_description: userEmailDescription.value
+//       })
+//     };
 
-    // READY TO REGISTER THE USER IN DATABASE
-    const response = await fetch(`${API_BASE_URL}user/preferences/link/`, requestOptions);
-    const data = await response.json();
+//     // READY TO REGISTER THE USER IN DATABASE
+//     const response = await fetch(`${API_BASE_URL}user/preferences/link/`, requestOptions);
+//     const data = await response.json();
 
-    console.log("data received:", data)
-    } else {
-        // Show the pop-up
-        backgroundColor.value = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'autorisation';
-        notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
-        displayPopup();
-    }
-}
+//     console.log("data received:", data)
+//     } else {
+//         // Show the pop-up
+//         backgroundColor.value = 'bg-red-300';
+//         notificationTitle.value = 'Erreur d\'autorisation';
+//         notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
+//         displayPopup();
+//     }
+// }
 
 async function fetchEmailLinked() {
     const requestOptions = {

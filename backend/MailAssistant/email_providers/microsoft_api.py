@@ -1108,7 +1108,7 @@ def email_to_db(user, email, id_email):
 
         try:
             email_entry = Email.objects.create(
-                email_linked=social_api.email,
+                social_api=social_api,
                 provider_id=email_id,
                 email_provider=MICROSOFT_PROVIDER,
                 email_short_summary=sentence,

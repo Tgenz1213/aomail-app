@@ -46,7 +46,7 @@ from MailAssistant.constants import (
     MAX_RETRIES,
     USELESS,
     INFORMATION,
-    REDIRECT_URI,
+    REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
 )
 from .. import library
@@ -62,7 +62,7 @@ LOGGER = logging.getLogger(__name__)
 def generate_auth_url(request):
     """Generate a connection URL to obtain the authorization code"""
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
 
     authorization_url, _ = flow.authorization_url(
@@ -76,7 +76,7 @@ def generate_auth_url(request):
 def exchange_code_for_tokens(authorization_code):
     """Return tokens Exchanged with authorization code"""
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     flow.fetch_token(code=authorization_code)
 

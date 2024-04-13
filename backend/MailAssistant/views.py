@@ -1212,10 +1212,12 @@ def get_emails_linked(request):
         social_apis = SocialAPI.objects.filter(user=user)
         emails_inked = []
         for social_api in social_apis:
-            emails_inked.append({"email": social_api.email, "type_api": social_api.type_api})
-            
+            emails_inked.append(
+                {"email": social_api.email, "type_api": social_api.type_api}
+            )
+
         return Response(emails_inked, status=200)
-    
+
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
@@ -1235,6 +1237,71 @@ def unlink_email(request):
         return Response({"error": "SocialAPI entry not found"}, status=400)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def link_email(request):
+    """Links the email with the user account."""
+
+    user = request.user
+    type_api = request.data.get("type_api")
+    code = request.data.get("code")
+    user_description = request.data.get("user_description")
+
+    # Checks if the authorization code is valid
+    authorization_result = validate_authorization_code(type_api, code)
+
+    if "error" in authorization_result:
+        return Response({"error": authorization_result["error"]}, status=400)
+
+    # Extract tokens and email from the authorization result
+    access_token = authorization_result["access_token"]
+    refresh_token = authorization_result["refresh_token"]
+    email = authorization_result["email"]
+
+    # Check email requirements
+    if email:
+        if " " in email:
+            return Response(
+                {"error": "Email address must not contain spaces"}, status=400
+            )
+        social_api = SocialAPI.objects.create(
+            user=user,
+            email=email,
+            type_api=type_api,
+            user_description=user_description,
+            access_token=access_token,
+            refresh_token=refresh_token,
+        )
+    else:
+        # Google Oauth2.0 returns a refresh token only at first consent
+        return Response({"error": "Email address already used"}, status=400)
+
+    # Asynchronous function to store all contacts
+    try:
+        if type_api == "google":
+            threading.Thread(
+                target=google_api.set_all_contacts, args=(user, email)
+            ).start()
+        elif type_api == "microsoft":
+            threading.Thread(
+                target=microsoft_api.set_all_contacts, args=(access_token, user)
+            ).start()
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+    # Subscribe to listeners
+    subscribed = subscribe_listeners(type_api, user, email)
+    if subscribed:
+        return Response(
+            {"message": "Email linked to account successfully!"},
+            status=201,
+        )
+    else:
+        social_api.delete()
+
+    return Response({"error": "Could not subscribe to listener"}, status=400)
 
 
 @api_view(["POST"])

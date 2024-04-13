@@ -35,7 +35,8 @@ from MailAssistant.constants import (
     MICROSOFT_CONFIG,
     MICROSOFT_PROVIDER,
     MICROSOFT_SCOPES,
-    REDIRECT_URI,
+    REDIRECT_URI_LINK_EMAIL,
+    REDIRECT_URI_SIGNUP,
     USELESS,
 )
 from ..serializers import EmailDataSerializer
@@ -57,7 +58,25 @@ def generate_auth_url(request):
     params = {
         "client_id": MICROSOFT_CONFIG["client_id"],
         "response_type": "code",
-        "redirect_uri": REDIRECT_URI,
+        "redirect_uri": REDIRECT_URI_SIGNUP,
+        "response_mode": "query",
+        "scope": " ".join(MICROSOFT_SCOPES),
+        "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+        "prompt": "consent",
+    }
+    authorization_url = (
+        f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
+    )
+
+    return redirect(authorization_url)
+
+
+def auth_url_link_email(request):
+    """Generate a connection URL to obtain the authorization code"""
+    params = {
+        "client_id": MICROSOFT_CONFIG["client_id"],
+        "response_type": "code",
+        "redirect_uri": REDIRECT_URI_LINK_EMAIL,
         "response_mode": "query",
         "scope": " ".join(MICROSOFT_SCOPES),
         "state": "0a590ac7-6a23-44b1-9237-287743818d32",
@@ -79,7 +98,7 @@ def exchange_code_for_tokens(authorization_code):
     )
 
     result = app.acquire_token_by_authorization_code(
-        authorization_code, scopes=MICROSOFT_SCOPES, redirect_uri=REDIRECT_URI
+        authorization_code, scopes=MICROSOFT_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     if result:
         return result["access_token"], result["refresh_token"]
@@ -1038,7 +1057,9 @@ def email_to_db(user, email, id_email):
                     category = rule.category
                     rule_category = True
 
-        user_description = social_api.user_description if social_api.user_description != None else ""
+        user_description = (
+            social_api.user_description if social_api.user_description != None else ""
+        )
         (
             topic,
             importance_dict,

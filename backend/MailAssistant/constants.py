@@ -14,7 +14,8 @@ ENV = os.environ.get("ENV")
 # TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 BASE_URL = f"https://{ENV}.aochange.com/"
 BASE_URL_MA = f"{BASE_URL}MailAssistant/"
-REDIRECT_URI = f"{BASE_URL}signup_part2"
+REDIRECT_URI_SIGNUP = f"{BASE_URL}signup_part2"
+REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]
 ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
 NO_REPLY_CREDS = json.load(open(f"{CREDS_PATH}no_reply_creds.json"))

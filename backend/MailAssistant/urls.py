@@ -51,6 +51,7 @@ urlpatterns = [
     path('user/preferences/username/', views.get_user_details, name='get_user_details'), # ok
     path('user/preferences/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/preferences/unlink/', views.unlink_email, name='unlink_email'), # dev
+    path('user/preferences/link/', views.link_email, name='link_email'), # dev
     # TODO: remove as we have stripe
     path('user/set_billing_informations/', views.set_user_billing_informations, name= 'set_user_billing_informations'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
@@ -66,6 +67,7 @@ urlpatterns = [
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
+    path('microsoft/auth_url_link_email/', microsoft_api.auth_url_link_email, name='auth_url_link_email'), # dev
     path('microsoft/receive_mail_notifications/', microsoft_api.MicrosoftEmailNotification.as_view(), name='receive_mail_notifications'), # ok
     path('microsoft/receive_contact_notifications/', microsoft_api.MicrosoftContactNotification.as_view(), name='receive_contact_notifications'), # ok
     path('microsoft/receive_subscription_notifications/', microsoft_api.MicrosoftSubscriptionNotification.as_view(), name='receive_subscription_notifications'), # ok

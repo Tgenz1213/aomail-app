@@ -321,27 +321,16 @@
                                                 email</span>
                                         </div>
                                     </div>
-                                    <div class="pt-6">
-                                        <div class="flex space-x-1 items-center">
-                                            <envelope-icon class="w-4 h-4" />
-                                            <label
-                                                class="block text-sm font-medium leading-6 text-gray-900">Email</label>
-                                        </div>
-                                        <div class="relative items-stretch mt-2 pb-6">
-                                            <input v-model="emailInput" type="email"
-                                                class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
-                                        </div>
+                                    <div class="pt-6">                                        
                                         <div class="flex space-x-1 items-center">
                                             <envelope-icon class="w-4 h-4" />
                                             <label
                                                 class="block text-sm font-medium leading-6 text-gray-900">Description</label>
                                         </div>
                                         <div class="relative items-stretch mt-2 pb-6">
-                                            <input v-model="userEmailDescription" 
-       type="text"
-       placeholder="Résumez-vous/votre métier en quelques mots pour aider l'assistant"
-       class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
-
+                                            <input v-model="userEmailDescription" type="text"
+                                                placeholder="Résumez-vous pour aider l'assistant"
+                                                class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                                         </div>
                                         <div class="overflow-y-auto" style="max-height: 120px;">
                                             <!-- TODO: set dynamicelly -->
@@ -579,7 +568,7 @@ let timerId = ref(null);
 let activeSection = ref('preferences'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
 let userData = ref('');
-let emailInput = ref('');
+let type_api = ref('');
 let userEmailDescription = ref('');
 let emailsLinked = ref('');
 let newPassword = ref('');
@@ -656,38 +645,47 @@ async function unLinkAccount(email) {
     }
 }
 
-function checkEmailInput(event) {
-    event.preventDefault();
-    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailInput.value.trim()) {
-        // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Aucun email';
-        notificationMessage.value = 'Veuillez saisir un email s\'il vous plaît';
-        displayPopup();
-        return false;
-    } else if (!emailFormat.test(emailInput.value)) {
-        // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Email invalide';
-        notificationMessage.value = 'Le format de l\'email est incorrect'
-        displayPopup();
-        return false;
-    }
-    return true;
-}
 function authorize_google(event) {
-    if (checkEmailInput(event)) {
-        // CHANGE URL redirection
-        // CHANGE URL and USE an other window
-        window.location.replace(`${API_BASE_URL}google/auth_url/`);
-    }
+    
+        type_api.value = "google";
+        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
+
 }
 function authorize_microsoft(event) {
-    if (checkEmailInput(event)) {
-        // CHANGE URL redirection
-        window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
+    
+        type_api.value = "microsoft";
+        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
+    
+}
+
+function saveEmail() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const authorizationCode = urlParams.get('code');
+
+    if (authorizationCode) {
+        const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        code: authorizationCode,
+        type_api: type_api.value,
+        user_description: userEmailDescription.value
+      })
+    };
+
+    // READY TO REGISTER THE USER IN DATABASE
+    const response = await fetch(`${API_BASE_URL}user/preferences/link/`, requestOptions);
+    const data = await response.json();
+
+    console.log("data received:", data)
+    } else {
+        // Show the pop-up
+        backgroundColor.value = 'bg-red-300';
+        notificationTitle.value = 'Erreur d\'autorisation';
+        notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
+        displayPopup();
     }
 }
 

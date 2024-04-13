@@ -1222,6 +1222,17 @@ def get_emails_linked(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+def unlink_email(request):
+    """Unlinks the email and deletes all stored emails associated with the user account."""
+    user = request.user
+    email = request.data.get("email")
+
+    # try:
+    #     social_api = 
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def create_sender(request):
     """Create a new sender associated with the authenticated user"""
     serializer = SenderSerializer(data=request.data)

@@ -96,6 +96,7 @@ class SocialAPI(models.Model):
     access_token = models.CharField(max_length=3000, null=True)
     refresh_token = models.CharField(max_length=2000, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_description = models.CharField(max_length=200, null=True)
 
 
 class Rule(models.Model):
@@ -115,6 +116,8 @@ class Email(models.Model):
     """Model for storing email information."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_emails")
+    # TODO: remove null = True after test
+    email = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, null=True)
     provider_id = models.CharField(max_length=200, unique=True)
     web_link = models.CharField(max_length=200, null=True)
     email_provider = models.CharField(max_length=50)

@@ -112,6 +112,18 @@ def get_credentials(user, email):
     return creds
 
 
+def get_social_api(user, email):
+    """Returns the SocialAPI instance"""
+    try:
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        return social_api
+    except SocialAPI.DoesNotExist:
+        LOGGER.error(
+            f"No credentials found for user with ID {user.id} and email {email}"
+        )
+        return None
+
+
 def refresh_credentials(creds):
     try:
         creds.refresh(Request())
@@ -786,7 +798,8 @@ def receive_mail_notifications(request):
                 print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
                 try:
                     threading.Thread(
-                        target=email_to_db, args=(social_api.user, services, email_id)
+                        target=email_to_db,
+                        args=(social_api.user, services, social_api, email_id),
                     ).start()
                     break
                 except Exception as e:
@@ -850,7 +863,7 @@ def receive_mail_notifications(request):
         return Response({"error": str(e)}, status=500)
 
 
-def email_to_db(user, services, id_email):
+def email_to_db(user, services, social_api: SocialAPI, id_email):
     """Saves email notifications from Google listener to database"""
 
     (
@@ -885,8 +898,8 @@ def email_to_db(user, services, id_email):
                     category = rule.category
                     rule_category = True
 
-        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-        user_description = "Augustin ROLET est un étudiant en école d'ingénieurs spécialisée dans l'informatique et la cybersécurité"
+        # user_description = "Augustin ROLET est un étudiant en école d'ingénieurs spécialisée dans l'informatique et la cybersécurité"
+        user_description = social_api.user_description if social_api.user_description != None else ""
 
         # issue cuz of a pointer make a copy to avoid
         """c_d = category_dict.copy()
@@ -955,6 +968,7 @@ def email_to_db(user, services, id_email):
 
         try:
             email_entry = Email.objects.create(
+                email=social_api.email,
                 provider_id=email_id,
                 email_provider=GOOGLE_PROVIDER,
                 email_short_summary=sentence,

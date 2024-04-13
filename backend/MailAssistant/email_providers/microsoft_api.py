@@ -1011,7 +1011,8 @@ class MicrosoftContactNotification(View):
 def email_to_db(user, email, id_email):
     """Saves email notifications from Microsoft listener to database"""
 
-    access_token = refresh_access_token(get_social_api(user, email))
+    social_api = get_social_api(user, email)
+    access_token = refresh_access_token(social_api)
     subject, from_name, decoded_data, email_id, sent_date, web_link, has_attachments = (
         get_mail_to_db(access_token, None, id_email)
     )
@@ -1037,8 +1038,7 @@ def email_to_db(user, email, id_email):
                     category = rule.category
                     rule_category = True
 
-        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-        user_description = ""
+        user_description = social_api.user_description if social_api.user_description != None else ""
         (
             topic,
             importance_dict,
@@ -1087,6 +1087,7 @@ def email_to_db(user, email, id_email):
 
         try:
             email_entry = Email.objects.create(
+                email=social_api.email,
                 provider_id=email_id,
                 email_provider=MICROSOFT_PROVIDER,
                 email_short_summary=sentence,

@@ -50,6 +50,7 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'), # ok
     path('user/preferences/username/', views.get_user_details, name='get_user_details'), # ok
     path('user/preferences/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
+    path('user/preferences/unlink/', views.unlink_email, name='unlink_email'), # dev
     # TODO: remove as we have stripe
     path('user/set_billing_informations/', views.set_user_billing_informations, name= 'set_user_billing_informations'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#

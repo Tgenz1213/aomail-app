@@ -566,7 +566,7 @@
                         <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
                       </div>
                       <div class="mt-2">
-                        <input v-model="userDescription" placeholder="Résumez-vous en quelques mots afin d'aider l'assistant"
+                        <input v-model="userDescription" placeholder="Résumez-vous en quelques mots afin d'aider l'assistant" id="userDescription"
                           class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                       </div>
                     </div>
@@ -799,6 +799,8 @@ function handleKeyDown(event) {
         document.getElementById('password').focus();
       } else if (document.activeElement.id === 'password') {
         document.getElementById('confirmPassword').focus();
+      } else if (document.activeElement.id === 'confirmPassword') {
+        document.getElementById('userDescription').focus();
       } else {
         document.getElementById('login').focus();
       }

@@ -909,7 +909,6 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                     category = rule.category
                     rule_category = True
 
-        # user_description = "Augustin ROLET est un étudiant en école d'ingénieurs spécialisée dans l'informatique et la cybersécurité"
         user_description = (
             social_api.user_description if social_api.user_description != None else ""
         )

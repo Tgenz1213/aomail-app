@@ -356,7 +356,6 @@ def reset_password(request):
     ...
 
 
-
 ######################## STRIPE ########################
 @csrf_exempt
 def receive_payment_notifications(request):
@@ -1200,6 +1199,25 @@ def check_sender_for_user(request):
 def get_user_details(request):
     """Returns the username"""
     return Response({"username": request.user.username})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_emails_linked(request):
+    """Returns the list of linked emails with the user account."""
+
+    user = request.user
+
+    try:
+        social_apis = SocialAPI.objects.filter(user=user)
+        emails_inked = []
+        for social_api in social_apis:
+            emails_inked.append({"email": social_api.email, "type_api": social_api.type_api})
+            
+        return Response(emails_inked, status=200)
+    
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 
 
 @api_view(["POST"])

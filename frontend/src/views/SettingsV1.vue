@@ -599,22 +599,31 @@ onMounted(() => {
 })
 
 async function fetchEmailLinked() {
-    // const requestOptions = {
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     }
-    // };
+    const requestOptions = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
 
-    // try {
-    //     const response = await fetchWithToken(`${API_BASE_URL}user/preferences/emails_linked/`, requestOptions);
-    //     emailsLinked.value = response;
-    // } catch (error) {
-    //     // Show the pop-up
-    //     backgroundColor = 'bg-red-300';
-    //     notificationTitle = 'Erreur récupération des emails liés';
-    //     notificationMessage = error.message;
-    //     displayPopup();
-    // }
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/emails_linked/`, requestOptions);
+
+        if ("error" in response) {
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Erreur récupération des emails liés';
+            notificationMessage = response.error;
+            displayPopup();
+        } else {
+            emailsLinked.value = response;
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur récupération des emails liés';
+        notificationMessage = error.message;
+        displayPopup();
+    }
 }
 
 async function submitBillingInfo() {

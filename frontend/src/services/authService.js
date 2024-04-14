@@ -18,18 +18,6 @@ export async function isUserAuthenticated() {
         let response = await fetchWithToken(`${API_BASE_URL}api/is_authenticated/`, requestOptions);
 
         if (response.isAuthenticated === true) {
-            // Check if email is in localStorage
-            const email = localStorage.getItem('email');
-
-            if (!email) {
-                try {
-                    const data = await fetchWithToken(`${API_BASE_URL}api/get_first_email/`);
-                    localStorage.setItem('email', data.email);
-                } catch (error) {
-                    console.error("Error fetching email:", error);
-                }
-            }
-
             return true;
         } else {
             return false;

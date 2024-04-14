@@ -497,10 +497,6 @@ def login(request):
     if user:
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
-        social_api_instance = get_object_or_404(SocialAPI, user=user)
-
-        # TODO: update the code to handle when the user has several emails
-        email = social_api_instance.email
 
         return Response({"access_token": access_token}, status=200)
 
@@ -1585,7 +1581,7 @@ def check_username(request):
 
 
 # ----------------------- EMAIL -----------------------#
-@api_view(["GET"])
+'''@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_first_email(request):
     """Returns the first email associated with the user in mailassistantdb"""
@@ -1598,7 +1594,7 @@ def get_first_email(request):
     if email:
         return Response({"email": email}, status=200)
     else:
-        return Response({"error": "No emails associated with the user"}, status=404)
+        return Response({"error": "No emails associated with the user"}, status=404)'''
 
 
 @api_view(["GET"])

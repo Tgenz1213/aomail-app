@@ -46,6 +46,7 @@ IMPORTANT = "Important"
 INFORMATION = "Information"
 USELESS = "Useless"
 DEFAULT_CATEGORY = "Others"
+PHISHING_CATEGORY = "Phishing"
 MAX_RETRIES = 3
 
 

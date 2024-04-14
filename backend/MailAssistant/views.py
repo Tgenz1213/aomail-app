@@ -38,6 +38,7 @@ from MailAssistant.constants import (
     ENCRYPTION_KEYS,
     MAX_RETRIES,
     MICROSOFT_PROVIDER,
+    PHISHING_CATEGORY,
     STRIPE_PAYMENT_FAILED_URL,
     STRIPE_PAYMENT_SUCCESS_URL,
     STRIPE_PRICES,
@@ -313,12 +314,16 @@ def save_user_data(
             except json.JSONDecodeError:
                 return {"error": "Invalid categories data"}
 
-        default_category = Category(
+        Category.objects.create(
             name=DEFAULT_CATEGORY,
             description="",
             user=user,
         )
-        default_category.save()
+        Category.objects.create(
+            name=PHISHING_CATEGORY,
+            description="Emails that are very likely to be attempts of phishing. Exercise caution with emails promising significant gains in a short time.",
+            user=user,
+        )
 
         return {"message": "User data saved successfully"}
 

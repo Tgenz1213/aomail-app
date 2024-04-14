@@ -104,7 +104,7 @@ const tiers = [
       'Modèles IA: GPT, Claude, Mistral',
       'Support prioritaire',
       'Fournisseurs: Outlook, Gmail, Apple',
-      'Fine-tuning'
+      //'Fine-tuning'
     ],
     mostPopular: false,
   },

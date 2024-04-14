@@ -1582,28 +1582,11 @@ def check_username(request):
 
 
 # ----------------------- EMAIL -----------------------#
-'''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_first_email(request):
-    """Returns the first email associated with the user in mailassistantdb"""
-    user = request.user
-    social_api_instance = get_object_or_404(SocialAPI, user=user)
-
-    # TODO: update the code to handle when the user has several emails
-    email = social_api_instance.email
-
-    if email:
-        return Response({"email": email}, status=200)
-    else:
-        return Response({"error": "No emails associated with the user"}, status=404)'''
-
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_mail_by_id(request):
     user = request.user
     mail_id = request.GET.get("email_id")
-
     email = get_object_or_404(Email, user=user, id=mail_id)
     social_api = email.social_api
     type_api = social_api.type_api
@@ -2771,3 +2754,19 @@ def get_user_emails(request):
     formatted_time = str(datetime.timedelta(seconds=time.time() - start))
     print(f"------Retrieved user emails in {formatted_time}--------")
     return Response(formatted_data, status=status.HTTP_200_OK)'''
+
+
+'''@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_first_email(request):
+    """Returns the first email associated with the user in mailassistantdb"""
+    user = request.user
+    social_api_instance = get_object_or_404(SocialAPI, user=user)
+
+    # TODO: update the code to handle when the user has several emails
+    email = social_api_instance.email
+
+    if email:
+        return Response({"email": email}, status=200)
+    else:
+        return Response({"error": "No emails associated with the user"}, status=404)'''

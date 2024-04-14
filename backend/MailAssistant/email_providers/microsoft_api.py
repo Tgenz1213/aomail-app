@@ -108,7 +108,7 @@ def auth_url_link_email(request):
 
 def link_email_tokens(authorization_code):
     """Returns the access token and the refresh token"""
-    
+
     app = ConfidentialClientApplication(
         client_id=MICROSOFT_CONFIG["client_id"],
         client_credential=MICROSOFT_CONFIG["client_secret"],
@@ -333,9 +333,11 @@ def send_email(request):
     """Sends an email using the Microsoft Graph API."""
 
     user = request.user
-    email = request.headers.get("email")
+    # email = request.headers.get("email")
+    email = request.META["email"]
     access_token = refresh_access_token(get_social_api(user, email))
-    serializer = EmailDataSerializer(data=request.data)
+    # serializer = EmailDataSerializer(data=request.data)
+    serializer = EmailDataSerializer(data=request.POST)
 
     if serializer.is_valid():
         data = serializer.validated_data

@@ -718,8 +718,7 @@ async function handleAIClick() {
   const requestOptions = {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json',
-      'email': localStorage.getItem('email')
+      'Content-Type': 'application/json'
     },
   };
 
@@ -1368,9 +1367,6 @@ async function sendEmail() {
   try {
     const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
       method: 'POST',
-      headers: {
-        email: localStorage.getItem('email')
-      },
       body: formData
     });
 

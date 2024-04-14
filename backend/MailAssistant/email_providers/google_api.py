@@ -214,9 +214,11 @@ def send_email(request):
 
     try:
         user = request.user
-        email = request.headers.get("email")
+        # email = request.headers.get("email")
+        email = request.META["email"]
         service = authenticate_service(user, email)["gmail.send"]
-        serializer = EmailDataSerializer(data=request.data)
+        # serializer = EmailDataSerializer(data=request.data)
+        serializer = EmailDataSerializer(data=request.POST)
 
         if serializer.is_valid():
             data = serializer.validated_data

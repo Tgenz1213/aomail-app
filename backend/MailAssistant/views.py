@@ -582,6 +582,11 @@ def update_category(request, current_name):
             {"error": f"Can not modify: {DEFAULT_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    if current_name == PHISHING_CATEGORY:
+        return Response(
+            {"error": f"Can not modify: {PHISHING_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     if len(current_name) > 50:
         return Response(
             {"error": "Name length greater than 50"},
@@ -634,6 +639,11 @@ def delete_category(request, current_name):
             {"error": f"Can not delete: {DEFAULT_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    if current_name == PHISHING_CATEGORY:
+        return Response(
+            {"error": f"Can not delete: {PHISHING_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
@@ -658,6 +668,11 @@ def create_category(request):
     if name == DEFAULT_CATEGORY:
         return Response(
             {"error": f"Can not create: {DEFAULT_CATEGORY}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    if name == PHISHING_CATEGORY:
+        return Response(
+            {"error": f"Can not create: {PHISHING_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     if len(name) > 50:

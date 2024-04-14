@@ -534,8 +534,7 @@ async function findUser(searchQuery) {
     const requestOptions = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'email': localStorage.getItem('email')
+            'Content-Type': 'application/json'
         },
     };
 

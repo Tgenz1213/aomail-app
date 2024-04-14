@@ -502,7 +502,7 @@ def login(request):
         # TODO: update the code to handle when the user has several emails
         email = social_api_instance.email
 
-        return Response({"access_token": access_token, "email": email}, status=200)
+        return Response({"access_token": access_token}, status=200)
 
     return Response(status=400)
 

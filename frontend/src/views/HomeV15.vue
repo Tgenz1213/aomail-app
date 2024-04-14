@@ -1690,7 +1690,7 @@ async function deleteEmail(emailId) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'email': localStorage.getItem("email"),
+                'email': localStorage.getItem('email'),
             }
         });
 

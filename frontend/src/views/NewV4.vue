@@ -825,8 +825,7 @@ async function handleAIClick() {
                     const requestOptions = {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'email': localStorage.getItem('email')
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             input_data: textareaValueSave.value,
@@ -903,8 +902,7 @@ async function handleAIClick() {
                     const requestOptions = {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'email': localStorage.getItem('email')
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             mail_content: mail.value,
@@ -978,8 +976,7 @@ async function findUser(searchQuery) {
     const requestOptions = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'email': localStorage.getItem('email')
+            'Content-Type': 'application/json'
         },
     };
 
@@ -1634,8 +1631,7 @@ async function checkSpelling() {
         const requestOptions = {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 email_subject: inputValue.value,
@@ -1702,8 +1698,7 @@ async function checkCopyWriting() {
         const requestOptions = {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 email_subject: inputValue.value,
@@ -1767,7 +1762,6 @@ async function WriteBetter() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
             },
             body: JSON.stringify({
                 email_body: mailInput.value,

@@ -568,7 +568,6 @@ let timerId = ref(null);
 let activeSection = ref('preferences'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
 let userData = ref('');
-let type_api = ref('');
 let userEmailDescription = ref('');
 let emailsLinked = ref('');
 let newPassword = ref('');
@@ -646,13 +645,18 @@ async function unLinkAccount(email) {
 }
 
 function authorize_google() {
-    type_api.value = "google";
+    saveVariables("google");
     // TOOD: signout user and then redirect to grant page (only solution for multi account)
     window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
 }
 function authorize_microsoft() {
-    type_api.value = "microsoft";
+    saveVariables("microsoft");
     window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
+}
+function saveVariables(type_api) {
+    sessionStorage.setItem("type_api", type_api);
+    sessionStorage.setItem("userDescription", userEmailDescription.value);
+
 }
 function checkAuthorizationCode() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -671,14 +675,15 @@ async function linkEmail(authorizationCode) {
         },
         body: JSON.stringify({
             code: authorizationCode,
-            type_api: type_api.value,
-            user_description: userEmailDescription.value
+            type_api: sessionStorage.getItem("type_api"),
+            user_description: sessionStorage.getItem("userDescription")
         })
     };
 
-    const response = await fetch(`${API_BASE_URL}user/preferences/link/`, requestOptions);
+    const response = await fetchWithToken(`${API_BASE_URL}user/preferences/link/`, requestOptions);
 
     if (response.message == "Email linked to account successfully!") {
+        fetchEmailLinked();
         // Show the pop-up
         backgroundColor.value = 'bg-green-300';
         notificationTitle.value = 'Succès !';
@@ -691,8 +696,11 @@ async function linkEmail(authorizationCode) {
         notificationMessage.value = response.error;
         displayPopup();
     }
-
-    console.log("data received:", response)
+    sessionStorage.clear();
+    // Remove '?code' from url
+    var currentUrl = window.location.href;
+    var modifiedUrl = currentUrl.replace(/(\?|\&)code=.*$/, '');
+    window.history.replaceState({}, document.title, modifiedUrl);
 }
 
 async function fetchEmailLinked() {

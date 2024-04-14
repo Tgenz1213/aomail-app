@@ -145,7 +145,15 @@ def signup(request):
 
     # Save user data
     result = save_user_data(
-        user, type_api, user_description, email, access_token, refresh_token, theme, color, categories
+        user,
+        type_api,
+        user_description,
+        email,
+        access_token,
+        refresh_token,
+        theme,
+        color,
+        categories,
     )
     if "error" in result:
         return Response(result, status=400)
@@ -215,6 +223,26 @@ def validate_authorization_code(type_api, code):
         return {"error": str(e)}
 
 
+def validate_code_link_email(type_api, code):
+    """Validates the authorization code for a given API type"""
+    
+    try:
+        if type_api == "google":
+            access_token, refresh_token = google_api.link_email_tokens(code)
+            email = google_api.get_email(access_token, refresh_token)
+        elif type_api == "microsoft":
+            access_token, refresh_token = microsoft_api.link_email_tokens(code)
+            email = microsoft_api.get_email(access_token)
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "email": email,
+        }
+    except Exception as e:
+        LOGGER.error(f"Error in validate_code_link_email: {str(e)}")
+        return {"error": str(e)}
+
+
 def validate_signup_data(username, password, code):
     """Validates user signup data to ensure all requirements are met"""
     if not code:
@@ -238,7 +266,15 @@ def validate_signup_data(username, password, code):
 
 
 def save_user_data(
-    user, type_api, user_description, email, access_token, refresh_token, theme, color, categories
+    user,
+    type_api,
+    user_description,
+    email,
+    access_token,
+    refresh_token,
+    theme,
+    color,
+    categories,
 ):
     """Store user creds and settings in DB"""
     try:
@@ -764,8 +800,7 @@ def new_email_ai(request):
         input_data = serializer.validated_data["input_data"]
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
-
-        print("FORMALITY >>>>", formality)
+        
         subject_text, mail_text = claude.generate_email(input_data, length, formality)
 
         return Response({"subject": subject_text, "mail": mail_text})
@@ -1252,7 +1287,7 @@ def link_email(request):
     user_description = request.data.get("user_description")
 
     # Checks if the authorization code is valid
-    authorization_result = validate_authorization_code(type_api, code)
+    authorization_result = validate_code_link_email(type_api, code)
 
     if "error" in authorization_result:
         return Response({"error": authorization_result["error"]}, status=400)

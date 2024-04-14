@@ -71,6 +71,23 @@ def generate_auth_url(request):
     return redirect(authorization_url)
 
 
+def exchange_code_for_tokens(authorization_code):
+    """Returns the access token and the refresh token"""
+    app = ConfidentialClientApplication(
+        client_id=MICROSOFT_CONFIG["client_id"],
+        client_credential=MICROSOFT_CONFIG["client_secret"],
+        authority=MICROSOFT_AUTHORITY,
+    )
+
+    result = app.acquire_token_by_authorization_code(
+        authorization_code, scopes=MICROSOFT_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+    )
+    if result:
+        return result["access_token"], result["refresh_token"]
+    else:
+        return Response({"error": "tokens not found"}, status=400)
+
+
 def auth_url_link_email(request):
     """Generate a connection URL to obtain the authorization code"""
     params = {
@@ -89,8 +106,9 @@ def auth_url_link_email(request):
     return redirect(authorization_url)
 
 
-def exchange_code_for_tokens(authorization_code):
+def link_email_tokens(authorization_code):
     """Returns the access token and the refresh token"""
+    
     app = ConfidentialClientApplication(
         client_id=MICROSOFT_CONFIG["client_id"],
         client_credential=MICROSOFT_CONFIG["client_secret"],
@@ -98,7 +116,9 @@ def exchange_code_for_tokens(authorization_code):
     )
 
     result = app.acquire_token_by_authorization_code(
-        authorization_code, scopes=MICROSOFT_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+        authorization_code,
+        scopes=MICROSOFT_SCOPES,
+        redirect_uri=REDIRECT_URI_LINK_EMAIL,
     )
     if result:
         return result["access_token"], result["refresh_token"]

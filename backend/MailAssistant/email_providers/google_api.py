@@ -72,6 +72,24 @@ def generate_auth_url(request):
     return redirect(authorization_url)
 
 
+def exchange_code_for_tokens(authorization_code):
+    """Return tokens Exchanged with authorization code"""
+    flow = Flow.from_client_secrets_file(
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+    )
+    flow.fetch_token(code=authorization_code)
+
+    credentials = flow.credentials
+
+    if credentials:
+        access_token = credentials.token
+        refresh_token = credentials.refresh_token
+
+        return access_token, refresh_token
+    else:
+        return Response({"error": "tokens not found"}, status=400)
+
+
 def auth_url_link_email(request):
     """Generate a connection URL to obtain the authorization code"""
     flow = Flow.from_client_secrets_file(
@@ -84,10 +102,10 @@ def auth_url_link_email(request):
     return redirect(authorization_url)
 
 
-def exchange_code_for_tokens(authorization_code):
+def link_email_tokens(authorization_code):
     """Return tokens Exchanged with authorization code"""
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
     )
     flow.fetch_token(code=authorization_code)
 

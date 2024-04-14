@@ -1587,19 +1587,21 @@ def check_username(request):
 def get_mail_by_id(request):
     user = request.user
     mail_id = request.GET.get("email_id")
-    email = get_object_or_404(Email, user=user, id=mail_id)
+    
+    email = get_object_or_404(Email, user=user, provider_id=mail_id)
     social_api = email.social_api
+    email_user = social_api.email
     type_api = social_api.type_api
 
     if mail_id is not None:
         if type_api == "google":
-            services = google_api.authenticate_service(user, email)
+            services = google_api.authenticate_service(user, email_user)
             subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
                 google_api.get_mail(services, None, mail_id)
             )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
-                microsoft_api.get_social_api(user, email)
+                microsoft_api.get_social_api(user, email_user)
             )
             subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
                 microsoft_api.get_mail(access_token, None, mail_id)

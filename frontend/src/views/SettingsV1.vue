@@ -207,8 +207,8 @@
                         <!-- TO DO : CENTER -->
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
-                            <div class="flex justify-center gap-32">
-                                <div class="flex flex-col">
+                            <div class="flex justify-center gap-20 px-10">
+    <div class="flex-col flex-grow">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-300"></div>
@@ -311,7 +311,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex-col">
+    <div class="flex-col flex-grow">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-300"></div>
@@ -389,7 +389,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex flex-row gap-2">
+                                    <div class="flex flex-row justify-between px-12">
                                         <div class="pt-4">
                                             <div class="relative items-stretch mt-2 flex justify-center items-center">
                                                 <button type="button"

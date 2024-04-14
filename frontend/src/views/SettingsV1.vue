@@ -160,18 +160,18 @@
                                         <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
                                             <!-- Current: "bg-gray-200 text-gray-800", Default: "text-gray-600 hover:text-gray-800" -->
                                             <div class="text-sm font-medium cursor-pointer"
-                                                :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'preferences', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'preferences' }]"
-                                                @click="setActiveSection('preferences')">
-                                                <adjustments-vertical-icon class="w-4 h-4" />
-                                                <a
-                                                    :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">Préférences</a>
-                                            </div>
-                                            <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'account', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'account' }]"
                                                 @click="setActiveSection('account')">
                                                 <user-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account' }"
                                                     class="text-sm font-medium">Mon Compte</a>
+                                            </div>
+                                            <div class="text-sm font-medium cursor-pointer"
+                                                :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'preferences', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'preferences' }]"
+                                                @click="setActiveSection('preferences')">
+                                                <adjustments-vertical-icon class="w-4 h-4" />
+                                                <a
+                                                    :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">Préférences</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription' }]"
@@ -208,7 +208,7 @@
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
                             <div class="flex justify-center gap-20 px-10">
-    <div class="flex-col flex-grow">
+                                <div class="flex-col flex-grow">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-300"></div>
@@ -311,7 +311,7 @@
                                         </div>
                                     </div>
                                 </div>
-    <div class="flex-col flex-grow">
+                                <div class="flex-col flex-grow">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-300"></div>
@@ -565,7 +565,7 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
 
-let activeSection = ref('preferences'); // Default active section
+let activeSection = ref('account'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
 let userData = ref('');
 let userEmailDescription = ref('');
@@ -855,10 +855,10 @@ function handleKeyDown(event) {
 
 function switchActiveSection() {
     const nextSection = {
-        'preferences': 'account',
-        'account': 'subscription',
+        'account': 'preferences',
+        'preferences': 'subscription',
         'subscription': 'data',
-        'data': 'preferences'
+        'data': 'account'
     }
 
     setActiveSection(nextSection[activeSection.value]);

@@ -1094,8 +1094,12 @@ def delete_account(request):
         return Response({"error": str(e)}, status=500)
 
 
-def unsubscribe_listeners(user, email):
-    microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
+def unsubscribe_listeners(user, email=None):
+    if email:
+        microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
+    else:
+        microsoft_listeners = MicrosoftListener.objects.filter(user=user)
+
     if microsoft_listeners.exists():
         for listener in microsoft_listeners:
             for i in range(MAX_RETRIES):

@@ -10,6 +10,7 @@ import threading
 import jwt
 import stripe  # type: ignore
 from collections import defaultdict
+from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
@@ -1587,7 +1588,7 @@ def check_username(request):
 def get_mail_by_id(request):
     user = request.user
     mail_id = request.GET.get("email_id")
-    
+
     email = get_object_or_404(Email, user=user, provider_id=mail_id)
     social_api = email.social_api
     email_user = social_api.email
@@ -1640,12 +1641,9 @@ def set_email_read(request, email_id):
     """Mark a specific email as read for the authenticated user"""
     user = request.user
 
-    # Check if the email belongs to the authenticated user
     email = get_object_or_404(Email, user=user, id=email_id)
-
-    # Update the read field
     email.read = True
-    email.read_date = datetime.datetime.now()
+    email.read_date = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
     email.save()
 
     serializer = EmailReadUpdateSerializer(email)

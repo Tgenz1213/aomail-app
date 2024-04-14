@@ -1093,7 +1093,7 @@ def email_to_db(user, email, id_email):
             summary_list,
             sentence,
             relevance,
-        ) = claude.categorize_and_summarize_email(
+        ) = gpt_3_5_turbo.categorize_and_summarize_email(
             subject, decoded_data, category_dict, user_description
         )
 

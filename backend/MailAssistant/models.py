@@ -133,7 +133,7 @@ class Email(models.Model):
         Sender, on_delete=models.CASCADE, related_name="related_emails"
     )
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    date = models.DateTimeField(blank=True, null=True)
+    date = models.DateTimeField(null=True)
     has_attachments = models.BooleanField(default=False)
 
 

@@ -1569,8 +1569,7 @@ async function transferEmail(email) {
         const data = await fetchWithToken(url, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
+                'Content-Type': 'application/json'
             }
         });
         // Clean CC data
@@ -1689,8 +1688,7 @@ async function deleteEmail(emailId) {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email'),
+                'Content-Type': 'application/json'
             }
         });
 
@@ -1721,8 +1719,7 @@ async function openAnswer(email) {
         const data = await fetchWithToken(url, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-                'email': localStorage.getItem('email')
+                'Content-Type': 'application/json'
             }
         });
         // Clean CC data

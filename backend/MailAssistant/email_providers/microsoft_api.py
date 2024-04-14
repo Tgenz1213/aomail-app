@@ -258,7 +258,8 @@ def get_unique_senders(access_token) -> dict:
 def get_profile_image(request):
     """Returns the profile image URL of the user"""
     user = request.user
-    email = request.headers.get("email")
+    # email = request.headers.get("email")
+    email = request.META["email"]
     access_token = refresh_access_token(get_social_api(user, email))
 
     try:

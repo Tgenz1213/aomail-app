@@ -864,8 +864,7 @@ export default {
         const data = await fetchWithToken(url, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'email': localStorage.getItem('email')
+            'Content-Type': 'application/json'
           }
         });
         // Clean CC data
@@ -900,8 +899,7 @@ export default {
         const data = await fetchWithToken(url, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'email': localStorage.getItem('email')
+            'Content-Type': 'application/json'
           }
         });
         // Clean CC data
@@ -936,8 +934,7 @@ export default {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
           method: 'DELETE',
           headers: {
-            'Content-Type': 'application/json',
-            'email': localStorage.getItem('email')
+            'Content-Type': 'application/json'
           }
         });
 

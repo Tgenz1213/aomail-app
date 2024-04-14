@@ -606,17 +606,13 @@ async function handleAIClick() {
     const requestOptions = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'email': localStorage.getItem('email')
+            'Content-Type': 'application/json'
         },
     };
 
-    // TODO: store the link in DB and check at each login or each time the page new is loaded
-    // Goal: save number of requests and indeed money
     const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
 
     if (data.profile_image_url) {
-        // GMAIL
         imageURL = data.profile_image_url;
     }
 

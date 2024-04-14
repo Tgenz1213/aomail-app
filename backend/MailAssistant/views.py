@@ -14,7 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Subquery, Exists, OuterRef
-from django.http import JsonResponse
+from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -455,12 +455,25 @@ def send_email(request):
 
 
 def forward_request(request, api_method):
-    """Forwards the request to the appropriate API method based on type_api"""
+    """Forwards the request to the appropriate API method based on type_api with email header"""
     user = request.user
-    email = request.headers.get("email")
+    # TODO: email in headers with the choice to choose in front-end
+    # email = request.headers.get("email")
+    email = SocialAPI.objects.filter(user=user).first().email
+
+    # Copy of the request with the email header
+    new_request = HttpRequest()
+    new_request.method = request.method
+    new_request.GET = request.GET.copy()
+    new_request.POST = request.POST.copy()
+    new_request.FILES = request.FILES.copy()
+    new_request.COOKIES = request.COOKIES.copy()
+    new_request.META = request.META.copy()
+    new_request.META["email"] = email
 
     try:
-        social_api = get_object_or_404(SocialAPI, user=user, email=email)
+        # social_api = get_object_or_404(SocialAPI, user=user, email=email)
+        social_api = SocialAPI.objects.filter(user=user).first()
         type_api = social_api.type_api
     except SocialAPI.DoesNotExist:
         LOGGER.error(
@@ -480,7 +493,8 @@ def forward_request(request, api_method):
         # Call the specified API method dynamically
         api_function = getattr(api_module, api_method)
         # Forward the request and return the response
-        return api_function(request)
+        # return api_function(request)
+        return api_function(new_request)
     else:
         return JsonResponse({"error": "Unsupported API type or method"}, status=400)
 
@@ -1384,27 +1398,14 @@ def create_sender(request):
 def delete_email(request, email_id):
     try:
         user = request.user
-        email_user = request.headers.get("email")
-
-        # Check if the email belongs to the authenticated user
         email = get_object_or_404(Email, user=user, id=email_id)
+        social_api = email.social_api
+        type_api = social_api.type_api
         provider_id = email.provider_id
         email.delete()
 
-        try:
-            social_api = get_object_or_404(SocialAPI, user=user, email=email_user)
-            type_api = social_api.type_api
-        except SocialAPI.DoesNotExist:
-            LOGGER.error(
-                f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
-            )
-            return JsonResponse(
-                {"error": "SocialAPI entry not found"},
-                status=404,
-            )
-
         if type_api == "google":
-            result = google_api.delete_email(user, email_user, provider_id)
+            result = google_api.delete_email(user, social_api.email, provider_id)
         elif type_api == "microsoft":
             result = microsoft_api.delete_email(provider_id, social_api)
 
@@ -1601,22 +1602,13 @@ def get_first_email(request):
 @permission_classes([IsAuthenticated])
 def get_mail_by_id(request):
     user = request.user
-    email = request.headers.get("email")
     mail_id = request.GET.get("email_id")
 
-    if mail_id is not None:
-        try:
-            social_api = get_object_or_404(SocialAPI, user=user, email=email)
-            type_api = social_api.type_api
-        except SocialAPI.DoesNotExist:
-            LOGGER.error(
-                f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
-            )
-            return JsonResponse(
-                {"error": "SocialAPI entry not found for the user and email"},
-                status=404,
-            )
+    email = get_object_or_404(Email, user=user, id=mail_id)
+    social_api = email.social_api
+    type_api = social_api.type_api
 
+    if mail_id is not None:
         if type_api == "google":
             services = google_api.authenticate_service(user, email)
             subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (

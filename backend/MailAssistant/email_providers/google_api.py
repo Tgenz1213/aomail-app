@@ -709,7 +709,8 @@ def get_unique_senders(services) -> dict:
 def get_profile_image(request):
     """Returns the profile image of the user"""
     user = request.user
-    email = request.headers.get("email")
+    # email = request.headers.get("email")
+    email = request.META["email"]
     credentials = get_credentials(user, email)
     service = build_services(credentials)["profile"]
 

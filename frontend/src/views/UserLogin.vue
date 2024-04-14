@@ -143,15 +143,12 @@ async function login() {
         });
 
         if (response.status === 200) {
-            // Set access token and email for API calls
-            const email = response.data.email;
-            localStorage.setItem('email', email);
-            const token = response.data.access_token;
-            localStorage.setItem('access_token', token);
+            const access_token = response.data.access_token;
+            localStorage.setItem('access_token', access_token);
 
             // Fetch color
             const colorResponse = await axios.get(`${API_BASE_URL}user/preferences/bg_color/`, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${access_token}` }
             });
 
             const bgColor = colorResponse.data.bg_color;

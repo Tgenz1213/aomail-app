@@ -10,7 +10,6 @@ import threading
 import jwt
 import stripe  # type: ignore
 from collections import defaultdict
-from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User

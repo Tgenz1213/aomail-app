@@ -336,7 +336,7 @@
                                             <!-- TODO: set dynamicelly -->
                                             <div class="flex justify-center">
                                                 <div class="w-full max-w-lg">
-                                                    <div class="overflow-y-auto h-40"> <!-- TODO: set dynamicelly -->
+                                                    <div class="max-h-25"> <!-- TODO: set dynamicelly -->
                                                         <ul role="list" class="space-y-1">
                                                             <li v-for="email in emailsLinked" :key="email.email"
                                                                 class="flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-1 shadow hover:shadow-md text-gray-700 relative">

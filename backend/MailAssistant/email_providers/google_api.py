@@ -826,33 +826,32 @@ def receive_mail_notifications(request):
             social_api = SocialAPI.objects.get(email=email)
             services = authenticate_service(social_api.user, email)
 
-            for i in range(MAX_RETRIES):
-                print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
-                try:
-                    threading.Thread(
-                        target=email_to_db,
-                        args=(social_api.user, services, social_api, email_id),
-                    ).start()
-                    break
-                except Exception as e:
-                    LOGGER.critical(
-                        f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}, error: {str(e)}"
-                    )
-                    context = {
-                        "attempt_number": i,
-                        "email_id": email_id,
-                        "email_provider": GOOGLE_PROVIDER,
-                        "user": social_api.user,
-                    }
-                    email_html = render_to_string("ai_failed_email.html", context)
-                    send_mail(
-                        subject="Critical Alert: Email Processing Failure",
-                        message="",
-                        recipient_list=[ADMIN_EMAIL_LIST],
-                        from_email=EMAIL_NO_REPLY,
-                        html_message=email_html,
-                        fail_silently=False,
-                    )
+            def process_email():
+                for i in range(MAX_RETRIES):
+                    if email_to_db(social_api.user, services, social_api, email_id):
+                        break
+                    else:
+                        LOGGER.critical(
+                            f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                        )
+                        context = {
+                            "attempt_number": i,
+                            "email_id": email_id,
+                            "email_provider": GOOGLE_PROVIDER,
+                            "user": social_api.user,
+                        }
+                        email_html = render_to_string("ai_failed_email.html", context)
+                        send_mail(
+                            subject="Critical Alert: Email Processing Failure",
+                            message="",
+                            recipient_list=[ADMIN_EMAIL_LIST],
+                            from_email=EMAIL_NO_REPLY,
+                            html_message=email_html,
+                            fail_silently=False,
+                        )
+
+            threading.Thread(target=process_email).start()
+
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
@@ -913,7 +912,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
-            return
+            return False
 
         decoded_data = library.format_mail(decoded_data)
         category_dict = library.get_db_categories(user)
@@ -924,7 +923,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         if rules.exists():
             for rule in rules:
                 if rule.block:
-                    return
+                    return True
 
                 if rule.category:
                     category = rule.category
@@ -1022,10 +1021,13 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                 for point in summary_list:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
+            return True
+
         except Exception as e:
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
+            return False
 
 
 """

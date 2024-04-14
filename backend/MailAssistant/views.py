@@ -225,7 +225,7 @@ def validate_authorization_code(type_api, code):
 
 def validate_code_link_email(type_api, code):
     """Validates the authorization code for a given API type"""
-    
+
     try:
         if type_api == "google":
             access_token, refresh_token = google_api.link_email_tokens(code)
@@ -800,7 +800,7 @@ def new_email_ai(request):
         input_data = serializer.validated_data["input_data"]
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
-        
+
         subject_text, mail_text = claude.generate_email(input_data, length, formality)
 
         return Response({"subject": subject_text, "mail": mail_text})
@@ -1069,19 +1069,22 @@ def delete_account(request):
     user = request.user
 
     try:
-        microsoft_listeners = MicrosoftListener.objects.filter(user=user)
-        if microsoft_listeners.exists():
-            for listener in microsoft_listeners:
-                microsoft_api.delete_subscription(
-                    user, listener.email, listener.subscription_id
-                )
-
+        unsubscribe_listeners(user)
         user.delete()
         return Response({"message": "User successfully deleted"}, status=200)
 
     except Exception as e:
         LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
         return Response({"error": str(e)}, status=500)
+
+
+def unsubscribe_listeners(user):
+    microsoft_listeners = MicrosoftListener.objects.filter(user=user)
+    if microsoft_listeners.exists():
+        for listener in microsoft_listeners:
+            microsoft_api.delete_subscription(
+                user, listener.email, listener.subscription_id
+            )
 
 
 # ----------------------- RULES -----------------------#
@@ -1268,6 +1271,7 @@ def unlink_email(request):
 
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
+        unsubscribe_listeners(user)
         social_api.delete()
         return Response({"message": "Email unlinked successfully!"}, status=202)
     except SocialAPI.DoesNotExist:

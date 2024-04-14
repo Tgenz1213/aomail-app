@@ -30,10 +30,13 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from MailAssistant.constants import (
+    ADMIN_EMAIL_LIST,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
+    MAX_RETRIES,
+    MICROSOFT_PROVIDER,
     STRIPE_PAYMENT_FAILED_URL,
     STRIPE_PAYMENT_SUCCESS_URL,
     STRIPE_PRICES,
@@ -1082,9 +1085,30 @@ def unsubscribe_listeners(user):
     microsoft_listeners = MicrosoftListener.objects.filter(user=user)
     if microsoft_listeners.exists():
         for listener in microsoft_listeners:
-            microsoft_api.delete_subscription(
-                user, listener.email, listener.subscription_id
-            )
+            for i in range(MAX_RETRIES):
+                if microsoft_api.delete_subscription(
+                    user, listener.email, listener.subscription_id
+                ):
+                    break
+                else:
+                    LOGGER.critical(
+                        f"[Attempt n°{i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
+                    )
+                    context = {
+                        "attempt_number": i,
+                        "subscription_id": listener.subscription_id,
+                        "email_provider": MICROSOFT_PROVIDER,
+                        "user": user,
+                    }
+                    email_html = render_to_string("unsubscribe_failure.html", context)
+                    send_mail(
+                        subject="Critical Alert: Microsoft Unsubscription Failure",
+                        message="",
+                        recipient_list=[ADMIN_EMAIL_LIST],
+                        from_email=EMAIL_NO_REPLY,
+                        html_message=email_html,
+                        fail_silently=False,
+                    )
 
 
 # ----------------------- RULES -----------------------#

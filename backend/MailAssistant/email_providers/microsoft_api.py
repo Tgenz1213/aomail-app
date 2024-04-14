@@ -790,7 +790,7 @@ def subscribe_to_contact_notifications(user, email) -> bool:
         return False
 
 
-def delete_subscription(user, email, subscription_id):
+def delete_subscription(user, email, subscription_id) -> bool:
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
@@ -802,11 +802,14 @@ def delete_subscription(user, email, subscription_id):
             LOGGER.error(
                 f"Failed to deleted the subscription {subscription_id}: {response.content}"
             )
+            return False
         else:
             print("\nSuccessfully deleted the subscription\n")
+            return True
 
     except Exception as e:
         LOGGER.error("Failed to deleted the subscription", str(e))
+        return False
 
 
 def renew_subscription(user, email, subscription_id):

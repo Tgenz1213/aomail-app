@@ -835,8 +835,8 @@ def receive_mail_notifications(request):
                     ).start()
                     break
                 except Exception as e:
-                    LOGGER.error(
-                        f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                    LOGGER.critical(
+                        f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}, error: {str(e)}"
                     )
                     context = {
                         "attempt_number": i,

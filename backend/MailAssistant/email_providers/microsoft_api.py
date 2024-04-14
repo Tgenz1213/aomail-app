@@ -943,12 +943,15 @@ class MicrosoftEmailNotification(View):
                     subscription_id=subscription_id
                 )
 
+                print(subscription)
+
                 if change_type == "deleted":
                     if subscription.exists():
                         subscription.delete()
 
                 else:
                     for i in range(MAX_RETRIES):
+                        print(f"[Attempt n°{i+1}]")
                         print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
                         try:
                             threading.Thread(
@@ -962,7 +965,7 @@ class MicrosoftEmailNotification(View):
                             break
                         except Exception as e:
                             LOGGER.critical(
-                                f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                                f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}, error: {str(e)}"
                             )
                             context = {
                                 "attempt_number": i,

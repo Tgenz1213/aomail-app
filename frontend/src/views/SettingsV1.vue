@@ -699,7 +699,7 @@ async function linkEmail(authorizationCode) {
     sessionStorage.clear();
     // Remove '?code' from url
     var currentUrl = window.location.href;
-    var modifiedUrl = currentUrl.replace(/(\?|\&)code=.*$/, '');
+    var modifiedUrl = currentUrl.replace(/(\?)code=.*$/, '');
     window.history.replaceState({}, document.title, modifiedUrl);
 }
 

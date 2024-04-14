@@ -163,11 +163,13 @@ def signup(request):
         return Response(result, status=400)
 
     # (useless for now): TODO: use create_subscription function
+    end_date = datetime.datetime.now() + datetime.timedelta(days=30)
+    end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
     Subscription.objects.create(
         user=user,
         plan="start_plan",
         stripe_subscription_id=None,
-        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+        end_date=end_date_utc,
         billing_interval=None,
         amount=0.0,
     )

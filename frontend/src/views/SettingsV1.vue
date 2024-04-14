@@ -837,8 +837,10 @@ function displayPopup() {
 }
 
 function handleKeyDown(event) {
-    if (event.key === 'Tab' && !openModal.value) {
+    if (event.key === 'Tab' && !isModalOpen.value) {
+        event.preventDefault();
         if (isBillingModalOpen.value) {
+            // TODO: check with striped fields
             // TODO: implement field switcher properly + checker if one field is empty
         } else {
             switchActiveSection();

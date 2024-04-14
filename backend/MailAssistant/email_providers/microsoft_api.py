@@ -943,47 +943,42 @@ class MicrosoftEmailNotification(View):
                     subscription_id=subscription_id
                 )
 
-                print(subscription)
-
                 if change_type == "deleted":
-                    if subscription.exists():
-                        subscription.delete()
+                    Email.objects.get(provider_id=email_id).delete()
 
-                else:
-                    for i in range(MAX_RETRIES):
-                        print(f"[Attempt n°{i+1}]")
-                        print("STARTING THREAD TO PROCESS EMAIL SUCCESFULLY")
-                        try:
-                            threading.Thread(
-                                target=email_to_db,
-                                args=(
-                                    subscription.first().user,
-                                    subscription.first().email,
-                                    email_id,
-                                ),
-                            ).start()
-                            break
-                        except Exception as e:
-                            LOGGER.critical(
-                                f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}, error: {str(e)}"
-                            )
-                            context = {
-                                "attempt_number": i,
-                                "email_id": email_id,
-                                "email_provider": MICROSOFT_PROVIDER,
-                                "user": subscription.first().user,
-                            }
-                            email_html = render_to_string(
-                                "ai_failed_email.html", context
-                            )
-                            send_mail(
-                                subject="Critical Alert: Email Processing Failure",
-                                message="",
-                                recipient_list=[ADMIN_EMAIL_LIST],
-                                from_email=EMAIL_NO_REPLY,
-                                html_message=email_html,
-                                fail_silently=False,
-                            )
+                elif subscription.exists():
+
+                    def process_email():
+                        for i in range(MAX_RETRIES):
+                            if email_to_db(
+                                subscription.first().user,
+                                subscription.first().email,
+                                email_id,
+                            ):
+                                break
+                            else:
+                                LOGGER.critical(
+                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                                )
+                                context = {
+                                    "attempt_number": i,
+                                    "email_id": email_id,
+                                    "email_provider": MICROSOFT_PROVIDER,
+                                    "user": subscription.first().user,
+                                }
+                                email_html = render_to_string(
+                                    "ai_failed_email.html", context
+                                )
+                                send_mail(
+                                    subject="Critical Alert: Email Processing Failure",
+                                    message="",
+                                    recipient_list=[ADMIN_EMAIL_LIST],
+                                    from_email=EMAIL_NO_REPLY,
+                                    html_message=email_html,
+                                    fail_silently=False,
+                                )
+
+                    threading.Thread(target=process_email).start()
 
                 return JsonResponse({"status": "Notification received"}, status=202)
             else:
@@ -1069,7 +1064,7 @@ def email_to_db(user, email, id_email):
         sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
-            return
+            return False
 
         decoded_data = library.format_mail(decoded_data)
         category_dict = library.get_db_categories(user)
@@ -1080,7 +1075,7 @@ def email_to_db(user, email, id_email):
         if rules.exists():
             for rule in rules:
                 if rule.block:
-                    return
+                    return True
 
                 if rule.category:
                     category = rule.category
@@ -1096,7 +1091,7 @@ def email_to_db(user, email, id_email):
             summary_list,
             sentence,
             relevance,
-        ) = gpt_3_5_turbo.categorize_and_summarize_email(
+        ) = claude.categorize_and_summarize_email(
             subject, decoded_data, category_dict, user_description
         )
 
@@ -1158,10 +1153,14 @@ def email_to_db(user, email, id_email):
                 for point in summary_list:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
+            return True
+
         except Exception as e:
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
+            return False
+    return False
 
 
 ####################################################################

@@ -11,6 +11,7 @@ import time
 import json
 import requests
 from collections import defaultdict
+from django.contrib.sessions.models import Session
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.shortcuts import redirect

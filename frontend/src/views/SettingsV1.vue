@@ -647,6 +647,7 @@ async function unLinkAccount(email) {
 function authorize_google() {
     saveVariables("google");
     // TOOD: signout user and then redirect to grant page (only solution for multi account)
+    caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))))
     window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
 }
 function authorize_microsoft() {
@@ -656,7 +657,6 @@ function authorize_microsoft() {
 function saveVariables(type_api) {
     sessionStorage.setItem("type_api", type_api);
     sessionStorage.setItem("userDescription", userEmailDescription.value);
-
 }
 function checkAuthorizationCode() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -697,9 +697,10 @@ async function linkEmail(authorizationCode) {
         displayPopup();
     }
     sessionStorage.clear();
-    // Remove '?code' from url
+    // Remove '?code' and '?state' from url
     var currentUrl = window.location.href;
     var modifiedUrl = currentUrl.replace(/(\?)code=.*$/, '');
+    modifiedUrl = currentUrl.replace(/(\?)state=.*$/, '');
     window.history.replaceState({}, document.title, modifiedUrl);
 }
 

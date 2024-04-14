@@ -1094,8 +1094,8 @@ def delete_account(request):
         return Response({"error": str(e)}, status=500)
 
 
-def unsubscribe_listeners(user):
-    microsoft_listeners = MicrosoftListener.objects.filter(user=user)
+def unsubscribe_listeners(user, email):
+    microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
     if microsoft_listeners.exists():
         for listener in microsoft_listeners:
             for i in range(MAX_RETRIES):
@@ -1308,7 +1308,7 @@ def unlink_email(request):
 
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
-        unsubscribe_listeners(user)
+        unsubscribe_listeners(user, email)
         social_api.delete()
         return Response({"message": "Email unlinked successfully!"}, status=202)
     except SocialAPI.DoesNotExist:

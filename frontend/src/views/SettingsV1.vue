@@ -24,7 +24,7 @@
     </div>-->
     <!-- Modal for Account Deletion -->
     <transition name="modal-fade">
-        <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+        <div @click.self="closeModal" class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
             v-if="isModalOpen">
             <div class="bg-white rounded-lg relative w-[450px]">
                 <slot></slot>
@@ -591,7 +591,19 @@ const billingInfo = ref({
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
-    fetchEmailLinked();
+
+
+
+    // const deleteAccountModal = document.getElementById("deleteAccountModal");
+    // document.addEventListener("click", (event) => {
+    //     console.log(deleteAccountModal);
+    //     if (event.target == deleteAccountModal) {
+    //         closeModal();
+    //     }
+    // })
+
+
+
     fetchUserData();
     getBackgroundColor();
 })
@@ -849,7 +861,7 @@ function handleKeyDown(event) {
     } else if (event.key === 'Escape') {
         if (isModalOpen.value) {
             closeModal();
-        } else if(isBillingModalOpen.value) {
+        } else if (isBillingModalOpen.value) {
             closeBillingModal();
         }
     } else if (event.key === 'Enter' && isBillingModalOpen.value) {

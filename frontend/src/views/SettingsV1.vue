@@ -847,7 +847,11 @@ function handleKeyDown(event) {
             switchActiveSection();
         }
     } else if (event.key === 'Escape') {
-        closeBillingModal();
+        if (isModalOpen.value) {
+            closeModal();
+        } else if(isBillingModalOpen.value) {
+            closeBillingModal();
+        }
     } else if (event.key === 'Enter' && isBillingModalOpen.value) {
         submitBillingInfo()
     }

@@ -591,19 +591,7 @@ const billingInfo = ref({
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
-
-
-
-    // const deleteAccountModal = document.getElementById("deleteAccountModal");
-    // document.addEventListener("click", (event) => {
-    //     console.log(deleteAccountModal);
-    //     if (event.target == deleteAccountModal) {
-    //         closeModal();
-    //     }
-    // })
-
-
-
+    fetchEmailLinked();
     fetchUserData();
     getBackgroundColor();
 })

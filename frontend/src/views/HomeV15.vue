@@ -83,11 +83,8 @@
                                                     aria-label="Tabs">
                                                     <div class="flex space-x-4">
                                                         <a v-for="category in categories" :key="category"
-                                                            @click="selectCategory(category)"
-                                                            class="group items-center text-gray-600 text-sm font-medium cursor-pointer"><!-- To FIX => put category.name and adapt the design -->
-                                                            <!-- <div v-if="category.name !== 'Other' && category.name !== 'Autres'"
-                                                                class="flex"> -->
-                                                            <div v-if="category.name !== 'Others'" class="flex">
+                                                            class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
+                                                            <div v-if="category.name !== 'Others'" class="flex cursor-pointer" @click="selectCategory(category)">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
                                                                         category.name }}
@@ -117,11 +114,11 @@
                                                             </div>
                                                             <div v-else class="flex pr-7">
                                                                 <!-- TODO: var language and retrieve the good translation -->
-                                                                <span class="px-3 py-2"
+                                                                <span class="px-3 py-2 cursor-pointer" @click="selectCategory(category)"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
                                                                         "Autres" }}
                                                                 </span>
-                                                                <div class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center"
+                                                                <div @click="selectCategory(category)" class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center cursor-pointer"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
                                                                     <span
                                                                         v-if="totalEmailsInCategoryNotRead(category.name) > 0"

@@ -2,7 +2,8 @@
   <ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
     :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor" />
   <transition name="modal-fade">
-    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    <div @click.self="closeModal"
+      class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>

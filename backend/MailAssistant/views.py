@@ -1410,10 +1410,11 @@ def link_email(request):
 def create_sender(request):
     """Create a new sender associated with the authenticated user"""
     serializer = SenderSerializer(data=request.data)
+    data = request.data
 
     if serializer.is_valid():
-        serializer.save(user=request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        sender = Sender.objects.create(email=data["email"], name=data["name"])
+        return Response({"id": sender.id}, status=status.HTTP_201_CREATED)
     else:
         LOGGER.error(f"Serializer errors in create_sender: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

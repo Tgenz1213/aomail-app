@@ -7,6 +7,7 @@ import json
 import logging
 import re
 import threading
+from django.db import IntegrityError
 import jwt
 import stripe  # type: ignore
 from collections import defaultdict
@@ -1367,17 +1368,20 @@ def link_email(request):
             return Response(
                 {"error": "Email address must not contain spaces"}, status=400
             )
-        social_api = SocialAPI.objects.create(
-            user=user,
-            email=email,
-            type_api=type_api,
-            user_description=user_description,
-            access_token=access_token,
-            refresh_token=refresh_token,
-        )
+        try:
+            social_api = SocialAPI.objects.create(
+                user=user,
+                email=email,
+                type_api=type_api,
+                user_description=user_description,
+                access_token=access_token,
+                refresh_token=refresh_token,
+            )
+        except IntegrityError:
+            return Response({"error": "Email address already used by another account"}, status=400)
     else:
         # Google Oauth2.0 returns a refresh token only at first consent
-        return Response({"error": "Email address already used"}, status=400)
+        return Response({"error": "[Google] Email address previously linked"}, status=400)
 
     # Asynchronous function to store all contacts
     try:

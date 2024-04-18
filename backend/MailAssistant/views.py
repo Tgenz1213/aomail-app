@@ -119,14 +119,13 @@ def signup(request):
     # Check email requirements
     if email:
         if SocialAPI.objects.filter(email=email).exists():
-            return Response({"error": "Email address already used"}, status=400)
+            return Response({"error": "Email address already used by another account"}, status=400)
         elif " " in email:
             return Response(
                 {"error": "Email address must not contain spaces"}, status=400
             )
     else:
-        # Google Oauth2.0 returns a refresh token only at first consent
-        return Response({"error": "Email address already used"}, status=400)
+        return Response({"error": "No email received"}, status=400)
 
     # Create and save user
     user = User.objects.create_user(username, "", password)
@@ -1380,8 +1379,7 @@ def link_email(request):
         except IntegrityError:
             return Response({"error": "Email address already used by another account"}, status=400)
     else:
-        # Google Oauth2.0 returns a refresh token only at first consent
-        return Response({"error": "[Google] Email address previously linked"}, status=400)
+        return Response({"error": "No email received"}, status=400)
 
     # Asynchronous function to store all contacts
     try:

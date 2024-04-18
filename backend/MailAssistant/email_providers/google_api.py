@@ -67,7 +67,7 @@ def generate_auth_url(request):
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true"
+        access_type="offline", include_granted_scopes="true", prompt="consent"
     )
 
     return redirect(authorization_url)
@@ -97,7 +97,7 @@ def auth_url_link_email(request):
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
     )
     authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true"
+        access_type="offline", include_granted_scopes="true", prompt="consent"
     )
 
     return redirect(authorization_url)

@@ -787,9 +787,9 @@ onMounted(() => {
     });
     forwardedMessage += '\n\n';
     forwardedMessage += '---------- Message transféré ---------\n';
-    forwardedMessage += `From: ${email}\n`;
+    forwardedMessage += `De: ${email}\n`;
     forwardedMessage += `Date: ${formattedDate}\n`;
-    forwardedMessage += `Subject: ${subject}\n`;
+    forwardedMessage += `Sujet: ${subject}\n`;
 
     if (cc.length > 0) {
         forwardedMessage += `CC: ${cc}\n`;
@@ -1029,18 +1029,17 @@ async function sendEmail() {
     formData.append('subject', emailSubject);
     formData.append('message', emailBody);
     fileObjects.value.forEach(file => formData.append('attachments', file));
-    // Add recipients, CC, and BCC to formData
+
+    // Add recipients to formData
     selectedPeople.value.forEach(person => formData.append('to', person.email));
 
+    // Add CC recipients to formData
     if (selectedCC.value.length > 0) {
         selectedCC.value.forEach(person => formData.append('cc', person.email));
-    } else {
-        formData.append('cc', '');
     }
+    // Add BCC recipients to formData
     if (selectedCCI.value.length > 0) {
         selectedCCI.value.forEach(person => formData.append('cci', person.email));
-    } else {
-        formData.append('cci', '');
     }
 
     try {

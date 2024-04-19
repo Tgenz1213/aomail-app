@@ -1849,7 +1849,6 @@ function hideLoading() {
 async function sendEmail() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
-    console.log(emailBody)
 
     if (!emailSubject.trim()) {
         // Show the pop-up

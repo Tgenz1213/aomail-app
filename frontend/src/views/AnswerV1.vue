@@ -1344,24 +1344,48 @@ const router = useRouter();
 
 async function sendEmail() {
   const emailSubject = inputValue.value;
-    const emailBody = quill.value.root.innerHTML;
-    const formData = new FormData();
+  const emailBody = quill.value.root.innerHTML;
 
-    formData.append('subject', emailSubject);
-    formData.append('message', emailBody);
-    fileObjects.value.forEach(file => formData.append('attachments', file));
+  if (!emailSubject.trim()) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle.value = 'Erreur d\'envoi d\'email';
+    notificationMessage.value = 'Aucun sujet n\'a été saisi';
+    displayPopup();
+    return;
+  } else if (emailBody == "<p><br></p>") {
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle.value = 'Erreur d\'envoi d\'email';
+    notificationMessage.value = 'Aucun objet n\'a été saisi';
+    displayPopup();
+    return;
+  } else if (selectedPeople.value.length == 0) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle.value = 'Erreur d\'envoi d\'email';
+    notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+    displayPopup();
+    return;
+  }
 
-    // Add recipients to formData
-    selectedPeople.value.forEach(person => formData.append('to', person.email));
+  const formData = new FormData();
 
-    // Add CC recipients to formData
-    if (selectedCC.value.length > 0) {
-        selectedCC.value.forEach(person => formData.append('cc', person.email));
-    }
-    // Add BCC recipients to formData
-    if (selectedCCI.value.length > 0) {
-        selectedCCI.value.forEach(person => formData.append('cci', person.email));
-    }
+  formData.append('subject', emailSubject);
+  formData.append('message', emailBody);
+  fileObjects.value.forEach(file => formData.append('attachments', file));
+
+  // Add recipients to formData
+  selectedPeople.value.forEach(person => formData.append('to', person.email));
+
+  // Add CC recipients to formData
+  if (selectedCC.value.length > 0) {
+    selectedCC.value.forEach(person => formData.append('cc', person.email));
+  }
+  // Add BCC recipients to formData
+  if (selectedCCI.value.length > 0) {
+    selectedCCI.value.forEach(person => formData.append('cci', person.email));
+  }
 
   try {
     const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {

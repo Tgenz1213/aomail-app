@@ -247,7 +247,7 @@
                                                                     v-slot="{ active }">
                                                                 <a :href="item.href"
                                                                     :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-        item.name }}</a>
+                                                                    item.name }}</a>
                                                                 </MenuItem>
                                                             </div>
                                                         </MenuItems>
@@ -1024,6 +1024,30 @@ function hideLoading() {
 async function sendEmail() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
+
+    if (!emailSubject.trim()) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Erreur d\'envoi d\'email';
+        notificationMessage.value = 'Aucun sujet n\'a été saisi';
+        displayPopup();
+        return;
+    } else if (emailBody == "<p><br></p>") {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Erreur d\'envoi d\'email';
+        notificationMessage.value = 'Aucun objet n\'a été saisi';
+        displayPopup();
+        return;
+    } else if (selectedPeople.value.length == 0) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Erreur d\'envoi d\'email';
+        notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+        displayPopup();
+        return;
+    }
+
     const formData = new FormData();
 
     formData.append('subject', emailSubject);

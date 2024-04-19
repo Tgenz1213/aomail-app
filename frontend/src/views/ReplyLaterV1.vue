@@ -1,4 +1,7 @@
 <template>
+  <ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
+    :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor"
+    @dismiss-popup="dismissPopup" />
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
       <div class="col-span-1 2xl:col-span-1">
@@ -79,7 +82,7 @@
                                     </div>
                                   </div>
                                   <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
-    item.description }}</p>
+                                    item.description }}</p>
                                 </div>
                                 <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
                                   :ref="'parentElement' + item.id">
@@ -306,8 +309,8 @@
                                 <div class="flex-auto group">
                                   <div class="flex gap-x-4">
                                     <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{
-    item.name
-  }}</p>
+                                      item.name
+                                      }}</p>
                                     <div
                                       class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
                                       <div class="flex gap-x-1 items-center">
@@ -321,7 +324,7 @@
                                     </div>
                                   </div>
                                   <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
-      item.description }}</p>
+                                    item.description }}</p>
                                 </div>
                                 <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
                                   :ref="'parentElement' + item.id">
@@ -559,7 +562,7 @@
                                     </div>
                                   </div>
                                   <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
-    item.description }}</p>
+                                    item.description }}</p>
                                 </div>
                                 <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
                                   :ref="'parentElement' + item.id">
@@ -751,7 +754,6 @@ export default {
     const nbr_reply_answer = ref(0);
 
     onMounted(() => {
-
       getBackgroundColor();
       bgColor.value = localStorage.getItem('bgColor');
       fetchAnswerLaterEmails();
@@ -784,6 +786,18 @@ export default {
     };
   },
   methods: {
+    dismissPopup() {
+      this.showNotification = false;
+      // Cancel the timer
+      clearTimeout(this.timerId);
+    },
+    displayPopup() {
+      this.showNotification = true;
+
+      this.timerId = setTimeout(() => {
+        this.dismissPopup();
+      }, 4000);
+    },
     toggleHiddenParagraph(index) {
       console.log("Item ID:", index)
       console.log("All refs:", this.$refs)
@@ -848,6 +862,8 @@ export default {
       this.isDropdownOpen = true;
     },
     openInNewWindow(id_provider) {
+      // TODO: fix url is only for gmail
+      // Use the modal Théo is creating
       console.log("EMAIL", id_provider);
       const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
       // Construct the URL with the Gmail message ID
@@ -889,6 +905,10 @@ export default {
         });
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Échec d\'ouverture de la page de réponse';
+        this.notificationMessage = error.message;
+        this.displayPopup();
       }
     },
     async transferEmail(email) {
@@ -925,6 +945,10 @@ export default {
 
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Échec d\'ouverture de la page de transfert';
+        this.notificationMessage = error.message;
+        this.displayPopup();
       }
     },
     async deleteEmail(emailId) {
@@ -942,10 +966,18 @@ export default {
           console.log("Email deleted successfully", response);
           this.nbr_reply_answer -= 1;
         } else {
-          console.error('Failed to delete email', response);
+          console.error('Failed to delete email', response.error);
+          this.backgroundColor = 'bg-red-300';
+          this.notificationTitle = 'Erreur de suppression d\'email';
+          this.notificationMessage = response.error;
+          this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleteEmail:', error.message);
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Erreur de suppression d\'email';
+        this.notificationMessage = error.message;
+        this.displayPopup();
       }
     },
     deleteEmailFromState(emailId) {
@@ -971,6 +1003,11 @@ export default {
       showTooltip: true,
       isDropdownOpen: false,
       isMenuOpen: true,
+      showNotification: false,
+      notificationTitle: '',
+      notificationMessage: '',
+      backgroundColor: '',
+      timerId: null
     }
   }
 };

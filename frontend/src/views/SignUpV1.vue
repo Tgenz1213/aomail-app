@@ -1,6 +1,6 @@
 <template>
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
+    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <!-- Update Category modal -->
   <transition name="modal-fade">
     <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
@@ -566,7 +566,8 @@
                         <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
                       </div>
                       <div class="mt-2">
-                        <input v-model="userDescription" placeholder="Résumez-vous en quelques mots afin d'aider l'assistant" id="userDescription"
+                        <input v-model="userDescription"
+                          placeholder="Résumez-vous en quelques mots afin d'aider l'assistant" id="userDescription"
                           class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                       </div>
                     </div>
@@ -865,12 +866,12 @@ function updateBgColor(newBgColor) {
 function dismissPopup() {
   showNotification.value = false;
   // Cancel the timer
-  clearTimeout(timerId);
+  clearTimeout(timerId.value);
 }
 function displayPopup() {
   showNotification.value = true;
 
-  timerId = setTimeout(() => {
+  timerId.value = setTimeout(() => {
     dismissPopup();
   }, 4000);
 }

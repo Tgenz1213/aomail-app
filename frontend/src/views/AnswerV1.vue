@@ -1,6 +1,6 @@
 <template>
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
+    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
       <div class="col-span-1 2xl:col-span-1">
@@ -332,13 +332,12 @@ let timerId = ref(null);
 
 let emailAnswered = ref(false);
 
+
 function dismissPopup() {
   showNotification.value = false;
-  console.log(showNotification.value)
   // Cancel the timer
   clearTimeout(timerId.value);
 }
-
 function displayPopup() {
   showNotification.value = true;
 
@@ -346,7 +345,6 @@ function displayPopup() {
     dismissPopup();
   }, 4000);
 }
-
 const items = [
   { name: 'Envoyer à une heure', href: '#' },
 ]

@@ -1,6 +1,7 @@
 <template>
   <ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
-    :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor" />
+    :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor"
+    @dismiss-popup="dismissPopup" />
   <transition name="modal-fade">
     <div @click.self="closeModal"
       class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"

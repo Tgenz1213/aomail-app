@@ -1,6 +1,6 @@
 <template>
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @updateShowPopup="dismissPopup" />
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="password-reset-form">
         <h1>Réinitialisation du Mot de Passe</h1>
         <p>Veuillez entrer votre adresse e-mail ci-dessous. Nous vous enverrons un lien pour réinitialiser votre mot de
@@ -35,13 +35,12 @@ let timerId = ref(null);
 function dismissPopup() {
     showNotification.value = false;
     // Cancel the timer
-    clearTimeout(timerId);
+    clearTimeout(timerId.value);
 }
-
 function displayPopup() {
     showNotification.value = true;
 
-    timerId = setTimeout(() => {
+    timerId.value = setTimeout(() => {
         dismissPopup();
     }, 4000);
 }

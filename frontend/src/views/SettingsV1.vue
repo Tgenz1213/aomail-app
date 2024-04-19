@@ -1,6 +1,6 @@
 <template>
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <!--
     <div class="pb-1 lg:pl-20 bg-gray-100">
         <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
@@ -24,7 +24,8 @@
     </div>-->
     <!-- Modal for Account Deletion -->
     <transition name="modal-fade">
-        <div @click.self="closeModal" class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+        <div @click.self="closeModal"
+            class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
             v-if="isModalOpen">
             <div class="bg-white rounded-lg relative w-[450px]">
                 <slot></slot>
@@ -826,13 +827,12 @@ function closeModal() {
 function dismissPopup() {
     showNotification.value = false;
     // Cancel the timer
-    clearTimeout(timerId);
+    clearTimeout(timerId.value);
 }
-
 function displayPopup() {
     showNotification.value = true;
 
-    timerId = setTimeout(() => {
+    timerId.value = setTimeout(() => {
         dismissPopup();
     }, 4000);
 }

@@ -1,6 +1,6 @@
 <template>
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @updateShowPopup="dismissPopup" />
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="h-screen bg-white flex min-h-full flex-col justify-center items-center px-6 py-12 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img class="mx-auto h-12 w-auto" :src="logo" alt="Your Company">
@@ -22,7 +22,8 @@
                         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Mot de
                             passe</label>
                         <div class="text-sm">
-                            <a :href="`reset_password_form/`" class="font-semibold text-gray-900 hover:text-gray-600">Mot de passe oublié ?</a>
+                            <a :href="`reset_password_form/`"
+                                class="font-semibold text-gray-900 hover:text-gray-600">Mot de passe oublié ?</a>
                         </div>
                     </div>
                     <div class="relative items-stretch mt-2 flex">
@@ -109,17 +110,15 @@ function handleKeyDown(event) {
 function togglePasswordVisibility() {
     showPassword.value = !showPassword.value;
 }
-
 function dismissPopup() {
     showNotification.value = false;
     // Cancel the timer
-    clearTimeout(timerId);
+    clearTimeout(timerId.value);
 }
-
 function displayPopup() {
     showNotification.value = true;
 
-    timerId = setTimeout(() => {
+    timerId.value = setTimeout(() => {
         dismissPopup();
     }, 4000);
 }

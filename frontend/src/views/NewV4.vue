@@ -1849,6 +1849,31 @@ function hideLoading() {
 async function sendEmail() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
+    console.log(emailBody)
+
+    if (!emailSubject.trim()) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Erreur d\'envoi d\'email';
+        notificationMessage.value = 'Aucun sujet n\'a été saisi';
+        displayPopup();
+        return;
+    } else if (emailBody == "<p><br></p>") {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Erreur d\'envoi d\'email';
+        notificationMessage.value = 'Aucun objet n\'a été saisi';
+        displayPopup();
+        return;
+    } else if (selectedPeople.value.length == 0) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Erreur d\'envoi d\'email';
+        notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+        displayPopup();
+        return;
+    }
+
     const formData = new FormData();
 
     formData.append('subject', emailSubject);
@@ -1899,16 +1924,7 @@ async function sendEmail() {
             displayMessage(message, ai_icon);
         } else {
             // Show the pop-up
-            // Translate serializer errors for the user
-            if (response.error == 'recipient is missing') {
-                notificationMessage.value = 'Aucun destinataire n\'a été saisi';
-            }
-            else if (response.error == 'subject is missing') {
-                notificationMessage.value = 'Aucun objet n\'a été saisi';
-            }
-            else {
-                notificationMessage.value = response.error;
-            }
+            notificationMessage.value = response.error;
             backgroundColor = 'bg-red-300';
             notificationTitle.value = 'Erreur d\'envoi d\'email';
             displayPopup();
@@ -1917,7 +1933,7 @@ async function sendEmail() {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
         notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = error;
+        notificationMessage.value = error.message;
         displayPopup();
     }
 }

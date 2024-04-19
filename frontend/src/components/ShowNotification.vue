@@ -1,6 +1,7 @@
 <template>
     <!-- ShowNotification -->
-    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6" style="z-index: 50">
+    <div aria-live="assertive" class="pointer-events-none fixed inset-0 flex items-end px-4 py-6 sm:items-start sm:p-6"
+        style="z-index: 50">
         <div class="flex w-full flex-col items-center space-y-4 sm:items-end">
             <transition enter-active-class="transform ease-out duration-300 transition"
                 enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
@@ -32,7 +33,7 @@
         </div>
     </div>
 </template>
-  
+
 <script>
 export default {
     props: {
@@ -65,14 +66,13 @@ export default {
         },
         dismissPopup() {
             this.showNotification_intern = false;
-            this.$emit('updateShowPopup', false);
-            // Cancel the timer
+            this.$emit('dismiss-popup');
             clearTimeout(this.timerId);
         },
     }
 };
 </script>
-  
+
 <script setup>
 import { XMarkIcon } from '@heroicons/vue/20/solid';
-</script>  
+</script>

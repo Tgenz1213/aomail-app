@@ -1,6 +1,6 @@
-<template>
+<template>    
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup"/>
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
             <div class="col-span-1 2xl:col-span-1">
@@ -388,15 +388,16 @@ const textareaValueSave = ref('');
 // Loading animation
 const isLoading = ref(false);
 
+
 function dismissPopup() {
-    showNotification = false;
+    showNotification.value = false;
     // Cancel the timer
-    clearTimeout(timerId);
+    clearTimeout(timerId.value);
 }
 function displayPopup() {
-    showNotification = true;
+    showNotification.value = true;
 
-    timerId = setTimeout(() => {
+    timerId.value = setTimeout(() => {
         dismissPopup();
     }, 4000);
 }

@@ -333,15 +333,16 @@ let timerId = ref(null);
 let emailAnswered = ref(false);
 
 function dismissPopup() {
-  showNotification = false;
+  showNotification.value = false;
+  console.log(showNotification.value)
   // Cancel the timer
-  clearTimeout(timerId);
+  clearTimeout(timerId.value);
 }
 
 function displayPopup() {
-  showNotification = true;
+  showNotification.value = true;
 
-  timerId = setTimeout(() => {
+  timerId.value = setTimeout(() => {
     dismissPopup();
   }, 4000);
 }

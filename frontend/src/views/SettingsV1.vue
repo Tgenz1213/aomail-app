@@ -28,7 +28,6 @@
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
             v-if="isModalOpen">
             <div class="bg-white rounded-lg relative w-[450px]">
-                <slot></slot>
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
@@ -54,6 +53,48 @@
                         <button type="button"
                             class="ml-auto rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
                             @click="deleteAccount">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>
+    <!-- Modal for User Description update -->
+    <transition name="modal-fade">
+        <div @click.self="closeUserDescriptionModal"
+            class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            v-if="isModalUserDescriptionOpen">
+            <div class="bg-white rounded-lg relative w-[450px]">
+                <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+                    <button @click="closeUserDescriptionModal" type="button"
+                        class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        <span class="sr-only">Close</span>
+                        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                    </button>
+                </div>
+                <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+                    <div class="ml-8 flex items-center space-x-1">
+                        <p class="block font-semibold leading-6 text-gray-900">Mettre à jour ma description</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4 px-8 py-6">
+                    <div>
+                        <div class="flex space-x-1 items-center">
+                            <envelope-icon class="w-4 h-4" />
+                            <label class="block text-sm font-medium leading-6 text-gray-900">{{ emailSelected }}</label>
+                        </div>
+                        <div class="relative items-stretch mt-2 pb-6">
+                            <input v-model="userDescription" type="text"
+                                placeholder="Résumez-vous pour aider l'assistant"
+                                class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
+                        <button type="button"
+                            class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
+                            @click="closeUserDescriptionModal">Annuler</button>
+                        <button type="button"
+                            class="ml-auto rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                            @click="updateUserDescription">Mettre à jour</button>
                     </div>
                 </div>
             </div>
@@ -333,14 +374,14 @@
                                                 placeholder="Résumez-vous pour aider l'assistant"
                                                 class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                                         </div>
-                                        <div class="overflow-y-auto" style="max-height: 120px;">
+                                        <div class="overflow-y-auto max-h-[120px]">
                                             <!-- TODO: set dynamicelly -->
                                             <div class="flex justify-center">
                                                 <div class="w-full max-w-lg">
                                                     <div class="max-h-25"> <!-- TODO: set dynamicelly -->
                                                         <ul role="list" class="space-y-1">
                                                             <li v-for="email in emailsLinked" :key="email.email"
-                                                                class="flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-1 shadow hover:shadow-md text-gray-700 relative">
+                                                                class="border border-black flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-1 shadow hover:shadow-md text-gray-700 relative">
                                                                 <svg v-if="email.type_api === 'microsoft'"
                                                                     xmlns="http://www.w3.org/2000/svg" width="21"
                                                                     height="21" viewBox="0 0 21 21">
@@ -372,17 +413,32 @@
                                                                         id="Shape" fill="#EB4335"></path>
                                                                 </svg>
                                                                 <span>{{ email.email }}</span>
-                                                                <button type="button"
-                                                                    class="inline-flex justify-center items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700"
-                                                                    @click="unLinkAccount(email.email)">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                        viewBox="0 0 24 24" stroke-width="1.5"
-                                                                        stroke="currentColor" class="w-6 h-6">
-                                                                        <path stroke-linecap="round"
-                                                                            stroke-linejoin="round"
-                                                                            d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                                                    </svg>
-                                                                </button>
+                                                                <div class="flex gap-1">
+                                                                    <button type="button"
+                                                                        class="inline-flex justify-center items-center gap-x-1 rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
+                                                                        @click.stop="openUserDescriptionModal(email.email)">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="1.5" stroke="currentColor"
+                                                                            class="w-6 h-6">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                                                        </svg>
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        class="inline-flex justify-center items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700"
+                                                                        @click="unLinkAccount(email.email)">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 24 24"
+                                                                            stroke-width="1.5" stroke="currentColor"
+                                                                            class="w-6 h-6">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
                                                             </li>
                                                         </ul>
                                                     </div>
@@ -556,7 +612,7 @@
 </template>
 
 <script setup>
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL, BASE_URL } from '@/main';
 import { useRouter } from 'vue-router';
 
 // Variables to display a notification
@@ -577,6 +633,9 @@ let confirmPassword = ref('');
 let errorBillingMessage = ref('');
 let isModalOpen = ref(false);
 let isBillingModalOpen = ref(false);
+let isModalUserDescriptionOpen = ref(false);
+let emailSelected = ref('');
+let userDescription = ref('');
 const router = useRouter();
 const intervalId = setInterval(checkAuthorizationCode, 1000);
 
@@ -596,7 +655,6 @@ onMounted(() => {
     fetchUserData();
     getBackgroundColor();
 })
-
 
 async function unLinkAccount(email) {
 
@@ -680,7 +738,6 @@ async function linkEmail(authorizationCode) {
             user_description: sessionStorage.getItem("userDescription")
         })
     };
-
     const response = await fetchWithToken(`${API_BASE_URL}user/preferences/link/`, requestOptions);
 
     if (response.message == "Email linked to account successfully!") {
@@ -818,6 +875,37 @@ function openModal() {
         notificationMessage = 'Cochez la case pour approuver la suppression';
         displayPopup();
     }
+}
+function closeUserDescriptionModal() {
+    isModalUserDescriptionOpen.value = false;
+}
+function openUserDescriptionModal(email) {
+    emailSelected.value = email;
+    isModalUserDescriptionOpen.value = true;
+}
+function updateUserDescription() {
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "email": emailSelected.value,
+            "user_description": userDescription.value.trim() ? userDescription.value.trim() : ""
+        })
+    };
+
+    const response = fetchWithToken(`${BASE_URL}user/update_user_description/`, requestOptions)
+    if (response.message == "User description updated") {
+        backgroundColor = 'bg-green-300';
+        notificationTitle.value = "Succès !";
+        notificationMessage.value = "Description email mise à jour";
+    } else {
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = "Erreur mise à jour description";
+        notificationMessage.value = response.error;
+    }
+    closeUserDescriptionModal();
 }
 
 function closeModal() {

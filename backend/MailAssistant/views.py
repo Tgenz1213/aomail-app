@@ -119,7 +119,9 @@ def signup(request):
     # Check email requirements
     if email:
         if SocialAPI.objects.filter(email=email).exists():
-            return Response({"error": "Email address already used by another account"}, status=400)
+            return Response(
+                {"error": "Email address already used by another account"}, status=400
+            )
         elif " " in email:
             return Response(
                 {"error": "Email address must not contain spaces"}, status=400
@@ -1377,7 +1379,9 @@ def link_email(request):
                 refresh_token=refresh_token,
             )
         except IntegrityError:
-            return Response({"error": "Email address already used by another account"}, status=400)
+            return Response(
+                {"error": "Email address already used by another account"}, status=400
+            )
     else:
         return Response({"error": "No email received"}, status=400)
 
@@ -1405,6 +1409,24 @@ def link_email(request):
         social_api.delete()
 
     return Response({"error": "Could not subscribe to listener"}, status=400)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def update_user_description(request):
+    """Updates the user desctiption of the given email."""
+    data = request.data
+    user = request.user
+    email = data.get("email")
+    user_description = data["user_description"]
+
+    if email:
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        social_api.user_description = user_description
+        social_api.save()
+        return Response({"message": "User description updated"}, status=200)
+    else:
+        return Response({"error": "No email provided"}, status=400)
 
 
 @api_view(["POST"])

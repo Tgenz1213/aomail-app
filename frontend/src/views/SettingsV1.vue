@@ -413,9 +413,9 @@
                                                                         id="Shape" fill="#EB4335"></path>
                                                                 </svg>
                                                                 <span>{{ email.email }}</span>
-                                                                <div class="flex gap-1">
+                                                                <div class="flex">
                                                                     <button type="button"
-                                                                        class="inline-flex justify-center items-center gap-x-1 rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
+                                                                        class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
                                                                         @click.stop="openUserDescriptionModal(email.email)">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             fill="none" viewBox="0 0 24 24"
@@ -427,7 +427,7 @@
                                                                         </svg>
                                                                     </button>
                                                                     <button type="button"
-                                                                        class="inline-flex justify-center items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700"
+                                                                        class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent shadow-sm"
                                                                         @click="unLinkAccount(email.email)">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             fill="none" viewBox="0 0 24 24"

@@ -612,7 +612,7 @@
 </template>
 
 <script setup>
-import { API_BASE_URL, BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main';
 import { useRouter } from 'vue-router';
 
 // Variables to display a notification
@@ -678,7 +678,7 @@ async function unLinkAccount(email) {
     };
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/unlink/`, requestOptions);
+        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/unlink/`, requestOptions);
 
         if ("error" in response) {
             // Show the pop-up
@@ -738,7 +738,7 @@ async function linkEmail(authorizationCode) {
             user_description: sessionStorage.getItem("userDescription")
         })
     };
-    const response = await fetchWithToken(`${API_BASE_URL}user/preferences/link/`, requestOptions);
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/link/`, requestOptions);
 
     if (response.message == "Email linked to account successfully!") {
         fetchEmailLinked();
@@ -770,7 +770,7 @@ async function fetchEmailLinked() {
     };
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/emails_linked/`, requestOptions);
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions);
 
         if ("error" in response) {
             // Show the pop-up
@@ -879,11 +879,32 @@ function openModal() {
 function closeUserDescriptionModal() {
     isModalUserDescriptionOpen.value = false;
 }
-function openUserDescriptionModal(email) {
+async function openUserDescriptionModal(email) {
     emailSelected.value = email;
-    isModalUserDescriptionOpen.value = true;
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "email": email
+        })
+    };
+
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/get_user_description/`, requestOptions);
+
+    if (response.data || !response.data.trim()) {
+        isModalUserDescriptionOpen.value = true;
+        userDescription.value = response.data;
+    } else {
+        backgroundColor.value = 'bg-red-300';
+        notificationTitle.value = "Erreur récupération description";
+        notificationMessage.value = response.error;
+        displayPopup();
+    }
 }
-function updateUserDescription() {
+async function updateUserDescription() {
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -895,15 +916,18 @@ function updateUserDescription() {
         })
     };
 
-    const response = fetchWithToken(`${BASE_URL}user/update_user_description/`, requestOptions)
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/update_user_description/`, requestOptions)
+
     if (response.message == "User description updated") {
         backgroundColor = 'bg-green-300';
         notificationTitle.value = "Succès !";
         notificationMessage.value = "Description email mise à jour";
+        displayPopup();
     } else {
         backgroundColor = 'bg-red-300';
         notificationTitle.value = "Erreur mise à jour description";
         notificationMessage.value = response.error;
+        displayPopup();
     }
     closeUserDescriptionModal();
 }

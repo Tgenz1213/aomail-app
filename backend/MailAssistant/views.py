@@ -1431,6 +1431,21 @@ def update_user_description(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+def get_user_description(request):
+    """Retrieves user description of the given email."""
+    data = request.data
+    user = request.user
+    email = data.get("email")
+
+    if email:
+        social_api = SocialAPI.objects.get(user=user, email=email)
+        return JsonResponse({"data": social_api.user_description}, status=200)
+    else:
+        return JsonResponse({"error": "No email provided"}, status=400)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def create_sender(request):
     """Create a new sender associated with the authenticated user"""
     serializer = SenderSerializer(data=request.data)

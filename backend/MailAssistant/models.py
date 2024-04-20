@@ -96,7 +96,7 @@ class SocialAPI(models.Model):
     access_token = models.CharField(max_length=3000)
     refresh_token = models.CharField(max_length=2000)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    user_description = models.CharField(max_length=200, null=True)
+    user_description = models.CharField(max_length=200, default="")
 
 
 class Rule(models.Model):

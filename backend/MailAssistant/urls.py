@@ -48,10 +48,11 @@ urlpatterns = [
     path('user/update-rule/', views.update_user_rule, name='update_user_rule'), # ok
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'), # ok
     path('user/preferences/username/', views.get_user_details, name='get_user_details'), # ok
-    path('user/preferences/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
-    path('user/preferences/unlink/', views.unlink_email, name='unlink_email'), # ok
-    path('user/preferences/link/', views.link_email, name='link_email'), # ok
-    path('user/update_user_description/', views.update_user_description, name='update_user_description'), # dev
+    path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
+    path('user/social_api/unlink/', views.unlink_email, name='unlink_email'), # ok
+    path('user/social_api/link/', views.link_email, name='link_email'), # ok
+    path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
+    path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
     # TODO: remove as we have stripe
     path('user/set_billing_informations/', views.set_user_billing_informations, name= 'set_user_billing_informations'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#

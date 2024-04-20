@@ -963,9 +963,15 @@ function handleKeyDown(event) {
             closeModal();
         } else if (isBillingModalOpen.value) {
             closeBillingModal();
+        } else if (isModalUserDescriptionOpen.value) {
+            closeUserDescriptionModal();
         }
-    } else if (event.key === 'Enter' && isBillingModalOpen.value) {
-        submitBillingInfo()
+    } else if (event.key === 'Enter') {
+        if (isBillingModalOpen.value) {
+            submitBillingInfo()
+        } else if (isModalUserDescriptionOpen.value) {
+            updateUserDescription();
+        }
     }
 }
 

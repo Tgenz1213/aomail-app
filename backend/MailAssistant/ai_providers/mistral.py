@@ -170,7 +170,9 @@ def improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-def new_mail_recommendation(mail_content, email_subject, user_recommendation, language="FRENCH"):
+def new_mail_recommendation(
+    mail_content, email_subject, user_recommendation, language="FRENCH"
+):
     """Enhance email subject and body based on user guideline"""
 
     template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
@@ -319,7 +321,11 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
 
 def categorize_and_summarize_email(
-    subject: str, decoded_data: str, category_dict: dict, user_description: str, language="French"
+    subject: str,
+    decoded_data: str,
+    category_dict: dict,
+    user_description: str,
+    language="French",
 ):
     """Categorizes and summarizes an email"""
 
@@ -420,7 +426,6 @@ def categorize_and_summarize_email(
     )
 
 
-
 def search_emails(query: str, language: str = "French") -> dict:
     """Searches emails based on the user query and generates structured JSON response."""
 
@@ -429,9 +434,11 @@ def search_emails(query: str, language: str = "French") -> dict:
     template = f"""As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
     1. Analyse and create a filter to search emails content with the Gmail API and Graph API.
     2. Interpret the query in up to 3 differents manners and assess a percentage of closeness with the user intention.
-    3. If nothing is specified, put the same value in 'from', 'to', 'subject', 'body', 'filenames'. By default, search in 'read', 'unread' emails
+    3. If nothing special is specified, 'from', 'to', 'subject', 'body' MUST have the same value as the most relevant keyword. By default, search in 'read', 'unread' emails
+    4. Regarding keywords, provide ONLY individual words. Sentences are not allowed unless explicitly mentioned. If you're unsure, list every relevant word separately.
     ---
-    Answer must ONLY be a Json format usable by Python matching this template in {language} WITHOUT giving any explanation:
+    You must NEVER give explanations. Give the complete Json output alone even if you did not add the 3 interpretations.
+    Answer must ONLY be a Json format usable by Python matching this template in {language}:
     {{
         "interpretation_1": {{
             "closeness_percentage": int,
@@ -440,7 +447,7 @@ def search_emails(query: str, language: str = "French") -> dict:
             to: "",
             subject: "",
             body: "",
-            filenames: [names and extensions (a-z0-9)],
+            filenames: [filenames OR extensions following (a-z0-9)],
             date_from: MM/DD/YYYY,
             keywords: [],
             search_in: {{
@@ -459,13 +466,14 @@ def search_emails(query: str, language: str = "French") -> dict:
             Add if needed
         }}
     }}
-    """    
+    """
     model = "mistral-small-latest"
     role = "user"
     response = get_prompt_response(template, model, role)
     clear_response = response.choices[0].message.content.strip()
-    queries_dict = json.loads(clear_response)
 
-    print(f"queries_dict: {queries_dict}")
+    print(clear_response)
+
+    queries_dict = json.loads(clear_response)
 
     return queries_dict

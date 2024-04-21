@@ -49,7 +49,10 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'), # ok
     path('user/preferences/username/', views.get_user_details, name='get_user_details'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
+
     path('user/search_emails/', views.search_emails , name='search_emails'), # dev
+    path('user/search_emails_ai/', views.search_emails_ai , name='search_emails_ai'), # dev
+
     path('user/social_api/unlink/', views.unlink_email, name='unlink_email'), # ok
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok

@@ -110,51 +110,50 @@
 
 
 
-
-
                         <ul v-if="searchResult && Object.keys(searchResult).length > 0" role="list"
                           class="flex flex-col w-full">
-                          <div v-if="searchResult.Gmail">
-                            <div v-for="(listIds, email) in searchResult.Gmail">
-                              <svg class="-ml-0.5 h-5 w-5" aria-hidden="true"
-                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                                <path
-                                  d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
-                                  id="Shape" fill="#4285F4"></path>
-                                <path
-                                  d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
-                                  id="Shape" fill="#34A853"></path>
-                                <path
-                                  d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
-                                  id="Shape" fill="#FBBC05"></path>
-                                <path
-                                  d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
-                                  id="Shape" fill="#EB4335"></path>
-                              </svg>
-                              <p>Email found for: {{ email }}</p>
+                          <li v-for="(listIds, email) in searchResult.Gmail" :key="email" class="mb-4">
+                            <svg class="-ml-0.5 h-5 w-5" aria-hidden="true" viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                              <path
+                                d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
+                                id="Shape" fill="#4285F4"></path>
+                              <path
+                                d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
+                                id="Shape" fill="#34A853"></path>
+                              <path
+                                d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
+                                id="Shape" fill="#FBBC05"></path>
+                              <path
+                                d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
+                                id="Shape" fill="#EB4335"></path>
+                            </svg>
+                            <p>Email found for: {{ email }}</p>
+                            <ul>
                               <li v-for="id in listIds" :key="id"
                                 class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
                                 <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
                               </li>
-                            </div>
-                          </div>
+                            </ul>
+                          </li>
 
-                          <div v-if="searchResult.Outlook">
-                            <div v-for="(listIds, email) in searchResult.Outlook">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
-                                <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-                                <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-                                <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-                                <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-                              </svg>
-                              <p>Email found for: {{ email }}</p>
+                          <li v-for="(listIds, email) in searchResult.Outlook" :key="email" class="mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
+                              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+                              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                            </svg>
+                            <p>Email found for: {{ email }}</p>
+                            <ul>
                               <li v-for="id in listIds" :key="id"
                                 class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
                                 <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
                               </li>
-                            </div>
-                          </div>
+                            </ul>
+                          </li>
                         </ul>
+
 
 
 
@@ -211,6 +210,7 @@ const scrollToBottom = async () => {
 };
 let isAIWriting = ref(false);
 let searchResult = ref({});
+const textareaValue = ref('');
 
 // Mounted lifecycle hook
 onMounted(async () => {
@@ -221,6 +221,76 @@ onMounted(async () => {
 
   await askQueryUser();
 });
+
+async function handleAIClick() {
+
+  if (isAIWriting.value) {
+    return;
+  }
+  isAIWriting.value = true;
+
+  loading();
+  scrollToBottom();
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
+      query: textareaValue.value
+    }),
+  };
+
+  textareaValue.value = "";
+  const result = await fetchWithToken(`${API_BASE_URL}user/search_emails_ai/`, requestOptions);
+  console.log(result);
+  //searchResult.value = result;
+  hideLoading();
+  isAIWriting.value = false;
+}
+
+async function searchEmails() {
+  loading();
+  scrollToBottom();
+
+  // TODO
+  // une case par compte à cocher (email)
+  // un bouton cocher TOUS (email)
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
+      query: query.value,
+      max_results: 100
+    }),
+  };
+
+  const result = await fetchWithToken(`${API_BASE_URL}user/search_emails/`, requestOptions);
+  console.log(result);
+  searchResult.value = result;
+  hideLoading();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 async function displayMessage(message, ai_icon) {
   // Function to display a message from the AI Assistant
@@ -278,50 +348,6 @@ async function askQueryUser() {
   await displayMessage(message1, ai_icon1);
 }
 
-async function searchEmails() {
-  loading();
-  scrollToBottom();
-
-  // TODO
-  // une case par compte à cocher (email)
-  // un bouton cocher TOUS (email)
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
-      query: query.value,
-      max_results: 100
-    }),
-  };
-
-  const result = await fetchWithToken(`${API_BASE_URL}user/search_emails/`, requestOptions);
-  console.log(result);
-  searchResult.value = result;
-  hideLoading();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // To handle the input going to wide 
 const adjustHeight = (event) => {
   const textarea = event.target;
@@ -337,8 +363,7 @@ const adjustHeight = (event) => {
     textarea.style.height = `${textarea.scrollHeight}px`;
     textarea.style.overflowY = 'hidden'; // Hide the scrollbar when content is below maxHeight.
   }
-};
-
+}
 
 function loading() {
   // Use `nbr` in the template literal to set the reference dynamically

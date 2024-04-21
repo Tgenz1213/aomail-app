@@ -496,7 +496,8 @@ def search_emails(query: str, language: str = "French") -> dict:
     template = f"""{HUMAN}As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
     1. Analyse and create a filter to search emails content with the Gmail API and Graph API.
     2. Interpret the query in up to 3 differents manners and assess a percentage of closeness with the user intention.
-    3. If nothing is specified, put the same value in 'from', 'to', 'subject', 'body', 'filenames'. By default, search in 'read', 'unread' emails
+    3. If nothing special is specified, 'from', 'to', 'subject', 'body' MUST have the same value as the most relevant keyword. By default, search in 'read', 'unread' emails
+    4. Regarding keywords, provide ONLY individual words. Sentences are not allowed unless explicitly mentioned. If you're unsure, list every relevant word separately.
     ---
     Answer must ONLY be a Json format usable by Python matching this template in {language} WITHOUT giving any explanation:
     {{
@@ -507,7 +508,7 @@ def search_emails(query: str, language: str = "French") -> dict:
             to: "",
             subject: "",
             body: "",
-            filenames: [names and extensions (a-z0-9)],
+            filenames: [filenames OR extensions following (a-z0-9)],
             date_from: MM/DD/YYYY,
             keywords: [],
             search_in: {{
@@ -529,8 +530,10 @@ def search_emails(query: str, language: str = "French") -> dict:
     {ASSISTANT}
     """
     response = get_prompt_response(template)
-    queries_dict = response.content[0].text.strip()
+    clear_response = response.content[0].text.strip()
 
-    print(f"queries_dict: {queries_dict}")
+    print(clear_response)
+
+    queries_dict = json.loads(clear_response)
 
     return queries_dict

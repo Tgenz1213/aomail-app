@@ -12,7 +12,7 @@
 
       <ComboboxOptions v-if="filteredPeople.length > 0"
         class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-        <ComboboxOption v-for="person in filteredPeople" :value="person" as="template" v-slot="{ active, selected }">
+        <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template" v-slot="{ active, selected }">
           <li @click="toggleSelection(person)"
             :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
             <div class="flex">
@@ -45,7 +45,7 @@
 
 <script setup>
 import ShowNotification from '../components/ShowNotification.vue';
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';

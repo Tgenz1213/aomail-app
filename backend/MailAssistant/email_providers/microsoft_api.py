@@ -442,7 +442,7 @@ def delete_email(email_id, social_api) -> dict:
         return {"error": f"Failed to move email to trash: {response.text}"}
 
 
-def search_emails_query(access_token, search_query, max_results=100):
+def search_emails_manually(access_token, search_query, max_results=100):
     """Searches for emails matching the query."""
 
     graph_endpoint = f"{GRAPH_URL}me/mailFolders/inbox/messages"

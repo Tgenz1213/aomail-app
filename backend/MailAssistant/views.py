@@ -7,6 +7,7 @@ import json
 import logging
 import re
 import threading
+import time
 from django.db import IntegrityError
 import jwt
 import stripe  # type: ignore
@@ -1400,7 +1401,10 @@ def search_emails_ai(request):
     data = request.data
     emails = data["emails"]
     query = data["query"]
-    queries = mistral.search_emails(query)
+    start = time.time()
+    queries: dict = mistral.search_emails(query)
+    formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+    print(f"AI model response in: {formatted_time}")
 
     result = {}
 
@@ -1421,16 +1425,17 @@ def search_emails_ai(request):
             result[provider][interpretation][email] = data
 
     for interpretation in queries:
-        closeness_percentage = interpretation["closeness_percentage"]
-        max_results = interpretation["max_results"]
-        from_str = interpretation["from"]
-        to = interpretation["to"]
-        subject = interpretation["subject"]
-        body = interpretation["body"]
-        filenames = interpretation["filenames"]
-        date_from = interpretation["date_from"]
-        keywords = interpretation["keywords"]
-        search_in = interpretation["search_in"]
+        interpretation_dict = queries[interpretation]
+        closeness_percentage = interpretation_dict["closeness_percentage"]
+        max_results = interpretation_dict["max_results"]
+        from_str = interpretation_dict["from"]
+        to = interpretation_dict["to"]
+        subject = interpretation_dict["subject"]
+        body = interpretation_dict["body"]
+        filenames = interpretation_dict["filenames"]
+        date_from = interpretation_dict["date_from"]
+        keywords = interpretation_dict["keywords"]
+        search_in = interpretation_dict["search_in"]
 
         for email in emails:
             social_api = SocialAPI.objects.get(email=email)
@@ -1460,34 +1465,36 @@ def search_emails_ai(request):
                     ),
                 )
 
-            # elif type_api == "microsoft":
-            #     access_token = microsoft_api.refresh_access_token(
-            #         microsoft_api.get_social_api(user, email)
-            #     )
-            #     # Start a thread to perform the search and append results to the result dict
-            #     search_result = threading.Thread(
-            #         target=append_to_result,
-            #         args=(
-            #             MICROSOFT_PROVIDER,
-            #             email,
-            #             microsoft_api.search_emails_query(
-            #                 access_token,
-            #                 max_results=max_results,
-            #                 filenames=filenames,
-            #                 from_address=from_str,
-            #                 to_address=to,
-            #                 subject=subject,
-            #                 body=body,
-            #                 date_from=date_from,
-            #                 search_in=search_in,
-            #             ),
-            #         ),
-            #     )
+                # elif type_api == "microsoft":
+                #     access_token = microsoft_api.refresh_access_token(
+                #         microsoft_api.get_social_api(user, email)
+                #     )
+                #     # Start a thread to perform the search and append results to the result dict
+                #     search_result = threading.Thread(
+                #         target=append_to_result,
+                #         args=(
+                #             MICROSOFT_PROVIDER,
+                #             email,
+                #             microsoft_api.search_emails_query(
+                #                 access_token,
+                #                 max_results=max_results,
+                #                 filenames=filenames,
+                #                 from_address=from_str,
+                #                 to_address=to,
+                #                 subject=subject,
+                #                 body=body,
+                #                 date_from=date_from,
+                #                 search_in=search_in,
+                #             ),
+                #         ),
+                #     )
 
-            search_result.start()
-            search_result.join()
+                search_result.start()
+                search_result.join()
 
     print(result)
+
+    
     return Response(result, status=200)
 
 
@@ -1519,7 +1526,7 @@ def search_emails(request):
                 target=append_to_result(
                     GOOGLE_PROVIDER,
                     email,
-                    google_api.search_emails_query(
+                    google_api.search_emails_manually(
                         services, query, max_results, ["pdf", "png"]
                     ),
                 )
@@ -1532,7 +1539,7 @@ def search_emails(request):
                 target=append_to_result(
                     MICROSOFT_PROVIDER,
                     email,
-                    microsoft_api.search_emails_query(access_token, query, max_results),
+                    microsoft_api.search_emails_manually(access_token, query, max_results),
                 )
             )
         search_result.start()

@@ -36,6 +36,7 @@ from MailAssistant.constants import (
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
+    GOOGLE_PROVIDER,
     MAX_RETRIES,
     MICROSOFT_PROVIDER,
     PHISHING_CATEGORY,
@@ -1416,22 +1417,24 @@ def link_email(request):
 def search_emails(request):
     user = request.user
     data = request.data
-    email = data["email"]
+    emails = data["emails"]
     query = data["query"]
 
-    social_api = SocialAPI.objects.get(email=email)
-    type_api = social_api.type_api
+    result = {}
+    for email in emails:
+        social_api = SocialAPI.objects.get(email=email)
+        type_api = social_api.type_api
 
-    if type_api == "google":
-        services = google_api.authenticate_service(user, email)
-        result = google_api.search_emails_query(services, query, 100)
-        print(result)
-    elif type_api == "microsoft":
-        access_token = microsoft_api.refresh_access_token(
-            microsoft_api.get_social_api(user, email)
-        )
-        result = microsoft_api.search_emails_query(access_token, query, 100)
-        print(result)
+        if type_api == "google":
+            services = google_api.authenticate_service(user, email)
+            search_result = google_api.search_emails_query(services, query, 100)
+            result[GOOGLE_PROVIDER] = search_result
+        elif type_api == "microsoft":
+            access_token = microsoft_api.refresh_access_token(
+                microsoft_api.get_social_api(user, email)
+            )
+            search_result = microsoft_api.search_emails_query(access_token, query, 100)
+            result[MICROSOFT_PROVIDER] = search_result
 
     return Response(result, status=200)
 

@@ -99,8 +99,6 @@
                 </div>
               </div>
               <!-- h-[600px] 2xl:h-[700px] -->
-
-
               <div class="flex-grow p-6 mr-2">
                 <div class="h-96 flex flex-col">
                   <div class="flex-1 overflow-y-auto">
@@ -108,8 +106,13 @@
                       class="flex h-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-center">
                       <div
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar max-h-full">
-                        <ul v-if="searchResult && searchResult.length > 0" role="list" class="flex flex-col w-full">
-                          <li v-for="item in searchResult" :key="item"
+                        <ul v-if="searchResult && Object.keys(searchResult).length > 0" role="list"
+                          class="flex flex-col w-full">
+                          <li v-if="searchResult.Gmail" v-for="item in searchResult.Gmail" :key="item"
+                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
+                            <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item }}</p>
+                          </li>
+                          <li v-if="searchResult.Outlook" v-for="item in searchResult.Outlook" :key="item"
                             class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
                             <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item }}</p>
                           </li>
@@ -127,8 +130,6 @@
                   </div>
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>
@@ -163,7 +164,7 @@ const scrollToBottom = async () => {
   element.scrollTop = element.scrollHeight;
 };
 let isAIWriting = ref(false);
-let searchResult = ref([]);
+let searchResult = ref({});
 
 // Mounted lifecycle hook
 onMounted(async () => {
@@ -244,7 +245,7 @@ async function searchEmails() {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      email: "augustin@MailAssistant.onmicrosoft.com",
+      emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
       query: query.value
     }),
   };

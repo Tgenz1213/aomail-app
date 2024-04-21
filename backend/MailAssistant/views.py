@@ -1423,17 +1423,6 @@ def search_emails(request):
 
     # TODO: check if max_results correspond to subscription !!!
 
-    # TODO: add email to improve UX in front-end
-    # result = {
-    #     GOOGLE_PROVIDER: {
-    #         "email1": [],
-    #         "email2": []
-    #     },
-    #     MICROSOFT_PROVIDER: {
-    #         "email1": [],
-    #     }
-    # }
-
     def append_to_result(provider: str, email: str, data: list):
         if provider not in result:
             result[provider] = {}

@@ -106,17 +106,42 @@
                       class="flex h-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-center">
                       <div
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar max-h-full">
+
+
+
+
+
+
                         <ul v-if="searchResult && Object.keys(searchResult).length > 0" role="list"
                           class="flex flex-col w-full">
-                          <li v-if="searchResult.Gmail" v-for="item in searchResult.Gmail" :key="item"
-                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
-                            <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item }}</p>
-                          </li>
-                          <li v-if="searchResult.Outlook" v-for="item in searchResult.Outlook" :key="item"
-                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
-                            <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item }}</p>
-                          </li>
+                          <div v-if="searchResult.Gmail">
+                            <div v-for="(listIds, email) in searchResult.Gmail">
+                              <p>Email found for: {{ email }}</p>
+                              <li v-for="id in listIds" :key="id"
+                                class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
+                                <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
+                              </li>
+                            </div>
+                          </div>
+
+                          <div v-if="searchResult.Outlook">
+                            <div v-for="(listIds, email) in searchResult.Outlook">
+                              <p>Email found for: {{ email }}</p>
+                              <li v-for="id in listIds" :key="id"
+                                class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
+                                <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
+                              </li>
+                            </div>
+                          </div>
                         </ul>
+
+
+
+
+
+
+
+
                         <div v-else>
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                             stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">

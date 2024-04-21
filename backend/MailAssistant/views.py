@@ -1395,83 +1395,99 @@ def link_email(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def search_emails_ai(request):
-    """"""
+    """Searches emails using AI interpretation of user query."""
     user = request.user
     data = request.data
     emails = data["emails"]
     query = data["query"]
     queries = mistral.search_emails(query)
 
+    result = {}
+
+    def append_to_result(
+        provider: str,
+        interpretation: str,
+        closeness_percentage: int,
+        email: str,
+        data: list,
+    ):
+        if len(data) > 0:
+            if provider not in result:
+                result[provider] = {}
+            if interpretation not in result[provider]:
+                result[provider][interpretation] = {
+                    "closeness_percentage": closeness_percentage
+                }
+            result[provider][interpretation][email] = data
+
     for interpretation in queries:
         closeness_percentage = interpretation["closeness_percentage"]
-        max_results: int = interpretation["max_results"]
+        max_results = interpretation["max_results"]
         from_str = interpretation["from"]
         to = interpretation["to"]
         subject = interpretation["subject"]
         body = interpretation["body"]
         filenames = interpretation["filenames"]
-        date_from: datetime.datetime = interpretation["date_from"]
-        keywords: list = interpretation["keywords"]
-        search_in: dict = interpretation["search_in"]
+        date_from = interpretation["date_from"]
+        keywords = interpretation["keywords"]
+        search_in = interpretation["search_in"]
 
-        
-    {
-        "interpretation_1": {
-            "closeness_percentage": 80,
-            "from": "",
-            "to": "",
-            "subject": "réunion de licenciment",
-            "body": "réunion de licenciment",
-            "extensions": ["pdf", "png"],
-            "date_from": "01/21/2024",
-            "keywords": ["réunion", "licenciment"],
-            "search_in": {
-                "read": True,
-                "unread": True,
-                "drafts": False,
-                "sent_emails": False,
-                "deleted_emails": False,
-                "spams": False,
-            },
-        }
-    }
+        for email in emails:
+            social_api = SocialAPI.objects.get(email=email)
+            type_api = social_api.type_api
 
-    def append_to_result(provider: str, email: str, data: list):
-        if len(data) > 0:
-            if provider not in result:
-                result[provider] = {}
-            result[provider][email] = data
-
-    result = {}
-    for email in emails:
-        social_api = SocialAPI.objects.get(email=email)
-        type_api = social_api.type_api
-
-        if type_api == "google":
-            services = google_api.authenticate_service(user, email)
-            search_result = threading.Thread(
-                target=append_to_result(
-                    GOOGLE_PROVIDER,
-                    email,
-                    google_api.search_emails_query(
-                        services, query, max_results, ["pdf", "png"]
+            if type_api == "google":
+                services = google_api.authenticate_service(user, email)
+                search_result = threading.Thread(
+                    target=append_to_result,
+                    args=(
+                        GOOGLE_PROVIDER,
+                        interpretation,
+                        closeness_percentage,
+                        email,
+                        google_api.search_emails_query(
+                            services,
+                            max_results=max_results,
+                            filenames=filenames,
+                            from_address=from_str,
+                            to_address=to,
+                            subject=subject,
+                            body=body,
+                            keywords=keywords,
+                            date_from=date_from,
+                            search_in=search_in,
+                        ),
                     ),
                 )
-            )
-        elif type_api == "microsoft":
-            access_token = microsoft_api.refresh_access_token(
-                microsoft_api.get_social_api(user, email)
-            )
-            search_result = threading.Thread(
-                target=append_to_result(
-                    MICROSOFT_PROVIDER,
-                    email,
-                    microsoft_api.search_emails_query(access_token, query, max_results),
-                )
-            )
-        search_result.start()
-        search_result.join()
 
+            # elif type_api == "microsoft":
+            #     access_token = microsoft_api.refresh_access_token(
+            #         microsoft_api.get_social_api(user, email)
+            #     )
+            #     # Start a thread to perform the search and append results to the result dict
+            #     search_result = threading.Thread(
+            #         target=append_to_result,
+            #         args=(
+            #             MICROSOFT_PROVIDER,
+            #             email,
+            #             microsoft_api.search_emails_query(
+            #                 access_token,
+            #                 max_results=max_results,
+            #                 filenames=filenames,
+            #                 from_address=from_str,
+            #                 to_address=to,
+            #                 subject=subject,
+            #                 body=body,
+            #                 date_from=date_from,
+            #                 search_in=search_in,
+            #             ),
+            #         ),
+            #     )
+
+            search_result.start()
+            search_result.join()
+
+    print(result)
     return Response(result, status=200)
 
 

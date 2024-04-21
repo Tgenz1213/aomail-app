@@ -463,26 +463,41 @@ def get_mail(services, int_mail=None, id_mail=None):
         web_link,
     )
 
-
 def search_emails_query(
-    services, search_query, max_results: int = 2, file_extensions: list = None
+    services: dict[str, build],
+    max_results: int = 2,
+    filenames: list = None,
+    from_address: str = None,
+    to_address: str = None,
+    subject: str = None,
+    body: str = None,
+    keywords: list = None,
+    date_from: str = None,
+    search_in: dict = None,
 ):
     """Searches for emails matching the query."""
+    
+    query_parts = []
 
-    query_parts = [
-        f"(from:{search_query})",
-        f"(to:{search_query})",
-        f"(subject:{search_query})",
-        f"(body:{search_query})",
-        f"(filename:{search_query})",
-    ]
+    if from_address:
+        query_parts.append(f"(from:{from_address})")
+    if to_address:
+        query_parts.append(f"(to:{to_address})")
+    if subject:
+        query_parts.append(f"(subject:{subject})")
+    if body:
+        query_parts.append(f"(body:{body})")
+    if filenames:
+        file_query = " OR ".join([f"filename:{ext}" for ext in filenames])
+        query_parts.append(f"({file_query})")
+    if date_from:
+        query_parts.append(f"after:{date_from}")
+    if keywords:
+        keyword_query = " OR ".join([f'"{keyword}"' for keyword in keywords])
+        query_parts.append(f"({keyword_query})")
+
+
     query = " OR ".join(query_parts)
-
-    if file_extensions:
-        file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
-        query += f" AND ({file_query})"
-
-    print(query)
 
     try:
         service = services["gmail"]
@@ -499,6 +514,44 @@ def search_emails_query(
     except Exception as e:
         LOGGER.error(f"Failed to search emails: {str(e)}")
         return []
+
+
+
+# def search_emails_query(
+#     services, search_query, max_results, file_extensions: list = None
+# ):
+#     """Searches for emails matching the query."""
+
+#     query_parts = [
+#         f"(from:{search_query})",
+#         f"(to:{search_query})",
+#         f"(subject:{search_query})",
+#         f"(body:{search_query})",
+#         f"(filename:{search_query})",
+#     ]
+#     query = " OR ".join(query_parts)
+
+#     if file_extensions:
+#         file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+#         query += f" AND ({file_query})"
+
+#     print(query)
+
+#     try:
+#         service = services["gmail"]
+#         results = (
+#             service.users()
+#             .messages()
+#             .list(userId="me", q=query, maxResults=max_results)
+#             .execute()
+#         )
+#         messages = results.get("messages", [])
+
+#         return [message["id"] for message in messages]
+
+#     except Exception as e:
+#         LOGGER.error(f"Failed to search emails: {str(e)}")
+#         return []
 
 
 # ----------------------- READ EMAIL -----------------------#

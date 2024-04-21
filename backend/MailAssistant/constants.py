@@ -18,10 +18,10 @@ REDIRECT_URI_SIGNUP = f"{BASE_URL}signup_part2"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
 HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]
 ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
-NO_REPLY_CREDS = json.load(open(f"{CREDS_PATH}no_reply_creds.json"))
-EMAIL_NO_REPLY = NO_REPLY_CREDS["email"]
-EMAIL_NO_REPLY_PASSWORD = NO_REPLY_CREDS["password"]
-ADMIN_EMAIL_LIST = ["theo...", "jean...", "augustin.rolet.pro@gmail.com"]
+EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))
+EMAIL_NO_REPLY = EMAILS_CREDS["email"]
+EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["password"]
+ADMIN_EMAIL_LIST = EMAILS_CREDS["email_admins"]
 
 
 ######################## STRIPE ########################

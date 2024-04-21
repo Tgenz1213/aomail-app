@@ -1424,9 +1424,10 @@ def search_emails(request):
     # TODO: check if max_results correspond to subscription !!!
 
     def append_to_result(provider: str, email: str, data: list):
-        if provider not in result:
-            result[provider] = {}
-        result[provider][email] = data
+        if len(data) > 0:
+            if provider not in result:
+                result[provider] = {}
+            result[provider][email] = data
 
     result = {}
     for email in emails:

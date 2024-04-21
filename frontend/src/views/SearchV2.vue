@@ -246,7 +246,8 @@ async function searchEmails() {
     },
     body: JSON.stringify({
       emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
-      query: query.value
+      query: query.value,
+      max_results: 100
     }),
   };
 

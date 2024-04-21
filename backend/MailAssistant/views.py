@@ -1419,6 +1419,25 @@ def search_emails(request):
     data = request.data
     emails = data["emails"]
     query = data["query"]
+    max_results = data["max_results"]
+
+    # TODO: check if max_results correspond to subscription !!!
+
+    # TODO: add email to improve UX in front-end
+    # result = {
+    #     GOOGLE_PROVIDER: {
+    #         "email1": [],
+    #         "email2": []
+    #     },
+    #     MICROSOFT_PROVIDER: {
+    #         "email1": [],
+    #     }
+    # }
+
+    def append_to_result(provider: str, email: str, data: list):
+        if provider not in result:
+            result[provider] = {}
+        result[provider][email] = data
 
     result = {}
     for email in emails:
@@ -1427,14 +1446,28 @@ def search_emails(request):
 
         if type_api == "google":
             services = google_api.authenticate_service(user, email)
-            search_result = google_api.search_emails_query(services, query, 100)
-            result[GOOGLE_PROVIDER] = search_result
+            search_result = threading.Thread(
+                target=append_to_result(
+                    GOOGLE_PROVIDER,
+                    email,
+                    google_api.search_emails_query(services, query, max_results),
+                )
+            )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
             )
-            search_result = microsoft_api.search_emails_query(access_token, query, 100)
-            result[MICROSOFT_PROVIDER] = search_result
+            search_result = threading.Thread(
+                target=append_to_result(
+                    MICROSOFT_PROVIDER,
+                    email,
+                    microsoft_api.search_emails_query(access_token, query, max_results),
+                )
+            )
+        search_result.start()
+        search_result.join()
+
+    print(result)
 
     return Response(result, status=200)
 

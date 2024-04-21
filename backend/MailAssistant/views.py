@@ -1413,6 +1413,31 @@ def link_email(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+def search_emails(request):
+    user = request.user
+    data = request.data
+    email = data["email"]
+    query = data["query"]
+
+    social_api = SocialAPI.objects.get(email=email)
+    type_api = social_api.type_api
+
+    if type_api == "google":
+        services = google_api.authenticate_service(user, email)
+        result = google_api.search_emails_query(services, query, 100)
+        print(result)
+    elif type_api == "microsoft":
+        access_token = microsoft_api.refresh_access_token(
+            microsoft_api.get_social_api(user, email)
+        )
+        result = microsoft_api.search_emails_query(access_token, query, 100)
+        print(result)
+
+    return Response(result, status=200)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def update_user_description(request):
     """Updates the user desctiption of the given email."""
     data = request.data

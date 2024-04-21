@@ -173,19 +173,21 @@ def save_credentials(creds, user, email):
         LOGGER.error(f"Failed to save credentials: {str(e)}")
 
 
-def build_services(creds) -> dict:
+def build_services(creds) -> dict[str, build]:
     """Returns a dictionary of endpoints"""
     # TODO: remove duplicates and update code
-    services = {
-        "gmail.readonly": build(
-            "gmail", "v1", cache_discovery=False, credentials=creds
-        ),
-        "gmail.modify": build("gmail", "v1", cache_discovery=False, credentials=creds),
-        "gmail.send": build("gmail", "v1", cache_discovery=False, credentials=creds),
-        "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
-        "contacts": build("people", "v1", cache_discovery=False, credentials=creds),
-        "profile": build("people", "v1", cache_discovery=False, credentials=creds),
-        "email": build("people", "v1", cache_discovery=False, credentials=creds),
+    gmail_service = build("gmail", "v1", cache_discovery=False, credentials=creds)
+    calendar_service = build("calendar", "v3", cache_discovery=False, credentials=creds)
+    contacts_service = build("people", "v1", cache_discovery=False, credentials=creds)
+
+    services: dict[str, build] = {
+        "gmail.readonly": gmail_service,
+        "gmail.modify": gmail_service,
+        "gmail.send": gmail_service,
+        "calendar": calendar_service,
+        "contacts": contacts_service,
+        "profile": contacts_service,
+        "email": contacts_service,
     }
     return services
 
@@ -472,6 +474,28 @@ def get_mail(services, int_mail=None, id_mail=None):
     )
 
 
+def search_emails_query(services, search_query, max_results=2):
+    """Searches for emails matching the query."""
+
+    service = services["gmail.readonly"]
+    query = f"({search_query}) OR (subject:{search_query}) OR (to:{search_query}) OR (from:{search_query})"
+
+    try:
+        results = (
+            service.users()
+            .messages()
+            .list(userId="me", q=query, maxResults=max_results)
+            .execute()
+        )
+        messages = results.get("messages", [])
+
+        return [message["id"] for message in messages]
+
+    except Exception as e:
+        LOGGER.error(f"Failed to search emails: {str(e)}")
+        return []
+
+
 # ----------------------- READ EMAIL -----------------------#
 def find_user_in_emails(services, search_query):
     """Search for user in emails based on a query"""
@@ -499,7 +523,7 @@ def parse_name_and_email(header_value):
 
 # V2 : better to check the mail structure (comparing with the input)
 def search_emails(services, search_query, max_results=2):
-    """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
+    """Searches for emails addresses in the user's mailbox based on the provided search query in both the subject and body."""
     service = services["gmail.readonly"]
 
     # Fetch the list of emails based on the query
@@ -537,9 +561,7 @@ def search_emails(services, search_query, max_results=2):
 
                 # Additional filtering: Check if the sender email/name matches the search query
                 if search_query.lower() in email or search_query.lower() in name:
-                    if email and not any(
-                        substring in email for substring in ["noreply", "no-reply"]
-                    ):
+                    if email and not library.is_no_reply_email(email):
                         found_emails[email] = name
 
         return found_emails

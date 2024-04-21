@@ -64,13 +64,12 @@
                 <div class="flex space-x-2 items-center">
                   <div class="flex-grow w-full">
                     <div class="relative flex flex-grow items-stretch mt-2">
-                      <input type="text" name="first-name" id="first-name" placeholder="Rechercher"
-                        autocomplete="given-name"
+                      <input v-model="query" type="text" placeholder="Rechercher" autocomplete="given-name"
                         class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                     </div>
                   </div>
                   <div class="flex-1 mt-2">
-                    <button type="button"
+                    <button type="button" @click="searchEmails"
                       class="w-28 rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Rechercher</button>
                   </div>
                 </div>
@@ -99,19 +98,37 @@
                   </div>
                 </div>
               </div>
-              <div class="flex-grow p-6" style="margin-right: 2px;"> <!-- h-[600px] 2xl:h-[700px] -->
-                <div
-                  class="flex h-full overflow-y-auto items-center justify-center w-full rounded-lg border-2 border-dashed border-gray-300 text-center">
-                  <div class="flex-col">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                      stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
-                    </svg>
-                    <span class="mt-2 block text-sm font-semibold text-gray-900">Aucun résultats</span>
+              <!-- h-[600px] 2xl:h-[700px] -->
+
+
+              <div class="flex-grow p-6 mr-2">
+                <div class="h-96 flex flex-col">
+                  <div class="flex-1 overflow-y-auto">
+                    <div
+                      class="flex h-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-center">
+                      <div
+                        class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar max-h-full">
+                        <ul v-if="searchResult && searchResult.length > 0" role="list" class="flex flex-col w-full">
+                          <li v-for="item in searchResult" :key="item"
+                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
+                            <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ item }}</p>
+                          </li>
+                        </ul>
+                        <div v-else>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                            stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
+                          </svg>
+                          <span class="mt-2 block text-sm font-semibold text-gray-900">Aucun résultat</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
+
+
             </div>
           </div>
         </div>
@@ -121,12 +138,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, nextTick } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import SearchContact from '../components/SearchContact.vue';
 import SearchType from '../components/SearchType.vue';
-import { getBackgroundColor } from '../router/index.js';
+import { fetchWithToken, getBackgroundColor } from '../router/index.js';
+import { API_BASE_URL } from '@/main';
 import {
   MagnifyingGlassIcon,
   UserIcon,
@@ -137,41 +155,56 @@ import {
 const AIContainer = ref(null);
 const bgColor = ref('');
 let counter_display = 0;
+let query = ref('');
+const scrollableDiv = ref(null);
+const scrollToBottom = async () => {
+  await nextTick();
+  const element = scrollableDiv.value;
+  element.scrollTop = element.scrollHeight;
+};
+let isAIWriting = ref(false);
+let searchResult = ref([]);
 
 // Mounted lifecycle hook
-onMounted(() => {
-  
+onMounted(async () => {
   getBackgroundColor();
   bgColor.value = localStorage.getItem('bgColor');
 
   AIContainer.value = document.getElementById('AIContainer');
-  const message = "Cette page est non fonctionnelle et en cours de développement";
 
+  await askQueryUser();
+});
+
+async function displayMessage(message, ai_icon) {
+  // Function to display a message from the AI Assistant
+
+  isAIWriting.value = true;
   const messageHTML = `
-  <div class="flex pb-12">
-      <div class="mr-4 flex">
-          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-            <span class="text-lg font-medium leading-none text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-              </svg>
-            </span>
+      <div class="flex pb-12">
+        <div class="mr-4 flex">
+          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              ${ai_icon}
+            </svg>
           </span>   
-      </div>
-      <div>
+        </div>
+        <div>
           <p ref="animatedText${counter_display}"></p>
+        </div>
       </div>
-  </div>
-  `;
-
+    `;
   AIContainer.value.innerHTML += messageHTML;
   const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
   counter_display += 1;
-  animateText(message, animatedParagraph);
-});
-
-// To animate text
-function animateText(text, target) {
+  await animateText(message, animatedParagraph);
+  scrollToBottom();
+}
+async function waitForAIWriting() {
+  while (isAIWriting.value) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+}
+async function animateText(text, target) {
   let characters = text.split("");
   let currentIndex = 0;
   const interval = setInterval(() => {
@@ -180,9 +213,66 @@ function animateText(text, target) {
       currentIndex++;
     } else {
       clearInterval(interval);
+      isAIWriting.value = false;
     }
   }, 30);
 }
+
+async function askQueryUser() {
+  const message = "Bonjour, quel email recherchez vous. Pouvez vous me donner un contexte ?";
+  const ai_icon = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
+  await displayMessage(message, ai_icon);
+
+  // Wait for isAIWriting to become false
+  await waitForAIWriting();
+
+  const message1 = "Cette page est non fonctionnelle et en cours de développement";
+  const ai_icon1 = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
+  await displayMessage(message1, ai_icon1);
+}
+
+async function searchEmails() {
+  loading();
+  scrollToBottom();
+
+  // TODO
+  // une case par compte à cocher (email)
+  // un bouton cocher TOUS (email)
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: "augustin@MailAssistant.onmicrosoft.com",
+      query: query.value
+    }),
+  };
+
+  const result = await fetchWithToken(`${API_BASE_URL}user/search_emails/`, requestOptions);
+  console.log(result);
+  searchResult.value = result;
+  hideLoading();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // To handle the input going to wide 
 const adjustHeight = (event) => {
@@ -200,4 +290,36 @@ const adjustHeight = (event) => {
     textarea.style.overflowY = 'hidden'; // Hide the scrollbar when content is below maxHeight.
   }
 };
+
+
+function loading() {
+  // Use `nbr` in the template literal to set the reference dynamically
+  const messageHTML = `
+      <div id="dynamicLoadingIndicator" class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                    <span class="text-lg font-medium leading-none text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
+                      </svg>
+                    </span>
+                </span>
+            </div>
+            <div>
+              <div class="loading-spinner"></div>
+            </div>
+        </div>
+      </div>
+    `;
+
+  AIContainer.value.innerHTML += messageHTML;
+}
+
+function hideLoading() {
+  const loadingElement = document.getElementById('dynamicLoadingIndicator');
+  if (loadingElement) {
+    loadingElement.remove();
+  }
+}
 </script>

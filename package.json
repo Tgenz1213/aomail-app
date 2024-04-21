@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "@types/quill": "^2.0.14",
     "eslint-plugin-vue": "^9.22.0"
   }
 }

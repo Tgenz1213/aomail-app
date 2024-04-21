@@ -175,19 +175,11 @@ def save_credentials(creds, user, email):
 
 def build_services(creds) -> dict[str, build]:
     """Returns a dictionary of endpoints"""
-    # TODO: remove duplicates and update code
-    gmail_service = build("gmail", "v1", cache_discovery=False, credentials=creds)
-    calendar_service = build("calendar", "v3", cache_discovery=False, credentials=creds)
-    contacts_service = build("people", "v1", cache_discovery=False, credentials=creds)
 
     services: dict[str, build] = {
-        "gmail.readonly": gmail_service,
-        "gmail.modify": gmail_service,
-        "gmail.send": gmail_service,
-        "calendar": calendar_service,
-        "contacts": contacts_service,
-        "profile": contacts_service,
-        "email": contacts_service,
+        "gmail": build("gmail", "v1", cache_discovery=False, credentials=creds),
+        "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
+        "people": build("people", "v1", cache_discovery=False, credentials=creds),
     }
     return services
 
@@ -219,7 +211,7 @@ def send_email(request):
         user = request.user
         # email = request.headers.get("email")
         email = request.META["email"]
-        service = authenticate_service(user, email)["gmail.send"]
+        service = authenticate_service(user, email)["gmail"]
         # serializer = EmailDataSerializer(data=request.data)
         serializer = EmailDataSerializer(data=request.POST)
 
@@ -286,15 +278,13 @@ def send_email(request):
 
 def delete_email(user, email, email_id) -> dict:
     """Moves the email to the bin of the user"""
-    gmail_service = authenticate_service(user, email)["gmail.modify"]
+    gmail = authenticate_service(user, email)["gmail"]
 
-    if not gmail_service:
+    if not gmail:
         return {"error": "No gmail service provided"}
 
     try:
-        response = (
-            gmail_service.users().messages().trash(userId="me", id=email_id).execute()
-        )
+        response = gmail.users().messages().trash(userId="me", id=email_id).execute()
 
         if "id" in response:
             return {"message": "Email moved to trash successfully!"}
@@ -311,7 +301,7 @@ def delete_email(user, email, email_id) -> dict:
 
 def get_info_contacts(services):
     """Fetch the name and the email of the contacts of the user"""
-    service = services["contacts"]
+    service = services["people"]
 
     # Request a list of all the user's connections (contacts)
     results = (
@@ -343,7 +333,7 @@ def get_info_contacts(services):
 def get_mail_to_db(services, int_mail=None, id_mail=None):
     """Retrieve email information for processing email to database."""
 
-    service = services["gmail.readonly"]
+    service = services["gmail"]
     plaintext_var = [0]
     plaintext_var[0] = 0
 
@@ -410,7 +400,7 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
 
 def get_mail(services, int_mail=None, id_mail=None):
     """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
-    service = services["gmail.readonly"]
+    service = services["gmail"]
     plaintext_var = [0]
     plaintext_var[0] = 0
 
@@ -477,7 +467,7 @@ def get_mail(services, int_mail=None, id_mail=None):
 def search_emails_query(services, search_query, max_results=2):
     """Searches for emails matching the query."""
 
-    service = services["gmail.readonly"]
+    service = services["gmail"]
     query = f"({search_query}) OR (subject:{search_query}) OR (to:{search_query}) OR (from:{search_query})"
 
     try:
@@ -524,7 +514,7 @@ def parse_name_and_email(header_value):
 # V2 : better to check the mail structure (comparing with the input)
 def search_emails(services, search_query, max_results=2):
     """Searches for emails addresses in the user's mailbox based on the provided search query in both the subject and body."""
-    service = services["gmail.readonly"]
+    service = services["gmail"]
 
     # Fetch the list of emails based on the query
     try:
@@ -578,8 +568,8 @@ def set_all_contacts(user, email):
 
     credentials = get_credentials(user, email)
     services = build_services(credentials)
-    contacts_service = services["contacts"]
-    gmail_service = services["gmail.readonly"]
+    contacts_service = services["people"]
+    gmail = services["gmail"]
 
     try:
         all_contacts = defaultdict(set)
@@ -620,12 +610,12 @@ def set_all_contacts(user, email):
                 break
 
         # Part 2: Retrieving from Gmail
-        response = gmail_service.users().messages().list(userId="me", q="").execute()
+        response = gmail.users().messages().list(userId="me", q="").execute()
         messages = response.get("messages", [])
 
         for msg in messages[:500]:  # Limit to the first 500 messages
             message = (
-                gmail_service.users()
+                gmail.users()
                 .messages()
                 .get(
                     userId="me",
@@ -677,7 +667,7 @@ def set_all_contacts(user, email):
 
 def get_unique_senders(services) -> dict:
     """Fetches unique sender information from Gmail messages"""
-    service = services["gmail.readonly"]
+    service = services["gmail"]
     limit = 50
     results = (
         service.users()
@@ -802,14 +792,14 @@ def subscribe_to_email_notifications(user, email) -> bool:
         if services is None:
             return False
 
-        gmail_service = services["gmail.readonly"]
+        gmail = services["gmail"]
 
         request_body = {
             "labelIds": ["INBOX"],
             "topicName": f"projects/{GOOGLE_PROJECT_ID}/topics/{GOOGLE_TOPIC_NAME}",
         }
 
-        response = gmail_service.users().watch(userId="me", body=request_body).execute()
+        response = gmail.users().watch(userId="me", body=request_body).execute()
 
         if "historyId" in response:
             LOGGER.info(
@@ -1187,7 +1177,7 @@ def get_parsed_contacts(request) -> list:
     # Authenticate the user and build the service
     credentials = get_credentials(user, email)
     services = build_services(credentials)
-    contacts_service = services["contacts"]
+    contacts_service = services["people"]
 
     try:
         # Get contacts
@@ -1257,7 +1247,7 @@ def set_all_contacts(user, email):
     # Authenticate the user and build the service
     credentials = get_credentials(user, email)
     services = build_services(credentials)
-    contacts_service = services["contacts"]
+    contacts_service = services["people"]
 
     try:
         # Get all contacts without specifying a page size
@@ -1452,8 +1442,8 @@ def processed_email_to_db(request, services):
 
     credentials = get_credentials(user, email)
     services = build_services(credentials)
-    contacts_service = services["contacts"]
-    gmail_service = services["gmail.readonly"]
+    contacts_service = services["people"]
+    gmail = services["gmail"]
 
     try:
         all_contacts = defaultdict(set)
@@ -1490,12 +1480,12 @@ def processed_email_to_db(request, services):
                 break
 
         # Part 2 : Retreiving from Gmail
-        response = gmail_service.users().messages().list(userId="me", q="").execute()
+        response = gmail.users().messages().list(userId="me", q="").execute()
         messages = response.get("messages", [])
 
         for msg in messages[:500]:  # Limit to the first 500 messages
             message = (
-                gmail_service.users()
+                gmail.users()
                 .messages()
                 .get(
                     userId="me",
@@ -1547,7 +1537,7 @@ def processed_email_to_db(request, services):
 
 '''def get_mail(services, int_mail=None, id_mail=None):
     """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
-    service = services["gmail.readonly"]
+    service = services["gmail"]
     plaintext_var = [0]
     plaintext_var[0] = 0
 

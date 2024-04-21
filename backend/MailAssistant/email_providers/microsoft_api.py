@@ -442,26 +442,18 @@ def delete_email(email_id, social_api) -> dict:
         return {"error": f"Failed to move email to trash: {response.text}"}
 
 
-def find_user_in_emails(access_token, search_query):
-    messages = search_emails(access_token, search_query)
-
-    if not messages:
-        return "No matching emails found."
-
-    return messages
-
-
 def search_emails_query(access_token, search_query, max_results=100):
     """Searches for emails matching the query."""
 
-    graph_endpoint = f"{GRAPH_URL}me/messages"
+    graph_endpoint = f"{GRAPH_URL}me/mailFolders/inbox/messages"
 
     try:
-        headers = get_headers(access_token)
-
-        # Use $filter to achieve search functionality
-        filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
-
+        headers = {"Authorization": f"Bearer {access_token}"}
+        filter_expression = f"""
+        startswith(subject,'{search_query}') or 
+        startswith(body/content,'{search_query}') or 
+        startswith(sender/emailAddress/address,'{search_query}')
+        """
         params = {"$filter": filter_expression, "$top": max_results}
 
         response = requests.get(graph_endpoint, headers=headers, params=params)
@@ -469,25 +461,20 @@ def search_emails_query(access_token, search_query, max_results=100):
 
         messages = response.json().get("value", [])
 
-        found_emails = {}
-
-        for message in messages:
-            sender = message.get("from", {}).get("emailAddress", {}).get("address", "")
-
-            if sender:
-                email = sender.lower()
-                name = sender.split("@")[0].lower()
-
-                # Additional filtering: Check if the sender email/name matches the search query
-                if search_query.lower() in email or search_query.lower() in name:
-                    if email and not library.is_no_reply_email(email):
-                        found_emails[email] = name
-
-        return found_emails
+        return [message["id"] for message in messages]
 
     except Exception as e:
         LOGGER.error(f"Failed to search emails: {str(e)}")
-        return {}
+        return []
+
+
+def find_user_in_emails(access_token, search_query):
+    messages = search_emails(access_token, search_query)
+
+    if not messages:
+        return "No matching emails found."
+
+    return messages
 
 
 def search_emails(access_token, search_query, max_results=2):

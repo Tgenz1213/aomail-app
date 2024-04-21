@@ -3,6 +3,7 @@ Handles prompt engineering requests for Mistral API.
 """
 
 import ast
+from datetime import datetime
 import json
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
@@ -417,3 +418,54 @@ def categorize_and_summarize_email(
         short_sentence,
         relevance,
     )
+
+
+
+def search_emails(query: str, language: str = "French") -> dict:
+    """Searches emails based on the user query and generates structured JSON response."""
+
+    today = datetime.now().strftime("%m-%d-%Y")
+
+    template = f"""As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
+    1. Analyse and create a filter to search emails content with the Gmail API and Graph API.
+    2. Interpret the query in up to 3 differents manners and assess a percentage of closeness with the user intention.
+    3. If nothing is specified, put the same value in 'from', 'to', 'subject', 'body', 'filenames'. By default, search in 'read', 'unread' emails
+    ---
+    Answer must ONLY be a Json format usable by Python matching this template in {language} WITHOUT giving any explanation:
+    {{
+        "interpretation_1": {{
+            "closeness_percentage": int,
+            max_results: int - default 100,
+            from: "",
+            to: "",
+            subject: "",
+            body: "",
+            filenames: [names and extensions (a-z0-9)],
+            date_from: MM/DD/YYYY,
+            keywords: [],
+            search_in: {{
+                "read": boolean,
+                "unread": boolean,
+                "drafts": boolean,
+                "sent_emails": boolean,
+                "deleted_emails": boolean,
+                "spams": boolean
+            }}
+        }},
+        "interpretation_2": {{
+            Add if needed
+        }},
+        "interpretation_3": {{
+            Add if needed
+        }}
+    }}
+    """    
+    model = "mistral-small-latest"
+    role = "user"
+    response = get_prompt_response(template, model, role)
+    clear_response = response.choices[0].message.content.strip()
+    queries_dict = json.loads(clear_response)
+
+    print(f"queries_dict: {queries_dict}")
+
+    return queries_dict

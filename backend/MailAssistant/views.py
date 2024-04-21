@@ -1122,7 +1122,7 @@ def unsubscribe_listeners(user, email=None):
                     send_mail(
                         subject="Critical Alert: Microsoft Unsubscription Failure",
                         message="",
-                        recipient_list=[ADMIN_EMAIL_LIST],
+                        recipient_list=ADMIN_EMAIL_LIST,
                         from_email=EMAIL_NO_REPLY,
                         html_message=email_html,
                         fail_silently=False,
@@ -1391,6 +1391,90 @@ def link_email(request):
     return Response({"error": "Could not subscribe to listener"}, status=400)
 
 
+# UNDER CONSTRUCTION
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def search_emails_ai(request):
+    """"""
+    user = request.user
+    data = request.data
+    emails = data["emails"]
+    query = data["query"]
+    queries = mistral.search_emails(query)
+
+    for interpretation in queries:
+        closeness_percentage = interpretation["closeness_percentage"]
+        max_results: int = interpretation["max_results"]
+        from_str = interpretation["from"]
+        to = interpretation["to"]
+        subject = interpretation["subject"]
+        body = interpretation["body"]
+        filenames = interpretation["filenames"]
+        date_from: datetime.datetime = interpretation["date_from"]
+        keywords: list = interpretation["keywords"]
+        search_in: dict = interpretation["search_in"]
+
+        
+    {
+        "interpretation_1": {
+            "closeness_percentage": 80,
+            "from": "",
+            "to": "",
+            "subject": "réunion de licenciment",
+            "body": "réunion de licenciment",
+            "extensions": ["pdf", "png"],
+            "date_from": "01/21/2024",
+            "keywords": ["réunion", "licenciment"],
+            "search_in": {
+                "read": True,
+                "unread": True,
+                "drafts": False,
+                "sent_emails": False,
+                "deleted_emails": False,
+                "spams": False,
+            },
+        }
+    }
+
+    def append_to_result(provider: str, email: str, data: list):
+        if len(data) > 0:
+            if provider not in result:
+                result[provider] = {}
+            result[provider][email] = data
+
+    result = {}
+    for email in emails:
+        social_api = SocialAPI.objects.get(email=email)
+        type_api = social_api.type_api
+
+        if type_api == "google":
+            services = google_api.authenticate_service(user, email)
+            search_result = threading.Thread(
+                target=append_to_result(
+                    GOOGLE_PROVIDER,
+                    email,
+                    google_api.search_emails_query(
+                        services, query, max_results, ["pdf", "png"]
+                    ),
+                )
+            )
+        elif type_api == "microsoft":
+            access_token = microsoft_api.refresh_access_token(
+                microsoft_api.get_social_api(user, email)
+            )
+            search_result = threading.Thread(
+                target=append_to_result(
+                    MICROSOFT_PROVIDER,
+                    email,
+                    microsoft_api.search_emails_query(access_token, query, max_results),
+                )
+            )
+        search_result.start()
+        search_result.join()
+
+    return Response(result, status=200)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def search_emails(request):
@@ -1419,7 +1503,9 @@ def search_emails(request):
                 target=append_to_result(
                     GOOGLE_PROVIDER,
                     email,
-                    google_api.search_emails_query(services, query, max_results),
+                    google_api.search_emails_query(
+                        services, query, max_results, ["pdf", "png"]
+                    ),
                 )
             )
         elif type_api == "microsoft":
@@ -1435,8 +1521,6 @@ def search_emails(request):
             )
         search_result.start()
         search_result.join()
-
-    print(result)
 
     return Response(result, status=200)
 

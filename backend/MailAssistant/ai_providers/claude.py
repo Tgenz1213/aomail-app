@@ -6,6 +6,7 @@ import ast
 import json
 import anthropic
 from colorama import Fore, init
+from datetime import datetime
 from MailAssistant.constants import CLAUDE_CREDS, DEFAULT_CATEGORY, HUMAN, ASSISTANT
 
 
@@ -317,7 +318,7 @@ def generate_email_response(input_subject, input_body, response_type, language):
 
     # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{response_type}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
     # OLD prompt
-    '''template = f"""{HUMAN}As an smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+    '''template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{response_type}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
     <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
 
     ----
@@ -325,7 +326,7 @@ def generate_email_response(input_subject, input_body, response_type, language):
     Answer must be above HTML without spaces
     {ASSISTANT}
     """'''
-    template = f"""{HUMAN}As an smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{response_type}'.
+    template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{response_type}'.
     1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
     2. Here is a template to follow, with placeholders for the dynamic content:
     <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
@@ -485,3 +486,51 @@ def categorize_and_summarize_email(
         short_sentence,
         relevance_category,
     )
+
+
+def search_emails(query: str, language: str = "French") -> dict:
+    """Searches emails based on the user query and generates structured JSON response."""
+
+    today = datetime.now().strftime("%m-%d-%Y")
+
+    template = f"""{HUMAN}As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
+    1. Analyse and create a filter to search emails content with the Gmail API and Graph API.
+    2. Interpret the query in up to 3 differents manners and assess a percentage of closeness with the user intention.
+    3. If nothing is specified, put the same value in 'from', 'to', 'subject', 'body', 'filenames'. By default, search in 'read', 'unread' emails
+    ---
+    Answer must ONLY be a Json format usable by Python matching this template in {language} WITHOUT giving any explanation:
+    {{
+        "interpretation_1": {{
+            closeness_percentage: int,
+            max_results: int - default 100,
+            from: "",
+            to: "",
+            subject: "",
+            body: "",
+            filenames: [names and extensions (a-z0-9)],
+            date_from: MM/DD/YYYY,
+            keywords: [],
+            search_in: {{
+                "read": boolean,
+                "unread": boolean,
+                "drafts": boolean,
+                "sent_emails": boolean,
+                "deleted_emails": boolean,
+                "spams": boolean
+            }}
+        }},
+        "interpretation_2": {{
+            Add if needed
+        }},
+        "interpretation_3": {{
+            Add if needed
+        }}
+    }}
+    {ASSISTANT}
+    """
+    response = get_prompt_response(template)
+    queries_dict = response.content[0].text.strip()
+
+    print(f"queries_dict: {queries_dict}")
+
+    return queries_dict

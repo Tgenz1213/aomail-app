@@ -67,7 +67,7 @@ def generate_auth_url(request):
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true", prompt="consent"
+        access_type="offline", include_granted_scopes="True", prompt="consent"
     )
 
     return redirect(authorization_url)
@@ -97,7 +97,7 @@ def auth_url_link_email(request):
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
     )
     authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true", prompt="consent"
+        access_type="offline", include_granted_scopes="True", prompt="consent"
     )
 
     return redirect(authorization_url)
@@ -464,13 +464,28 @@ def get_mail(services, int_mail=None, id_mail=None):
     )
 
 
-def search_emails_query(services, search_query, max_results=2):
+def search_emails_query(
+    services, search_query, max_results: int = 2, file_extensions: list = None
+):
     """Searches for emails matching the query."""
 
-    service = services["gmail"]
-    query = f"({search_query}) OR (subject:{search_query}) OR (to:{search_query}) OR (from:{search_query})"
+    query_parts = [
+        f"(from:{search_query})",
+        f"(to:{search_query})",
+        f"(subject:{search_query})",
+        f"(body:{search_query})",
+        f"(filename:{search_query})",
+    ]
+    query = " OR ".join(query_parts)
+
+    if file_extensions:
+        file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+        query += f" AND ({file_query})"
+
+    print(query)
 
     try:
+        service = services["gmail"]
         results = (
             service.users()
             .messages()
@@ -857,7 +872,7 @@ def receive_mail_notifications(request):
                         send_mail(
                             subject="Critical Alert: Email Processing Failure",
                             message="",
-                            recipient_list=[ADMIN_EMAIL_LIST],
+                            recipient_list=ADMIN_EMAIL_LIST,
                             from_email=EMAIL_NO_REPLY,
                             html_message=email_html,
                             fail_silently=False,

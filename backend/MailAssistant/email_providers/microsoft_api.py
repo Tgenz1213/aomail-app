@@ -997,7 +997,7 @@ class MicrosoftEmailNotification(View):
                                 send_mail(
                                     subject="Critical Alert: Email Processing Failure",
                                     message="",
-                                    recipient_list=[ADMIN_EMAIL_LIST],
+                                    recipient_list=ADMIN_EMAIL_LIST,
                                     from_email=EMAIL_NO_REPLY,
                                     html_message=email_html,
                                     fail_silently=False,

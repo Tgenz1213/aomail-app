@@ -1,17 +1,3 @@
-<!--
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
--->
 <template>
   <Combobox as="div" v-model="selectedPerson">
     <ComboboxInput
@@ -45,7 +31,7 @@
     </ComboboxOptions>
   </Combobox>
 </template>
-  
+
 <script setup>
 import { computed, ref } from 'vue'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
@@ -53,14 +39,12 @@ import {
   Combobox,
   ComboboxButton,
   ComboboxInput,
-  //ComboboxLabel,
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/vue'
 
 const people = [
-  { name: 'Leslie Alexander', username: '@lesliealexander' },
-  // More users...
+  { name: 'Aucun', email: 'Aucun' },
 ]
 
 const query = ref('')

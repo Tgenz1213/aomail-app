@@ -89,7 +89,7 @@
                   <div class="col-span-1 shadow-sm">
                     <div class="flex space-x-1 items-center">
                       <adjustments-horizontal-icon class="w-4 h-4" />
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Type de recherche
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Type de pièce jointe
                         (optionnel)</label>
                     </div>
                     <div class="relative items-stretch mt-2">

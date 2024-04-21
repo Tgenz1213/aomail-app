@@ -464,9 +464,9 @@ def get_mail(services, int_mail=None, id_mail=None):
     )
 
 
-def search_emails_query(
+def search_emails_ai(
     services: dict[str, build],
-    max_results: int = 2,
+    max_results: int = 100,
     filenames: list = None,
     from_address: str = None,
     to_address: str = None,
@@ -490,7 +490,7 @@ def search_emails_query(
         query_parts.append(f"(body:{body})")
     if search_in:
         search_in_query = " OR ".join(
-            [f"in:{folder}" for folder in search_in if search_in[folder] == True]
+            [f"in:{folder}" for folder in search_in if search_in[folder]]
         )
         query_parts.append(f"({search_in_query})")
 
@@ -506,9 +506,10 @@ def search_emails_query(
         keyword_query = " OR ".join([keyword for keyword in keywords])
         query_parts.append(f'("{keyword_query}")')
 
-    query += " AND " + " AND ".join(query_parts)
+    if query_parts:
+        query += " AND " + " AND ".join(query_parts)
 
-    print(query)
+    print("\n\nDEBUG query: ", query, "\n\n")
 
     try:
         service = services["gmail"]
@@ -523,7 +524,7 @@ def search_emails_query(
         return [message["id"] for message in messages]
 
     except Exception as e:
-        LOGGER.error(f"Failed to search emails: {str(e)}")
+        LOGGER.error(f"Failed to search_emails_ai: {str(e)}")
         return []
 
 

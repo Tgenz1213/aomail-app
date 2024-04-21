@@ -437,7 +437,7 @@ def search_emails(query: str, language: str = "French") -> dict:
     3. If nothing special is specified, 'from', 'to', 'subject', 'body' MUST have the same value as the most relevant keyword. By default, search in 'read', 'unread' emails
     4. Regarding keywords, provide ONLY individual words. Sentences are not allowed unless explicitly mentioned. If you're unsure, list every relevant word separately.
     ---
-    You must NEVER give explanations. Give the complete Json output alone even if you did not add the 3 interpretations.
+    You must NEVER, NEVER, Never, NEVER give explanations. Give the complete Json output alone even if you did not add the 3 interpretations.
     Answer must ONLY be a Json format usable by Python matching this template in {language}:
     {{
         "interpretation_1": {{
@@ -447,7 +447,7 @@ def search_emails(query: str, language: str = "French") -> dict:
             to: "",
             subject: "",
             body: "",
-            filenames: [filenames OR extensions following (a-z0-9)],
+            filenames: [filenames OR extensions following regex:[a-z0-9]],
             date_from: MM/DD/YYYY,
             keywords: [],
             search_in: {{

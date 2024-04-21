@@ -442,6 +442,79 @@ def delete_email(email_id, social_api) -> dict:
         return {"error": f"Failed to move email to trash: {response.text}"}
 
 
+# UNDER CONSTRUCTION
+def search_emails_ai(
+    access_token: str,
+    max_results: int = 100,
+    filenames: list = None,
+    from_address: str = None,
+    to_address: str = None,
+    subject: str = None,
+    body: str = None,
+    keywords: list = None,
+    date_from: str = None,
+    search_in: dict = None,
+):
+    """Searches for emails matching the query."""
+
+    graph_endpoint = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+
+    try:
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        filter_parts = []
+        if from_address:
+            filter_parts.append(
+                f"startswith(sender/emailAddress/address,'{from_address}')"
+            )
+        if to_address:
+            filter_parts.append(
+                f"startswith(toRecipients/emailAddress/address,'{to_address}')"
+            )
+        if subject:
+            filter_parts.append(f"contains(subject,'{subject}')")
+        # if body:
+        #     filter_parts.append(f"startswith(body/content,'{body}')")
+        # if search_in:
+        #     search_in_query = " OR ".join(
+        #         [f"folder eq '{folder}'" for folder in search_in if search_in[folder]]
+        #     )
+        #     filter_parts.append(f"({search_in_query})")
+
+        filter_expression = " or ".join(filter_parts)
+
+        filter_parts = []
+        # if filenames:
+        #     file_query = " OR ".join(
+        #         [f"attachments/any(a:contains(a/name, '{filename}'))" for filename in filenames]
+        #     )
+        #     filter_parts.append(f"({file_query})")
+        # if date_from:
+        #     filter_parts.append(f"receivedDateTime ge {date_from}")
+        # if keywords:
+        #     keyword_query = " OR ".join([f'"{keyword}"' for keyword in keywords])
+        #     filter_parts.append(f"({keyword_query})")
+
+        if filter_parts:
+            filter_expression += " and " + " and ".join(filter_parts)
+
+        print("\n\nDEBUG filter_expression: ", filter_expression, "\n\n")
+
+        params = {"$filter": filter_expression, "$top": max_results}
+
+        print("\n\nDEBUG params: ", params, "\n\n")
+        response = requests.get(graph_endpoint, headers=headers, params=params)
+        response.raise_for_status()
+
+        messages = response.json().get("value", [])
+
+        return [message["id"] for message in messages]
+
+    except Exception as e:
+        LOGGER.error(f"Failed to search_emails_ai: {str(e)}")
+        return []
+
+
 def search_emails_manually(access_token, search_query, max_results=100):
     """Searches for emails matching the query."""
 

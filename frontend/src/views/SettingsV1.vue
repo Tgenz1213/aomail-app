@@ -705,7 +705,6 @@ async function unLinkAccount(email) {
 
 function authorize_google() {
     saveVariables("google");
-    // TOOD: signout user and then redirect to grant page (only solution for multi account)
     caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))))
     window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
 }

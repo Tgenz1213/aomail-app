@@ -9,6 +9,7 @@ import re
 import threading
 import time
 import json
+from typing import Any, Dict
 import requests
 from collections import defaultdict
 from django.contrib.sessions.models import Session
@@ -67,7 +68,7 @@ def generate_auth_url(request):
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="True", prompt="consent"
+        access_type="offline", include_granted_scopes="true", prompt="consent"
     )
 
     return redirect(authorization_url)
@@ -97,7 +98,7 @@ def auth_url_link_email(request):
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
     )
     authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="True", prompt="consent"
+        access_type="offline", include_granted_scopes="true", prompt="consent"
     )
 
     return redirect(authorization_url)
@@ -176,7 +177,7 @@ def save_credentials(creds, user, email):
 def build_services(creds) -> dict[str, build]:
     """Returns a dictionary of endpoints"""
 
-    services: dict[str, build] = {
+    services = {
         "gmail": build("gmail", "v1", cache_discovery=False, credentials=creds),
         "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
         "people": build("people", "v1", cache_discovery=False, credentials=creds),
@@ -297,6 +298,15 @@ def delete_email(user, email, email_id) -> dict:
         else:
             LOGGER.error(f"Error when deleting email: {str(e)}")
             return {"error": str(e)}
+
+
+def set_email_read(user, email, mail_id):
+    """Set the status of the email to read on Gmail."""
+
+    services = authenticate_service(user, email)
+    services["gmail"].users().messages().modify(
+        userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
+    ).execute()
 
 
 def get_info_contacts(services):
@@ -645,8 +655,7 @@ def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
     start = time.time()
 
-    credentials = get_credentials(user, email)
-    services = build_services(credentials)
+    services = authenticate_service(user, email)
     contacts_service = services["people"]
     gmail = services["gmail"]
 
@@ -805,8 +814,7 @@ def get_profile_image(request):
     user = request.user
     # email = request.headers.get("email")
     email = request.META["email"]
-    credentials = get_credentials(user, email)
-    service = build_services(credentials)["profile"]
+    service = authenticate_service(user, email)["profile"]
 
     try:
         profile = (
@@ -866,8 +874,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
         LOGGER.info(
             f"Initiationg the subscription to Google listener for: {user} with email: {email}"
         )
-        credentials = get_credentials(user, email)
-        services = build_services(credentials)
+        services = authenticate_service(user, email)
         if services is None:
             return False
 

@@ -1850,6 +1850,12 @@ def set_email_read(request, email_id):
     email.read_date = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
     email.save()
 
+    social_api = email.social_api
+    if social_api.type_api == "google":
+        google_api.set_email_read(user, social_api.email, email.provider_id)
+    elif social_api.type_api == "microsoft":
+        microsoft_api.set_email_read(social_api, email.provider_id)
+
     serializer = EmailReadUpdateSerializer(email)
     return Response(serializer.data, status=status.HTTP_200_OK)
 

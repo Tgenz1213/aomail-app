@@ -442,6 +442,15 @@ def delete_email(email_id, social_api) -> dict:
         return {"error": f"Failed to move email to trash: {response.text}"}
 
 
+def set_email_read(social_api, mail_id):
+    """Set the status of the email to read on Outlook."""
+
+    access_token = refresh_access_token(social_api)
+    headers = get_headers(access_token)
+    data = {"IsRead": True}
+    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
+
+
 # UNDER CONSTRUCTION
 def search_emails_ai(
     access_token: str,

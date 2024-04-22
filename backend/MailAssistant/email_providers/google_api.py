@@ -9,10 +9,8 @@ import re
 import threading
 import time
 import json
-from typing import Any, Dict
 import requests
 from collections import defaultdict
-from django.contrib.sessions.models import Session
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.shortcuts import redirect
@@ -39,8 +37,6 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
-    GOOGLE_EMAIL_MODIFY,
-    GOOGLE_LISTENER_API_KEY,
     GOOGLE_PROJECT_ID,
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
@@ -174,7 +170,7 @@ def save_credentials(creds, user, email):
         LOGGER.error(f"Failed to save credentials: {str(e)}")
 
 
-def build_services(creds) -> dict[str, build]:
+def build_services(creds) -> dict:
     """Returns a dictionary of endpoints"""
 
     services = {
@@ -182,6 +178,7 @@ def build_services(creds) -> dict[str, build]:
         "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
         "people": build("people", "v1", cache_discovery=False, credentials=creds),
     }
+
     return services
 
 
@@ -814,7 +811,7 @@ def get_profile_image(request):
     user = request.user
     # email = request.headers.get("email")
     email = request.META["email"]
-    service = authenticate_service(user, email)["profile"]
+    service = authenticate_service(user, email)["people"]
 
     try:
         profile = (
@@ -852,7 +849,7 @@ def get_email(access_token, refresh_token):
     creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
     try:
-        service = build_services(creds)["profile"]
+        service = build_services(creds)["people"]
         user_info = (
             service.people()
             .get(resourceName="people/me", personFields="emailAddresses")

@@ -51,8 +51,8 @@
                                                 <span class="text-lg font-medium leading-none text-white">AO</span>
                                             </span>-->
                                                 <span
-                                                    class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden bg-gray-900">
-                                                    <img :src="new_emails_icon" alt="New Emails Icon"
+                                                    class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+                                                    <img :src="happy_icon" alt="New Emails Icon"
                                                         class="max-w-full max-h-full rounded-full">
                                                 </span>
                                             </div>
@@ -1379,7 +1379,7 @@ bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
 let initialAnimationDone = ref(false);
-const new_emails_icon = ref(require('@/assets/new_emails_icon.jpeg'));
+const happy_icon = ref(require('@/assets/happy.png'));
 
 onMounted(async () => {
     getBackgroundColor();

@@ -1,6 +1,6 @@
 <template>
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup"/>
+        :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
             <div class="col-span-1 2xl:col-span-1">
@@ -464,6 +464,10 @@ const AIContainer = ref(null);
 let stepcontainer = 0;
 const objectInput = ref(null);
 const mailInput = ref(null);
+const new_idea_icon = ref(require('@/assets/new_idea.png'));
+const prompt_error_icon = ref(require('@/assets/prompt_error.png'));
+const happy_icon = ref(require('@/assets/happy.png'));
+const neutral_icon = ref(require('@/assets/neutral.png'));
 
 let counter_display = 0; // to create the animation of the text displayed
 
@@ -567,16 +571,39 @@ function handleEnterKey(event) {
     }
 }
 
+// function displayMessage(message, ai_icon) {
+//     // Function to display a message from the AI Assistant
+
+//     const messageHTML = `
+//       <div class="flex pb-12">
+//         <div class="mr-4 flex">         
+//           <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+//             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+//               ${ai_icon}
+//             </svg>
+//           </span>   
+//         </div>
+//         <div>
+//           <p ref="animatedText${counter_display}"></p>
+//         </div>
+//       </div>
+//     `;
+//     AIContainer.value.innerHTML += messageHTML;
+//     const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+//     counter_display += 1;
+//     animateText(message, animatedParagraph);
+//     scrollToBottom();
+// }
+
 function displayMessage(message, ai_icon) {
     // Function to display a message from the AI Assistant
+
     const messageHTML = `
       <div class="flex pb-12">
-        <div class="mr-4 flex">
-          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-              ${ai_icon}
-            </svg>
-          </span>   
+        <div class="mr-4 flex">         
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+              <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
+            </span> 
         </div>
         <div>
           <p ref="animatedText${counter_display}"></p>
@@ -589,6 +616,7 @@ function displayMessage(message, ai_icon) {
     animateText(message, animatedParagraph);
     scrollToBottom();
 }
+
 
 async function handleAIClick() {
 
@@ -643,7 +671,8 @@ async function handleAIClick() {
         if (stepcontainer == 0) {
             if (textareaValueSave.value == '') {
                 const message = "Vous n'avez saisi aucun destinataire, veuillez réessayer"
-                const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+                //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+                const ai_icon = neutral_icon;
                 displayMessage(message, ai_icon);
             } else {
                 try {
@@ -711,6 +740,7 @@ async function handleAIClick() {
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />`
                             await displayMessage(message, ai_icon);*/
 
+                            /*
                             const messageHTML = `
                                 <div class="flex pb-2">
                                     <div class="mr-4 flex">
@@ -718,6 +748,20 @@ async function handleAIClick() {
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                                             </svg>
+                                        </span>   
+                                    </div>
+                                    <div>
+                                        <p>J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent</p>
+                                    </div>
+                                </div>
+                            `;
+                            */
+                            const ai_icon = new_idea_icon;
+                            const messageHTML = `
+                                <div class="flex pb-2">
+                                    <div class="mr-4 flex">
+                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+                                            <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
                                         </span>   
                                     </div>
                                     <div>
@@ -787,7 +831,8 @@ async function handleAIClick() {
                         if (noUsersAdded) {
                             console.log("DEBUG");
                             const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
-                            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                            const ai_icon = neutral_icon;
                             displayMessage(message, ai_icon);
                         } else if (!WaitforUserChoice) {
                             stepcontainer = 1;
@@ -795,12 +840,14 @@ async function handleAIClick() {
                         }
                     } else {
                         const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                        const ai_icon = neutral_icon;
                         displayMessage(message, ai_icon);
                     }
                 } catch (error) {
                     const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                    //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                    const ai_icon = prompt_error_icon;
                     displayMessage(message, ai_icon);
                     console.error("Error finding user", error)
                 }
@@ -809,7 +856,8 @@ async function handleAIClick() {
             // if the user enter an empty value
             if (textareaValueSave.value == '') {
                 const message = "Vous n'avez saisi aucun brouillon, veuillez réessayer";
-                const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+                //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+                const ai_icon = neutral_icon;
                 displayMessage(message, ai_icon);
             } else {
 
@@ -867,19 +915,22 @@ async function handleAIClick() {
 
                         // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
                         const message = "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins";
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+                        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+                        const ai_icon = new_idea_icon;
                         displayMessage(message, ai_icon);
                     } else {
                         hideLoading();
                         const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                        const ai_icon = prompt_error_icon;
                         displayMessage(message, ai_icon);
                         console.log('Subject or Email is missing in the response');
                     }
                 } catch (error) {
                     hideLoading();
                     const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                    //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                    const ai_icon = prompt_error_icon;
                     displayMessage(message, ai_icon);
                     console.error('There was a problem with the fetch operation: ', error);
                 }
@@ -888,7 +939,8 @@ async function handleAIClick() {
             // if the user enter an empty value
             if (textareaValueSave.value == '') {
                 const message = "Vous n'avez saisi aucune suggestion, veuillez réessayer.";
-                const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+                //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
+                const ai_icon = neutral_icon;
                 displayMessage(message, ai_icon);
             } else {
                 try {
@@ -941,12 +993,14 @@ async function handleAIClick() {
 
                         // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
                         const message = "Est-ce que ce mail vous convient mieux ?";
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+                        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+                        const ai_icon = new_idea_icon;
                         displayMessage(message, ai_icon);
                     } else {
                         hideLoading();
                         const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                        const ai_icon = prompt_error_icon;
                         displayMessage(message, ai_icon);
                         console.log('Subject or Email is missing in the response');
                     }
@@ -954,7 +1008,8 @@ async function handleAIClick() {
                     console.error('Error:', error);
                     hideLoading();
                     const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-                    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                    //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+                    const ai_icon = prompt_error_icon;
                     displayMessage(message, ai_icon);
                     console.error('There was a problem with the fetch operation: ', error);
                 }
@@ -1110,7 +1165,8 @@ onMounted(() => {
     AIContainer.value = document.getElementById('AIContainer');
 
     const message = "Bonjour, à qui souhaitez-vous envoyer cet e-mail ?";
-    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+    //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+    const ai_icon = happy_icon;
     displayMessage(message, ai_icon);
     objectInput.value = document.getElementById('objectInput');
 
@@ -1370,6 +1426,7 @@ onBeforeUnmount(() => {
 function askContent() {
     // Your previous code to display the message when the component is mounted
     const message = "N'hésitez pas à fournir un brouillon de l'email que vous souhaitez rédiger"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?
+    /*
     const messageHTML = `
       <div class="pb-12">
         <div class="flex">
@@ -1405,6 +1462,42 @@ function askContent() {
         </div>
       </div>
     `;
+    */
+    const ai_icon = happy_icon;
+    const messageHTML = `
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+                    <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
+                </span> 
+            </div>
+            <div>
+                <div class="flex flex-col">
+                  <p ref="animatedText${counter_display}"></p>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                        <select id="lengthSelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
+                            <option value="very short">Très bref</option>
+                            <option value="short" selected>Bref</option>
+                            <option value="long">Long</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="formalitySelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
+                            <option value="very informal">Informel</option>
+                            <!--<option value="informal">Peu formel</option>-->
+                            <option value="formal" selected>Formel</option>
+                            <option value="very formal">Très formel</option>
+                        </select>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    `;
+
 
     AIContainer.value.innerHTML += messageHTML;
     const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
@@ -1432,6 +1525,7 @@ function askContentAdvice() {
     // Your previous code to display the message when the component is mounted
     const message = "Comment puis-je vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
+    /*
     const messageHTML = `
       <div class="pb-12">
         <div class="flex">
@@ -1469,7 +1563,43 @@ function askContentAdvice() {
         </div>
       </div>
     `;
-
+    */
+    const ai_icon = happy_icon;
+    const messageHTML = `
+      <div class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+                    <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
+                </span>
+            </div>
+            <div>
+                <div class="flex flex-col">
+                  <p ref="animatedText${counter_display}"></p>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                      <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Corrige l'orthographe
+                      </button>
+                    </div>
+                    <div>
+                      <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Vérifie le copywriting
+                      </button>
+                    </div>
+                  </div>
+                  <div class="flex mt-4">
+                    <div class="mr-4">
+                      <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                        Améliore l'écriture
+                      </button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    `;
     AIContainer.value.innerHTML += messageHTML;
 
     // To check the ortgraph of the subject and the mail
@@ -1667,12 +1797,14 @@ async function checkSpelling() {
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+            const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
             const message = "Je m'excuse, j'ai fait une erreur de traitement."
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+            const ai_icon = prompt_error_icon;
             displayMessage(message, ai_icon);
             console.log('Subject or Email is missing in the response');
         }
@@ -1681,7 +1813,8 @@ async function checkSpelling() {
         console.error('Error:', error);
         hideLoading();
         const message = "Je m'excuse, j'ai fait une erreur de traitement."
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+        const ai_icon = prompt_error_icon;
         displayMessage(message, ai_icon);
     }
 }
@@ -1731,12 +1864,14 @@ async function checkCopyWriting() {
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+            const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
             const message = "Je m'excuse, j'ai fait une erreur de traitement."
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+            const ai_icon = prompt_error_icon;
             displayMessage(message, ai_icon);
             console.log('Subject or Email is missing in the response');
         }
@@ -1745,7 +1880,8 @@ async function checkCopyWriting() {
         console.error('Error:', error);
         hideLoading();
         const message = "Je m'excuse, j'ai fait une erreur de traitement."
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+        const ai_icon = prompt_error_icon;
         displayMessage(message, ai_icon);
     }
 }
@@ -1795,12 +1931,14 @@ async function WriteBetter() {
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = "Est-ce que ce mail vous convient mieux ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+            const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
             const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+            const ai_icon = prompt_error_icon;
             displayMessage(message, ai_icon);
             console.log('Subject or Email is missing in the response');
         }
@@ -1809,7 +1947,8 @@ async function WriteBetter() {
         hideLoading();
         // Handling error => TO PUT IN A FUNCTION
         const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+        const ai_icon = prompt_error_icon;
         displayMessage(message, ai_icon);
         console.error('There was a problem with the fetch operation: ', error);
     }
@@ -1919,7 +2058,8 @@ async function sendEmail() {
             fileObjects.value = [];
 
             const message = "Bonjour, à qui souhaitez-vous envoyer cet e-mail ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+            //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+            const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
         } else {
             // Show the pop-up

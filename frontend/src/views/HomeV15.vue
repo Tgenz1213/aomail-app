@@ -51,13 +51,9 @@
                                                 <span class="text-lg font-medium leading-none text-white">AO</span>
                                             </span>-->
                                                 <span
-                                                    class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                        class="w-6 h-6">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                                    </svg>
+                                                    class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden bg-gray-900">
+                                                    <img :src="new_emails_icon" alt="New Emails Icon"
+                                                        class="max-w-full max-h-full rounded-full">
                                                 </span>
                                             </div>
                                             <div>
@@ -84,7 +80,9 @@
                                                     <div class="flex space-x-4">
                                                         <a v-for="category in categories" :key="category"
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
-                                                            <div v-if="category.name !== 'Others'" class="flex cursor-pointer" @click="selectCategory(category)">
+                                                            <div v-if="category.name !== 'Others'"
+                                                                class="flex cursor-pointer"
+                                                                @click="selectCategory(category)">
                                                                 <span class="px-3 py-2 group-hover:rounded-r-none"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
                                                                         category.name }}
@@ -114,11 +112,13 @@
                                                             </div>
                                                             <div v-else class="flex pr-7">
                                                                 <!-- TODO: var language and retrieve the good translation -->
-                                                                <span class="px-3 py-2 cursor-pointer" @click="selectCategory(category)"
+                                                                <span class="px-3 py-2 cursor-pointer"
+                                                                    @click="selectCategory(category)"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
                                                                         "Autres" }}
                                                                 </span>
-                                                                <div @click="selectCategory(category)" class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center cursor-pointer"
+                                                                <div @click="selectCategory(category)"
+                                                                    class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center cursor-pointer"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedTopic === category.name }">
                                                                     <span
                                                                         v-if="totalEmailsInCategoryNotRead(category.name) > 0"
@@ -734,9 +734,11 @@
                                                                 <div class="flex gap-x-2">
                                                                     <!-- remove @click="toggleEmailVisibility"-->
                                                                     <p @click="toggleEmailVisibility"
-                                                                        class="cursor-pointer">Vous avez reçu <span
-                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
-                                                                                emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}</span>
+                                                                        class="cursor-pointer">Vous avez reçu
+                                                                        <span
+                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
+                                                                            {{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}
+                                                                        </span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
@@ -1377,6 +1379,7 @@ bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
 let initialAnimationDone = ref(false);
+const new_emails_icon = ref(require('@/assets/new_emails_icon.jpeg'));
 
 onMounted(async () => {
     getBackgroundColor();

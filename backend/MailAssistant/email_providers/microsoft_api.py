@@ -521,13 +521,9 @@ def search_emails_ai(
     def run_request(graph_endpoint):
         try:
             headers = {"Authorization": f"Bearer {access_token}"}
-
             response = requests.get(graph_endpoint, headers=headers, params=params)
-            print(response.url)
             response.raise_for_status()
-
             messages = response.json().get("value", [])
-
             message_ids.extend([message["id"] for message in messages])
 
         except Exception as e:
@@ -542,7 +538,6 @@ def search_emails_ai(
         "sent_emails": "sentitems",
     }
     for folder in search_in:
-        print("DEBUG", folder, search_in[folder], folder in endpoints)
         if folder in endpoints and search_in[folder]:
             graph_endpoint = f"{folder_url}{endpoints[folder]}"
             run_request(graph_endpoint)
@@ -561,9 +556,9 @@ def search_emails_manually(access_token, search_query, max_results=100):
     try:
         headers = {"Authorization": f"Bearer {access_token}"}
         filter_expression = f"""
-        startswith(subject,'{search_query}') or 
-        startswith(body/content,'{search_query}') or 
-        startswith(sender/emailAddress/address,'{search_query}')
+        contains(subject,'{search_query}') or 
+        contains(body/content,'{search_query}') or 
+        contains(sender/emailAddress/address,'{search_query}')
         """
         params = {"$filter": filter_expression, "$top": max_results}
 

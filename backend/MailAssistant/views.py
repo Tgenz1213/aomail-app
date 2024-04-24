@@ -1484,6 +1484,7 @@ def search_emails_ai(request):
                             to_address=to,
                             subject=subject,
                             body=body,
+                            keywords=keywords,
                             date_from=date_from,
                             search_in=search_in,
                         ),

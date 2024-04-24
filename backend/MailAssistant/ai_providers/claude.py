@@ -498,6 +498,7 @@ def search_emails(query: str, language: str = "French") -> dict:
     2. Interpret the query in up to 3 differents manners and assess a percentage of closeness with the user intention.
     3. If nothing special is specified, 'from', 'to', 'subject', 'body' MUST have the same value as the most relevant keyword. By default, search in 'read', 'unread' emails
     4. Regarding keywords, provide ONLY individual words. Sentences are not allowed unless explicitly mentioned. If you're unsure, list every relevant word separately.
+    5. If and only if a date is explicitely provided by the user; add it to the output using this format: MM/DD/YYYY. Otherwise leave it as an empty string if you hesitate.
     ---
     Answer must ONLY be a Json format usable by Python matching this template in {language} WITHOUT giving any explanation:
     {{
@@ -509,7 +510,7 @@ def search_emails(query: str, language: str = "French") -> dict:
             subject: "",
             body: "",
             filenames: [filenames OR extensions following (a-z0-9)],
-            date_from: MM/DD/YYYY,
+            date_from: "",
             keywords: [],
             search_in: {{
                 "read": boolean,

@@ -465,53 +465,74 @@ def search_emails_ai(
     search_in: dict = None,
 ):
     """Searches for emails matching the query."""
+    folder_url = f"{GRAPH_URL}me/mailFolders/"
 
-    graph_endpoint = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    # TODO
+    if search_in:
+        # ENDPOINT FOR FOLDER => if search in => do multiple search
+        graph_endpoint = f"{folder_url}junkemail/messages"
+        spams = "junkemail/messages"
+        deleted_emails = "deleteditems/messages"
+        drafts = "drafts"
+        sent_emails = "sentitems"
+
+    graph_endpoint = f"{folder_url}inbox/messages"
 
     try:
         headers = {"Authorization": f"Bearer {access_token}"}
-
         filter_parts = []
+
         if from_address:
             filter_parts.append(
-                f"startswith(sender/emailAddress/address,'{from_address}')"
+                f"contains(sender/emailAddress/address,'{from_address}')"
             )
-        if to_address:
-            filter_parts.append(
-                f"startswith(toRecipients/emailAddress/address,'{to_address}')"
-            )
+        # TODO: debug how to check with recipients
+        # if to_address:
+        #     # filter_parts.append(
+        #     #     f"startswith(toRecipients/emailAddress/address,'{to_address}')"
+        #     # )
+        #     filter_parts.append(
+        #         f"contains(toRecipients/emailAddress/address,'{to_address}')"
+        #     )
         if subject:
             filter_parts.append(f"contains(subject,'{subject}')")
-        # if body:
-        #     filter_parts.append(f"startswith(body/content,'{body}')")
-        # if search_in:
-        #     search_in_query = " OR ".join(
-        #         [f"folder eq '{folder}'" for folder in search_in if search_in[folder]]
-        #     )
-        #     filter_parts.append(f"({search_in_query})")
+        if body:
+            filter_parts.append(f"contains(body/content,'{body}')")
+        if keywords:
+            keyword_query = " or ".join(
+                [
+                    (
+                        f"contains(subject, '{keyword}')"
+                        if i % 2 == 0
+                        else f"contains(body/content, '{keyword}')"
+                    )
+                    for i, keyword in enumerate(keywords)
+                ]
+            )
+            filter_parts.append(f"({keyword_query})")
 
-        filter_expression = " or ".join(filter_parts)
+        filter_expression = " or ".join(filter_parts) if filter_parts else ""
 
         filter_parts = []
-        # if filenames:
-        #     file_query = " OR ".join(
-        #         [f"attachments/any(a:contains(a/name, '{filename}'))" for filename in filenames]
-        #     )
-        #     filter_parts.append(f"({file_query})")
-        # if date_from:
-        #     filter_parts.append(f"receivedDateTime ge {date_from}")
-        # if keywords:
-        #     keyword_query = " OR ".join([f'"{keyword}"' for keyword in keywords])
-        #     filter_parts.append(f"({keyword_query})")
+
+        if date_from:
+            iso_date_from = (
+                datetime.datetime.strptime(date_from, "%m/%d/%Y").isoformat() + "Z"
+            )
+            filter_parts.append(f"(receivedDateTime ge {iso_date_from})")
 
         if filter_parts:
-            filter_expression += " and " + " and ".join(filter_parts)
+            if filter_expression:
+                filter_expression += " and " + " and ".join(filter_parts)
+            else:
+                filter_expression = " and ".join(filter_parts)
 
         print("\n\nDEBUG filter_expression: ", filter_expression, "\n\n")
 
-        params = {"$filter": filter_expression, "$top": max_results}
+        params = {"$top": max_results, "$count": "true"}
+        if filter_expression:
+            params.update({"$filter": filter_expression})
 
-        print("\n\nDEBUG params: ", params, "\n\n")
         response = requests.get(graph_endpoint, headers=headers, params=params)
         response.raise_for_status()
 

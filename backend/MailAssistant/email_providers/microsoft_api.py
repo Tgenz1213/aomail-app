@@ -452,6 +452,14 @@ def set_email_read(social_api, mail_id):
 
 
 # UNDER CONSTRUCTION
+
+
+# TODO: add a list of recipients emails: this does not work
+# if to_address:
+#     # filter_parts.append(f"participants:" + " or ".join(address for address in to_addresses))
+#     filter_parts.append(
+#         f"participants:{to_address}"
+#     )
 def search_emails_ai(
     access_token: str,
     max_results: int = 100,
@@ -465,84 +473,84 @@ def search_emails_ai(
     search_in: dict = None,
 ):
     """Searches for emails matching the query."""
+
     folder_url = f"{GRAPH_URL}me/mailFolders/"
+    message_ids = []
 
-    # TODO
-    if search_in:
-        # ENDPOINT FOR FOLDER => if search in => do multiple search
-        graph_endpoint = f"{folder_url}junkemail/messages"
-        spams = "junkemail/messages"
-        deleted_emails = "deleteditems/messages"
-        drafts = "drafts"
-        sent_emails = "sentitems"
+    filter_parts = []
+    if from_address:
+        filter_parts.append(f"contains(sender/emailAddress/address,'{from_address}')")
+    if subject:
+        filter_parts.append(f"contains(subject,'{subject}')")
+    if body:
+        filter_parts.append(f"contains(body/content,'{body}')")
+    if keywords:
+        keyword_query = " or ".join(
+            [
+                (
+                    f"contains(subject, '{keyword}')"
+                    if i % 2 == 0
+                    else f"contains(body/content, '{keyword}')"
+                )
+                for i, keyword in enumerate(keywords)
+            ]
+        )
+        filter_parts.append(f"({keyword_query})")
 
-    graph_endpoint = f"{folder_url}inbox/messages"
+    filter_expression = "(" + " or ".join(filter_parts) + ")" if filter_parts else ""
 
-    try:
-        headers = {"Authorization": f"Bearer {access_token}"}
-        filter_parts = []
+    filter_parts = []
+    if date_from:
+        iso_date_from = (
+            datetime.datetime.strptime(date_from, "%m/%d/%Y").isoformat() + "Z"
+        )
+        filter_parts.append(f"(receivedDateTime ge {iso_date_from})")
 
-        if from_address:
-            filter_parts.append(
-                f"contains(sender/emailAddress/address,'{from_address}')"
-            )
-        # TODO: debug how to check with recipients
-        # if to_address:
-        #     # filter_parts.append(
-        #     #     f"startswith(toRecipients/emailAddress/address,'{to_address}')"
-        #     # )
-        #     filter_parts.append(
-        #         f"contains(toRecipients/emailAddress/address,'{to_address}')"
-        #     )
-        if subject:
-            filter_parts.append(f"contains(subject,'{subject}')")
-        if body:
-            filter_parts.append(f"contains(body/content,'{body}')")
-        if keywords:
-            keyword_query = " or ".join(
-                [
-                    (
-                        f"contains(subject, '{keyword}')"
-                        if i % 2 == 0
-                        else f"contains(body/content, '{keyword}')"
-                    )
-                    for i, keyword in enumerate(keywords)
-                ]
-            )
-            filter_parts.append(f"({keyword_query})")
-
-        filter_expression = " or ".join(filter_parts) if filter_parts else ""
-
-        filter_parts = []
-
-        if date_from:
-            iso_date_from = (
-                datetime.datetime.strptime(date_from, "%m/%d/%Y").isoformat() + "Z"
-            )
-            filter_parts.append(f"(receivedDateTime ge {iso_date_from})")
-
-        if filter_parts:
-            if filter_expression:
-                filter_expression += " and " + " and ".join(filter_parts)
-            else:
-                filter_expression = " and ".join(filter_parts)
+    if filter_parts:
+        if filter_expression:
+            filter_expression += " and " + " and ".join(filter_parts)
+        else:
+            filter_expression = " and ".join(filter_parts)
 
         print("\n\nDEBUG filter_expression: ", filter_expression, "\n\n")
 
-        params = {"$top": max_results, "$count": "true"}
-        if filter_expression:
-            params.update({"$filter": filter_expression})
+    params = {"$top": max_results, "$count": "true"}
+    if filter_expression:
+        params.update({"$filter": filter_expression})
 
-        response = requests.get(graph_endpoint, headers=headers, params=params)
-        response.raise_for_status()
+    def run_request(graph_endpoint):
+        try:
+            headers = {"Authorization": f"Bearer {access_token}"}
 
-        messages = response.json().get("value", [])
+            response = requests.get(graph_endpoint, headers=headers, params=params)
+            print(response.url)
+            response.raise_for_status()
 
-        return [message["id"] for message in messages]
+            messages = response.json().get("value", [])
 
-    except Exception as e:
-        LOGGER.error(f"Failed to search_emails_ai: {str(e)}")
-        return []
+            message_ids.extend([message["id"] for message in messages])
+
+        except Exception as e:
+            LOGGER.error(
+                f"Failed to search_emails_ai for url: {graph_endpoint}: {str(e)}"
+            )
+
+    endpoints = {
+        "spams": "junkemail/messages",
+        "deleted_emails": "deleteditems/messages",
+        "drafts": "drafts",
+        "sent_emails": "sentitems",
+    }
+    for folder in search_in:
+        print("DEBUG", folder, search_in[folder], folder in endpoints)
+        if folder in endpoints and search_in[folder]:
+            graph_endpoint = f"{folder_url}{endpoints[folder]}"
+            run_request(graph_endpoint)
+
+    graph_endpoint = f"{folder_url}inbox/messages"
+    run_request(graph_endpoint)
+
+    return message_ids
 
 
 def search_emails_manually(access_token, search_query, max_results=100):

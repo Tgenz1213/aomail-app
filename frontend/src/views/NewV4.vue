@@ -444,8 +444,6 @@ function handleBlur2(event) {
     const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (inputValue && emailFormat.test(inputValue)) {
-        // Add the input email to the list of recipients
-        // TODO: ask if we save it in DB or if we wait till the email is sent
         if (!people.find(person => person.email === inputValue)) {
             const newPerson = { username: '', email: inputValue };
             people.push(newPerson);
@@ -464,7 +462,7 @@ const AIContainer = ref(null);
 let stepcontainer = 0;
 const objectInput = ref(null);
 const mailInput = ref(null);
-const new_idea_icon = ref(require('@/assets/new_idea.png'));
+//const new_idea_icon = ref(require('@/assets/new_idea.png'));
 const prompt_error_icon = ref(require('@/assets/prompt_error.png'));
 const happy_icon = ref(require('@/assets/happy.png'));
 const neutral_icon = ref(require('@/assets/neutral.png'));
@@ -571,29 +569,29 @@ function handleEnterKey(event) {
     }
 }
 
-// function displayMessage(message, ai_icon) {
-//     // Function to display a message from the AI Assistant
+function displayMessage_old(message, ai_icon) {
+    // Function to display a message from the AI Assistant
 
-//     const messageHTML = `
-//       <div class="flex pb-12">
-//         <div class="mr-4 flex">         
-//           <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-//             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-//               ${ai_icon}
-//             </svg>
-//           </span>   
-//         </div>
-//         <div>
-//           <p ref="animatedText${counter_display}"></p>
-//         </div>
-//       </div>
-//     `;
-//     AIContainer.value.innerHTML += messageHTML;
-//     const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-//     counter_display += 1;
-//     animateText(message, animatedParagraph);
-//     scrollToBottom();
-// }
+    const messageHTML = `
+      <div class="flex pb-12">
+        <div class="mr-4 flex">         
+          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              ${ai_icon}
+            </svg>
+          </span>   
+        </div>
+        <div>
+          <p ref="animatedText${counter_display}"></p>
+        </div>
+      </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    counter_display += 1;
+    animateText(message, animatedParagraph);
+    scrollToBottom();
+}
 
 function displayMessage(message, ai_icon) {
     // Function to display a message from the AI Assistant
@@ -740,7 +738,7 @@ async function handleAIClick() {
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />`
                             await displayMessage(message, ai_icon);*/
 
-                            /*
+                            
                             const messageHTML = `
                                 <div class="flex pb-2">
                                     <div class="mr-4 flex">
@@ -755,7 +753,7 @@ async function handleAIClick() {
                                     </div>
                                 </div>
                             `;
-                            */
+                            /*
                             const ai_icon = new_idea_icon;
                             const messageHTML = `
                                 <div class="flex pb-2">
@@ -769,6 +767,7 @@ async function handleAIClick() {
                                     </div>
                                 </div>
                             `;
+                            */
                             AIContainer.value.innerHTML += messageHTML;
 
                             if (main_recipients.length > 0) {
@@ -915,9 +914,9 @@ async function handleAIClick() {
 
                         // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
                         const message = "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins";
-                        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-                        const ai_icon = new_idea_icon;
-                        displayMessage(message, ai_icon);
+                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+                        //const ai_icon = new_idea_icon;
+                        displayMessage_old(message, ai_icon);
                     } else {
                         hideLoading();
                         const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
@@ -993,9 +992,9 @@ async function handleAIClick() {
 
                         // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
                         const message = "Est-ce que ce mail vous convient mieux ?";
-                        //const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-                        const ai_icon = new_idea_icon;
-                        displayMessage(message, ai_icon);
+                        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+                        //const ai_icon = new_idea_icon;
+                        displayMessage_old(message, ai_icon);
                     } else {
                         hideLoading();
                         const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"

@@ -39,10 +39,11 @@ from MailAssistant.schedule_tasks import Command
 
 ######################## CREDENTIALS ########################
 # root of linux => dangerous
-#BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG = json.load(open("creds/django_creds.json"))
 SECRET_KEY = CONFIG["secret_key"]
 BACKEND_LOG_PATH = "backend.log"
+BACKEND_JSON_LOG = "logger.json"
 CUSTOM_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
@@ -121,6 +122,12 @@ LOGGING = {
             "level": "INFO",
             "formatter": "verbose",
         },
+        "json_file": {
+            "class": "logging.FileHandler",
+            "filename": BACKEND_JSON_LOG,
+            "level": "ERROR",
+            "formatter": "json",
+        },
     },
     "loggers": {
         "django": {  # Exclude Django's logs
@@ -128,7 +135,7 @@ LOGGING = {
             "propagate": False,
         },
         "": {
-            "handlers": ["console", "file"],
+            "handlers": ["console", "file", "json_file"],
             "level": "INFO",
         },
     },
@@ -140,6 +147,11 @@ LOGGING = {
         "verbose": {
             "format": "{asctime} | {name}.py | Line {lineno} | {levelname} - {message}",
             "style": "{",
+            "datefmt": CUSTOM_DATE_FORMAT,
+        },
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": "%(asctime)s | %(name)s.py | Line %(lineno)d | %(levelname)s - %(message)s",
             "datefmt": CUSTOM_DATE_FORMAT,
         },
     },

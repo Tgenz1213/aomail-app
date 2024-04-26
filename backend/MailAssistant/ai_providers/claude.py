@@ -433,6 +433,7 @@ def categorize_and_summarize_email(
     2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
     3. In {language}: Provide up to 5 (according to email length) short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
     4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
+    5. If the email appears to be a response or a conversation. Always summarize only the last email and IGNORE the previous ones.
     Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
 
     ---

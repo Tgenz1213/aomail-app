@@ -735,10 +735,7 @@
                                                                     <!-- remove @click="toggleEmailVisibility"-->
                                                                     <p @click="toggleEmailVisibility"
                                                                         class="cursor-pointer">Vous avez reçu
-                                                                        <span
-                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                                                                            {{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}
-                                                                        </span>
+                                                                        <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}</span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
@@ -1140,6 +1137,21 @@
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
+                                                                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
+                                                                                                Non Lu
+                                                                                            </div>
+                                                                                            <button
+                                                                                                @click="markEmailAsUnread(item.id)"
+                                                                                                type="button"
+                                                                                                class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                                <check-icon
+                                                                                                class="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div v-show="hoveredItemId === item.id"
+                                                                                        class="group action-buttons">
+                                                                                        <div class="relative group">
                                                                                             <div
                                                                                                 class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
                                                                                                 Supprimer
@@ -1513,7 +1525,32 @@ function toggleTooltip() {
     isMenuOpen.value = true;
 }
 
+async function markEmailAsUnread(emailId) {
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-unread/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
 
+        if (response.read == false) {
+            updateEmailUnreadStatus(emailId);
+        } else {
+            console.log("RESPONSE markEmailAsUnread", response);
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Échec de marquage de l\'email comme non lu';
+            notificationMessage = response;
+            displayPopup();
+        }
+    } catch (error) {
+        console.error('Error in markEmailAsUnread:', error.message);
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Échec de marquage de l\'email comme non lu';
+        notificationMessage = error.message;
+        displayPopup();
+    }
+}
 async function markEmailAsRead(emailId) {
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-read/`, {
@@ -1554,6 +1591,22 @@ function updateEmailReadStatus(emailId) {
                         // Email found, update its read status
                         emails.value[category][subcategory][emailIndex].read = true;
                         return; // Stop the function as we've found and updated the email
+                    }
+                }
+            }
+        }
+    }
+}
+
+function updateEmailUnreadStatus(emailId) {
+    for (const category in emails.value) {
+        if (Object.hasOwnProperty.call(emails.value, category)) {
+            for (const subcategory in emails.value[category]) {
+                if (Array.isArray(emails.value[category][subcategory])) {
+                    const emailIndex = emails.value[category][subcategory].findIndex(email => email.id === emailId);
+                    if (emailIndex !== -1) {
+                        emails.value[category][subcategory][emailIndex].read = false;
+                        return;
                     }
                 }
             }

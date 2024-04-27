@@ -451,6 +451,15 @@ def set_email_read(social_api, mail_id):
     requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
 
 
+def set_email_unread(social_api, mail_id):
+    """Set the status of the email to unread on Outlook."""
+
+    access_token = refresh_access_token(social_api)
+    headers = get_headers(access_token)
+    data = {"IsRead": False}
+    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
+
+
 # UNDER CONSTRUCTION
 
 

@@ -306,6 +306,15 @@ def set_email_read(user, email, mail_id):
     ).execute()
 
 
+def set_email_unread(user, email, mail_id):
+    """Set the status of the email to unread on Gmail."""
+
+    services = authenticate_service(user, email)
+    services["gmail"].users().messages().modify(
+        userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
+    ).execute()
+
+
 def get_info_contacts(services):
     """Fetch the name and the email of the contacts of the user"""
     service = services["people"]

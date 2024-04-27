@@ -1857,6 +1857,27 @@ def set_email_read(request, email_id):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
+def set_email_undread(request, email_id):
+    """Mark a specific email as read for the authenticated user"""
+    user = request.user
+
+    email = get_object_or_404(Email, user=user, id=email_id)
+    email.read = False
+    email.read_date = None
+    email.save()
+
+    social_api = email.social_api
+    if social_api.type_api == "google":
+        google_api.set_email_unread(user, social_api.email, email.provider_id)
+    elif social_api.type_api == "microsoft":
+        microsoft_api.set_email_unread(social_api, email.provider_id)
+
+    serializer = EmailReadUpdateSerializer(email)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def set_email_reply_later(request, email_id):
     """Mark a specific email for later reply for the authenticated user"""
     user = request.user

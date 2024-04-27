@@ -601,12 +601,6 @@ def update_category(request, current_name):
         user=request.user, name=current_name
     ).exists()
 
-    if existing_category:
-        return Response(
-            {"error": "Category already exists"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:

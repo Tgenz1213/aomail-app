@@ -58,6 +58,43 @@
             </div>
         </div>
     </transition>
+    <!-- Modal for Unlink Email -->
+    <transition name="modal-fade">
+        <div @click.self="closeUnlinkModal"
+            class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            v-if="isUnlinkModalOpen">
+            <div class="bg-white rounded-lg relative w-[450px]">
+                <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+                    <button @click="closeUnlinkModal" type="button"
+                        class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        <span class="sr-only">Close</span>
+                        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                    </button>
+                </div>
+                <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+                    <div class="ml-8 flex items-center space-x-1">
+                        <p class="block font-semibold leading-6 text-gray-900">Délier mon adresse email</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4 px-8 py-6">
+                    <div>
+                        <label class="block text-sm font-medium leading-6 text-gray-900">
+                            Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse email car
+                            Ao aura du mal à réceptionner les emails correctement.
+                        </label>
+                    </div>
+                    <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
+                        <button type="button"
+                            class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
+                            @click="closeUnlinkModal">Annuler</button>
+                        <button type="button"
+                            class="ml-auto rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+                            @click="unLinkAccount">Délier</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </transition>
     <!-- Modal for User Description update -->
     <transition name="modal-fade">
         <div @click.self="closeUserDescriptionModal"
@@ -428,7 +465,7 @@
                                                                     </button>
                                                                     <button type="button"
                                                                         class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent shadow-sm"
-                                                                        @click="unLinkAccount(email.email)">
+                                                                        @click="openUnLinkModal(email.email)">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             fill="none" viewBox="0 0 24 24"
                                                                             stroke-width="1.5" stroke="currentColor"
@@ -634,6 +671,7 @@ let errorBillingMessage = ref('');
 let isModalOpen = ref(false);
 let isBillingModalOpen = ref(false);
 let isModalUserDescriptionOpen = ref(false);
+let isUnlinkModalOpen = ref(false);
 let emailSelected = ref('');
 let userDescription = ref('');
 const router = useRouter();
@@ -656,7 +694,10 @@ onMounted(() => {
     getBackgroundColor();
 })
 
-async function unLinkAccount(email) {
+
+async function openUnLinkModal(email) {
+    emailSelected.value = email;
+    isUnlinkModalOpen.value = true;
 
     if (emailsLinked.value.length == 1) {
         // Show the pop-up
@@ -664,16 +705,19 @@ async function unLinkAccount(email) {
         notificationTitle.value = 'Impossibilité de supprimer l\'email principal';
         notificationMessage.value = 'Si vous souhaitez supprimer votre compte utilisez la section dédiée';
         displayPopup();
+        closeUnlinkModal();
         return;
     }
+}
 
+async function unLinkAccount() {
     const requestOptions = {
         headers: {
             'Content-Type': 'application/json'
         },
         method: "POST",
         body: JSON.stringify({
-            email: email
+            email: emailSelected.value
         })
     };
 
@@ -875,6 +919,9 @@ function openModal() {
         displayPopup();
     }
 }
+function closeUnlinkModal() {
+    isUnlinkModalOpen.value = false;
+}
 function closeUserDescriptionModal() {
     isModalUserDescriptionOpen.value = false;
 }
@@ -964,6 +1011,8 @@ function handleKeyDown(event) {
             closeBillingModal();
         } else if (isModalUserDescriptionOpen.value) {
             closeUserDescriptionModal();
+        } else if (isUnlinkModalOpen.value) {
+            closeUnlinkModal();
         }
     } else if (event.key === 'Enter') {
         if (isBillingModalOpen.value) {

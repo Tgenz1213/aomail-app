@@ -12,11 +12,11 @@ BACKEND_DIR = os.path.dirname(CURRENT_DIR)
 CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
 # TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
-BASE_URL = f"https://{ENV}.aochange.com/"
+BASE_URL = f"https://{ENV}.aomail.ai/"
 BASE_URL_MA = f"{BASE_URL}MailAssistant/"
 REDIRECT_URI_SIGNUP = f"{BASE_URL}signup_part2"
 REDIRECT_URI_LINK_EMAIL = f"{BASE_URL}settings"
-HOSTS_URLS = [BASE_URL, f"{ENV}.aochange.com"]
+HOSTS_URLS = [BASE_URL, f"{ENV}.aomail.ai"]
 ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
 EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))
 EMAIL_NO_REPLY = EMAILS_CREDS["email"]

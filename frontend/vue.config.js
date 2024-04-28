@@ -15,6 +15,6 @@ module.exports = defineConfig({
         usePolling: true
       }
     },
-    allowedHosts: ['aochange.com', 'jean.aochange.com', 'augustin.aochange.com', 'theo.aochange.com', 'localhost'],
+    allowedHosts: ['aomail.ai', 'jean.aomail.ai', 'augustin.aomail.ai', 'theo.aomail.ai', 'localhost'],
   }
 })

@@ -22,19 +22,6 @@ class Subscription(models.Model):
     currency = models.CharField(max_length=3, default="EUR")
 
 
-class BillingInfo(models.Model):
-    """Model for storing billing information."""
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    billing_address = models.CharField(max_length=500)
-    billing_email = models.CharField(max_length=500)
-    name = models.CharField(max_length=200)
-    first_name = models.CharField(max_length=200)
-    country = models.CharField(max_length=200)
-    city = models.CharField(max_length=200)
-    postal_code = models.CharField(max_length=100)
-
-
 class Message(models.Model):
     """Model for storing text messages."""
 

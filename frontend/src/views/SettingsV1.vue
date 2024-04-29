@@ -180,76 +180,6 @@
             </div>
         </div>
     </transition>
-    <!-- Modal for Billing Information -->
-    <transition name="modal-fade">
-        <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-            v-if="isBillingModalOpen">
-            <div class="bg-white rounded-lg relative w-[450px]">
-                <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
-                    <button @click="closeBillingModal" type="button"
-                        class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
-                        <XMarkIcon class="h-6 w-6" aria-hidden="true" />
-                    </button>
-                </div>
-                <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
-                    <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">Billing Information</p>
-                    </div>
-                </div>
-                <div class="flex flex-col gap-4 px-8 py-6">
-                    <!-- Billing information modal -->
-                    <p class="text-red-500" v-if="errorBillingMessage">{{ errorBillingMessage }}</p>
-                    <div>
-                        <label for="billingEmail"
-                            class="block text-sm font-medium leading-6 text-gray-900">Email</label>
-                        <input id="billingEmail" type="text" v-model="billingInfo.billingEmail"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Nom</label>
-                        <input id="name" type="text" v-model="billingInfo.name"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="firstName" class="block text-sm font-medium leading-6 text-gray-900">Prénom</label>
-                        <input id="firstName" type="text" v-model="billingInfo.firstName"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="country" class="block text-sm font-medium leading-6 text-gray-900">Pays</label>
-                        <input id="country" type="text" v-model="billingInfo.country"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="city" class="block text-sm font-medium leading-6 text-gray-900">Ville</label>
-                        <input id="city" type="text" v-model="billingInfo.city"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="postalCode" class="block text-sm font-medium leading-6 text-gray-900">Postal
-                            Code</label>
-                        <input id="postalCode" type="text" v-model="billingInfo.postalCode"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="billingAddress"
-                            class="block text-sm font-medium leading-6 text-gray-900">Address</label>
-                        <input id="billingAddress" type="text" v-model="billingInfo.billingAddress"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm">
-                    </div>
-                    <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
-                        <button type="button"
-                            class="inline-flex w-full sm:w-auto rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-400 sm:mr-2"
-                            @click="closeBillingModal">Annuler</button>
-                        <button type="button"
-                            class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
-                            @click="submitBillingInfo">Envoyer</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </transition>
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
             <div class="col-span-1 2xl:col-span-1">
@@ -690,7 +620,6 @@ let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
-
 let activeSection = ref('account'); // Default active section
 let bgColor = ref(localStorage.getItem('bgColor') || '');
 let userData = ref('');
@@ -698,10 +627,7 @@ let userEmailDescription = ref('');
 let emailsLinked = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');
-
-let errorBillingMessage = ref('');
 let isModalOpen = ref(false);
-let isBillingModalOpen = ref(false);
 let isModalUserDescriptionOpen = ref(false);
 let isUnlinkModalOpen = ref(false);
 let isModalAddUserDescriptionOpen = ref(false);
@@ -710,15 +636,6 @@ let userDescription = ref('');
 const router = useRouter();
 const intervalId = setInterval(checkAuthorizationCode, 1000);
 
-const billingInfo = ref({
-    billingAddress: '',
-    billingEmail: '',
-    name: '',
-    firstName: '',
-    postalCode: '',
-    country: '',
-    city: ''
-});
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -726,7 +643,6 @@ onMounted(() => {
     fetchUserData();
     getBackgroundColor();
 })
-
 
 async function openUnLinkModal(email) {
     emailSelected.value = email;
@@ -778,6 +694,7 @@ async function unLinkAccount() {
         notificationMessage.value = error.message;
         displayPopup();
     }
+    closeUnlinkModal();
 }
 function linkNewEmail() {
     const type_api = sessionStorage.getItem("type_api");
@@ -841,13 +758,12 @@ async function linkEmail(authorizationCode) {
     sessionStorage.clear();
     // Remove '?code' and '?state' from url
     var currentUrl = window.location.href;
-    var modifiedUrl = currentUrl.replace(/(\?)code=.*$/, '');
-    modifiedUrl = currentUrl.replace(/(\?)state=.*$/, '');
+    var modifiedUrl = currentUrl.replace(/(\?)code=.*(&|$)/, '?').replace(/(\?)state=.*(&|$)/, '?');
     window.history.replaceState({}, document.title, modifiedUrl);
 }
 
 async function fetchEmailLinked() {
-    const requestOptions = {
+    const requestOptions = {    
         headers: {
             'Content-Type': 'application/json'
         }
@@ -873,80 +789,6 @@ async function fetchEmailLinked() {
         displayPopup();
     }
 }
-
-async function submitBillingInfo() {
-    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    // TODO: implement an Address Input with Autocomplete
-    if (!billingInfo.value.billingAddress.trim() ||
-        !billingInfo.value.city.trim() ||
-        !billingInfo.value.billingEmail.trim() ||
-        !billingInfo.value.name.trim() ||
-        !billingInfo.value.firstName.trim() ||
-        !billingInfo.value.country.trim() ||
-        !billingInfo.value.postalCode.trim()) {
-        errorBillingMessage.value = "Veuillez remplir tous les champs";
-    } else if (!emailFormat.test(billingInfo.value.billingEmail)) {
-        errorBillingMessage.value = "Le format de l'email est incorrect";
-    } else {
-        const data = {
-            billingEmail: billingInfo.value.billingEmail.trim(),
-            name: billingInfo.value.name.trim(),
-            firstName: billingInfo.value.firstName.trim(),
-            city: billingInfo.value.city.trim(),
-            billingAddress: billingInfo.value.billingAddress.trim(),
-            country: billingInfo.value.country.trim(),
-            postalCode: billingInfo.value.postalCode.trim()
-        };
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        };
-
-        try {
-            const response = await fetchWithToken(`${API_BASE_URL}user/set_billing_informations/`, requestOptions);
-
-            if (response.message) {
-                backgroundColor = 'bg-green-300';
-                notificationTitle = 'Succès !';
-                if (response.message == "Billing informations updated successfully") {
-                    notificationMessage = 'Les informations de facturation ont été mises à jour avec succès';
-                } else {
-                    notificationMessage = 'Les informations de facturation ont été créées avec succès';
-                }
-            } else {
-                backgroundColor = 'bg-red-300';
-                notificationTitle = 'Erreur lors de la mise à jour des informations de facturation';
-                // TODO: translate known error in the language
-                notificationMessage = response.error;
-            }
-            // Show the pop-up
-            displayPopup();
-        } catch (error) {
-            console.error("Error set_billing_informations", error);
-            // Show the pop-up
-            backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur lors de la mise à jour des informations de facturation';
-            notificationMessage = error.message;
-            displayPopup();
-        }
-        closeBillingModal();
-    }
-}
-
-function openBillingModal() {
-    isBillingModalOpen.value = true;
-}
-
-function closeBillingModal() {
-    isBillingModalOpen.value = false;
-    errorBillingMessage.value = '';
-}
-
 function openModal() {
     const isChecked = document.querySelector('input[name="choice"]:checked');
 
@@ -1042,17 +884,10 @@ function displayPopup() {
 function handleKeyDown(event) {
     if (event.key === 'Tab' && !isModalOpen.value) {
         event.preventDefault();
-        if (isBillingModalOpen.value) {
-            // TODO: check with striped fields
-            // TODO: implement field switcher properly + checker if one field is empty
-        } else {
-            switchActiveSection();
-        }
+        switchActiveSection();
     } else if (event.key === 'Escape') {
         if (isModalOpen.value) {
             closeModal();
-        } else if (isBillingModalOpen.value) {
-            closeBillingModal();
         } else if (isModalUserDescriptionOpen.value) {
             closeUserDescriptionModal();
         } else if (isUnlinkModalOpen.value) {
@@ -1061,9 +896,7 @@ function handleKeyDown(event) {
             closeAddUserDescriptionModal();
         }
     } else if (event.key === 'Enter') {
-        if (isBillingModalOpen.value) {
-            submitBillingInfo()
-        } else if (isModalUserDescriptionOpen.value) {
+        if (isModalUserDescriptionOpen.value) {
             updateUserDescription();
         } else if (isModalAddUserDescriptionOpen.value) {
             linkNewEmail();

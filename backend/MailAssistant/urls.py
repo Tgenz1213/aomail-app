@@ -58,8 +58,6 @@ urlpatterns = [
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
-    # TODO: remove as we have stripe
-    path('user/set_billing_informations/', views.set_user_billing_informations, name= 'set_user_billing_informations'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok

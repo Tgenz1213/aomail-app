@@ -129,7 +129,8 @@
                         <button type="button"
                             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
                             @click="closeUserDescriptionModal">Annuler</button>
-                        <button type="button" class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+                        <button type="button"
+                            class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
                             @click="updateUserDescription">Mettre à jour</button>
                     </div>
                 </div>
@@ -158,7 +159,8 @@
                     <div>
                         <div class="flex space-x-1 items-center">
                             <envelope-icon class="w-4 h-4" />
-                            <label class="block text-sm font-medium leading-6 text-gray-900">Description (optionnelle)</label>
+                            <label class="block text-sm font-medium leading-6 text-gray-900">Description
+                                (optionnelle)</label>
                         </div>
                         <div class="relative items-stretch mt-2 pb-6">
                             <input v-model="userDescription" type="text"
@@ -167,9 +169,11 @@
                         </div>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
-                        <button type="button" class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
+                        <button type="button"
+                            class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
                             @click="closeAddUserDescriptionModal">Annuler</button>
-                        <button type="button" class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+                        <button type="button"
+                            class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
                             @click="linkNewEmail">Lier</button>
                     </div>
                 </div>
@@ -700,7 +704,7 @@ let isModalOpen = ref(false);
 let isBillingModalOpen = ref(false);
 let isModalUserDescriptionOpen = ref(false);
 let isUnlinkModalOpen = ref(false);
-let isModalAddUserDescriptionOpen = ref(false); 
+let isModalAddUserDescriptionOpen = ref(false);
 let emailSelected = ref('');
 let userDescription = ref('');
 const router = useRouter();
@@ -791,7 +795,7 @@ function authorize_google() {
 }
 function authorize_microsoft() {
     saveVariables("microsoft");
-    isModalAddUserDescriptionOpen.value = true;  
+    isModalAddUserDescriptionOpen.value = true;
 }
 function saveVariables(type_api) {
     sessionStorage.setItem("type_api", type_api);
@@ -1053,12 +1057,16 @@ function handleKeyDown(event) {
             closeUserDescriptionModal();
         } else if (isUnlinkModalOpen.value) {
             closeUnlinkModal();
+        } else if (isModalAddUserDescriptionOpen.value) {
+            closeAddUserDescriptionModal();
         }
     } else if (event.key === 'Enter') {
         if (isBillingModalOpen.value) {
             submitBillingInfo()
         } else if (isModalUserDescriptionOpen.value) {
             updateUserDescription();
+        } else if (isModalAddUserDescriptionOpen.value) {
+            linkNewEmail();
         }
     }
 }

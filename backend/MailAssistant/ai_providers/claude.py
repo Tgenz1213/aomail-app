@@ -507,7 +507,7 @@ def search_emails(query: str, language: str = "French") -> dict:
             closeness_percentage: int,
             max_results: int - default 100,
             from: "",
-            to: "",
+            to: [],
             subject: "",
             body: "",
             filenames: [filenames OR extensions following (a-z0-9)],

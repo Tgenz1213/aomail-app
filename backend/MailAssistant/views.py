@@ -1419,16 +1419,16 @@ def search_emails_ai(request):
 
     for interpretation in queries:
         interpretation_dict = queries[interpretation]
-        closeness_percentage = interpretation_dict["closeness_percentage"]
-        max_results = interpretation_dict["max_results"]
-        from_str = interpretation_dict["from"]
-        to = interpretation_dict["to"]
-        subject = interpretation_dict["subject"]
-        body = interpretation_dict["body"]
-        filenames = interpretation_dict["filenames"]
-        date_from = interpretation_dict["date_from"]
-        keywords = interpretation_dict["keywords"]
-        search_in = interpretation_dict["search_in"]
+        closeness_percentage: int = interpretation_dict["closeness_percentage"]
+        max_results: int = interpretation_dict["max_results"]
+        from_str: str = interpretation_dict["from"]
+        to: list = interpretation_dict["to"]
+        subject: str = interpretation_dict["subject"]
+        body: str = interpretation_dict["body"]
+        filenames: list = interpretation_dict["filenames"]
+        date_from: str = interpretation_dict["date_from"]
+        keywords: list = interpretation_dict["keywords"]
+        search_in: dict = interpretation_dict["search_in"]
 
         for email in emails:
             social_api = SocialAPI.objects.get(email=email)

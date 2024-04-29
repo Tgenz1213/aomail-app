@@ -485,7 +485,7 @@ def search_emails_ai(
     max_results: int = 100,
     filenames: list = None,
     from_address: str = None,
-    to_address: str = None,
+    to_address: list = None,
     subject: str = None,
     body: str = None,
     keywords: list = None,
@@ -499,7 +499,8 @@ def search_emails_ai(
     if from_address:
         query_parts.append(f"(from:{from_address})")
     if to_address:
-        query_parts.append(f"(to:{to_address})")
+        to_query = " OR ".join([f"to:{address}" for address in to_address])
+        query_parts.append(f"({to_query})")
     if subject:
         query_parts.append(f"(subject:{subject})")
     if body:

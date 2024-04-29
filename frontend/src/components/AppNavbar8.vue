@@ -118,10 +118,12 @@ import {
   //ChartPieIcon,
   //DocumentDuplicateIcon,
   //FolderIcon,
-  HomeIcon,
+  //HomeIcon,
   //UsersIcon,
+  EnvelopeIcon,
+  PencilSquareIcon,
   XMarkIcon,
-  PlusIcon,
+  //PlusIcon,
   CogIcon,
   MagnifyingGlassIcon,
   //InboxStackIcon,
@@ -131,8 +133,8 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const navigation = [
-  { name: 'Accueil', href: '/home', icon: HomeIcon },
-  { name: 'Nouveau mail', href: '/new', icon: PlusIcon },
+  { name: 'Accueil', href: '/home', icon: EnvelopeIcon },
+  { name: 'Nouveau mail', href: '/new', icon: PencilSquareIcon },
   { name: 'Recherche mail', href: '/search', icon: MagnifyingGlassIcon },
   { name: 'Règles', href: '/rules', icon: BeakerIcon },
   { name: 'Répondre plus tard', href: '/reply_later', icon: ArrowUturnLeftIcon },

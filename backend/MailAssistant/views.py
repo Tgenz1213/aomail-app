@@ -638,6 +638,17 @@ def delete_category(request, current_name):
     )
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_rules_linked(request, current_name):
+    """Returns the rules associated with the category."""
+    user = request.user
+    category = Category.objects.get(name=current_name, user=user)
+    rules = Rule.objects.filter(category=category, user=user)
+
+    return Response({"nb_rules": len(rules)}, status=200)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_category(request):

@@ -1998,6 +1998,48 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
         closeUpdateModal();
     }
+
+
+
+
+    try {
+        const url = `${API_BASE_URL}api/delete_category/${categoryNameToDelete}/`;
+
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        const response = await fetchWithToken(url, options);
+
+        if (response) {
+            // Show the pop-up
+            backgroundColor = 'bg-green-300';
+            notificationTitle = 'Succès !';
+            notificationMessage = 'Votre catégorie a été supprimée';
+            displayPopup();
+
+            closeUpdateModal();
+            // Fetch the categories
+            const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
+            console.log("CategoryData", categoryData);
+            categories.value = categoryData.map(category => ({
+                name: category.name,
+                description: category.description
+            }));
+            console.log("Assigned categories:", categories.value);
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur lors de la suppression de la catégorie';
+        notificationMessage = error.message;
+        displayPopup();
+
+        closeUpdateModal();
+    }
 }
 
 function readEmailsInSelectedTopic() {

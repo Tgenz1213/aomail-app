@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'), # ok
     path('api/update_category/<str:current_name>/', views.update_category, name='update_category'), # ok
     path('api/delete_category/<str:current_name>/', views.delete_category, name='delete_category'), # ok
+    path('api/get_rules_linked/<str:current_name>/', views.get_rules_linked, name='get_rules_linked'), # dev
     #----------------------- EMAIL ACCOUNT -----------------------#
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
@@ -50,10 +51,8 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'), # ok
     path('user/preferences/username/', views.get_user_details, name='get_user_details'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
-    path('user/search_emails/', views.search_emails , name='search_emails'), # ok
-    
-    path('user/search_emails_ai/', views.search_emails_ai , name='search_emails_ai'), # dev
-
+    path('user/search_emails/', views.search_emails , name='search_emails'), # ok    
+    path('user/search_emails_ai/', views.search_emails_ai , name='search_emails_ai'), # ok
     path('user/social_api/unlink/', views.unlink_email, name='unlink_email'), # ok
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
@@ -76,7 +75,7 @@ urlpatterns = [
     path('microsoft/receive_contact_notifications/', microsoft_api.MicrosoftContactNotification.as_view(), name='receive_contact_notifications'), # ok
     path('microsoft/receive_subscription_notifications/', microsoft_api.MicrosoftSubscriptionNotification.as_view(), name='receive_subscription_notifications'), # ok
     path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
-    path('google/auth_url_link_email/', google_api.auth_url_link_email, name='google_auth_url_link_email'), # dev
+    path('google/auth_url_link_email/', google_api.auth_url_link_email, name='google_auth_url_link_email'), # ok
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
     path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev

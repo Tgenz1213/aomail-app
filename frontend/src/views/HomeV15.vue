@@ -36,8 +36,7 @@
                             <button type="button"
                                 class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
                                 @click="closeWarningCategoryModal">Annuler</button>
-                            <button type="button"
-                                class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
+                            <button type="button" class="ml-auto rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
                                 @click="deleteCategory(categoryToUpdate.name)">Supprimer</button>
                         </div>
                     </div>
@@ -2244,6 +2243,7 @@ async function fetchData() {
 
 <script>
 import ShowNotification from '../components/ShowNotification.vue';
+import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';

@@ -126,8 +126,8 @@
                         </div>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
-                        <button type="button"
-                            class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
+                        <button type="button" 
+                            class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
                             @click="closeUserDescriptionModal">Annuler</button>
                         <button type="button"
                             class="ml-auto rounded-md bg-green-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"

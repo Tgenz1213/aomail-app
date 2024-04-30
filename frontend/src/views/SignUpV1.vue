@@ -3,7 +3,8 @@
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <!-- Update Category modal -->
   <transition name="modal-fade">
-    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    <div @click.self="closeUpdateModal"
+      class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isModalUpdateOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>
@@ -62,7 +63,8 @@
   </transition>
   <!-- Create Category modal -->
   <transition name="modal-fade">
-    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    <div @click.self="closeModal"
+      class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isModalOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>

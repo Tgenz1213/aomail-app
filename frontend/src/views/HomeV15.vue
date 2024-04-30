@@ -5,6 +5,45 @@
         <Loading class=""></Loading>
     </div>
     <div v-else>
+        <!-- Modal for Warning Category (rules linked) -->
+        <transition name="modal-fade">
+            <div @click.self="closeWarningCategoryModal"
+                class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+                v-if="isModalWarningCategoryOpen">
+                <div class="bg-white rounded-lg relative w-[450px]">
+                    <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+                        <button @click="closeWarningCategoryModal" type="button"
+                            class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            <span class="sr-only">Close</span>
+                            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                        </button>
+                    </div>
+                    <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+                        <div class="ml-8 flex items-center space-x-1">
+                            <p class="block font-semibold leading-6 text-gray-900">Suppression de: {{ categoryToUpdate.name}}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 px-8 py-6">
+                        <div>
+                            <div class="flex space-x-1 items-center">
+                                <label class="block text-sm font-medium leading-6 text-gray-900">
+                                    Vous avez {{ nbRulesAssociated }} règle<span v-if="nbRulesAssociated > 1">s</span> liée<span v-if="nbRulesAssociated > 1">s</span> à cette catégorie.
+                                    La suppression de la catégorie entraînera également la suppression de toutes les règles associées
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
+                            <button type="button"
+                                class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
+                                @click="closeWarningCategoryModal">Annuler</button>
+                            <button type="button"
+                                class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
+                                @click="deleteCategory(categoryToUpdate.name)">Supprimer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
         <!--
     <div class="pb-1 lg:pl-20 bg-gray-100">
         <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
@@ -735,7 +774,10 @@
                                                                     <!-- remove @click="toggleEmailVisibility"-->
                                                                     <p @click="toggleEmailVisibility"
                                                                         class="cursor-pointer">Vous avez reçu
-                                                                        <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}</span>
+                                                                        <span
+                                                                            class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{
+                                                                                emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length
+                                                                            }}</span>
                                                                         <span
                                                                             v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                             mail inutile.
@@ -1137,7 +1179,8 @@
                                                                                     <div v-show="hoveredItemId === item.id"
                                                                                         class="group action-buttons">
                                                                                         <div class="relative group">
-                                                                                            <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
+                                                                                            <div
+                                                                                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
                                                                                                 Non Lu
                                                                                             </div>
                                                                                             <button
@@ -1145,7 +1188,7 @@
                                                                                                 type="button"
                                                                                                 class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                                 <check-icon
-                                                                                                class="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                                                                                    class="w-5 h-5 text-emerald-500 group-hover:text-white" />
                                                                                             </button>
                                                                                         </div>
                                                                                     </div>
@@ -1391,6 +1434,8 @@ bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
 let initialAnimationDone = ref(false);
+let isModalWarningCategoryOpen = ref(false)
+let nbRulesAssociated = ref(null);
 const happy_icon = ref(require('@/assets/happy.png'));
 
 onMounted(async () => {
@@ -1812,20 +1857,24 @@ function updateModalStatus(status) {
 function openModal() {
     isModalOpen.value = true;
 }
-
 function closeModal() {
     isModalOpen.value = false;
 }
-
 function openUpdateModal(category) {
     //console.log("CATEGORY TO UPDATE : ", category);
     oldCategoryName.value = category.name;
     categoryToUpdate.value = category;
     isModalUpdateOpen.value = true;
 }
-
 function closeUpdateModal() {
     isModalUpdateOpen.value = false;
+}
+function openWarningCategoryModal(nb_rules) {
+    isModalWarningCategoryOpen.value = true;
+    nbRulesAssociated.value = nb_rules;
+}
+function closeWarningCategoryModal() {
+    isModalWarningCategoryOpen.value = false;
 }
 
 async function handleAddCategory(categoryData) {
@@ -1961,10 +2010,10 @@ async function handleCategoryDelete(categoryNameToDelete) {
     }
 
     try {
-        const url = `${API_BASE_URL}api/delete_category/${categoryNameToDelete}/`;
+        const url = `${API_BASE_URL}api/get_rules_linked/${categoryNameToDelete}/`;
 
         const options = {
-            method: 'DELETE',
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
@@ -1972,36 +2021,24 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
         const response = await fetchWithToken(url, options);
 
-        if (response) {
-            // Show the pop-up
-            backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'Votre catégorie a été supprimée';
-            displayPopup();
-
+        if (response.nb_rules > 0) {
             closeUpdateModal();
-            // Fetch the categories
-            const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
-            console.log("CategoryData", categoryData);
-            categories.value = categoryData.map(category => ({
-                name: category.name,
-                description: category.description
-            }));
-            console.log("Assigned categories:", categories.value);
+            openWarningCategoryModal(response.nb_rules);
+        } else {
+            deleteCategory(categoryNameToDelete);
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur lors de la suppression de la catégorie';
+        notificationTitle = 'Erreur lors de get_rules_linked';
         notificationMessage = error.message;
         displayPopup();
 
         closeUpdateModal();
     }
+}
 
-
-
-
+async function deleteCategory(categoryNameToDelete) {
     try {
         const url = `${API_BASE_URL}api/delete_category/${categoryNameToDelete}/`;
 
@@ -2021,15 +2058,12 @@ async function handleCategoryDelete(categoryNameToDelete) {
             notificationMessage = 'Votre catégorie a été supprimée';
             displayPopup();
 
-            closeUpdateModal();
             // Fetch the categories
             const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
-            console.log("CategoryData", categoryData);
             categories.value = categoryData.map(category => ({
                 name: category.name,
                 description: category.description
             }));
-            console.log("Assigned categories:", categories.value);
         }
     } catch (error) {
         // Show the pop-up
@@ -2037,9 +2071,9 @@ async function handleCategoryDelete(categoryNameToDelete) {
         notificationTitle = 'Erreur lors de la suppression de la catégorie';
         notificationMessage = error.message;
         displayPopup();
-
-        closeUpdateModal();
     }
+    closeUpdateModal();
+    closeWarningCategoryModal();
 }
 
 function readEmailsInSelectedTopic() {

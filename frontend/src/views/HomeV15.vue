@@ -1438,6 +1438,7 @@ let nbRulesAssociated = ref(null);
 const happy_icon = ref(require('@/assets/happy.png'));
 
 onMounted(async () => {
+    document.addEventListener("keydown", handleKeyDown);
     getBackgroundColor();
 
     // Wait for fetchData completion
@@ -1471,6 +1472,12 @@ onMounted(async () => {
         }
     }, 5000);
 });
+
+function handleKeyDown(event) {
+  if (event.key === 'Escape' && isModalWarningCategoryOpen.value) {
+    closeWarningCategoryModal();
+  }
+}
 
 function getNumberUnreadMail(emailData) {
     let totalUnread = 0;

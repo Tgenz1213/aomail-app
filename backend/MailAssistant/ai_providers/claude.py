@@ -347,6 +347,40 @@ def generate_email_response(input_subject, input_body, response_type, language):
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
+""" OLD v1 Ask Theo before DELETE
+    importance_list = {
+        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
+        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
+        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+    }"""
+""" OLD v2 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
+        "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
+        "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
+    }"""
+""" OLD v3 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
+        "Information": "Details relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
+    }"""
+""" OLD v4 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority and require immediate attention or action (truly relevant to the user).",
+        "WorkInformation": "Messages relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
+    }"""
+"""OLd prompt engineering
+1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
+    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
+    3. In {language}: Provide up to 5 (according to email length) short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
+    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
+    5. If the email appears to be a response or a conversation. Always summarize only the last email and IGNORE the previous ones.
+    Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
+"""
 
 
 def categorize_and_summarize_email(
@@ -354,38 +388,12 @@ def categorize_and_summarize_email(
     decoded_data: str,
     category_dict: dict,
     user_description: str,
-    language="French",
-):
+    language: str = "French",
+) -> tuple[str, str, str, dict[str:str, str:list], dict[str:int]]:
     """Categorizes and summarizes an email"""
 
     category_dict.pop(DEFAULT_CATEGORY)
 
-    """ OLD v1 Ask Theo before DELETE
-    importance_list = {
-        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
-        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
-        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
-    }"""
-    """ OLD v2 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
-        "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
-        "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
-    }"""
-    """ OLD v3 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
-        "Information": "Details relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
-        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
-        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }"""
-    """ OLD v4 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority and require immediate attention or action (truly relevant to the user).",
-        "WorkInformation": "Messages relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
-        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
-        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }"""
     importance_list = {
         "UrgentWorkInformation": "Critical updates or information requiring immediate attention related to projects, deadlines, or time-sensitive matters.",
         "RoutineWorkUpdates": "Regular updates or communications important for work but not requiring immediate action, such as team updates or general announcements.",
@@ -412,7 +420,7 @@ def categorize_and_summarize_email(
     Text:
     {decoded_data}
 
-    Description:
+    User description:
     {user_description}
 
     Using the provided categories:
@@ -429,21 +437,25 @@ def categorize_and_summarize_email(
     Relevance Categories:
     {relevance_list}
 
-    1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
-    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
-    3. In {language}: Provide up to 5 (according to email length) short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
-    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
-    5. If the email appears to be a response or a conversation. Always summarize only the last email and IGNORE the previous ones.
-    Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
+
+    Complete the following tasks in {language}:
+    - Categorize the email according to the user description (if provided) and given categories.
+    - Provide a short sentence (up to 10 words) summarizing the core content of the email.
+    - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones. There is no need to summarize the topic as it is given in the short sentence.
+    - The summary should objectively reflect the most important information of the email without making subjective judgments.
+    - Bullet points MUST strictly be different from the short sentence summary.
+    - If the email is explicitely mentionning the name of the user (provided with user description), then use 'You' instead of the name of the user.
+    - Provide up to 5 (according to email length and relevance) short bullet points WITHOUT making any judgment or interpretation. They should be clear and concise (max 10 words).
+    - Every bullet point MUST be unique and useful for the user to help him save time. If several bullet points express the same idea, keep only the best one.
 
     ---
-    Answer must be a Json format matching this template:
+    Answer must always be a Json format matching this template:
     {{
         "topic": Topic Title Category,
         "response": Response Category,
         "relevance": Relevance Category,
         "summary": {{
-            "one_line": One-Sentence Summary in {language},
+            "one_line": Short sentence summary,
             "complete": [
                 "Short Bullet Point 1",
                 "Short Bullet Point 2",

@@ -21,7 +21,7 @@
                     <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                         <div class="ml-8 flex items-center space-x-1">
                             <p class="block font-semibold leading-6 text-gray-900">Suppression de: {{
-                                categoryToUpdate.name}}</p>
+                                categoryToUpdate.name }}</p>
                         </div>
                     </div>
                     <div class="flex flex-col gap-4 px-8 py-6">
@@ -1587,6 +1587,9 @@ function toggleTooltip() {
 }
 
 async function markEmailAsUnread(emailId) {
+        
+    updateEmailUnreadStatus(emailId);
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-unread/`, {
             method: 'POST',
@@ -1595,9 +1598,7 @@ async function markEmailAsUnread(emailId) {
             }
         });
 
-        if (response.read == false) {
-            updateEmailUnreadStatus(emailId);
-        } else {
+        if (response.read != false) {
             console.log("RESPONSE markEmailAsUnread", response);
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Échec de marquage de l\'email comme non lu';
@@ -1613,6 +1614,9 @@ async function markEmailAsUnread(emailId) {
     }
 }
 async function markEmailAsRead(emailId) {
+
+    updateEmailReadStatus(emailId);
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-read/`, {
             method: 'POST',
@@ -1621,9 +1625,7 @@ async function markEmailAsRead(emailId) {
             }
         });
 
-        if (response.read) {
-            updateEmailReadStatus(emailId);
-        } else {
+        if (response.read != true) {
             console.log("RESPONSE", response);
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Échec de marquage de l\'email comme lu';

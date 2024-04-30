@@ -40,7 +40,6 @@ STRIPE_PRICES = {
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
 CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json"))
-LLAMA_CREDS = json.load(open(f"{CREDS_PATH}llama_creds.json"))
 HUMAN = "\n\nHuman: "
 ASSISTANT = "Assistant:"
 IMPORTANT = "Important"

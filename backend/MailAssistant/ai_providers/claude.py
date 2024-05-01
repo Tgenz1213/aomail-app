@@ -74,7 +74,7 @@ def count_corrections(
     return total_corrections
 
 
-def extract_contacts_recipients(query):
+def extract_contacts_recipients(query) -> dict[str:list]:
     formatted_prompt = f"""{HUMAN}As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
 
     Guidelines for classification:

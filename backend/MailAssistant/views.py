@@ -1746,9 +1746,21 @@ def set_email_undread(request, email_id):
 def set_email_reply_later(request, email_id):
     """Mark a specific email for later reply for the authenticated user"""
     user = request.user
-
     email = get_object_or_404(Email, user=user, id=email_id)
     email.answer_later = True
+    email.save()
+
+    serializer = EmailReplyLaterUpdateSerializer(email)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_email_not_reply_later(request, email_id):
+    """Unmark a specific email for later reply."""
+    user = request.user
+    email = get_object_or_404(Email, user=user, id=email_id)
+    email.answer_later = False
     email.save()
 
     serializer = EmailReplyLaterUpdateSerializer(email)

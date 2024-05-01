@@ -12,6 +12,7 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     EMAIL_NO_REPLY_PASSWORD,
     HOSTS_URLS,
+    CORS_ALLOWED_ORIGINS,
 )
 from MailAssistant.schedule_tasks import Command
 
@@ -52,15 +53,16 @@ ROOT_URLCONF = "MailAssistant_project.urls"
 ASGI_APPLICATION = "MailAssistant_project.asgi.application"
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+STATIC_URL = "static/"
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
 # ----------------------- DATABASE CONFIGURATION -----------------------#
-# For site in DB
-SITE_ID = 3
 DATABASES = CONFIG["database_conf"]
 
+# ----------------------- DJANGO DEPENDENCIES -----------------------#
 INSTALLED_APPS = [
     "django_extensions",
     "django.contrib.admin",
@@ -107,6 +109,7 @@ TEMPLATES = [
     },
 ]
 
+# ----------------------- LOGGING CONFIGURATION -----------------------#
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -158,16 +161,14 @@ LOGGING = {
 }
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-# TODO: find where we need it and delete it as the folder does not exist anymore
-STATIC_URL = "static/"
-
-
 ######################## SECURITY ########################
 DEBUG = True
-CORS_ALLOW_ALL_ORIGINS = False
 ALLOWED_HOSTS = HOSTS_URLS
+CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
+
+# ----------------------- DATABASE CONFIGURATION -----------------------#
+DATABASES = CONFIG["database_conf"]
+
 # ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -176,6 +177,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = EMAIL_NO_REPLY
 EMAIL_HOST_PASSWORD = EMAIL_NO_REPLY_PASSWORD
 
+# ----------------------- AUTHENTICATION SETTINGS -----------------------#
 SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Token expires in 1 day
     "ROTATE_REFRESH_TOKENS": False,  # Whether to rotate refresh tokens upon each request
@@ -199,8 +201,6 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
 }
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -215,6 +215,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+# ----------------------- SCHEDULED TASKS -----------------------#
 # TODO: check if it works
 """CRONJOBS = [
     (

@@ -599,6 +599,21 @@
                                         </button>
                                       </div>
                                     </div>
+
+                                    <div v-show="hoveredItemId === item.id" class="group action-buttons">
+                                      <div class="relative group">
+                                        <div
+                                          class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
+                                          Enlever de répondre plus tard
+                                        </div>
+                                        <button @click="unmarkReplyLater(item.id)" type="button"
+                                          class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                          <ChatBubbleOvalLeftEllipsisIcon
+                                            class="w-5 h-5 text-gray-500 group-hover:text-white" />
+                                        </button>
+                                      </div>
+                                    </div>
+
                                     <div v-show="hoveredItemId === item.id" class="group action-buttons">
                                       <div class="relative group">
                                         <div
@@ -723,17 +738,18 @@ import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { API_BASE_URL } from '@/main';
 import {
-  //ChatBubbleOvalLeftEllipsisIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
   TrashIcon,
   ArrowUturnLeftIcon,
   EllipsisHorizontalIcon,
   EyeIcon,
   InformationCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
 } from '@heroicons/vue/24/outline';
 
 export default {
   components: {
+    ChatBubbleOvalLeftEllipsisIcon,
     Navbar,
     Navbar2,
     MenuItem,
@@ -749,9 +765,20 @@ export default {
   },
   setup() {
     const bgColor = ref('');
-    const answerLaterEmails = ref([]);
-    const emails = ref({});
-    const nbr_reply_answer = ref(0);
+    let answerLaterEmails = ref([]);
+    let emails = ref({});
+    let nbr_reply_answer = ref(0);
+
+    function computeEmailsLength(data) {
+      let totalLength = 0;
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          const ids = data[key];
+          totalLength += ids.length;
+        }
+      }
+      return totalLength;
+    }
 
     onMounted(() => {
       getBackgroundColor();
@@ -768,17 +795,15 @@ export default {
           }
         });
 
-        emails.value = data; // Assuming emails is a reactive variable
-        console.log("Length", Object.keys(emails.value).length);
-        nbr_reply_answer.value = Object.keys(emails.value).length; // Assuming nbr_reply_answer is a reactive variable
-        answerLaterEmails.value = data; // Update the reactive variable with the fetched emails
+        emails.value = data;
+        nbr_reply_answer.value = computeEmailsLength(data);
+        answerLaterEmails.value = data;
       } catch (error) {
         console.error("Error fetching answer-later emails:", error.message);
       }
     }
 
     return {
-      // Expose variables/functions to the template if needed
       bgColor,
       answerLaterEmails,
       emails,
@@ -786,6 +811,31 @@ export default {
     };
   },
   methods: {
+    computeEmailsLength(data) {
+      let totalLength = 0;
+      for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+          const ids = data[key];
+          totalLength += ids.length;
+        }
+      }
+      return totalLength;
+    },
+    async fetchAnswerLaterEmails() {
+      try {
+        const data = await fetchWithToken(`${API_BASE_URL}api/get_answer_later_emails/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        this.emails = data;
+        this.nbr_reply_answer = this.computeEmailsLength(data);
+        this.answerLaterEmails = data;
+      } catch (error) {
+        console.error("Error fetching answer-later emails:", error.message);
+      }
+    },
     dismissPopup() {
       this.showNotification = false;
       // Cancel the timer
@@ -870,6 +920,32 @@ export default {
       const urlToOpen = `${gmailBaseUrl}${id_provider}`;
 
       window.open(urlToOpen, '_blank');
+    },
+    async unmarkReplyLater(emailId) {
+      this.deleteEmailFromState(emailId);
+
+      try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/unmark-reply-later/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        if (response.answer_later != false) {
+          console.error('Failed to mark email for reply later', response);
+          this.backgroundColor = 'bg-red-300';
+          this.notificationTitle = 'Échec de marquage d\'email pour répondre pour ne plus répondre plus tard';
+          this.notificationMessage = response;
+          displayPopup();
+        }
+      } catch (error) {
+        console.error('Error in unmarkReplyLater:', error.message);
+        this.backgroundColor = 'bg-red-300';
+        this.notificationTitle = 'Échec de marquage d\'email pour répondre pour ne plus répondre plus tard';
+        this.notificationMessage = error.message;
+        displayPopup();
+      }
+      this.fetchAnswerLaterEmails();
     },
     async openAnswer(email) {
       console.log("EMAIL", email.id_provider);

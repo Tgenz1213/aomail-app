@@ -960,14 +960,14 @@ export default {
           this.backgroundColor = 'bg-red-300';
           this.notificationTitle = 'Échec de marquage d\'email pour répondre pour ne plus répondre plus tard';
           this.notificationMessage = response;
-          displayPopup();
+          this.displayPopup();
         }
       } catch (error) {
         console.error('Error in unmarkReplyLater:', error.message);
         this.backgroundColor = 'bg-red-300';
         this.notificationTitle = 'Échec de marquage d\'email pour répondre pour ne plus répondre plus tard';
         this.notificationMessage = error.message;
-        displayPopup();
+        this.displayPopup();
       }
       this.fetchAnswerLaterEmails();
     },

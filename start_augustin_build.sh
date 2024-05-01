@@ -5,3 +5,5 @@ export ENV="augustin"
 export TOPIC_NAME="sub_new_mail2"
 
 docker compose -p augustin_project up --build
+# use this to force install reqs or delete backend instance
+#docker compose -p augustin_project build --no-cache && docker compose -p augustin_project up

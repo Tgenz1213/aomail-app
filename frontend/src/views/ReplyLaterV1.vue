@@ -122,6 +122,19 @@
                                     <div v-show="hoveredItemId === item.id" class="group action-buttons">
                                       <div class="relative group">
                                         <div
+                                          class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
+                                          Enlever de répondre plus tard
+                                        </div>
+                                        <button @click="unmarkReplyLater(item.id)" type="button"
+                                          class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-red-300 hover:bg-red-300 focus:z-10">
+                                          <ChatBubbleOvalLeftEllipsisIcon
+                                            class="w-5 h-5 text-red-400 group-hover:text-white" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div v-show="hoveredItemId === item.id" class="group action-buttons">
+                                      <div class="relative group">
+                                        <div
                                           class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-8">
                                           Supprimer
                                         </div>
@@ -364,6 +377,19 @@
                                     <div v-show="hoveredItemId === item.id" class="group action-buttons">
                                       <div class="relative group">
                                         <div
+                                          class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
+                                          Enlever de répondre plus tard
+                                        </div>
+                                        <button @click="unmarkReplyLater(item.id)" type="button"
+                                          class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
+                                          <ChatBubbleOvalLeftEllipsisIcon
+                                            class="w-5 h-5 text-blue-400 group-hover:text-white" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <div v-show="hoveredItemId === item.id" class="group action-buttons">
+                                      <div class="relative group">
+                                        <div
                                           class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-8">
                                           Supprimer
                                         </div>
@@ -599,7 +625,6 @@
                                         </button>
                                       </div>
                                     </div>
-
                                     <div v-show="hoveredItemId === item.id" class="group action-buttons">
                                       <div class="relative group">
                                         <div
@@ -613,7 +638,6 @@
                                         </button>
                                       </div>
                                     </div>
-
                                     <div v-show="hoveredItemId === item.id" class="group action-buttons">
                                       <div class="relative group">
                                         <div

@@ -44,8 +44,7 @@ class EmailReplyConversation:
 
         ---
         The answer must include all new changes and match the same HTML format.
-        {ASSISTANT}
-        """
+        {ASSISTANT}"""
         # TODO: use the model chosen by the user in its settings
         response = claude.get_prompt_response(template)
         body = response.content[0].text.strip()

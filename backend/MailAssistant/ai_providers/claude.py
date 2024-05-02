@@ -92,7 +92,7 @@ def extract_contacts_recipients(query) -> dict[str:list]:
     bcc_recipients: [Python list]    
     {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
-    recipients:dict = json.loads(response.content[0].text)
+    recipients: dict = json.loads(response.content[0].text)
 
     # Extract information based on markers
     main_recipients = recipients.get("main_recipients", [])
@@ -130,6 +130,7 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 
 
 ######################## WRITING ########################
+# TODO: OLD - delete after implementing new solution
 def improve_email_writing(body, subject):
     """Enhance email subject and body"""
 
@@ -202,7 +203,7 @@ def generate_email(input_data, length, formality, language="FRENCH"):
 
     print(clear_text)
 
-    result_json:dict = json.loads(clear_text)
+    result_json: dict = json.loads(clear_text)
 
     subject_text = result_json.get("subject")
     email_body = result_json.get("body")
@@ -261,7 +262,7 @@ def correct_mail_language_mistakes(body, subject):
 
     subject: {subject},
     body: {body}
-    """
+    {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
     clear_text = response.content[0].text.strip()
     result_json = json.loads(clear_text)
@@ -306,8 +307,7 @@ def improve_email_copywriting(email_subject, email_body):
 
     <strong>Suggestions for the Email Body</strong>:
     [Your suggestions for the email body]
-    {ASSISTANT}
-    """
+    {ASSISTANT}"""
     response = get_prompt_response(template)
     feedback_ai = response.content[0].text.strip()
 
@@ -322,16 +322,6 @@ def generate_email_response(
 ) -> str:
     """Generates an email response based on the given response type"""
 
-    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{user_instruction}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
-    # OLD prompt
-    '''template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{user_instruction}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
-    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
-
-    ----
-
-    Answer must be above HTML without spaces
-    {ASSISTANT}
-    """'''
     template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
     1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
     2. Here is a template to follow, with placeholders for the dynamic content:
@@ -348,6 +338,38 @@ def generate_email_response(
 
     return body
 
+
+'''def generate_email_response(
+    input_subject: str, input_body: str, user_instruction: str, language: str
+) -> str:
+    """Generates an email response based on the given response type"""
+
+    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{user_instruction}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
+    # OLD prompt
+    """template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{user_instruction}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
+
+    ----
+
+    Answer must be above HTML without spaces
+    {ASSISTANT}
+    """"""
+    template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
+    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
+    2. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
+
+    ---
+    Answer must be above HTML without spaces
+    {ASSISTANT}
+    """
+    response = get_prompt_response(template)
+    body = response.content[0].text.strip()
+
+    print(f"{Fore.GREEN}[REPLY] body: {body}")
+
+    return body
+'''
 
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################

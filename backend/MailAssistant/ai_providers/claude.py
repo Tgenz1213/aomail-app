@@ -92,7 +92,7 @@ def extract_contacts_recipients(query) -> dict[str:list]:
     bcc_recipients: [Python list]    
     {ASSISTANT}"""
     response = get_prompt_response(formatted_prompt)
-    recipients = json.loads(response.content[0].text)
+    recipients:dict = json.loads(response.content[0].text)
 
     # Extract information based on markers
     main_recipients = recipients.get("main_recipients", [])
@@ -155,6 +155,7 @@ def improve_email_writing(body, subject):
     return email_body, subject_text
 
 
+# TODO: OLD - delete after implementing new solution
 def new_mail_recommendation(
     mail_content, email_subject, user_recommendation, language="FRENCH"
 ):
@@ -189,16 +190,19 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
     template = f"""{HUMAN}As an email assistant, write a {length} and {formality} email in {language}.
-    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
-
-    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT
+    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
+    It must strictly contain only the information that is present in the input.
+    Add a standard greeting and sign-off without a signature (unless explicitly mentioned) if nothing is specified.
+    
+    ---
+    Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
     {ASSISTANT}"""
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
     print(clear_text)
 
-    result_json = json.loads(clear_text)
+    result_json:dict = json.loads(clear_text)
 
     subject_text = result_json.get("subject")
     email_body = result_json.get("body")

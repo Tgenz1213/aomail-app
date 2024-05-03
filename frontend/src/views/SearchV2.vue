@@ -244,8 +244,7 @@ async function handleAIClick() {
 
   textareaValue.value = "";
   const result = await fetchWithToken(`${API_BASE_URL}user/search_emails_ai/`, requestOptions);
-  console.log(result);
-  //searchResult.value = result;
+  searchResult.value = result;
   hideLoading();
   isAIWriting.value = false;
 }
@@ -270,7 +269,6 @@ async function searchEmails() {
   };
 
   const result = await fetchWithToken(`${API_BASE_URL}user/search_emails/`, requestOptions);
-  console.log(result);
   searchResult.value = result;
   hideLoading();
 }

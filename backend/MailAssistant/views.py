@@ -1396,7 +1396,6 @@ def link_email(request):
     return Response({"error": "Could not subscribe to listener"}, status=400)
 
 
-# UNDER CONSTRUCTION
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def search_emails_ai(request):
@@ -1421,6 +1420,8 @@ def search_emails_ai(request):
             if provider not in result:
                 result[provider] = {}
             result[provider][email] = data
+
+    # TODO: check if max_results correspond to subscription !!!
 
     max_results: int = search_params["max_results"]
     from_str: str = search_params["from"]

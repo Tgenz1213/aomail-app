@@ -129,11 +129,3 @@ class BulletPoint(models.Model):
 
     content = models.TextField()
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
-
-
-'''class CC(models.Model):
-    """Model for storing CC (Carbon Copy) information."""
-
-    email = models.CharField(max_length=100)
-    name = models.CharField(max_length=50)
-    email_reference = models.ForeignKey(Email, on_delete=models.CASCADE)'''

@@ -1405,100 +1405,85 @@ def search_emails_ai(request):
     data = request.data
     emails = data["emails"]
     query = data["query"]
-    start = time.time()
-    queries: dict = claude.search_emails(query)
-    formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-    print(f"AI model response in: {formatted_time}")
+    # start = time.time()
+    search_params: dict = claude.search_emails(query)
+    # formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+    # print(f"AI model response in: {formatted_time}")
 
     result = {}
 
     def append_to_result(
         provider: str,
-        interpretation: str,
-        closeness_percentage: int,
         email: str,
         data: list,
     ):
         if len(data) > 0:
             if provider not in result:
                 result[provider] = {}
-            if interpretation not in result[provider]:
-                result[provider][interpretation] = {
-                    "closeness_percentage": closeness_percentage
-                }
-            result[provider][interpretation][email] = data
+            result[provider][email] = data
 
-    for interpretation in queries:
-        interpretation_dict = queries[interpretation]
-        closeness_percentage: int = interpretation_dict["closeness_percentage"]
-        max_results: int = interpretation_dict["max_results"]
-        from_str: str = interpretation_dict["from"]
-        to: list = interpretation_dict["to"]
-        subject: str = interpretation_dict["subject"]
-        body: str = interpretation_dict["body"]
-        filenames: list = interpretation_dict["filenames"]
-        date_from: str = interpretation_dict["date_from"]
-        keywords: list = interpretation_dict["keywords"]
-        search_in: dict = interpretation_dict["search_in"]
+    max_results: int = search_params["max_results"]
+    from_str: str = search_params["from"]
+    to: list = search_params["to"]
+    subject: str = search_params["subject"]
+    body: str = search_params["body"]
+    filenames: list = search_params["filenames"]
+    date_from: str = search_params["date_from"]
+    keywords: list = search_params["keywords"]
+    search_in: dict = search_params["search_in"]
 
-        for email in emails:
-            social_api = SocialAPI.objects.get(email=email)
-            type_api = social_api.type_api
+    for email in emails:
+        social_api = SocialAPI.objects.get(email=email)
+        type_api = social_api.type_api
 
-            if type_api == "google":
-                services = google_api.authenticate_service(user, email)
-                search_result = threading.Thread(
-                    target=append_to_result,
-                    args=(
-                        GOOGLE_PROVIDER,
-                        interpretation,
-                        closeness_percentage,
-                        email,
-                        google_api.search_emails_ai(
-                            services,
-                            max_results=max_results,
-                            filenames=filenames,
-                            from_address=from_str,
-                            to_address=to,
-                            subject=subject,
-                            body=body,
-                            keywords=keywords,
-                            date_from=date_from,
-                            search_in=search_in,
-                        ),
+        if type_api == "google":
+            services = google_api.authenticate_service(user, email)
+            search_result = threading.Thread(
+                target=append_to_result,
+                args=(
+                    GOOGLE_PROVIDER,
+                    email,
+                    google_api.search_emails_ai(
+                        services,
+                        max_results=max_results,
+                        filenames=filenames,
+                        from_address=from_str,
+                        to_address=to,
+                        subject=subject,
+                        body=body,
+                        keywords=keywords,
+                        date_from=date_from,
+                        search_in=search_in,
                     ),
-                )
+                ),
+            )
 
-            elif type_api == "microsoft":
-                access_token = microsoft_api.refresh_access_token(
-                    microsoft_api.get_social_api(user, email)
-                )
-                search_result = threading.Thread(
-                    target=append_to_result,
-                    args=(
-                        MICROSOFT_PROVIDER,
-                        interpretation,
-                        closeness_percentage,
-                        email,
-                        microsoft_api.search_emails_ai(
-                            access_token,
-                            max_results=max_results,
-                            filenames=filenames,
-                            from_address=from_str,
-                            to_address=to,
-                            subject=subject,
-                            body=body,
-                            keywords=keywords,
-                            date_from=date_from,
-                            search_in=search_in,
-                        ),
+        elif type_api == "microsoft":
+            access_token = microsoft_api.refresh_access_token(
+                microsoft_api.get_social_api(user, email)
+            )
+            search_result = threading.Thread(
+                target=append_to_result,
+                args=(
+                    MICROSOFT_PROVIDER,
+                    email,
+                    microsoft_api.search_emails_ai(
+                        access_token,
+                        max_results=max_results,
+                        filenames=filenames,
+                        from_address=from_str,
+                        to_address=to,
+                        subject=subject,
+                        body=body,
+                        keywords=keywords,
+                        date_from=date_from,
+                        search_in=search_in,
                     ),
-                )
+                ),
+            )
 
-            search_result.start()
-            search_result.join()
-
-    print(result)
+        search_result.start()
+        search_result.join()
 
     return Response(result, status=200)
 

@@ -3,7 +3,8 @@
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <!-- Update Category modal -->
   <transition name="modal-fade">
-    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    <div @click.self="closeUpdateModal"
+      class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isModalUpdateOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>
@@ -43,7 +44,7 @@
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
-              class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:ml-3 sm:w-auto"
+              class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               @click="updateCategoryHandler">Mettre à jour</button>
             <button type="button"
               class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -62,7 +63,8 @@
   </transition>
   <!-- Create Category modal -->
   <transition name="modal-fade">
-    <div class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    <div @click.self="closeModal"
+      class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
       v-if="isModalOpen">
       <div class="bg-white rounded-lg relative w-[450px]">
         <slot></slot>

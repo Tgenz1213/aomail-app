@@ -47,7 +47,6 @@ from MailAssistant.constants import (
 )
 from MailAssistant import library
 from .models import (
-    BillingInfo,
     Category,
     MicrosoftListener,
     SocialAPI,
@@ -637,6 +636,17 @@ def delete_category(request, current_name):
     return Response(
         {"error": "Category deleted successfully"}, status=status.HTTP_200_OK
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_rules_linked(request, current_name):
+    """Returns the rules associated with the category."""
+    user = request.user
+    category = Category.objects.get(name=current_name, user=user)
+    rules = Rule.objects.filter(category=category, user=user)
+
+    return Response({"nb_rules": len(rules)}, status=200)
 
 
 @api_view(["POST"])
@@ -1386,7 +1396,6 @@ def link_email(request):
     return Response({"error": "Could not subscribe to listener"}, status=400)
 
 
-# UNDER CONSTRUCTION
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def search_emails_ai(request):
@@ -1395,100 +1404,87 @@ def search_emails_ai(request):
     data = request.data
     emails = data["emails"]
     query = data["query"]
-    start = time.time()
-    queries: dict = claude.search_emails(query)
-    formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-    print(f"AI model response in: {formatted_time}")
+    # start = time.time()
+    search_params: dict = claude.search_emails(query)
+    # formatted_time = str(datetime.timedelta(seconds=time.time() - start))
+    # print(f"AI model response in: {formatted_time}")
 
     result = {}
 
     def append_to_result(
         provider: str,
-        interpretation: str,
-        closeness_percentage: int,
         email: str,
         data: list,
     ):
         if len(data) > 0:
             if provider not in result:
                 result[provider] = {}
-            if interpretation not in result[provider]:
-                result[provider][interpretation] = {
-                    "closeness_percentage": closeness_percentage
-                }
-            result[provider][interpretation][email] = data
+            result[provider][email] = data
 
-    for interpretation in queries:
-        interpretation_dict = queries[interpretation]
-        closeness_percentage = interpretation_dict["closeness_percentage"]
-        max_results = interpretation_dict["max_results"]
-        from_str = interpretation_dict["from"]
-        to = interpretation_dict["to"]
-        subject = interpretation_dict["subject"]
-        body = interpretation_dict["body"]
-        filenames = interpretation_dict["filenames"]
-        date_from = interpretation_dict["date_from"]
-        keywords = interpretation_dict["keywords"]
-        search_in = interpretation_dict["search_in"]
+    # TODO: check if max_results correspond to subscription !!!
 
-        for email in emails:
-            social_api = SocialAPI.objects.get(email=email)
-            type_api = social_api.type_api
+    max_results: int = search_params["max_results"]
+    from_str: str = search_params["from"]
+    to: list = search_params["to"]
+    subject: str = search_params["subject"]
+    body: str = search_params["body"]
+    filenames: list = search_params["filenames"]
+    date_from: str = search_params["date_from"]
+    keywords: list = search_params["keywords"]
+    search_in: dict = search_params["search_in"]
 
-            if type_api == "google":
-                services = google_api.authenticate_service(user, email)
-                search_result = threading.Thread(
-                    target=append_to_result,
-                    args=(
-                        GOOGLE_PROVIDER,
-                        interpretation,
-                        closeness_percentage,
-                        email,
-                        google_api.search_emails_ai(
-                            services,
-                            max_results=max_results,
-                            filenames=filenames,
-                            from_address=from_str,
-                            to_address=to,
-                            subject=subject,
-                            body=body,
-                            keywords=keywords,
-                            date_from=date_from,
-                            search_in=search_in,
-                        ),
+    for email in emails:
+        social_api = SocialAPI.objects.get(email=email)
+        type_api = social_api.type_api
+
+        if type_api == "google":
+            services = google_api.authenticate_service(user, email)
+            search_result = threading.Thread(
+                target=append_to_result,
+                args=(
+                    GOOGLE_PROVIDER,
+                    email,
+                    google_api.search_emails_ai(
+                        services,
+                        max_results=max_results,
+                        filenames=filenames,
+                        from_address=from_str,
+                        to_address=to,
+                        subject=subject,
+                        body=body,
+                        keywords=keywords,
+                        date_from=date_from,
+                        search_in=search_in,
                     ),
-                )
+                ),
+            )
 
-            elif type_api == "microsoft":
-                access_token = microsoft_api.refresh_access_token(
-                    microsoft_api.get_social_api(user, email)
-                )
-                search_result = threading.Thread(
-                    target=append_to_result,
-                    args=(
-                        MICROSOFT_PROVIDER,
-                        interpretation,
-                        closeness_percentage,
-                        email,
-                        microsoft_api.search_emails_ai(
-                            access_token,
-                            max_results=max_results,
-                            filenames=filenames,
-                            from_address=from_str,
-                            to_address=to,
-                            subject=subject,
-                            body=body,
-                            keywords=keywords,
-                            date_from=date_from,
-                            search_in=search_in,
-                        ),
+        elif type_api == "microsoft":
+            access_token = microsoft_api.refresh_access_token(
+                microsoft_api.get_social_api(user, email)
+            )
+            search_result = threading.Thread(
+                target=append_to_result,
+                args=(
+                    MICROSOFT_PROVIDER,
+                    email,
+                    microsoft_api.search_emails_ai(
+                        access_token,
+                        max_results=max_results,
+                        filenames=filenames,
+                        from_address=from_str,
+                        to_address=to,
+                        subject=subject,
+                        body=body,
+                        keywords=keywords,
+                        date_from=date_from,
+                        search_in=search_in,
                     ),
-                )
+                ),
+            )
 
-            search_result.start()
-            search_result.join()
-
-    print(result)
+        search_result.start()
+        search_result.join()
 
     return Response(result, status=200)
 
@@ -1623,151 +1619,6 @@ def delete_email(request, email_id):
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_billing_informations(request):
-    """Returns billing informations if they exist."""
-
-    user = request.user
-    billing_info = BillingInfo.objects.filter(user=user)
-    if billing_info.exists():
-        billing_info = billing_info[0]
-        name = (
-            library.decrypt_text(
-                billing_info.name, ENCRYPTION_KEYS["BillingInfo"]["name"]
-            ),
-        )
-        first_name = (
-            library.decrypt_text(
-                billing_info.first_name, ENCRYPTION_KEYS["BillingInfo"]["first_name"]
-            ),
-        )
-        postal_code = (
-            library.decrypt_text(
-                billing_info.postal_code, ENCRYPTION_KEYS["BillingInfo"]["postal_code"]
-            ),
-        )
-        country = (
-            library.decrypt_text(
-                billing_info.country, ENCRYPTION_KEYS["BillingInfo"]["country"]
-            ),
-        )
-        billing_address = (
-            library.decrypt_text(
-                billing_info.billing_address,
-                ENCRYPTION_KEYS["BillingInfo"]["billing_address"],
-            ),
-        )
-        city = (
-            library.decrypt_text(
-                billing_info.city, ENCRYPTION_KEYS["BillingInfo"]["city"]
-            ),
-        )
-        billing_email = (
-            library.decrypt_text(
-                billing_info.billing_email,
-                ENCRYPTION_KEYS["BillingInfo"]["billing_email"],
-            ),
-        )
-        return Response(
-            {
-                "data": {
-                    "name": name,
-                    "first_name": first_name,
-                    "postal_code": postal_code,
-                    "country": country,
-                    "billing_address": billing_address,
-                    "city": city,
-                    "billing_email": billing_email,
-                }
-            }
-        )
-    else:
-        return Response(
-            {"message": "The user does not have billing informations"}, status=404
-        )
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def set_user_billing_informations(request):
-    """Saves user billing information in database."""
-
-    user = request.user
-    billing_email = request.data.get("billingEmail")
-    name = request.data.get("name")
-    first_name = request.data.get("firstName")
-    city = request.data.get("city")
-    billing_address = request.data.get("billingAddress")
-    country = request.data.get("country")
-    postal_code = request.data.get("postalCode")
-
-    if not all(
-        [billing_email, name, first_name, city, billing_address, country, postal_code]
-    ):
-        return Response({"error": "All fields are required"}, status=400)
-    elif " " in billing_email:
-        return Response({"error": "Email address must not contain spaces"}, status=400)
-    elif (
-        re.match("^[a-z0-9_.+-]+@[a-z0-9+-]+\.[a-z0-9-.]+$", billing_email.lower())
-        == None
-    ):
-        return Response({"error": "Email address does not look right"}, status=400)
-    elif re.match("^[0-9]+$", postal_code) == False:
-        return Response(
-            {"error": "Only digits are allowed for postal code"}, status=400
-        )
-
-    billing_info = BillingInfo.objects.filter(user=user)
-    if billing_info.exists():
-        billing_info.update(
-            billing_email=library.encrypt_text(
-                billing_email, ENCRYPTION_KEYS["BillingInfo"]["billing_email"]
-            ),
-            name=library.encrypt_text(name, ENCRYPTION_KEYS["BillingInfo"]["name"]),
-            first_name=library.encrypt_text(
-                first_name, ENCRYPTION_KEYS["BillingInfo"]["first_name"]
-            ),
-            city=library.encrypt_text(city, ENCRYPTION_KEYS["BillingInfo"]["city"]),
-            billing_address=library.encrypt_text(
-                billing_address, ENCRYPTION_KEYS["BillingInfo"]["billing_address"]
-            ),
-            country=library.encrypt_text(
-                country, ENCRYPTION_KEYS["BillingInfo"]["country"]
-            ),
-            postal_code=library.encrypt_text(
-                postal_code, ENCRYPTION_KEYS["BillingInfo"]["postal_code"]
-            ),
-        )
-        return Response(
-            {"message": "Billing informations updated successfully"}, status=200
-        )
-    else:
-        BillingInfo.objects.create(
-            user=user,
-            billing_email=library.encrypt_text(
-                billing_email, ENCRYPTION_KEYS["BillingInfo"]["billing_email"]
-            ),
-            name=library.encrypt_text(name, ENCRYPTION_KEYS["BillingInfo"]["name"]),
-            first_name=library.encrypt_text(
-                first_name, ENCRYPTION_KEYS["BillingInfo"]["first_name"]
-            ),
-            city=library.encrypt_text(city, ENCRYPTION_KEYS["BillingInfo"]["city"]),
-            billing_address=library.encrypt_text(
-                billing_address, ENCRYPTION_KEYS["BillingInfo"]["billing_address"]
-            ),
-            country=library.encrypt_text(
-                country, ENCRYPTION_KEYS["BillingInfo"]["country"]
-            ),
-            postal_code=library.encrypt_text(
-                postal_code, ENCRYPTION_KEYS["BillingInfo"]["postal_code"]
-            ),
-        )
-        return Response(
-            {"message": "Billing informations created successfully"}, status=200
-        )
-
-
 # ----------------------- CREDENTIALS AVAILABILITY -----------------------#
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -1881,9 +1732,21 @@ def set_email_undread(request, email_id):
 def set_email_reply_later(request, email_id):
     """Mark a specific email for later reply for the authenticated user"""
     user = request.user
-
     email = get_object_or_404(Email, user=user, id=email_id)
     email.answer_later = True
+    email.save()
+
+    serializer = EmailReplyLaterUpdateSerializer(email)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_email_not_reply_later(request, email_id):
+    """Unmark a specific email for later reply."""
+    user = request.user
+    email = get_object_or_404(Email, user=user, id=email_id)
+    email.answer_later = False
     email.save()
 
     serializer = EmailReplyLaterUpdateSerializer(email)

@@ -460,21 +460,12 @@ def set_email_unread(social_api, mail_id):
     requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
 
 
-# UNDER CONSTRUCTION
-
-
-# TODO: add a list of recipients emails: this does not work
-# if to_address:
-#     # filter_parts.append(f"participants:" + " or ".join(address for address in to_addresses))
-#     filter_parts.append(
-#         f"participants:{to_address}"
-#     )
 def search_emails_ai(
     access_token: str,
     max_results: int = 100,
     filenames: list = None,
     from_address: str = None,
-    to_address: str = None,
+    to_address: list = None,
     subject: str = None,
     body: str = None,
     keywords: list = None,
@@ -485,47 +476,33 @@ def search_emails_ai(
 
     folder_url = f"{GRAPH_URL}me/mailFolders/"
     message_ids = []
+    params = {"$top": max_results, "$select": "id", "$count": "true"}
 
-    filter_parts = []
     if from_address:
-        filter_parts.append(f"contains(sender/emailAddress/address,'{from_address}')")
+        params["from/emailAddress"] = from_address
+    if to_address:
+        recipient_query = " OR ".join(
+            ["toRecipients/emailAddress:" + a for a in to_address]
+        )
+        params["toRecipients/emailAddress"] = recipient_query
     if subject:
-        filter_parts.append(f"contains(subject,'{subject}')")
+        params["subject"] = subject
     if body:
-        filter_parts.append(f"contains(body/content,'{body}')")
+        params["body"] = body
     if keywords:
-        keyword_query = " or ".join(
-            [
-                (
-                    f"contains(subject, '{keyword}')"
-                    if i % 2 == 0
-                    else f"contains(body/content, '{keyword}')"
-                )
-                for i, keyword in enumerate(keywords)
-            ]
+        keyword_query = " OR ".join(keywords)
+        params["body"] = (
+            keyword_query
+            if not params.get("body")
+            else params["body"] + " OR " + keyword_query
         )
-        filter_parts.append(f"({keyword_query})")
-
-    filter_expression = "(" + " or ".join(filter_parts) + ")" if filter_parts else ""
-
-    filter_parts = []
     if date_from:
-        iso_date_from = (
-            datetime.datetime.strptime(date_from, "%m/%d/%Y").isoformat() + "Z"
-        )
-        filter_parts.append(f"(receivedDateTime ge {iso_date_from})")
+        params["receivedDateTime"] = "gt" + date_from + "T00:00:00Z"
+    if filenames:
+        ...
+        # TODO: first retrieve emails + filenames and then check with a for loop
 
-    if filter_parts:
-        if filter_expression:
-            filter_expression += " and " + " and ".join(filter_parts)
-        else:
-            filter_expression = " and ".join(filter_parts)
-
-        print("\n\nDEBUG filter_expression: ", filter_expression, "\n\n")
-
-    params = {"$top": max_results, "$count": "true"}
-    if filter_expression:
-        params.update({"$filter": filter_expression})
+    print("DEBUG:", params)
 
     def run_request(graph_endpoint):
         try:

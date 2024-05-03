@@ -35,7 +35,7 @@ class EmailReadUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Email
-        fields = ("read",)  # Update the 'read' field only
+        fields = ("read",)
 
 
 class EmailReplyLaterUpdateSerializer(serializers.ModelSerializer):
@@ -43,7 +43,7 @@ class EmailReplyLaterUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Email
-        fields = ("answer_later",)  # Update the 'reply later' field only
+        fields = ("answer_later",)
 
 
 class EmailCorrectionSerializer(serializers.Serializer):
@@ -144,7 +144,7 @@ class RuleSerializer(serializers.ModelSerializer):
 class RuleBlockUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rule
-        fields = ("block",)  # We only want the block field
+        fields = ("block",)
 
 
 class SenderSerializer(serializers.ModelSerializer):
@@ -217,4 +217,4 @@ class BulletPointSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BulletPoint
-        fields = "__all__"  # Retrieve all fields of BulletPoints
+        fields = "__all__"

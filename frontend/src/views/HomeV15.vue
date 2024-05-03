@@ -5,6 +5,54 @@
         <Loading class=""></Loading>
     </div>
     <div v-else>
+        <!-- Modal for Warning Category (rules linked) -->
+        <transition name="modal-fade">
+            <div @click.self="closeWarningCategoryModal"
+                class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+                v-if="isModalWarningCategoryOpen">
+                <div class="bg-white rounded-lg relative w-[450px]">
+                    <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
+                        <button @click="closeWarningCategoryModal" type="button"
+                            class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            <span class="sr-only">Close</span>
+                            <XMarkIcon class="h-6 w-6" aria-hidden="true" />
+                        </button>
+                    </div>
+                    <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
+                        <div class="ml-8 flex items-center space-x-1">
+                            <p class="block font-semibold leading-6 text-gray-900">Suppression de: {{
+                                categoryToUpdate.name }}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-4 px-8 py-6">
+                        <div>
+                            <div class="flex space-x-1 items-center">
+                                <label class="block text-sm font-medium leading-6 text-gray-900">
+                                    Vous avez {{ nbRulesAssociated }} règle<span v-if="nbRulesAssociated > 1">s</span>
+                                    liée<span v-if="nbRulesAssociated > 1">s</span> à cette catégorie.
+                                    La suppression de la catégorie entraînera également la suppression de toutes les
+                                    règles associées
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
+                            <button type="button"
+                                class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
+                                @click="closeWarningCategoryModal">Annuler</button>
+                            <button type="button"
+                                class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
+                                @click="deleteCategory(categoryToUpdate.name)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg>Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
         <!--
     <div class="pb-1 lg:pl-20 bg-gray-100">
         <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
@@ -1422,9 +1470,12 @@ bgColor = localStorage.getItem('bgColor');
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
 let initialAnimationDone = ref(false);
+let isModalWarningCategoryOpen = ref(false)
+let nbRulesAssociated = ref(null);
 const happy_icon = ref(require('@/assets/happy.png'));
 
 onMounted(async () => {
+    document.addEventListener("keydown", handleKeyDown);
     getBackgroundColor();
 
     // Wait for fetchData completion
@@ -1458,6 +1509,12 @@ onMounted(async () => {
         }
     }, 5000);
 });
+
+function handleKeyDown(event) {
+    if (event.key === 'Escape' && isModalWarningCategoryOpen.value) {
+        closeWarningCategoryModal();
+    }
+}
 
 function getNumberUnreadMail(emailData) {
     let totalUnread = 0;
@@ -1557,6 +1614,9 @@ function toggleTooltip() {
 }
 
 async function markEmailAsUnread(emailId) {
+        
+    updateEmailUnreadStatus(emailId);
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-unread/`, {
             method: 'POST',
@@ -1565,9 +1625,7 @@ async function markEmailAsUnread(emailId) {
             }
         });
 
-        if (response.read == false) {
-            updateEmailUnreadStatus(emailId);
-        } else {
+        if (response.read != false) {
             console.log("RESPONSE markEmailAsUnread", response);
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Échec de marquage de l\'email comme non lu';
@@ -1583,6 +1641,9 @@ async function markEmailAsUnread(emailId) {
     }
 }
 async function markEmailAsRead(emailId) {
+
+    updateEmailReadStatus(emailId);
+
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-read/`, {
             method: 'POST',
@@ -1591,9 +1652,7 @@ async function markEmailAsRead(emailId) {
             }
         });
 
-        if (response.read) {
-            updateEmailReadStatus(emailId);
-        } else {
+        if (response.read != true) {
             console.log("RESPONSE", response);
             backgroundColor = 'bg-red-300';
             notificationTitle = 'Échec de marquage de l\'email comme lu';
@@ -1843,20 +1902,24 @@ function updateModalStatus(status) {
 function openModal() {
     isModalOpen.value = true;
 }
-
 function closeModal() {
     isModalOpen.value = false;
 }
-
 function openUpdateModal(category) {
     //console.log("CATEGORY TO UPDATE : ", category);
     oldCategoryName.value = category.name;
     categoryToUpdate.value = category;
     isModalUpdateOpen.value = true;
 }
-
 function closeUpdateModal() {
     isModalUpdateOpen.value = false;
+}
+function openWarningCategoryModal(nb_rules) {
+    isModalWarningCategoryOpen.value = true;
+    nbRulesAssociated.value = nb_rules;
+}
+function closeWarningCategoryModal() {
+    isModalWarningCategoryOpen.value = false;
 }
 
 async function handleAddCategory(categoryData) {
@@ -1992,6 +2055,36 @@ async function handleCategoryDelete(categoryNameToDelete) {
     }
 
     try {
+        const url = `${API_BASE_URL}api/get_rules_linked/${categoryNameToDelete}/`;
+
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        };
+
+        const response = await fetchWithToken(url, options);
+
+        if (response.nb_rules > 0) {
+            closeUpdateModal();
+            openWarningCategoryModal(response.nb_rules);
+        } else {
+            deleteCategory(categoryNameToDelete);
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur lors de get_rules_linked';
+        notificationMessage = error.message;
+        displayPopup();
+
+        closeUpdateModal();
+    }
+}
+
+async function deleteCategory(categoryNameToDelete) {
+    try {
         const url = `${API_BASE_URL}api/delete_category/${categoryNameToDelete}/`;
 
         const options = {
@@ -2010,15 +2103,12 @@ async function handleCategoryDelete(categoryNameToDelete) {
             notificationMessage = 'Votre catégorie a été supprimée';
             displayPopup();
 
-            closeUpdateModal();
             // Fetch the categories
             const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
-            console.log("CategoryData", categoryData);
             categories.value = categoryData.map(category => ({
                 name: category.name,
                 description: category.description
             }));
-            console.log("Assigned categories:", categories.value);
         }
     } catch (error) {
         // Show the pop-up
@@ -2026,9 +2116,9 @@ async function handleCategoryDelete(categoryNameToDelete) {
         notificationTitle = 'Erreur lors de la suppression de la catégorie';
         notificationMessage = error.message;
         displayPopup();
-
-        closeUpdateModal();
     }
+    closeUpdateModal();
+    closeWarningCategoryModal();
 }
 
 function readEmailsInSelectedTopic() {
@@ -2199,6 +2289,7 @@ async function fetchData() {
 
 <script>
 import ShowNotification from '../components/ShowNotification.vue';
+import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';

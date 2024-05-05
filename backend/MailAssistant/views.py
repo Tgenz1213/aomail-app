@@ -596,10 +596,6 @@ def update_category(request, current_name):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    existing_category = Category.objects.filter(
-        user=request.user, name=current_name
-    ).exists()
-
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:

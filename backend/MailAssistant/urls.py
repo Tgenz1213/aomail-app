@@ -4,6 +4,7 @@ Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 
 from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.controllers import ai_conversations as ai_conv
 from . import views
 
 
@@ -80,6 +81,18 @@ urlpatterns = [
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
     path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
+
+
+
+
+
+    #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
+    path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # dev
+
+
+
+
+
     #----------------------- TESTING URLs -----------------------#
     # path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
     # path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing

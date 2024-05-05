@@ -3,21 +3,28 @@ Handles conversations with prompt engineering for user/AI interaction.
 """
 
 import json
-import claude
+from django.contrib.auth.models import User
 from langchain.memory import ChatMessageHistory
-from constants import HUMAN, ASSISTANT
+from MailAssistant.ai_providers import claude
+from MailAssistant.constants import HUMAN, ASSISTANT
 
 
 class EmailReplyConversation:
     """Handles the conversation with the AI to reply to an email."""
 
-    def __init__(self, user, importance: str, subject: str, body: str) -> None:
+    def __init__(
+        self,
+        user: User,
+        importance: str,
+        subject: str,
+        body: str,
+        history: ChatMessageHistory,
+    ) -> None:
         self.user = user
         self.subject = subject
         self.importance = importance.lower()
         self.body = body
-        self.history = ChatMessageHistory()
-        self.history.add_ai_message("Does this answer satisfy you?")
+        self.history = history
 
     def update_history(self, user_input: str, new_body: str) -> None:
         """Updates the conversation history and the current email body response."""
@@ -46,7 +53,6 @@ class EmailReplyConversation:
         ---
         The answer must include all new changes and match the same HTML format.
         {ASSISTANT}"""
-        # TODO: use the model chosen by the user in its settings
         response = claude.get_prompt_response(template)
         body = response.content[0].text.strip()
 
@@ -59,7 +65,7 @@ class GenerateEmailConversation:
     """Handles the conversation with the AI to generate an email."""
 
     def __init__(
-        self, user, length: str, formality: str, subject: str, body: str
+        self, user: User, length: str, formality: str, subject: str, body: str
     ) -> None:
         self.user = user
         self.subject = subject

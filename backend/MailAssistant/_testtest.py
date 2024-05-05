@@ -89,11 +89,12 @@ class GenerateEmailConversation:
 
 
 # N'hésitez pas à fournir un brouillon de l'email que vous souhaitez rédiger
-# => we get subject_text, email_body (use basic claude prompt eng ✅)
 
-
+# user input:
 # pose une question à m.crochet en lui demandant c quoi le gpa et commen conv avec notre sys europe de credits ects
 # + a quoi corrspondrai 14/20 de moyenne enterme de range gpa
+
+# => we get subject_text, email_body (use basic claude prompt eng ✅)
 
 length = "brief"
 formality = "formal"
@@ -106,7 +107,7 @@ user_input = "Non, cela ne me plaît pa. stp enlève la formul de politess email
 
 
 gen_email_conv = GenerateEmailConversation("augustin", length, formality, subject, body)
-print(gen_email_conv.history)
+print(gen_email_conv.history.dict())
 subject_text, email_body = gen_email_conv.improve_draft(user_input)
 
 # ON GARDE c'est 2 fonctions là (pas besoin d'implémenter dans la classe)

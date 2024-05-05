@@ -73,6 +73,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "MailAssistant",
+    "MailAssistant.ai_providers",
+    "MailAssistant.controllers",
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt",

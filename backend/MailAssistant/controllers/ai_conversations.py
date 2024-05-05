@@ -32,7 +32,7 @@ def dict_to_chat_history(data: dict) -> ChatMessageHistory:
         data (dict): A dictionary containing chat history data
 
     Returns:
-    ChatMessageHistory: A ChatMessageHistory object representing the chat history.
+        ChatMessageHistory: A ChatMessageHistory object representing the chat history.
     """
     messages = []
     if not data.get("messages", []):

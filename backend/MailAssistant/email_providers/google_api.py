@@ -466,6 +466,7 @@ def get_mail(services, int_mail=None, id_mail=None):
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
         decoded_data = library.html_clear(decoded_data_temp)
 
+    print(decoded_data)
     preprocessed_data = library.preprocess_email(decoded_data)
 
     return (

@@ -204,27 +204,30 @@ def process_part(part, plaintext_var):
 
 
 def preprocess_email(email_content):
-    """Removes common greetings and sign-offs from the email content."""
-    greetings = ["Bonjour", "Hello", "Hi", "Dear", "Salut"]
-    sign_offs = [
-        "Regards",
-        "Sincerely",
-        "Best regards",
-        "Cordially",
-        "Yours truly",
-        "Cordialement",
-        "Bien à vous",
-    ]
+    """Removes links from the email content."""
+    # """Removes common greetings, sign-offs and links from the email content."""
+    # greetings = ["Bonjour", "Hello", "Hi", "Dear", "Salut"]
+    # sign_offs = [
+    #     "Regards",
+    #     "Sincerely",
+    #     "Best regards",
+    #     "Cordially",
+    #     "Yours truly",
+    #     "Cordialement",
+    #     "Bien à vous",
+    # ]
 
-    greeting_pattern = r"^\s*(" + "|".join(greetings) + r").*\n"
-    sign_off_pattern = r"\n\s*(" + "|".join(sign_offs) + r").*$"
+    # greeting_pattern = r"^\s*(" + "|".join(greetings) + r").*\n"
+    # sign_off_pattern = r"\n\s*(" + "|".join(sign_offs) + r").*$"
 
-    email_content = re.sub(
-        greeting_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE
-    )
-    email_content = re.sub(
-        sign_off_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE
-    )
+    # email_content = re.sub(
+    #     greeting_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE
+    # )
+    # email_content = re.sub(
+    #     sign_off_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE
+    # )
+    email_content = re.sub(r"<http(.*?)>", "", email_content)
+    email_content = re.sub(r"http(.*?)\ ", "", email_content)
 
     return email_content.strip()
 

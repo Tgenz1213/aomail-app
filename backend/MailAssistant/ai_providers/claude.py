@@ -304,8 +304,7 @@ def generate_email_response(
 
     ---
     Answer must be above HTML without spaces
-    {ASSISTANT}
-    """
+    {ASSISTANT}"""
     response = get_prompt_response(template)
     body = response.content[0].text.strip()
 
@@ -472,8 +471,7 @@ def categorize_and_summarize_email(
             "News": Percentage for News 
         }}
     }}
-    {ASSISTANT}
-    """
+    {ASSISTANT}"""
     response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
 
@@ -535,8 +533,7 @@ def search_emails(query: str, language: str = "French") -> dict:
             "spams": boolean
         }}
     }}
-    {ASSISTANT}
-    """
+    {ASSISTANT}"""
     response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
 
@@ -545,6 +542,34 @@ def search_emails(query: str, language: str = "French") -> dict:
     queries_dict = json.loads(clear_response)
 
     return queries_dict
+
+
+def summarize_conversation(body: str, language: str = "French") -> dict:
+    """Summarizes an email conversation in the specified language."""
+
+    template = f"""{HUMAN}As a smart email assistant, 
+    For each email in the following conversation, summarize it in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the past conversation.
+    Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
+    The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
+    
+    Email conversation:
+    {body}
+    
+    ---
+    Answer must always be a Json format matching this template:
+    {{
+        "1": [list of keypoints],
+        "2": [list of keypoints],
+        "n": [list of keypoints]
+    }}
+    {ASSISTANT}"""
+    response = get_prompt_response(template)
+    clear_response = response.content[0].text.strip()
+    result_json = json.loads(clear_response)
+
+    print(f"{Fore.GREEN}{result_json}")
+
+    return result_json
 
 
 '''# TODO: OLD - delete after implementing new solution

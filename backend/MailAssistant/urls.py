@@ -87,7 +87,7 @@ urlpatterns = [
 
 
     #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
-    path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # dev
+    path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # ok
 
 
 

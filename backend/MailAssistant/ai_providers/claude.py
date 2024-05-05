@@ -156,34 +156,6 @@ def improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-'''# TODO: OLD - delete after implementing new solution
-def new_mail_recommendation(
-    mail_content, email_subject, user_recommendation, language="FRENCH"
-):
-    """Enhance email subject and body based on user guideline"""
-
-    template = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
-    
-    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
-
-    subject: {email_subject},
-    body: {mail_content}
-    {ASSISTANT}"""
-    response = get_prompt_response(template)
-    clear_text = response.content[0].text.strip()
-
-    # TODO: handle when the response is not a json format with an algorithm
-    result_json = json.loads(clear_text)
-    subject_text = result_json["subject"]
-    email_body = result_json["body"]
-
-    print(f"{Fore.CYAN}NEW EMAIL RECOMMENDATION:")
-    print(f"{Fore.GREEN}Subject: {subject_text}")
-    print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
-
-    return subject_text, email_body'''
-
-
 """ OLD Ask Theo Before Delete"""
 
 
@@ -322,9 +294,12 @@ def generate_email_response(
 ) -> str:
     """Generates an email response based on the given response type"""
 
-    template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
-    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
-    2. Here is a template to follow, with placeholders for the dynamic content:
+    template = f"""{HUMAN}As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
+    Craft a response strictly in {language} following the user instruction: '{user_instruction}'.
+    0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
+    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
+    2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
+    3. Here is a template to follow, with placeholders for the dynamic content:
     <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
 
     ---
@@ -570,3 +545,31 @@ def search_emails(query: str, language: str = "French") -> dict:
     queries_dict = json.loads(clear_response)
 
     return queries_dict
+
+
+'''# TODO: OLD - delete after implementing new solution
+def new_mail_recommendation(
+    mail_content, email_subject, user_recommendation, language="FRENCH"
+):
+    """Enhance email subject and body based on user guideline"""
+
+    template = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
+    
+    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
+
+    subject: {email_subject},
+    body: {mail_content}
+    {ASSISTANT}"""
+    response = get_prompt_response(template)
+    clear_text = response.content[0].text.strip()
+
+    # TODO: handle when the response is not a json format with an algorithm
+    result_json = json.loads(clear_text)
+    subject_text = result_json["subject"]
+    email_body = result_json["body"]
+
+    print(f"{Fore.CYAN}NEW EMAIL RECOMMENDATION:")
+    print(f"{Fore.GREEN}Subject: {subject_text}")
+    print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
+
+    return subject_text, email_body'''

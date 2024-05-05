@@ -773,7 +773,7 @@ async function handleAIClick() {
           });
           hideLoading();
           console.log('Generated Email Response:', result);
-          
+
           mail.value = result.email_body;
           history.value = result.history;
           const formattedMail = result.email_body.replace(/\n/g, '<br>');

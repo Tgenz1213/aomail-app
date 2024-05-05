@@ -12,7 +12,7 @@ from django.core.mail import send_mail
 from langchain.memory import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
 from django.template.loader import render_to_string
-from backend.MailAssistant.constants import (
+from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
     EMAIL_NO_REPLY,
     MAX_RETRIES,
@@ -83,7 +83,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
         try:
             new_body_response = email_reply_conv.improve_email_response(user_input)
             return Response(
-                {"body": new_body_response, "history": email_reply_conv.history},
+                {"body": new_body_response, "history": email_reply_conv.history.dict()},
                 status=200,
             )
         except Exception as e:

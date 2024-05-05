@@ -87,6 +87,7 @@ import json
 import anthropic
 from langchain.memory import ChatMessageHistory
 from colorama import Fore, init
+import re
 
 ######################## Claude 3 API SETTINGS ########################
 init(autoreset=True)
@@ -139,7 +140,6 @@ def summarize_conversation(body: str, language: str = "French") -> dict:
     return result_json
 
 
-import re
 
 email_prompt = re.sub(r"<http(.*?)>", "", email_prompt)
 email_prompt = re.sub(r"http(.*?)\ ", "", email_prompt)

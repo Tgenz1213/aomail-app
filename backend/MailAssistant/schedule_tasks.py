@@ -1,5 +1,7 @@
 """
 File handling schedule tasks ran in django settings
+
+NOT WORKING NOR TESTED
 """
 
 from django.core.management.base import BaseCommand

@@ -62,7 +62,10 @@ urlpatterns = [
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
-    #path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
+
+    # TODO: OLD - delete after implementing new solution
+    path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
+
     path('api/improve_email_writing/', views.improve_email_writing, name='improve_email_writing'), # ok
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'), # ok
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'), # ok
@@ -88,6 +91,7 @@ urlpatterns = [
 
     #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
     path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # ok
+    path('api/improve_draft/', ai_conv.improve_draft, name='improve_draft'), # dev
 
 
 

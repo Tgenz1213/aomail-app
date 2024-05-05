@@ -7,7 +7,10 @@ from django.http import HttpRequest
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from MailAssistant.ai_providers.ai_memory import EmailReplyConversation
+from MailAssistant.ai_providers.ai_memory import (
+    EmailReplyConversation,
+    GenerateEmailConversation,
+)
 from django.core.mail import send_mail
 from langchain.memory import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
@@ -93,8 +96,13 @@ def get_new_email_response(request: HttpRequest) -> Response:
             LOGGER.critical(
                 f"[Attempt n°{i+1}] failed to generate a new body response: {str(e)}"
             )
-            context = {"attempt_number": i, "error": str(e), "user": user}
-            email_html = render_to_string("ai_failed_gen_body_resp.html", context)
+            context = {
+                "attempt_number": i,
+                "error": str(e),
+                "user": user,
+                "title": "Critical Alert: Failed to generate a new body response with AI.",
+            }
+            email_html = render_to_string("ai_failed_conv.html", context)
             send_mail(
                 subject="Critical Alert: Failed to generate a new body response",
                 message="",
@@ -107,6 +115,72 @@ def get_new_email_response(request: HttpRequest) -> Response:
     return Response(
         {
             "error": "The generation of a new email response body failed 3 times in a row. Our team is on his way to fix it."
+        },
+        status=500,
+    )
+
+
+def improve_draft(request: HttpRequest) -> Response:
+    """
+    Improves the draft email response based on user input, email length, formality, subject, body, and chat history.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object containing the following parameters in the POST data:
+            - userInput (str): User input to refine the email draft.
+            - length (str): Length of the email (short, medium, long).
+            - formality (str): Formality level of the email (casual, formal).
+            - subject (str): Subject of the email draft.
+            - body (str): Current body of the email draft.
+            - history (dict): Dictionary representing the chat history.
+
+    Returns:
+        Response: A response object containing the updated subject, email body, and chat history, or an error message if the draft generation fails.
+    """
+    user = request.user
+    user_input: str = request.data["userInput"]
+    length: str = request.data["length"]
+    formality: str = request.data["formality"]
+    subject: str = request.data["subject"]
+    body: str = request.data["body"]
+    history: dict = request.data["history"]
+
+    chat_history = dict_to_chat_history(history)
+    gen_email_conv = GenerateEmailConversation(
+        user, length, formality, subject, body, chat_history
+    )
+
+    for i in range(MAX_RETRIES):
+        try:
+            new_subject, new_body = gen_email_conv.improve_draft(user_input)
+            return Response(
+                {
+                    "subject": new_subject,
+                    "email_body": new_body,
+                    "history": gen_email_conv.history.dict(),
+                },
+                status=200,
+            )
+        except Exception as e:
+            LOGGER.critical(f"[Attempt n°{i+1}] Failed to generate a draft: {str(e)}")
+            context = {
+                "attempt_number": i,
+                "error": str(e),
+                "user": user,
+                "title": "Critical Alert: Failed to generate a draft.",
+            }
+            email_html = render_to_string("ai_failed_conv.html", context)
+            send_mail(
+                subject="Critical Alert: Failed to generate a draft",
+                message="",
+                recipient_list=ADMIN_EMAIL_LIST,
+                from_email=EMAIL_NO_REPLY,
+                html_message=email_html,
+                fail_silently=False,
+            )
+
+    return Response(
+        {
+            "error": "The generation of a draft failed 3 times in a row. Our team is on his way to fix it."
         },
         status=500,
     )

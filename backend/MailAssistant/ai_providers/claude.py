@@ -156,7 +156,7 @@ def improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-# TODO: OLD - delete after implementing new solution
+'''# TODO: OLD - delete after implementing new solution
 def new_mail_recommendation(
     mail_content, email_subject, user_recommendation, language="FRENCH"
 ):
@@ -181,7 +181,7 @@ def new_mail_recommendation(
     print(f"{Fore.GREEN}Subject: {subject_text}")
     print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
 
-    return subject_text, email_body
+    return subject_text, email_body'''
 
 
 """ OLD Ask Theo Before Delete"""

@@ -827,7 +827,7 @@ def new_email_ai(request):
         return Response(serializer.errors, status=400)
 
 
-@api_view(["POST"])
+'''@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def new_email_recommendations(request):
     serializer = EmailAIRecommendationsSerializer(data=request.data)
@@ -846,7 +846,7 @@ def new_email_recommendations(request):
         LOGGER.error(
             f"Serializer errors in new_email_recommendations: {serializer.errors}"
         )
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=400)'''
 
 
 @api_view(["POST"])

@@ -35,7 +35,7 @@ def dict_to_chat_history(data: dict) -> ChatMessageHistory:
     ChatMessageHistory: A ChatMessageHistory object representing the chat history.
     """
     messages = []
-    if not data["messages"]:
+    if not data.get("messages", []):
         chat_history = ChatMessageHistory()
         chat_history.add_ai_message("Does this answer satisfy you?")
         return chat_history
@@ -82,8 +82,10 @@ def get_new_email_response(request: HttpRequest) -> Response:
     for i in range(MAX_RETRIES):
         try:
             new_body_response = email_reply_conv.improve_email_response(user_input)
+            print("WE HAVE GENERATED A RESPONSE AI CONVERSAIONT SUCCESFULLY")
+            print(email_reply_conv.history.dict())
             return Response(
-                {"body": new_body_response, "history": email_reply_conv.history.dict()},
+                {"email_body": new_body_response, "history": email_reply_conv.history.dict()},
                 status=200,
             )
         except Exception as e:

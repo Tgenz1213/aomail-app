@@ -826,27 +826,6 @@ def new_email_ai(request):
         LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
-# TODO: OLD - delete after implementing new solution
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def new_email_recommendations(request):
-    serializer = EmailAIRecommendationsSerializer(data=request.data)
-
-    if serializer.is_valid():
-        mail_content = serializer.validated_data["mail_content"]
-        user_recommendation = serializer.validated_data["user_recommendation"]
-        email_subject = serializer.validated_data["email_subject"]
-
-        subject_text, email_body = claude.new_mail_recommendation(
-            mail_content, email_subject, user_recommendation
-        )
-
-        return Response({"subject": subject_text, "email_body": email_body})
-    else:
-        LOGGER.error(
-            f"Serializer errors in new_email_recommendations: {serializer.errors}"
-        )
-        return Response(serializer.errors, status=400)
 
 
 @api_view(["POST"])
@@ -2855,3 +2834,27 @@ def get_first_email(request):
         return Response({"email": email}, status=200)
     else:
         return Response({"error": "No emails associated with the user"}, status=404)'''
+
+
+
+'''# TODO: OLD - delete after implementing new solution
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def new_email_recommendations(request):
+    serializer = EmailAIRecommendationsSerializer(data=request.data)
+
+    if serializer.is_valid():
+        mail_content = serializer.validated_data["mail_content"]
+        user_recommendation = serializer.validated_data["user_recommendation"]
+        email_subject = serializer.validated_data["email_subject"]
+
+        subject_text, email_body = claude.new_mail_recommendation(
+            mail_content, email_subject, user_recommendation
+        )
+
+        return Response({"subject": subject_text, "email_body": email_body})
+    else:
+        LOGGER.error(
+            f"Serializer errors in new_email_recommendations: {serializer.errors}"
+        )
+        return Response(serializer.errors, status=400)'''

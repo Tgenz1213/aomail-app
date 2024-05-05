@@ -572,7 +572,7 @@ def summarize_conversation(body: str, language: str = "French") -> dict:
     return result_json
 
 
-# TODO: OLD - delete after implementing new solution
+'''# TODO: OLD - delete after implementing new solution
 def new_mail_recommendation(
     mail_content, email_subject, user_recommendation, language="FRENCH"
 ):
@@ -598,3 +598,4 @@ def new_mail_recommendation(
     print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
 
     return subject_text, email_body
+'''

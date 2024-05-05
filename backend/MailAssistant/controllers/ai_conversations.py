@@ -120,6 +120,8 @@ def get_new_email_response(request: HttpRequest) -> Response:
     )
 
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def improve_draft(request: HttpRequest) -> Response:
     """
     Improves the draft email response based on user input, email length, formality, subject, body, and chat history.

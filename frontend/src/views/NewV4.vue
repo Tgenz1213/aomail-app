@@ -339,6 +339,8 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
 
+let history = ref({});
+
 const items = [
     { name: 'Envoyer à une heure', href: '#' },
 ]
@@ -738,7 +740,7 @@ async function handleAIClick() {
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />`
                             await displayMessage(message, ai_icon);*/
 
-                            
+
                             const messageHTML = `
                                 <div class="flex pb-2">
                                     <div class="mr-4 flex">
@@ -952,17 +954,22 @@ async function handleAIClick() {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            mail_content: mail.value,
-                            user_recommendation: textareaValueSave.value,
-                            email_subject: inputValue.value,
+                            userInput: textareaValueSave.value,
+                            length: lengthValue.value,
+                            formality: formalityValue.value,
+                            subject: inputValue.value,
+                            body: mail.value,
+                            history: history.value
                         }),
                     };
 
-                    const result = await fetchWithToken(`${API_BASE_URL}api/new_email_recommendations/`, requestOptions);
+                    const result = await fetchWithToken(`${API_BASE_URL}api/improve_draft/`, requestOptions);
+                    console.log(result);
 
                     hideLoading();
                     subject.value = result.subject;
                     mail.value = result.email_body;
+                    history.value = result.history;
                     console.log(result);
                     if (result.subject && result.email_body) {
                         // TO FINISH => animation
@@ -1626,7 +1633,6 @@ function askContentAdvice() {
     const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
     counter_display += 1;
     animateText(message, animatedParagraph);
-
 }
 
 // To display the button for one choice of the recipier for the user
@@ -1895,17 +1901,22 @@ async function WriteBetter() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                email_body: mailInput.value,
-                email_subject: inputValue.value,
+                userInput: textareaValueSave.value,
+                length: lengthValue.value,
+                formality: formalityValue.value,
+                subject: inputValue.value,
+                body: mail.value,
+                history: history.value
             }),
         };
 
-        const result = await fetchWithToken(`${API_BASE_URL}api/improve_email_writing/`, requestOptions);
+        const result = await fetchWithToken(`${API_BASE_URL}api/improve_draft/`, requestOptions);
 
         hideLoading();
         console.log(result);
         subject.value = result.subject;
-        mail.value = result.body;
+        mail.value = result.email_body;
+        history.value = result.history;
         if (result.subject && result.email_body) {
             // TO FINISH => animation
             const messageHTML = `

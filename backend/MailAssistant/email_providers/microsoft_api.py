@@ -156,7 +156,7 @@ def is_token_valid(access_token):
     return response.status_code == 200
 
 
-def refresh_access_token(social_api):
+def refresh_access_token(social_api:SocialAPI):
     """Returns a valid access token"""
     access_token = social_api.access_token
 

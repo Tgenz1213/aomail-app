@@ -462,14 +462,11 @@ def forward_request(request: HttpRequest, api_method):
     """Forwards the request to the appropriate API method based on type_api"""
     user = request.user
     email = request.POST.get("email")
+    if email is None:
+        email = request.headers.get("email")
 
     try:
-        # TODO: check if we assign a default email / last used email
-        if email is None:
-            social_api = SocialAPI.objects.filter(user=user).first()
-            email = social_api.email
-        else:
-            social_api = get_object_or_404(SocialAPI, user=user, email=email)
+        social_api = get_object_or_404(SocialAPI, user=user, email=email)
         type_api = social_api.type_api
     except SocialAPI.DoesNotExist:
         LOGGER.error(

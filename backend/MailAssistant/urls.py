@@ -63,8 +63,6 @@ urlpatterns = [
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
-
-
     path('api/improve_email_writing/', views.improve_email_writing, name='improve_email_writing'), # ok
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'), # ok
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'), # ok

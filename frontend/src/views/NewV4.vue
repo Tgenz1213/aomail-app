@@ -112,7 +112,7 @@
                                             <div class="flex-grow">
                                                 <div class="relative items-stretch">
                                                     <div class="relative w-full">
-                                                        <select v-model="emailSelected"
+                                                        <select v-model="emailSelected" @change="setEmailSelected"
                                                             class="block w-full px-4 py-2 mt-1 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                                             <option value="" disabled selected>TODO: add icons ggle &
                                                                 msft Sélectionnez l'email</option>
@@ -473,6 +473,21 @@ const hasValueEverBeenEntered = ref(false);
 
 let emailsLinked = ref(null);
 let emailSelected = ref('');
+emailSelected.value = localStorage.getItem("email");
+
+if (!emailSelected.value) {
+    fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
+        .then(response => {
+            emailSelected.value = response.email;
+            localStorage.setItem("email", emailSelected.value);
+        })
+        .catch(error => {
+            backgroundColor = 'bg-red-300';
+            notificationTitle.value = 'Erreur récupération du 1er email';
+            notificationMessage.value = error;
+            displayPopup();
+        });
+}
 
 fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions)
     .then(response => {
@@ -485,7 +500,9 @@ fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions)
         displayPopup();
     });
 
-
+function setEmailSelected() {
+    localStorage.setItem("email", emailSelected.value);
+}
 function dismissPopup() {
     showNotification.value = false;
     // Cancel the timer
@@ -703,7 +720,8 @@ async function handleAIClick() {
     const requestOptions = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'email': emailSelected.value
         },
     };
 

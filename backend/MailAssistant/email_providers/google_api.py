@@ -816,12 +816,7 @@ def get_unique_senders(services) -> dict:
 def get_profile_image(request: HttpRequest):
     """Returns the profile image of the user"""
     user = request.user
-
-    # TODO: check if we assign a default email / last used email
-    email = request.POST.get("email")
-    if email is None:
-        email = SocialAPI.objects.filter(user=user).first().email
-
+    email = request.headers.get("email")
     service = authenticate_service(user, email)["people"]
 
     try:

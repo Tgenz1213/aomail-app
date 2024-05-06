@@ -258,10 +258,7 @@ def get_unique_senders(access_token) -> dict:
 def get_profile_image(request: HttpRequest):
     """Returns the profile image URL of the user"""
     user = request.user
-    # TODO: check if we assign a default email / last used email
-    email = request.POST.get("email")
-    if email is None:
-        email = SocialAPI.objects.filter(user=user).first().email
+    email = request.headers.get("email")
     access_token = refresh_access_token(get_social_api(user, email))
 
     try:

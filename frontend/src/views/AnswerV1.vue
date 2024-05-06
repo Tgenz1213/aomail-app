@@ -333,7 +333,6 @@ let timerId = ref(null);
 let emailAnswered = ref(false);
 let history = ref({});
 
-
 function dismissPopup() {
   showNotification.value = false;
   // Cancel the timer
@@ -417,6 +416,24 @@ const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
 const quill = ref(null);
+
+
+let emailSelected = ref('');
+emailSelected.value = localStorage.getItem("email");
+
+if (!emailSelected.value) {
+  fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
+    .then(response => {
+      emailSelected.value = response.email;
+      localStorage.setItem("email", emailSelected.value);
+    })
+    .catch(error => {
+      backgroundColor = 'bg-red-300';
+      notificationTitle.value = 'Erreur récupération du 1er email';
+      notificationMessage.value = error;
+      displayPopup();
+    });
+}
 
 // function linked to ENTER key listeners
 function handleBlur2(event) {
@@ -718,7 +735,8 @@ async function handleAIClick() {
   const requestOptions = {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'email': emailSelected.value
     },
   };
 
@@ -1399,6 +1417,7 @@ async function sendEmail() {
   if (selectedCCI.value.length > 0) {
     selectedCCI.value.forEach(person => formData.append('cci', person.email));
   }
+  formData.append('email', emailSelected.value);
 
   try {
     const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {

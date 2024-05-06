@@ -457,13 +457,14 @@ def get_profile_image(request):
 def send_email(request):
     return forward_request(request._request, "send_email")
 
+
 def forward_request(request: HttpRequest, api_method):
     """Forwards the request to the appropriate API method based on type_api"""
-    user = request.user    
-    email = request.POST.get("email")   
+    user = request.user
+    email = request.POST.get("email")
 
     try:
-        #TODO: check if we assign a default email / last used email 
+        # TODO: check if we assign a default email / last used email
         if email is None:
             social_api = SocialAPI.objects.filter(user=user).first()
             email = social_api.email
@@ -489,7 +490,6 @@ def forward_request(request: HttpRequest, api_method):
         return api_function(request)
     else:
         return JsonResponse({"error": "Unsupported API type or method"}, status=400)
-
 
 
 ######################## AUTHENTICATION API ########################
@@ -814,7 +814,6 @@ def new_email_ai(request):
     else:
         LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
         return Response(serializer.errors, status=400)
-
 
 
 @api_view(["POST"])
@@ -1230,6 +1229,14 @@ def update_user_rule(request):
 
 
 # ----------------------- USER -----------------------#
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_first_email(request: HttpRequest):
+    """Returns the first email of the user account."""
+    email = SocialAPI.objects.filter(user=request.user).first().email
+    return Response({"email": email}, status=200)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def check_sender_for_user(request):
@@ -2825,8 +2832,7 @@ def get_first_email(request):
         return Response({"error": "No emails associated with the user"}, status=404)'''
 
 
-
-'''# TODO: OLD - delete after implementing new solution
+"""# TODO: OLD - delete after implementing new solution
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def new_email_recommendations(request):
@@ -2846,4 +2852,4 @@ def new_email_recommendations(request):
         LOGGER.error(
             f"Serializer errors in new_email_recommendations: {serializer.errors}"
         )
-        return Response(serializer.errors, status=400)'''
+        return Response(serializer.errors, status=400)"""

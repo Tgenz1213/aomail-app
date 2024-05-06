@@ -324,6 +324,22 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
         displayPopup();
     });
 
+let emailSelected = ref('');
+emailSelected.value = localStorage.getItem("email");
+
+if (!emailSelected.value) {
+    fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
+        .then(response => {
+            emailSelected.value = response.email;
+            localStorage.setItem("email", emailSelected.value);
+        })
+        .catch(error => {
+            backgroundColor = 'bg-red-300';
+            notificationTitle.value = 'Erreur récupération du 1er email';
+            notificationMessage.value = error;
+            displayPopup();
+        });
+}
 
 const selectedPeople = ref([]);
 const selectedCC = ref([]);
@@ -564,7 +580,8 @@ async function handleAIClick() {
     const requestOptions = {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'email': emailSelected.value
         },
     };
 
@@ -1066,6 +1083,7 @@ async function sendEmail() {
     if (selectedCCI.value.length > 0) {
         selectedCCI.value.forEach(person => formData.append('cci', person.email));
     }
+    formData.append('email', emailSelected.value);
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {

@@ -783,12 +783,11 @@ def get_mail(access_token, int_mail=None, id_mail=None):
             break
 
     decoded_data = parse_message_body(message_data)
-    preprocessed_data = library.preprocess_email(decoded_data)
 
     return (
         subject,
         from_info,
-        preprocessed_data,
+        decoded_data,
         cc_info,
         bcc_info,
         email_id,
@@ -1183,7 +1182,6 @@ def email_to_db(user, email, id_email):
         if not decoded_data:
             return False
 
-        decoded_data = library.format_mail(decoded_data)
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
         rules = Rule.objects.filter(sender=sender)

@@ -465,13 +465,10 @@ def get_mail(services, int_mail=None, id_mail=None):
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
         decoded_data = library.html_clear(decoded_data_temp)
 
-    print(decoded_data)
-    preprocessed_data = library.preprocess_email(decoded_data)
-
     return (
         subject,
         from_info,
-        preprocessed_data,
+        decoded_data,
         cc_info,
         bcc_info,
         email_id,
@@ -1024,7 +1021,6 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         if not decoded_data:
             return False
 
-        decoded_data = library.format_mail(decoded_data)
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
         rules = Rule.objects.filter(sender=sender)

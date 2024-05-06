@@ -120,16 +120,26 @@ def save_contacts(user, email, all_recipients):
 
 
 ######################## EMAIL DATA PROCESSING ########################
-def html_clear(text):
+
+
+def get_db_categories(current_user) -> dict[str, str]:
+    """Retrieves categories specific to the given user from the database."""
+    categories = Category.objects.filter(user=current_user)
+    category_list = {category.name: category.description for category in categories}
+
+    return category_list
+
+
+def html_clear(text: str) -> str:
     """Uses BeautifulSoup to clear HTML tags from the given text."""
     soup = BeautifulSoup(text, "html.parser")
     text = soup.get_text("\n")
     return text
 
 
-def get_text_from_mail(mime_type, part, decoded_data_temp):
+def get_text_from_mail(mime_type: str, part: dict, decoded_data_temp: bytes) -> bytes:
     """If the MIME type is correct, extracts text from the email body."""
-    data = part["body"]["data"]
+    data: str = part["body"]["data"]
     data = data.replace("-", "+").replace("_", "/")
     decoded_data_temp = base64.b64decode(data)
     if mime_type == "text/html":
@@ -137,7 +147,7 @@ def get_text_from_mail(mime_type, part, decoded_data_temp):
     return decoded_data_temp
 
 
-def contains_html(text):
+def contains_html(text: str | bytes) -> bool:
     """Returns True if the given text contains HTML, False otherwise."""
     if isinstance(text, bytes):
         text = text.decode("utf-8", "ignore")
@@ -149,7 +159,7 @@ def contains_html(text):
     return False
 
 
-def concat_text(text_final, text):
+def concat_text(text_final: str | None, text: str | bytes) -> str:
     """Checks the type of new text added and adjusts it if necessary before concatenating it to the final text."""
     if text_final:
         if type(text) == bytes:
@@ -166,7 +176,7 @@ def concat_text(text_final, text):
     return text_final
 
 
-def process_part(part, plaintext_var):
+def process_part(part: dict, plaintext_var: list) -> str | None:
     """Processes each part of an email, extracts the email body, and handles multipart emails."""
     mime_type = part["mimeType"]
     decoded_data = None
@@ -203,38 +213,12 @@ def process_part(part, plaintext_var):
     return decoded_data
 
 
-def preprocess_email(email_content):
-    """Removes links from the email content."""
-    # """Removes common greetings, sign-offs and links from the email content."""
-    # greetings = ["Bonjour", "Hello", "Hi", "Dear", "Salut"]
-    # sign_offs = [
-    #     "Regards",
-    #     "Sincerely",
-    #     "Best regards",
-    #     "Cordially",
-    #     "Yours truly",
-    #     "Cordialement",
-    #     "Bien à vous",
-    # ]
-
-    # greeting_pattern = r"^\s*(" + "|".join(greetings) + r").*\n"
-    # sign_off_pattern = r"\n\s*(" + "|".join(sign_offs) + r").*$"
-
-    # email_content = re.sub(
-    #     greeting_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE
-    # )
-    # email_content = re.sub(
-    #     sign_off_pattern, "", email_content, flags=re.IGNORECASE | re.MULTILINE
-    # )
-    email_content = re.sub(r"<http(.*?)>", "", email_content)
-    email_content = re.sub(r"http(.*?)\ ", "", email_content)
-
-    return email_content.strip()
-
-
 def count_corrections(
-    original_subject, original_body, corrected_subject, corrected_body
-):
+    original_subject: str,
+    original_body: str,
+    corrected_subject: str,
+    corrected_body: str,
+) -> int:
     """Count and compare corrections in original and corrected texts"""
 
     # Splitting the original and corrected texts into words
@@ -263,29 +247,30 @@ def count_corrections(
     return total_corrections
 
 
+def preprocess_email(email_content: str) -> str:
+    """Removes links from the email content and strips text of unnecessary spacings"""
+    # Remove links enclosed in <http...> or http... followed by a space
+    email_content = re.sub(r"<http(.*?)>", "", email_content)
+    email_content = re.sub(r"http(.*?)\ ", "", email_content)
+    # Delete patterns like "[image: ...]"
+    email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)
+    # Convert Windows line endings to Unix line endings
+    email_content = email_content.replace("\r\n", "\n")
+    # Remove spaces at the start and end of each line
+    email_content = "\n".join(line.strip() for line in email_content.split("\n"))
+    # Delete multiple spaces
+    email_content = re.sub(r" +", " ", email_content)
+    # Reduce multiple consecutive newlines to two newlines
+    email_content = re.sub(r"\n{3,}", "\n\n", email_content)
+
+    return email_content.strip()
+
+
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
 
-
-# strips text of unnecessary spacings
-def format_mail(text):
-    # Delete links
-    text = re.sub(r"<http[^>]+>", "", text)
-    # Delete patterns like "[image: ...]"
-    text = re.sub(r"\[image:[^\]]+\]", "", text)
-    # Convert Windows line endings to Unix line endings
-    text = text.replace("\r\n", "\n")
-    # Remove spaces at the start and end of each line
-    text = "\n".join(line.strip() for line in text.split("\n"))
-    # Delete multiple spaces
-    text = re.sub(r" +", " ", text)
-    # Reduce multiple consecutive newlines to two newlines
-    text = re.sub(r"\n{3,}", "\n\n", text)
-
-    return text
-
-
+"""
 def fill_lists(categories, percentages):
     base_categories = ["Important", "Information", "Useless"]
 
@@ -302,19 +287,10 @@ def fill_lists(categories, percentages):
             percentages[i] = "0%"
 
     return categories, percentages
+"""
 
 
-def get_db_categories(current_user):
-    # Query categories specific to the current user from the database.
-    categories = Category.objects.filter(user=current_user)
-
-    # Construct the category_list dictionary from the queried data.
-    category_list = {category.name: category.description for category in categories}
-
-    return category_list
-
-
-def separate_name_email(s):
+'''def separate_name_email(s):
     """
     Separate "Name <email>" or "<email>" into name and email.
 
@@ -331,4 +307,4 @@ def separate_name_email(s):
         name, email = match.groups()
         return name.strip() if name else None, email
     else:
-        return None, None
+        return None, None'''

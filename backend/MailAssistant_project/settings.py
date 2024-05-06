@@ -219,7 +219,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
-# TODO: check if it works
+# TODO: add a scheduled task that deletes all emails to no reply every day
 """CRONJOBS = [
     (
         "0 3 * * *",

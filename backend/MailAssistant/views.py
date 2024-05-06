@@ -179,6 +179,19 @@ def signup(request):
     # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
+        context = {
+            "title": "Votre compte Aomail a été créé avec succès",
+        }
+        email_html = render_to_string("account_created.html", context)
+        result = send_mail(
+            subject="[Aomail] Votre compte a été créé avec succès",
+            message="",
+            recipient_list=[email],
+            from_email=EMAIL_NO_REPLY,
+            html_message=email_html,
+            fail_silently=False,
+        )
+        
         return Response(
             {
                 "user_id": user_id,

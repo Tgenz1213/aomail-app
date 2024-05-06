@@ -156,7 +156,7 @@ def is_token_valid(access_token):
     return response.status_code == 200
 
 
-def refresh_access_token(social_api:SocialAPI):
+def refresh_access_token(social_api: SocialAPI):
     """Returns a valid access token"""
     access_token = social_api.access_token
 
@@ -1063,18 +1063,20 @@ class MicrosoftEmailNotification(View):
 
                     def process_email():
                         for i in range(MAX_RETRIES):
-                            if email_to_db(
+                            result = email_to_db(
                                 subscription.first().user,
                                 subscription.first().email,
                                 email_id,
-                            ):
+                            )
+                            if result:
                                 break
                             else:
                                 LOGGER.critical(
                                     f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
                                 )
                                 context = {
-                                    "attempt_number": i,
+                                    "error": result,
+                                    "attempt_number": i + 1,
                                     "email_id": email_id,
                                     "email_provider": MICROSOFT_PROVIDER,
                                     "user": subscription.first().user,
@@ -1271,8 +1273,7 @@ def email_to_db(user, email, id_email):
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
-            return False
-    return False
+            return str(e)
 
 
 ####################################################################

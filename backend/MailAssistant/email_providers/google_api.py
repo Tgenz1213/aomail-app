@@ -930,27 +930,31 @@ def receive_mail_notifications(request):
 
             def process_email():
                 for i in range(MAX_RETRIES):
-                    if email_to_db(social_api.user, services, social_api, email_id):
+                    result = email_to_db(
+                        social_api.user, services, social_api, email_id
+                    )
+                    if result:
                         break
                     else:
                         LOGGER.critical(
                             f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
                         )
                         context = {
-                            "attempt_number": i,
+                            "error": result,
+                            "attempt_number": i + 1,
                             "email_id": email_id,
                             "email_provider": GOOGLE_PROVIDER,
                             "user": social_api.user,
                         }
                         email_html = render_to_string("ai_failed_email.html", context)
-                        send_mail(
-                            subject="Critical Alert: Email Processing Failure",
-                            message="",
-                            recipient_list=ADMIN_EMAIL_LIST,
-                            from_email=EMAIL_NO_REPLY,
-                            html_message=email_html,
-                            fail_silently=False,
-                        )
+                        # send_mail(
+                        #     subject="Critical Alert: Email Processing Failure",
+                        #     message="",
+                        #     recipient_list=ADMIN_EMAIL_LIST,
+                        #     from_email=EMAIL_NO_REPLY,
+                        #     html_message=email_html,
+                        #     fail_silently=False,
+                        # )
 
             threading.Thread(target=process_email).start()
 
@@ -1128,7 +1132,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
-            return False
+            return str(e)
 
 
 """

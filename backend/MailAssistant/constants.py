@@ -2,6 +2,7 @@
 File that stores all constants and computed paths
 """
 
+import base64
 import json
 import os
 
@@ -26,7 +27,7 @@ CORS_ALLOWED_ORIGINS = [DOMAIN]
 # ----------------------- EMAIL CREDS -----------------------#
 EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))
 EMAIL_NO_REPLY = EMAILS_CREDS["email"]
-EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["password"]
+EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 ADMIN_EMAIL_LIST = EMAILS_CREDS["email_admins"]
 
 

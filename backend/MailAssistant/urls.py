@@ -70,6 +70,9 @@ urlpatterns = [
     path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
     path('api/generate_email_answer/', views.generate_email_answer, name='generate_email_answer'), # ok
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
+    #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
+    path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # ok
+    path('api/improve_draft/', ai_conv.improve_draft, name='improve_draft'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('microsoft/auth_url_link_email/', microsoft_api.auth_url_link_email, name='microsoft_auth_url_link_email'), # ok
@@ -85,10 +88,6 @@ urlpatterns = [
 
 
 
-
-    #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
-    path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # ok
-    path('api/improve_draft/', ai_conv.improve_draft, name='improve_draft'), # ok
 
 
 

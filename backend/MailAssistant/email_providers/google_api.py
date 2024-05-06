@@ -9,6 +9,7 @@ import re
 import threading
 import time
 import json
+from django.http import HttpRequest
 import requests
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -202,15 +203,13 @@ def authenticate_service(user, email) -> dict:
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def send_email(request):
+def send_email(request: HttpRequest):
     """Sends an email using the Gmail API."""
 
     try:
         user = request.user
-        # email = request.headers.get("email")
-        email = request.META["email"]
+        email = request.POST.get("email")
         service = authenticate_service(user, email)["gmail"]
-        # serializer = EmailDataSerializer(data=request.data)
         serializer = EmailDataSerializer(data=request.POST)
 
         if serializer.is_valid():
@@ -817,11 +816,15 @@ def get_unique_senders(services) -> dict:
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def get_profile_image(request):
+def get_profile_image(request: HttpRequest):
     """Returns the profile image of the user"""
     user = request.user
-    # email = request.headers.get("email")
-    email = request.META["email"]
+
+    # TODO: check if we assign a default email / last used email
+    email = request.POST.get("email")
+    if email is None:
+        email = SocialAPI.objects.filter(user=user).first().email
+
     service = authenticate_service(user, email)["people"]
 
     try:

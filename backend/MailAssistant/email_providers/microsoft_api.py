@@ -13,7 +13,7 @@ from collections import defaultdict
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlencode
 from rest_framework.response import Response
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from rest_framework.views import View
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
@@ -255,11 +255,13 @@ def get_unique_senders(access_token) -> dict:
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def get_profile_image(request):
+def get_profile_image(request: HttpRequest):
     """Returns the profile image URL of the user"""
     user = request.user
-    # email = request.headers.get("email")
-    email = request.META["email"]
+    # TODO: check if we assign a default email / last used email
+    email = request.POST.get("email")
+    if email is None:
+        email = SocialAPI.objects.filter(user=user).first().email
     access_token = refresh_access_token(get_social_api(user, email))
 
     try:
@@ -329,14 +331,12 @@ def get_email(access_token):
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def send_email(request):
+def send_email(request: HttpRequest):
     """Sends an email using the Microsoft Graph API."""
 
     user = request.user
-    # email = request.headers.get("email")
-    email = request.META["email"]
+    email = request.POST.get("email")
     access_token = refresh_access_token(get_social_api(user, email))
-    # serializer = EmailDataSerializer(data=request.data)
     serializer = EmailDataSerializer(data=request.POST)
 
     if serializer.is_valid():

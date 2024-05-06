@@ -457,27 +457,18 @@ def get_profile_image(request):
 def send_email(request):
     return forward_request(request._request, "send_email")
 
-
-def forward_request(request, api_method):
-    """Forwards the request to the appropriate API method based on type_api with email header"""
-    user = request.user
-    # TODO: email in headers with the choice to choose in front-end
-    # email = request.headers.get("email")
-    email = SocialAPI.objects.filter(user=user).first().email
-
-    # Copy of the request with the email header
-    new_request = HttpRequest()
-    new_request.method = request.method
-    new_request.GET = request.GET.copy()
-    new_request.POST = request.POST.copy()
-    new_request.FILES = request.FILES.copy()
-    new_request.COOKIES = request.COOKIES.copy()
-    new_request.META = request.META.copy()
-    new_request.META["email"] = email
+def forward_request(request: HttpRequest, api_method):
+    """Forwards the request to the appropriate API method based on type_api"""
+    user = request.user    
+    email = request.POST.get("email")   
 
     try:
-        # social_api = get_object_or_404(SocialAPI, user=user, email=email)
-        social_api = SocialAPI.objects.filter(user=user).first()
+        #TODO: check if we assign a default email / last used email 
+        if email is None:
+            social_api = SocialAPI.objects.filter(user=user).first()
+            email = social_api.email
+        else:
+            social_api = get_object_or_404(SocialAPI, user=user, email=email)
         type_api = social_api.type_api
     except SocialAPI.DoesNotExist:
         LOGGER.error(
@@ -494,13 +485,11 @@ def forward_request(request, api_method):
         api_module = microsoft_api
 
     if api_module and hasattr(api_module, api_method):
-        # Call the specified API method dynamically
         api_function = getattr(api_module, api_method)
-        # Forward the request and return the response
-        # return api_function(request)
-        return api_function(new_request)
+        return api_function(request)
     else:
         return JsonResponse({"error": "Unsupported API type or method"}, status=400)
+
 
 
 ######################## AUTHENTICATION API ########################

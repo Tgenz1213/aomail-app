@@ -382,14 +382,9 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
         elif name == "from":
             from_info = parse_name_and_email(values["value"])
         elif name == "date":
-            a = values["value"]
-            print(f"DEBUG format date default: {a}")
-            sent_date = parsedate_to_datetime(values["value"])
-            print(
-                f"DEBUG after formating (that results in a django DB warn): {sent_date}"
-            )
-            sent_date = sent_date.astimezone(datetime.timezone.utc)
-            print(f"DEBUG after trying to fix: {sent_date}")
+            sent_date = datetime.datetime.strptime(
+                values["value"], "%a, %d %b %Y %H:%M:%S %z"
+            ).strftime("%Y-%m-%d %H:%M:%S%z")
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:

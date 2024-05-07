@@ -191,7 +191,7 @@ def signup(request):
             html_message=email_html,
             fail_silently=False,
         )
-        
+
         return Response(
             {
                 "user_id": user_id,
@@ -1074,6 +1074,13 @@ def delete_account(request):
 
 
 def unsubscribe_listeners(user, email=None):
+    social_apis = SocialAPI.objects.filter(user=user)
+    if social_apis.exists():
+        for social_api in social_apis:
+            if social_api.type_api == "google":
+                # TODO: add 3 attempts + critical emails if it fails
+                google_api.unsubscribe_from_email_notifications(user, social_api.email)
+
     if email:
         microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
     else:

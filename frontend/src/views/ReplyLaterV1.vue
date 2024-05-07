@@ -748,7 +748,7 @@ import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { API_BASE_URL } from '@/main';
 import {
-  ChatBubbleOvalLeftEllipsisIcon,
+  //ChatBubbleOvalLeftEllipsisIcon,
   TrashIcon,
   ArrowUturnLeftIcon,
   EllipsisHorizontalIcon,
@@ -759,7 +759,7 @@ import {
 
 export default {
   components: {
-    ChatBubbleOvalLeftEllipsisIcon,
+    //ChatBubbleOvalLeftEllipsisIcon,
     Navbar,
     Navbar2,
     MenuItem,

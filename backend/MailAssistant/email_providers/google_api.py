@@ -382,7 +382,14 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
         elif name == "from":
             from_info = parse_name_and_email(values["value"])
         elif name == "date":
+            a = values["value"]
+            print(f"DEBUG format date default: {a}")
             sent_date = parsedate_to_datetime(values["value"])
+            print(
+                f"DEBUG after formating (that results in a django DB warn): {sent_date}"
+            )
+            sent_date = sent_date.astimezone(datetime.timezone.utc)
+            print(f"DEBUG after trying to fix: {sent_date}")
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -905,6 +912,35 @@ def subscribe_to_email_notifications(user, email) -> bool:
         LOGGER.error(
             f"An error occurred while subscribing to email notifications: {str(e)}"
         )
+        return False
+
+
+def unsubscribe_from_email_notifications(user, email) -> bool:
+    """Unsubscribe the user from email notifications for a specific topic in Google."""
+
+    try:
+        credentials = get_credentials(user, email)
+        service = build("pubsub", "v1", credentials=credentials)
+        subscription_name = f"projects/{GOOGLE_PROJECT_ID}/subscriptions/{user}-{email}"
+
+        response = (
+            service.projects()
+            .subscriptions()
+            .delete(subscription=subscription_name)
+            .execute()
+        )
+
+        if "deleted" in response:
+            LOGGER.info(
+                f"Successfully unsubscribed {user} ({email}) from notifications for topic: {GOOGLE_TOPIC_NAME}"
+            )
+            return True
+        else:
+            LOGGER.error(f"Failed to unsubscribe {user} ({email}) from notifications")
+            return False
+
+    except Exception as e:
+        LOGGER.error(f"An error occurred while unsubscribing: {str(e)}")
         return False
 
 

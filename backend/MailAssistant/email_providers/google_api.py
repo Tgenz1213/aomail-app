@@ -1040,38 +1040,10 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        # TODO: add API key to avoid error 403
-        # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
-        # authenticate_service(social_api.user, email)
-        # social_api = SocialAPI.objects.get(email=email)
-        # headers = {"Authorization": f"Bearer {social_api.access_token}"}
-        # print(f"\n\n\ncreds: {social_api.access_token}\n\n\n")
-        # response = requests.post(ack_url, json=ack_payload, headers=headers)
-
-        # Sending the reception message to Google to confirm the email reception
-        subscription_path = envelope["subscription"]
-        ack_id = message_data["messageId"]
-        ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
-        ack_payload = {"ackIds": [ack_id]}
-
-        response = requests.post(ack_url, json=ack_payload)
-
-        if response.status_code == 200:
-            LOGGER.info("Acknowledgement sent successfully")
-
-        elif response.status_code == 403:
-            LOGGER.info(
-                "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"
-            )
-        else:
-            LOGGER.info("DEBUG RESPONSE====================>", response.json())
-            LOGGER.error(
-                f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}"
-            )
-
         return Response(status=200)
 
     except IntegrityError:
+        LOGGER.error(f"Email already exist in database: {email_id}")
         return Response(status=200)
 
     except Exception as e:
@@ -1860,3 +1832,95 @@ def search_emails_manually(
     except Exception as e:
         LOGGER.error(f"Failed to search emails: {str(e)}")
         return []'''
+
+
+'''@api_view(["POST"])
+@permission_classes([AllowAny])
+def receive_mail_notifications(request):
+    """Process email notifications from Google listener"""
+
+    try:
+        print("!!! [GOOGLE] EMAIL RECEIVED !!!")
+        envelope = json.loads(request.body.decode("utf-8"))
+        message_data = envelope["message"]
+
+        decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
+        decoded_json = json.loads(decoded_data)
+        attributes = message_data.get("attributes", {})
+        email_id = attributes.get("emailId")
+        email = decoded_json.get("emailAddress")
+
+        try:
+            social_api = SocialAPI.objects.get(email=email)
+            services = authenticate_service(social_api.user, email)
+
+            def process_email():
+                for i in range(MAX_RETRIES):
+                    result = email_to_db(
+                        social_api.user, services, social_api, email_id
+                    )
+                    if result:
+                        break
+                    else:
+                        LOGGER.critical(
+                            f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                        )
+                        context = {
+                            "error": result,
+                            "attempt_number": i + 1,
+                            "email_id": email_id,
+                            "email_provider": GOOGLE_PROVIDER,
+                            "user": social_api.user,
+                        }
+                        email_html = render_to_string("ai_failed_email.html", context)
+                        # send_mail(
+                        #     subject="Critical Alert: Email Processing Failure",
+                        #     message="",
+                        #     recipient_list=ADMIN_EMAIL_LIST,
+                        #     from_email=EMAIL_NO_REPLY,
+                        #     html_message=email_html,
+                        #     fail_silently=False,
+                        # )
+
+            threading.Thread(target=process_email).start()
+
+        except SocialAPI.DoesNotExist:
+            LOGGER.error(f"SocialAPI entry not found for the email: {email}")
+
+        # TODO: add API key to avoid error 403
+        # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
+        # authenticate_service(social_api.user, email)
+        # social_api = SocialAPI.objects.get(email=email)
+        # headers = {"Authorization": f"Bearer {social_api.access_token}"}
+        # print(f"\n\n\ncreds: {social_api.access_token}\n\n\n")
+        # response = requests.post(ack_url, json=ack_payload, headers=headers)
+
+        # Sending the reception message to Google to confirm the email reception
+        subscription_path = envelope["subscription"]
+        ack_id = message_data["messageId"]
+        ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
+        ack_payload = {"ackIds": [ack_id]}
+
+        response = requests.post(ack_url, json=ack_payload)
+
+        if response.status_code == 200:
+            LOGGER.info("Acknowledgement sent successfully")
+
+        elif response.status_code == 403:
+            LOGGER.info(
+                "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"
+            )
+        else:
+            LOGGER.info("DEBUG RESPONSE====================>", response.json())
+            LOGGER.error(
+                f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}"
+            )
+
+        return Response(status=200)
+
+    except IntegrityError:
+        return Response(status=200)
+
+    except Exception as e:
+        LOGGER.error(f"Error processing the notification: {str(e)}")
+        return Response({"error": str(e)}, status=500)'''

@@ -1065,7 +1065,7 @@ def delete_account(request):
 
     try:
         unsubscribe_listeners(user)
-        #user.delete()
+        user.delete()
         return Response({"message": "User successfully deleted"}, status=200)
 
     except Exception as e:
@@ -1078,8 +1078,31 @@ def unsubscribe_listeners(user, email=None):
     if social_apis.exists():
         for social_api in social_apis:
             if social_api.type_api == "google":
-                # TODO: add 3 attempts + critical emails if it fails
-                google_api.unsubscribe_from_email_notifications(user, social_api.email)
+                for i in range(MAX_RETRIES):
+                    if google_api.unsubscribe_from_email_notifications(
+                        user, social_api.email
+                    ):
+                        break
+                    else:
+                        LOGGER.critical(
+                            f"[Attempt n°{i+1}] Failed to unsubscribe from Google: {social_api.email}"
+                        )
+                    context = {
+                        "title": "Critical Alert: Google Unsubscription Failure",
+                        "attempt_number": i + 1,
+                        "subscription_id": social_api.email,
+                        "email_provider": GOOGLE_PROVIDER,
+                        "user": user,
+                    }
+                    email_html = render_to_string("unsubscribe_failure.html", context)
+                    send_mail(
+                        subject="Critical Alert: Microsoft Unsubscription Failure",
+                        message="",
+                        recipient_list=ADMIN_EMAIL_LIST,
+                        from_email=EMAIL_NO_REPLY,
+                        html_message=email_html,
+                        fail_silently=False,
+                    )
 
     if email:
         microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
@@ -1098,7 +1121,8 @@ def unsubscribe_listeners(user, email=None):
                         f"[Attempt n°{i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
                     )
                     context = {
-                        "attempt_number": i,
+                        "title": "Critical Alert: Microsoft Unsubscription Failure",
+                        "attempt_number": i + 1,
                         "subscription_id": listener.subscription_id,
                         "email_provider": MICROSOFT_PROVIDER,
                         "user": user,
@@ -1486,7 +1510,7 @@ def search_emails(request):
     max_results: int = data["max_results"]
     query: str = data["query"]
     file_extensions: list = data["file_extensions"]
-    advanced:bool = data["advanced"]
+    advanced: bool = data["advanced"]
     from_addresses: list = data["from_addresses"]
     to_addresses: list = data["to_addresses"]
     subject: str = data["subject"]

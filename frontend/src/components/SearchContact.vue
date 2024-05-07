@@ -45,7 +45,7 @@
 
 <script setup>
 import ShowNotification from '../components/ShowNotification.vue';
-import { computed, ref } from 'vue'
+import { computed, ref,provide } from 'vue'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
@@ -57,13 +57,15 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue'
 
-const contacts = [];
+
 let showNotification = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
 
+
+const contacts = [];
 const query = ref('')
 const selectedPerson = ref(null)
 const selectedRecipients = ref([])
@@ -109,15 +111,4 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     displayPopup();
   });
 
-function dismissPopup() {
-  showNotification = false;
-  clearTimeout(timerId);
-}
-
-function displayPopup() {
-  showNotification = true;
-  timerId = setTimeout(() => {
-    dismissPopup();
-  }, 4000);
-}
 </script>

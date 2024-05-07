@@ -483,8 +483,8 @@ def search_emails_ai(
     services: dict[str, build],
     max_results: int = 100,
     filenames: list = None,
-    from_address: str = None,
-    to_address: list = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
     subject: str = None,
     body: str = None,
     keywords: list = None,
@@ -495,10 +495,11 @@ def search_emails_ai(
 
     query_parts = []
 
-    if from_address:
-        query_parts.append(f"(from:{from_address})")
-    if to_address:
-        to_query = " OR ".join([f"to:{address}" for address in to_address])
+    if from_addresses:
+        from_query = " OR ".join([f"from:{address}" for address in from_addresses])
+        query_parts.append(f"({from_query})")
+    if to_addresses:
+        to_query = " OR ".join([f"to:{address}" for address in to_addresses])
         query_parts.append(f"({to_query})")
     if subject:
         query_parts.append(f"(subject:{subject})")
@@ -545,34 +546,78 @@ def search_emails_ai(
 
 
 def search_emails_manually(
-    services, search_query, max_results, file_extensions: list = None
-):
+    services: dict,
+    search_query: str,
+    max_results: int,
+    file_extensions: list,
+    advanced: bool = False,
+    search_in: dict = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
+    subject: str = None,
+    body: str = None,
+    date_from: str = None,
+) -> list:
     """Searches for emails matching the query."""
 
-    query_parts = [
-        f"(from:{search_query})",
-        f"(to:{search_query})",
-        f"(subject:{search_query})",
-        f"(body:{search_query})",
-        f"(filename:{search_query})",
-    ]
-    query = " OR ".join(query_parts)
-
-    if file_extensions:
-        file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
-        query += f" AND ({file_query})"
-
-    print(query)
+    def search(query: str):
+        try:
+            results: dict = (
+                service.users()
+                .messages()
+                .list(userId="me", q=query, maxResults=max_results)
+                .execute()
+            )
+            
+            if results.get("resultSizeEstimate") == 0:
+                return []
+            return results.get("messages", [])
+        except Exception as e:
+            LOGGER.error(f"Failed to search emails: {str(e)}")
+            return []
 
     try:
         service = services["gmail"]
-        results = (
-            service.users()
-            .messages()
-            .list(userId="me", q=query, maxResults=max_results)
-            .execute()
-        )
-        messages = results.get("messages", [])
+
+        if advanced:
+            query_parts = []
+            if from_addresses:
+                from_query = " OR ".join(
+                    [f"from:{address}" for address in from_addresses]
+                )
+                query_parts.append(f"({from_query})")
+            if to_addresses:
+                to_query = " OR ".join([f"to:{address}" for address in to_addresses])
+                query_parts.append(f"({to_query})")
+            if subject:
+                query_parts.append(f"(subject:{subject})")
+            if body:
+                query_parts.append(f"(body:{body})")
+            if date_from:
+                query_parts.append(f"(after:{date_from})")
+            if search_in:
+                search_in_query = " OR ".join(
+                    [f"in:{folder}" for folder in search_in if search_in[folder]]
+                )
+                query_parts.append(f"({search_in_query})")
+            if file_extensions:
+                file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+                query_parts.append(f" AND ({file_query})")
+
+            if query_parts:
+                query = " OR ".join(query_parts)
+                messages = search(query)
+
+        else:
+            query_parts = [
+                f"(from:{search_query})",
+                f"(to:{search_query})",
+                f"(subject:{search_query})",
+                f"(body:{search_query})",
+                f"(filename:{search_query})",
+            ]
+            query = " OR ".join(query_parts)
+            messages = search(query)
 
         return [message["id"] for message in messages]
 
@@ -1764,3 +1809,51 @@ def processed_email_to_db(request, services):
         web_link,
         attachments_data,
     )'''
+
+
+'''
+def search_emails_manually(
+    services: dict,
+    search_query: str,
+    max_results: int,
+    file_extensions: list = None,
+    search_in: dict = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
+    subject: str = None,
+    body: str = None,
+    keywords: list = None,
+    date_from: str = None,
+):
+    """Searches for emails matching the query."""
+
+    query_parts = [
+        f"(from:{search_query})",
+        f"(to:{search_query})",
+        f"(subject:{search_query})",
+        f"(body:{search_query})",
+        f"(filename:{search_query})",
+    ]
+    query = " OR ".join(query_parts)
+
+    if file_extensions:
+        file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+        query += f" AND ({file_query})"
+
+    print(query)
+
+    try:
+        service = services["gmail"]
+        results = (
+            service.users()
+            .messages()
+            .list(userId="me", q=query, maxResults=max_results)
+            .execute()
+        )
+        messages = results.get("messages", [])
+
+        return [message["id"] for message in messages]
+
+    except Exception as e:
+        LOGGER.error(f"Failed to search emails: {str(e)}")
+        return []'''

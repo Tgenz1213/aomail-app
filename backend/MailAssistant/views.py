@@ -1412,7 +1412,7 @@ def search_emails_ai(request):
     # TODO: check if max_results correspond to subscription !!!
 
     max_results: int = search_params["max_results"]
-    from_str: str = search_params["from"]
+    from_addresses: list = search_params["from"]
     to: list = search_params["to"]
     subject: str = search_params["subject"]
     body: str = search_params["body"]
@@ -1436,8 +1436,8 @@ def search_emails_ai(request):
                         services,
                         max_results=max_results,
                         filenames=filenames,
-                        from_address=from_str,
-                        to_address=to,
+                        from_addresses=from_addresses,
+                        to_addresses=to,
                         subject=subject,
                         body=body,
                         keywords=keywords,
@@ -1460,8 +1460,8 @@ def search_emails_ai(request):
                         access_token,
                         max_results=max_results,
                         filenames=filenames,
-                        from_address=from_str,
-                        to_address=to,
+                        from_addresses=from_addresses,
+                        to_addresses=to,
                         subject=subject,
                         body=body,
                         keywords=keywords,
@@ -1481,10 +1481,18 @@ def search_emails_ai(request):
 @permission_classes([IsAuthenticated])
 def search_emails(request):
     user = request.user
-    data = request.data
-    emails = data["emails"]
-    query = data["query"]
-    max_results = data["max_results"]
+    data: dict = request.data
+    emails: list = data["emails"]
+    max_results: int = data["max_results"]
+    query: str = data["query"]
+    file_extensions: list = data["file_extensions"]
+    advanced:bool = data["advanced"]
+    from_addresses: list = data["from_addresses"]
+    to_addresses: list = data["to_addresses"]
+    subject: str = data["subject"]
+    body: str = data["body"]
+    date_from: str = data["date_from"]
+    search_in: dict = data["search_in"]
 
     # TODO: check if max_results correspond to subscription !!!
 
@@ -1506,7 +1514,17 @@ def search_emails(request):
                     GOOGLE_PROVIDER,
                     email,
                     google_api.search_emails_manually(
-                        services, query, max_results, ["pdf", "png"]
+                        services,
+                        query,
+                        max_results,
+                        file_extensions,
+                        advanced,
+                        search_in,
+                        from_addresses,
+                        to_addresses,
+                        subject,
+                        body,
+                        date_from,
                     ),
                 )
             )

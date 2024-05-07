@@ -517,7 +517,7 @@ def search_emails(query: str, language: str = "French") -> dict:
     {{
         closeness_percentage: int,
         max_results: int - default 100,
-        from: "",
+        from: [],
         to: [],
         subject: "",
         body: "",

@@ -461,8 +461,8 @@ def search_emails_ai(
     access_token: str,
     max_results: int = 100,
     filenames: list = None,
-    from_address: str = None,
-    to_address: list = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
     subject: str = None,
     body: str = None,
     keywords: list = None,
@@ -475,11 +475,14 @@ def search_emails_ai(
     message_ids = []
     params = {"$top": max_results, "$select": "id", "$count": "true"}
 
-    if from_address:
-        params["from/emailAddress"] = from_address
-    if to_address:
+    if from_addresses:
+        from_query = " OR ".join(
+            ["from/emailAddress:" + from_address for from_address in from_addresses]
+        )
+        params["from/emailAddress"] = from_query
+    if to_addresses:
         recipient_query = " OR ".join(
-            ["toRecipients/emailAddress:" + a for a in to_address]
+            ["toRecipients/emailAddress:" + to_address for to_address in to_addresses]
         )
         params["toRecipients/emailAddress"] = recipient_query
     if subject:

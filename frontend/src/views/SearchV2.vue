@@ -1,4 +1,6 @@
 <template>
+  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
       <div class="col-span-1 2xl:col-span-1">
@@ -83,7 +85,51 @@
                         (optionnel)</label>
                     </div>
                     <div class="relative items-stretch mt-2">
-                      <search-contact></search-contact>
+                     
+                      
+                      <Combobox as="div" v-model="selectedPerson">
+      <ComboboxInput
+        class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+        @input="query = $event.target.value" :display-value="(person) => person?.username" />
+      <ComboboxButton class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+      </ComboboxButton>
+
+      <ComboboxOptions v-if="filteredPeople.length > 0"
+        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+        <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template" v-slot="{ active, selected }">
+          <li @click="toggleSelection(person)"
+            :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
+            <div class="flex">
+              <span :class="['truncate', selected && 'font-semibold']">
+                {{ person.username }}
+              </span>
+              <span :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
+                &lt;{{ person.email }}&gt;
+              </span>
+            </div>
+            <span v-if="selected"
+              :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
+              <CheckIcon class="h-5 w-5" aria-hidden="true" />
+            </span>
+          </li>
+        </ComboboxOption>
+      </ComboboxOptions>
+    </Combobox>
+
+    <div v-if="selectedRecipients.length > 0" class="mt-2 flex flex-wrap">
+      <span v-for="recipient in selectedRecipients" :key="recipient.email"
+        class="bg-gray-200 px-2 py-1.5 rounded-full text-sm font-semibold mr-2 mb-2">
+        {{ recipient.username }}
+        <button @click="removeRecipient(recipient)"
+          class="ml-1 text-red-600 focus:outline-none hover:text-red-800">&times;</button>
+      </span>
+    </div>
+
+
+
+
+
                     </div>
                   </div>
                   <div class="col-span-1 shadow-sm">
@@ -93,7 +139,52 @@
                         (optionnel)</label>
                     </div>
                     <div class="relative items-stretch mt-2">
-                      <search-type></search-type>
+                      
+<!-- TODO: a LIST of attachments choices -->
+                      <Listbox as="div" v-model="attachmentSelected">
+    <ListboxButton
+      class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6"
+    >
+      <span class="block truncate">{{ attachmentSelected ? attachmentSelected.name : 'Aucune' }}</span>
+      <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+      </span>
+    </ListboxButton>
+    <transition
+      leave-active-class="transition ease-in duration-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <ListboxOptions
+        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+      >
+        <ListboxOption
+          as="template"
+          v-for="type in attachmentTypes"
+          :key="type.extension"
+          :value="type"
+          v-slot="{ active, attachmentSelected }"
+        >
+          <li
+            :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']"
+          >
+            <span :class="[attachmentSelected ? 'font-semibold' : 'font-normal', 'block truncate']">
+              {{ type.name }} {{ type.extension }}
+            </span>
+            <span
+              v-if="attachmentSelected"
+              :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']"
+            >
+              <CheckIcon class="h-5 w-5" aria-hidden="true" />
+            </span>
+          </li>
+        </ListboxOption>
+      </ListboxOptions>
+    </transition>
+  </Listbox>
+
+
+
                     </div>
                   </div>
                 </div>
@@ -184,18 +275,29 @@
 </template>
 
 <script setup>
-import { onMounted, ref, nextTick } from 'vue';
+import { ref, provide, computed, inject, watch, nextTick, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
-import SearchContact from '../components/SearchContact.vue';
-import SearchType from '../components/SearchType.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import {
-  MagnifyingGlassIcon,
-  UserIcon,
-  AdjustmentsHorizontalIcon
-} from '@heroicons/vue/24/outline';
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from '@headlessui/vue';
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
+import { CheckIcon, ChevronUpDownIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
+
+
+let showNotification = ref(false);
+let notificationTitle = ref('');
+let notificationMessage = ref('');
+let backgroundColor = ref('');
+let timerId = ref(null);
+
+
 
 // Main variables
 const AIContainer = ref(null);
@@ -211,6 +313,79 @@ const scrollToBottom = async () => {
 let isAIWriting = ref(false);
 let searchResult = ref({});
 const textareaValue = ref('');
+
+
+const attachmentTypes = [
+  { extension: ".docx", name: "Word Document" },
+  { extension: ".xlsx", name: "Excel Spreadsheet" },
+  { extension: ".pptx", name: "PowerPoint Presentation" },
+  { extension: ".pdf", name: "PDF Document" },
+  { extension: ".jpg", name: "JPEG Image" },
+  { extension: ".png", name: "PNG Image" },
+  { extension: ".gif", name: "GIF Image" },
+  { extension: ".txt", name: "Text Document" },
+  { extension: ".zip", name: "ZIP Archive" },
+  { extension: ".mp3", name: "MP3 Audio" },
+  { extension: ".mp4", name: "MP4 Video" },
+  { extension: ".html", name: "HTML Document" },
+  { extension: null, name: "Aucune" },
+]
+
+const attachmentSelected = ref(null)
+
+
+
+
+
+const contacts = [];
+const queryGetContacts = ref('')
+const selectedPerson = ref(null)
+const selectedRecipients = ref([])
+
+const filteredPeople = computed(() =>
+queryGetContacts.value === ''
+    ? contacts
+    : contacts.filter((person) => {
+      return person.username.toLowerCase().includes(queryGetContacts.value.toLowerCase())
+    })
+)
+
+const toggleSelection = (person) => {
+  const index = selectedRecipients.value.findIndex((recipient) => recipient.email === person.email)
+  if (index === -1) {
+    selectedRecipients.value.push(person)
+  } else {
+    selectedRecipients.value.splice(index, 1)
+  }
+}
+
+const removeRecipient = (recipient) => {
+  const index = selectedRecipients.value.findIndex((r) => r.email === recipient.email)
+  if (index !== -1) {
+    selectedRecipients.value.splice(index, 1)
+  }
+}
+
+const requestOptions = {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+}
+fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
+  .then(response => {
+    contacts.push(...response);
+  })
+  .catch(error => {
+    backgroundColor = 'bg-red-300';
+    notificationTitle.value = 'Erreur récupération des contacts';
+    notificationMessage.value = error;
+    displayPopup();
+  });
+
+
+
+
 
 // Mounted lifecycle hook
 onMounted(async () => {
@@ -250,6 +425,11 @@ async function handleAIClick() {
 }
 
 async function searchEmails() {
+
+
+  console.log(selectedRecipients.value);
+  console.log(attachmentSelected.value);
+
   loading();
   scrollToBottom();
 
@@ -263,6 +443,14 @@ async function searchEmails() {
     },
     body: JSON.stringify({
       emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
+      from_addresses: [],
+      to_addresses: [],
+      subject: "",
+      body:"",
+      date_from: "",
+      file_extensions: ["pdf", "png"],
+      advanced: false,
+      search_in: {},
       query: query.value,
       max_results: 100
     }),
@@ -392,5 +580,20 @@ function hideLoading() {
   if (loadingElement) {
     loadingElement.remove();
   }
+}
+
+
+
+
+function dismissPopup() {
+  showNotification = false;
+  clearTimeout(timerId);
+}
+
+function displayPopup() {
+  showNotification = true;
+  timerId = setTimeout(() => {
+    dismissPopup();
+  }, 4000);
 }
 </script>

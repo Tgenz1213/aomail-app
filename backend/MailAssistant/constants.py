@@ -2,7 +2,6 @@
 File that stores all constants and computed paths
 """
 
-import base64
 import json
 import os
 
@@ -65,7 +64,6 @@ GOOGLE_PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile"
 GOOGLE_EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email"
 GOOGLE_EMAIL_MODIFY = "https://www.googleapis.com/auth/gmail.modify"
 GOOGLE_OPENID_SCOPE = "openid"
-#GOOGLE_PUBSUB_SCOPE = "https://www.googleapis.com/auth/pubsub"
 GOOGLE_OTHER_CONTACT_READONLY_SCOPE = (
     "https://www.googleapis.com/auth/contacts.other.readonly"
 )
@@ -77,7 +75,6 @@ GOOGLE_SCOPES = [
     GOOGLE_PROFILE_SCOPE,
     GOOGLE_EMAIL_SCOPE,
     GOOGLE_OPENID_SCOPE,
-    #GOOGLE_PUBSUB_SCOPE,
     GOOGLE_OTHER_CONTACT_READONLY_SCOPE,
     GOOGLE_EMAIL_MODIFY,
 ]

@@ -10,6 +10,7 @@ import threading
 import time
 import json
 from django.http import HttpRequest
+import httplib2
 import requests
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -568,7 +569,7 @@ def search_emails_manually(
                 .list(userId="me", q=query, maxResults=max_results)
                 .execute()
             )
-            
+
             if results.get("resultSizeEstimate") == 0:
                 return []
             return results.get("messages", [])
@@ -922,7 +923,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
     try:
         LOGGER.info(
-            f"Initiationg the subscription to Google listener for: {user} with email: {email}"
+            f"Initiating the subscription to Google listener for: {user} with email: {email}"
         )
         services = authenticate_service(user, email)
         if services is None:
@@ -956,27 +957,29 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
 
 def unsubscribe_from_email_notifications(user, email) -> bool:
-    """Unsubscribe the user from email notifications for a specific topic in Google."""
+    """Unsubscribe the user from all Gmail notifications."""
 
     try:
-        credentials = get_credentials(user, email)
-        service = build("pubsub", "v1", credentials=credentials)
-        subscription_name = f"projects/{GOOGLE_PROJECT_ID}/subscriptions/{user}-{email}"
+        services = authenticate_service(user, email)
+        if services is None:
+            LOGGER.error(
+                f"Failed to get service to unsubscribe {user} with email: {email}"
+            )
+            return False
 
-        response = (
-            service.projects()
-            .subscriptions()
-            .delete(subscription=subscription_name)
-            .execute()
-        )
+        service = services["gmail"]
 
-        if "deleted" in response:
+        response = service.users().stop(userId=email).execute()
+
+        if not response:
             LOGGER.info(
-                f"Successfully unsubscribed {user} ({email}) from notifications for topic: {GOOGLE_TOPIC_NAME}"
+                f"Successfully unsubscribed {user} ({email}) from all notifications."
             )
             return True
         else:
-            LOGGER.error(f"Failed to unsubscribe {user} ({email}) from notifications")
+            LOGGER.error(
+                f"Failed to unsubscribe {user} ({email}). Response: {response}"
+            )
             return False
 
     except Exception as e:

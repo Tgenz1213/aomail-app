@@ -183,14 +183,14 @@ def signup(request):
             "title": "Votre compte Aomail a été créé avec succès",
         }
         email_html = render_to_string("account_created.html", context)
-        result = send_mail(
-            subject="[Aomail] Votre compte a été créé avec succès",
-            message="",
-            recipient_list=[email],
-            from_email=EMAIL_NO_REPLY,
-            html_message=email_html,
-            fail_silently=False,
-        )
+        # send_mail(
+        #     subject="[Aomail] Votre compte a été créé avec succès",
+        #     message="",
+        #     recipient_list=[email],
+        #     from_email=EMAIL_NO_REPLY,
+        #     html_message=email_html,
+        #     fail_silently=False,
+        # )
 
         return Response(
             {
@@ -1065,7 +1065,7 @@ def delete_account(request):
 
     try:
         unsubscribe_listeners(user)
-        user.delete()
+        #user.delete()
         return Response({"message": "User successfully deleted"}, status=200)
 
     except Exception as e:

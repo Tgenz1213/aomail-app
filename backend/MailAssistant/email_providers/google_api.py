@@ -383,9 +383,14 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
         elif name == "from":
             from_info = parse_name_and_email(values["value"])
         elif name == "date":
+            unforamt = values["value"]
+            print(f"SENT DATE B4 format: {unforamt}")
+            test_sent_date = parsedate_to_datetime(values["value"])
+            print(f"FOrmat that produces a warning: {test_sent_date}")
             sent_date = datetime.datetime.strptime(
                 values["value"], "%a, %d %b %Y %H:%M:%S %z"
             ).strftime("%Y-%m-%d %H:%M:%S%z")
+            print(f"SENT DATE AFTER format: {sent_date}")
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -1002,6 +1007,8 @@ def receive_mail_notifications(request):
         attributes = message_data.get("attributes", {})
         email_id = attributes.get("emailId")
         email = decoded_json.get("emailAddress")
+        if email_id is None:
+            return Response(status=200)
 
         try:
             social_api = SocialAPI.objects.get(email=email)

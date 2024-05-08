@@ -87,7 +87,7 @@
                 <div class="col-span-10 2xl:col-span-6">
                     <!-- <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> WORKS FOR 1920*1200px screens-->
                     <div class="flex flex-col xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-                        <main class="rounded-xl bg-gray-100 bg-opacity-75 ring-1 shadow-sm ring-black ring-opacity-5">
+                        <main class="rounded-t-xl bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
                             <div class="w-full px-4 sm:px-6 lg:px-6">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
                                     <div class="col-span-3 h-full justify-center">
@@ -195,9 +195,10 @@
                                 </div>
                             </div>
                         </main>
-                        <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5"><!-- DO NOT DELETE bg-opacity-90 -->
+                        <!-- HIDE 
+                        <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5">
                             <p>En cours de dev</p>
-                        </div>
+                        </div>--><!-- DO NOT DELETE bg-opacity-90 -->
                         <div v-if="isEmptyTopic()"
                             class="flex-1 rounded-b-xl bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                             <!-- Content goes here -->
@@ -578,7 +579,7 @@
                                                                                         Ouvrir
                                                                                     </div>
                                                                                     <button
-                                                                                        @click="openInNewWindow(item.web_link)"
+                                                                                        @click="openSeeModal(item)"
                                                                                         type="button"
                                                                                         class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
                                                                                         <eye-icon
@@ -1431,7 +1432,7 @@
         <UpdateCategoryModal :isOpen="isModalUpdateOpen" :errorMessage="modalUpdateErrorMessage"
             :category="categoryToUpdate" @closeModal="closeUpdateModal" @updateCategory="handleUpdateCategory"
             @deleteCategory="handleCategoryDelete" />
-        <ModalSeeMail :isOpen="showModal" :email="selectedEmail" @update:isOpen="updateModalStatus" />
+        <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @update:isOpen="updateModalStatus" />
     </div>
 </template>
 
@@ -1450,6 +1451,7 @@ let animatedText = ref('');
 let showHiddenParagraphs = ref({});
 let showModal = ref(false);
 let isModalOpen = ref(false);
+let isModalSeeOpen = ref(false);
 let isModalUpdateOpen = ref(false);
 let modalErrorMessage = ref('');
 let modalUpdateErrorMessage = ref('');
@@ -1899,6 +1901,11 @@ function updateModalStatus(status) {
     showModal.value = status;
 }
 
+function openSeeModal(emailItem) {
+    selectedEmail.value = emailItem; 
+    isModalSeeOpen.value = true;
+}
+
 function openModal() {
     isModalOpen.value = true;
 }
@@ -2293,7 +2300,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
-import ModalSeeMail from '../components/SeeMail.vue';
+import ModalSeeMail from '../components/SeeMailV2.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
 import { ref, nextTick, onMounted } from 'vue';

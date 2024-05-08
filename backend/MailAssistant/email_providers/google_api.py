@@ -344,14 +344,14 @@ def get_info_contacts(services):
         names_emails.append({"name": name, "emails": email_addresses})
 
     return names_emails
-
+    
 
 def get_mail_to_db(services, int_mail=None, id_mail=None):
     """Retrieve email information for processing email to database."""
 
     service = services["gmail"]
-    plaintext_var = [0]
-    plaintext_var[0] = 0
+    email_html = ""
+    email_text = "" 
 
     if int_mail is not None:
         results = (
@@ -370,7 +370,7 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
-    subject = from_info = decoded_data = None
+    subject = from_info = cc_info = bcc_info = None
     has_attachments = False
     headers = msg["payload"]["headers"]
     web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
@@ -382,38 +382,50 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
             subject = values["value"]
         elif name == "from":
             from_info = parse_name_and_email(values["value"])
+        elif name == "cc":
+            cc_info = parse_name_and_email(values["value"])
+        elif name == "bcc":
+            bcc_info = parse_name_and_email(values["value"])
         elif name == "date":
             sent_date = parsedate_to_datetime(values["value"])
 
-    if "parts" in msg["payload"]:
-        for part in msg["payload"]["parts"]:
-            if part.get("filename"):
-                has_attachments = True
+    # Process the email parts
+    parts = msg["payload"].get("parts", [])
+    for part in parts:
+        if part.get("filename"):
+            has_attachments = True
+        body_data = part["body"].get("data", "")
+        mime_type = part.get("mimeType", "")
+        if body_data:
+            decoded_data = base64.urlsafe_b64decode(body_data).decode("utf-8")
+            if mime_type == "text/html":
+                email_html += decoded_data
+            elif mime_type == "text/plain":
+                email_text += decoded_data
+                email_html += "<pre>{}</pre>".format(decoded_data)
 
-            decoded_data_temp = library.process_part(part, plaintext_var)
-            if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+    # Clean and secure HTML using BeautifulSoup
+    soup = BeautifulSoup(email_html, "html.parser")
+    safe_html = soup.prettify()
 
-    elif "body" in msg["payload"]:
-        data = msg["payload"]["body"]["data"]
-        data = data.replace("-", "+").replace("_", "/")
-        decoded_data_temp = base64.b64decode(data).decode("utf-8")
-        decoded_data = library.html_clear(decoded_data_temp)
-
-    preprocessed_data = library.preprocess_email(decoded_data)
+    preprocessed_data = library.preprocess_email(email_text)
 
     return (
         subject,
         from_info,
         preprocessed_data,
+        safe_html, 
         email_id,
         sent_date,
         web_link,
         has_attachments,
         is_reply,
+        cc_info,
+        bcc_info
     )
 
 
+# TO DELETE IN THE FUTURE ?
 def get_mail(services, int_mail=None, id_mail=None):
     """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
     service = services["gmail"]
@@ -1007,11 +1019,14 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         subject,
         from_name,
         decoded_data,
+        safe_html,
         email_id,
         sent_date,
         web_link,
         has_attachments,
         is_reply,
+        cc_info,
+        bcc_info,
     ) = get_mail_to_db(services, 0, id_email)
 
     if not Email.objects.filter(provider_id=email_id).exists():
@@ -1111,6 +1126,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                 email_provider=GOOGLE_PROVIDER,
                 email_short_summary=sentence,
                 content=decoded_data,
+                html_content=safe_html,
                 subject=subject,
                 priority=importance,
                 read=False,
@@ -1122,6 +1138,13 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                 web_link=web_link,
                 has_attachments=has_attachments,
             )
+
+            # Create CC and BCC entries
+            for email, name in data['cc_info']:
+                CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+
+            for email, name in data['bcc_info']:
+                BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
 
             if summary_list:
                 for point in summary_list:

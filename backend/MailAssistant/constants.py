@@ -12,7 +12,6 @@ BACKEND_DIR = os.path.dirname(CURRENT_DIR)
 CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
 ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
-# TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 
 # ----------------------- URLS AND CORS -----------------------#
 DOMAIN = f"https://{ENV}.aomail.ai"
@@ -83,8 +82,7 @@ GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE_PROVIDER = "Gmail"
-# TODO: put the key in the creds.json!!!
-GOOGLE_LISTENER_API_KEY = ""
+# TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 
 
 ######################## MICROSOFT API ########################

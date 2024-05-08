@@ -1096,7 +1096,7 @@ def unsubscribe_listeners(user, email=None):
                     }
                     email_html = render_to_string("unsubscribe_failure.html", context)
                     send_mail(
-                        subject="Critical Alert: Microsoft Unsubscription Failure",
+                        subject="Critical Alert: Google Unsubscription Failure",
                         message="",
                         recipient_list=ADMIN_EMAIL_LIST,
                         from_email=EMAIL_NO_REPLY,
@@ -1561,7 +1561,17 @@ def search_emails(request):
                     MICROSOFT_PROVIDER,
                     email,
                     microsoft_api.search_emails_manually(
-                        access_token, query, max_results
+                        access_token,
+                        query,
+                        max_results,
+                        file_extensions,
+                        advanced,
+                        search_in,
+                        from_addresses,
+                        to_addresses,
+                        subject,
+                        body,
+                        date_from,
                     ),
                 )
             )

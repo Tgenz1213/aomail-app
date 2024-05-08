@@ -499,8 +499,8 @@ def search_emails_ai(
     if date_from:
         params["receivedDateTime"] = "gt" + date_from + "T00:00:00Z"
     if filenames:
-        ...
         # TODO: first retrieve emails + filenames and then check with a for loop
+        pass
 
     print("DEBUG:", params)
 
@@ -509,7 +509,8 @@ def search_emails_ai(
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get(graph_endpoint, headers=headers, params=params)
             response.raise_for_status()
-            messages = response.json().get("value", [])
+            data: dict = response.json()
+            messages = data.get("value", [])
             message_ids.extend([message["id"] for message in messages])
 
         except Exception as e:
@@ -534,19 +535,83 @@ def search_emails_ai(
     return message_ids
 
 
-def search_emails_manually(access_token, search_query, max_results=100):
+def search_emails_manually(
+    access_token,
+    search_query: str,
+    max_results: int,
+    file_extensions: list,
+    advanced: bool = False,
+    search_in: dict = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
+    subject: str = None,
+    body: str = None,
+    date_from: str = None,
+):
     """Searches for emails matching the query."""
 
-    graph_endpoint = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    headers = {"Authorization": f"Bearer {access_token}"}
+    folder_url = f"{GRAPH_URL}me/mailFolders/"
+    graph_endpoint = f"{folder_url}inbox/messages"
+    message_ids = []
+
+    def run_request(graph_endpoint, params):
+        try:
+            response = requests.get(graph_endpoint, headers=headers, params=params)
+            response.raise_for_status()
+            data: dict = response.json()
+            messages = data.get("value", [])
+            message_ids.extend([message["id"] for message in messages])
+
+        except Exception as e:
+            LOGGER.error(
+                f"Failed to search_emails_ai for url: {graph_endpoint}: {str(e)}"
+            )
 
     try:
-        headers = {"Authorization": f"Bearer {access_token}"}
-        filter_expression = f"""
-        contains(subject,'{search_query}') or 
-        contains(body/content,'{search_query}') or 
-        contains(sender/emailAddress/address,'{search_query}')
-        """
-        params = {"$filter": filter_expression, "$top": max_results}
+        params = {"$top": max_results, "$select": "id", "$count": "true"}
+
+        if advanced:
+            if from_addresses:
+                from_query = " OR ".join(
+                    [f"from/emailAddress:{address}" for address in from_addresses]
+                )
+                params["from/emailAddress"] = from_query
+            if to_addresses:
+                recipient_query = " OR ".join(
+                    [f"toRecipients/emailAddress:{address}" for address in to_addresses]
+                )
+                params["toRecipients/emailAddress"] = recipient_query
+            if subject:
+                params["subject"] = subject
+            if body:
+                params["body"] = body
+            if date_from:
+                params["receivedDateTime"] = f"gt{date_from}T00:00:00Z"
+            if file_extensions:
+                # TODO: Retrieve emails + filenames and check with a for loop
+                pass
+
+            endpoints = {
+                "spams": "junkemail/messages",
+                "deleted_emails": "deleteditems/messages",
+                "drafts": "drafts",
+                "sent_emails": "sentitems",
+            }
+            for folder in search_in or []:
+                if folder in endpoints and search_in[folder]:
+                    endpoint = f"{folder_url}{endpoints[folder]}"
+                    run_request(endpoint, params)
+
+        else:
+            filter_expression = f"""
+            contains(subject,'{search_query}') or 
+            contains(body/content,'{search_query}') or 
+            contains(sender/emailAddress/address,'{search_query}')
+            """
+            params["$filter"] = filter_expression
+
+        print("DEBUG:", params)
 
         response = requests.get(graph_endpoint, headers=headers, params=params)
         response.raise_for_status()
@@ -569,28 +634,27 @@ def find_user_in_emails(access_token, search_query):
     return messages
 
 
-def search_emails(access_token, search_query, max_results=2):
+def search_emails(access_token: str, search_query: str, max_results: int = 2):
     """Searches for emails addresses in the user's mailbox based on the provided search query in both the subject and body."""
 
     graph_endpoint = f"{GRAPH_URL}me/messages"
 
     try:
         headers = get_headers(access_token)
-
-        # Use $filter to achieve search functionality
         filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
-
         params = {"$filter": filter_expression, "$top": max_results}
 
         response = requests.get(graph_endpoint, headers=headers, params=params)
         response.raise_for_status()
-
-        messages = response.json().get("value", [])
+        data: dict = response.json()
+        messages = data.get("value", [])
 
         found_emails = {}
 
         for message in messages:
-            sender = message.get("from", {}).get("emailAddress", {}).get("address", "")
+            sender: str = (
+                message.get("from", {}).get("emailAddress", {}).get("address", "")
+            )
 
             if sender:
                 email = sender.lower()
@@ -622,7 +686,7 @@ def set_all_contacts(access_token, user):
         # Part 1: Retrieve contacts from Microsoft Contacts
         response = requests.get(graph_api_contacts_endpoint, headers=headers)
         response.raise_for_status()
-        contacts = response.json().get("value", [])
+        contacts: dict[dict] = response.json().get("value", [])
 
         for contact in contacts:
             name = contact.get("displayName", "")
@@ -633,10 +697,13 @@ def set_all_contacts(access_token, user):
         # Part 2: Retrieving from Outlook
         response = requests.get(graph_api_messages_endpoint, headers=headers)
         response.raise_for_status()
-        messages = response.json().get("value", [])
+        data: dict = response.json()
+        messages: dict[dict] = data.get("value", [])
 
         for message in messages:
-            sender = message.get("from", {}).get("emailAddress", {}).get("address", "")
+            sender: str = (
+                message.get("from", {}).get("emailAddress", {}).get("address", "")
+            )
             if sender:
                 name = sender.split("@")[0]
                 if (user, name, sender, "") in all_contacts:

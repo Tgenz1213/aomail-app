@@ -1142,12 +1142,12 @@ class MicrosoftEmailNotification(View):
                                 break
                             else:
                                 LOGGER.critical(
-                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {subscription.first().email} and email ID: {email_id}"
                                 )
                                 context = {
                                     "error": result,
                                     "attempt_number": i + 1,
-                                    "email_id": email_id,
+                                    "email": subscription.first().email,
                                     "email_provider": MICROSOFT_PROVIDER,
                                     "user": subscription.first().user,
                                 }

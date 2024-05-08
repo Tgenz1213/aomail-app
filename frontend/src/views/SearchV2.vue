@@ -324,9 +324,7 @@ const attachmentTypes = [
 
 const attachmentSelected = ref(null)
 
-
-
-
+let emailsLinked = ref('');
 
 const contacts = [];
 const queryGetContacts = ref('')
@@ -381,12 +379,42 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
 // Mounted lifecycle hook
 onMounted(async () => {
   getBackgroundColor();
+  fetchEmailLinked();
   bgColor.value = localStorage.getItem('bgColor');
 
   AIContainer.value = document.getElementById('AIContainer');
 
   await askQueryUser();
 });
+
+
+async function fetchEmailLinked() {
+    const requestOptions = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions);
+
+        if ("error" in response) {
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle = 'Erreur récupération des emails liés';
+            notificationMessage = response.error;
+            displayPopup();
+        } else {
+            emailsLinked.value = response;
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle = 'Erreur récupération des emails liés';
+        notificationMessage = error.message;
+        displayPopup();
+    }
+}
 
 async function handleAIClick() {
 
@@ -427,8 +455,8 @@ async function searchEmails() {
   // TODO
   // une case par compte à cocher (email)
   // un bouton cocher TOUS (email)
-  let toAddresses = selectedRecipients.value.map(recipient => recipient.email);
-
+  const toAddressesSelected = selectedRecipients.value.map(recipient => recipient.email);
+  const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
 
   loading();
   scrollToBottom();
@@ -439,9 +467,9 @@ async function searchEmails() {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
+      emails: emailsLinkedSelected,
       from_addresses: [],
-      to_addresses: [],
+      to_addresses: toAddressesSelected,
       subject: "",
       body: "",
       date_from: "",

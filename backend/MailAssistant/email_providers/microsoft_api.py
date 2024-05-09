@@ -194,8 +194,13 @@ def verify_license(access_token) -> bool:
     graph_endpoint = f"{GRAPH_URL}me/licenseDetails"
     headers = get_headers(access_token)
     response = requests.get(graph_endpoint, headers=headers)
+
     if response.status_code == 200:
-        return True
+        data: dict = response.json()
+        if data["value"] == []:
+            return False
+        else:
+            return True
     return False
 
 
@@ -908,6 +913,8 @@ def subscribe_to_email_notifications(user, email) -> bool:
     try:
         response = requests.post(url, json=subscription_body, headers=headers)
         response_data = response.json()
+
+        print("DEBUG response data MSFFT", response_data)
 
         social_api = SocialAPI.objects.get(user=user, email=email)
         subscription_id = response_data["id"]

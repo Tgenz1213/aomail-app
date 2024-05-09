@@ -10,7 +10,7 @@ import threading
 import time
 from django.db import IntegrityError
 import jwt
-import stripe  # type: ignore
+import stripe
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
@@ -151,6 +151,7 @@ def signup(request):
                 return Response(
                     {"error": "No license associated with the account"}, status=400
                 )
+
     except Exception as e:
         user.delete()
         return Response({"error": str(e)}, status=400)

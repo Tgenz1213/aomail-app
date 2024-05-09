@@ -810,7 +810,12 @@ def get_mail_to_db(access_token, int_mail=None, id_mail=None):
     from_info = parse_name_and_email(sender)
     sent_date = None
     decoded_data = parse_message_body(message_data)
-    preprocessed_data = library.preprocess_email(decoded_data)
+    print(
+        "-------------------------------MICROSOFT HTML------------------------------------"
+    )
+    print(decoded_data)
+    decoded_data_temp = library.html_clear(decoded_data)
+    preprocessed_data = library.preprocess_email(decoded_data_temp)
 
     return (
         subject,
@@ -1286,6 +1291,15 @@ def email_to_db(user, email, id_email):
         user_description = (
             social_api.user_description if social_api.user_description != None else ""
         )
+
+        print(
+            "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
+        )
+        print(decoded_data)
+
+        print("=====================NUMBER OF TOKENS=========================")
+        print(claude.count_tokens(decoded_data))
+
         (
             topic,
             importance_dict,

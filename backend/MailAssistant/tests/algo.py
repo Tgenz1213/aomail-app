@@ -140,12 +140,11 @@ def summarize_conversation(body: str, language: str = "French") -> dict:
     return result_json
 
 
-
 email_prompt = re.sub(r"<http(.*?)>", "", email_prompt)
 email_prompt = re.sub(r"http(.*?)\ ", "", email_prompt)
 
 
-summarize_conversation(email_prompt)
+# summarize_conversation(email_prompt)
 
 
 # import torch

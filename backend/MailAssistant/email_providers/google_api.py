@@ -398,6 +398,8 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
                 has_attachments = True
 
             decoded_data_temp = library.process_part(part, plaintext_var)
+            print("--------------GOOGLE decoded_data_temp---------------------")
+            print(decoded_data_temp)
             if decoded_data_temp:
                 decoded_data = library.concat_text(decoded_data, decoded_data_temp)
 
@@ -405,6 +407,9 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
         data = msg["payload"]["body"]["data"]
         data = data.replace("-", "+").replace("_", "/")
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
+
+        print("--------------GOOGLE HTML---------------------")
+        print(decoded_data_temp)
         decoded_data = library.html_clear(decoded_data_temp)
 
     preprocessed_data = library.preprocess_email(decoded_data)
@@ -462,10 +467,18 @@ def get_mail(services, int_mail=None, id_mail=None):
         elif name == "Date":
             sent_date = parsedate_to_datetime(values["value"])
 
-    print(base64.decode(msg["payload"]))
-
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
+            # DEBUG CODE TO HELP THEO (can be deleted)
+            if part["mimeType"] == "text/plain":
+                # Decode the base64-encoded data
+                data = base64.urlsafe_b64decode(part["body"]["data"]).decode("utf-8")
+                print(
+                    "-------------------------MESSAGE PAYLOAD [ partmimeType] == text/plain:]-------------------------"
+                )
+                print(data)
+            # END
+
             decoded_data_temp = library.process_part(part, plaintext_var)
             if decoded_data_temp:
                 decoded_data = library.concat_text(decoded_data, decoded_data_temp)
@@ -474,6 +487,20 @@ def get_mail(services, int_mail=None, id_mail=None):
         data = data.replace("-", "+").replace("_", "/")
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
         decoded_data = library.html_clear(decoded_data_temp)
+
+    # DEBUG CODE TO HELP THEO (can be deleted)
+    else:
+        # If the payload has a single part
+        if msg["payload"]["mimeType"] == "text/plain":
+            # Decode the base64-encoded data
+            data = base64.urlsafe_b64decode(msg["payload"]["body"]["data"]).decode(
+                "utf-8"
+            )
+            print(
+                '-----------msg["payload"]["mimeType"] == "text/plain"----------------MESSAGE PAYLOAD----------------------------------------'
+            )
+            print(data)
+    # END
 
     return (
         subject,
@@ -1114,9 +1141,13 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             args=(subject, decoded_data, c_d2, user_description),
         ).start()"""
 
-        # TODO: preprocess data ONLY last email
+        print(
+            "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
+        )
         print(decoded_data)
 
+        print("=====================NUMBER OF TOKENS=========================")
+        print(claude.count_tokens(decoded_data))
         (
             topic,
             importance_dict,

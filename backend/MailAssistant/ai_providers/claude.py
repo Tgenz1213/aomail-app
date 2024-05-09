@@ -7,6 +7,8 @@ import json
 import anthropic
 from colorama import Fore, init
 from datetime import datetime
+
+import tiktoken
 from MailAssistant.constants import CLAUDE_CREDS, DEFAULT_CATEGORY, HUMAN, ASSISTANT
 
 
@@ -25,6 +27,13 @@ def get_prompt_response(formatted_prompt):
         messages=[{"role": "user", "content": formatted_prompt}],
     )
     return response
+
+
+def count_tokens(text: str) -> int:
+    """Calculates the number of tokens in a given text string using the provided tokenizer."""
+    encoding = tiktoken.get_encoding("cl100k_base")
+    num_tokens = len(encoding.encode(text))
+    return num_tokens
 
 
 def get_language(input_body, input_subject) -> str:
@@ -441,8 +450,8 @@ def categorize_and_summarize_email(
 
     Complete the following tasks in {language}:
     - Categorize the email according to the user description (if provided) and given categories.
-    - Provide a short sentence (up to 10 words) summarizing the core content of the email.
     - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones. There is no need to summarize the topic as it is given in the short sentence.
+    - Provide a short sentence (up to 10 words) summarizing the core content of the email.
     - The summary should objectively reflect the most important information of the email without making subjective judgments.
     - Bullet points MUST strictly be different from the short sentence summary.
     - If the email is explicitely mentionning the name of the user (provided with user description), then use 'You' instead of the name of the user.

@@ -4,6 +4,7 @@ Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 
 from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.controllers import ai_conversations as ai_conv
 from . import views
 
 
@@ -58,10 +59,10 @@ urlpatterns = [
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
+    path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
-    path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
     path('api/improve_email_writing/', views.improve_email_writing, name='improve_email_writing'), # ok
     path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'), # ok
     path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'), # ok
@@ -69,6 +70,9 @@ urlpatterns = [
     path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
     path('api/generate_email_answer/', views.generate_email_answer, name='generate_email_answer'), # ok
     path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
+    #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
+    path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # ok
+    path('api/improve_draft/', ai_conv.improve_draft, name='improve_draft'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('microsoft/auth_url_link_email/', microsoft_api.auth_url_link_email, name='microsoft_auth_url_link_email'), # ok
@@ -80,6 +84,15 @@ urlpatterns = [
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
     path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
+
+
+
+
+
+
+
+
+
     #----------------------- TESTING URLs -----------------------#
     # path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
     # path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing
@@ -92,5 +105,5 @@ urlpatterns = [
     # path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'),
     # path('api/find-user/', views.find_user_view, name='find-user'),
     # path('api/unread_mails/', views.unread_mails, name='unread_mails'),    
-    #path('api/get_first_email/', views.get_first_email, name='get_first_email'), # ok
+    # path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
 ]

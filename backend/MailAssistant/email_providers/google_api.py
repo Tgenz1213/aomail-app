@@ -9,6 +9,9 @@ import re
 import threading
 import time
 import json
+import os
+from django.http import HttpRequest
+import httplib2
 import requests
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -47,10 +50,12 @@ from MailAssistant.constants import (
     INFORMATION,
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
+    MEDIA_ROOT,
 )
 from .. import library
-from ..models import Rule, SocialAPI, BulletPoint, Category, Email, Sender
+from ..models import Rule, SocialAPI, BulletPoint, Category, Email, Sender, CC_sender, BCC_sender, Picture
 from base64 import urlsafe_b64encode
+from bs4 import BeautifulSoup
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -202,15 +207,13 @@ def authenticate_service(user, email) -> dict:
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def send_email(request):
+def send_email(request: HttpRequest):
     """Sends an email using the Gmail API."""
 
     try:
         user = request.user
-        # email = request.headers.get("email")
-        email = request.META["email"]
+        email = request.POST.get("email")
         service = authenticate_service(user, email)["gmail"]
-        # serializer = EmailDataSerializer(data=request.data)
         serializer = EmailDataSerializer(data=request.POST)
 
         if serializer.is_valid():
@@ -346,17 +349,15 @@ def get_info_contacts(services):
     return names_emails
     
 
+""" OLD BUT WORKING
 def get_mail_to_db(services, int_mail=None, id_mail=None):
-    """Retrieve email information for processing email to database."""
 
     service = services["gmail"]
-    email_html = ""
-    email_text = "" 
-
+    plaintext_var = [0]
+    plaintext_var[0] = 0
+    
     if int_mail is not None:
-        results = (
-            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
-        )
+        results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
         messages = results.get("messages", [])
         if not messages:
             LOGGER.info("No new messages.")
@@ -366,7 +367,7 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
     elif id_mail is not None:
         email_id = id_mail
     else:
-        LOGGER.info("Either int_mail or id_mail must be provided")
+        LOGGER.error("Either int_mail or id_mail must be provided")
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
@@ -376,39 +377,48 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
     web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
     is_reply = any(header["name"] == "In-Reply-To" for header in headers)
 
-    for values in headers:
-        name = values["name"].lower()
+    for header in headers:
+        name = header["name"].lower()
+        value = header["value"]
         if name == "subject":
-            subject = values["value"]
+            subject = value
         elif name == "from":
-            from_info = parse_name_and_email(values["value"])
+            from_info = parse_name_and_email(value)
         elif name == "cc":
-            cc_info = parse_name_and_email(values["value"])
+            cc_info = parse_name_and_email(value)
         elif name == "bcc":
-            bcc_info = parse_name_and_email(values["value"])
+            bcc_info = parse_name_and_email(value)
         elif name == "date":
-            sent_date = parsedate_to_datetime(values["value"])
+            sent_date = parsedate_to_datetime(value).strftime("%Y-%m-%d %H:%M:%S%z")
 
-    # Process the email parts
-    parts = msg["payload"].get("parts", [])
-    for part in parts:
-        if part.get("filename"):
-            has_attachments = True
-        body_data = part["body"].get("data", "")
-        mime_type = part.get("mimeType", "")
-        if body_data:
-            decoded_data = base64.urlsafe_b64decode(body_data).decode("utf-8")
-            if mime_type == "text/html":
-                email_html += decoded_data
-            elif mime_type == "text/plain":
-                email_text += decoded_data
-                email_html += "<pre>{}</pre>".format(decoded_data)
+    decoded_data = ""
+    email_html = ""
+    if "parts" in msg["payload"]:
+        for part in msg["payload"]["parts"]:
+            if part.get("filename"):
+                has_attachments = True
+            decoded_data_temp = library.process_part(part, plaintext_var)
+            if decoded_data_temp:
+                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+                if part.get("mimeType", "") == "text/html":
+                    email_html += decoded_data_temp
+                elif part.get("mimeType", "") == "text/plain":
+                    email_html += f"<pre>{decoded_data_temp}</pre>"
+    elif "body" in msg["payload"]:
+        data = msg["payload"]["body"]["data"]
+        data = data.replace("-", "+").replace("_", "/")
+        decoded_data_temp = base64.b64decode(data).decode("utf-8")
+        decoded_data = library.html_clear(decoded_data_temp)
+        email_html = f"<pre>{decoded_data}</pre>"
 
-    # Clean and secure HTML using BeautifulSoup
+    # Clean and secure HTML
     soup = BeautifulSoup(email_html, "html.parser")
     safe_html = soup.prettify()
 
-    preprocessed_data = library.preprocess_email(email_text)
+    # Preprocess text data
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    print("------------------------> 3", from_info)
 
     return (
         subject,
@@ -422,6 +432,225 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
         is_reply,
         cc_info,
         bcc_info
+    )
+"""
+
+""" OLD 2 BUT WORK"
+def get_mail_to_db(services, int_mail=None, id_mail=None):
+
+    service = services["gmail"]
+    
+    if int_mail is not None:
+        results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+        messages = results.get("messages", [])
+        if not messages:
+            LOGGER.info("No new messages.")
+            return None
+        message = messages[int_mail]
+        email_id = message["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        LOGGER.error("Either int_mail or id_mail must be provided")
+        return None
+
+    msg = service.users().messages().get(userId="me", id=email_id).execute()
+    subject = from_info = cc_info = bcc_info = None
+    has_attachments = False
+    headers = msg["payload"]["headers"]
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
+    is_reply = any(header["name"] == "In-Reply-To" for header in headers)
+
+    for header in headers:
+        name = header["name"].lower()
+        value = header["value"]
+        if name == "subject":
+            subject = value
+        elif name == "from":
+            from_info = parse_name_and_email(value)
+        elif name == "cc":
+            cc_info = parse_name_and_email(value)
+        elif name == "bcc":
+            bcc_info = parse_name_and_email(value)
+        elif name == "date":
+            sent_date = parsedate_to_datetime(value).strftime("%Y-%m-%d %H:%M:%S%z")
+
+    decoded_data = ""
+    email_html = ""
+    if "parts" in msg["payload"]:
+        for part in msg["payload"]["parts"]:
+            if part.get("filename"):
+                has_attachments = True
+            if part.get("mimeType", "").startswith("text/"):
+                data = part["body"]["data"]
+                data = data.replace("-", "+").replace("_", "/")
+                decoded_data_temp = base64.b64decode(data).decode("utf-8")
+                if part.get("mimeType", "") == "text/html":
+                    email_html += decoded_data_temp
+                elif part.get("mimeType", "") == "text/plain":
+                    email_html += f"<pre>{decoded_data_temp}</pre>"
+                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+    elif "body" in msg["payload"]:
+        data = msg["payload"]["body"]["data"]
+        data = data.replace("-", "+").replace("_", "/")
+        decoded_data_temp = base64.b64decode(data).decode("utf-8")
+        decoded_data = library.html_clear(decoded_data_temp)
+        email_html = f"<pre>{decoded_data}</pre>"
+
+    # Clean and secure HTML
+    soup = BeautifulSoup(email_html, "html.parser")
+    safe_html = soup.prettify()
+
+    # Preprocess text data
+    preprocessed_data = library.preprocess_email(decoded_data)
+
+    print("------------------------> 3", from_info)
+
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        safe_html, 
+        email_id,
+        sent_date,
+        web_link,
+        has_attachments,
+        is_reply,
+        cc_info,
+        bcc_info
+    )
+"""
+
+def get_mail_to_db(services, int_mail=None, id_mail=None):
+    """Retrieve email information for processing email to database."""
+
+    service = services["gmail"]
+
+    if int_mail is not None:
+        results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+        messages = results.get("messages", [])
+        if not messages:
+            print("No new messages.")
+            return None
+        message = messages[int_mail]
+        email_id = message["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        print("Either int_mail or id_mail must be provided")
+        return None
+
+    msg = service.users().messages().get(userId="me", id=email_id).execute()
+    email_data = msg["payload"]["headers"]
+    
+    subject = from_info = cc_info = bcc_info = sent_date = None
+    for values in email_data:
+        name = values["name"]
+        if name == "Subject":
+            subject = values["value"]
+        elif name == "From":
+            from_info = parse_name_and_email(values["value"])
+        elif name == "Cc":
+            cc_info = parse_name_and_email(values["value"])
+        elif name == "Bcc":
+            bcc_info = parse_name_and_email(values["value"])
+        elif name == "Date":
+            sent_date = parsedate_to_datetime(values["value"])
+
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
+    has_attachments = False
+    is_reply = "in-reply-to" in {header["name"].lower() for header in msg["payload"]["headers"]}
+    email_html = ""
+    image_files = []
+
+    def process_part(part):
+        nonlocal email_html, has_attachments, image_files
+
+        if part["mimeType"] == "text/plain":
+            if "data" in part["body"]:
+                data = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                email_html += f"<pre>{decoded_data}</pre>"
+        elif part["mimeType"] == "text/html":
+            if "data" in part["body"]:
+                data = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                email_html += decoded_data
+
+                # Find and replace base64 encoded images in the HTML
+                img_tags = re.findall(r'<img[^>]+src="data:image/([^;]+);base64,([^"]+)"', decoded_data)
+                for img_type, img_data in img_tags:
+                    has_attachments = True
+                    timestamp = int(time.time())
+                    image_filename = f"image_{timestamp}.{img_type}"
+                    image_path = os.path.join(MEDIA_ROOT, 'pictures', image_filename)
+
+                    img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
+                    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+                    with open(image_path, "wb") as img_file:
+                        img_file.write(img_data_bytes)
+                    image_files.append(image_path)
+
+                    email_html = email_html.replace(f'data:image/{img_type};base64,{img_data}', f'{settings.MEDIA_URL}pictures/{image_filename}')
+        elif part["mimeType"].startswith("image/"):
+            has_attachments = True
+            image_filename = part.get("filename", "")
+            if not image_filename:
+                # Generate a unique filename if not provided
+                timestamp = int(time.time())
+                image_filename = f"image_{timestamp}.jpg"
+            image_path = os.path.join(MEDIA_ROOT, 'pictures', image_filename)
+
+            if "attachmentId" in part["body"]:
+                attachment_id = part["body"]["attachmentId"]
+                attachment = service.users().messages().attachments().get(
+                    userId="me", messageId=email_id, id=attachment_id
+                ).execute()
+                file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
+            elif "data" in part["body"]:
+                file_data = base64.urlsafe_b64decode(part["body"]["data"].encode("UTF-8"))
+            else:
+                return
+            
+            with open(image_path, "wb") as img_file:
+                img_file.write(file_data)
+            image_files.append(image_path)
+        elif part["mimeType"].startswith("multipart/"):
+            if "parts" in part:
+                for subpart in part["parts"]:
+                    process_part(subpart)
+
+    if "parts" in msg["payload"]:
+        for part in msg["payload"]["parts"]:
+            process_part(part)
+    else:
+        process_part(msg["payload"])
+
+    # Replace CID references in HTML with local paths
+    soup = BeautifulSoup(email_html, 'html.parser')
+    for img in soup.find_all('img'):
+        cid_ref = img['src'].lstrip('cid:')
+        for image_file in image_files:
+            if cid_ref in image_file:
+                img['src'] = os.path.join(settings.MEDIA_URL, 'pictures', os.path.basename(image_file))
+
+    cleaned_html = library.html_clear(email_html)
+    preprocessed_data = library.preprocess_email(cleaned_html)
+    safe_html = soup.prettify()
+
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        safe_html,
+        email_id,
+        sent_date,
+        web_link,
+        has_attachments,
+        is_reply,
+        cc_info,
+        bcc_info,
+        image_files
     )
 
 
@@ -478,12 +707,10 @@ def get_mail(services, int_mail=None, id_mail=None):
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
         decoded_data = library.html_clear(decoded_data_temp)
 
-    preprocessed_data = library.preprocess_email(decoded_data)
-
     return (
         subject,
         from_info,
-        preprocessed_data,
+        decoded_data,
         cc_info,
         bcc_info,
         email_id,
@@ -496,8 +723,8 @@ def search_emails_ai(
     services: dict[str, build],
     max_results: int = 100,
     filenames: list = None,
-    from_address: str = None,
-    to_address: list = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
     subject: str = None,
     body: str = None,
     keywords: list = None,
@@ -508,10 +735,11 @@ def search_emails_ai(
 
     query_parts = []
 
-    if from_address:
-        query_parts.append(f"(from:{from_address})")
-    if to_address:
-        to_query = " OR ".join([f"to:{address}" for address in to_address])
+    if from_addresses:
+        from_query = " OR ".join([f"from:{address}" for address in from_addresses])
+        query_parts.append(f"({from_query})")
+    if to_addresses:
+        to_query = " OR ".join([f"to:{address}" for address in to_addresses])
         query_parts.append(f"({to_query})")
     if subject:
         query_parts.append(f"(subject:{subject})")
@@ -558,34 +786,78 @@ def search_emails_ai(
 
 
 def search_emails_manually(
-    services, search_query, max_results, file_extensions: list = None
-):
+    services: dict,
+    search_query: str,
+    max_results: int,
+    file_extensions: list,
+    advanced: bool = False,
+    search_in: dict = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
+    subject: str = None,
+    body: str = None,
+    date_from: str = None,
+) -> list:
     """Searches for emails matching the query."""
 
-    query_parts = [
-        f"(from:{search_query})",
-        f"(to:{search_query})",
-        f"(subject:{search_query})",
-        f"(body:{search_query})",
-        f"(filename:{search_query})",
-    ]
-    query = " OR ".join(query_parts)
+    def search(query: str):
+        try:
+            results: dict = (
+                service.users()
+                .messages()
+                .list(userId="me", q=query, maxResults=max_results)
+                .execute()
+            )
 
-    if file_extensions:
-        file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
-        query += f" AND ({file_query})"
-
-    print(query)
+            if results.get("resultSizeEstimate") == 0:
+                return []
+            return results.get("messages", [])
+        except Exception as e:
+            LOGGER.error(f"Failed to search emails: {str(e)}")
+            return []
 
     try:
         service = services["gmail"]
-        results = (
-            service.users()
-            .messages()
-            .list(userId="me", q=query, maxResults=max_results)
-            .execute()
-        )
-        messages = results.get("messages", [])
+
+        if advanced:
+            query_parts = []
+            if from_addresses:
+                from_query = " OR ".join(
+                    [f"from:{address}" for address in from_addresses]
+                )
+                query_parts.append(f"({from_query})")
+            if to_addresses:
+                to_query = " OR ".join([f"to:{address}" for address in to_addresses])
+                query_parts.append(f"({to_query})")
+            if subject:
+                query_parts.append(f"(subject:{subject})")
+            if body:
+                query_parts.append(f"(body:{body})")
+            if date_from:
+                query_parts.append(f"(after:{date_from})")
+            if search_in:
+                search_in_query = " OR ".join(
+                    [f"in:{folder}" for folder in search_in if search_in[folder]]
+                )
+                query_parts.append(f"({search_in_query})")
+            if file_extensions:
+                file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+                query_parts.append(f" AND ({file_query})")
+
+            if query_parts:
+                query = " OR ".join(query_parts)
+                messages = search(query)
+
+        else:
+            query_parts = [
+                f"(from:{search_query})",
+                f"(to:{search_query})",
+                f"(subject:{search_query})",
+                f"(body:{search_query})",
+                f"(filename:{search_query})",
+            ]
+            query = " OR ".join(query_parts)
+            messages = search(query)
 
         return [message["id"] for message in messages]
 
@@ -828,11 +1100,10 @@ def get_unique_senders(services) -> dict:
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def get_profile_image(request):
+def get_profile_image(request: HttpRequest):
     """Returns the profile image of the user"""
     user = request.user
-    # email = request.headers.get("email")
-    email = request.META["email"]
+    email = request.headers.get("email")
     service = authenticate_service(user, email)["people"]
 
     try:
@@ -891,7 +1162,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
     try:
         LOGGER.info(
-            f"Initiationg the subscription to Google listener for: {user} with email: {email}"
+            f"Initiating the subscription to Google listener for: {user} with email: {email}"
         )
         services = authenticate_service(user, email)
         if services is None:
@@ -924,13 +1195,44 @@ def subscribe_to_email_notifications(user, email) -> bool:
         return False
 
 
+def unsubscribe_from_email_notifications(user, email) -> bool:
+    """Unsubscribe the user from all Gmail notifications."""
+
+    try:
+        services = authenticate_service(user, email)
+        if services is None:
+            LOGGER.error(
+                f"Failed to get service to unsubscribe {user} with email: {email}"
+            )
+            return False
+
+        service = services["gmail"]
+
+        response = service.users().stop(userId=email).execute()
+
+        if not response:
+            LOGGER.info(
+                f"Successfully unsubscribed {user} ({email}) from all notifications."
+            )
+            return True
+        else:
+            LOGGER.error(
+                f"Failed to unsubscribe {user} ({email}). Response: {response}"
+            )
+            return False
+
+    except Exception as e:
+        LOGGER.error(f"An error occurred while unsubscribing: {str(e)}")
+        return False
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
 
     try:
-        print("!!! [GOOGLE] EMAIL RECEIVED !!!")
+        #print("!!! [GOOGLE] EMAIL RECEIVED !!!")
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
 
@@ -939,6 +1241,8 @@ def receive_mail_notifications(request):
         attributes = message_data.get("attributes", {})
         email_id = attributes.get("emailId")
         email = decoded_json.get("emailAddress")
+        #if email_id is None:
+            #return Response(status=200)
 
         try:
             social_api = SocialAPI.objects.get(email=email)
@@ -946,65 +1250,42 @@ def receive_mail_notifications(request):
 
             def process_email():
                 for i in range(MAX_RETRIES):
-                    if email_to_db(social_api.user, services, social_api, email_id):
+                    print("------------------------> 00 ENTER TEST AREA 00, mail_id : ", email_id)
+                    result = email_to_db(
+                        social_api.user, services, social_api, email_id
+                    )
+                    if result:
                         break
                     else:
                         LOGGER.critical(
                             f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
                         )
                         context = {
-                            "attempt_number": i,
+                            "error": result,
+                            "attempt_number": i + 1,
                             "email_id": email_id,
                             "email_provider": GOOGLE_PROVIDER,
                             "user": social_api.user,
                         }
                         email_html = render_to_string("ai_failed_email.html", context)
-                        send_mail(
-                            subject="Critical Alert: Email Processing Failure",
-                            message="",
-                            recipient_list=ADMIN_EMAIL_LIST,
-                            from_email=EMAIL_NO_REPLY,
-                            html_message=email_html,
-                            fail_silently=False,
-                        )
+                        # send_mail(
+                        #     subject="Critical Alert: Email Processing Failure",
+                        #     message="",
+                        #     recipient_list=ADMIN_EMAIL_LIST,
+                        #     from_email=EMAIL_NO_REPLY,
+                        #     html_message=email_html,
+                        #     fail_silently=False,
+                        # )
 
             threading.Thread(target=process_email).start()
 
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        # TODO: add API key to avoid error 403
-        # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
-        # authenticate_service(social_api.user, email)
-        # social_api = SocialAPI.objects.get(email=email)
-        # headers = {"Authorization": f"Bearer {social_api.access_token}"}
-        # print(f"\n\n\ncreds: {social_api.access_token}\n\n\n")
-        # response = requests.post(ack_url, json=ack_payload, headers=headers)
-
-        # Sending the reception message to Google to confirm the email reception
-        subscription_path = envelope["subscription"]
-        ack_id = message_data["messageId"]
-        ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
-        ack_payload = {"ackIds": [ack_id]}
-
-        response = requests.post(ack_url, json=ack_payload)
-
-        if response.status_code == 200:
-            LOGGER.info("Acknowledgement sent successfully")
-
-        elif response.status_code == 403:
-            LOGGER.info(
-                "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"
-            )
-        else:
-            LOGGER.info("DEBUG RESPONSE====================>", response.json())
-            LOGGER.error(
-                f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}"
-            )
-
         return Response(status=200)
 
     except IntegrityError:
+        LOGGER.error(f"Email already exist in database: {email_id}")
         return Response(status=200)
 
     except Exception as e:
@@ -1027,7 +1308,13 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         is_reply,
         cc_info,
         bcc_info,
+        image_files
     ) = get_mail_to_db(services, 0, id_email)
+
+    print("----------------------------------> decoded_data", decoded_data)
+    print("----------------------------------> PICTURES", image_files)
+
+    #print("------------------------------ DEBUG", safe_html)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
@@ -1035,7 +1322,8 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         if not decoded_data:
             return False
 
-        decoded_data = library.format_mail(decoded_data)
+        print("THIS AREA --------------------------------------------------------|")
+
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
         rules = Rule.objects.filter(sender=sender)
@@ -1067,6 +1355,8 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             target=gpt_3_5_turbo.categorize_and_summarize_email,
             args=(subject, decoded_data, c_d2, user_description),
         ).start()"""
+
+        print("-------------------------> 5", "SUBJECT : ",subject, "DATA : ",decoded_data, "CATEGORY : ",category_dict, "USER DESCRIPTION : ",user_description)
 
         (
             topic,
@@ -1139,12 +1429,17 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                 has_attachments=has_attachments,
             )
 
-            # Create CC and BCC entries
-            for email, name in data['cc_info']:
-                CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+            if cc_info:
+                for email, name in cc_info:
+                    CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
 
-            for email, name in data['bcc_info']:
-                BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+            if bcc_info:
+                for email, name in bcc_info:
+                    BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+
+            if image_files:
+                for image_path in image_files:
+                    Picture.objects.create(mail_id=email_entry, picture=image_path)
 
             if summary_list:
                 for point in summary_list:
@@ -1156,7 +1451,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             LOGGER.error(
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
-            return False
+            return str(e)
 
 
 """
@@ -1757,3 +2052,143 @@ def processed_email_to_db(request, services):
         web_link,
         attachments_data,
     )'''
+
+
+'''
+def search_emails_manually(
+    services: dict,
+    search_query: str,
+    max_results: int,
+    file_extensions: list = None,
+    search_in: dict = None,
+    from_addresses: list = None,
+    to_addresses: list = None,
+    subject: str = None,
+    body: str = None,
+    keywords: list = None,
+    date_from: str = None,
+):
+    """Searches for emails matching the query."""
+
+    query_parts = [
+        f"(from:{search_query})",
+        f"(to:{search_query})",
+        f"(subject:{search_query})",
+        f"(body:{search_query})",
+        f"(filename:{search_query})",
+    ]
+    query = " OR ".join(query_parts)
+
+    if file_extensions:
+        file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+        query += f" AND ({file_query})"
+
+    print(query)
+
+    try:
+        service = services["gmail"]
+        results = (
+            service.users()
+            .messages()
+            .list(userId="me", q=query, maxResults=max_results)
+            .execute()
+        )
+        messages = results.get("messages", [])
+
+        return [message["id"] for message in messages]
+
+    except Exception as e:
+        LOGGER.error(f"Failed to search emails: {str(e)}")
+        return []'''
+
+
+'''@api_view(["POST"])
+@permission_classes([AllowAny])
+def receive_mail_notifications(request):
+    """Process email notifications from Google listener"""
+
+    try:
+        print("!!! [GOOGLE] EMAIL RECEIVED !!!")
+        envelope = json.loads(request.body.decode("utf-8"))
+        message_data = envelope["message"]
+
+        decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
+        decoded_json = json.loads(decoded_data)
+        attributes = message_data.get("attributes", {})
+        email_id = attributes.get("emailId")
+        email = decoded_json.get("emailAddress")
+
+        try:
+            social_api = SocialAPI.objects.get(email=email)
+            services = authenticate_service(social_api.user, email)
+
+            def process_email():
+                for i in range(MAX_RETRIES):
+                    result = email_to_db(
+                        social_api.user, services, social_api, email_id
+                    )
+                    if result:
+                        break
+                    else:
+                        LOGGER.critical(
+                            f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                        )
+                        context = {
+                            "error": result,
+                            "attempt_number": i + 1,
+                            "email_id": email_id,
+                            "email_provider": GOOGLE_PROVIDER,
+                            "user": social_api.user,
+                        }
+                        email_html = render_to_string("ai_failed_email.html", context)
+                        # send_mail(
+                        #     subject="Critical Alert: Email Processing Failure",
+                        #     message="",
+                        #     recipient_list=ADMIN_EMAIL_LIST,
+                        #     from_email=EMAIL_NO_REPLY,
+                        #     html_message=email_html,
+                        #     fail_silently=False,
+                        # )
+
+            threading.Thread(target=process_email).start()
+
+        except SocialAPI.DoesNotExist:
+            LOGGER.error(f"SocialAPI entry not found for the email: {email}")
+
+        # TODO: add API key to avoid error 403
+        # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
+        # authenticate_service(social_api.user, email)
+        # social_api = SocialAPI.objects.get(email=email)
+        # headers = {"Authorization": f"Bearer {social_api.access_token}"}
+        # print(f"\n\n\ncreds: {social_api.access_token}\n\n\n")
+        # response = requests.post(ack_url, json=ack_payload, headers=headers)
+
+        # Sending the reception message to Google to confirm the email reception
+        subscription_path = envelope["subscription"]
+        ack_id = message_data["messageId"]
+        ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
+        ack_payload = {"ackIds": [ack_id]}
+
+        response = requests.post(ack_url, json=ack_payload)
+
+        if response.status_code == 200:
+            LOGGER.info("Acknowledgement sent successfully")
+
+        elif response.status_code == 403:
+            LOGGER.info(
+                "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"
+            )
+        else:
+            LOGGER.info("DEBUG RESPONSE====================>", response.json())
+            LOGGER.error(
+                f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}"
+            )
+
+        return Response(status=200)
+
+    except IntegrityError:
+        return Response(status=200)
+
+    except Exception as e:
+        LOGGER.error(f"Error processing the notification: {str(e)}")
+        return Response({"error": str(e)}, status=500)'''

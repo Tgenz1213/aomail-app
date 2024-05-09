@@ -181,6 +181,19 @@ def signup(request):
     # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
+        context = {
+            "title": "Votre compte Aomail a été créé avec succès",
+        }
+        email_html = render_to_string("account_created.html", context)
+        # send_mail(
+        #     subject="[Aomail] Votre compte a été créé avec succès",
+        #     message="",
+        #     recipient_list=[email],
+        #     from_email=EMAIL_NO_REPLY,
+        #     html_message=email_html,
+        #     fail_silently=False,
+        # )
+
         return Response(
             {
                 "user_id": user_id,
@@ -460,26 +473,15 @@ def send_email(request):
     return forward_request(request._request, "send_email")
 
 
-def forward_request(request, api_method):
-    """Forwards the request to the appropriate API method based on type_api with email header"""
+def forward_request(request: HttpRequest, api_method):
+    """Forwards the request to the appropriate API method based on type_api"""
     user = request.user
-    # TODO: email in headers with the choice to choose in front-end
-    # email = request.headers.get("email")
-    email = SocialAPI.objects.filter(user=user).first().email
-
-    # Copy of the request with the email header
-    new_request = HttpRequest()
-    new_request.method = request.method
-    new_request.GET = request.GET.copy()
-    new_request.POST = request.POST.copy()
-    new_request.FILES = request.FILES.copy()
-    new_request.COOKIES = request.COOKIES.copy()
-    new_request.META = request.META.copy()
-    new_request.META["email"] = email
+    email = request.POST.get("email")
+    if email is None:
+        email = request.headers.get("email")
 
     try:
-        # social_api = get_object_or_404(SocialAPI, user=user, email=email)
-        social_api = SocialAPI.objects.filter(user=user).first()
+        social_api = get_object_or_404(SocialAPI, user=user, email=email)
         type_api = social_api.type_api
     except SocialAPI.DoesNotExist:
         LOGGER.error(
@@ -496,11 +498,8 @@ def forward_request(request, api_method):
         api_module = microsoft_api
 
     if api_module and hasattr(api_module, api_method):
-        # Call the specified API method dynamically
         api_function = getattr(api_module, api_method)
-        # Forward the request and return the response
-        # return api_function(request)
-        return api_function(new_request)
+        return api_function(request)
     else:
         return JsonResponse({"error": "Unsupported API type or method"}, status=400)
 
@@ -597,10 +596,6 @@ def update_category(request, current_name):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
-
-    existing_category = Category.objects.filter(
-        user=request.user, name=current_name
-    ).exists()
 
     try:
         category = Category.objects.get(name=current_name, user=request.user)
@@ -830,28 +825,6 @@ def new_email_ai(request):
         return Response({"subject": subject_text, "mail": mail_text})
     else:
         LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
-        return Response(serializer.errors, status=400)
-
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def new_email_recommendations(request):
-    serializer = EmailAIRecommendationsSerializer(data=request.data)
-
-    if serializer.is_valid():
-        mail_content = serializer.validated_data["mail_content"]
-        user_recommendation = serializer.validated_data["user_recommendation"]
-        email_subject = serializer.validated_data["email_subject"]
-
-        subject_text, email_body = claude.new_mail_recommendation(
-            mail_content, email_subject, user_recommendation
-        )
-
-        return Response({"subject": subject_text, "email_body": email_body})
-    else:
-        LOGGER.error(
-            f"Serializer errors in new_email_recommendations: {serializer.errors}"
-        )
         return Response(serializer.errors, status=400)
 
 
@@ -1103,6 +1076,36 @@ def delete_account(request):
 
 
 def unsubscribe_listeners(user, email=None):
+    social_apis = SocialAPI.objects.filter(user=user)
+    if social_apis.exists():
+        for social_api in social_apis:
+            if social_api.type_api == "google":
+                for i in range(MAX_RETRIES):
+                    if google_api.unsubscribe_from_email_notifications(
+                        user, social_api.email
+                    ):
+                        break
+                    else:
+                        LOGGER.critical(
+                            f"[Attempt n°{i+1}] Failed to unsubscribe from Google: {social_api.email}"
+                        )
+                    context = {
+                        "title": "Critical Alert: Google Unsubscription Failure",
+                        "attempt_number": i + 1,
+                        "subscription_id": social_api.email,
+                        "email_provider": GOOGLE_PROVIDER,
+                        "user": user,
+                    }
+                    email_html = render_to_string("unsubscribe_failure.html", context)
+                    send_mail(
+                        subject="Critical Alert: Google Unsubscription Failure",
+                        message="",
+                        recipient_list=ADMIN_EMAIL_LIST,
+                        from_email=EMAIL_NO_REPLY,
+                        html_message=email_html,
+                        fail_silently=False,
+                    )
+
     if email:
         microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
     else:
@@ -1120,7 +1123,8 @@ def unsubscribe_listeners(user, email=None):
                         f"[Attempt n°{i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
                     )
                     context = {
-                        "attempt_number": i,
+                        "title": "Critical Alert: Microsoft Unsubscription Failure",
+                        "attempt_number": i + 1,
                         "subscription_id": listener.subscription_id,
                         "email_provider": MICROSOFT_PROVIDER,
                         "user": user,
@@ -1268,6 +1272,14 @@ def update_user_rule(request):
 
 
 # ----------------------- USER -----------------------#
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_first_email(request: HttpRequest):
+    """Returns the first email of the user account."""
+    email = SocialAPI.objects.filter(user=request.user).first().email
+    return Response({"email": email}, status=200)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def check_sender_for_user(request):
@@ -1426,7 +1438,7 @@ def search_emails_ai(request):
     # TODO: check if max_results correspond to subscription !!!
 
     max_results: int = search_params["max_results"]
-    from_str: str = search_params["from"]
+    from_addresses: list = search_params["from"]
     to: list = search_params["to"]
     subject: str = search_params["subject"]
     body: str = search_params["body"]
@@ -1450,8 +1462,8 @@ def search_emails_ai(request):
                         services,
                         max_results=max_results,
                         filenames=filenames,
-                        from_address=from_str,
-                        to_address=to,
+                        from_addresses=from_addresses,
+                        to_addresses=to,
                         subject=subject,
                         body=body,
                         keywords=keywords,
@@ -1474,8 +1486,8 @@ def search_emails_ai(request):
                         access_token,
                         max_results=max_results,
                         filenames=filenames,
-                        from_address=from_str,
-                        to_address=to,
+                        from_addresses=from_addresses,
+                        to_addresses=to,
                         subject=subject,
                         body=body,
                         keywords=keywords,
@@ -1495,10 +1507,18 @@ def search_emails_ai(request):
 @permission_classes([IsAuthenticated])
 def search_emails(request):
     user = request.user
-    data = request.data
-    emails = data["emails"]
-    query = data["query"]
-    max_results = data["max_results"]
+    data: dict = request.data
+    emails: list = data["emails"]
+    max_results: int = data["max_results"]
+    query: str = data["query"]
+    file_extensions: list = data["file_extensions"]
+    advanced: bool = data["advanced"]
+    from_addresses: list = data["from_addresses"]
+    to_addresses: list = data["to_addresses"]
+    subject: str = data["subject"]
+    body: str = data["body"]
+    date_from: str = data["date_from"]
+    search_in: dict = data["search_in"]
 
     # TODO: check if max_results correspond to subscription !!!
 
@@ -1520,7 +1540,17 @@ def search_emails(request):
                     GOOGLE_PROVIDER,
                     email,
                     google_api.search_emails_manually(
-                        services, query, max_results, ["pdf", "png"]
+                        services,
+                        query,
+                        max_results,
+                        file_extensions,
+                        advanced,
+                        search_in,
+                        from_addresses,
+                        to_addresses,
+                        subject,
+                        body,
+                        date_from,
                     ),
                 )
             )
@@ -1533,7 +1563,17 @@ def search_emails(request):
                     MICROSOFT_PROVIDER,
                     email,
                     microsoft_api.search_emails_manually(
-                        access_token, query, max_results
+                        access_token,
+                        query,
+                        max_results,
+                        file_extensions,
+                        advanced,
+                        search_in,
+                        from_addresses,
+                        to_addresses,
+                        subject,
+                        body,
+                        date_from,
                     ),
                 )
             )
@@ -2935,3 +2975,26 @@ def get_first_email(request):
         return Response({"email": email}, status=200)
     else:
         return Response({"error": "No emails associated with the user"}, status=404)'''
+
+
+"""# TODO: OLD - delete after implementing new solution
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def new_email_recommendations(request):
+    serializer = EmailAIRecommendationsSerializer(data=request.data)
+
+    if serializer.is_valid():
+        mail_content = serializer.validated_data["mail_content"]
+        user_recommendation = serializer.validated_data["user_recommendation"]
+        email_subject = serializer.validated_data["email_subject"]
+
+        subject_text, email_body = claude.new_mail_recommendation(
+            mail_content, email_subject, user_recommendation
+        )
+
+        return Response({"subject": subject_text, "email_body": email_body})
+    else:
+        LOGGER.error(
+            f"Serializer errors in new_email_recommendations: {serializer.errors}"
+        )
+        return Response(serializer.errors, status=400)"""

@@ -11,12 +11,11 @@
 <body>
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #FF0000;">{{ title }}</h2>
-        <p>An error occurred while attempting to unsubscribe from Microsoft.</p>
+        <p>An error occurred while attempting to generate a new body response.</p>
         <p>Details:</p>
         <ul>
             <li>Attempt Number: {{ attempt_number }}</li>
-            <li>Subscription ID: {{ subscription_id }}</li>
-            <li>Email Provider: {{ email_provider }}</li>
+            <li>Error: {{ error }}</li>
             <li>User: {{ user }}</li>
         </ul>
         <p>Please investigate urgently.</p>

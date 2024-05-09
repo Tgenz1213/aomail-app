@@ -12,7 +12,10 @@ BACKEND_DIR = os.path.dirname(CURRENT_DIR)
 CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
 ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
-# TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
+
+# ----------------------- PICTURES ------------------------#
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BACKEND_DIR, 'media')
 
 # ----------------------- URLS AND CORS -----------------------#
 DOMAIN = f"https://{ENV}.aomail.ai"
@@ -26,7 +29,7 @@ CORS_ALLOWED_ORIGINS = [DOMAIN]
 # ----------------------- EMAIL CREDS -----------------------#
 EMAILS_CREDS = json.load(open(f"{CREDS_PATH}emails_creds.json"))
 EMAIL_NO_REPLY = EMAILS_CREDS["email"]
-EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["password"]
+EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 ADMIN_EMAIL_LIST = EMAILS_CREDS["email_admins"]
 
 
@@ -46,7 +49,7 @@ STRIPE_PRICES = {
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
 CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json"))
-HUMAN = "\n\nHuman: "
+HUMAN = "Human: "
 ASSISTANT = "Assistant:"
 IMPORTANT = "Important"
 INFORMATION = "Information"
@@ -83,8 +86,7 @@ GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE_PROVIDER = "Gmail"
-# TODO: put the key in the creds.json!!!
-GOOGLE_LISTENER_API_KEY = ""
+# TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 
 
 ######################## MICROSOFT API ########################

@@ -1,7 +1,9 @@
+pillow
 groq
 stripe
 django-crontab
 python-json-logger
+llmlingua
 aiohttp
 aiosignal
 annotated-types

@@ -13,6 +13,8 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY_PASSWORD,
     HOSTS_URLS,
     CORS_ALLOWED_ORIGINS,
+    MEDIA_URL,
+    MEDIA_ROOT,
 )
 from MailAssistant.schedule_tasks import Command
 
@@ -73,6 +75,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "MailAssistant",
+    "MailAssistant.ai_providers",
+    "MailAssistant.controllers",
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt",
@@ -217,7 +221,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
-# TODO: check if it works
+# TODO: add a scheduled task that deletes all emails to no reply every day
 """CRONJOBS = [
     (
         "0 3 * * *",

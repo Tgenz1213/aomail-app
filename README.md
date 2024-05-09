@@ -1,21 +1,16 @@
-# Repository for MailAssistant
+# Aomail: 🤖 Ao helps users to classify their emails
+
+**Working**
+- ⌚ Email and response generation
+- 📑 Auto classification & summary
+- 🔗 Multi accounts in 1 app
+
+**Development**
+- 🔍 Search response among emails
 
 ## Quick Setup
 
-# Ask Théo HUBERT for your credentials
-1) setup the tunel with Wireguard
-2) setup VSC and wsl to connect to the server via ssh
-3) connect to database to check
-
-# COMMON ISSUES
-**M365 Licenses Error:**
-If you encounter the following error while accessing data:
-```json
-{
-  "error": {
-    "code": "MailboxNotEnabledForRESTAPI",
-    "message": "The mailbox is either inactive, soft-deleted, or is hosted on-premise."
-  }
-}
-```
-This error typically indicates that your account does not have the proper license to access the requested data thus you have to pay a M365 license.
+### Ask Théo HUBERT for your credentials
+1) Setup the tunel with Wireguard by giving your public key
+2) Setup VSC and wsl to connect to the server via ssh
+3) Run your assigned script: start_username_build.sh

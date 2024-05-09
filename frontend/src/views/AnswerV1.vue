@@ -331,7 +331,7 @@ let backgroundColor = ref('');
 let timerId = ref(null);
 
 let emailAnswered = ref(false);
-
+let history = ref({});
 
 function dismissPopup() {
   showNotification.value = false;
@@ -416,6 +416,24 @@ const isFocused = ref(false);
 const isFocused2 = ref(false);
 const hasValueEverBeenEntered = ref(false);
 const quill = ref(null);
+
+
+let emailSelected = ref('');
+emailSelected.value = localStorage.getItem("email");
+
+if (!emailSelected.value) {
+  fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
+    .then(response => {
+      emailSelected.value = response.email;
+      localStorage.setItem("email", emailSelected.value);
+    })
+    .catch(error => {
+      backgroundColor = 'bg-red-300';
+      notificationTitle.value = 'Erreur récupération du 1er email';
+      notificationMessage.value = error;
+      displayPopup();
+    });
+}
 
 // function linked to ENTER key listeners
 function handleBlur2(event) {
@@ -717,7 +735,8 @@ async function handleAIClick() {
   const requestOptions = {
     method: 'GET',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'email': emailSelected.value
     },
   };
 
@@ -757,20 +776,25 @@ async function handleAIClick() {
           MailCreatedByAI.value = true;
           loading();
           scrollToBottom();
-          const result = await fetchWithToken(`${API_BASE_URL}api/generate_email_answer/`, {
+          const result = await fetchWithToken(`${API_BASE_URL}api/get_new_email_response/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              email_subject: inputValue.value,
-              email_content: emailContent.value,
-              response_type: textareaValueSave.value
+              body: quill.value.root.innerHTML,
+              userInput: textareaValueSave.value,
+              subject: inputValue.value,
+              importance: "Important", // todo: get the importance of the email
+              history: history.value
             }),
           });
           hideLoading();
           console.log('Generated Email Response:', result);
-          const formattedMail = result.email_answer.replace(/\n/g, '<br>');
+
+          mail.value = result.email_body;
+          history.value = result.history;
+          const formattedMail = result.email_body.replace(/\n/g, '<br>');
           const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
@@ -787,7 +811,7 @@ async function handleAIClick() {
           `;
           AIContainer.value.innerHTML += messageHTML;
           const quillEditorContainer = quill.value.root;
-          quillEditorContainer.innerHTML = result.email_answer.replace(/(<ul>|<ol>|<\/li>)(?:[\s]+)(<li>|<\/ul>|<\/ol>)/g, '$1$2');
+          quillEditorContainer.innerHTML = result.email_body.replace(/(<ul>|<ol>|<\/li>)(?:[\s]+)(<li>|<\/ul>|<\/ol>)/g, '$1$2');
 
           const message = "Est-ce que cette réponse vous convient ?";
           const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
@@ -814,22 +838,25 @@ async function handleAIClick() {
           MailCreatedByAI.value = true;
           loading();
           scrollToBottom();
-          const result = await fetchWithToken(`${API_BASE_URL}api/new_email_recommendations/`, {
+          const result = await fetchWithToken(`${API_BASE_URL}api/get_new_email_response/`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              mail_content: quill.value.root.innerHTML,
-              user_recommendation: textareaValueSave.value,
-              email_subject: inputValue.value,
+              body: quill.value.root.innerHTML,
+              userInput: textareaValueSave.value,
+              subject: inputValue.value,
+              importance: "Important", // todo: get the importance of the email
+              history: history.value
             }),
           });
           hideLoading();
-          subject.value = result.subject;
+          //subject.value = result.subject;
           mail.value = result.email_body;
-          console.log(result);
-          if (result.subject && result.email_body) {
+          history.value = result.history;
+          console.log("DEBUG ai conv step 1", result);
+          if (result.email_body) {
             // TO FINISH => animation
             hideLoading();
             const formattedMail = result.email_body.replace(/\n/g, '<br>');
@@ -860,7 +887,7 @@ async function handleAIClick() {
             const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
             displayMessage(message, ai_icon);
-            console.log('Subject or Email is missing in the response');
+            console.log('body is missing in the response');
           }
         } catch (error) {
           hideLoading();
@@ -960,6 +987,11 @@ function askContentAdvice() {
   const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
   counter_display += 1;
   animateText(message, animatedParagraph);
+
+  // TODO: add buttons
+  const message2 = "Quelle longueur de mail et formalité souhaitez vous ?";
+  const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+  displayMessage(message2, ai_icon);
 }
 
 async function handleButtonClick(keyword) {
@@ -1385,6 +1417,7 @@ async function sendEmail() {
   if (selectedCCI.value.length > 0) {
     selectedCCI.value.forEach(person => formData.append('cci', person.email));
   }
+  formData.append('email', emailSelected.value);
 
   try {
     const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {

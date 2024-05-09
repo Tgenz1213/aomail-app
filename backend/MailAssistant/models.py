@@ -140,6 +140,12 @@ class BCC_sender(models.Model):
     email = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
 
+class Picture(models.Model):
+    """Model for storing pictures sender of a mail"""
+
+    mail_id = models.ForeignKey(Email, on_delete=models.CASCADE, related_name="picture_mail")
+    picture = models.TextField()
+
 
 class BulletPoint(models.Model):
     """Model for storing bullet points."""

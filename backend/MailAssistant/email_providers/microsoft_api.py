@@ -188,6 +188,22 @@ def refresh_access_token(social_api: SocialAPI):
 
 
 ######################## PROFILE REQUESTS ########################
+def verify_license(access_token) -> bool:
+    """Verifies if there is a license associated with the account."""
+
+    graph_endpoint = f"{GRAPH_URL}me/licenseDetails"
+    headers = get_headers(access_token)
+    response = requests.get(graph_endpoint, headers=headers)
+
+    if response.status_code == 200:
+        data: dict = response.json()
+        if data["value"] == []:
+            return False
+        else:
+            return True
+    return False
+
+
 def get_info_contacts(access_token):
     """Fetch the name and the email of the contacts of the user"""
     graph_endpoint = f"{GRAPH_URL}me/contacts"
@@ -898,6 +914,8 @@ def subscribe_to_email_notifications(user, email) -> bool:
         response = requests.post(url, json=subscription_body, headers=headers)
         response_data = response.json()
 
+        print("DEBUG response data MSFFT", response_data)
+
         social_api = SocialAPI.objects.get(user=user, email=email)
         subscription_id = response_data["id"]
 
@@ -1142,12 +1160,12 @@ class MicrosoftEmailNotification(View):
                                 break
                             else:
                                 LOGGER.critical(
-                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                                    f"[Attempt n°{i+1}] Failed to process email with AI for email: {subscription.first().email} and email ID: {email_id}"
                                 )
                                 context = {
                                     "error": result,
                                     "attempt_number": i + 1,
-                                    "email_id": email_id,
+                                    "email": subscription.first().email,
                                     "email_provider": MICROSOFT_PROVIDER,
                                     "user": subscription.first().user,
                                 }

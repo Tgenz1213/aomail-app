@@ -349,178 +349,6 @@ def get_info_contacts(services):
     return names_emails
     
 
-""" OLD BUT WORKING
-def get_mail_to_db(services, int_mail=None, id_mail=None):
-
-    service = services["gmail"]
-    plaintext_var = [0]
-    plaintext_var[0] = 0
-    
-    if int_mail is not None:
-        results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
-        messages = results.get("messages", [])
-        if not messages:
-            LOGGER.info("No new messages.")
-            return None
-        message = messages[int_mail]
-        email_id = message["id"]
-    elif id_mail is not None:
-        email_id = id_mail
-    else:
-        LOGGER.error("Either int_mail or id_mail must be provided")
-        return None
-
-    msg = service.users().messages().get(userId="me", id=email_id).execute()
-    subject = from_info = cc_info = bcc_info = None
-    has_attachments = False
-    headers = msg["payload"]["headers"]
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
-    is_reply = any(header["name"] == "In-Reply-To" for header in headers)
-
-    for header in headers:
-        name = header["name"].lower()
-        value = header["value"]
-        if name == "subject":
-            subject = value
-        elif name == "from":
-            from_info = parse_name_and_email(value)
-        elif name == "cc":
-            cc_info = parse_name_and_email(value)
-        elif name == "bcc":
-            bcc_info = parse_name_and_email(value)
-        elif name == "date":
-            sent_date = parsedate_to_datetime(value).strftime("%Y-%m-%d %H:%M:%S%z")
-
-    decoded_data = ""
-    email_html = ""
-    if "parts" in msg["payload"]:
-        for part in msg["payload"]["parts"]:
-            if part.get("filename"):
-                has_attachments = True
-            decoded_data_temp = library.process_part(part, plaintext_var)
-            if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
-                if part.get("mimeType", "") == "text/html":
-                    email_html += decoded_data_temp
-                elif part.get("mimeType", "") == "text/plain":
-                    email_html += f"<pre>{decoded_data_temp}</pre>"
-    elif "body" in msg["payload"]:
-        data = msg["payload"]["body"]["data"]
-        data = data.replace("-", "+").replace("_", "/")
-        decoded_data_temp = base64.b64decode(data).decode("utf-8")
-        decoded_data = library.html_clear(decoded_data_temp)
-        email_html = f"<pre>{decoded_data}</pre>"
-
-    # Clean and secure HTML
-    soup = BeautifulSoup(email_html, "html.parser")
-    safe_html = soup.prettify()
-
-    # Preprocess text data
-    preprocessed_data = library.preprocess_email(decoded_data)
-
-    print("------------------------> 3", from_info)
-
-    return (
-        subject,
-        from_info,
-        preprocessed_data,
-        safe_html, 
-        email_id,
-        sent_date,
-        web_link,
-        has_attachments,
-        is_reply,
-        cc_info,
-        bcc_info
-    )
-"""
-
-""" OLD 2 BUT WORK"
-def get_mail_to_db(services, int_mail=None, id_mail=None):
-
-    service = services["gmail"]
-    
-    if int_mail is not None:
-        results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
-        messages = results.get("messages", [])
-        if not messages:
-            LOGGER.info("No new messages.")
-            return None
-        message = messages[int_mail]
-        email_id = message["id"]
-    elif id_mail is not None:
-        email_id = id_mail
-    else:
-        LOGGER.error("Either int_mail or id_mail must be provided")
-        return None
-
-    msg = service.users().messages().get(userId="me", id=email_id).execute()
-    subject = from_info = cc_info = bcc_info = None
-    has_attachments = False
-    headers = msg["payload"]["headers"]
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
-    is_reply = any(header["name"] == "In-Reply-To" for header in headers)
-
-    for header in headers:
-        name = header["name"].lower()
-        value = header["value"]
-        if name == "subject":
-            subject = value
-        elif name == "from":
-            from_info = parse_name_and_email(value)
-        elif name == "cc":
-            cc_info = parse_name_and_email(value)
-        elif name == "bcc":
-            bcc_info = parse_name_and_email(value)
-        elif name == "date":
-            sent_date = parsedate_to_datetime(value).strftime("%Y-%m-%d %H:%M:%S%z")
-
-    decoded_data = ""
-    email_html = ""
-    if "parts" in msg["payload"]:
-        for part in msg["payload"]["parts"]:
-            if part.get("filename"):
-                has_attachments = True
-            if part.get("mimeType", "").startswith("text/"):
-                data = part["body"]["data"]
-                data = data.replace("-", "+").replace("_", "/")
-                decoded_data_temp = base64.b64decode(data).decode("utf-8")
-                if part.get("mimeType", "") == "text/html":
-                    email_html += decoded_data_temp
-                elif part.get("mimeType", "") == "text/plain":
-                    email_html += f"<pre>{decoded_data_temp}</pre>"
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
-    elif "body" in msg["payload"]:
-        data = msg["payload"]["body"]["data"]
-        data = data.replace("-", "+").replace("_", "/")
-        decoded_data_temp = base64.b64decode(data).decode("utf-8")
-        decoded_data = library.html_clear(decoded_data_temp)
-        email_html = f"<pre>{decoded_data}</pre>"
-
-    # Clean and secure HTML
-    soup = BeautifulSoup(email_html, "html.parser")
-    safe_html = soup.prettify()
-
-    # Preprocess text data
-    preprocessed_data = library.preprocess_email(decoded_data)
-
-    print("------------------------> 3", from_info)
-
-    return (
-        subject,
-        from_info,
-        preprocessed_data,
-        safe_html, 
-        email_id,
-        sent_date,
-        web_link,
-        has_attachments,
-        is_reply,
-        cc_info,
-        bcc_info
-    )
-"""
-
 def get_mail_to_db(services, int_mail=None, id_mail=None):
     """Retrieve email information for processing email to database."""
 
@@ -1238,8 +1066,9 @@ def receive_mail_notifications(request):
 
         decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
         decoded_json = json.loads(decoded_data)
+
         attributes = message_data.get("attributes", {})
-        email_id = attributes.get("emailId")
+        # email_id = attributes.get("emailId")
         email = decoded_json.get("emailAddress")
         #if email_id is None:
             #return Response(status=200)
@@ -1258,12 +1087,12 @@ def receive_mail_notifications(request):
                         break
                     else:
                         LOGGER.critical(
-                            f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
+                            f"[Attempt n°{i+1}] Failed to process email with AI for email: {email}"
                         )
                         context = {
                             "error": result,
                             "attempt_number": i + 1,
-                            "email_id": email_id,
+                            "email": email,
                             "email_provider": GOOGLE_PROVIDER,
                             "user": social_api.user,
                         }
@@ -1285,7 +1114,7 @@ def receive_mail_notifications(request):
         return Response(status=200)
 
     except IntegrityError:
-        LOGGER.error(f"Email already exist in database: {email_id}")
+        LOGGER.error(f"Email already exists in database")
         return Response(status=200)
 
     except Exception as e:

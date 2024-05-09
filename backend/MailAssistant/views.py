@@ -10,7 +10,7 @@ import threading
 import time
 from django.db import IntegrityError
 import jwt
-import stripe  # type: ignore
+import stripe
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
@@ -88,7 +88,7 @@ LOGGER = logging.getLogger(__name__)
 def signup(request):
     """Register user in mailassistandb and handles the callback of the API with Oauth2.0
 
-    APIs taken into account:
+    APIs supported:
         - Gmail API (Google)
         - Graph API (Microsoft)
     """
@@ -136,7 +136,6 @@ def signup(request):
     user_id = user.id
     refresh = RefreshToken.for_user(user)
     django_access_token = str(refresh.access_token)
-    user.save()
 
     # Asynchronous function to store all contacts
     try:
@@ -145,10 +144,18 @@ def signup(request):
                 target=google_api.set_all_contacts, args=(user, email)
             ).start()
         elif type_api == "microsoft":
-            threading.Thread(
-                target=microsoft_api.set_all_contacts, args=(access_token, user)
-            ).start()
+            if microsoft_api.verify_license(access_token):
+                threading.Thread(
+                    target=microsoft_api.set_all_contacts, args=(access_token, user)
+                ).start()
+            else:
+                user.delete()
+                return Response(
+                    {"error": "No license associated with the account"}, status=400
+                )
+
     except Exception as e:
+        user.delete()
         return Response({"error": str(e)}, status=400)
 
     # Save user data
@@ -164,6 +171,7 @@ def signup(request):
         categories,
     )
     if "error" in result:
+        user.delete()
         return Response(result, status=400)
 
     # (useless for now): TODO: use create_subscription function

@@ -188,6 +188,17 @@ def refresh_access_token(social_api: SocialAPI):
 
 
 ######################## PROFILE REQUESTS ########################
+def verify_license(access_token) -> bool:
+    """Verifies if there is a license associated with the account."""
+
+    graph_endpoint = f"{GRAPH_URL}me/licenseDetails"
+    headers = get_headers(access_token)
+    response = requests.get(graph_endpoint, headers=headers)
+    if response.status_code == 200:
+        return True
+    return False
+
+
 def get_info_contacts(access_token):
     """Fetch the name and the email of the contacts of the user"""
     graph_endpoint = f"{GRAPH_URL}me/contacts"

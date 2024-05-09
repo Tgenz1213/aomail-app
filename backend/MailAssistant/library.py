@@ -252,6 +252,7 @@ def preprocess_email(email_content: str) -> str:
     # Remove links enclosed in <http...> or http... followed by a space
     email_content = re.sub(r"<http(.*?)>", "", email_content)
     email_content = re.sub(r"http(.*?)\ ", "", email_content)
+    email_content = re.sub(r"http\S+", "", email_content)
     # Delete patterns like "[image: ...]"
     email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)
     # Convert Windows line endings to Unix line endings

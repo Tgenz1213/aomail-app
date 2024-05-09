@@ -462,6 +462,8 @@ def get_mail(services, int_mail=None, id_mail=None):
         elif name == "Date":
             sent_date = parsedate_to_datetime(values["value"])
 
+    print(base64.decode(msg["payload"]))
+
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
             decoded_data_temp = library.process_part(part, plaintext_var)
@@ -1013,7 +1015,7 @@ def receive_mail_notifications(request):
         print(f"DEBUG decoded_json: {decoded_json}")
         print(f"DEBUG message_data: {message_data}")
         print(f"DEBUG attributes: {attributes}")
-        
+
         try:
             social_api = SocialAPI.objects.get(email=email)
             services = authenticate_service(social_api.user, email)
@@ -1111,6 +1113,9 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             target=gpt_3_5_turbo.categorize_and_summarize_email,
             args=(subject, decoded_data, c_d2, user_description),
         ).start()"""
+
+        # TODO: preprocess data ONLY last email
+        print(decoded_data)
 
         (
             topic,

@@ -402,6 +402,8 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
             print(decoded_data_temp)
             if decoded_data_temp:
                 decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+                print("_____________________DEBUG DECODED DATA AFTER CONCAT TEXT______________________")
+                print(decoded_data)
 
     elif "body" in msg["payload"]:
         data = msg["payload"]["body"]["data"]
@@ -1145,9 +1147,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
         )
         print(decoded_data)
-
-        print("=====================NUMBER OF TOKENS=========================")
-        print(claude.count_tokens(decoded_data))
+        
         (
             topic,
             importance_dict,

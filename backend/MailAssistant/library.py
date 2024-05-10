@@ -120,8 +120,6 @@ def save_contacts(user, email, all_recipients):
 
 
 ######################## EMAIL DATA PROCESSING ########################
-
-
 def get_db_categories(current_user) -> dict[str, str]:
     """Retrieves categories specific to the given user from the database."""
     categories = Category.objects.filter(user=current_user)

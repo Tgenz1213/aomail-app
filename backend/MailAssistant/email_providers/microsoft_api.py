@@ -1297,9 +1297,6 @@ def email_to_db(user, email, id_email):
         )
         print(decoded_data)
 
-        print("=====================NUMBER OF TOKENS=========================")
-        print(claude.count_tokens(decoded_data))
-
         (
             topic,
             importance_dict,

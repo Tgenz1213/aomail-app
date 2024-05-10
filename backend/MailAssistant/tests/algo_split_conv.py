@@ -54,7 +54,7 @@ import re
 # Sample email content
 email_content = """
 <div> Bonjour, <br/> <br/> Merci <br/> Augustin ROLET <br/> <br/> <br/> <br/> On 5/6/2024 3:48 PM, CROCHET Moise wrote: <br/> Bonjour Augustin, <br/> <br/> </div> """
-
+é
 # Regular expression pattern to search for date formats
 date_pattern = r'\b\d{1,2}/\d{1,2}/\d{4}\b'
 

@@ -1902,7 +1902,7 @@ def get_user_emails(request):
     emails2 = emails[one_third:2 * one_third]
     emails3 = emails[2 * one_third:]
 
-    def process_emails(email_list):
+    def process_emails(email_list:list[Email]):
         for email in email_list:
             if email.read_date:
                 current_datetime_utc = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)

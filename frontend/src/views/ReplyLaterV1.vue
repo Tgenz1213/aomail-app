@@ -25,7 +25,7 @@
           </div>
           <div class="flex-grow overflow-y-auto" style="margin-right: 2px;">
             <div class="h-full">
-              <div v-if="nbr_reply_answer == 0" class="py-2 w-full h-full">
+              <div v-if="nbr_reply_answer == 0" class="px-4 py-4 w-full h-full">
                 <div
                   class="flex items-center justify-center w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
                   @click="showModal = true">

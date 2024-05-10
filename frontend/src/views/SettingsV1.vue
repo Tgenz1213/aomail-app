@@ -387,10 +387,10 @@
                                             <!-- TODO: set dynamicelly -->
                                             <div class="flex justify-center">
                                                 <div class="w-full max-w-lg">
-                                                    <div class="max-h-25"> <!-- TODO: set dynamicelly -->
+                                                    <div class="max-h-20"> <!-- TODO: set dynamicelly -->
                                                         <ul role="list" class="space-y-1">
                                                             <li v-for="email in emailsLinked" :key="email.email"
-                                                                class="border border-black flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-1 shadow hover:shadow-md text-gray-700 relative">
+                                                                class="border border-black flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
                                                                 <svg v-if="email.type_api === 'microsoft'"
                                                                     xmlns="http://www.w3.org/2000/svg" width="21"
                                                                     height="21" viewBox="0 0 21 21">
@@ -436,7 +436,7 @@
                                                                         </svg>
                                                                     </button>
                                                                     <button type="button"
-                                                                        class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent shadow-sm"
+                                                                        class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent"
                                                                         @click="openUnLinkModal(email.email)">
                                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                                             fill="none" viewBox="0 0 24 24"
@@ -455,7 +455,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex flex-row justify-between px-12">
+                                    <div class="flex flex-row justify-between">
                                         <div class="pt-4">
                                             <div class="relative items-stretch mt-2 flex justify-center items-center">
                                                 <button type="button"

@@ -527,38 +527,25 @@ def get_mail(services, int_mail=None, id_mail=None):
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
-            # DEBUG CODE TO HELP THEO (can be deleted)
-            if part["mimeType"] == "text/plain":
-                # Decode the base64-encoded data
-                data = base64.urlsafe_b64decode(part["body"]["data"]).decode("utf-8")
-                print(
-                    "-------------------------MESSAGE PAYLOAD [ partmimeType] == text/plain:]-------------------------"
-                )
-                print(data)
-            # END
-
             decoded_data_temp = library.process_part(part, plaintext_var)
+            
+            print("______________________DATA decoded_data_temp (PARTS) looks like that ______________________________")
+            print(decoded_data_temp)
+            print("___________________________________________________________________________________")    
             if decoded_data_temp:
                 decoded_data = library.concat_text(decoded_data, decoded_data_temp)
     elif "body" in msg["payload"]:
         data = msg["payload"]["body"]["data"]
+
+
+        print("______________________DATA RAW BODY looks like that ______________________________")
+        print(data)
+        print("___________________________________________________________________________________")
+
+
         data = data.replace("-", "+").replace("_", "/")
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
         decoded_data = library.html_clear(decoded_data_temp)
-
-    # DEBUG CODE TO HELP THEO (can be deleted)
-    else:
-        # If the payload has a single part
-        if msg["payload"]["mimeType"] == "text/plain":
-            # Decode the base64-encoded data
-            data = base64.urlsafe_b64decode(msg["payload"]["body"]["data"]).decode(
-                "utf-8"
-            )
-            print(
-                '-----------msg["payload"]["mimeType"] == "text/plain"----------------MESSAGE PAYLOAD----------------------------------------'
-            )
-            print(data)
-    # END
 
     return (
         subject,
@@ -1095,10 +1082,10 @@ def receive_mail_notifications(request):
         attributes = message_data.get("attributes", {})
         email = decoded_json.get("emailAddress")
 
-        print(f"DEBUG envelope: {envelope}")
-        print(f"DEBUG decoded_json: {decoded_json}")
-        print(f"DEBUG message_data: {message_data}")
-        print(f"DEBUG attributes: {attributes}")
+        # print(f"DEBUG envelope: {envelope}")
+        # print(f"DEBUG decoded_json: {decoded_json}")
+        # print(f"DEBUG message_data: {message_data}")
+        # print(f"DEBUG attributes: {attributes}")
 
         try:
             social_api = SocialAPI.objects.get(email=email)
@@ -1151,6 +1138,8 @@ def receive_mail_notifications(request):
 def email_to_db(user, services, social_api: SocialAPI, id_email):
     """Saves email notifications from Google listener to database"""
 
+    # TODO: id_email is 100% useless => to remove and put None
+
     (
         subject,
         from_name,
@@ -1166,10 +1155,13 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         image_files
     ) = get_mail_to_db(services, 0, id_email)
 
-    print("----------------------------------> decoded_data", decoded_data)
-    print("----------------------------------> PICTURES", image_files)
+    print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
+    print(safe_html)
 
-    #print("------------------------------ DEBUG", safe_html)
+
+    # print("----------------------------------> decoded_data", decoded_data)
+    # print("----------------------------------> PICTURES", image_files)
+
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
@@ -1177,7 +1169,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         if not decoded_data:
             return False
 
-        print("THIS AREA --------------------------------------------------------|")
+        # print("THIS AREA --------------------------------------------------------|")
 
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
@@ -1197,26 +1189,12 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             social_api.user_description if social_api.user_description != None else ""
         )
 
-        # issue cuz of a pointer make a copy to avoid
-        """c_d = category_dict.copy()
-        c_d2 = c_d.copy()
+        #print("-------------------------> 5", "SUBJECT : ",subject, "DATA : ",decoded_data, "CATEGORY : ",category_dict, "USER DESCRIPTION : ",user_description)
 
-        threading.Thread(
-            target=gpt_4.categorize_and_summarize_email,
-            args=(subject, decoded_data, c_d, user_description),
-        ).start()
-
-        threading.Thread(
-            target=gpt_3_5_turbo.categorize_and_summarize_email,
-            args=(subject, decoded_data, c_d2, user_description),
-        ).start()"""
-
-        print("-------------------------> 5", "SUBJECT : ",subject, "DATA : ",decoded_data, "CATEGORY : ",category_dict, "USER DESCRIPTION : ",user_description)
-
-        print(
-            "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
-        )
-        print(decoded_data)
+        # print(
+        #     "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
+        # )
+        # print(decoded_data)
         
         (
             topic,

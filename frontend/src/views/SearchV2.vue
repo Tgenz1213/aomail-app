@@ -138,8 +138,8 @@
                   <div class="col-span-1 shadow-sm">
                     <div class="flex space-x-1 items-center">
                       <adjustments-horizontal-icon class="w-4 h-4" />
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Type de pièce jointe
-                        (optionnel)</label>
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">TODO: list of selected: Type de pièce jointe
+                        </label>
                     </div>
                     <div class="relative items-stretch mt-2">
 
@@ -239,54 +239,18 @@
 
                     </div>
                   </div>
-                  <div class="col-span-1 shadow-sm">
-                    <div class="flex space-x-1 items-center">
-                      <adjustments-horizontal-icon class="w-4 h-4" />
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">OTHER INPUT TODO</label>
-                    </div>
-                    <div class="relative items-stretch mt-2">
+                  <div class="col-span-1 shadow-sm">  
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Tout les fields doivent être ds advanced à part recherche</label>
+                    
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INT FIELD: max_results</label>
 
-                      <!-- TODO: a LIST of attachments choices -->
-                      <Listbox as="div" v-model="attachmentSelected">
-                        <ListboxButton
-                          class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-                          <span class="block truncate">{{ attachmentSelected ? attachmentSelected.name : 'Aucune'
-                            }}</span>
-                          <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                            <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                          </span>
-                        </ListboxButton>
-                        <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                          leave-to-class="opacity-0">
-                          <ListboxOptions
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                            <ListboxOption as="template" v-for="type in attachmentTypes" :key="type.extension"
-                              :value="type" v-slot="{ active, attachmentSelected }">
-                              <li
-                                :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                <span :class="[attachmentSelected ? 'font-semibold' : 'font-normal', 'block truncate']">
-                                  {{ type.name }} {{ type.extension }}
-                                </span>
-                                <span v-if="attachmentSelected"
-                                  :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                  <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                </span>
-                              </li>
-                            </ListboxOption>
-                          </ListboxOptions>
-                        </transition>
-                      </Listbox>
-
-
-
-                    </div>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">BOOL FIELD: advanced</label>
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">LIST FIELD: emails Linked for search</label>
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: subject</label>
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: body</label>
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: date_from</label>
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: search_in</label>
                   </div>
-
-
-
-
-
-
 
 
 
@@ -573,13 +537,18 @@ async function handleAIClick() {
 
   loading();
   scrollToBottom();
+
+  
+  const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
+  
+
   const requestOptions = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      emails: ["augustin.rolet.pro@gmail.com", "augustin@MailAssistant.onmicrosoft.com"],
+      emails: emailsLinkedSelected,
       query: textareaValue.value
     }),
   };
@@ -606,7 +575,7 @@ async function searchEmails() {
   const toAddressesSelected = selectedRecipients.value.map(recipient => recipient.email);
   const from_addressesSelected = selectedFromAddresses.value.map(recipient => recipient.email);
   const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
-
+  
   loading();
   scrollToBottom();
 

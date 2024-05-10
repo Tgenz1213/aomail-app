@@ -251,6 +251,14 @@ def preprocess_email(email_content: str) -> str:
     email_content = re.sub(r"<http(.*?)>", "", email_content)
     email_content = re.sub(r"http(.*?)\ ", "", email_content)
     email_content = re.sub(r"http\S+", "", email_content)
+
+    # rmv email addresses
+    email_content = re.sub(r"<mailto:(.*?)>", "", email_content)
+    email_content = re.sub(r"mailto:(.*?)\ ", "", email_content)
+    # Remove email addresses containing "@"
+    email_content = re.sub(r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", email_content)
+    email_content = re.sub(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", email_content)
+
     # Delete patterns like "[image: ...]"
     email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)
     # Convert Windows line endings to Unix line endings

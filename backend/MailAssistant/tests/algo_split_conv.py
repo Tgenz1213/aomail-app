@@ -2,10 +2,6 @@ import html
 import re
 from bs4 import BeautifulSoup
 
-# TODO: remove email preprocess data: 
-# regex to remove when findin @ + check if provider.domain (only 2 stuff)
-# mailto: | <mailto:augustin@MailAssistant.onmicrosoft.com>
-# <augustin@MailAssistant.onmicrosoft.com>
 
 message = b"Bravo. Je te souhaite une bonne chance.\r\n\r\nAugustin\r\n________________________________\r\nFrom: Augustin <augustin@MailAssistant.onmicrosoft.com>\r\nSent: Thursday, May 9, 2024 8:11 PM\r\nTo: Augustin ROLET <augustin.rolet.pro@gmail.com>\r\nSubject: Re: Ceci est un pur test\r\n\r\nSalut, oui je viens je ram\xc3\xa8ne mon pique nique.\r\nA + bonne fin de journ\xc3\xa9e\r\n\r\nBernard\r\n________________________________\r\nFrom: Augustin <augustin@MailAssistant.onmicrosoft.com>\r\nSent: Thursday, May 9, 2024 7:44 PM\r\nTo: Augustin ROLET <augustin.rolet.pro@gmail.com>\r\nSubject: Re: Ceci est un pur test\r\n\r\nAh d'accord. est ce que tu viens demain?\r\n________________________________\r\nFrom: Augustin ROLET <augustin.rolet.pro@gmail.com>\r\nSent: Thursday, May 9, 2024 7:39 PM\r\nTo: Augustin <augustin@MailAssistant.onmicrosoft.com>\r\nSubject: Re: Ceci est un pur test\r\n\r\n\r\nSalut, j'utilise Thunderbird moi \xf0\x9f\x99\x82.\r\nBonne chance pour l'algo\r\n\r\n\r\nOn 5/9/2024 8:36 PM, Augustin wrote:\r\nCeci est un test depuis outlook\r\n________________________________\r\nFrom: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSent: Thursday, May 9, 2024 7:35 PM\r\nTo: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSubject: Re: Ceci est un pur test\r\n\r\nCecic esy un 2eme test qui va marcher en debug\r\n________________________________\r\nFrom: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSent: Thursday, May 9, 2024 7:31 PM\r\nTo: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSubject: Re: Ceci est un pur test\r\n\r\nJevois bien cela lakhuerese\r\n________________________________\r\nFrom: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSent: Thursday, May 9, 2024 7:30 PM\r\nTo: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSubject: Re: Ceci est un pur test\r\n\r\nOui, c'est bien mais ce n'est pas le cas\r\n________________________________\r\nFrom: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSent: Thursday, May 9, 2024 7:29 PM\r\nTo: Augustin <augustin@MailAssistant.onmicrosoft.com><mailto:augustin@MailAssistant.onmicrosoft.com>\r\nSubject: Ceci est un pur test\r\n\r\nj'imagine que personne ne bidouille\r\n"
 
@@ -19,12 +15,18 @@ html_content = f"<div>{formatted_text}</div>"  # Wrap in a div for example
 html_content = re.sub(r"&gt;", "", html_content)
 html_content = re.sub(r"&lt;", "", html_content)
 
+
 print(html_content)
 
 soup = BeautifulSoup(html_content, 'html.parser')
-print(soup.prettify())
+# print(soup.prettify())
 
 
+# Remove email addresses containing "@"
+email_content = re.sub(r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", soup.prettify())
+email_content = re.sub(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", soup.prettify())
+
+print(email_content)
 
 
 

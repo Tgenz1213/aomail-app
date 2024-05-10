@@ -111,6 +111,7 @@ class Email(models.Model):
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
     content = models.TextField()
+    html_content = models.TextField(default="") # quick fix
     subject = models.CharField(max_length=400)
     priority = models.CharField(max_length=50)
     read = models.BooleanField()
@@ -122,6 +123,28 @@ class Email(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     date = models.DateTimeField(null=True)
     has_attachments = models.BooleanField(default=False)
+
+
+class CC_sender(models.Model):
+    """Model for storing CC sender information."""
+
+    mail_id = models.ForeignKey(Email, on_delete=models.CASCADE, related_name="cc_senders")
+    email = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+
+
+class BCC_sender(models.Model):
+    """Model for storing BCC sender information."""
+    
+    mail_id = models.ForeignKey(Email, on_delete=models.CASCADE, related_name="bcc_senders")
+    email = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
+
+class Picture(models.Model):
+    """Model for storing pictures sender of a mail"""
+
+    mail_id = models.ForeignKey(Email, on_delete=models.CASCADE, related_name="picture_mail")
+    picture = models.TextField()
 
 
 class BulletPoint(models.Model):

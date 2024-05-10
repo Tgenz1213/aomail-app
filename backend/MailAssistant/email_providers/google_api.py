@@ -9,6 +9,7 @@ import re
 import threading
 import time
 import json
+import os
 from django.http import HttpRequest
 import httplib2
 import requests
@@ -44,15 +45,18 @@ from MailAssistant.constants import (
     GOOGLE_TOPIC_NAME,
     IMPORTANT,
     MAX_RETRIES,
+    MEDIA_URL,
     REDIRECT_URI_LINK_EMAIL,
     USELESS,
     INFORMATION,
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
+    MEDIA_ROOT,
 )
 from .. import library
-from ..models import Rule, SocialAPI, BulletPoint, Category, Email, Sender
+from ..models import Rule, SocialAPI, BulletPoint, Category, Email, Sender, CC_sender, BCC_sender, Picture
 from base64 import urlsafe_b64encode
+from bs4 import BeautifulSoup
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -344,90 +348,142 @@ def get_info_contacts(services):
         names_emails.append({"name": name, "emails": email_addresses})
 
     return names_emails
-
+    
 
 def get_mail_to_db(services, int_mail=None, id_mail=None):
     """Retrieve email information for processing email to database."""
 
     service = services["gmail"]
-    plaintext_var = [0]
-    plaintext_var[0] = 0
 
     if int_mail is not None:
-        results = (
-            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
-        )
+        results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
         messages = results.get("messages", [])
         if not messages:
-            LOGGER.info("No new messages.")
+            print("No new messages.")
             return None
         message = messages[int_mail]
         email_id = message["id"]
     elif id_mail is not None:
         email_id = id_mail
     else:
-        LOGGER.info("Either int_mail or id_mail must be provided")
+        print("Either int_mail or id_mail must be provided")
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
-    subject = from_info = decoded_data = None
-    has_attachments = False
-    headers = msg["payload"]["headers"]
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
-    is_reply = any(header["name"] == "In-Reply-To" for header in headers)
-
-    for values in headers:
-        name = values["name"].lower()
-        if name == "subject":
+    email_data = msg["payload"]["headers"]
+    
+    subject = from_info = cc_info = bcc_info = sent_date = None
+    for values in email_data:
+        name = values["name"]
+        if name == "Subject":
             subject = values["value"]
-        elif name == "from":
+        elif name == "From":
             from_info = parse_name_and_email(values["value"])
-        elif name == "date":
-            unforamt = values["value"]
-            print(f"SENT DATE B4 format: {unforamt}")
-            test_sent_date = parsedate_to_datetime(values["value"])
-            print(f"FOrmat that produces a warning: {test_sent_date}")
-            sent_date = datetime.datetime.strptime(
-                values["value"], "%a, %d %b %Y %H:%M:%S %z"
-            ).strftime("%Y-%m-%d %H:%M:%S%z")
-            print(f"SENT DATE AFTER format: {sent_date}")
+        elif name == "Cc":
+            cc_info = parse_name_and_email(values["value"])
+        elif name == "Bcc":
+            bcc_info = parse_name_and_email(values["value"])
+        elif name == "Date":
+            sent_date = parsedate_to_datetime(values["value"])
+
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
+    has_attachments = False
+    is_reply = "in-reply-to" in {header["name"].lower() for header in msg["payload"]["headers"]}
+    email_html = ""
+    image_files = []
+
+    def process_part(part):
+        nonlocal email_html, has_attachments, image_files
+
+        if part["mimeType"] == "text/plain":
+            if "data" in part["body"]:
+                data = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                email_html += f"<pre>{decoded_data}</pre>"
+        elif part["mimeType"] == "text/html":
+            if "data" in part["body"]:
+                data = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                email_html += decoded_data
+
+                # Find and replace base64 encoded images in the HTML
+                img_tags = re.findall(r'<img[^>]+src="data:image/([^;]+);base64,([^"]+)"', decoded_data)
+                for img_type, img_data in img_tags:
+                    has_attachments = True
+                    timestamp = int(time.time())
+                    image_filename = f"image_{timestamp}.{img_type}"
+                    image_path = os.path.join(MEDIA_ROOT, 'pictures', image_filename)
+
+                    img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
+                    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+                    with open(image_path, "wb") as img_file:
+                        img_file.write(img_data_bytes)
+                    image_files.append(image_path)
+
+                    email_html = email_html.replace(f'data:image/{img_type};base64,{img_data}', f'{MEDIA_URL}pictures/{image_filename}')
+        elif part["mimeType"].startswith("image/"):
+            has_attachments = True
+            image_filename = part.get("filename", "")
+            if not image_filename:
+                # Generate a unique filename if not provided
+                timestamp = int(time.time())
+                image_filename = f"image_{timestamp}.jpg"
+            image_path = os.path.join(MEDIA_ROOT, 'pictures', image_filename)
+
+            if "attachmentId" in part["body"]:
+                attachment_id = part["body"]["attachmentId"]
+                attachment = service.users().messages().attachments().get(
+                    userId="me", messageId=email_id, id=attachment_id
+                ).execute()
+                file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
+            elif "data" in part["body"]:
+                file_data = base64.urlsafe_b64decode(part["body"]["data"].encode("UTF-8"))
+            else:
+                return
+            
+            with open(image_path, "wb") as img_file:
+                img_file.write(file_data)
+            image_files.append(image_path)
+        elif part["mimeType"].startswith("multipart/"):
+            if "parts" in part:
+                for subpart in part["parts"]:
+                    process_part(subpart)
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
-            if part.get("filename"):
-                has_attachments = True
+            process_part(part)
+    else:
+        process_part(msg["payload"])
 
-            decoded_data_temp = library.process_part(part, plaintext_var)
-            print("--------------GOOGLE decoded_data_temp---------------------")
-            print(decoded_data_temp)
-            if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
-                print("_____________________DEBUG DECODED DATA AFTER CONCAT TEXT______________________")
-                print(decoded_data)
+    # Replace CID references in HTML with local paths
+    soup = BeautifulSoup(email_html, 'html.parser')
+    for img in soup.find_all('img'):
+        cid_ref = img['src'].lstrip('cid:')
+        for image_file in image_files:
+            if cid_ref in image_file:
+                img['src'] = os.path.join(MEDIA_URL, 'pictures', os.path.basename(image_file))
 
-    elif "body" in msg["payload"]:
-        data = msg["payload"]["body"]["data"]
-        data = data.replace("-", "+").replace("_", "/")
-        decoded_data_temp = base64.b64decode(data).decode("utf-8")
-
-        print("--------------GOOGLE HTML---------------------")
-        print(decoded_data_temp)
-        decoded_data = library.html_clear(decoded_data_temp)
-
-    preprocessed_data = library.preprocess_email(decoded_data)
+    cleaned_html = library.html_clear(email_html)
+    preprocessed_data = library.preprocess_email(cleaned_html)
+    safe_html = soup.prettify()
 
     return (
         subject,
         from_info,
         preprocessed_data,
+        safe_html,
         email_id,
         sent_date,
         web_link,
         has_attachments,
         is_reply,
+        cc_info,
+        bcc_info,
+        image_files
     )
 
 
+# TO DELETE IN THE FUTURE ?
 def get_mail(services, int_mail=None, id_mail=None):
     """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
     service = services["gmail"]
@@ -1037,7 +1093,6 @@ def receive_mail_notifications(request):
         decoded_json = json.loads(decoded_data)
 
         attributes = message_data.get("attributes", {})
-        # email_id = attributes.get("emailId")
         email = decoded_json.get("emailAddress")
 
         print(f"DEBUG envelope: {envelope}")
@@ -1051,7 +1106,9 @@ def receive_mail_notifications(request):
 
             def process_email():
                 for i in range(MAX_RETRIES):
-                    result = email_to_db(social_api.user, services, social_api, None)
+                    result = email_to_db(
+                        social_api.user, services, social_api, None
+                    )
                     if result:
                         break
                     else:
@@ -1098,18 +1155,29 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         subject,
         from_name,
         decoded_data,
+        safe_html,
         email_id,
         sent_date,
         web_link,
         has_attachments,
         is_reply,
+        cc_info,
+        bcc_info,
+        image_files
     ) = get_mail_to_db(services, 0, id_email)
+
+    print("----------------------------------> decoded_data", decoded_data)
+    print("----------------------------------> PICTURES", image_files)
+
+    #print("------------------------------ DEBUG", safe_html)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
             return False
+
+        print("THIS AREA --------------------------------------------------------|")
 
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
@@ -1142,6 +1210,8 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
             target=gpt_3_5_turbo.categorize_and_summarize_email,
             args=(subject, decoded_data, c_d2, user_description),
         ).start()"""
+
+        print("-------------------------> 5", "SUBJECT : ",subject, "DATA : ",decoded_data, "CATEGORY : ",category_dict, "USER DESCRIPTION : ",user_description)
 
         print(
             "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
@@ -1206,6 +1276,7 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                 email_provider=GOOGLE_PROVIDER,
                 email_short_summary=sentence,
                 content=decoded_data,
+                html_content=safe_html,
                 subject=subject,
                 priority=importance,
                 read=False,
@@ -1217,6 +1288,18 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
                 web_link=web_link,
                 has_attachments=has_attachments,
             )
+
+            if cc_info:
+                for email, name in cc_info:
+                    CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+
+            if bcc_info:
+                for email, name in bcc_info:
+                    BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+
+            if image_files:
+                for image_path in image_files:
+                    Picture.objects.create(mail_id=email_entry, picture=image_path)
 
             if summary_list:
                 for point in summary_list:

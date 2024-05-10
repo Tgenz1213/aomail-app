@@ -13,6 +13,8 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY_PASSWORD,
     HOSTS_URLS,
     CORS_ALLOWED_ORIGINS,
+    MEDIA_URL,
+    MEDIA_ROOT,
 )
 from MailAssistant.schedule_tasks import Command
 

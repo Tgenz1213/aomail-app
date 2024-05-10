@@ -1,3 +1,4 @@
+pillow
 groq
 stripe
 django-crontab

@@ -13,6 +13,10 @@ CREDS_PATH = f"{BACKEND_DIR}/creds/"
 ENV = os.environ.get("ENV")
 ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
 
+# ----------------------- PICTURES ------------------------#
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BACKEND_DIR, 'media')
+
 # ----------------------- URLS AND CORS -----------------------#
 DOMAIN = f"https://{ENV}.aomail.ai"
 BASE_URL = f"{DOMAIN}/"

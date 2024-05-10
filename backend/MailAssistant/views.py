@@ -56,6 +56,8 @@ from .models import (
     Sender,
     Contact,
     Subscription,
+    CC_sender, 
+    BCC_sender,
 )
 from .serializers import (
     CategoryNameSerializer,
@@ -1801,10 +1803,10 @@ def set_email_not_reply_later(request, email_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+""" TO DELETE
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_emails(request):
-    """Retrieves and formats user emails grouped by category and priority"""
 
     user = request.user
     emails = Email.objects.filter(user=user).prefetch_related(
@@ -1868,6 +1870,80 @@ def get_user_emails(request):
 
     thread3 = threading.Thread(target=process_emails, args=(emails3,))
     thread3.start()
+    thread3.join()
+
+    # Ensuring all priorities are present for each category
+    all_priorities = {"Important", "Information", "Useless"}
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    return Response(formatted_data, status=status.HTTP_200_OK)
+"""
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_emails(request):
+    """Retrieves and formats user emails grouped by category and priority"""
+    user = request.user
+    emails = Email.objects.filter(user=user).prefetch_related(
+        "category", "bulletpoint_set", "cc_senders", "bcc_senders"
+    )
+    emails = emails.annotate(
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
+    )
+    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values("id")[:1]
+    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+
+    formatted_data = defaultdict(lambda: defaultdict(list))
+
+    one_third = len(emails) // 3
+    emails1 = emails[:one_third]
+    emails2 = emails[one_third:2 * one_third]
+    emails3 = emails[2 * one_third:]
+
+    def process_emails(email_list):
+        for email in email_list:
+            if email.read_date:
+                current_datetime_utc = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
+                delta_time = current_datetime_utc - email.read_date
+
+                # Delete read email older than 2 weeks
+                if delta_time > datetime.timedelta(weeks=2):
+                    email.delete()
+                    continue
+
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "html_content": email.html_content,
+                "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()],
+                "cc": [{"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()],
+                "bcc": [{"email": bcc.email, "name": bcc.name} for bcc in email.bcc_senders.all()],
+                "read": email.read,
+                "rule": email.has_rule,
+                "rule_id": email.rule_id,
+                "answer_later": email.answer_later,
+                "web_link": email.web_link,
+                "has_attachments": email.has_attachments,
+            }
+
+            formatted_data[email.category.name][email.priority].append(email_data)
+
+    # Multi-threading for faster computation with large amount of emails
+    thread1 = threading.Thread(target=process_emails, args=(emails1,))
+    thread2 = threading.Thread(target=process_emails, args=(emails2,))
+    thread3 = threading.Thread(target=process_emails, args=(emails3,))
+    
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    
+    thread1.join()
+    thread2.join()
     thread3.join()
 
     # Ensuring all priorities are present for each category

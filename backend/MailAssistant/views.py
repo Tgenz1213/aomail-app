@@ -1702,13 +1702,13 @@ def get_mail_by_id(request):
 
         # clean cc
         if cc:
-            print("THERE ARE A CC!!!")
+            print("-------------------THERE ARE A CC!!!-----------------")
             cc = tuple(item for item in cc if item is not None)
-            print(cc)
+            print(cc)  
 
         # clean bcc
         if bcc:
-            print("THERE ARE A BCC!!!")
+            print("-------------------------------------THERE ARE A BCC!!!---------------------------------")
             bcc = tuple(item for item in bcc if item is not None)
             print(bcc)
 

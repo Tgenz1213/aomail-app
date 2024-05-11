@@ -1081,7 +1081,7 @@ async function sendEmail() {
     }
     // Add BCC recipients to formData
     if (selectedCCI.value.length > 0) {
-        selectedCCI.value.forEach(person => formData.append('cci', person.email));
+        selectedCCI.value.forEach(person => formData.append('bcc', person.email));
     }
     formData.append('email', emailSelected.value);
 

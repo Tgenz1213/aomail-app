@@ -1280,14 +1280,6 @@ def update_user_rule(request):
 
 
 # ----------------------- USER -----------------------#
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_first_email(request: HttpRequest):
-    """Returns the first email of the user account."""
-    email = SocialAPI.objects.filter(user=request.user).first().email
-    return Response({"email": email}, status=200)
-
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def check_sender_for_user(request):
@@ -1710,12 +1702,29 @@ def get_mail_by_id(request):
 
         # clean cc
         if cc:
+            print("THERE ARE A CC!!!")
             cc = tuple(item for item in cc if item is not None)
+            print(cc)
 
         # clean bcc
         if bcc:
+            print("THERE ARE A BCC!!!")
             bcc = tuple(item for item in bcc if item is not None)
+            print(bcc)
 
+        print({
+                "message": "Authentication successful",
+                "email": {
+                    "subject": subject,
+                    "from_name": from_name,
+                    "decoded_data": decoded_data,
+                    "cc": cc,
+                    "bcc": bcc,
+                    "email_id": email_id,
+                    "date": date,
+                    "email_receiver": email_user
+                },
+            })
         return Response(
             {
                 "message": "Authentication successful",
@@ -1727,6 +1736,7 @@ def get_mail_by_id(request):
                     "bcc": bcc,
                     "email_id": email_id,
                     "date": date,
+                    "email_receiver": email_user
                 },
             },
             status=200,
@@ -3006,3 +3016,15 @@ def new_email_recommendations(request):
             f"Serializer errors in new_email_recommendations: {serializer.errors}"
         )
         return Response(serializer.errors, status=400)"""
+
+
+
+'''
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_first_email(request: HttpRequest):
+    """Returns the first email of the user account."""
+    email = SocialAPI.objects.filter(user=request.user).first().email
+    return Response({"email": email}, status=200)
+'''

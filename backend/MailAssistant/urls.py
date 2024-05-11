@@ -59,7 +59,6 @@ urlpatterns = [
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
-    path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
@@ -106,4 +105,5 @@ urlpatterns = [
     # path('api/find-user/', views.find_user_view, name='find-user'),
     # path('api/unread_mails/', views.unread_mails, name='unread_mails'),    
     # path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
+    # path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
 ]

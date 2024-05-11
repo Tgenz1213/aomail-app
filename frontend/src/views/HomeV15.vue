@@ -1877,26 +1877,20 @@ async function openAnswer(email) {
                 'Content-Type': 'application/json'
             }
         });
-        // Clean CC data
-        let cleanedCc = '';
-        if (data.email.cc && data.email.cc.length > 0) {
-            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
-            cleanedCc = JSON.stringify(ccEmails);
-        } else {
-            cleanedCc = '[]';
-        }
+
+        
+        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
+sessionStorage.setItem("cc", data.email.cc);
+sessionStorage.setItem("bcc", data.email.bcc);
+sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
+sessionStorage.setItem("email", JSON.stringify(email.email));
+sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
+sessionStorage.setItem("details", JSON.stringify(email.details));
+sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+
 
         router.push({
-            name: 'answer',
-            query: {
-                subject: JSON.stringify(data.email.subject),
-                cc: cleanedCc,
-                bcc: JSON.stringify(data.email.bcc),
-                decoded_data: JSON.stringify(data.email.decoded_data),
-                email: JSON.stringify(email.email),
-                id_provider: JSON.stringify(email.id_provider),
-                details: JSON.stringify(email.details)
-            }
+            name: 'answer'
         });
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);

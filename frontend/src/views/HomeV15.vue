@@ -315,7 +315,7 @@
                                                                                         Ouvrir
                                                                                     </div>
                                                                                     <button
-                                                                                        @click="openInNewWindow(item.web_link)"
+                                                                                        @click="openSeeModal(item)"
                                                                                         type="button"
                                                                                         class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
                                                                                         <eye-icon
@@ -872,7 +872,7 @@
                                                                                                     Ouvrir
                                                                                                 </div>
                                                                                                 <button
-                                                                                                    @click.stop="openInNewWindow(item.web_link)"
+                                                                                                    @click.stop="openSeeModal(item)"
                                                                                                     type="button"
                                                                                                     class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                                                                     <eye-icon
@@ -1215,7 +1215,7 @@
                                                                                                     Ouvrir
                                                                                                 </div>
                                                                                                 <button
-                                                                                                    @click.stop="openInNewWindow(item.web_link)"
+                                                                                                    @click.stop="openSeeModal(item)"
                                                                                                     type="button"
                                                                                                     class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-emerald-400 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
                                                                                                     <eye-icon

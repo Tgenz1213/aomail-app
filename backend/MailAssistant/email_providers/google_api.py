@@ -390,18 +390,21 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
     has_attachments = False
     is_reply = "in-reply-to" in {header["name"].lower() for header in msg["payload"]["headers"]}
     email_html = ""
+    email_txt_html = ""
+    email_detect_html = False
     image_files = []
 
     def process_part(part):
-        nonlocal email_html, has_attachments, image_files
+        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files
 
         if part["mimeType"] == "text/plain":
             if "data" in part["body"]:
                 data = part["body"]["data"]
                 decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
-                email_html += f"<pre>{decoded_data}</pre>"
+                email_txt_html += f"<pre>{decoded_data}</pre>"
         elif part["mimeType"] == "text/html":
             if "data" in part["body"]:
+                email_detect_html = True
                 data = part["body"]["data"]
                 decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
                 email_html += decoded_data
@@ -444,6 +447,8 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
             with open(image_path, "wb") as img_file:
                 img_file.write(file_data)
             image_files.append(image_path)
+            email_html += f'<img src="{image_path}" alt="Embedded Image" />'
+            email_txt_html += f'<img src="{image_path}" alt="Embedded Image" />'
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
                 for subpart in part["parts"]:
@@ -454,6 +459,10 @@ def get_mail_to_db(services, int_mail=None, id_mail=None):
             process_part(part)
     else:
         process_part(msg["payload"])
+
+    # If there is txt/HTML in the mail we do not integrate the plain/txt to avoid displaying error
+    if email_detect_html is False:
+        email_html = email_txt_html
 
     # Replace CID references in HTML with local paths
     soup = BeautifulSoup(email_html, 'html.parser')

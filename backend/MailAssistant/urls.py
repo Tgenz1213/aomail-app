@@ -28,10 +28,10 @@ urlpatterns = [
     path('api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     #----------------------- CATEGORIES -----------------------#
     path('api/create_category/', views.create_category, name='create_category'), # ok
-    path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'), # ok
-    path('api/update_category/<str:current_name>/', views.update_category, name='update_category'), # ok
-    path('api/delete_category/<str:current_name>/', views.delete_category, name='delete_category'), # ok
-    path('api/get_rules_linked/<str:current_name>/', views.get_rules_linked, name='get_rules_linked'), # dev
+    path('api/get-category-id/', views.get_category_id, name='get_category_id'), # ok
+    path('api/update_category/', views.update_category, name='update_category'), # ok
+    path('api/delete_category/', views.delete_category, name='delete_category'), # ok
+    path('api/get_rules_linked/', views.get_rules_linked, name='get_rules_linked'), # ok
     #----------------------- EMAIL ACCOUNT -----------------------#
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok

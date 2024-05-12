@@ -2018,10 +2018,11 @@ async function handleUpdateCategory(updatedCategory) {
     }
     const updateData = {
         name: updatedCategory.name,
-        description: updatedCategory.description
+        description: updatedCategory.description,
+        categoryName: oldCategoryName.value
     };
     try {
-        const url = `${API_BASE_URL}api/update_category/${oldCategoryName.value}/`; // Adjust the URL as needed
+        const url = `${API_BASE_URL}api/update_category/`;
         const options = {
             method: 'PUT',
             headers: {
@@ -2069,14 +2070,17 @@ async function handleCategoryDelete(categoryNameToDelete) {
     }
 
     try {
-        const url = `${API_BASE_URL}api/get_rules_linked/${categoryNameToDelete}/`;
+        const url = `${API_BASE_URL}api/get_rules_linked/`;
 
         const options = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        };
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        "categoryName": categoryNameToDelete
+    })
+};
 
         const response = await fetchWithToken(url, options);
 
@@ -2099,14 +2103,17 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
 async function deleteCategory(categoryNameToDelete) {
     try {
-        const url = `${API_BASE_URL}api/delete_category/${categoryNameToDelete}/`;
+        const url = `${API_BASE_URL}api/delete_category/`;
 
-        const options = {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        };
+const options = {
+    method: 'DELETE',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        "categoryName": categoryNameToDelete
+    })
+};
 
         const response = await fetchWithToken(url, options);
 

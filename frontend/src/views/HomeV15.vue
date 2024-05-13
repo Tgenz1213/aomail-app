@@ -1727,25 +1727,26 @@ async function transferEmail(email) {
                 'Content-Type': 'application/json'
             }
         });
-        // Clean CC data
-        let cleanedCc = '';
-        if (data.email.cc && data.email.cc.length > 0) {
-            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
-            cleanedCc = JSON.stringify(ccEmails);
-        } else {
-            cleanedCc = '[]';
-        }
+        
+
+        
+        
+        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
+sessionStorage.setItem("cc", data.email.cc);
+sessionStorage.setItem("bcc", data.email.bcc);
+sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
+sessionStorage.setItem("email", JSON.stringify(email.email));
+sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
+sessionStorage.setItem("details", JSON.stringify(email.details));
+sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+sessionStorage.setItem("date", JSON.stringify(data.email.date));
+
+
+console.log("_____________data.email.cc______________", data.email.cc)
+console.log("_____________data.email.bcc______________", data.email.bcc)
 
         router.push({
-            name: 'transfer',
-            query: {
-                subject: JSON.stringify(data.email.subject),
-                cc: cleanedCc,
-                decoded_data: JSON.stringify(data.email.decoded_data),
-                email: JSON.stringify(email.email),
-                details: JSON.stringify(email.details),
-                date: JSON.stringify(data.email.date)
-            }
+            name: 'transfer'
         });
 
     } catch (error) {
@@ -1877,26 +1878,22 @@ async function openAnswer(email) {
                 'Content-Type': 'application/json'
             }
         });
-        // Clean CC data
-        let cleanedCc = '';
-        if (data.email.cc && data.email.cc.length > 0) {
-            let ccEmails = data.email.cc[0].split(',').map(email => email.trim());
-            cleanedCc = JSON.stringify(ccEmails);
-        } else {
-            cleanedCc = '[]';
-        }
+
+        
+        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
+sessionStorage.setItem("cc", data.email.cc);
+sessionStorage.setItem("bcc", data.email.bcc);
+sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
+sessionStorage.setItem("email", JSON.stringify(email.email));
+sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
+sessionStorage.setItem("details", JSON.stringify(email.details));
+sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+
+console.log("_____________data.email.cc______________", data.email.cc)
+console.log("_____________data.email.bcc______________", data.email.bcc)
 
         router.push({
-            name: 'answer',
-            query: {
-                subject: JSON.stringify(data.email.subject),
-                cc: cleanedCc,
-                bcc: JSON.stringify(data.email.bcc),
-                decoded_data: JSON.stringify(data.email.decoded_data),
-                email: JSON.stringify(email.email),
-                id_provider: JSON.stringify(email.id_provider),
-                details: JSON.stringify(email.details)
-            }
+            name: 'answer'
         });
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
@@ -2024,10 +2021,11 @@ async function handleUpdateCategory(updatedCategory) {
     }
     const updateData = {
         name: updatedCategory.name,
-        description: updatedCategory.description
+        description: updatedCategory.description,
+        categoryName: oldCategoryName.value
     };
     try {
-        const url = `${API_BASE_URL}api/update_category/${oldCategoryName.value}/`; // Adjust the URL as needed
+        const url = `${API_BASE_URL}api/update_category/`;
         const options = {
             method: 'PUT',
             headers: {
@@ -2075,14 +2073,17 @@ async function handleCategoryDelete(categoryNameToDelete) {
     }
 
     try {
-        const url = `${API_BASE_URL}api/get_rules_linked/${categoryNameToDelete}/`;
+        const url = `${API_BASE_URL}api/get_rules_linked/`;
 
         const options = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        };
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        "categoryName": categoryNameToDelete
+    })
+};
 
         const response = await fetchWithToken(url, options);
 
@@ -2105,14 +2106,17 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
 async function deleteCategory(categoryNameToDelete) {
     try {
-        const url = `${API_BASE_URL}api/delete_category/${categoryNameToDelete}/`;
+        const url = `${API_BASE_URL}api/delete_category/`;
 
-        const options = {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        };
+const options = {
+    method: 'DELETE',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        "categoryName": categoryNameToDelete
+    })
+};
 
         const response = await fetchWithToken(url, options);
 

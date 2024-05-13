@@ -223,7 +223,7 @@ def send_email(request: HttpRequest):
             message = data["message"]
             to = data["to"]
             cc = data.get("cc")
-            bcc = data.get("cci")
+            bcc = data.get("bcc")
             attachments = data.get("attachments")
             all_recipients = to
 
@@ -517,7 +517,8 @@ def get_mail(services, int_mail=None, id_mail=None):
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
 
-    subject = from_info = cc_info = bcc_info = decoded_data = None
+    subject = from_info = decoded_data = None
+    cc_info = bcc_info = []
     email_data = msg["payload"]["headers"]
     web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 

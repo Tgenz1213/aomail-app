@@ -359,7 +359,7 @@ def send_email(request: HttpRequest):
             message = data["message"]
             to = data["to"]
             cc = data.get("cc")
-            bcc = data.get("cci")
+            bcc = data.get("bcc")
             attachments = data.get("attachments")
             all_recipients = to
 

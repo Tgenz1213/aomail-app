@@ -28,10 +28,10 @@ urlpatterns = [
     path('api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     #----------------------- CATEGORIES -----------------------#
     path('api/create_category/', views.create_category, name='create_category'), # ok
-    path('api/get-category-id/<str:category_name>/', views.get_category_id, name='get_category_id'), # ok
-    path('api/update_category/<str:current_name>/', views.update_category, name='update_category'), # ok
-    path('api/delete_category/<str:current_name>/', views.delete_category, name='delete_category'), # ok
-    path('api/get_rules_linked/<str:current_name>/', views.get_rules_linked, name='get_rules_linked'), # dev
+    path('api/get-category-id/', views.get_category_id, name='get_category_id'), # ok
+    path('api/update_category/', views.update_category, name='update_category'), # ok
+    path('api/delete_category/', views.delete_category, name='delete_category'), # ok
+    path('api/get_rules_linked/', views.get_rules_linked, name='get_rules_linked'), # ok
     #----------------------- EMAIL ACCOUNT -----------------------#
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
@@ -59,7 +59,6 @@ urlpatterns = [
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
-    path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
@@ -106,4 +105,5 @@ urlpatterns = [
     # path('api/find-user/', views.find_user_view, name='find-user'),
     # path('api/unread_mails/', views.unread_mails, name='unread_mails'),    
     # path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
+    # path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
 ]

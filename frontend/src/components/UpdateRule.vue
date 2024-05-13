@@ -428,10 +428,16 @@ export default {
 
         if (this.formData.category) {
           // Fetch the category ID using fetchWithToken
-          const categoryUrl = `${API_BASE_URL}api/get-category-id/${this.formData.category}`;
+          const categoryUrl = `${API_BASE_URL}api/get-category-id/`;
           const categoryData = await fetchWithToken(categoryUrl, {
-            method: 'GET'
-          });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify({
+        "categoryName": this.formData.category
+    })
+});
           const categoryId = categoryData.id;
           console.log("CategoryId", categoryId);
 

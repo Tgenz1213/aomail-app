@@ -418,22 +418,7 @@ const hasValueEverBeenEntered = ref(false);
 const quill = ref(null);
 
 
-let emailSelected = ref('');
-emailSelected.value = localStorage.getItem("email");
-
-if (!emailSelected.value) {
-  fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
-    .then(response => {
-      emailSelected.value = response.email;
-      localStorage.setItem("email", emailSelected.value);
-    })
-    .catch(error => {
-      backgroundColor = 'bg-red-300';
-      notificationTitle.value = 'Erreur récupération du 1er email';
-      notificationMessage.value = error;
-      displayPopup();
-    });
-}
+const emailReceiver =  sessionStorage.getItem("emailReceiver");
 
 // function linked to ENTER key listeners
 function handleBlur2(event) {
@@ -736,7 +721,7 @@ async function handleAIClick() {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      'email': emailSelected.value
+      'email': emailReceiver
     },
   };
 
@@ -1415,9 +1400,9 @@ async function sendEmail() {
   }
   // Add BCC recipients to formData
   if (selectedCCI.value.length > 0) {
-    selectedCCI.value.forEach(person => formData.append('cci', person.email));
+    selectedCCI.value.forEach(person => formData.append('bcc', person.email));
   }
-  formData.append('email', emailSelected.value);
+  formData.append('email', emailReceiver);
 
   try {
     const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
@@ -1490,14 +1475,19 @@ onMounted(() => {
   bgColor.value = localStorage.getItem('bgColor');
   loadFileMetadataFromLocalStorage(); // For uploaded file
 
-  const subject = JSON.parse(route.query.subject);
-  const email = JSON.parse(route.query.email);
-  const cc = JSON.parse(route.query.cc);
-  const cci = JSON.parse(route.query.bcc);
-  const decoded_data = JSON.parse(route.query.decoded_data);
-  const details = JSON.parse(route.query.details);
-  //const id_provider = JSON.parse(route.query.id_provider);
+  const subject = JSON.parse(sessionStorage.getItem("subject"));
+const cc = sessionStorage.getItem("cc");
+const bcc = sessionStorage.getItem("bcc");
+const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
+const email = JSON.parse(sessionStorage.getItem("email"));
+//const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
+const details = JSON.parse(sessionStorage.getItem("details"));
 
+console.log("DEBUG CC------------------")
+console.log(cc)
+
+console.log("DEBUG BCC------------------")
+console.log(bcc)
   // Initialize Quill editor
   quill.value = new Quill('#editor', {
     theme: 'snow',
@@ -1639,8 +1629,8 @@ onMounted(() => {
   if (cc) {
     selectedCC.value = parseEmails(cc);
   }
-  if (cci) {
-    selectedCCI.value = parseEmails(cci);
+  if (bcc) {
+    selectedCCI.value = parseEmails(bcc);
   }
 
   inputValue.value = 'Re : ' + subject;

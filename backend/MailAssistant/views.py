@@ -56,7 +56,7 @@ from .models import (
     Sender,
     Contact,
     Subscription,
-    CC_sender, 
+    CC_sender,
     BCC_sender,
 )
 from .serializers import (
@@ -581,7 +581,10 @@ def get_user_categories(request):
 
 @api_view(["PUT"])
 @permission_classes([IsAuthenticated])
-def update_category(request, current_name):
+def update_category(request):
+    current_name = request.data.get("categoryName")
+    if not current_name:
+        return Response({"error": "No category name provided"}, status=400)
     if current_name == DEFAULT_CATEGORY:
         return Response(
             {"error": f"Can not modify: {DEFAULT_CATEGORY}"},
@@ -597,13 +600,13 @@ def update_category(request, current_name):
             {"error": "Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if re.search(r"[^a-zA-Z\s]", current_name):
-        return Response(
-            {
-                "error": "The category name contains an invalid character: only letters and spaces are allowed"
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    # if re.search(r"[^a-zA-Z\s]", current_name):
+    #     return Response(
+    #         {
+    #             "error": "The category name contains an invalid character: only letters and spaces are allowed"
+    #         },
+    #         status=status.HTTP_400_BAD_REQUEST,
+    #     )
 
     try:
         category = Category.objects.get(name=current_name, user=request.user)
@@ -623,7 +626,10 @@ def update_category(request, current_name):
 
 @api_view(["DELETE"])
 @permission_classes([IsAuthenticated])
-def delete_category(request, current_name):
+def delete_category(request):
+    current_name = request.data.get("categoryName")
+    if not current_name:
+        return Response({"error": "No category name provided"}, status=400)
     if current_name == DEFAULT_CATEGORY:
         return Response(
             {"error": f"Can not delete: {DEFAULT_CATEGORY}"},
@@ -643,10 +649,13 @@ def delete_category(request, current_name):
     )
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def get_rules_linked(request, current_name):
+def get_rules_linked(request):
     """Returns the rules associated with the category."""
+    current_name = request.data.get("categoryName")
+    if not current_name:
+        return Response({"error": "No category name provided"}, status=400)
     user = request.user
     category = Category.objects.get(name=current_name, user=user)
     rules = Rule.objects.filter(category=category, user=user)
@@ -676,13 +685,13 @@ def create_category(request):
             {"error": f"Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if re.search(r"[^a-zA-Z\s]", name):
-        return Response(
-            {
-                "error": "The category name contains an invalid character: only letters and spaces are allowed"
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    # if re.search(r"[^a-zA-Z\s]", name):
+    #     return Response(
+    #         {
+    #             "error": "The category name contains an invalid character: only letters and spaces are allowed"
+    #         },
+    #         status=status.HTTP_400_BAD_REQUEST,
+    #     )
 
     existing_category = Category.objects.filter(user=request.user, name=name).exists()
 
@@ -702,12 +711,16 @@ def create_category(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def get_category_id(request, category_name):
+def get_category_id(request):
     user = request.user
-    category = get_object_or_404(Category, name=category_name, user=user)
-    return Response({"id": category.id})
+    category_name = request.data.get("categoryName")
+    if category_name:
+        category = get_object_or_404(Category, name=category_name, user=user)
+        return Response({"id": category.id}, status=200)
+    else:
+        return Response({"error": "No category name provided"}, status=400)
 
 
 ############################# CONTACT ##############################
@@ -1280,14 +1293,6 @@ def update_user_rule(request):
 
 
 # ----------------------- USER -----------------------#
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_first_email(request: HttpRequest):
-    """Returns the first email of the user account."""
-    email = SocialAPI.objects.filter(user=request.user).first().email
-    return Response({"email": email}, status=200)
-
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def check_sender_for_user(request):
@@ -1426,11 +1431,7 @@ def search_emails_ai(request):
     data = request.data
     emails = data["emails"]
     query = data["query"]
-    # start = time.time()
     search_params: dict = claude.search_emails(query)
-    # formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-    # print(f"AI model response in: {formatted_time}")
-
     result = {}
 
     def append_to_result(
@@ -1708,11 +1709,8 @@ def get_mail_by_id(request):
                 microsoft_api.get_mail(access_token, None, mail_id)
             )
 
-        # clean cc
         if cc:
             cc = tuple(item for item in cc if item is not None)
-
-        # clean bcc
         if bcc:
             bcc = tuple(item for item in bcc if item is not None)
 
@@ -1727,6 +1725,7 @@ def get_mail_by_id(request):
                     "bcc": bcc,
                     "email_id": email_id,
                     "date": date,
+                    "email_receiver": email_user,
                 },
             },
             status=200,
@@ -1881,6 +1880,7 @@ def get_user_emails(request):
     return Response(formatted_data, status=status.HTTP_200_OK)
 """
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_emails(request):
@@ -1892,20 +1892,24 @@ def get_user_emails(request):
     emails = emails.annotate(
         has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
     )
-    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values("id")[:1]
+    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
+        "id"
+    )[:1]
     emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
 
     formatted_data = defaultdict(lambda: defaultdict(list))
 
     one_third = len(emails) // 3
     emails1 = emails[:one_third]
-    emails2 = emails[one_third:2 * one_third]
-    emails3 = emails[2 * one_third:]
+    emails2 = emails[one_third : 2 * one_third]
+    emails3 = emails[2 * one_third :]
 
-    def process_emails(email_list:list[Email]):
+    def process_emails(email_list: list[Email]):
         for email in email_list:
             if email.read_date:
-                current_datetime_utc = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
+                current_datetime_utc = datetime.datetime.now().replace(
+                    tzinfo=datetime.timezone.utc
+                )
                 delta_time = current_datetime_utc - email.read_date
 
                 # Delete read email older than 2 weeks
@@ -1921,9 +1925,18 @@ def get_user_emails(request):
                 "name": email.sender.name,
                 "description": email.email_short_summary,
                 "html_content": email.html_content,
-                "details": [{"id": bp.id, "text": bp.content} for bp in email.bulletpoint_set.all()],
-                "cc": [{"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()],
-                "bcc": [{"email": bcc.email, "name": bcc.name} for bcc in email.bcc_senders.all()],
+                "details": [
+                    {"id": bp.id, "text": bp.content}
+                    for bp in email.bulletpoint_set.all()
+                ],
+                "cc": [
+                    {"email": cc.email, "name": cc.name}
+                    for cc in email.cc_senders.all()
+                ],
+                "bcc": [
+                    {"email": bcc.email, "name": bcc.name}
+                    for bcc in email.bcc_senders.all()
+                ],
                 "read": email.read,
                 "rule": email.has_rule,
                 "rule_id": email.rule_id,
@@ -1938,11 +1951,11 @@ def get_user_emails(request):
     thread1 = threading.Thread(target=process_emails, args=(emails1,))
     thread2 = threading.Thread(target=process_emails, args=(emails2,))
     thread3 = threading.Thread(target=process_emails, args=(emails3,))
-    
+
     thread1.start()
     thread2.start()
     thread3.start()
-    
+
     thread1.join()
     thread2.join()
     thread3.join()
@@ -3007,3 +3020,14 @@ def new_email_recommendations(request):
             f"Serializer errors in new_email_recommendations: {serializer.errors}"
         )
         return Response(serializer.errors, status=400)"""
+
+
+'''
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_first_email(request: HttpRequest):
+    """Returns the first email of the user account."""
+    email = SocialAPI.objects.filter(user=request.user).first().email
+    return Response({"email": email}, status=200)
+'''

@@ -324,22 +324,24 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
         displayPopup();
     });
 
-let emailSelected = ref('');
-emailSelected.value = localStorage.getItem("email");
+    
+const emailReceiver =  sessionStorage.getItem("emailReceiver");
+// let emailSelected = ref('');
+// emailSelected.value = localStorage.getItem("email");
 
-if (!emailSelected.value) {
-    fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
-        .then(response => {
-            emailSelected.value = response.email;
-            localStorage.setItem("email", emailSelected.value);
-        })
-        .catch(error => {
-            backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Erreur récupération du 1er email';
-            notificationMessage.value = error;
-            displayPopup();
-        });
-}
+// if (!emailSelected.value) {
+//     fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
+//         .then(response => {
+//             emailSelected.value = response.email;
+//             localStorage.setItem("email", emailSelected.value);
+//         })
+//         .catch(error => {
+//             backgroundColor = 'bg-red-300';
+//             notificationTitle.value = 'Erreur récupération du 1er email';
+//             notificationMessage.value = error;
+//             displayPopup();
+//         });
+// }
 
 const selectedPeople = ref([]);
 const selectedCC = ref([]);
@@ -581,7 +583,7 @@ async function handleAIClick() {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'email': emailSelected.value
+            'email': emailReceiver
         },
     };
 
@@ -784,12 +786,16 @@ onMounted(() => {
 
     document.addEventListener("keydown", handleKeyDown);
 
-    const subject = JSON.parse(route.query.subject);
-    const email = JSON.parse(route.query.email);
-    const cc = JSON.parse(route.query.cc);
-    const decoded_data = JSON.parse(route.query.decoded_data);
-    const details = JSON.parse(route.query.details);
-    const date = JSON.parse(route.query.date)
+    
+  const subject = JSON.parse(sessionStorage.getItem("subject"));
+const cc = sessionStorage.getItem("cc");
+const bcc = sessionStorage.getItem("bcc");
+const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
+const email = JSON.parse(sessionStorage.getItem("email"));
+//const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
+const details = JSON.parse(sessionStorage.getItem("details"));
+
+const date = JSON.parse(sessionStorage.getItem("date"));
 
     // Prepare the forwarded email
     inputValue.value = 'Tr : ' + subject;
@@ -1081,9 +1087,9 @@ async function sendEmail() {
     }
     // Add BCC recipients to formData
     if (selectedCCI.value.length > 0) {
-        selectedCCI.value.forEach(person => formData.append('cci', person.email));
+        selectedCCI.value.forEach(person => formData.append('bcc', person.email));
     }
-    formData.append('email', emailSelected.value);
+    formData.append('email', emailReceiver);
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {

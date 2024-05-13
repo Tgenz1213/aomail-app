@@ -1442,7 +1442,7 @@
         <UpdateCategoryModal :isOpen="isModalUpdateOpen" :errorMessage="modalUpdateErrorMessage"
             :category="categoryToUpdate" @closeModal="closeUpdateModal" @updateCategory="handleUpdateCategory"
             @deleteCategory="handleCategoryDelete" />
-        <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @update:isOpen="updateModalStatus" />
+        <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @closeSeeModal="closeSeeModal" />
     </div>
 </template>
 
@@ -1914,6 +1914,9 @@ function updateModalStatus(status) {
 function openSeeModal(emailItem) {
     selectedEmail.value = emailItem; 
     isModalSeeOpen.value = true;
+}
+function closeSeeModal() {
+    isModalSeeOpen.value = false;
 }
 
 function openModal() {

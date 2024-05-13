@@ -1917,6 +1917,7 @@ def get_user_emails(request):
                 "id": email.id,
                 "id_provider": email.provider_id,
                 "email": email.sender.email,
+                "subject": email.subject,
                 "name": email.sender.name,
                 "description": email.email_short_summary,
                 "html_content": email.html_content,

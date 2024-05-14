@@ -1,0 +1,39 @@
+{
+    "Sport": {
+        "organizations": {
+            "Angers Métropole Cyclisme": {
+                "topics": {
+                    "New season": {
+                        "keypoints": [
+                            "start 01/09/2024",
+                            "quentin came back"
+                        ],
+                        "emails": [
+                            "id_email23",
+                            "id_email4"
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "School": {
+        "organizations": {
+            "ESAIP": {
+                "topics": {
+                    "Semester 4": {
+                        "keypoints": [
+                            "end is june",
+                            "erasmus",
+                            "review dormitory"
+                        ],
+                        "emails": [
+                            "id_email1",
+                            "id_email2"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

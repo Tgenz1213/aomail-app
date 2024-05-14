@@ -86,14 +86,14 @@ def get_prompt_response(formatted_prompt):
 class Search:
     """
     Class to search through categorized email data to answer user queries.
-    
+
     Step 1: Prompt with categories and organizations and user query
     Step 2: Prompt with topics and details
     Step 3: Display answer to user
     """
 
     def __init__(
-        self, user_id:int, question: str, knowledge_tree: dict = None
+        self, user_id: int, question: str, knowledge_tree: dict = None
     ) -> None:
         self.user_id = user_id
 
@@ -200,7 +200,7 @@ class Search:
         """
         response = get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)        
+        result_json = json.loads(clear_response)
 
         return result_json
 
@@ -222,7 +222,7 @@ class Search:
 
 question = "When does the cycling season start?"
 # TODO: get real user id
-user_id=1
+user_id = 1
 search = Search(user_id, question, data)
 
 selected_categories = search.get_selected_categories()
@@ -234,17 +234,17 @@ answer = search.get_answer(keypoints)
 if answer["sure"] == False:
     emails = []
     print(
-                f"{Fore.YELLOW}Ao is not sure, here is the list of emails that will help you to verify its answer"
-            )
+        f"{Fore.YELLOW}Ao is not sure, here is the list of emails that will help you to verify its answer"
+    )
 
     for category in keypoints:
-                for organization in keypoints[category]:
-                    for topic in keypoints[category][organization]:
-                        emails.extend(
-                            search.knowledge_tree[category]["organizations"][
-                                organization
-                            ]["topics"][topic]["emails"]
-                        )
+        for organization in keypoints[category]:
+            for topic in keypoints[category][organization]:
+                emails.extend(
+                    search.knowledge_tree[category]["organizations"][organization][
+                        "topics"
+                    ][topic]["emails"]
+                )
 
     print(emails)
 answer = answer["answer"]

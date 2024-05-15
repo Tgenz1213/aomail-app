@@ -129,6 +129,7 @@ def summarize_conversation(body: str, language: str = "French") -> dict:
     For each email in the following conversation, summarize it in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the past conversation.
     Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
     The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
+    In {language}: Add a 'category' (1 word), an 'organization' and a 'topic' that best describes the conversation.
     
     Email conversation:
     {body}
@@ -136,9 +137,14 @@ def summarize_conversation(body: str, language: str = "French") -> dict:
     ---
     Answer must always be a Json format matching this template:
     {{
-        "1": [list of keypoints],
-        "2": [list of keypoints],
-        "n": [list of keypoints]
+        "category": "",
+        "organization": "",
+        "topic": "",
+        "keypoints": {{        
+            "1": [list of keypoints],
+            "2": [list of keypoints],
+            "n": [list of keypoints]
+        }}
     }}
     """
     response = get_prompt_response(template)
@@ -154,8 +160,8 @@ email_prompt = re.sub(r"<http(.*?)>", "", email_prompt)
 email_prompt = re.sub(r"http(.*?)\ ", "", email_prompt)
 
 
-summarize_conversation(email_prompt)
-
+keypoints = summarize_conversation(email_prompt)["keypoints"]
+print([keypoint for index in keypoints for keypoint in keypoints[index]])
 
 # import torch
 # from llmlingua import PromptCompressor

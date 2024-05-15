@@ -5,8 +5,8 @@
                 "topics": {
                     "New season": {
                         "keypoints": [
-                            "start 01/09/2024",
-                            "quentin came back"
+                            "commence 01/09/2024",
+                            "quentin revient en France"
                         ],
                         "emails": [
                             "id_email23",
@@ -17,19 +17,29 @@
             }
         }
     },
-    "School": {
+    "Études": {
         "organizations": {
             "ESAIP": {
                 "topics": {
-                    "Semester 4": {
+                    "Semestre 4": {
                         "keypoints": [
-                            "end is june",
+                            "fin vers mi juin",
                             "erasmus",
-                            "review dormitory"
+                            "évaluer le dortoir"
                         ],
                         "emails": [
                             "id_email1",
                             "id_email2"
+                        ]
+                    },
+                    "Carrière et stage": {
+                        "keypoints": [
+                            "Fin ERASMUS, derniers examens",
+                            "Conseils pour se ressourcer",
+                            "Objectif backend, très sélectif"
+                        ],
+                        "emails": [
+                            "emailIDTest"
                         ]
                     }
                 }

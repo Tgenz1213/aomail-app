@@ -50,7 +50,40 @@ EXAMPLE:
 """
 
 import json
+import re
 import threading
+
+
+def preprocess_email(email_content: str) -> str:
+    """Removes links from the email content and strips text of unnecessary spacings"""
+    # Remove links enclosed in <http...> or http... followed by a space
+    email_content = re.sub(r"<http(.*?)>", "", email_content)
+    email_content = re.sub(r"http(.*?)\ ", "", email_content)
+    email_content = re.sub(r"http\S+", "", email_content)
+
+    # rmv email addresses
+    email_content = re.sub(r"<mailto:(.*?)>", "", email_content)
+    email_content = re.sub(r"mailto:(.*?)\ ", "", email_content)
+    # Remove email addresses containing "@"
+    email_content = re.sub(
+        r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", email_content
+    )
+    email_content = re.sub(
+        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", email_content
+    )
+
+    # Delete patterns like "[image: ...]"
+    email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)
+    # Convert Windows line endings to Unix line endings
+    email_content = email_content.replace("\r\n", "\n")
+    # Remove spaces at the start and end of each line
+    email_content = "\n".join(line.strip() for line in email_content.split("\n"))
+    # Delete multiple spaces
+    email_content = re.sub(r" +", " ", email_content)
+    # Reduce multiple consecutive newlines to two newlines
+    email_content = re.sub(r"\n{3,}", "\n\n", email_content)
+
+    return email_content.strip()
 
 
 # Sample data structure as described
@@ -60,19 +93,26 @@ data = {
             "Angers Métropole Cyclisme": {
                 "topics": {
                     "New season": {
-                        "keypoints": ["start 01/09/2024", "quentin came back"],
+                        "keypoints": [
+                            "commence 01/09/2024",
+                            "quentin revient en France",
+                        ],
                         "emails": ["id_email23", "id_email4"],
                     }
                 }
             }
         }
     },
-    "School": {
+    "Études": {
         "organizations": {
             "ESAIP": {
                 "topics": {
-                    "Semester 4": {
-                        "keypoints": ["end is june", "erasmus", "review dormitory"],
+                    "Semestre 4": {
+                        "keypoints": [
+                            "fin vers mi juin",
+                            "erasmus",
+                            "évaluer le dortoir",
+                        ],
                         "emails": ["id_email1", "id_email2"],
                     }
                 }
@@ -111,7 +151,7 @@ class Search:
     """
 
     def __init__(
-        self, user_id: int, question: str, knowledge_tree: dict = None
+        self, user_id: int, question: str = None, knowledge_tree: dict = None
     ) -> None:
         self.user_id = user_id
 
@@ -222,6 +262,88 @@ class Search:
 
         return result_json
 
+    def summarize_conversation(
+        self, body: str, email_id: str, language: str = "French"
+    ) -> dict[str:list]:
+        """Summarizes an email conversation in the specified language with keypoints."""
+
+        template = f"""As a smart email assistant, 
+        For each email in the following conversation, summarize it in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the past conversation.
+        Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
+        The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
+        In {language}: Add a 'category' (1 word), an 'organization' and a 'topic' that best describes the conversation.
+        To help you categorizing the email, here are the existing categories and organizations: {self.get_categories()}.
+        If you can classify the email in an existing category/organization: Do it. If you hesitate create an other category/organization in {language}.
+
+        Email conversation:
+        {body}
+        
+        ---
+        Answer must always be a Json format matching this template:
+        {{
+            "category": "",
+            "organization": "",
+            "topic": "",
+            "keypoints": {{        
+                "1": [list of keypoints],
+                "2": [list of keypoints],
+                "n": [list of keypoints]
+            }}
+        }}
+        """
+        response = get_prompt_response(template)
+        clear_response = response.content[0].text.strip()
+        result_json = json.loads(clear_response)
+
+        print(f"{Fore.GREEN}summarize_conversation result:{result_json}")
+
+        category = result_json["category"]
+        organization = result_json["organization"]
+        topic = result_json["topic"]
+        keypoints = result_json["keypoints"]
+
+        user_keypoints = [
+            keypoint for index in keypoints for keypoint in keypoints[index]
+        ]
+        self.add_user_data(category, organization, topic, user_keypoints, [email_id])
+
+        return keypoints
+
+    def summarize_email(
+        self, body: str, email_id: str, language: str = "French"
+    ) -> dict[str:list]:
+        """Summarizes an email conversation in the specified language with keypoints."""
+
+        template = f"""As a smart email assistant, 
+        Summarize the email body in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the content of the email.
+        The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
+        In {language}: Add a 'category' (1 word), an 'organization' and a 'topic' that best describes the conversation.
+        
+        Email body:
+        {body}
+        
+        ---
+        Answer must always be a Json format matching this template:
+        {{
+            "category": "",
+            "organization": "",
+            "topic": "",
+            "keypoints": [list of keypoints]
+        }}
+        """
+        response = get_prompt_response(template)
+        clear_response = response.content[0].text.strip()
+        result_json = json.loads(clear_response)
+
+        category = result_json["category"]
+        organization = result_json["organization"]
+        topic = result_json["topic"]
+        keypoints = result_json["keypoints"]
+
+        self.add_user_data(category, organization, topic, keypoints, [email_id])
+
+        return keypoints
+
     def save_user_data(self, data: dict) -> None:
         """
         Saves updated user data to a JSON file.
@@ -250,16 +372,16 @@ class Search:
         Ensures no duplication of keypoints or emails, maintaining case-insensitivity.
 
         Parameters:
-        - category (str): Top-level classification.
-        - organization (str): Sub-level classification under category.
-        - topic (str): Specific topic under organization for data storage.
-        - keypoints (list[str]): List of unique keypoints related to the topic.
-        - emails (list[str]): List of unique emails associated with the topic.
+            - category (str): Top-level classification.
+            - organization (str): Sub-level classification under category.
+            - topic (str): Specific topic under organization for data storage.
+            - keypoints (list[str]): List of unique keypoints related to the topic.
+            - emails (list[str]): List of unique emails associated with the topic.
         """
         if category not in self.knowledge_tree:
             self.knowledge_tree[category] = {}
             self.knowledge_tree[category]["organizations"] = {}
-        if organization not in self.knowledge_tree[category]:
+        if organization not in self.knowledge_tree[category]["organizations"]:
             self.knowledge_tree[category]["organizations"][organization] = {}
             self.knowledge_tree[category]["organizations"][organization]["topics"] = {}
         if (
@@ -305,11 +427,12 @@ class Search:
         self.save_user_data(self.knowledge_tree)
 
 
+# THIS CODE IS TO TEST AO ANSWER WITH TREE KNOWLEDGE
+"""
 question = "When does the cycling season start?"
 # TODO: get real user id
 user_id = 1
 search = Search(user_id, question, data)
-
 selected_categories = search.get_selected_categories()
 keypoints = search.get_keypoints(selected_categories)
 
@@ -333,4 +456,98 @@ if answer["sure"] == False:
 
     print(emails)
 answer = answer["answer"]
-print(f"The answer to the question is:\n{answer}")
+print(f"The answer to the question is:\n{answer}")"""
+
+
+# THIS CODE IS TO TEST SUMMARIZING A CONVERSATION AND SAVING IT IN THE JSON FILE
+email_prompt = """
+Bonjour Monsieur CROCHET,
+
+Merci du compliment. Je vous suis très reconnaissant.
+Je suis entrain de finir mon ERASMUS et de passer les derniers examens.
+
+Je viens de trouvé un stage en tant qu'ingénieur backend dans une 
+startup cet été.
+
+Bonne vacances,
+
+Augustin ROLET
+
+On 12/22/2023 11:18 PM, CROCHET Moise wrote:
+> Cher Augustin,
+>
+> Tu es toujours aussi perspicace, même en vacances. C'est une qualité.
+>
+> Prends le temps de te poser un peu et prépare ton séjour d'études à venir.
+>
+> A l'occasion, cela me ferait plaisir de faire un visio avec toi d'ici 
+> quelques temps. Nous pourrons échanger tranquillement sur toutes les 
+> questions qui te préoccupent.
+>
+> D'ici là, profite des fêtes de fin d'année pour te ressourcer en 
+> famille. Vous avez besoin de repos en cette fin de semestre.
+>
+> A très bientôt.
+> Bien à toi.
+> Moïse
+>
+> Envoyé à partir de Outlook pour Android <https://aka.ms/AAb9ysg>
+> ------------------------------------------------------------------------
+> *From:* ROLET Augustin <arolet.ing2027@esaip.org>
+> *Sent:* Friday, December 22, 2023 6:08:28 PM
+
+> *To:* CROCHET Moise <mcrochet@esaip.org>
+> *Subject:* Re: Alternance Cours
+>
+> Merci monsieur pour votre réponse,
+>
+> Je vais éviter d'être prolixe comme à mon habitude.
+>
+> Backend Engineer <https://careers.vinted.com/jobs/j/4198667101>
+>
+> Data Analyst <https://careers.vinted.com/jobs/j/4223185101>
+>
+> Lead Backend Engineer <https://careers.vinted.com/jobs/j/4217362101>
+>
+> _Question simple: Est ce que la plupart des étudiants (initiaux et 
+> apprentis) ont le niveau pour prétendre à ce type de poste en sortie 
+> d'école ? (A mon avis non car c'est ultra sélectif)_
+>
+> La technique prime sur ce type de poste (qui est mon objectif 
+> principal et c'est pour ça que je me tue à la tâche tout les soirs). 
+> C'est extrêmement dur d'être accepté chez Vinted. L'année dernière 
+> j'ai "reverse engineered" leur API et eu accès à des données privées 
+> (adresse, sexe) des utilisateurs (en autres). Je sais que d'ici 3 ans 
+> (voir toute la vie), très peu auront le niveau. Il faut 3 ans d'xp 
+> mini. Je ne suis pas contre être chef de projet un jour mais il faut 
+> que je commence en bas et que je le mérite. Aucun ingénieur ne 
+> commence chef de projet et ça me fait mal au cœur de voir certains 
+> rêver qu'ils vont arriver et commander les autres alors qu'ils ont 0 xp.
+>
+> 1) Tout ça pour dire que le but c'est d'avoir un job (besoin vital) et 
+> après on peut se concentrer sur d'autres choses. Je suis ultra 
+> pragmatique. Les entreprises ne veulent pas de blabla, juste est ce 
+> que tu sais faire ça ? et si Non est ce que tu sais faire un truc 
+> similaire et tu apprendras vite ?
+>
+> 2) Est ce que tu sais parler anglais, oui ou non ?
+>
+> 3) Quels sont des défauts ?
+>
+> 4) Et un projet à faire
+>
+> C'est ça le process de recrutement en IR si je ne dis pas de bêtise 
+> (je sais il y a aussi des tests de personnalité mais cela ne compense 
+> pas la technique)
+>
+> Augustin
+>
+"""
+
+# TODO: use library.preprocess_email() in production
+email_content = preprocess_email(email_prompt)
+
+user_id = 1
+search = Search(user_id, knowledge_tree=data)
+keypoints = search.summarize_conversation(email_content, "emailIDTest")
+print(json.dumps(search.load_user_data(), indent=4, ensure_ascii=False))

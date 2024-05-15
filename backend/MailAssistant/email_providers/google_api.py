@@ -616,7 +616,7 @@ def search_emails_ai(
     if query_parts:
         query += " AND " + " AND ".join(query_parts)
 
-    print("\n\nDEBUG query: ", query, "\n\n")
+    # print("\n\nDEBUG query: ", query, "\n\n")
 
     try:
         service = services["gmail"]
@@ -1165,11 +1165,11 @@ def email_to_db(user, services, social_api: SocialAPI, id_email):
         image_files
     ) = get_mail_to_db(services, 0, id_email)
 
-    print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
-    print(safe_html)
+    # print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
+    # print(safe_html)
 
 
-    # print("----------------------------------> decoded_data", decoded_data)
+    #print("----------------------------------> decoded_data", decoded_data)
     # print("----------------------------------> PICTURES", image_files)
 
 

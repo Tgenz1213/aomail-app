@@ -47,7 +47,7 @@ def get_language(input_body, input_subject) -> str:
     response = get_prompt_response(formatted_prompt)
     language = json.loads(response.content[0].text)["language"]
 
-    print(f"{Fore.LIGHTBLUE_EX}The language used is: {language}")
+    # print(f"{Fore.LIGHTBLUE_EX}The language used is: {language}")
 
     return language
 
@@ -108,9 +108,9 @@ def extract_contacts_recipients(query) -> dict[str:list]:
     cc_recipients = recipients.get("cc_recipients", [])
     bcc_recipients = recipients.get("bcc_recipients", [])
 
-    print(f"{Fore.CYAN}Main Recipients: {main_recipients}")
-    print(f"{Fore.BLUE}Carbon Copy: {cc_recipients}")
-    print(f"{Fore.GREEN}Blind Carbon Copy: {bcc_recipients}")
+    # print(f"{Fore.CYAN}Main Recipients: {main_recipients}")
+    # print(f"{Fore.BLUE}Carbon Copy: {cc_recipients}")
+    # print(f"{Fore.GREEN}Blind Carbon Copy: {bcc_recipients}")
 
     return main_recipients, cc_recipients, bcc_recipients
 
@@ -131,7 +131,7 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
     response = get_prompt_response(formatted_prompt)
     keywords = response.content[0].text.strip()
 
-    print(f"{Fore.YELLOW}{keywords}")
+    # print(f"{Fore.YELLOW}{keywords}")
 
     keywords_list = ast.literal_eval(keywords)
 
@@ -158,9 +158,9 @@ def improve_email_writing(body, subject):
     subject_text = result_json["subject"]
     email_body = result_json["body"]
 
-    print(f"{Fore.CYAN}EMAIL DRAFT IMPROVED:")
-    print(f"{Fore.GREEN}Subject: {subject_text}")
-    print(f"{Fore.CYAN}Email Body: {email_body}")
+    # print(f"{Fore.CYAN}EMAIL DRAFT IMPROVED:")
+    # print(f"{Fore.GREEN}Subject: {subject_text}")
+    # print(f"{Fore.CYAN}Email Body: {email_body}")
 
     return email_body, subject_text
 
@@ -182,16 +182,16 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
-    print(clear_text)
+    # print(clear_text)
 
     result_json: dict = json.loads(clear_text)
 
     subject_text = result_json.get("subject")
     email_body = result_json.get("body")
 
-    print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
-    print(f"{Fore.GREEN}Subject: {subject_text}")
-    print(f"{Fore.CYAN}Email Body: {email_body}")
+    # print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
+    # print(f"{Fore.GREEN}Subject: {subject_text}")
+    # print(f"{Fore.CYAN}Email Body: {email_body}")
 
     return subject_text, email_body
 
@@ -251,9 +251,9 @@ def correct_mail_language_mistakes(body, subject):
     corrected_subject = result_json["subject"]
     corrected_body = result_json["body"]
 
-    print(f"{Fore.CYAN}EMAIL CORRECTED:")
-    print(f"{Fore.GREEN}Subject: {corrected_subject}")
-    print(f"{Fore.CYAN}Email Body: {corrected_body}")
+    # print(f"{Fore.CYAN}EMAIL CORRECTED:")
+    # print(f"{Fore.GREEN}Subject: {corrected_subject}")
+    # print(f"{Fore.CYAN}Email Body: {corrected_body}")
 
     num_corrections = count_corrections(
         subject, body, corrected_subject, corrected_body
@@ -292,8 +292,8 @@ def improve_email_copywriting(email_subject, email_body):
     response = get_prompt_response(template)
     feedback_ai = response.content[0].text.strip()
 
-    print(f"{Fore.CYAN}EMAIL COPYWRITING:")
-    print(f"{Fore.GREEN}{feedback_ai}")
+    # print(f"{Fore.CYAN}EMAIL COPYWRITING:")
+    # print(f"{Fore.GREEN}{feedback_ai}")
 
     return feedback_ai
 
@@ -317,7 +317,7 @@ def generate_email_response(
     response = get_prompt_response(template)
     body = response.content[0].text.strip()
 
-    print(f"{Fore.GREEN}[REPLY] body: {body}")
+    # print(f"{Fore.GREEN}[REPLY] body: {body}")
 
     return body
 
@@ -480,7 +480,7 @@ def categorize_and_summarize_email(
             "News": Percentage for News 
         }}
     }}
-    {ASSISTANT}"""    
+    {ASSISTANT}"""
 
     print("=====================NUMBER OF TOKENS INPUT=========================")
     print(count_tokens(template))
@@ -489,7 +489,7 @@ def categorize_and_summarize_email(
 
     # print("Claude")
     # print(clear_response)
-    
+
     print("=====================NUMBER OF TOKENS OUTPUT =========================")
     print(count_tokens(clear_response))
 
@@ -552,39 +552,11 @@ def search_emails(query: str, language: str = "French") -> dict:
     response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
 
-    print(clear_response)
+    # print(clear_response)
 
     queries_dict = json.loads(clear_response)
 
     return queries_dict
-
-
-def summarize_conversation(body: str, language: str = "French") -> dict:
-    """Summarizes an email conversation in the specified language."""
-
-    template = f"""{HUMAN}As a smart email assistant, 
-    For each email in the following conversation, summarize it in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the past conversation.
-    Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
-    The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
-    
-    Email conversation:
-    {body}
-    
-    ---
-    Answer must always be a Json format matching this template:
-    {{
-        "1": [list of keypoints],
-        "2": [list of keypoints],
-        "n": [list of keypoints]
-    }}
-    {ASSISTANT}"""
-    response = get_prompt_response(template)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-
-    print(f"{Fore.GREEN}{result_json}")
-
-    return result_json
 
 
 '''# TODO: OLD - delete after implementing new solution

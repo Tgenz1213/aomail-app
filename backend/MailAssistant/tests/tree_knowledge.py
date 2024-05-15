@@ -1,55 +1,11 @@
 """
+TODO: implement integration with Search
+
 TEST FILE TO IMPLEMENT A GRPAH TO SEARCH DATA about a user question
-
-
-
-
-    Step 1: Prompt with categories and organizations and user query
-    Step 2: Prompt with topics and details
-    Step 3: Display answer to user
-"""
-
-"""
-The knowledge tree is organized in a hierarchical structure designed to store and manage information across various topics and conversations. Here's a simplified explanation of how this tree is structured:
-
-    Top-Level (Categories): At the highest level, the tree starts with general categories. These are broad areas like Friends, Family, Work, Fun, etc. Each category encapsulates a range of subjects related to that category.
-
-    Second Level (Organizations): Under each category, there are nodes for specific organizations or entities. Examples include School, Company, Organization, etc. This level organizes information by the entity involved.
-
-    Third Level (Topics): Within each organization or entity, there are nodes for specific topics. These topics could be Studies, Entrepreneurship, Sports, etc. This level focuses on specific areas of interest or activity within the organization.
-
-    Fourth Level (Details): Under each topic, the tree stores the core elements of conversations and their associated data. This includes keypoints from discussions, relevant emails, and other pertinent details.
-
-EXAMPLE:
-{
-    "Sport": {
-        "organizations": {
-            "Angers Métropole Cyclisme": {
-                "topics": {
-                    "New season": {
-                        "keypoints": ["start 01/09/2024", "quentin came back"],
-                        "emails": ["id_email23", "id_email4"],
-                    }
-                }
-            }
-        }
-    },
-    "School": {
-        "organizations": {
-            "ESAIP": {
-                "topics": {
-                    "Semester 4": {
-                        "keypoints": ["end is june", "erasmus", "review dormitory"],
-                        "emails": ["id_email1", "id_email2"],
-                    }
-                }
-            }
-        }
-    },
-}
 """
 
 import json
+import os
 import re
 import threading
 
@@ -147,7 +103,27 @@ def get_prompt_response(formatted_prompt):
 
 class Search:
     """
-    Class to search through categorized email data to answer user queries.
+    Class for searching through categorized email data within a knowledge tree.
+
+    Example of a knowledge tree of a user:
+    {
+        "Studies": {
+            "organizations": {
+                "ESAIP": {
+                    "topics": {
+                        "Semester 4": {
+                            "keypoints": [
+                                "ends around mid-June",
+                                "erasmus",
+                                "evaluate the dormitory"
+                            ],
+                            "emails": ["id_email1", "id_email2"]
+                        }
+                    }
+                }
+            }
+        }
+    }
     """
 
     def __init__(
@@ -162,6 +138,8 @@ class Search:
         if knowledge_tree:
             self.knowledge_tree = knowledge_tree
             threading.Thread(target=self.save_user_data, args=(knowledge_tree,)).start()
+        elif not os.path.exists(self.file_path):
+            self.knowledge_tree = {}
         else:
             self.knowledge_tree = self.load_user_data()
         self.categories = self.get_categories()
@@ -170,6 +148,9 @@ class Search:
         """
         Extracts and returns categories and their associated organizations from the knowledge tree.
         """
+        if not self.knowledge_tree:
+            return []
+
         categories = {}
         for category in self.knowledge_tree:
             categories[category] = [
@@ -182,6 +163,9 @@ class Search:
         """
         Retrieves keypoints for the selected categories and organizations.
         """
+        if not self.knowledge_tree:
+            return []
+
         keypoints = {}
         for category in selected_categories:
             keypoints[category] = {}
@@ -233,7 +217,7 @@ class Search:
 
         return result_json
 
-    def get_answer(self, keypoints: dict):
+    def get_answer(self, keypoints: dict, language: str = "French") -> dict:
         """
         Generates an answer based on the keypoints and checks if further details are needed.
         """
@@ -253,7 +237,7 @@ class Search:
         The answer must always be in Json format matching this template:
         {{
             "sure": bool,
-            "answer": "answer to the user question"
+            "answer": "answer to the user question in {language}"
         }}
         """
         response = get_prompt_response(template)
@@ -268,12 +252,12 @@ class Search:
         """Summarizes an email conversation in the specified language with keypoints."""
 
         template = f"""As a smart email assistant, 
-        For each email in the following conversation, summarize it in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the past conversation.
+        For each email in the following conversation, summarize it in {language} as a list of up to three ultra-concise keypoints (up to seven words) that encapsulate the core information. This will aid the user in recalling the past conversation.
         Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
         The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
-        In {language}: Add a 'category' (1 word), an 'organization' and a 'topic' that best describes the conversation.
-        To help you categorizing the email, here are the existing categories and organizations: {self.get_categories()}.
-        If you can classify the email in an existing category/organization: Do it. If you hesitate create an other category/organization in {language}.
+        In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describes the conversation.
+        To assist you in categorizing the conversation, here are the existing categories and organizations: {self.get_categories()}.
+        If you can classify the conversation in an existing category/organization: Do it. If you hesitate, create another category/organization in {language}.
 
         Email conversation:
         {body}
@@ -315,10 +299,12 @@ class Search:
         """Summarizes an email conversation in the specified language with keypoints."""
 
         template = f"""As a smart email assistant, 
-        Summarize the email body in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the content of the email.
-        The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
-        In {language}: Add a 'category' (1 word), an 'organization' and a 'topic' that best describes the conversation.
-        
+        Summarize the email body in {language} as a list of up to three ultra-concise keypoints (up to seven words each) that encapsulate the core information. This will aid the user in recalling the content of the email.
+        The sentences must be highly relevant and should not include minor details or unnecessary information. If in doubt, do not add the keypoint.
+        In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describe the conversation.
+        To assist you in categorizing the email, here are the existing categories and organizations: {self.get_categories()}.
+        If you can classify the email within an existing category/organization, do so. If uncertain, create another category/organization in {language}.
+
         Email body:
         {body}
         
@@ -334,6 +320,8 @@ class Search:
         response = get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         result_json = json.loads(clear_response)
+
+        print(f"{Fore.GREEN}summarize_email result:{result_json}")
 
         category = result_json["category"]
         organization = result_json["organization"]
@@ -428,39 +416,45 @@ class Search:
 
 
 # THIS CODE IS TO TEST AO ANSWER WITH TREE KNOWLEDGE
+"""Step 1: Prompt with categories and organizations and user query
+   Step 2: Prompt with topics and details
+   Step 3: Display answer to user
 """
 question = "When does the cycling season start?"
 # TODO: get real user id
 user_id = 1
+# data = {} # remove this line to test with Augustin data
 search = Search(user_id, question, data)
 selected_categories = search.get_selected_categories()
 keypoints = search.get_keypoints(selected_categories)
 
-answer = search.get_answer(keypoints)
+if not selected_categories or not keypoints:
+    print("You do not have enough data to answer the question")
+else:
+    answer = search.get_answer(keypoints)
 
+    if answer["sure"] == False:
+        emails = []
+        print(
+            f"{Fore.YELLOW}Ao is not sure, here is the list of emails that will help you to verify its answer"
+        )
 
-if answer["sure"] == False:
-    emails = []
-    print(
-        f"{Fore.YELLOW}Ao is not sure, here is the list of emails that will help you to verify its answer"
-    )
+        for category in keypoints:
+            for organization in keypoints[category]:
+                for topic in keypoints[category][organization]:
+                    emails.extend(
+                        search.knowledge_tree[category]["organizations"][organization][
+                            "topics"
+                        ][topic]["emails"]
+                    )
 
-    for category in keypoints:
-        for organization in keypoints[category]:
-            for topic in keypoints[category][organization]:
-                emails.extend(
-                    search.knowledge_tree[category]["organizations"][organization][
-                        "topics"
-                    ][topic]["emails"]
-                )
-
-    print(emails)
-answer = answer["answer"]
-print(f"The answer to the question is:\n{answer}")"""
+        print(emails)
+    answer = answer["answer"]
+    print(f"The answer to the question is:\n{answer}")
 
 
 # THIS CODE IS TO TEST SUMMARIZING A CONVERSATION AND SAVING IT IN THE JSON FILE
-email_prompt = """
+'''email_prompt = """
 Bonjour Monsieur CROCHET,
 
 Merci du compliment. Je vous suis très reconnaissant.
@@ -548,6 +542,72 @@ On 12/22/2023 11:18 PM, CROCHET Moise wrote:
 email_content = preprocess_email(email_prompt)
 
 user_id = 1
-search = Search(user_id, knowledge_tree=data)
+search = Search(user_id)
 keypoints = search.summarize_conversation(email_content, "emailIDTest")
 print(json.dumps(search.load_user_data(), indent=4, ensure_ascii=False))
+'''
+
+# THIS CODE IS TO TEST SUMMARIZING A SINGLE EMAIL AND SAVING IT IN THE JSON FILE
+'''email_prompt = """
+Bonjour à
+tous,
+
+J'espère
+avant toute chose que vous allez tous bien.
+
+Comme
+évoqué avec certains d'entre vous, je souhaite faire un
+dernier point rapide en visio pour savoir comment se déroule
+la fin de votre expérience internationale. Ainsi,
+
+vous
+trouverez ci-dessous un lien vers un fichier Excel partagé
+pour indiquer vos noms dans le créneau qui vous convient le
+mieux :
+
+Entretiens_ING2-EN_23-24_n°6_mai24.xlsx
+
+Comme
+habituellement, si les plages horaires ne coïncident pas
+avec vos emplois du temps respectifs, je peux prévoir des
+créneaux supplémentaires. Le cas échéant, n'hésitez pas à
+revenir vers moi.
+
+Une fois
+vos créneaux réservés, je vous enverrai une invitation TEAMS
+via vos comptes esaip à la date et horaire convenus.
+
+Au
+plaisir de vous revoir prochainement.
+
+Bonne
+fin de journée.
+
+Cordialement.
+
+MC
+
+Moïse
+CROCHET
+
+Pilote
+du cycle préparatoire - Enseignant-chercheur
+
+02 41 96 65 51
+
+Campus
+Ouest
+
+18,
+rue du 8 mai 1945 - CS 80022 - 49180
+St-Barthélemy d'Anjou Cedex
+"""
+
+# TODO: use library.preprocess_email() in production
+email_content = preprocess_email(email_prompt)
+
+user_id = 1
+search = Search(user_id)
+keypoints = search.summarize_email(email_content, "emailIDTest")
+print(json.dumps(search.load_user_data(), indent=4, ensure_ascii=False))
+'''

@@ -1,12 +1,6 @@
 """"
-TODO: implement integration with Search
-
-TODO: summarize_conversation should also return the topic of the email, organization and category
-
-TODO: create a template that summarize a single email + topic of the email, organization and category
+THIS FILE IS NO LONGER NEEDED => IT JUST CONTAINS A SMALL CODE TO COMPRESS TOKEN (does not work properly in French)
 """
-
-
 
 email_prompt = """
 Bonjour Monsieur CROCHET,
@@ -92,105 +86,34 @@ On 12/22/2023 11:18 PM, CROCHET Moise wrote:
 >
 """
 
+import torch
+from llmlingua import PromptCompressor
 
-import json
-import anthropic
-from langchain.memory import ChatMessageHistory
-from colorama import Fore, init
-import re
-
-######################## Claude 3 API SETTINGS ########################
-init(autoreset=True)
-
-
-HUMAN = "Human: "
-ASSISTANT = "Assistant:"
-
-
-######################## TEXT PROCESSING UTILITIES ########################
-def get_prompt_response(formatted_prompt):
-    """Returns the prompt response"""
-    client = anthropic.Anthropic(
-        api_key="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"
-    )
-    response = client.messages.create(
-        model="claude-3-haiku-20240307",
-        max_tokens=1000,
-        temperature=0.0,
-        messages=[{"role": "user", "content": formatted_prompt}],
-    )
-    return response
+# Check if GPU is available
+if torch.cuda.is_available():
+    device_map = "cuda"
+    gpu_info = torch.cuda.get_device_properties(0)
+    print(f"GPU Name: {gpu_info.name}")
+    print(f"GPU Memory: {gpu_info.total_memory} bytes")
+    print(f"GPU Compute Capability: {gpu_info.major}.{gpu_info.minor}")
+else:
+    device_map = "cpu"
+    print("No GPU detected. Using CPU.")
 
 
-def summarize_conversation(body: str, language: str = "French") -> dict:
-    """Summarizes an email conversation in the specified language."""
+# Initialize the PromptCompressor with the specified device
+llm_lingua = PromptCompressor(
+    model_name="microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank",
+    use_llmlingua2=True,
+    device_map=device_map,
+)
+# Compress the email prompt
+compressed_prompt = llm_lingua.compress_prompt(
+    email_prompt,
+    target_token=500,
+    instruction="Compress this email conversation in order to help a LLM to recognize the different emails that the conversation contains",
+)
 
-    template = f"""As a smart email assistant, 
-    For each email in the following conversation, summarize it in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the past conversation.
-    Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
-    The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
-    In {language}: Add a 'category' (1 word), an 'organization' and a 'topic' that best describes the conversation.
-    
-    Email conversation:
-    {body}
-    
-    ---
-    Answer must always be a Json format matching this template:
-    {{
-        "category": "",
-        "organization": "",
-        "topic": "",
-        "keypoints": {{        
-            "1": [list of keypoints],
-            "2": [list of keypoints],
-            "n": [list of keypoints]
-        }}
-    }}
-    """
-    response = get_prompt_response(template)
-    clear_response = response.content[0].text.strip()
-    result_json = json.loads(clear_response)
-
-    print(f"{Fore.GREEN}{result_json}")
-
-    return result_json
-
-
-email_prompt = re.sub(r"<http(.*?)>", "", email_prompt)
-email_prompt = re.sub(r"http(.*?)\ ", "", email_prompt)
-
-
-keypoints = summarize_conversation(email_prompt)["keypoints"]
-print([keypoint for index in keypoints for keypoint in keypoints[index]])
-
-# import torch
-# from llmlingua import PromptCompressor
-
-# # Check if GPU is available
-# if torch.cuda.is_available():
-#     device_map = "cuda"
-#     gpu_info = torch.cuda.get_device_properties(0)
-#     print(f"GPU Name: {gpu_info.name}")
-#     print(f"GPU Memory: {gpu_info.total_memory} bytes")
-#     print(f"GPU Compute Capability: {gpu_info.major}.{gpu_info.minor}")
-# else:
-#     device_map = "cpu"
-#     print("No GPU detected. Using CPU.")
-
-
-# # Initialize the PromptCompressor with the specified device
-# llm_lingua = PromptCompressor(
-#     model_name="microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank",
-#     use_llmlingua2=True,
-#     device_map=device_map,
-# )
-# # Compress the email prompt
-# compressed_prompt = llm_lingua.compress_prompt(
-#     email_prompt,
-#     target_token=500,
-#     instruction="Compress this email conversation in order to help a LLM to recognize the different emails that the conversation contains",
-# )
-
-# # Print the compressed prompt
-# print("Compressed Email Prompt:")
-# print(compressed_prompt["compressed_prompt"])
+# Print the compressed prompt
+print("Compressed Email Prompt:")
+print(compressed_prompt["compressed_prompt"])

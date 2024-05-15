@@ -1,5 +1,12 @@
 """
 TEST FILE TO IMPLEMENT A GRPAH TO SEARCH DATA about a user question
+
+
+
+
+    Step 1: Prompt with categories and organizations and user query
+    Step 2: Prompt with topics and details
+    Step 3: Display answer to user
 """
 
 """
@@ -15,21 +22,36 @@ The knowledge tree is organized in a hierarchical structure designed to store an
 
 EXAMPLE:
 {
-    "category": {
+    "Sport": {
         "organizations": {
-            "topics": {
-                "topic1": {
-                    "keypoints": [],
-                    "emails": []
-                }                
+            "Angers Métropole Cyclisme": {
+                "topics": {
+                    "New season": {
+                        "keypoints": ["start 01/09/2024", "quentin came back"],
+                        "emails": ["id_email23", "id_email4"],
+                    }
+                }
             }
         }
-    }
+    },
+    "School": {
+        "organizations": {
+            "ESAIP": {
+                "topics": {
+                    "Semester 4": {
+                        "keypoints": ["end is june", "erasmus", "review dormitory"],
+                        "emails": ["id_email1", "id_email2"],
+                    }
+                }
+            }
+        }
+    },
 }
 """
 
 import json
 import threading
+
 
 # Sample data structure as described
 data = {
@@ -86,10 +108,6 @@ def get_prompt_response(formatted_prompt):
 class Search:
     """
     Class to search through categorized email data to answer user queries.
-
-    Step 1: Prompt with categories and organizations and user query
-    Step 2: Prompt with topics and details
-    Step 3: Display answer to user
     """
 
     def __init__(
@@ -218,6 +236,73 @@ class Search:
         """
         with open(self.file_path, "r", encoding="utf-8") as json_file:
             return json.load(json_file)
+
+    def add_user_data(
+        self,
+        category: str,
+        organization: str,
+        topic: str,
+        keypoints: list[str],
+        emails: list[str],
+    ) -> None:
+        """
+        Adds or updates user data for a specific topic within a structured dictionary.
+        Ensures no duplication of keypoints or emails, maintaining case-insensitivity.
+
+        Parameters:
+        - category (str): Top-level classification.
+        - organization (str): Sub-level classification under category.
+        - topic (str): Specific topic under organization for data storage.
+        - keypoints (list[str]): List of unique keypoints related to the topic.
+        - emails (list[str]): List of unique emails associated with the topic.
+        """
+        if category not in self.knowledge_tree:
+            self.knowledge_tree[category] = {}
+            self.knowledge_tree[category]["organizations"] = {}
+        if organization not in self.knowledge_tree[category]:
+            self.knowledge_tree[category]["organizations"][organization] = {}
+            self.knowledge_tree[category]["organizations"][organization]["topics"] = {}
+        if (
+            topic
+            not in self.knowledge_tree[category]["organizations"][organization][
+                "topics"
+            ]
+        ):
+            self.knowledge_tree[category]["organizations"][organization]["topics"][
+                topic
+            ] = {}
+            self.knowledge_tree[category]["organizations"][organization]["topics"][
+                topic
+            ]["keypoints"] = keypoints
+            self.knowledge_tree[category]["organizations"][organization]["topics"][
+                topic
+            ]["emails"] = emails
+        else:
+            prev_keypoints: list = self.knowledge_tree[category]["organizations"][
+                organization
+            ]["topics"][topic]["keypoints"]
+
+            for keypoint in keypoints:
+                if keypoint.lower() not in map(str.lower, prev_keypoints):
+                    prev_keypoints.append(keypoint)
+
+            self.knowledge_tree[category]["organizations"][organization]["topics"][
+                topic
+            ]["keypoints"] = prev_keypoints
+
+            prev_emails: list = self.knowledge_tree[category]["organizations"][
+                organization
+            ]["topics"][topic]["emails"]
+
+            for email in emails:
+                if email.lower() not in prev_emails:
+                    prev_emails.append(email)
+
+            self.knowledge_tree[category]["organizations"][organization]["topics"][
+                topic
+            ]["emails"] = prev_emails
+
+        self.save_user_data(self.knowledge_tree)
 
 
 question = "When does the cycling season start?"

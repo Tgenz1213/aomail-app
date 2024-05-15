@@ -1,3 +1,13 @@
+""""
+TODO: implement integration with Search
+
+TODO: summarize_conversation should also return the topic of the email, organization and category
+
+TODO: create a template that summarize a single email + topic of the email, organization and category
+"""
+
+
+
 email_prompt = """
 Bonjour Monsieur CROCHET,
 
@@ -115,7 +125,7 @@ def get_prompt_response(formatted_prompt):
 def summarize_conversation(body: str, language: str = "French") -> dict:
     """Summarizes an email conversation in the specified language."""
 
-    template = f"""{HUMAN}As a smart email assistant, 
+    template = f"""As a smart email assistant, 
     For each email in the following conversation, summarize it in {language} as a list of up to 3 ultra concise keypoints (up to 7 words) that encapsulate the core informations. This will aid the user in recalling the past conversation.
     Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
     The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
@@ -130,7 +140,7 @@ def summarize_conversation(body: str, language: str = "French") -> dict:
         "2": [list of keypoints],
         "n": [list of keypoints]
     }}
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
     result_json = json.loads(clear_response)
@@ -144,7 +154,7 @@ email_prompt = re.sub(r"<http(.*?)>", "", email_prompt)
 email_prompt = re.sub(r"http(.*?)\ ", "", email_prompt)
 
 
-# summarize_conversation(email_prompt)
+summarize_conversation(email_prompt)
 
 
 # import torch

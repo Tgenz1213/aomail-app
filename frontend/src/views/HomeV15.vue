@@ -74,7 +74,7 @@
             </div>
         </div>
     </div>-->
-        <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
+        <div class="flex flex-col justify-center items-center h-screen" :class="bgColor"><!-- DO NOT DELETE : 'bg-gray-900'-->
             <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
                 <div class="col-span-1 2xl:col-span-1">
                     <div class="2xl:hidden h-full">
@@ -1090,12 +1090,12 @@
                                         class="group/main">
                                         <li class="">
                                             <div class="px-6 pb-6"><!--bg-emerald-50 bg-opacity-60-->
-                                                <div class="bg-green-100 bg-opacity-90 rounded-md">
+                                                <div class="bg-stone-200 bg-opacity-90 rounded-md">
                                                     <div class="flex px-2 py-2">
-                                                        <p class="flex-1 text-sm font-semibold leading-6 text-green-600 px-4">Lu</p>
+                                                        <p class="flex-1 text-sm font-semibold leading-6 text-stone-600 px-4">Lu</p>
                                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                         <div class="ml-auto">
-                                                            <CheckIcon class="w-6 h-6 text-green-500" />
+                                                            <CheckIcon class="w-6 h-6 text-stone-500" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1103,7 +1103,7 @@
                                                 <div class="flex px-4 pt-4">
                                                     <div class="flex">
                                                         <span
-                                                            class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400">
+                                                            class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-stone-400">
                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                                                 viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                                                 class="w-6 h-6 text-white">
@@ -1115,7 +1115,7 @@
                                                     </div>
                                                     <div class="ml-6 w-full">
                                                         <!-- To check : strange w-full not necessary in grey but it must be here to have the correct space for readEmailsInSelectedTopic -->
-                                                        <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-emerald-400 w-full"
+                                                        <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-stone-400 w-full"
                                                             style="overflow: visible;">
                                                             <ul role="list"
                                                                 class="divide-y divide-gray-200 dark:divide-white w-full">
@@ -1136,7 +1136,7 @@
                                                                                 automatiquement</span> les mails lus.
                                                                         </p>
                                                                         <div
-                                                                            class="hidden group-hover/main:block px-2 py-0.5 bg-emerald-400 text-white text-sm shadow rounded-xl">
+                                                                            class="hidden group-hover/main:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">
                                                                             <div class="flex gap-x-1 items-center">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                                     fill="none" viewBox="0 0 24 24"
@@ -1165,10 +1165,10 @@
                                                                                 <div class="flex-auto group">
                                                                                     <div class="flex gap-x-4">
                                                                                         <p
-                                                                                            class="text-sm font-semibold leading-6 text-emerald-500 dark:text-white">
+                                                                                            class="text-sm font-semibold leading-6 text-stone-500 dark:text-white">
                                                                                             {{ item.name }}</p>
                                                                                         <div
-                                                                                            class="hidden group-hover:block px-2 py-0.5 bg-emerald-400 text-white text-sm shadow rounded-xl">
+                                                                                            class="hidden group-hover:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">
                                                                                             <div
                                                                                                 class="flex gap-x-1 items-center">
                                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -1217,9 +1217,9 @@
                                                                                                 <button
                                                                                                     @click.stop="openSeeModal(item)"
                                                                                                     type="button"
-                                                                                                    class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-emerald-400 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                                    class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-stone-400 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
                                                                                                     <eye-icon
-                                                                                                        class="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
@@ -1232,9 +1232,9 @@
                                                                                                 <button
                                                                                                     @click="markEmailAsUnread(item.id)"
                                                                                                     type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
                                                                                                     <check-icon
-                                                                                                    class="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                                                                                    class="w-5 h-5 text-stone-500 group-hover:text-white" />
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
@@ -1246,10 +1246,10 @@
                                                                                                     Supprimer
                                                                                                 </div>
                                                                                                 <button type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
                                                                                                     <TrashIcon
                                                                                                         @click.stop="deleteEmail(item.id)"
-                                                                                                        class="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
@@ -1263,9 +1263,9 @@
                                                                                                 <button
                                                                                                     @click.stop="openAnswer(item)"
                                                                                                     type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
                                                                                                     <arrow-uturn-left-icon
-                                                                                                        class="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
@@ -1282,9 +1282,9 @@
                                                                                                     <div>
                                                                                                         <MenuButton
                                                                                                             @click="toggleTooltip"
-                                                                                                            class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-emerald-500 ring-1 ring-inset ring-emerald-400 hover:bg-emerald-400 focus:z-10">
+                                                                                                            class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-stone-500 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
                                                                                                             <ellipsis-horizontal-icon
-                                                                                                                class="w-5 h-5 group-hover:text-white text-emerald-500 group-active:text-emerald-500 group-focus:text-red focus:text-emerald-500" />
+                                                                                                                class="w-5 h-5 group-hover:text-white text-stone-500 group-active:text-stone-500 group-focus:text-red focus:text-stone-500" />
                                                                                                         </MenuButton>
                                                                                                     </div>
                                                                                                     <transition

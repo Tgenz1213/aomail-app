@@ -1912,8 +1912,8 @@ def get_user_emails(request):
                 )
                 delta_time = current_datetime_utc - email.read_date
 
-                # Delete read email older than 2 weeks
-                if delta_time > datetime.timedelta(weeks=2):
+                # Delete read email older than 1 week
+                if delta_time > datetime.timedelta(weeks=1):
                     email.delete()
                     continue
 

@@ -55,6 +55,7 @@ from MailAssistant.constants import (
 )
 from .. import library
 from ..models import (
+    Contact,
     Rule,
     SocialAPI,
     BulletPoint,
@@ -1316,6 +1317,7 @@ def email_to_db(user, services, social_api: SocialAPI):
                 web_link=web_link,
                 has_attachments=has_attachments,
             )
+
 
             if cc_info:
                 for email, name in cc_info:

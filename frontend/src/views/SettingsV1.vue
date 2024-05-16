@@ -37,19 +37,19 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">Supprimer mon compte</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation.Delete') }}</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            Cette action est irréversible, nous supprimons votre compte de notre base de données
+                            {{ $t('settings_navigation.Confirmer_supp') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="closeModal">Annuler</button>
+                            @click="closeModal">{{ $t('Global action.cancel') }}</button>
                         <div class="flex-grow"></div> <!-- Flexible spacer -->
                         <button type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -59,13 +59,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            Supprimer
+                            {{ $t('settings_navigation.Delete') }}
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </transition>
+
     <!-- Modal for Unlink Email -->
     <transition name="modal-fade">
         <div @click.self="closeUnlinkModal"
@@ -81,20 +82,19 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">Délier mon adresse email</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation2.unlink') }}</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse email car
-                            Ao aura du mal à réceptionner les emails correctement.
+                            {{ $t('settings_navigation2.Test function') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
-                            @click="closeUnlinkModal">Annuler</button>
+                            @click="closeUnlinkModal">{{ $t('Global action.cancel') }}</button>
                             <div class="flex-grow"></div>
                         <button type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -104,13 +104,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            Délier
+                            {{ $t('settings_navigation2.unlink') }}
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </transition>
+
     <!-- Modal for User Description update -->
     <transition name="modal-fade">
         <div @click.self="closeUserDescriptionModal"
@@ -126,7 +127,7 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">Mettre à jour ma description</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.description') }}</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
@@ -144,12 +145,14 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="updateUserDescription">Mettre à jour</button>
+                            @click="updateUserDescription">{{ $t('Global action.update') }}</button>
                     </div>
                 </div>
             </div>
         </div>
     </transition>
+
+
     <!-- Modal for User Description add -->
     <transition name="modal-fade">
         <div @click.self="closeAddUserDescriptionModal"
@@ -165,7 +168,7 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">Lier une nouvelle adresse email</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.email link') }}</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
@@ -184,12 +187,13 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                         class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="linkNewEmail">Lier</button>
+                            @click="linkNewEmail">{{ $t('settings_navigation3.link') }}</button>
                     </div>
                 </div>
             </div>
         </div>
     </transition>
+
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
             <div class="col-span-1 2xl:col-span-1">
@@ -225,21 +229,21 @@
                                                 @click="setActiveSection('account')">
                                                 <user-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account' }"
-                                                    class="text-sm font-medium">Mon Compte</a>
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.account') }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'preferences', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'preferences' }]"
                                                 @click="setActiveSection('preferences')">
                                                 <adjustments-vertical-icon class="w-4 h-4" />
                                                 <a
-                                                    :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">Préférences</a>
+                                                    :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">{{ $t('settings_navigation.Preferences') }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription' }]"
                                                 @click="setActiveSection('subscription')">
                                                 <credit-card-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription' }"
-                                                    class="text-sm font-medium">Abonnement</a>
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.Abonnement') }}</a>
                                             </div>
 
                                             <div class="text-sm font-medium cursor-pointer"
@@ -247,7 +251,7 @@
                                                 @click="setActiveSection('data')">
                                                 <circle-stack-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data' }"
-                                                    class="text-sm font-medium">Mes données</a>
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.Mes données') }}</a>
                                             </div>
                                         </nav>
                                     </div>
@@ -255,11 +259,11 @@
                             </div>
                         </div>
                     </main>
+
                     <div v-if="activeSection === 'account'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mon
-                                compte
+                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.account') }}
                             </h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
@@ -275,17 +279,14 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">Changement
-                                                d'identifiant
-                                                ou de
-                                                mot de passe</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Profil_change') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6 pb-10">
                                         <div class="flex space-x-1 items-center">
                                             <envelope-icon class="w-4 h-4" />
                                             <label
-                                                class="block text-sm font-medium leading-6 text-gray-900">Identifiant</label>
+                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Id') }}</label>
                                         </div>
                                         <div class="relative items-stretch mt-2">
                                             <input v-model="userData" type="text" name="username" id="username"
@@ -298,8 +299,7 @@
                                                     <div class="flex space-x-1 items-center">
                                                         <key-icon class="w-4 h-4" />
                                                         <label
-                                                            class="block text-sm font-medium leading-6 text-gray-900">Nouveau
-                                                            mot de passe</label>
+                                                            class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Password_change') }}</label>
                                                     </div>
                                                     <div class="relative items-stretch mt-2 flex">
                                                         <input v-if="!showPassword" type="password"
@@ -334,8 +334,7 @@
                                                     <div class="flex space-x-1 items-center">
                                                         <key-icon class="w-4 h-4" />
                                                         <label
-                                                            class="block text-sm font-medium leading-6 text-gray-900">Confirmer
-                                                            le mot de passe</label>
+                                                            class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Confirmer') }}</label>
                                                     </div>
                                                     <div class="relative items-stretch mt-2 flex">
                                                         <input v-if="!showConfirmPassword" type="password"
@@ -368,7 +367,7 @@
                                         </div>
                                         <div class="flex justify-end pt-4">
                                             <button @click="handleSubmit"
-                                                class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Modifier</button>
+                                                class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('settings_navigation.modifier') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -378,8 +377,7 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">Lier un nouvel
-                                                email</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation3.email link') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">
@@ -468,7 +466,7 @@
                                                         <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
                                                         <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                                                     </svg>
-                                                    Lier un compte Outlook
+                                                    {{ $t('settings_navigation3.Outlook') }}
                                                 </button>
                                             </div>
                                         </div>
@@ -492,7 +490,7 @@
                                                             d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
                                                             id="Shape" fill="#EB4335"></path>
                                                     </svg>
-                                                    Lier un compte Google
+                                                    {{ $t('settings_navigation3.Google') }}
                                                 </button>
                                             </div>
                                         </div>
@@ -505,8 +503,7 @@
                                         <div class="w-full border-t border-gray-300"></div>
                                     </div>
                                     <div class="relative flex justify-center">
-                                        <span class="bg-white px-2 text-sm text-gray-500">Suppression du
-                                            compte</span>
+                                        <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Delete') }}</span>
                                     </div>
                                 </div>
                                 <div class="pt-6">
@@ -515,9 +512,8 @@
                                             <input type="radio"
                                                 class="form-radio text-red-600 border-red-400 focus:border-red-500 focus:ring-red-200 h-5 w-5"
                                                 name="choice">
-                                            <label for="push-everything" class="block text-sm font-medium leading-6">Je
-                                                confirme la supression
-                                                de mon compte</label>
+                                            <label for="push-everything" class="block text-sm font-medium leading-6">
+                                                {{ $t('settings_navigation.Confirmer_supp') }}</label>
                                         </div>
                                         <button @click="openModal" type="submit"
                                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">
@@ -527,17 +523,17 @@
                                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                             </svg>
 
-                                            Supprimer</button>
+                                            {{ $t('settings_navigation.supprimer') }}</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <div v-if="activeSection === 'subscription'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mon
-                                abonnement</h1>
+                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.Abonnement') }}</h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
                             <credit-card-icon class="w-6 h-6 text-gray-500" />
@@ -554,8 +550,7 @@
                             <div class="flex-1">
                                 <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
                                     <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">
-                                        Mes
-                                        données</h1>
+                                        {{ $t('settings_navigation.Mes données') }}</h1>
                                 </div>
                                 <div class="float-right mt-[-70px] mr-[10px]">
                                     <circle-stack-icon class="w-6 h-6 text-gray-500" />
@@ -581,8 +576,7 @@
                     <div v-if="activeSection === 'preferences'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">Mes
-                                préférences</h1>
+                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.Preferences') }}</h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
                             <adjustments-vertical-icon class="w-6 h-6 text-gray-500" />
@@ -598,7 +592,7 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">Thème</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Theme') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6 pb-10">
@@ -611,7 +605,7 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">Couleurs</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation2.Colors') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">

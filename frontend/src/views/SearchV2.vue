@@ -19,7 +19,7 @@
             <div
               class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10">
               <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Search_vue.titre') }}</h1>
             </div>
             <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[785px]">
               <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
@@ -55,13 +55,13 @@
             <div
               class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10">
               <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Recherche Manuelle</h1>
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Search_vue.titre2') }}</h1>
             </div>
             <div class="flex flex-col flex-grow">
               <div class="flex flex-col w-full px-6 pt-6">
                 <div class="flex space-x-1 items-center">
                   <magnifying-glass-icon class="w-4 h-4" />
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Recherche</label>
+                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('Search_vue.Recherche') }}</label>
                 </div>
                 <div class="flex space-x-2 items-center">
                   <div class="flex-grow w-full">
@@ -72,7 +72,7 @@
                   </div>
                   <div class="flex-1 mt-2">
                     <button type="button" @click="searchEmails"
-                      class="w-28 rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Rechercher</button>
+                      class="w-28 rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">{{ $t('Search_vue.bouton_recherche') }}</button>
                   </div>
                 </div>
               </div>
@@ -333,7 +333,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                               d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
                           </svg>
-                          <span class="mt-2 block text-sm font-semibold text-gray-900">Aucun résultat</span>
+                          <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('Search_vue.Resultats_négatif') }}</span>
                         </div>
                       </div>
                     </div>

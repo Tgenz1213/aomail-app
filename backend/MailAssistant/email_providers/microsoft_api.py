@@ -802,7 +802,10 @@ def get_mail_to_db(access_token, int_mail=None, id_mail=None):
     message_data = response.json()
 
     conversation_id = message_data.get("conversationId")
+
+    # TODO: delete => and in models too
     web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
+
     has_attachments = message_data["hasAttachments"]
 
     subject = message_data.get("subject")
@@ -1331,7 +1334,7 @@ def email_to_db(user, email, id_email):
                 importance = INFORMATION
 
         if not rule_category:
-            if topic in category_dict.keys():
+            if topic in category_dict:
                 category = Category.objects.get(name=topic, user=user)
 
         if not sender:

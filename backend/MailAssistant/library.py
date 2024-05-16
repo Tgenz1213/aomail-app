@@ -6,6 +6,7 @@ import logging
 import re
 import base64
 from django.db import IntegrityError
+from MailAssistant.constants import DEFAULT_CATEGORY
 from .models import Category, Contact
 from bs4 import BeautifulSoup
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -124,6 +125,7 @@ def get_db_categories(current_user) -> dict[str, str]:
     """Retrieves categories specific to the given user from the database."""
     categories = Category.objects.filter(user=current_user)
     category_list = {category.name: category.description for category in categories}
+    category_list.pop(DEFAULT_CATEGORY)
 
     return category_list
 

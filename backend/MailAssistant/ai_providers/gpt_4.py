@@ -58,9 +58,7 @@ def categorize_and_summarize_email(
     language="French",
 ):
     """Categorizes and summarizes an email"""
-
-    category_dict.pop(DEFAULT_CATEGORY)
-
+    
     importance_list = {
         "UrgentWorkInformation": "Critical updates or information requiring immediate attention related to projects, deadlines, or time-sensitive matters.",
         "RoutineWorkUpdates": "Regular updates or communications important for work but not requiring immediate action, such as team updates or general announcements.",

@@ -329,8 +329,6 @@ def categorize_and_summarize_email(
 ):
     """Categorizes and summarizes an email"""
 
-    category_dict.pop(DEFAULT_CATEGORY)
-
     importance_list = {
         "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
         "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",

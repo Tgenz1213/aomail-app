@@ -1365,6 +1365,11 @@ def email_to_db(user, email, id_email):
                 has_attachments=has_attachments,
             )
 
+            contact_name, contact_email = from_name[0], from_name[1]
+            Contact.objects.get_or_create(
+                user=user, email=contact_email, username=contact_name
+            )
+
             if summary_list:
                 for point in summary_list:
                     BulletPoint.objects.create(content=point, email=email_entry)

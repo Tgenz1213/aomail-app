@@ -17,7 +17,7 @@
             <p class="block font-semibold leading-6 text-gray-900">{{ email.subject }}</p>
           </div>
         </div>
-        <div class="overflow-auto h-[535px]">
+        <div class="overflow-auto h-[535px] 2xl:h-[736px]">
           <div class="flex flex-col px-8 py-4">
             <div class="mb-3">
               <div class="flex">
@@ -43,29 +43,13 @@
                                 class="group action-buttons">
                                 <div class="relative group">
                                     <div
-                                        class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4">
-                                        Ouvrir
-                                    </div>
-                                    <button
-                                        @click="openSeeModal(email)"
-                                        type="button"
-                                        class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                        <eye-icon
-                                            class="w-5 h-5 text-gray-400 group-hover:text-white" />
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="group action-buttons">
-                                <div class="relative group">
-                                    <div
                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
                                         Lu
                                     </div>
                                     <button
                                         @click="markEmailAsRead(email.id)"
                                         type="button"
-                                        class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                        class="relative -ml-px inline-flex items-center rounded-l-2xl px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                         <check-icon
                                             class="w-5 h-5 text-gray-400 group-hover:text-white" />
                                     </button>
@@ -80,8 +64,23 @@
                                     </div>
                                     <button @click="openAnswer(email)"
                                         type="button"
-                                        class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                        class="relative -ml-px inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                         <arrow-uturn-left-icon
+                                            class="w-5 h-5 text-gray-400 group-hover:text-white" />
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="group action-buttons">
+                                <div class="relative group">
+                                    <div
+                                        class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
+                                        Répondre
+                                    </div>
+                                    <button @click="openRuleEditor"
+                                        type="button"
+                                        class="relative -ml-px inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                        <BeakerIcon
                                             class="w-5 h-5 text-gray-400 group-hover:text-white" />
                                     </button>
                                 </div>
@@ -98,7 +97,7 @@
                                         <div>
                                             <MenuButton
                                                 @click="toggleTooltip"
-                                                class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-orange-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                                class="relative -ml-px inline-flex items-center rounded-r-2xl px-1.5 py-1 text-orange-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                                 <ellipsis-horizontal-icon
                                                     class="w-5 h-5 group-hover:text-white text-gray-400 group-active:text-orange-400 group-focus:text-orange focus:text-orange-400" />
                                             </MenuButton>
@@ -255,11 +254,29 @@ import { onMounted } from 'vue';
 onMounted(() => {
   document.addEventListener("keydown", handleKeyDown);
 });
-const emits = defineEmits(['closeModal']);
+const emits = defineEmits(['closeModal', 'openAnswer', 'markEmailAsRead', 'openRuleEditor', 'openNewRule']);
 
 const closeModal = () => {
   emits('closeSeeModal');
 };
+
+const openAnswer = () => {
+  emits('openAnswer', props.email);
+}
+
+const openRuleEditor = () => {
+  if (props.email.rule) {
+    emits('openRuleEditor', props.email.rule_id)
+  } else {
+    emits('openNewRule', props.email.name, props.email.email)
+  }
+}
+
+const markEmailAsRead = () => {
+  emits('markEmailAsRead', props.email.id);
+  closeModal();
+}
+
 const props = defineProps({
   isOpen: Boolean,
   email: Object
@@ -286,7 +303,8 @@ import {
   //EyeIcon,
   //UserGroupIcon,
   EnvelopeOpenIcon,
-  XMarkIcon
+  XMarkIcon,
+  BeakerIcon
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -299,7 +317,8 @@ export default {
     CheckIcon,
     EllipsisHorizontalIcon,
     EnvelopeOpenIcon,
-    XMarkIcon
+    XMarkIcon,
+    BeakerIcon
     //HandRaisedIcon,
     //EyeIcon,
     //UserGroupIcon

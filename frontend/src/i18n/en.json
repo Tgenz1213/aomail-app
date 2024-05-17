@@ -1,13 +1,22 @@
 {
-
   "Global action": {
     "cancel": "Cancel",
     "supp": "delete",
     "create": "Create",
     "categorie": "Category",
     "searchbar": "search",
+    "annuler": "cancel",
     "update" : "update"
   },
+  
+    "Global": {
+      "Home": "Home",
+      "NewMail": "New Mail",
+      "SearchMail": "Search Mail",
+      "Rules": "Rules",
+      "ReplyLater": "Reply Later",
+      "Settings": "Settings"
+    },
 
     "UserLogin_vue": {
       "titre": "Connect to your account",
@@ -61,18 +70,26 @@
       "Mes_données": "My data",
       "Actionssupp" : "Additional actions",
       "Résultats_changer" : "Change the rule",
-      "Résultats_create" : "create a rules",
+      "Résultats_create" : "create a rule",
       "Répondretard" : "Reply later",
+      "Transfer": "Transfer",
       "Checkresume" : "Click to see the summary",
-      "lu" : "ok",
+      "lu" : "Read",
+      "notif3": "unread",
       "notif2" : "You received",
-      "useless" : "useless mails",
+      "useless" : "useless email",
+      "useless2" : "useless mails",
       "Checkmail" : "Click to see the mail",
       "Bloquer" : "Block",
       "read" : "You read recently",
       "I" : "I'm",
       "nettoyer" : "going to clean automatically",
       "themail" : "the mail you have read",
+      "You" : "You have",
+      "rules" : "rule",
+      "link" : "link",
+      "cat" : "at this category.",
+      "Warning" : " Deleting the category will also result in deleting all associated rules",
       "supp" : "Delete"
     },
 
@@ -132,7 +149,6 @@
       "send" : "dend"
     },
 
-
     "Search_vue": {
       "titre": "AI assistant",
       "titre2": "Manual Search",
@@ -176,7 +192,6 @@
       "titre2": "Your payment was successful. Thank you for your purchase!"
     },
 
-    
     "StripepaymentF_vue": {
       "titre": "Payment Successful",
       "product":"product",
@@ -199,8 +214,6 @@
       "Résultats_create" : "create a rules"
     },
 
-    
-
     "Newcategory_vue": {
       "categorie": "Create a new category.",
       "categorie2": "Brief description of the categorie",
@@ -208,7 +221,6 @@
       "name": "Category name"
     },
 
-    
     "UpdateCategoryModal_vue": {
       "titre": "Modify a category",
       "category": "Name of the category ",
@@ -220,7 +232,6 @@
       "modifier" : "Modify"
     },
 
-
     "Seerules_vue": {
       "titre": "New rules",
       "cat": "Category",
@@ -230,6 +241,18 @@
       "option2": "Informative",
       "option3": "Useless",
       "mail": "Block the mails",
+      "modifier" : "Modify"
+    },
+
+    "SeeMail_vue": {
+      "titre": "More actions",
+      "answer": "Answer",
+      "open": "Open",
+      "lu": "Read",
+      "tab": "Select a tab",
+      "mail": "email resume",
+      "mail2": "Full email",
+      "mail3": "Block the mails",
       "modifier" : "Modify"
     },
 

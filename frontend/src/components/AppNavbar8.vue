@@ -109,6 +109,7 @@
 </template>
 
 <script setup>
+import i18n from '../i18n';
 import { ref } from 'vue'
 import { useRoute } from 'vue-router';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'
@@ -133,12 +134,12 @@ import {
 } from '@heroicons/vue/24/outline'
 
 const navigation = [
-  { name: 'Accueil', href: '/home', icon: EnvelopeIcon },
-  { name: 'Nouveau mail', href: '/new', icon: PencilSquareIcon },
-  { name: 'Recherche mail', href: '/search', icon: MagnifyingGlassIcon },
-  { name: 'Règles', href: '/rules', icon: BeakerIcon },
-  { name: 'Répondre plus tard', href: '/reply_later', icon: ArrowUturnLeftIcon },
-  { name: 'Paramètres', href: '/settings', icon: CogIcon },
+  { name: i18n.global.t('Global.Home'), href: '/home', icon: EnvelopeIcon },
+  { name: i18n.global.t('Global.NewMail'), href: '/new', icon: PencilSquareIcon },
+  { name: i18n.global.t('Global.SearchMail'), href: '/search', icon: MagnifyingGlassIcon },
+  { name: i18n.global.t('Global.Rules'), href: '/rules', icon: BeakerIcon },
+  { name: i18n.global.t('Global.ReplyLater'), href: '/reply_later', icon: ArrowUturnLeftIcon },
+  { name: i18n.global.t('Global.Settings'), href: '/settings', icon: CogIcon },
 ]
 
 const logo = ref(require('@/assets/LogoAugmentAI_export4.png'));

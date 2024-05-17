@@ -28,17 +28,16 @@
                         <div>
                             <div class="flex space-x-1 items-center">
                                 <label class="block text-sm font-medium leading-6 text-gray-900">
-                                    Vous avez {{ nbRulesAssociated }} règle<span v-if="nbRulesAssociated > 1">s</span>
-                                    liée<span v-if="nbRulesAssociated > 1">s</span> à cette catégorie.
-                                    La suppression de la catégorie entraînera également la suppression de toutes les
-                                    règles associées
+                                    {{ $t('Home_vue.You') }}  {{ nbRulesAssociated }}  {{ $t('Home_vue.rules') }} <span v-if="nbRulesAssociated > 1">s</span>
+                                    {{ $t('Home_vue.link') }} <span v-if="nbRulesAssociated > 1">s</span>  {{ $t('Home_vue.cat') }} 
+                                    {{ $t('Home_vue.Warning') }} 
                                 </label>
                             </div>
                         </div>
                         <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
                             <button type="button"
                                 class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
-                                @click="closeWarningCategoryModal">Annuler</button>
+                                @click="closeWarningCategoryModal">{{ $t('Global action.annuler') }} </button>
                             <button type="button"
                                 class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
                                 @click="deleteCategory(categoryToUpdate.name)">
@@ -235,7 +234,7 @@
                                         <div class="px-6 pb-6">
                                             <div class="bg-orange-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-3 py-2">
-                                                    <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">Travail - Urgent</p>
+                                                    <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">{{ $t('ReplyLater_vue.Travail') }}</p>
                                                     <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                     <div class="ml-auto">
                                                         <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
@@ -285,7 +284,7 @@
                                                                                             stroke-linejoin="round"
                                                                                             d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                     </svg>
-                                                                                    <p>Cliquez pour voir le résumé</p>
+                                                                                    <p>{{ $t('Home_vue.resume') }}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -311,7 +310,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                        Ouvrir
+                                                                                        {{ $t('Home_vue.Open') }}
                                                                                     </div>
                                                                                     <button
                                                                                         @click="openSeeModal(item)"
@@ -327,7 +326,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                                                                        Lu
+                                                                                        {{ $t('Home_vue.lu') }}
                                                                                     </div>
                                                                                     <button
                                                                                         @click="markEmailAsRead(item.id)"
@@ -343,7 +342,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                        Répondre
+                                                                                        {{ $t('Home_vue.Action_répondre') }}
                                                                                     </div>
                                                                                     <button @click="openAnswer(item)"
                                                                                         type="button"
@@ -358,7 +357,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[90px] w-[185px]">
-                                                                                        Actions supplémentaires
+                                                                                        {{ $t('Home_vue.Actionssupp') }}
                                                                                     </div>
                                                                                     <Menu as="div"
                                                                                         class="relative inline-block text-left">
@@ -398,9 +397,7 @@
                                                                                                                         stroke-linejoin="round"
                                                                                                                         d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                 </svg>
-                                                                                                                <span>Changer
-                                                                                                                    la
-                                                                                                                    règle</span>
+                                                                                                                <span>{{ $t('Home_vue.Résultats_changer') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -423,9 +420,7 @@
                                                                                                                         stroke-linejoin="round"
                                                                                                                         d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                 </svg>
-                                                                                                                <span>Créer
-                                                                                                                    une
-                                                                                                                    règle</span>
+                                                                                                                <span>{{ $t('Home_vue.Résultats_create') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -454,9 +449,7 @@
                                                                                                                     d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                             </svg>
-                                                                                                            <span>Répondre
-                                                                                                                plus
-                                                                                                                tard</span>
+                                                                                                            <span>{{ $t('Home_vue.Répondretard') }}</span>
                                                                                                         </span>
                                                                                                     </a>
                                                                                                     </MenuItem>
@@ -484,7 +477,7 @@
                                                                                                                     d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                             </svg>
-                                                                                                            <span>Transférer</span>
+                                                                                                            <span>{{ $t('Home_vue.Transfer') }}</span>
                                                                                                         </span>
                                                                                                     </a>
                                                                                                     </MenuItem>
@@ -510,7 +503,7 @@
                                         <div class="px-6 pb-6">
                                             <div class="bg-blue-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-2 py-2">
-                                                    <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">Travail - Informatif</p>
+                                                    <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">{{ $t('ReplyLater_vue.Travail2') }}</p>
                                                     <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                     <div class="ml-auto">
                                                         <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -559,7 +552,7 @@
                                                                                             stroke-linejoin="round"
                                                                                             d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                     </svg>
-                                                                                    <p>Cliquez pour voir le résumé</p>
+                                                                                    <p>{{ $t('Home_vue.Checkresume') }}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -585,7 +578,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                                                                        Ouvrir
+                                                                                        {{ $t('Home_vue.Open') }}
                                                                                     </div>
                                                                                     <button
                                                                                         @click="openSeeModal(item)"
@@ -601,7 +594,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                                                                        Lu
+                                                                                        {{ $t('Home_vue.Lu') }}
                                                                                     </div>
                                                                                     <button type="button"
                                                                                         class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -616,7 +609,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                        Répondre
+                                                                                        {{ $t('Home_vue.Action_répondre') }}
                                                                                     </div>
                                                                                     <button @click="openAnswer(item)"
                                                                                         type="button"
@@ -631,7 +624,7 @@
                                                                                 <div class="relative group">
                                                                                     <div
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                        Actions supplémentaires
+                                                                                        {{ $t('Home_vue.Actionssupp') }}
                                                                                     </div>
                                                                                     <Menu as="div"
                                                                                         class="relative inline-block text-left">
@@ -671,9 +664,7 @@
                                                                                                                         stroke-linejoin="round"
                                                                                                                         d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                 </svg>
-                                                                                                                <span>Changer
-                                                                                                                    la
-                                                                                                                    règle</span>
+                                                                                                                <span> {{ $t('Home_vue.Résultats_changer') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -696,9 +687,7 @@
                                                                                                                         stroke-linejoin="round"
                                                                                                                         d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                 </svg>
-                                                                                                                <span>Créer
-                                                                                                                    une
-                                                                                                                    règle</span>
+                                                                                                                <span>{{ $t('Home_vue.Résultats_create') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -727,9 +716,7 @@
                                                                                                                     d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                             </svg>
-                                                                                                            <span>Répondre
-                                                                                                                plus
-                                                                                                                tard</span>
+                                                                                                            <span>{{ $t('Home_vue.Répondretard') }}</span>
                                                                                                         </span>
                                                                                                     </a>
                                                                                                     </MenuItem>
@@ -757,7 +744,7 @@
                                                                                                                     d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                             </svg>
-                                                                                                            <span>Transférer</span>
+                                                                                                            <span>{{ $t('Home_vue.Transfer') }}</span>
                                                                                                         </span>
                                                                                                     </a>
                                                                                                     </MenuItem>
@@ -815,14 +802,14 @@
                                                                     <div class="flex gap-x-2">
                                                                         <!-- remove @click="toggleEmailVisibility"-->
                                                                         <p @click="toggleEmailVisibility"
-                                                                            class="cursor-pointer">Vous avez reçu
+                                                                            class="cursor-pointer">{{ $t('Home_vue.notif2') }}
                                                                             <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}</span>
                                                                             <span
                                                                                 v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
-                                                                                mail inutile.
+                                                                                {{ $t('Home_vue.useless') }}
                                                                             </span>
                                                                             <span v-else>
-                                                                                mails inutiles.
+                                                                                {{ $t('Home_vue.useless2') }}
                                                                             </span>
                                                                         </p>
                                                                         <div
@@ -838,8 +825,7 @@
                                                                                 </svg>
                                                                                 <!-- remove @click="toggleEmailVisibility"-->
                                                                                 <p @click="toggleEmailVisibility"
-                                                                                    class="cursor-pointer">Cliquez pour voir
-                                                                                    les mails</p>
+                                                                                    class="cursor-pointer">   {{ $t('Home_vue.Checkmail') }}</p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -868,7 +854,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    Ouvrir
+                                                                                                    {{ $t('Home_vue.Open') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openSeeModal(item)"
@@ -884,7 +870,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    Bloquer
+                                                                                                    {{ $t('Home_vue.Bloquer') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -899,7 +885,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    Supprimer
+                                                                                                    {{ $t('Home_vue.supp') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -914,7 +900,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                                    Répondre
+                                                                                                    {{ $t('Home_vue.Action_répondre') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openAnswer(item)"
@@ -930,7 +916,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    Actions supplémentaires
+                                                                                                    {{ $t('Home_vue.Actionssupp') }}
                                                                                                 </div>
                                                                                                 <Menu as="div"
                                                                                                     class="relative inline-block text-left">
@@ -973,9 +959,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>Changer
-                                                                                                                                la
-                                                                                                                                règle</span>
+                                                                                                                            <span>{{ $t('Home_vue.Résultats_changer') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -998,9 +982,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>Créer
-                                                                                                                                une
-                                                                                                                                règle</span>
+                                                                                                                            <span>{{ $t('Home_vue.Résultats_create') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1030,9 +1012,7 @@
                                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>Répondre
-                                                                                                                            plus
-                                                                                                                            tard</span>
+                                                                                                                        <span>{{ $t('Home_vue.Répondretard') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1062,7 +1042,7 @@
                                                                                                                                 d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>Transférer</span>
+                                                                                                                        <span>{{ $t('Home_vue.Transfer') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1122,7 +1102,7 @@
                                                                     class="px-6 py-5 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                     <div class="flex group gap-x-2">
                                                                         <p @click="toggleReadEmailVisibility"
-                                                                            class="cursor-pointer">Vous avez récemment lu
+                                                                            class="cursor-pointer">{{ $t('Home_vue.read') }}
                                                                             <span
                                                                                 class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">
                                                                                 {{ readEmailsInSelectedTopic().length }}
@@ -1130,9 +1110,8 @@
                                                                             <span
                                                                                 v-if="readEmailsInSelectedTopic().length === 1">
                                                                                 mail</span>
-                                                                            <span v-else> mails</span>. Je
-                                                                            <span class="font-medium">vais nettoyer
-                                                                                automatiquement</span> les mails lus.
+                                                                            <span v-else> mails</span>. {{ $t('Home_vue.I') }}
+                                                                            <span class="font-medium">{{ $t('Home_vue.nettoyer') }}</span> {{ $t('Home_vue.themail') }}
                                                                         </p>
                                                                         <div
                                                                             class="hidden group-hover/main:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">
@@ -1146,8 +1125,7 @@
                                                                                         d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                 </svg>
                                                                                 <p @click="toggleReadEmailVisibility"
-                                                                                    class="cursor-pointer">Cliquez pour voir
-                                                                                    les mails</p>
+                                                                                    class="cursor-pointer">{{ $t('Home_vue.Checkmail') }}</p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1181,8 +1159,7 @@
                                                                                                         stroke-linejoin="round"
                                                                                                         d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                                 </svg>
-                                                                                                <p>Cliquez pour voir le
-                                                                                                    résumé</p>
+                                                                                                <p>{{ $t('Home_vue.Checkresume') }}</p>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -1211,7 +1188,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    Ouvrir
+                                                                                                    {{ $t('Home_vue.Open') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openSeeModal(item)"
@@ -1226,7 +1203,7 @@
                                                                                             class="group action-buttons">
                                                                                             <div class="relative group">
                                                                                                 <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
-                                                                                                    Non Lu
+                                                                                                    {{ $t('Home_vue.notif3') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click="markEmailAsUnread(item.id)"
@@ -1242,7 +1219,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    Supprimer
+                                                                                                    {{ $t('Home_vue.supp') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
@@ -1257,7 +1234,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                                    Répondre
+                                                                                                    {{ $t('Home_vue.Action_répondre') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openAnswer(item)"
@@ -1274,7 +1251,7 @@
                                                                                                 class="cursor-pointer relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    Actions supplémentaires
+                                                                                                    {{ $t('Home_vue.Actionssupp') }}
                                                                                                 </div>
                                                                                                 <Menu as="div"
                                                                                                     class="relative inline-block text-left">
@@ -1317,9 +1294,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>Changer
-                                                                                                                                la
-                                                                                                                                règle</span>
+                                                                                                                            <span>{{ $t('Home_vue.Résultats_changer') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1342,9 +1317,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>Créer
-                                                                                                                                une
-                                                                                                                                règle</span>
+                                                                                                                            <span>{{ $t('Home_vue.Résultats_create') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1374,9 +1347,7 @@
                                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>Répondre
-                                                                                                                            plus
-                                                                                                                            tard</span>
+                                                                                                                        <span>{{ $t('Home_vue.Répondretard') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1405,7 +1376,7 @@
                                                                                                                                 d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>Transférer</span>
+                                                                                                                        <span>{{ $t('Home_vue.Transfer') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>

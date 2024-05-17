@@ -19,12 +19,12 @@
         <div class="flex flex-col px-8">
           <div class="mt-4 mb-8">
             <div class="sm:hidden">
-              <label for="tabs" class="sr-only">Select a tab</label>
+              <label for="tabs" class="sr-only">{{ $t('SeeMail_vue.tab') }} </label>
               <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
               <select id="tabs" name="tabs"
                 class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                <option selected>Résumé du mail</option>
-                <option>Mail complet</option>
+                <option selected>{{ $t('SeeMail_vue.mail') }} </option>
+                <option>{{ $t('SeeMail_vue.mail2') }} </option>
               </select>
             </div>
             <div class="hidden sm:block">
@@ -32,11 +32,11 @@
                 <nav class="-mb-px flex" aria-label="Tabs">
                   <!-- Current: "border-indigo-500 text-indigo-600", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" -->
                   <a href="#"
-                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">Résumé
-                    du Mail</a>
+                    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">
+                    {{ $t('SeeMail_vue.mail') }} </a>
                   <a href="#"
-                    class="border-red-400 text-red-500 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">Mail
-                    Complet</a>
+                    class="border-red-400 text-red-500 w-1/2 border-b-2 py-4 px-1 text-center text-sm font-medium">
+                    {{ $t('SeeMail_vue.mail2') }} </a>
                 </nav>
               </div>
             </div>

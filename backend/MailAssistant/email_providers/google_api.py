@@ -33,6 +33,8 @@ from email.utils import parsedate_to_datetime
 from MailAssistant.serializers import EmailDataSerializer
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
 from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
@@ -1141,6 +1143,10 @@ def receive_mail_notifications(request):
                 for i in range(MAX_RETRIES):
                     result = email_to_db(social_api.user, services, social_api)
                     if result:
+                        channel_layer = get_channel_layer()
+                        async_to_sync(channel_layer.send)(
+                            {"type": "email.notification"},
+                        )
                         break
                     else:
                         LOGGER.critical(

@@ -66,6 +66,7 @@ DATABASES = CONFIG["database_conf"]
 
 # ----------------------- DJANGO DEPENDENCIES -----------------------#
 INSTALLED_APPS = [
+    "channels",
     "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -221,7 +222,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
-# TODO: add a scheduled task that deletes all emails to no reply every day
 """CRONJOBS = [
     (
         "0 3 * * *",

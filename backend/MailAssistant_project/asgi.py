@@ -1,6 +1,6 @@
 """
 ASGI (Asynchronous Server Gateway Interface) config for MailAssistant_project project.
-Django’s default ASGI handler will run all your code in a synchronous thread
+Django's default ASGI handler will run all your code in a synchronous thread
 
 For more information on this file, see
 https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/

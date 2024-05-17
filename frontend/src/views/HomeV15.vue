@@ -1486,6 +1486,29 @@ let isModalWarningCategoryOpen = ref(false)
 let nbRulesAssociated = ref(null);
 const happy_icon = ref(require('@/assets/happy.png'));
 
+
+const emailSocket = new WebSocket('wss://' + window.location.host + '/ws/aomail/');
+console.log('Initial WebSocket ready state:', emailSocket.readyState);
+
+emailSocket.onopen = function() {
+    console.log('WebSocket connection established. Ready state:', emailSocket.readyState);
+};
+
+emailSocket.onclose = function(e) {
+    console.log('WebSocket is closing. Ready state:', emailSocket.readyState);
+    console.error('Aomail web socket closed unexpectedly. Code:', e.code, 'Reason:', e.reason);
+};
+
+emailSocket.onerror = function(e) {
+    console.log('Error occurred. WebSocket ready state:', emailSocket.readyState);
+    console.error('WebSocket encountered an error. Event:', e);
+};
+
+emailSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log('Message received:', data);
+};
+
 onMounted(async () => {
     document.addEventListener("keydown", handleKeyDown);
     getBackgroundColor();
@@ -1515,7 +1538,7 @@ onMounted(async () => {
                     animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
                 }
             }
-            fetchEmails();
+            // fetchEmails();
         } catch (error) {
             console.log("An error occured", error)
         }

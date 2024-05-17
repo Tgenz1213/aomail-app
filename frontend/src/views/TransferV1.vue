@@ -25,7 +25,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
                                 </svg>
-                                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Assistant IA</h1>
+                                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Transfer_vue.titre') }}</h1>
                             </div>
                         </div>
                         <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
@@ -71,7 +71,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
                                     </svg>
-                                    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Saisie manuelle
+                                    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Transfer_vue.titre2') }}
                                     </h1>
                                 </div>
                             </div>
@@ -114,7 +114,7 @@
                                                             class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2">
                                                             <UserGroupIcon class="w-4 h-4 pointer-events-none" />
                                                             <label for="email"
-                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Destinataire(s)</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{ $t('Transfer_vue.Destinataire') }}</label>
                                                         </div>
                                                         <Combobox as="div" v-model="selectedPerson"
                                                             @update:model-value="personSelected">
@@ -195,7 +195,7 @@
                                                             class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10">
                                                             <Bars2Icon class="w-4 h-4 pointer-events-none" />
                                                             <label for="username"
-                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Objet</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{ $t('Transfer_vue.objet') }}</label>
                                                         </div>
                                                         <input id="objectInput" v-model="inputValue" type="text"
                                                             class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
@@ -226,7 +226,9 @@
                                         <div class="flex mb-4">
                                             <div class="inline-flex rounded-lg shadow-lg">
                                                 <button @click="sendEmail" :disabled="emailTransfered"
-                                                    class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">Envoyer</button>
+                                                    class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
+                                                    {{ $t('Transfer_vue.send') }}</button>
+                                                    
                                                 <Menu as="div" class="relative -ml-px block">
                                                     <MenuButton
                                                         class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">

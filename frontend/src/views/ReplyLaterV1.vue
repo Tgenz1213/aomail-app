@@ -21,7 +21,7 @@
           <div
             class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
             <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Répondre plus tard</h1>
+            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('ReplyLater_vue.titre') }}</h1>
           </div>
           <div class="flex-grow overflow-y-auto" style="margin-right: 2px;">
             <div class="h-full">
@@ -35,7 +35,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
                     </svg>
-                    <span class="mt-2 block text-sm font-semibold text-gray-900">Aucun mail à répondre plus tard</span>
+                    <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('ReplyLater_vue.titre') }}</span>
                   </div>
                 </div>
               </div>
@@ -47,7 +47,7 @@
                       <div class="px-6 pb-6">
                         <div class="bg-orange-100 bg-opacity-90 rounded-md">
                           <div class="flex px-3 py-2">
-                            <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">Travail - Urgent</p>
+                            <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">{{ $t('ReplyLater_vue.Travail') }}</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
                                 <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
@@ -85,7 +85,7 @@
                                               <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                             </svg>
-                                            <p>Cliquez pour voir le résumé</p>
+                                            <p>{{ $t('ReplyLater_vue.Resume') }}</p>
                                           </div>
                                         </div>
                                       </div>
@@ -119,7 +119,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              Répondre
+                                              {{ $t('ReplyLater_vue.Action_répondre') }}
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -131,7 +131,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-8">
-                                              Supprimer
+                                              {{ $t('ReplyLater_vue.Action_supprimer') }}
                                             </div>
                                             <button type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -144,7 +144,7 @@
                                           <div class="relative group">
                                             <div v-if="showTooltip"
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
-                                              Actions supplémentaires
+                                              {{ $t('ReplyLater_vue.Actionssupp') }}
                                             </div>
                                             <Menu as="div" class="relative inline-block text-left">
                                               <div>
@@ -174,7 +174,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>Changer la règle</span>
+                                                          <span>{{ $t('ReplyLater_vue.Résultats_changer') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -190,7 +190,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>Créer une règle</span>
+                                                          {{ $t('ReplyLater_vue.Résultats_create') }}
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -212,7 +212,7 @@
                                                           <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                             style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                         </svg>
-                                                        <span>Transférer</span>
+                                                        <span> {{ $t('ReplyLater_vue.Transfer') }}</span>
                                                       </span>
                                                     </a>
                                                     </MenuItem>
@@ -294,7 +294,7 @@
                       <div class="px-6 pb-6">
                         <div class="bg-blue-100 bg-opacity-90 rounded-md">
                           <div class="flex px-2 py-2">
-                            <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">Travail - Informatif</p>
+                            <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">{{ $t('ReplyLater_vue.Travail2') }}</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
                                 <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -334,7 +334,7 @@
                                               <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                             </svg>
-                                            <p>Cliquez pour voir le résumé</p>
+                                            <p>{{ $t('ReplyLater_vue.Resume') }}</p>
                                           </div>
                                         </div>
                                       </div>
@@ -368,7 +368,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              Répondre
+                                              {{ $t('ReplyLater_vue.Action_répondre') }}
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -380,7 +380,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-8">
-                                              Supprimer
+                                              {{ $t('ReplyLater_vue.Action_supprimer') }}
                                             </div>
                                             <button type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -393,7 +393,7 @@
                                           <div class="relative group">
                                             <div v-if="showTooltip"
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
-                                              Actions supplémentaires
+                                              {{ $t('ReplyLater_vue.Actionsupp') }}
                                             </div>
                                             <Menu as="div" class="relative inline-block text-left">
                                               <div>
@@ -423,7 +423,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>Changer la règle</span>
+                                                          <span>{{ $t('ReplyLater_vue.Résultats_changer') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -439,7 +439,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>Créer une règle</span>
+                                                          <span>{{ $t('ReplyLater_vue.Résultats_create') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -461,7 +461,7 @@
                                                           <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                             style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                         </svg>
-                                                        <span>Transférer</span>
+                                                        <span>{{ $t('ReplyLater_vue.Transfer') }}</span>
                                                       </span>
                                                     </a>
                                                     </MenuItem>
@@ -543,7 +543,7 @@
                       <div class="px-6 pb-6">
                         <div class="bg-gray-200 bg-opacity-90 rounded-md">
                           <div class="flex px-2 py-2">
-                            <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">Inutile</p>
+                            <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">{{ $t('ReplyLater_vue.Inutile') }}</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
                                 <trash-icon class="w-6 h-6 text-gray-500" />
@@ -580,7 +580,7 @@
                                               <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                             </svg>
-                                            <p>Cliquez pour voir le résumé</p>
+                                            <p>{{ $t('ReplyLater_vue.Resume') }}</p>
                                           </div>
                                         </div>
                                       </div>
@@ -602,7 +602,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                              Ouvrir
+                                              {{ $t('ReplyLater_vue.Action_Ouvrir') }}
                                             </div>
                                             <button @click="openInNewWindow(item.id_provider)" type="button"
                                               class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -614,7 +614,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              Répondre
+                                              {{ $t('ReplyLater_vue.Action_répondre') }}
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -626,7 +626,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-8">
-                                              Supprimer
+                                              {{ $t('ReplyLater_vue.Action_supprimer') }}
                                             </div>
                                             <button type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -639,7 +639,7 @@
                                           <div class="relative group">
                                             <div v-if="showTooltip"
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
-                                              Actions supplémentaires
+                                              {{ $t('ReplyLater_vue.Actionsupp') }}
                                             </div>
                                             <Menu as="div" class="relative inline-block text-left">
                                               <div>
@@ -669,7 +669,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>Changer la règle</span>
+                                                          <span>{{ $t('ReplyLater_vue.Résultats_changer') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -685,7 +685,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>Créer une règle</span>
+                                                          <span>{{ $t('ReplyLater_vue.Résultats_create') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -707,7 +707,7 @@
                                                           <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                             style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                         </svg>
-                                                        <span>Transférer</span>
+                                                        <span>{{ $t('ReplyLater_vue.Transfer') }}</span>
                                                       </span>
                                                     </a>
                                                     </MenuItem>

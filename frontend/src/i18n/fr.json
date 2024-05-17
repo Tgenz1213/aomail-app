@@ -1,0 +1,135 @@
+{
+    "UserLogin_vue": {
+      "titre": "Connexion à votre compte",
+      "Id": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "password_oublie": "Mot de passe oublié ?",
+      "Connexion": "Connexion",
+      "text": "Vous n'avez pas de compte ?",
+      "free": "Commencez votre essai gratuit"
+    },
+  
+    "SignUp_p1_vue": {
+      "titre": "Inscrivez-vous à MailAssistant",
+      "Id": "Nom d'utilisateur",
+      "password": "Mot de passe",
+      "password_confirm": "Confirmez le mot de passe",
+      "Continuer": "Continuer",
+      "Theme": "Thème",
+      "Colors": "Couleurs",
+      "categorie": "Créez vos différentes catégories dans lesquelles vous souhaitez que l'assistant place automatiquement vos e-mails.",
+      "infos": "Vous voulez en savoir plus ?",
+      "Add_categorie": "Ajouter une catégorie",
+      "Add_categorie2": "Ajouter une autre catégorie ?",
+      "text": "Vous avez un compte ?",
+      "Login": "Connexion"
+    },
+  
+    "SignUp_p2_vue": {
+      "titre": "Inscrivez-vous à MailAssistant",
+      "Gmail": "Lier un compte Gmail",
+      "Outlook": "Lier un compte Outlook",
+      "Google": "Lier votre compte Google",
+      "Outlook2": "Lier votre compte Outlook",
+      "Continuer": "Suivant",
+  
+      "titre2": "Présentation des outils",
+      "notif": "Travail en cours",
+      "titre3": "Quelques informations sur la confidentialité des données"
+    },
+  
+    "Home_vue": {
+      "notif": "Aucun nouvel e-mail",
+      "resume": "Cliquez pour voir le résumé",
+      "Open": "Ouvrir",
+      "Action_répondre": "Répondre",
+      "Mes_données": "Mes données",
+      "Actionssupp": "Actions supplémentaires",
+      "Résultats_changer": "Modifier la règle",
+      "Résultats_create": "Créer une règle",
+      "Répondretard": "Répondre plus tard",
+      "Checkresume": "Cliquez pour voir le résumé",
+      "lu": "lu",
+      "notif2": "Vous avez reçu",
+      "useless": "e-mails inutiles",
+      "Checkmail": "Cliquez pour voir l'e-mail",
+      "Bloquer": "Bloquer",
+      "read": "Vous avez récemment lu",
+      "I": "Je vais",
+      "nettoyer": "nettoyer automatiquement",
+      "themail": "l'e-mail que vous avez lu",
+      "supp": "Supprimer"
+    },
+  
+    "settings_navigation": {
+      "Preferences": "Préférences",
+      "account": "Mon compte",
+      "Abonnement": "Abonnement",
+      "Mes_données": "Mes données",
+  
+      "Profil_change": "Modifier mon nom d'utilisateur ou mon mot de passe",
+      "Id": "Nom d'utilisateur",
+      "Password_change": "Nouveau mot de passe",
+      "Confirmer": "Confirmez votre nouveau mot de passe",
+      "modifier": "Modifier",
+      "Delete": "Supprimer votre compte",
+      "Confirmer_supp": "Confirmer la suppression de mon compte (action irréversible)",
+      "supprimer": "Supprimer"
+    },
+  
+    "settings_navigation2": {
+      "titre": "Mon abonnement",
+      "titre2": "Mes données",
+      "notif": "Travail en cours",
+      "titre3": "Mes préférences",
+      "Theme": "Thème",
+      "Langue" : "Langue",
+      "Colors": "Couleurs"
+    },
+  
+    "Rules_vue": {
+      "titre": "Règles de l'assistant",
+      "catégorie": "Catégorie :",
+      "prio": "Priorité : ",
+      "mail": "E-mail bloqué",
+      "règles": "Cliquez pour créer une règle"
+    },
+  
+    "Search_vue": {
+      "titre": "Assistant IA",
+      "titre2": "Recherche manuelle",
+      "Recherche": "Recherche",
+      "bouton_recherche": "Rechercher",
+      "Contacts": "Contacts (facultatif)",
+      "Type": "Type de recherche (facultatif)",
+      "Résultats_négatif": "Aucun résultat"
+    },
+  
+    "New_vue": {
+      "titre": "Assistant IA",
+      "Saisie": "Entrer manuellement",
+      "Destinataire": "Destinataire",
+      "Objet": "Objet",
+      "Action_envoyer": "Envoyer"
+    },
+  
+    "Answer_vue": {
+      "titre": "Assistant IA",
+      "Saisie": "Entrer manuellement",
+      "Destinataire": "Destinataire",
+      "Objet": "Objet",
+      "Action_envoyer": "Envoyer"
+    },
+  
+    "ReplyLater_vue": {
+      "titre": "Répondre plus tard",
+      "Notif": "Aucun e-mail à répondre plus tard",
+      "Resume": "Cliquez pour voir le résumé",
+      "Action_Ouvrir": "Ouvrir",
+      "Action_répondre": "Répondre",
+      "Action_supprimer": "Supprimer",
+      "Actionssupp": "Actions supplémentaires",
+      "Résultats_changer": "Modifier la règle",
+      "Résultats_create": "Créer une règle"
+    }
+  }

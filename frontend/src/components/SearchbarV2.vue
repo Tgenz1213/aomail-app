@@ -18,7 +18,7 @@
       class="sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 shadow bg-white px-4 sm:gap-x-6 sm:px-6 lg:px-8">
       <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 pt-3.5">
         <form class="relative flex flex-1" action="#" method="GET">
-          <label for="search-field" class="sr-only">Rechercher</label>
+          <label for="search-field" class="sr-only">{{ $t('Global action.searchbar') }}</label>
           <MagnifyingGlassIcon class="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
             aria-hidden="true" />
           <input v-model="searchQuery" id="search-field"

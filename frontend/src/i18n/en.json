@@ -5,6 +5,7 @@
     "supp": "delete",
     "create": "Create",
     "categorie": "Category",
+    "searchbar": "search",
     "update" : "update"
   },
 
@@ -27,7 +28,7 @@
       "Theme": "Theme",
       "Colors" : "Colors",
       "categorie": "Create your different categories in which you want the assistant to place automatically your emails.",
-      "categorie2": "Brief description of the categories",
+      "categorie2": "Brief description of the categorie",
       "description": "This description will enable the assistant to understand the category",
       "infos" : "Whant to know more ?",
       "Add_categorie" : "Add a categorie",
@@ -196,5 +197,51 @@
       "Transfer": "transfer",
       "Résultats_changer" : "Change the rule",
       "Résultats_create" : "create a rules"
+    },
+
+    
+
+    "Newcategory_vue": {
+      "categorie": "Create a new category.",
+      "categorie2": "Brief description of the categorie",
+      "description": "This description will enable the assistant to understand the category",
+      "name": "Category name"
+    },
+
+    
+    "UpdateCategoryModal_vue": {
+      "titre": "Modify a category",
+      "category": "Name of the category ",
+      "description": "Brief description of the categorie",
+      "desc2": "This description will enable the assistant to understand the category",
+      "option2": "Informative",
+      "option3": "Useless",
+      "mail": "Block the mails",
+      "modifier" : "Modify"
+    },
+
+
+    "Seerules_vue": {
+      "titre": "New rules",
+      "cat": "Category",
+      "nocategory": "No category defined",
+      "nopriority": "No priority defined",
+      "option1": "Important",
+      "option2": "Informative",
+      "option3": "Useless",
+      "mail": "Block the mails",
+      "modifier" : "Modify"
+    },
+
+    "UpdateRule_vue": {
+      "titre": "Modify the rules",
+      "cat": "Category",
+      "nocategory": "No category defined",
+      "nopriority": "No priority defined",
+      "option1": "Important",
+      "option2": "Informative",
+      "option3": "Useless",
+      "mail": "Block the mails",
+      "modifier" : "Modify"
     }
   }

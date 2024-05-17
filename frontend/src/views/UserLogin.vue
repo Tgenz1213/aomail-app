@@ -52,7 +52,7 @@
                 <div>
                     <button type="button" @click="login"
                         class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900">
-                        {{ $t('UserLogin_vue.Login') }}
+                        {{ $t('UserLogin_vue.Connexion') }}
                     </button>
                 </div>
             </form>

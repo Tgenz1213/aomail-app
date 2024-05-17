@@ -2,6 +2,9 @@
 
   "Global action": {
     "cancel": "Cancel",
+    "supp": "delete",
+    "create": "Create",
+    "categorie": "Category",
     "update" : "update"
   },
 
@@ -16,7 +19,7 @@
     },
 
     "SignUp_p1_vue": {
-      "titre": "Register to MailAssistant",
+      "titre": "Sign up",
       "Id": "Username",
       "password": "Password",
       "password_confirm": "Confirm password",
@@ -24,11 +27,15 @@
       "Theme": "Theme",
       "Colors" : "Colors",
       "categorie": "Create your different categories in which you want the assistant to place automatically your emails.",
+      "categorie2": "Brief description of the categories",
+      "description": "This description will enable the assistant to understand the category",
       "infos" : "Whant to know more ?",
       "Add_categorie" : "Add a categorie",
       "Add_categorie2" : "Add another categorie ?",
+      "modif": "Modify a category",
+      "name": "Category name",
       "text": "You have an account ?",
-      "Login": "Login"
+      "Login": "Log in"
     },
 
     "SignUp_p2_vue": {
@@ -37,10 +44,10 @@
       "Outlook": "Link a Outlook account",
       "Google": "Link your Google account",
       "Outlook2": "Link your Outlook account",
-      "Continuer": "Next",
 
       "titre2" : "Tools presentation",
       "notif": "Work in progress",
+      "Finish": "Finalize your inscription",
       "titre3" : "Some infos on data confidentiality"
     },
 
@@ -48,6 +55,7 @@
       "notif": "No new email",
       "resume": "Click to see the summary",
       "Open": "Open",
+      "suppof": "Suppression of",
       "Action_répondre": "Answer",
       "Mes_données": "My data",
       "Actionssupp" : "Additional actions",
@@ -115,6 +123,15 @@
       "règles" : "click to create a rule"
     },
 
+    "Transfer_vue": {
+      "titre": "AI assistant",
+      "titre2": "Manual Search",
+      "Destinataire": "Recipient",
+      "objet": "Subject",
+      "send" : "dend"
+    },
+
+
     "Search_vue": {
       "titre": "AI assistant",
       "titre2": "Manual Search",
@@ -142,14 +159,41 @@
       "Action_envoyer": "Send"
     },
 
+    "401_vue": {
+      "titre": "You are not connected",
+      "titre2": "You will be redirected to the login page in"
+    },
+
+    "404_vue": {
+      "titre": "404 - Page Not Found",
+      "titre2": "The page you are looking for does not exist"
+    },
+
+    "Stripepayment_vue": {
+      "titre": "Payment Successful",
+      "product":"product",
+      "titre2": "Your payment was successful. Thank you for your purchase!"
+    },
+
+    
+    "StripepaymentF_vue": {
+      "titre": "Payment Successful",
+      "product":"product",
+      "titre2": "Your payment was successful. Thank you for your purchase!"
+    },
+
     "ReplyLater_vue": {
       "titre": "Reply later",
+      "Travail": "Urgent-work",
+      "Travail2": "Work - Informative",
       "Notif": "No emails to reply later",
       "Resume": "click to see the summary",
       "Action_Ouvrir": "Open",
       "Action_répondre": "Answer",
       "Action_supprimer" : "Delete",
       "Actionssupp" : "Additional actions",
+      "Inutile":"Useless",
+      "Transfer": "transfer",
       "Résultats_changer" : "Change the rule",
       "Résultats_create" : "create a rules"
     }

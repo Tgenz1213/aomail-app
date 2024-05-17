@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>You are not connected</h1>
-    <p>You will be redirected to the login page in {{ countdown }} seconds</p>
+    <h1>{{ $t('"401_vue.titre') }}</h1>
+    <p>{{ $t('"401_vue.titre2') }} {{ countdown }} seconds</p>
   </div>
 </template>
 

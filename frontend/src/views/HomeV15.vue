@@ -20,7 +20,7 @@
                     </div>
                     <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                         <div class="ml-8 flex items-center space-x-1">
-                            <p class="block font-semibold leading-6 text-gray-900">Suppression de: {{
+                            <p class="block font-semibold leading-6 text-gray-900">{{ $t('New_vue.Options') }} {{
                                 categoryToUpdate.name }}</p>
                         </div>
                     </div>

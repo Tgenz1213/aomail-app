@@ -6,6 +6,7 @@ import logging
 import re
 import base64
 from django.db import IntegrityError
+from MailAssistant.constants import DEFAULT_CATEGORY
 from .models import Category, Contact
 from bs4 import BeautifulSoup
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -124,6 +125,7 @@ def get_db_categories(current_user) -> dict[str, str]:
     """Retrieves categories specific to the given user from the database."""
     categories = Category.objects.filter(user=current_user)
     category_list = {category.name: category.description for category in categories}
+    category_list.pop(DEFAULT_CATEGORY)
 
     return category_list
 
@@ -256,8 +258,12 @@ def preprocess_email(email_content: str) -> str:
     email_content = re.sub(r"<mailto:(.*?)>", "", email_content)
     email_content = re.sub(r"mailto:(.*?)\ ", "", email_content)
     # Remove email addresses containing "@"
-    email_content = re.sub(r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", email_content)
-    email_content = re.sub(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", email_content)
+    email_content = re.sub(
+        r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", email_content
+    )
+    email_content = re.sub(
+        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", email_content
+    )
 
     # Delete patterns like "[image: ...]"
     email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)

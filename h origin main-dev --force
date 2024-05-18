@@ -1,0 +1,4340 @@
+[33mcommit 2bbbb40ca701ca259933c8615113f3b0b352392f[m[33m ([m[1;36mHEAD[m[33m)[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat May 18 10:52:10 2024 +0000
+
+    Add daphne ASGI reqs + docker
+
+[33mcommit 797c7f4d70640e49e274b2330ab93efe096eddc9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat May 18 10:44:22 2024 +0000
+
+    Merge start implementation websocket with languages in FE
+
+[33mcommit 101461c950563c1844bc82345e15cc657021207b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 17 06:25:05 2024 +0000
+
+    Add websocket + routing file
+
+[33mcommit f732c2ca13f3024f9fba590a973eb37e7e3b99d2[m
+Merge: 0d1635aa a57889cf
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 17 13:38:26 2024 +0000
+
+    Merge branch 'main-dev' of https://github.com/Teh45/MailAssistant into main-dev
+
+[33mcommit 0d1635aa48af73e9fe88ec0f5fef223de436a001[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 17 13:38:16 2024 +0000
+
+    Changed design modal Read
+
+[33mcommit a57889cf2ee8537e6604a9ff04bfc9a50ead2247[m
+Merge: f49ab658 64ff40fd
+Author: Jean <jean@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 17 10:12:14 2024 +0000
+
+    Test merge
+
+[33mcommit f49ab65883e6d6aa7d0e7ff990cd157577280e77[m
+Author: Jean <jean@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 17 10:06:28 2024 +0000
+
+     trad des components
+
+[33mcommit f3b3023de77e46957fa96c4e1321708fde7e7544[m
+Author: Jean <jean@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 17 07:56:31 2024 +0000
+
+     Trad de tous les views excepté Home finalisée, début de la trad des components
+
+[33mcommit 64ff40fd6927bc1160aac5206e51dd1c94392dfa[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Thu May 16 21:14:11 2024 +0000
+
+    Update design read modal mail
+
+[33mcommit 99a9925f88acd13319ec73ac351965205e6f0a5f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 16 15:28:18 2024 +0000
+
+    Auto save sender as contact when receiving email: BE
+
+[33mcommit fc178caa940827e0d9ece571a34e7e03189052f9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 16 14:14:06 2024 +0000
+
+    Set email suppression from aomail DB after 1 week
+
+[33mcommit 7d7b68030b5ede29817483078fc517e08ff9f428[m
+Author: Jean <jean@vps-feaf3d65.vps.ovh.net>
+Date:   Thu May 16 09:50:29 2024 +0000
+
+     ajout blibli i18n et trad des pages settings,rulesV2,SearchV2,NewV4
+
+[33mcommit cfdf15d02631baf540e0d70840791248b245431b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 16 05:06:22 2024 +0000
+
+    Fix Rules not applying for incoming emails | Simplify email_to_db google_api:BE
+
+[33mcommit dc8295b8f903cbef031d4b657f70f94f6fe3b013[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 15 06:53:35 2024 +0000
+
+    Finalize 1st version of Search in test mode: BE
+
+[33mcommit f4242c822670aaa2c5d89f4ff4a943b154f9c177[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 15 05:38:30 2024 +0000
+
+    Fix logic issue in add_user_data: BE
+
+[33mcommit e0209c7d062c95463a2e1d0556b805fe57884731[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 15 04:24:20 2024 +0000
+
+    Add function to update user tree knowledge
+
+[33mcommit f1f1137753888a405411b60e126a0292992b560d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 14 08:04:44 2024 +0000
+
+    Add keyboard listener + click outside to close modal see email: FE
+
+[33mcommit 645bbf79ef8b5743b1c8a9267d3f2c140ea67552[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 14 07:46:58 2024 +0000
+
+    Add first version of search algorithm: BE
+
+[33mcommit 8770c51440b0b2972da71d95344b7a0cefad1d91[m
+Merge: f9cce66e d6c043da
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon May 13 20:10:18 2024 +0000
+
+    Merge branch 'main-dev' of https://github.com/Teh45/MailAssistant into main-dev
+
+[33mcommit f9cce66ef4b3c4c2dd209cf5cd7f079abbb0aac0[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon May 13 20:09:50 2024 +0000
+
+    Upgrading mail modal reader
+
+[33mcommit d6c043da81892d39909812e1f56ea8c5d4c4e626[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 12 05:30:24 2024 +0000
+
+    Replace all GET <str> api calls by POST | Allow all UTF-8 characters for category names: FE, BE
+
+[33mcommit a8d397f39516c58f71e997c8e036af3e2b2d4642[m
+Merge: e46b3896 afa3bf61
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat May 11 10:30:32 2024 +0000
+
+    Minor fix bcc and cc null with google api: BE
+
+[33mcommit e46b3896c140fd6b0a1b564b0cd1ab54678dddb5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat May 11 10:29:24 2024 +0000
+
+    Add email receiver in Transfer + use sessionStorage to optimize performance: FE
+
+[33mcommit ab568d16ed30368953a9315f2f2f9dd45a6671e1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat May 11 10:20:30 2024 +0000
+
+    Add email receiver in Answer + use sessionStorage to optimize performance: FE
+
+[33mcommit afa3bf618911965fc4a4366e00b13f8c70dc3d5c[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat May 11 09:54:57 2024 +0000
+
+    Updated get_mail_to_db and added modal on click Home
+
+[33mcommit 3447f799461f427dda7381f6fd7ca6f0b3dfad25[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 10 14:23:37 2024 +0000
+
+    Tiny design fix settings
+
+[33mcommit d5448021037dd74f52b8b3bee0180f18357c31a5[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 10 14:15:18 2024 +0000
+
+    Tiny design fix Home new and reply later
+
+[33mcommit 9120fe48e58acabc98cac71ebc1531bd2f2c966a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 10 09:34:58 2024 +0000
+
+    Create testing script for splitting last email from conversation
+
+[33mcommit 5f8d850e33ee0d123b65bc567c4014be6ef19f42[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 10 05:37:32 2024 +0000
+
+    Add from Addresses input field in Search: FE
+
+[33mcommit 988f312b89885681ec2a21de6a81ee72fc514ff4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 10 05:16:48 2024 +0000
+
+    Remove email addresses from pre process data
+
+[33mcommit b109cbdadaec9457aca97b16cd67c032dd9bb821[m
+Merge: 9f00215a cde12097
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 10 04:33:23 2024 +0000
+
+    Merge retrieve images from gmail
+
+[33mcommit 9f00215a73d07b7d8f5da90c3bd461c32bb9d37d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 10 04:11:56 2024 +0000
+
+    Start email parser algorithm
+
+[33mcommit cde120979002539616f2e04034a83168b150f0a2[m
+Merge: b7a29f5c 0b6191f0
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Thu May 9 21:08:41 2024 +0000
+
+    Updated modal first step and updated get_mail_to_db()
+
+[33mcommit b7a29f5ca37875e4b32404580a9dc538074fc887[m
+Merge: 44c227c2 885cc739
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Thu May 9 21:05:49 2024 +0000
+
+    Uptated modal first step & retreiving mail correctly
+
+[33mcommit 0d31fc499b60253a4275ddfe2d0605bd13f3ce14[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 9 18:12:07 2024 +0000
+
+    Add function to get the number of input token: BE
+
+[33mcommit 9bb016e02b2008947a0ecdfbc0c510aa441dceef[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 9 16:16:01 2024 +0000
+
+    Minor change preprocess email delete links that ends with a \n
+
+[33mcommit 0b6191f01b6b93b1f09a75c6f7e16f4f265ae55e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 9 12:38:15 2024 +0000
+
+    Fix verify license for microsoft API: BE
+
+[33mcommit 38b32a5c1b03f2df4374fe9b69115f815be48bb5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 9 07:36:16 2024 +0000
+
+    Add verify license (microsoft api) + delete user if signup fails
+
+[33mcommit b341cd9938a8893f3ceeb8aead3b006196bdf9c8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 8 11:50:41 2024 +0000
+
+    Minor change to debug None email id (google listener): BE
+
+[33mcommit 44c227c2fad3c5d58b5f05739b81538a498f3c17[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Wed May 8 12:40:58 2024 +0000
+
+    Change UI modal reader
+
+[33mcommit 885cc739fa8f6430ef9ae5d3b852ed954a7ef0a8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 8 11:50:41 2024 +0000
+
+    Minor change to debug None email id (google listener): BE
+
+[33mcommit df75e37fd62e5a275669d70bcd5848158aa2a861[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 8 05:15:39 2024 +0000
+
+    Implement manual search params for microsoft api: BE
+
+[33mcommit 27f5b1479bf76f37b7eb6791d89003b7cec73d49[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 8 04:49:34 2024 +0000
+
+    Add auto fetch of emails linked in Search: FE
+
+[33mcommit 06f7da3ed7b7ddf078ee724bf0b760b50a06d6bd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 7 20:18:31 2024 +0000
+
+    Fix error 403 from google listener: BE
+
+[33mcommit 5d3a7667fea842ba7bc82ba581afb363291d3af6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 7 19:42:52 2024 +0000
+
+    Add unsubscription of google listener: BE
+
+[33mcommit 99efd1579284d4b4775ca84cab4f7e5c6c828517[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 7 08:11:29 2024 +0000
+
+    Implement 2 inputs for search: FE
+
+[33mcommit 797ecc75e87663e929cb2839c6a68a34ecf667cf[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 7 07:51:29 2024 +0000
+
+    Implement search params for google api: BE
+
+[33mcommit f3e9e7442bb40d3fb25d95d242230292fdd3af8f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 7 05:40:20 2024 +0000
+
+    Fix sent date format warning - insertion DB: BE
+
+[33mcommit 95fef416ad3bcf2abe4321f06a0e08a1da97166e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue May 7 05:29:13 2024 +0000
+
+    Prepare unsubscription function - google api: BE
+
+[33mcommit 76bf49ef77355a9cc2cac124d0a1b34165fde05b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon May 6 19:07:28 2024 +0000
+
+    Add email at user signup: BE
+
+[33mcommit 7ea2009282493875b55f5592b5f1327a8d11e31c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon May 6 17:32:31 2024 +0000
+
+    Add aomail.noreply creds
+
+[33mcommit 648f9a25d83e7230bb4fd85b4db3ae850d346490[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon May 6 17:18:20 2024 +0000
+
+    Fix profile image issue: BE
+
+[33mcommit 807d2c9605f466321cc873b302bd0f42a5df03a6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon May 6 17:08:39 2024 +0000
+
+    Add fetch of default email in FE
+
+[33mcommit 953dbe83d7eeb42f3286fd61c60fd6a52dace902[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon May 6 16:03:17 2024 +0000
+
+    Optimize pre processing of email: BE
+
+[33mcommit a83c525ca847072754dc7b3c939e9c285aa55a41[m
+Author: Telory Frozy <135508142+teloryfrozy@users.noreply.github.com>
+Date:   Mon May 6 15:42:37 2024 +0300
+
+    Update README.md
+
+[33mcommit 957d73ad2163f98f73ebd1e9f6ed075411babf2b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon May 6 12:14:22 2024 +0000
+
+    Fix implementation AI conversation to gen email: BE
+
+[33mcommit 3c88b386f7580ee0d7cdd1a1e86b458d825f9fc5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 19:41:47 2024 +0000
+
+    Remove deprecated functions from BE
+
+[33mcommit 8961e7cdb43c99918e9bf316f140ff5c0f9ce343[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 19:38:10 2024 +0000
+
+    Implement improve draft with history in FE
+
+[33mcommit f8088e78812a73e091e7f0e1cfef825a8e3f9ed0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 19:10:32 2024 +0000
+
+    Add improve draft endpoint: BE
+
+[33mcommit bf8a056adeb2e83810190ddb7bc00b7639ef1c6f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 18:47:05 2024 +0000
+
+    Add prompt template to summarize an email conversation
+
+[33mcommit 35f476901b1010c249eb2a051bd2483bbc6ab07b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 11:21:07 2024 +0000
+
+    Improve first answer generation prompt engineering: BE
+
+[33mcommit f5768a64beef462aa4c53e64ee84125cecc5dfc2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 11:08:10 2024 +0000
+
+    Implement chat history with Ao in FE: Answer
+
+[33mcommit d4ce563a2620923e8777c56bf57e7ca59fea823a[m
+Merge: 03041b88 0f528aef
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 06:58:59 2024 +0000
+
+    Merge code + minor fix with relative imports: BE
+
+[33mcommit 03041b88f6b2f96a07654eaf734c4e272fc21dd1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun May 5 06:58:35 2024 +0000
+
+    Add endpoint to exchange data btw FE and BE: email reply conversation
+
+[33mcommit 0f528aefc21e381dbb2c826cdbd3447006a58a0a[m
+Merge: f6b548d8 cef9355c
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 3 20:54:57 2024 +0000
+
+    Merged UI design Home and ReplyLater Change
+
+[33mcommit f6b548d86628557844e3862ca069981f7060aa75[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri May 3 20:49:37 2024 +0000
+
+    Changed UI Home and ReplyLater SubCategory
+
+[33mcommit cef9355c1efe8703573f66ee4b23135513a24b6e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 3 19:36:36 2024 +0000
+
+    Add AI search result in FE
+
+[33mcommit 9a07b7baaa3ff3a62be5b7283b97a7904024abed[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 3 19:31:52 2024 +0000
+
+    Update search_emails_ai with new prompt engineering: BE
+
+[33mcommit a6764f075e8a0c80312ee7d67aaa8b0ac711c7ee[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri May 3 19:12:10 2024 +0000
+
+    Update to get only 1 response with AI search prompt
+
+[33mcommit 1cacc94e2127957bc45a9ee0e0d3587965aa5888[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 2 12:39:02 2024 +0000
+
+    Add GenerateEmailConversation class to handle email creation
+
+[33mcommit 1ae0d738e5d903fcc5d51c20f4bc0f6e8fffb469[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 2 11:48:08 2024 +0000
+
+    Prepare class to handle New email generation
+
+[33mcommit 5b0641047b3a96bed1e35664bfed0884f56017e8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu May 2 05:02:15 2024 +0000
+
+    Add common greeting and sign-off: generate email with length and formality
+
+[33mcommit c520e24f1332da9453871760c758e11f3a468ee7[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 1 19:47:23 2024 +0000
+
+    Fix CORS issues in backend
+
+[33mcommit 4be97f42c8dd4d8525b7b5f32b944f9a14430cec[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 1 13:21:55 2024 +0000
+
+    Add EmailReplyConversation class to handle conversation with AI to reply to an email
+
+[33mcommit 909cfd4993d4046a85a65de37c2a809cf34cf798[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 1 05:29:29 2024 +0000
+
+    Link important and information emails with unmark as reply later: FE
+
+[33mcommit 7420e1117e76c6a5fd888814d439218644811d93[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 1 05:24:46 2024 +0000
+
+    Add function to unmark email as reply later: FE
+
+[33mcommit 4b07e8f173eb3bdd9c851c0f0d39eea0a0dd6e2d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed May 1 04:32:55 2024 +0000
+
+    Add backend function to unmark an email as reply later
+
+[33mcommit 32a1d48ec14114eb339966de0098a1ff17e46807[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 12:34:57 2024 +0000
+
+    Separate change email state from FE and BE:Home
+
+[33mcommit a4bad3a1a040e7b8cc89eb68b598c1e63f57a3ba[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 12:26:39 2024 +0000
+
+    Refactor prompt engineering for categorize_and_summarize_email
+
+[33mcommit 73dab1ba51db28e22951c297506262262d5c98db[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 09:51:08 2024 +0000
+
+    Remove llama3 creds and py file
+
+[33mcommit c79434f839bc9f30b7b263d5d765d6b056eea9a1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 09:47:37 2024 +0000
+
+    Fix button colors modals in Settings page
+
+[33mcommit 512b91d1d9b4caf079a8566f8eab169c241b1a4d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 09:32:06 2024 +0000
+
+    Add click outside: close modal in Signup
+
+[33mcommit bc4656f87c7f55079c960ab96b15cd1f1bd12a9c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 09:29:44 2024 +0000
+
+    Change back green buttons to black buttons
+
+[33mcommit 9b669a1bb361ad4aecaa17c5af7a121e6c511fa4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 06:51:18 2024 +0000
+
+    Add keyboard listener to close Warning category modal
+
+[33mcommit 57b29ea582811fe3e8a23e5c6af5430897dbee36[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 06:45:16 2024 +0000
+
+    Minor design changes with categories modals
+
+[33mcommit bd944841e4bed815ea7da49d0fca8e68a5aec497[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 06:35:22 2024 +0000
+
+    Add warning modal when deleting a category
+
+[33mcommit 960be982f63d39531b9e8c27d8ade31a890763b5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 30 05:50:54 2024 +0000
+
+    Add backend function to get the number of rules associated with a category
+
+[33mcommit c48c72c3b22274bf86793e9021b72a934fbc237e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 29 16:36:17 2024 +0000
+
+    Fix search issues with Graph API
+
+[33mcommit d6d20c65a78d014f7fb42ab79f9f6f7ac392a8a7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 29 15:53:40 2024 +0000
+
+    Remove Billing info from BE, FE and DB
+
+[33mcommit 3ce41cc4c637d8a67e7df83d82ceaa0d02a185d0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 29 15:41:30 2024 +0000
+
+    Add keyboard listener link new email user desc modal
+
+[33mcommit f009e9165638d59bc1bab7a865dfa5ea75075d7a[m
+Author: Augustin <augustin@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 29 15:30:09 2024 +0000
+
+    Remove warning Vue.js https deprecated
+
+[33mcommit 89c074de760aa4f018412e5d188d1cde5ff6558b[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 29 14:23:17 2024 +0000
+
+    Merge main-dev and main
+
+[33mcommit 61a5636a54baa3f523bbee576c822d02a3a2f569[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 29 14:20:34 2024 +0000
+
+    Commit before merge
+
+[33mcommit bb58ae36fc83923b74ea91239c2e628602b2182f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 29 03:26:39 2024 +0300
+
+    Change title to Aomail: index.html
+
+[33mcommit 0f99ec1cdbf2ac70e7e178466b7a367e5095fc53[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 29 03:22:08 2024 +0300
+
+    Add modal: Link a new email
+
+[33mcommit 2918d4723464892d4763b08f9b8849955f51b2bd[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sun Apr 28 15:01:43 2024 +0000
+
+    Migration to aomail serv
+
+[33mcommit 585dcef9d6b32d95ab92495e19a31a926692fb15[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 28 04:59:09 2024 +0000
+
+    Add warning modal before unlinking an email from aomail
+
+[33mcommit 37b47d22b311a3ae3810dfed08738c307579e767[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 27 07:47:25 2024 +0000
+
+    Add function to mark email as unread in front-end
+
+[33mcommit c971d9aa36cfe7df47af9dd206f64b20abdf3815[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 27 07:45:23 2024 +0000
+
+    Add backend functions to mark an email as unread: aomail, google, microsoft
+
+[33mcommit 9fc6274934cc84888b1ce80a8921c66810d6d5f4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 27 07:27:09 2024 +0000
+
+    Add unread button in front-end: Home
+
+[33mcommit 7e2c241be01e6a75d9acc4f1523c876e7b78f23f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 27 07:06:45 2024 +0000
+
+    Fix update category
+
+[33mcommit da824dd240056a38c1433c8bbf678d7e16853858[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 26 05:13:06 2024 +0000
+
+    Improve prompt engineering to only sum-up last email for responses
+
+[33mcommit 711d095dd6d78a53df33eaa512db49176014a4bc[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 26 04:36:00 2024 +0000
+
+    Add json logger in settings
+
+[33mcommit a413822b68b439d6779b246c66b69b54e2a78bd2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 24 15:42:15 2024 +0000
+
+    Change cursor in reply later drop down menu
+
+[33mcommit 2b7be5cd008a0a615a56b8159d53c31f66931e90[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 24 15:23:51 2024 +0000
+
+    Improve search manually with keyword and Rmv exact matching
+
+[33mcommit 889b576418ffb91e32b67825ac3e3077a837ab95[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 24 10:32:27 2024 +0000
+
+    Add Graph API search request in different folders
+
+[33mcommit 728b213e5175c9b556e00cc9d99ac4f253ed76b4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 24 05:57:19 2024 +0000
+
+    Fix boolean filter expression issues with date and keywords for microsoft
+
+[33mcommit f14877bf6ddbfb507b91ffd65d3724fb19dec5a9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 23 09:32:10 2024 +0000
+
+    Add AI icons in Home and New
+
+[33mcommit ec592e886bbdfcc3645f2805f7ed30ab48763293[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 23 06:02:11 2024 +0000
+
+    Add bot icon in Home
+
+[33mcommit 0fabb8b7138a6352efcf316f797f7c54ab9e4cc8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 22 05:52:32 2024 +0000
+
+    Fix issue with service name: link email - google api
+
+[33mcommit 453a2eadd1e371f9edc8371ab7b771afa8dad7d5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 22 05:34:13 2024 +0000
+
+    Add set status email to read for Outlook and Gmail + fix issue with google oauth: invalid granted scopes
+
+[33mcommit ed16f6014e678ebf207682671edfd6b95d24d1b1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 14:21:39 2024 +0000
+
+    Improve LLM templates + start search query function with microsoft
+
+[33mcommit 01480866e8d8d9e4c9caf733a2cd1e98580071c1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 13:03:15 2024 +0000
+
+    Improve LLM template + gmail search
+
+[33mcommit 877b46a044536c7231f54b10709e39adce5105d1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 11:29:47 2024 +0000
+
+    Add search_emails_ai in backend
+
+[33mcommit 56e3225c1d9b7e81192ab1c7a95bcbeaca600a46[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 11:12:08 2024 +0000
+
+    Add AI function to get queries for seraching emails
+
+[33mcommit aba35089145f85588a9b0b641d53d64b4f707f9a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 08:27:10 2024 +0000
+
+    Remove duplicates in build services google api
+
+[33mcommit 8c07e4f30e1a62dbd08e5467e5049e60c90994e4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 08:18:07 2024 +0000
+
+    Remove Phishin category in backend
+
+[33mcommit f4a152310e372877f4e22221d62d17523a47aa05[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 08:16:26 2024 +0000
+
+    Add email admins in a json file and update constants
+
+[33mcommit c488e6ac9c240da37fc24871defb2091196ca2e4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 08:12:11 2024 +0000
+
+    Add llama creds and llama py file
+
+[33mcommit a8280537b14668b1a269304e12115b53f0335ea5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 07:37:36 2024 +0000
+
+    Return empty list from backend if no result found
+
+[33mcommit 239f0b749217c25be00af4a7cf4fa298de9a494d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 07:30:59 2024 +0000
+
+    Add possibility to choose contact in Search page in front-end
+
+[33mcommit f1898ee0b3b5d1beb0d5d00834e9f2415d56f99d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 07:10:32 2024 +0000
+
+    Add attachments files choice in front-end
+
+[33mcommit 5b736eb8604c2aba6d285acd36ac53aaed59b77f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 06:55:24 2024 +0000
+
+    Prepare logo in front-end to improve UX
+
+[33mcommit 501d87ba506ab3150b7345825684bc3d1217d390[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 06:52:31 2024 +0000
+
+    Add front-end emails addresses where emails come from
+
+[33mcommit cdfc2691d0eec0ca850051616cef7bf35fdf21e2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 06:25:18 2024 +0000
+
+    Add email (socialAPI) as a parameter in backend for email search
+
+[33mcommit eca7d2d3237e7993b5fa0d6167e37383bfa9e194[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 05:58:21 2024 +0000
+
+    Add front-end result with email ID for msft and google
+
+[33mcommit a50f2e15e58801cd6aa2424d5c087d27852fa701[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 05:43:24 2024 +0000
+
+    Add backend search for outlook in sender, body, subject
+
+[33mcommit d0bad5001759996c9de68590888d93836fe258ec[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 21 05:38:53 2024 +0000
+
+    Add backend search for gmail in sender, body, subject
+
+[33mcommit 54c80e04e6d71b5251b6503436ec73e8e067eee7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 20 06:12:29 2024 +0000
+
+    Add keyboard listener for update user description modal
+
+[33mcommit 6d36deeb0dc9602e55c71275fc52fa89db0309e3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 20 06:09:59 2024 +0000
+
+    Add UserDescription modification in backend
+
+[33mcommit 2a82560a93c1e7f38ac739533054f5d2eafb5b0d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 20 05:26:52 2024 +0000
+
+    Change Trash icon design in Settings
+
+[33mcommit 2f4c4b595f7bed06638b949891c2fbf17a4fe4ab[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 20 05:22:22 2024 +0000
+
+    Add modal and button to change user Description in Settings
+
+[33mcommit c12c55edbfeb21cad4ef7e8022634925420d65c3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 19 05:03:18 2024 +0000
+
+    Add pop-up in ReplyLater: front-end
+
+[33mcommit bd9113daaf6864eecf60a4ae5620c2d77d1895e2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 19 04:53:57 2024 +0000
+
+    Fix all existing pop-ups
+
+[33mcommit cff1ece9e4aded9be8bfaae958b3eab4c50203f2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 19 04:42:00 2024 +0000
+
+    Fix pop-up issue when closing it with timer
+
+[33mcommit 9779857180788bfaf5727d2886b3ec03f87d5d7b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 19 04:18:39 2024 +0000
+
+    Add front-end pop-up errors when sending email: Transfer, Answer
+
+[33mcommit 738ce1eae60b888ff6381153781b85aba1ba743a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 19 04:16:37 2024 +0000
+
+    Add front-end pop-up errors when sending email: New
+
+[33mcommit 427611b68d5ecee415ecfeb0df9f72374b8a6c31[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 18 07:01:20 2024 +0000
+
+    Fix Answer and Transfer sending email: front-end
+
+[33mcommit ad1f0147df7abe3389a0d67667b07c688aa41a95[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 18 06:53:06 2024 +0000
+
+    Add param to always get refresh token from Google | hande backend responses accordingly
+
+[33mcommit 8b7dec01f5059bdef4432ef1050a0d373c7b9908[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 18 06:42:25 2024 +0000
+
+    Handle case where email is already linked with an aomail account: backend
+
+[33mcommit d15c4119b213b6f8bcc83a45df969faac4603e38[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 17 07:23:18 2024 +0000
+
+    Fix cursor bug with category Others in front-end
+
+[33mcommit e51fd0e9fb9bb88c8b5e6b8cd71bdc858089324a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 17 07:17:09 2024 +0000
+
+    Fix create rule and update rule bug with sender id in backend
+
+[33mcommit 69f89808ae58ff2771c39654ac1a9d5ea17ae4cd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 17 06:54:50 2024 +0000
+
+    Add click outside category modals listener
+
+[33mcommit 693b7a45d143d3cc0dae216eae7ff95871bc33c8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 16 19:08:16 2024 +0000
+
+    Add closing modal if clicking outside it in for delete account modal: settings
+
+[33mcommit 07ec23718632679b3c0008dad4ab6db3f4613cf0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 16 18:36:36 2024 +0000
+
+    Add Escape listener for deleting account modal
+
+[33mcommit ca1812225f3cb0cb3e7173601d69bc966ba84964[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 18:57:05 2024 +0000
+
+    Fix double scrollbar bug in settings
+
+[33mcommit 8d48654aec6b6e1c8b9e194afd187c14d1ec8595[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 18:06:58 2024 +0000
+
+    Update all category accessors in backend with Phishing category
+
+[33mcommit 72715b3cdf7851975ebdcd3206f57486ea477e38[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 18:05:30 2024 +0000
+
+    Add Phishing Category in backend on signup
+
+[33mcommit b570537f7f24c2fa292d1fba38d4a4245aff9470[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 12:29:36 2024 +0000
+
+    Set default tab to account in Settings: front-end
+
+[33mcommit 53058d6a8845914cfde5c6f8b51f88204d09bec7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 12:13:06 2024 +0000
+
+    Fix bug unsubscribe microsoft listeners if unlinking google account
+
+[33mcommit cd9725a3e2a47882be8a3f59ac80930267b11155[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 11:31:55 2024 +0000
+
+    Add threading function to process email with google
+
+[33mcommit 467f244a28b18c4076239d7f9310bcc8b831e6d9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 11:28:12 2024 +0000
+
+    Put tries of AI email processing in a function and start a thread to trigger it
+
+[33mcommit 3314e0e4634fbdbfad8b525a2056daafca2f8c70[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 10:54:26 2024 +0000
+
+    Fix end date format for subscription in signup
+
+[33mcommit c3cc3ac4b062ab34e34dac3ba7e037d9f0a020c0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 10:21:40 2024 +0000
+
+    Fix datetime format error in set email read: backend
+
+[33mcommit 73779580e8d6c82c50a29696d0ea903fa42e698c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 10:06:47 2024 +0000
+
+    Fix Forward and Reply backend bug with Email model
+
+[33mcommit cb2927671ad45d3c45fbf7d9f7b6d6abe717e2a0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 09:35:43 2024 +0000
+
+    Fix send email in backend and front-end
+
+[33mcommit 5789e42b3e4247ae76d1aab524942b1d65de9ecd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 08:50:18 2024 +0000
+
+    Fix email in headers issue temporary: need to add it from the front-end
+
+[33mcommit 22b834a38c69aec68aefd40dc2a9d3f160f653ee[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 08:16:07 2024 +0000
+
+    Fix Tab switcher keyboard listener bug
+
+[33mcommit 9b2afdc6dfd54288ac33692175512f192dc8de00[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 08:10:23 2024 +0000
+
+    Remove saving email to localStorage in UserLogin
+
+[33mcommit f8073111ff047207293078ecf08563a350f318f0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 08:08:44 2024 +0000
+
+    Remove function to get first email in backend and front-end in isUserAuthenticated
+
+[33mcommit 275db5279fe848cb66bf7b2ee7ab35ab96029498[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 08:06:25 2024 +0000
+
+    Remove email headers in backend functions where it was useless
+
+[33mcommit 8c874371f1946e4e7dba2afd7ae41b69faa01e03[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 07:37:10 2024 +0000
+
+    Improve UI design in 'My Account'
+
+[33mcommit a303105ea36fb75136f60adc79642b5d349dd2d8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 07:25:09 2024 +0000
+
+    Add auto critical email if unsubscription fails
+
+[33mcommit 3daa9b675e7e870c05c58a6404acfa68db505501[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 07:16:16 2024 +0000
+
+    Add unsubscribe microsoft listeners when unlinking email
+
+[33mcommit f35140352cecb7533d78346dbb2888682de0a5e9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 14 07:10:41 2024 +0000
+
+    Add multi account with microsoft and tested
+
+[33mcommit 549e71dd67fe1adb2e67267a553a3ab2ec271c3e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 18:34:58 2024 +0000
+
+    Add Tab keyboard listener with userDescription in signup
+
+[33mcommit 2d0569d91310bc936d7e8645ae5e967f9b9b460a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 18:31:25 2024 +0000
+
+    Add user description field in signup
+
+[33mcommit 3dbd48b892e0bb18e43c5e1abfe839ce36b21c80[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 13:57:57 2024 +0000
+
+    Add microsoft and google backend funtokens ction wis to handle multi account
+
+[33mcommit 4f44a2d7cf624a30006cb291a9ce254f4f62d5af[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 12:15:26 2024 +0000
+
+    Add attrbutes in models
+
+[33mcommit d82b1dcc8d09e43917ef9c40c8fea48b5ed0209a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 10:56:51 2024 +0000
+
+    Add link email function in backend
+
+[33mcommit 1b68656bec69fda37afd121eaf95710f75e83b94[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 09:13:51 2024 +0000
+
+    Add user description field in settings 'My account'
+
+[33mcommit 8b2512f1a24857655a4fb4d471a262365445f193[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 09:03:36 2024 +0000
+
+    Add backend function to unlink email
+
+[33mcommit 6e64a6c27b7204e55659a9b171e4b8d51672c880[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 08:56:39 2024 +0000
+
+    Add FK email in Email model + update email_to_db for emails providers
+
+[33mcommit 954b4db794b2e4744b6b2220ab8c1e42ba7892f7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 08:32:18 2024 +0000
+
+    Add pop-up in unlink function: 'My account' Settings
+
+[33mcommit ccba7da4ac147745569779315ce79b1cebe6609d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 08:00:23 2024 +0000
+
+    Improve UI 'My account'
+
+[33mcommit d2fd10241d5fde11f0240ca7341fa340a2e3f290[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 07:21:40 2024 +0000
+
+    Add icon according to type_api in 'My account' settings
+
+[33mcommit 67ccb9d90688ba1d6e765447d64d2773fda7b8e9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 07:16:43 2024 +0000
+
+    Add auto inserting emails linked in 'My account' section
+
+[33mcommit 90eedc395fc6e157b402d278ffa91e8ed1970804[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 07:02:22 2024 +0000
+
+    Add scrollable div with fake emails linked
+
+[33mcommit 684a6a24ded6780642f95aaad636a60335dc79be[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 13 06:50:38 2024 +0000
+
+    Start to refactor 'My Account' in settings for multi account handling
+
+[33mcommit 1790822e1f17ebda80661773ad7a0bb7d81b016c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 12 19:31:17 2024 +0000
+
+    Improve prompt engineering for replying with Claude
+
+[33mcommit b06a5f71d7704a686665a2b21dda034cbb8a884c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 12 19:08:33 2024 +0000
+
+    Prepare auto sending email AND handle case if AI email process fails
+
+[33mcommit 0d2457c93605f2858e9dc207cfd952232de3e57e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 12 19:05:05 2024 +0000
+
+    Add critical email processing with AI failure template
+
+[33mcommit 44b9cf7dc4e3c5c4210b92be3d58dbabe40e0176[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 12 12:41:42 2024 +0000
+
+    Link function to send reset link with front-end template
+
+[33mcommit 23039177a2f5095f5dd16b410349ae5a60205825[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 12 09:59:42 2024 +0000
+
+    Add Reset Password Form template with Vue
+
+[33mcommit 39afcb2d01af6a5ac0291b67d57f4b3b842184d5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 18:41:06 2024 +0000
+
+    Add reset password email template
+
+[33mcommit 3830a0b90f8a79b6fe30af031117a052364ebc2e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 16:26:27 2024 +0000
+
+    Prepare reset password views and creds for sending email
+
+[33mcommit c2f4a2c248ef889bc9085ec540eb11bacdf33967[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 15:39:17 2024 +0000
+
+    Add delete email subscription for microsoft listener
+
+[33mcommit 43c3b029551ec5a64fe69ba2f8acdabfeff4d18e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 15:18:52 2024 +0000
+
+    Delete microsoft subscription when user account is deleted
+
+[33mcommit 3f121dffedc2a5169a6991b9de6686716578f1a0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 14:51:26 2024 +0000
+
+    Fix bug UI with emails: faster fetching and no reappearing bug
+
+[33mcommit acfa1030ab6219643b4b909f5915b23396fcf50b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 14:20:06 2024 +0000
+
+    Add multi threading for large amount of emails in fetching email function
+
+[33mcommit 93fd54af2ae084e372318c73e3da30ba9b51adae[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 14:11:48 2024 +0000
+
+    Add has_attachment field for Emails
+
+[33mcommit ccd9f73c8efea6403b3772518509253d142c2c66[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 13:28:46 2024 +0000
+
+    Add pop-up in home when failing to do database operation
+
+[33mcommit 49ce6753a9c83d0b249b9141b53e27e886409656[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 12:36:04 2024 +0000
+
+    Add a function to retrieve billing informations from backend
+
+[33mcommit 9dfd8b3b029f3f277add43893aac38febf466721[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 12:27:48 2024 +0000
+
+    Add encryption key for billing email
+
+[33mcommit ef3a14118ec58fc615271c03cc34a7e20408772a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 12:03:31 2024 +0000
+
+    Add encryption of sensitive billing informations
+
+[33mcommit ed9f139c20e34e23fc955549a58a7c944a7b2ee3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 11:56:08 2024 +0000
+
+    Update encryption function with salt and keys
+
+[33mcommit 09fc0fd1581271d787c99f95a62baef046ef6fa3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 11:02:30 2024 +0000
+
+    Add a custom function to get mail before processing to database
+
+[33mcommit ad314bfc48cc4dffab5bfe7337c8495722830c29[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 08:58:27 2024 +0000
+
+    Add a function to check if the email is a reply or not
+
+[33mcommit a5175fd5999e719f5f9046f1eb6422f25d69f506[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 08:28:39 2024 +0000
+
+    Enhance speed of retrieving email with Threads
+
+[33mcommit e59db39ebe0afb5a4e6ec4281a7c1700e16f6535[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 11 07:07:11 2024 +0000
+
+    Enhance prompt eng by removing redundancy informations
+
+[33mcommit 57396389b7b8687b696a38682b59e2c7c25f4125[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 10 11:02:10 2024 +0000
+
+    Add keyboard listener and fix error in modal display
+
+[33mcommit 3e265bdbcaea9f1c31123fe6c75048ae23bb92da[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 10 10:52:44 2024 +0000
+
+    Minor fix in logic for emails reqs checking
+
+[33mcommit c1f7113404fadeacf9063ac4cc7a785ad46d4854[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 10 10:49:40 2024 +0000
+
+    Add pop-up for Billing info in Settings
+
+[33mcommit acc5d54919104ddbc834e68de13e761bdb679fea[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 10 10:19:52 2024 +0000
+
+    Link front-end and backend to save billing info on DB
+
+[33mcommit 51827f3e33dfe091388a32ddc39c3312dd627a08[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 9 09:00:20 2024 +0000
+
+    Add modal in Settings Page and add attribute in BillingInfo model
+
+[33mcommit 247e34dd1c4f4b7dd2f8860dca4d5587234f08bb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 9 05:58:07 2024 +0000
+
+    Add Subscription page in front-end and router
+
+[33mcommit ef0c502b6ba5cddf0aaae5839ac1dd20f2f9fa30[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 8 15:21:43 2024 +0000
+
+    Quick fix for displaying email in Answer Page
+
+[33mcommit 2721dfa9c9eae53db02a454eb1ab3a009cf9bf3f[m
+Merge: c3ee6cdb e80b659c
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 8 10:59:58 2024 +0000
+
+    Fix typing error in get_mail google api
+
+[33mcommit c3ee6cdb62bd0bcaf332ff1425c7e73b4988f6bb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 15:22:17 2024 +0000
+
+    Add attachements data when fetching emails for microsoft
+
+[33mcommit e80b659ca0cbcd6cc6cd34936ef9655b9387f455[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 15:22:17 2024 +0000
+
+    Add attachements data when fetching emails for microsoft
+
+[33mcommit 333ab13ea0e7f70b946a7ee926d3ccb195e5b014[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 14:56:37 2024 +0000
+
+    Remove user FK from Sender table
+
+[33mcommit 1709a449f9efcfe8a98743529a650bc6459406d9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 14:34:22 2024 +0000
+
+    Handle IntegrityError when sender already exists
+
+[33mcommit 2be6ec48ffec21220fc305b1cfbd89cd3dacf03a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 14:23:41 2024 +0000
+
+    Add attachements data when fetching emails for google
+
+[33mcommit cb9152a62e55b78ede74049d2e86412caeda43ac[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 13:14:30 2024 +0000
+
+    Add keys with salt and new functions
+
+[33mcommit 8929cbf7eca8609c782fb5f989f58b6d2331401d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 12:31:13 2024 +0000
+
+    Increase front end limit size of Category desc to 300
+
+[33mcommit 7d65151b97f063bbfa84d501798c86bbbd7e6052[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Apr 7 06:59:46 2024 +0000
+
+    Add Apple Sign In button in signUpPartV2
+
+[33mcommit 4210bab253d7602c8a12197a066f166f9f47eda5[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sun Apr 7 13:25:18 2024 +0000
+
+    Upgraded claude prompt engineering for reply keywords
+
+[33mcommit 507f23e1cf7ac6e0c69c0b18e2d5cf8ce9e95355[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 13:05:16 2024 +0000
+
+    Save contacts in DB when sending an email for google
+
+[33mcommit 540d55eab64fa3bb30ba17a6c3edb63cbf97e2eb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 12:42:06 2024 +0000
+
+    Save contacts in DB when sending an email for microsoft
+
+[33mcommit 7f4fae624a77fbc811aeff65876549c355b5bd91[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 10:11:55 2024 +0000
+
+    Change errorMessage to pop-up for error when creating/updating rule
+
+[33mcommit dc0b11318994676d23babe57e5df0591f3a6eaf8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 08:59:28 2024 +0000
+
+    Add pop-up when deleting rule
+
+[33mcommit 97486646eb8ff699d4501fe9d1d0878719cf632b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 08:53:51 2024 +0000
+
+    Link Enter key with handleBlur2 in edit and create Rule
+
+[33mcommit 7cd57a7e7481d31ba08f518de79130ae8cc3b854[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 08:10:35 2024 +0000
+
+    Remove error message if user filteredPeople not empty
+
+[33mcommit 0c1ea97362c000f1256b1ee3cb7f644f23ffdc0b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 08:07:01 2024 +0000
+
+    Show email <email> when adding or editing a rule
+
+[33mcommit 42b4211295e82445ad471ff0282b193f1bf14e0b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 07:51:09 2024 +0000
+
+    Add clear and restore functionnalities when editing a rule
+
+[33mcommit 8965711115c2757064a6a77384fdcd855acd9675[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 07:19:24 2024 +0000
+
+    Increase z-index in ShowNotification component
+
+[33mcommit fe8f57c9fa4659c4ea3c394e96e651c286e1bba1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 07:13:44 2024 +0000
+
+    Add pop-up on failure and success in UpdateRule component
+
+[33mcommit a2093cdec41a770726a16363b928cb15ce862977[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 07:11:14 2024 +0000
+
+    Add pop-up on failure and success in SeeRule component
+
+[33mcommit a1dcc905d79eb934cc92bb7a1b55e81741a65030[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Apr 6 06:57:21 2024 +0000
+
+    Add pop-up component implementation in UpdateRule
+
+[33mcommit 3d13754f24abe98fa29532dc7da0428ede24b729[m
+Merge: f439a34c 5234ef17
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 5 19:02:59 2024 +0000
+
+    Merge prompt claude + work on Rule
+
+[33mcommit f439a34cad31ceb9b816fefc547c16459c1937f4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 5 16:01:27 2024 +0000
+
+    Add pop-up in SeeRule component
+
+[33mcommit 4debfa920a6b6bb2c69754ed2675f1b045eae1fd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Apr 5 15:08:29 2024 +0000
+
+    Add errorMessage element in template to show error msg to user in Rule modals
+
+[33mcommit 5234ef17ce1f8c1a8f9a06e1461825971b959790[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Thu Apr 4 20:48:09 2024 +0000
+
+    Fixed generate keywords claude
+
+[33mcommit d58d3558522ef91a8f8b264a0bfa0756c79cb64b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 4 06:59:09 2024 +0000
+
+    Add stripe front-end URLs to routes in index.js
+
+[33mcommit be109b50cba09ac8dee6243edc08a0701b81315c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 4 06:54:39 2024 +0000
+
+    Add 2 sample template for stripe payment
+
+[33mcommit 41ebd5df4439f26ac94ef40aa3de80a02379772b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Apr 4 06:44:56 2024 +0000
+
+    Prepare stripe function
+
+[33mcommit 3cdcf194bb6573c6fcd912e005da548dd410dae9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 3 19:46:58 2024 +0000
+
+    Add scheduled task
+
+[33mcommit f43df3610346ebbec93e72a562e450891c344d5e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 3 19:13:27 2024 +0000
+
+    Add encryption keys for BillingInfo
+
+[33mcommit 09fa6f51197ded443ab46842982e13a5740117ce[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 3 19:10:22 2024 +0000
+
+    Add free_plan sub creation on signup
+
+[33mcommit 3b38569f7841aaa9b71e3525631508860485384c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 3 12:49:19 2024 +0000
+
+    Add a user msg if len username > 150 in UserLogin and SignUp
+
+[33mcommit 82f0d5eba53d1d55160d2e049bcdbd2257902256[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 3 06:57:46 2024 +0000
+
+    Add one line html result in generate_email for claude
+
+[33mcommit 0276c8e086673c5b92f52d8db58a1f2c57001aab[m
+Merge: 954657bf f5f73ba2
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Apr 3 06:24:28 2024 +0000
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit f5f73ba24d5a220d8807b2e483133816a0177cfe[m
+Merge: 1f3b605a 2ec81598
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Tue Apr 2 19:42:50 2024 +0000
+
+    Merge branch 'main' of https://github.com/Teh45/MailAssistant
+
+[33mcommit 1f3b605a969236c451805e53cec68e57b27cbc20[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Tue Apr 2 19:42:44 2024 +0000
+
+    Fixed some errors email_to_bdd (time and name null)
+
+[33mcommit 954657bf10ef2655ebdaf8d91c4c392984d102a4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 2 14:32:57 2024 +0000
+
+    Add encryption and decryption methods in library
+
+[33mcommit 1f0717d3e8cf226a9e6712f91c94f19e5a3f3195[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 2 14:10:39 2024 +0000
+
+    Remove old_creds msft and add encryptions keys json files
+
+[33mcommit 2ec815988cf9343acf069a4c50151aab74ff4e05[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 2 09:06:14 2024 +0000
+
+    Fix rule creation when already existing sender for a rule
+
+[33mcommit 702b7c7d8a342530c0b4524064d14f9fa00e4ceb[m
+Merge: 69522c1c ced25d43
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 2 07:37:20 2024 +0000
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 69522c1cd6d1b8eca5ea7f1cbe8e42254acfe4d2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 2 06:54:00 2024 +0000
+
+    Fix rule bug in backend
+
+[33mcommit 9e9475d3b28436d2f80015f5073102eeeee2ae42[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Apr 2 06:12:31 2024 +0000
+
+    Add checking if contact already in all_contacts dictin set_all_contacts for microsoft
+
+[33mcommit ced25d43d457d0943ad9cb156743c1236f457449[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 1 20:03:19 2024 +0000
+
+    Fixed Mail Generation NewV4
+
+[33mcommit 4ecec622cb4b9e2719ec6ca0366469a3f9682160[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 1 15:52:25 2024 +0000
+
+    Add debuging text for google listener
+
+[33mcommit 1c48d53d5f9e0459148a9af3500dc0a2fc577b11[m
+Merge: 0925fda7 65de1c43
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 1 13:44:17 2024 +0000
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 0925fda7bfa2bd3ad15beee8727ee2e671baa974[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 1 13:44:02 2024 +0000
+
+    Validate Microsoft listeners working and set maximum values
+
+[33mcommit 65de1c438daab06c5f4e0ce10062715acfed726c[m
+Merge: 2451ae9f 1e775536
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 1 12:29:16 2024 +0000
+
+    Merge branch 'main' of https://github.com/Teh45/MailAssistant
+
+[33mcommit 2451ae9f006d9436b44471a8d47a24f752e72ebd[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 1 12:29:11 2024 +0000
+
+    Fixed importance categories 0
+
+[33mcommit 1e775536fbd12b9d74042450363652e3896505ba[m
+Merge: 2a68c8e7 a68dfff5
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 1 10:44:06 2024 +0000
+
+    Fix open mail for outlook
+
+[33mcommit 2a68c8e7a8ba438187c5c3ddb4044a59a68a908c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Apr 1 10:43:03 2024 +0000
+
+    Fix open mail for outlook
+
+[33mcommit a68dfff59b4a58edcf3e311e34135bd32a3f8710[m
+Merge: a5009deb 40393567
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 1 10:40:11 2024 +0000
+
+    Merge branch 'main' of https://github.com/Teh45/MailAssistant
+
+[33mcommit a5009debc1bf5c2740074e5a10711138a6c50dfc[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Apr 1 10:39:18 2024 +0000
+
+    Fixed prompt engeneering Home and tiny UI fix
+
+[33mcommit f5ef0bbd263c429ed56ddb5026ad1604e038e326[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 15:33:46 2024 +0000
+
+    Modify set_all_contacts to save only unique contacts
+
+[33mcommit 403935677ab2d0b5b1f79e278e0cbd84d1a228f5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 15:18:55 2024 +0000
+
+    Add searching contacts in mails set_all_contacts for microsoft
+
+[33mcommit d27d3988be6b86b57cf362299f1ee135a5145c27[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 14:57:08 2024 +0000
+
+    Fix minor issue in set_all_contacts for google
+
+[33mcommit a2a24e4b0411c0e8538652c7da651ba87841dcf0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 14:50:03 2024 +0000
+
+    Fix theoretically the bug of renewing subscription
+
+[33mcommit 6323cfa175bd067cac9dbd780dfda737c377f7e2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 13:15:11 2024 +0000
+
+    prepare handle subscriptionRemoved and missed
+
+[33mcommit a9e733b1e94cfbf0c62fe1dca8fde7877abcaa87[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 12:31:17 2024 +0000
+
+    Add update and delete Contact for microsoft listener
+
+[33mcommit ef7876727ae48f2f5b31b919d4128c6aac3fe30c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 11:58:56 2024 +0000
+
+    Change set_all_contacts function for google and microsoft
+
+[33mcommit 39c0f2349f1279923287b70a7f95577917966142[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 11:48:28 2024 +0000
+
+    Add provider_id field to store the id from email provider in db
+
+[33mcommit cfbfbf782c510d752bbf91bd98873d84e07c1afb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 11:41:20 2024 +0000
+
+    Add contact created listener
+
+[33mcommit 68ae844c3580da89fb9a7f40091ed34395f458ec[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 11:09:34 2024 +0000
+
+    Add function for listeners in signup and delete user if subscription fails
+
+[33mcommit 07a115b4bcf1732184f60bcc12f69a6e8cdf9f19[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 10:57:58 2024 +0000
+
+    Improve renew subscription: issue with expiration time testing
+
+[33mcommit 4ed4e94936232416cf2aef66a147538f90d6a7ed[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 09:06:19 2024 +0000
+
+    Add deltatime checker to renew subscription for microsoft
+
+[33mcommit 7220f450c4b0720f13e5e3662e7c48696a983b14[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 08:52:45 2024 +0000
+
+    Add renew subscription for Microsoft
+
+[33mcommit bb90fea9f9f65b5ddcb4d450ad2eec6f2546faf5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 07:33:22 2024 +0000
+
+    Add reauthorize_subscription for Microsoft
+
+[33mcommit 974ae4d84c9182fe81e2fbb300400eeaf6ecf692[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 31 06:45:50 2024 +0000
+
+    Add delete_subscription for microsoft
+
+[33mcommit 570a617e0d62343a3fc0e30ab105c59dc45dab21[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 21:16:00 2024 +0000
+
+    Add MicrosoftSubscriptionNotification listener
+
+[33mcommit d364447f36e7399f866659dd6979a41dbcc49320[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 21:06:37 2024 +0000
+
+    Handle incoming emails for microsoft email notifications listener
+
+[33mcommit dbc342a025845e92feb08fb7ebe2d3d3f828c913[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 20:55:41 2024 +0000
+
+    Add MicrosoftListener table
+
+[33mcommit 9a4123e1fd5eef2153b07aef1546c791ed9160c7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 17:12:23 2024 +0000
+
+    Add a thread for processing google email notification and send acknowledgement faster
+
+[33mcommit ccb4cb4f11c34de8d071566f3eb76a8f28538f36[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 17:01:38 2024 +0000
+
+    Add Microsoft client State to check if notifications come form Official Microsoft
+
+[33mcommit c971251a0080ac63a15fe6118cc5cfafb724e39a[m
+Merge: 22d019ec 2b447074
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 30 15:31:26 2024 +0000
+
+    Fixed Subscription to Microsoft Listener
+
+[33mcommit 22d019ecb422f8521b85e481d9c42a51a63e6fed[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 30 15:22:37 2024 +0000
+
+    Fixed the subscription microsoft_listener
+
+[33mcommit 2b44707479d675e0d35fee363ebcd1adfcfafc6e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 10:05:30 2024 +0000
+
+    Add error message clear when closing and opening category modal
+
+[33mcommit 1fc9d85c9f784836011b2db8ff4f58a441afe1dd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 09:59:25 2024 +0000
+
+    Add pop up if category error is returned from backend
+
+[33mcommit 7a621573467864a1c61e750dbb3426b64edad16d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 09:55:30 2024 +0000
+
+    Add debuging in front end and backend + messages when update or create category in modal
+
+[33mcommit 5f0bdc61ea56d1ff0a20137e4b671753a297d093[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 30 09:47:17 2024 +0000
+
+    Add category name checker in backend for update and create
+
+[33mcommit 24183b78c069678a1930426da2c3f10dbc38a2d4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 29 20:21:43 2024 +0000
+
+    Add character limit for name and description in backend
+
+[33mcommit f87d3f69af49c2e6c22a5a567f5a373c70d63f7a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 29 20:12:14 2024 +0000
+
+    Add 50 characters for name and 100 characters for desc category in Signup front end
+
+[33mcommit 1a526690887cb435580b37b380ff0ce92c751857[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 29 19:48:23 2024 +0000
+
+    Add no modify and no delete Others category in backend
+
+[33mcommit 3ab488ed2627a7e3668fae050f16e9b6c442d801[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 29 19:20:50 2024 +0000
+
+    Add language parameter (default: French) in all functions for gpt, claude, mistral
+
+[33mcommit bedc6284e3ca1aed9124989323436bdc295f1220[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 29 19:14:39 2024 +0000
+
+    Add language parameter in new_mail_recommendation for gpt, claude, mistral
+
+[33mcommit 78754a90786888ac5edc2a736df4e116aac7b1d3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 29 16:26:57 2024 +0000
+
+    Minor fix in urls and subscribe function for microsoft
+
+[33mcommit 888a606cdb7ec36db3dfbe8ad18e1339054f98cb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 18:37:05 2024 +0000
+
+    Clear selected Person in rule modals
+
+[33mcommit f31c8f2ebcdad08edc1a9cf2e707cb690de2131e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 18:32:02 2024 +0000
+
+    Add auto refreshing in Rules when updating the name and desc
+
+[33mcommit 90c238f0e6624adfdc47cc9635d97f8406167244[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 18:31:07 2024 +0000
+
+    Add auto refreshing in Rules
+
+[33mcommit b3a7bc54b3a4cf0bdf22a54e94e659aff293399c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 18:04:59 2024 +0000
+
+    Add function to get ip and source port
+
+[33mcommit 76ace114463c681f07f0d4394ac9035e56d5d29f[m[33m ([m[1;31morigin/google_issues[m[33m)[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 17:03:05 2024 +0000
+
+    Add Ctrl + Enter (gmail shortcut) in New, Answer, New
+
+[33mcommit 268c10f8cc8819e84063564c644bc0dba71d74a0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 16:57:13 2024 +0000
+
+    Fix logical issues with importances when getting an email for Outlook
+
+[33mcommit b9f5bd8558ca4c37621d618677fd6f0aa26431e6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 16:54:24 2024 +0000
+
+    Minor fix getting max percentage among importances
+
+[33mcommit 225c88f8328744d1b69ef7a5e25c54bc2d2a65f5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 16:50:03 2024 +0000
+
+    Handle all cases of importance conflicts when receiving an email
+
+[33mcommit 4571a0323ea6a01fc6054900b88f397b68d0485c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 16:36:16 2024 +0000
+
+    Fix bug reply to my own email
+
+[33mcommit e4da0ddd13e30e58534312663318baa7cff798d3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 16:03:47 2024 +0000
+
+    Remove displaying useless reply later emails in Home
+
+[33mcommit d1df201036c8fcf8a6ddfaa4f674ab025404039f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 15:55:22 2024 +0000
+
+    Fix small error when saving email sender in microsoft and google
+
+[33mcommit 254b9d35d25c928bf33e0e1bdd3ed02a6c034977[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 15:43:47 2024 +0000
+
+    Fix bug in Rules only 1 rule appearing
+
+[33mcommit 212c853eac15882cd1701374ac1fcad79a08d9b7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 15:15:41 2024 +0000
+
+    Change cursor design in Rules
+
+[33mcommit 1bb929fb69b681fff3917c04fdf9ddaacd439e15[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 28 15:00:29 2024 +0000
+
+    Add no reply checking before saving sender in google and microsoft API
+
+[33mcommit fafe9819d1ab9633349a8f413df1212b0f61cc42[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 27 06:50:07 2024 +0000
+
+    Change cursor design for rules
+
+[33mcommit 52df9f6c1d177148a00a2bc2c4e2230f8ce5657f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 27 06:47:59 2024 +0000
+
+    Fix block rule bug when receiving a gmail
+
+[33mcommit 431d4d83e3aaf52bd6a07e7e23c84f5a65562d50[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 27 06:06:53 2024 +0000
+
+    Add return None if the user has no rules
+
+[33mcommit 3be59b85c55a8b250f4253bf45e338e091365e50[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 26 04:46:19 2024 +0000
+
+    Change Others by Autres on client side
+
+[33mcommit 40eb96f483c0cf3d6a15f5b0ec7280e886219a65[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 26 04:43:41 2024 +0000
+
+    Add working Open button for Outlook and Gmail
+
+[33mcommit f6331c3955a93047d790f16899e1d547f255be70[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 19:57:45 2024 +0000
+
+    Remove useless text 'En savoir plus'
+
+[33mcommit 8f2e310c8b7d75a4b15c7efb55839b6522c3327f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 18:38:12 2024 +0000
+
+    Add auto delete of read emails after 2 weeks
+
+[33mcommit 185ab87338205d95b94ee8540ffd8e6a7329862d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 17:12:18 2024 +0000
+
+    Fix issue infinte loading isAuthenticated
+
+[33mcommit 7241b9433c41fe724097098f7ff5b209444d4d75[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 16:12:34 2024 +0000
+
+    Add read_date in Models and handle in views when fetching email on client side
+
+[33mcommit f2c16f64bae7c0f3191cc19055bb8f8875c3b257[m
+Merge: 6ffb2165 0243470f
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 12:06:57 2024 +0000
+
+    Merge main-dev and main
+
+[33mcommit 0243470f7f7698e9106272425f7f41aa355b642a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 11:17:18 2024 +0000
+
+    Change cursor in Additional actions for read emails
+
+[33mcommit a471af8c9a8ebebacdec1365e75198571049fb52[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 11:14:48 2024 +0000
+
+    Remove email marked as reply later instantaneously in Home
+
+[33mcommit 0c6fa69c7929685af6a4c6f3996cb331dd17a99f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 10:50:23 2024 +0000
+
+    Delete the email set as delete or reply later before getting the DB response in Reply Later
+
+[33mcommit d000f20f3fa640ff8116c5d6f40fbbe381947660[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 10:48:45 2024 +0000
+
+    Delete the email set as delete or reply later before getting the DB response in Home
+
+[33mcommit 482351bdcfacd781a17f1065318d36fec370292a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 10:45:17 2024 +0000
+
+    Fix cursor bugs with Useless in Home
+
+[33mcommit a26f88911053c69cbaf1a9934778d824f280bc70[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 10:14:40 2024 +0000
+
+    Change cursor design for Useless and Read emails in Home
+
+[33mcommit 6342a113b8c47847772d82cbd7870cfadc35174c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 25 08:26:22 2024 +0000
+
+    Fix bug menu Additional Actions not re opening when clicked in Home
+
+[33mcommit aebc9c1cf5d7b97dbb9e27088f03601b2ca57e58[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 12:55:11 2024 +0000
+
+    Simplify prompt engineering for gpt 3.5 turbo categorize_and_summarize_email
+
+[33mcommit f6ced88559a89e4923a03f6ecc876f609707052b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 12:48:43 2024 +0000
+
+    Optimize code and add logging messages
+
+[33mcommit cade90e5a7bdded6124dac1d9622c329ee207eed[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 09:52:24 2024 +0000
+
+    Fix unread email count display computation error
+
+[33mcommit 6ffb2165adceaa1343fc0a66c90a2718db32b1d6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 09:47:10 2024 +0000
+
+    Fix Social API not found for Google listener
+
+[33mcommit ef853c5550e28543a0c7727ceaaa91a715dffbec[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 09:44:59 2024 +0000
+
+    Fix Social API not found for Google listener
+
+[33mcommit 5a00ccd0ec66c653e63e86379e2b120bff5088dc[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 09:44:38 2024 +0000
+
+    Fix UI count bug for emails with reply later in Home
+
+[33mcommit a71488459e991de58612052e06a6dd6fe1230b9d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 09:33:23 2024 +0000
+
+    Fix bug all emails marked as read
+
+[33mcommit 7850ae141a97cdb32a4ce1e5a37f45b1725f0826[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 08:39:04 2024 +0000
+
+    Remove answer later emails from Home
+
+[33mcommit c39ca04250cf973e280509de06d44e5355c88779[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 08:32:31 2024 +0000
+
+    Add answer_later field when retrieving mails from backend
+
+[33mcommit 9e679bd4ea67d44944937b811f20e53746f44769[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 07:50:28 2024 +0000
+
+    Center colors in settings
+
+[33mcommit 5e391a29f979c73a10a4f755be3be52f76a09bcf[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 24 07:43:24 2024 +0000
+
+    Prepare webhook code for Microsoft email notifications
+
+[33mcommit 393012322194321ffaf572bfe596e1ce95d2f9c0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 17:07:51 2024 +0000
+
+    Remove warning 403 for email notification
+
+[33mcommit 32b2aadde5d26e390081748990d2f56e8f95a6b3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 16:32:38 2024 +0000
+
+    Add pre existing category handling for incoming emails
+
+[33mcommit b50930bd155357f4f062352d18ac56fa92eac962[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 16:25:28 2024 +0000
+
+    Add blocking email and auto add set category if rule has a category
+
+[33mcommit 955040af7244084c73dd34efb1fd30c300474567[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 16:00:53 2024 +0000
+
+    Set unique=True for email in Sender table
+
+[33mcommit aa1b31a4a0be484c60672650048a9eecce116c69[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 15:57:59 2024 +0000
+
+    Disable Delete button when editing a field of category
+
+[33mcommit 25e205c413d6342bbf808200c684e70c358d55ae[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 15:40:07 2024 +0000
+
+    Fix minor bug when computing nb email unread
+
+[33mcommit d3e88287f7b222720f48e5d5937fc224d32c745f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 15:26:41 2024 +0000
+
+    Add auto refresh in Home to auto get incoming emails
+
+[33mcommit dc15f8f68fcdddf27cc241dbac0f6066cb8a0591[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 15:18:37 2024 +0000
+
+    Optimize email_to_bdd and google listener operations
+
+[33mcommit 0c273545292de16d63c58236b9bedd9759b067d2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 15:07:09 2024 +0000
+
+    Add email provider as a constant
+
+[33mcommit e460c9f71ea656f9a3898bbe0dd75d5e40f5fd7f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 14:57:42 2024 +0000
+
+    Fix bullet points bug when getting email from google listener
+
+[33mcommit ffab13030123cb2e1357fe35a034c6e3b0b26fec[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 14:45:14 2024 +0000
+
+    Add email from google listener in DB
+
+[33mcommit e8c0451b556c727627bceef844ae3333e2cb6300[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 14:21:56 2024 +0000
+
+    Debug issue not trying to save email in DB
+
+[33mcommit 8756df0bc16b8c6f31f64cc675a53e04ee3e8b74[m
+Merge: 868990a6 d76af55a
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 12:43:32 2024 +0000
+
+    Merge remote-tracking branch 'origin' into main-dev
+
+[33mcommit 868990a65bc32fdaae0bab6c16613e6eeacf7bc0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 12:41:49 2024 +0000
+
+    Improve prompt engineering for extract_contacts_recipients for mistral and set claude as default ai for extract_contacts_recipients
+
+[33mcommit d76af55af91efcf5e4eb85be7524a4e38602ffea[m
+Merge: ba7e34a4 c7197ea3
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 23 11:14:27 2024 +0000
+
+    Add Try Except mail notifications
+
+[33mcommit ba7e34a4f9eae70d215762c09c99ce35cece14c9[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 23 11:12:06 2024 +0000
+
+    Add Try Except to handle mail notifications
+
+[33mcommit c7197ea32f83891c0419d955dcae3a6367d52c52[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 11:04:17 2024 +0000
+
+    Fix missing imports when merging
+
+[33mcommit e925eddaeeb208af396a4ce90f98895edf735652[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 23 11:01:19 2024 +0000
+
+    Created TOPIC_NAME env variable
+
+[33mcommit 390b600cf375b0876c086798487db47fc5c7dc5f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 09:37:11 2024 +0000
+
+    Add Transfer working button in Reply Later
+
+[33mcommit 575ac8ec95150372342fd76e1639d2c8233d00f6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 09:33:12 2024 +0000
+
+    Fix Transfer not working for microsoft in Home
+
+[33mcommit e761b098223d40c1410b9734c1ecf9432da1b2c3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 09:09:03 2024 +0000
+
+    Add Transfer button for read emails in Home
+
+[33mcommit c05a1efa3a8dfb1dcc8e37a9244cd285f8b7972d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 08:48:33 2024 +0000
+
+    Add and test delete email for microsoft and google api
+
+[33mcommit d4bc8ebb66c7a58aa0c8bea4daaa9d0bcb3ca462[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 08:09:23 2024 +0000
+
+    Remove user_id from localStorage in Signup
+
+[33mcommit a875bd5637ff69cbac6e5f81c2771658fe5d437e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 07:46:36 2024 +0000
+
+    Update get_mail for microsoft api
+
+[33mcommit 642e99762b365fe3ad7a95c94953f8379e16b638[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 23 07:10:37 2024 +0000
+
+    Add moving gmail emails to trash when read
+
+[33mcommit baef7f55be81b69e9575bf9a70aecac646796192[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 23 01:09:06 2024 +0000
+
+    Added Google listener
+
+[33mcommit c72c13b32dcc5e055158533a67baa1dec503292c[m
+Merge: 462fd011 0e3969ab
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 23 00:58:20 2024 +0000
+
+    Added Google listner
+
+[33mcommit 462fd01169b516ea67717bcf949d8420478d0546[m[33m ([m[1;31morigin/google_listener[m[33m)[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 23 00:19:19 2024 +0000
+
+    Google listener implementation
+
+[33mcommit 48f9d624f6f2ebef413463bf1a1a1b4e8414b81c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 22 21:39:16 2024 +0000
+
+    Add necessary headers fro delete mail in Home
+
+[33mcommit 6c96a1fc06e3f88a0be0a4b549bb8f71ec227381[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 22 21:27:18 2024 +0000
+
+    Remove authenticate_service_view as its no longer needed
+
+[33mcommit 33db1cd219e15966ad351f447b40b4a5151c33dd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 22 21:23:52 2024 +0000
+
+    Update readme for HTTPS server
+
+[33mcommit d6cfc80b6e9dfec545571cd4ff16b0dc0a793e2f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 22 21:07:54 2024 +0000
+
+    Fix bg bug choice in Signup
+
+[33mcommit 72064a8bbf448448d6a9f06b28d425929c953523[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri Mar 22 20:39:21 2024 +0000
+
+    Done the Google Listener
+
+[33mcommit 702fc19db7837a127a538eb06794244d03d739a2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 22 20:08:29 2024 +0000
+
+    Remove name from color list
+
+[33mcommit f17e76f91a96368c5505216774dbcce42c2c56e7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 22 19:52:35 2024 +0000
+
+    Fix issue mistral giving explanations in answer
+
+[33mcommit 091abd838e1b7896fb1dc579a4489613538c999e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 22 19:49:54 2024 +0000
+
+    Improve prompt engineering extract_contacts_recipients for mistral
+
+[33mcommit 0e3969ab152fb998c9520a7e586078dc608e489d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 20:52:55 2024 +0000
+
+    Add improve_email_copywriting and test for claude
+
+[33mcommit 38c8b5dbe86070dc2cf60577689e97ff9d15aeff[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 20:48:01 2024 +0000
+
+    Add language parameters for 2 buttons in New for mistral, gpt3.5, claude
+
+[33mcommit 86f67635a384519e70ec24b80754afb198c0108b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 20:30:45 2024 +0000
+
+    Add generate_email_response for claude
+
+[33mcommit a85f2e3cbd90204c3ae74f8ce7a6eb85b1ba49e6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 20:27:43 2024 +0000
+
+    Add generate_email_response for mistral
+
+[33mcommit f10bea7877feea45e24cf931393e48fafd991cae[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 20:20:59 2024 +0000
+
+    Change all gpt_3_5_turbo functions by all mistral available functions
+
+[33mcommit eeea13312a6305fa8d7db70f39bf1722af9957e6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 19:49:36 2024 +0000
+
+    Fix serializer error no validate
+
+[33mcommit 1953233d432a517d22f13f27940c0851732b4880[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 19:28:04 2024 +0000
+
+    Fix logging issue for print in console
+
+[33mcommit 32b9379bfb677e2c1a9d64c93ba1707124b8bfe7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 19:15:25 2024 +0000
+
+    Add mistral version for categorize_and_summarize_email and test
+
+[33mcommit ce04bb395e4e7816b67971b1649d705dc59b704e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 18:07:44 2024 +0000
+
+    Successfully changed gpt by claude for categorize_and_summarize_email and improve prompt engineering
+
+[33mcommit 93fbe7bf2cb71e4c67cdf88285995707db9c2aaf[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 17:32:52 2024 +0000
+
+    Rename Autres into Others for simplicity of processing
+
+[33mcommit b7547fc1f0c0a400825a1f7b22080b62b21914eb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 15:55:15 2024 +0000
+
+    Add forward request for delete email
+
+[33mcommit 963d5e8538cf6547b2d5f17e16c1af5b04f1dc23[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 15:47:57 2024 +0000
+
+    Prepare delete_email microsoft
+
+[33mcommit 6130a7e8e4b10708071cf9c943b34425ee0f6dcc[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 15:35:11 2024 +0000
+
+    Prepare delete_email view
+
+[33mcommit 9ac9e6f722ae425a6a47bbcf3078d14f38ea513f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 15:24:22 2024 +0000
+
+    Add error handling in delete email google
+
+[33mcommit c5b44bcd58f77151fe9aa77dcfdd8336e5f6c761[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 21 15:01:58 2024 +0000
+
+    Prepare delete email function in google api
+
+[33mcommit 866b17f8a6ff728d61b19ebc5da8a012ed51faf3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 17:54:55 2024 +0000
+
+    Fix Reply Later issue with cc
+
+[33mcommit f5f6d800c47e6227fd213112e58b5f85258cecbd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 17:32:08 2024 +0000
+
+    Change 2 http enpoints into https in Reply Later
+
+[33mcommit 5639a97680a3853fec423b6624e0c25a55d8fa4b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 09:08:53 2024 +0000
+
+    Remove django logs
+
+[33mcommit ec9e648c472059ea2c7deeb469b28d983308d63e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 08:52:46 2024 +0000
+
+    Remove CC field in Transfer when no CC provided
+
+[33mcommit a62765d029f611fbf798496ea5ae82a84f3c189a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 08:51:05 2024 +0000
+
+    Handle case when no cc provided in Home for Answer and Transfer
+
+[33mcommit a14e2cae1248fe7b8f5d38fb4d491672ac3a3944[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 08:43:15 2024 +0000
+
+    Fix destinary (CC) format issue in Answer
+
+[33mcommit c4a3a7ae7d4b5cf1cfbae341d7bc47124b2d02be[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 08:04:49 2024 +0000
+
+    Add auto redirection when answer is sent
+
+[33mcommit 13d4714e1b2fcb381c7f74bac871a91641f6c55a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 08:00:20 2024 +0000
+
+    Add array of emails handler in Answer
+
+[33mcommit 1ddcfc773f6fdc6432fc4a482042fbdc63e741e6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 07:46:30 2024 +0000
+
+    Update handleFileUpload in Answer
+
+[33mcommit 87dac3b27910b35bf95c07bb28f4768a3c6f2c86[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 07:39:25 2024 +0000
+
+    Add try catch in Home to avoid Vue errors in Transfer and Answer
+
+[33mcommit 0e85dbecdb8ea5f82ec7a74d0c09ebeba20a334f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 07:33:31 2024 +0000
+
+    Add CC data cleanerin in URL before answering
+
+[33mcommit cf1326e8a31011fabd9616893066e6e3639b4618[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 07:31:02 2024 +0000
+
+    Add CC data cleaner before transfering
+
+[33mcommit 3e1a09b85be7273fefc20623b1b9f831a0ae577a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 07:16:35 2024 +0000
+
+    Remove .value for pop ups in Transfer (was working for 'Redirection' without)
+
+[33mcommit f663b7b80bf5873fd5ecdfd84832c110ed791839[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 07:10:09 2024 +0000
+
+    Change sendEmail in Answer with Transfer function
+
+[33mcommit e6fb2dfd08f6a50b4b8fd470f21cdb1b9cbcac23[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 20 07:07:41 2024 +0000
+
+    Clear uploadedFiles in Transfer onMounted
+
+[33mcommit 6a3a69a4ef5fb445d22b1eeb71e3ad51f8b79a2a[m
+Merge: 124c14a1 7dffe8f4
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 14:39:30 2024 +0000
+
+    Merge remote-tracking branch 'origin/main-dev' into main-dev
+
+[33mcommit 124c14a1d04dea992b960fb0887ab13716d3509e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 14:38:27 2024 +0000
+
+    Finish setup logging in a file
+
+[33mcommit 7dffe8f4c2b295db84ffda7cbf65f32489bc9004[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 14:38:27 2024 +0000
+
+    Finish setup logging in a file
+
+[33mcommit 1ace8498adbfcec29372dc8da9c6bd8e17a09ac5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 13:59:28 2024 +0000
+
+    Add logging in views.py
+
+[33mcommit a5c9d4846a4e4afdb7c3d57d58899c667a1ec0ea[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 13:53:18 2024 +0000
+
+    Add missing serializer in views.py
+
+[33mcommit bea7141dc6e58d1e6e9751d9712df4bf1cd5e9a1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 11:43:53 2024 +0000
+
+    Add remaining logging in google api
+
+[33mcommit 828a27dfaf27b2b983e0bcc3058ea1a48f31be89[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 07:22:19 2024 +0000
+
+    Add logging in microsoft api
+
+[33mcommit c9971c7288e33dafeed9914f193d182929a8a396[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 06:56:34 2024 +0000
+
+    Remove get unread email function in email providers backend
+
+[33mcommit 858242fa4e837672f5445be46ab6b5c49db1a8cc[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 06:49:27 2024 +0000
+
+    Add logging errors in google api
+
+[33mcommit c406d671e359e01fbec535eb88fa947e44a52f57[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 19 05:42:46 2024 +0000
+
+    Théo fixed the refresh token buggit add .!
+
+[33mcommit 4f9f66032d1f8120f21630f21285bf49fdd8bce7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 14:51:32 2024 +0000
+
+    Fix redirect uri typing mistake
+
+[33mcommit 5cfa138099c6dfebdb992bf9b9ba773c19f1cbc5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 14:48:54 2024 +0000
+
+    Add CORS allowed origins
+
+[33mcommit 94ba3823a9daccb8cf0c61d75ad980de3a39fc2d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 14:37:14 2024 +0000
+
+    Remove requirements.txt from root
+
+[33mcommit b08379ba37d928b22bab9031a7f5f940faea497c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 14:33:52 2024 +0000
+
+    Put email api providers in a folder
+
+[33mcommit 08b68240bb2d7e8239b13cccdea0ad8db6172e3d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 14:25:38 2024 +0000
+
+    Add constants file
+
+[33mcommit fe4374852d6d383ba53cf113281c58ad390dc996[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 14:15:02 2024 +0000
+
+    Put ai files in a folder
+
+[33mcommit e92ecabbb5d8755250d773b2a29099bd7efb2ab3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 11:49:49 2024 +0000
+
+    Fix print bug when 0 or 1 result per function
+
+[33mcommit 0fc567dc84a735118be38f9eb9a49d9a84e4cdf3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 10:05:42 2024 +0000
+
+    Update script testing AIs with all functions
+
+[33mcommit d8f49e929a2e087b62cd9aa4b1e0e8f19e25be7f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 18 09:38:18 2024 +0000
+
+    Fix multi recipients send email in Transfer and New
+
+[33mcommit 4b73dcb088669d07751a219a89c6692b8ea78d7a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 17:27:33 2024 +0000
+
+    Change order of parameters in ai providers unless gpt4
+
+[33mcommit dc10567fa338ece40758e609a174abd8ea5963a9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 16:51:23 2024 +0000
+
+    Improve script for functions that have 2 or 3 parameters
+
+[33mcommit d962302062e3e9785a41609c82cf98d84bab3680[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 16:15:40 2024 +0000
+
+    Add script to test speed and efficiency of AI providers
+
+[33mcommit d90e948be2081639a0f512d55ec4d3863ecb3cb0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 14:52:52 2024 +0000
+
+    Fix typing mistake in New and Transfer
+
+[33mcommit 426661a9929f8a7a6de9df237b8b64cfe3350094[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 14:50:58 2024 +0000
+
+    Add Delete button for useless emails
+
+[33mcommit 8313746e2569c9f443245e0eaad8747ccbbc5294[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 14:41:54 2024 +0000
+
+    Add scroll when AI is thinking about destinaries
+
+[33mcommit e408af6fcc94efc2d6d8aa2f9ecada610bfd0c74[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 14:39:44 2024 +0000
+
+    Fix bug add several times same email in New
+
+[33mcommit deafaf6ed17b9b2bee9897164734e0f2d57839f0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 14:38:29 2024 +0000
+
+    Fix bug add several times same email in Transfer
+
+[33mcommit 6914c6ef1789301390fd8c5451c76930735356fe[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 14:31:30 2024 +0000
+
+    Remove useless functions in Transfer
+
+[33mcommit a93aaa62e283f97d523ba55117c2232eb7f4e458[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 14:20:40 2024 +0000
+
+    Fix data format in Transfer
+
+[33mcommit 53ed4e44010e29ff73027822a5af0b23dbba07c2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 11:23:57 2024 +0000
+
+    Add template body in Transfer
+
+[33mcommit 4f91b910178ca65c7f465615023140f98b30de4a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 09:40:28 2024 +0000
+
+    Retrieve date when processing email to db
+
+[33mcommit 054ae54963795463914fd1fd3bfd318457387f7e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 08:45:52 2024 +0000
+
+    Disable button send in when email transfered in Transfer
+
+[33mcommit c40c75547adb9ad0d50777519097697834551d54[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 08:36:09 2024 +0000
+
+    Add redirection home page in Transfer
+
+[33mcommit f4ae83bc5a2af9fe8f070379085b5d5f00903a83[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 08:20:42 2024 +0000
+
+    Change cursor in Reply later
+
+[33mcommit 170f2c50bf61544523b0648dc2f76cf09a460cdb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 08:15:25 2024 +0000
+
+    Fix UI bug computation unread email in progress
+
+[33mcommit c9669a8df1cb11268415b55ada8c99d7352a84bb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Mar 17 07:58:09 2024 +0000
+
+    Uncheck button delete account when closing modal
+
+[33mcommit 0ab4bfc39743b9fcb0d0c1cb56c3d831883ac8f4[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 16 22:03:18 2024 +0000
+
+    Fixed refresh token microsoft (not tested) and fixed displaying other category Home
+
+[33mcommit dd6a8fa9a3dfea2b37d1c2b4958237ffb754d8e6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 21:27:20 2024 +0000
+
+    Fix typing mistake Actions supplémentaires
+
+[33mcommit ad2daf9a13c842d29a9da11620abfae10381d51b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 21:20:05 2024 +0000
+
+    Add Forward button for useless emails & fix scrolling bug
+
+[33mcommit f1c6191ad6804e096638461659bd5661c48bf2b8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 21:14:29 2024 +0000
+
+    Change cursor in Actions Suplémentaires
+
+[33mcommit ed9b489a695a2ed5e837c192d98667edfbf99f2f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 20:52:30 2024 +0000
+
+    One line delete account elements in Settings
+
+[33mcommit d73fa176b8d2a0cc00b31b891b8d2e9997d2b017[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 12:04:14 2024 +0000
+
+    Fix clear all uploaded files in front end when sending mail
+
+[33mcommit a3a91550b1de197ce6bb49fa8f0c2cfbd0a7cf27[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 11:45:45 2024 +0000
+
+    Fix attachements in email with microsoft
+
+[33mcommit a00d15453606a1c8fb80cb0a656d418846b0f54a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 11:21:01 2024 +0000
+
+    Clear uploaded file onMounted in New
+
+[33mcommit a2ca6dc7fd057ed559d3c78f6b481c74dc02f2b7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 11:18:45 2024 +0000
+
+    Clear attachements when email sent successfully
+
+[33mcommit d4c53a2d741573a7df777fc764193893a93e11da[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 10:50:59 2024 +0000
+
+    Clear uploadedFiles when email sent successfully
+
+[33mcommit 01e7789c9f9272445304e77ae74fc0c14aaf0bee[m
+Merge: 081f9dba 9a6f0837
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 10:48:46 2024 +0000
+
+    Merge remote-tracking branch 'origin/main-dev' into main-dev
+
+[33mcommit 081f9dba0d5c6d9407717a1a423c17d6cce1c7c9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Mar 16 10:47:44 2024 +0000
+
+    Add profile image for Microsoft accounts in New
+
+[33mcommit 3386d87fd8d7e436da6992a16840b5700d96d278[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 15 23:16:35 2024 +0000
+
+    Add endpoint to save last mail outlook
+
+[33mcommit 9a6f083717b1dd01b4a41f40ee5d0dc262e47df5[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri Mar 15 22:26:19 2024 +0000
+
+    Updated design Signup Buttons
+
+[33mcommit b23298740247648823e739b14135671a98554d2e[m
+Merge: 5390afcb c5af8905
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 15 22:04:08 2024 +0000
+
+    Merge remote-tracking branch 'origin/main-dev' into main-dev
+
+[33mcommit 5390afcb870e8c47cc0adf15dd5ae6c2beb82c8a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 15 22:03:49 2024 +0000
+
+    Add microsoft icon in Signup part 2
+
+[33mcommit c5af89059fedb6fb75619fceba9881e618d60fb8[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Fri Mar 15 21:54:56 2024 +0000
+
+    Fixed display Other category and fixed category description limit
+
+[33mcommit 45f1b30e77094e07da813b6e85839344daf0a67c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 15 21:40:09 2024 +0000
+
+    Add Google icon in Signup part 2
+
+[33mcommit cca95a99ca3e2790f92e78049ec154e142e291db[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 15 21:09:24 2024 +0000
+
+    Fix bug checking username
+
+[33mcommit a22991ca0663cbeec427d546d1e067eafe90a23e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 15 15:29:15 2024 +0000
+
+    Add close modale when deleting account
+
+[33mcommit 7a9906a5df922e2811794ff226f4783f47d479bf[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Thu Mar 14 23:35:26 2024 +0000
+
+    Fix sending mail with Outlook
+
+[33mcommit 94bf7046cbda1fbef29af19f2eb86f4ddbe29254[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Tue Mar 12 21:08:40 2024 +0000
+
+    Update microsoft api endpoint
+
+[33mcommit 3ea699da86e4e87f448bdda75b90148653b45fd6[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Tue Mar 12 19:49:28 2024 +0000
+
+    Updated microsoft_api file
+
+[33mcommit 811213fffc25857431006dbe36eb871038a8eadf[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Tue Mar 12 19:37:05 2024 +0000
+
+    Updated microsoft_creds
+
+[33mcommit 4a5fc367d1576f92abd52e3edbdd7f6c9147c113[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 13:59:28 2024 +0000
+
+    Add auto Forward subject in Transfer
+
+[33mcommit 5798daaaf06b5b111952ac4b168d94409d5fbccf[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 13:50:00 2024 +0000
+
+    Add transfer page from New
+
+[33mcommit 6cfce741d277682ceb1d43ede78873e7705f00a9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 13:00:29 2024 +0000
+
+    Add Transférer button for important emails
+
+[33mcommit 41acd623ee61bc4b0a1bba40b106a6f4cef7e931[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 12:43:07 2024 +0000
+
+    Remove wrong message about unread mails onMounted
+
+[33mcommit b6759663c68a28c6476ade5c91debbb2a3fbd7ae[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 12:06:46 2024 +0000
+
+    Change cursor design for emails when hover
+
+[33mcommit 382e55a1003383a86bc578b65e9d63b6894e2c51[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 11:48:32 2024 +0000
+
+    Add modal before deleting account
+
+[33mcommit 057cd2c1c63881b87d40f25480c6dae4ac523423[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 08:23:10 2024 +0000
+
+    Fix computation of unread emails in progress not updating
+
+[33mcommit 082d8284d53872dfa7cae45b052b936866fd4b47[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 07:15:46 2024 +0000
+
+    Fix Rule page reloading when pressing Enter
+
+[33mcommit be1502acab4002cf75b9f2a6bdeed83482638f4a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 12 07:01:13 2024 +0000
+
+    Fix auto remove recipients when pressing Enter if no filteredPeople
+
+[33mcommit 6a39bff5f9ad0a3aba9bc7880cbf9ea691ff544e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 11 20:34:57 2024 +0000
+
+    Fix issue with isUserAuthenticated: auto redirecting if not authorized
+
+[33mcommit 405894026c4ee12f2207154181a3054293db2354[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sun Mar 10 22:27:51 2024 +0000
+
+    Added Default class Autres
+
+[33mcommit 437ea9dcd7182e7e26b973ed787e7144f5eef3e9[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sun Mar 10 15:50:42 2024 +0000
+
+    Fixed reading important bulletpoints
+
+[33mcommit 8aac9deac76ff9248a230cee3e9c6cab06f63cb1[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 9 15:45:04 2024 +0000
+
+    Fixed Rule creation when the user only want to block the email
+
+[33mcommit cc96c9657d3110c19eb6ea94369cc885fa94974c[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 9 15:12:51 2024 +0000
+
+    Fixed SignUp Contact
+
+[33mcommit 6f0c1ec804964225c0c283dc9a7f77b5dab31a1f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 8 16:46:48 2024 +0000
+
+    Add check if user authenticated before loading page in Router
+
+[33mcommit b0745ea540f46f501a225108255d0ec0f6ac4c17[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 8 16:41:13 2024 +0000
+
+    Add auto redirection to login page when user is not connected
+
+[33mcommit b037da95081190573d6b0900199a7bcbddc9695e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 8 15:47:57 2024 +0000
+
+    Reset to older version of values of navbars
+
+[33mcommit 16be82fbd55b9c1d273e9e1bb74c608140095cc5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 8 15:35:38 2024 +0000
+
+    Add remaining keyboard listeners for categories in SignUp
+
+[33mcommit 33d8bb9e7824a50e1a0f21a04490a4acdcb14e8f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 8 15:10:27 2024 +0000
+
+    Add buttons to modify and delete category in SignUp
+
+[33mcommit 640322f8857256f34094e68c350ae20a2ee3d8c6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 8 08:07:34 2024 +0000
+
+    Link delete category button with function in SignUp
+
+[33mcommit 0f9023ec262f10757b6c0e05d2a86fa799e86e0b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 22:47:23 2024 +0000
+
+    Fix 2 http urls into https
+
+[33mcommit f55204c7ef97ef1defa06de8487d91e0c7ff3686[m
+Merge: a6f12e13 e7f1387f
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 22:09:40 2024 +0000
+
+    Merge remote-tracking branch 'origin/main-dev' into main-dev
+
+[33mcommit a6f12e1314b18f817548065073f147d22703118d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 22:09:20 2024 +0000
+
+    Add keyboard listeners in update Category modal and min size for textarea
+
+[33mcommit e7f1387f34203f55286751092942eb0eab0a33c8[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Thu Mar 7 22:03:20 2024 +0000
+
+    Fixed display rule if no rule
+
+[33mcommit 308818d33fb787f0a7fb4f58a7a80690cdcab4e8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 22:01:59 2024 +0000
+
+    Add keyboard listeners in new Category modal and min size for textarea
+
+[33mcommit f811381eb232289be52c187ac84bc4de38035cbe[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 21:29:15 2024 +0000
+
+    Fix remaining bugs with Tab in modal Category in SignUp
+
+[33mcommit d03cf126a5598f66b59fc83620aad07f2e0e4c60[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 21:09:42 2024 +0000
+
+    Add break line when pressing Enter + shift in modal Category in SignUp
+
+[33mcommit 62eed613480498a93c78663281ad21caa3a679ca[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 21:06:47 2024 +0000
+
+    Fix glitch going from step 0 to signup_part2 with Enter key in SignUp
+
+[33mcommit 6869fadf2c66e9eb9a0953b26c52276d23b6e5fd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 20:41:51 2024 +0000
+
+    Change cursor when switching tabs in Settings
+
+[33mcommit 59fb197d25e70bc4d374ee427a8dadb455e652fc[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 20:30:09 2024 +0000
+
+    Fix Pages without AI prompt for 1920*1200 screens
+
+[33mcommit e9fab4919d2bada009f38e9ec1a54d44d2858224[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 18:12:14 2024 +0000
+
+    Add keyboard listener to switch between inputs in New
+
+[33mcommit ad6dc068c907753a5ad519d434301fb9b42488a6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 17:18:37 2024 +0000
+
+    Fix path issues with django server not running
+
+[33mcommit 0009bbd3f4f2db694e6823937fe00b960c3cb636[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 17:11:37 2024 +0000
+
+    Add keyboard listener in SignUp step 2
+
+[33mcommit c5f82ef73572476a5482f9bb04a0a87c133a0cb8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 14:46:52 2024 +0000
+
+    Add all mistral functions for claude
+
+[33mcommit 4bb0b77fd8ac8c2e11d6e1eda53cb73c2b211515[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 14:18:02 2024 +0000
+
+    Add basic Claude API calls
+
+[33mcommit 7006c3cd49c78d744bede98fdde82eb02a74cdb3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Mar 7 11:34:14 2024 +0000
+
+    Add claude 3 AI API template
+
+[33mcommit a4af8b94158f854e16298c98c94a42a2fc93ed15[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 6 22:31:00 2024 +0000
+
+    Fix http URL in UserLogin
+
+[33mcommit 6c53e97dfeeba4599680d010981ab6f4fd473e0b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Mar 6 17:37:48 2024 +0200
+
+    Fix password visibility when login fails with Enter keyboard
+
+[33mcommit 13931cd90832bb2d44e84f17915f1b070c33ab51[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 5 23:13:48 2024 +0200
+
+    Add keyboard listener Enter in SignUp_part2
+
+[33mcommit 9c758cf21192c2a19fdea7a6dc7633de9b015445[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 5 23:09:08 2024 +0200
+
+    Link buttons with step in SignUp
+
+[33mcommit 02cd52040f4aba740137b8881551286f0b226518[m
+Merge: d56cf5af 267f9184
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 5 17:10:26 2024 +0200
+
+    Merge remote-tracking branch 'origin/main-dev' into main-dev
+
+[33mcommit d56cf5af96763ffc20f11ebc4ca0e618ae2b0857[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Mar 5 17:10:00 2024 +0200
+
+    Add keyboard listener Tab and Enter in SignUpV1
+
+[33mcommit 267f91845947fed2ce780025d70fe4d49117a78a[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Tue Mar 5 12:42:56 2024 +0000
+
+    Fixed Docker make migrations model
+
+[33mcommit cbfd760c51855b6ba44eb6fd43e1c6c32790ad0b[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Tue Mar 5 10:53:11 2024 +0000
+
+    Fixed make migrations Docker build
+
+[33mcommit 8c931045fea8ac3d1b4fab791d50c3d89d1f5c22[m
+Merge: c6e79a84 b589cfe0
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Mar 4 19:47:27 2024 +0000
+
+    Merge branch 'main-dev' of https://github.com/Teh45/MailAssistant into main-dev
+
+[33mcommit c6e79a84a94132fb81681077697f6cc864b39cf9[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Mar 4 19:46:20 2024 +0000
+
+    Updated Docker multiple project
+
+[33mcommit b589cfe03a103386055b3fb3c5bd51689a1e1cc4[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 4 21:25:25 2024 +0200
+
+    Add keyboard listener Tab and Enter in UserLogin
+
+[33mcommit 6b7ba4886cad817be064a8cd9036aca89887c78b[m
+Merge: 9601b5e9 269ab9c8
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 4 21:07:18 2024 +0200
+
+    Merge remote-tracking branch 'origin/main-dev' into main-dev
+
+[33mcommit 9601b5e9531a8dee9efc62543fd0c39b2924bc0b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Mar 4 21:06:53 2024 +0200
+
+    Fix pop-up appearing once in UserLogin
+
+[33mcommit 269ab9c8faf92b6e1f58ce67f48ad585a3b69379[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Mon Mar 4 18:06:11 2024 +0000
+
+    Updated migrations conf Docker
+
+[33mcommit 53b06eed08f588c4b308d193c1c4bd6efcc79357[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sun Mar 3 15:01:39 2024 +0000
+
+    Updated Docker conf file
+
+[33mcommit 495657c2fb718c90f9154814fb6a76244f123fac[m
+Merge: 05d85006 04fe3c76
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 2 16:07:05 2024 +0000
+
+    Merged two branch
+
+[33mcommit 04fe3c76ff975bd08e6a78436d6cadfcb4e0045f[m[33m ([m[1;31morigin/save_server[m[33m)[m
+Author: Theo <theo@vps-feaf3d65.vps.ovh.net>
+Date:   Sat Mar 2 14:37:04 2024 +0000
+
+    Commit save server
+
+[33mcommit 05d85006e69e1d176da78f2a223cdf3ea21904b6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 1 19:57:14 2024 +0200
+
+    Prevent user to enter a new input when AI is writing in Answer
+
+[33mcommit 954c84aac1e49badf08c5f3e908d082209575d83[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 1 19:49:57 2024 +0200
+
+    Prevent user to enter a new input when AI is writing in New
+
+[33mcommit 309010955a79326a0e209ad5bfe9edd5e8e06bdf[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 1 19:05:32 2024 +0200
+
+    Fix pop-up not appearing when wront email input in New and Anwser
+
+[33mcommit 9996d74d8c396ee72278ec7970c8e1f659fba365[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 1 17:45:07 2024 +0200
+
+    Fix no username bug in New and Answer when adding an email to recipients
+
+[33mcommit adbbc2e14db71f2c8d8b5c6dc6f2728bc9281674[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 1 16:39:11 2024 +0200
+
+    Fix old common bugs on New in Anwser
+
+[33mcommit efa89845d98b6447aa92f5844ade56f8985f310c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Mar 1 16:36:16 2024 +0200
+
+    Fix visual UI bug when pressing ENTER and adding a recipient in New
+
+[33mcommit 5cb94d8316dab377519ee98154dcc0599ca7d580[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 29 16:58:55 2024 +0200
+
+    Change AI message in New
+
+[33mcommit c968635d264a5254545cabaf19f078ce3fbe0aec[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 29 16:21:28 2024 +0200
+
+    Fix auto-counting nb unread emails in Home
+
+[33mcommit 61bdc8c1fa63c979e065f2d4d4614eed973d510f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 29 08:48:06 2024 +0200
+
+    Move and sort function that categorize and summarize emails
+
+[33mcommit 0317308532f3e2e4695fd492605bd98af5bb93b2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 19:55:32 2024 +0200
+
+    Fix and Test pop-ups in Settings
+
+[33mcommit 144d7a702332b60ffa10cccec92bce391125cf8c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 06:22:16 2024 +0200
+
+    Fix pop-up disappearing in New
+
+[33mcommit f4828c99f668e72dc88682b4a869454fa2939463[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 05:57:43 2024 +0200
+
+    Fix pop-up disappearing in Home
+
+[33mcommit 91903e96b85a056e5f0456b338d9f7610930bac2[m
+Merge: 650aeb98 b762a324
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 05:29:02 2024 +0200
+
+    Merge branch 'main-dev' of https://github.com/Teh45/MailAssistant into main-dev
+
+[33mcommit 650aeb98aff858980be7abbb60a3706e70df838b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 05:06:12 2024 +0200
+
+    Fix randomly closing pop-ups
+
+[33mcommit b762a32433b12c701c03f39fbb0696a008598390[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 05:06:12 2024 +0200
+
+    Fix randomly closing pop-ups
+
+[33mcommit d93b27f749a79899484187f8871d84f21a0263b2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 04:09:24 2024 +0200
+
+    Create clean test popup in UserLogin
+
+[33mcommit dbea3ccb0e4bea6bddaffd1081f2196279cb206a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 02:20:05 2024 +0200
+
+    Add Hide/Show password button in UserLogin
+
+[33mcommit 421a2b08f7cfa93b0b30f64b868cd740e09b0558[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 27 02:14:38 2024 +0200
+
+    Add Hide/Show password button in SignUp
+
+[33mcommit f2ddf760d679e065c4cdab902d9a063c0fc7bbb0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 26 22:31:16 2024 +0200
+
+    Fix TailWinds warning Linter
+
+[33mcommit a7c6c13284b66f64eea5011a9b968279eb8203a7[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 26 22:23:04 2024 +0200
+
+    Remove import warning Linter Vue
+
+[33mcommit dac080865a6f46e167198fc740f5075d8e66f365[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 26 21:32:25 2024 +0200
+
+    Add clean python env with requirements
+
+[33mcommit d0a336ac68ddde2a1fbb9ebb2df72e30005b501a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 26 17:46:24 2024 +0200
+
+    Fix user choice when conflicts email in New
+
+[33mcommit 40be52fc2ead9e5a9ec6ebc4b424b9c8f65873f7[m[33m ([m[1;31morigin/English_version[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Feb 20 11:15:44 2024 +0100
+
+    Fixed correct_mail_language_mistakes in gpt_3_5_turbo.py
+
+[33mcommit 15d25a9a19e4adcfff7e6b86614ece671ce1ed5f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 20 07:35:40 2024 +0200
+
+    Link Ctrl + K in Rules
+
+[33mcommit 86e98e75687634462a0c27637a19b1b289dbffdc[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 20 07:31:15 2024 +0200
+
+    Link default Ctrl + keys in New
+
+[33mcommit a7082213ce592db5a652a8d6de643a4a1f99b551[m
+Merge: 3a11018c 13e29d91
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Feb 20 00:27:02 2024 +0100
+
+    Merge branch 'main' of https://github.com/Teh45/MailAssistant into main
+
+[33mcommit 3a11018c70fe7170d424c8eefc3476f9079a2fcf[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Feb 20 00:24:09 2024 +0100
+
+    Created a global URL in Vue
+
+[33mcommit 13e29d9126927a4237b71a8e67bd3c72946ffa6e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 19 22:15:58 2024 +0200
+
+    Link TAB with switching section in Settings
+
+[33mcommit aa55e1f7b2f88c9cde799c0774fac3b634953844[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 19 22:07:11 2024 +0200
+
+    Link SUPPR with modals
+
+[33mcommit 4acd908db13222d5d4b1e19e01a19e731fe7e079[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 19 21:56:10 2024 +0200
+
+    Link ESCAPE + ENTER with modals
+
+[33mcommit 0cdcaa554dda9494ea031fcc3369c9d33a2c7dc4[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Feb 19 18:16:14 2024 +0100
+
+    Fixed AI prompt to find recipiers
+
+[33mcommit 27ae5ca15de26af58592b6ea761f9f0c1ed813e0[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Feb 19 14:45:54 2024 +0100
+
+    Fixed scrollbar in rule
+
+[33mcommit 05ed8cfca88584c0152f4c4a37f9244152e86f66[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Feb 19 14:03:05 2024 +0100
+
+    Coded Searchbar in rule
+
+[33mcommit 5920863dcfe39e4d8f52ab3b484303ab7b0cf033[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Feb 19 00:11:38 2024 +0100
+
+    Fixed rule update and creation from Home
+
+[33mcommit cdd92398a843e06da857c972acf4db114bf3e941[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Feb 18 23:06:57 2024 +0100
+
+    Fixed icon settings page
+
+[33mcommit 5636853119775667b9a5718464c0f8ea1ed6cd1f[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Feb 18 16:58:49 2024 +0100
+
+    Fixed empty spaces answer mail => mail generation
+
+[33mcommit 4528c1a42bcc1c7ce0b81260df1a0440368e6723[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Feb 18 16:51:25 2024 +0100
+
+    Fixed answer mail => mail generation
+
+[33mcommit 4d5c2d8fee8806137546b50de7abf0f00ba82eb3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Feb 18 07:46:22 2024 +0200
+
+    Add manual contact insertion in Rules
+
+[33mcommit 52e6d1a921a75721340f81a345896a22cccd0f0f[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Feb 17 14:46:22 2024 +0100
+
+    Changing answer IA model generate response
+
+[33mcommit daa48e4ba1c4e6d0c5119710ca62b5d1e0df1ee0[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 17 16:18:35 2024 +0200
+
+    Migrate gpt_langchain_response in gpt_3_5_turbo
+
+[33mcommit 9517a9d899063f6a4945aa66cc72cfb040b25d19[m
+Merge: 434a39db d4569030
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 17 14:50:03 2024 +0200
+
+    Merge branch 'main' of https://github.com/Teh45/MailAssistant
+
+[33mcommit 434a39dbeb9292c9935c79752853fd7a4ac050f5[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 17 14:44:23 2024 +0200
+
+    Fix bgColor + account creation issue in Signup_part2
+
+[33mcommit d456903065eba6d740f6e3f9ee1d81d9e58bef89[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Feb 17 12:15:47 2024 +0100
+
+    Fix display read mail Home
+
+[33mcommit b43f0696e001874074f14709177cba7aa0f276aa[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Feb 17 11:57:44 2024 +0100
+
+    Fix display read mail Home
+
+[33mcommit 3f46d94847233a78034e1da0521dabb2658cf29b[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Feb 17 11:34:56 2024 +0100
+
+    Fixed Home read email
+
+[33mcommit e72d8376b5a21aee9627b6d80f5439e1634228f4[m
+Merge: 0914328d a20b8a75
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 17 10:09:45 2024 +0200
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 0914328da113e339972674c63003c4b71149d856[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 17 10:08:55 2024 +0200
+
+    Add pop-up missing fields in New
+
+[33mcommit a20b8a7545fc64ca4aaa4cf4baa5aff73d277e0b[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Feb 17 00:03:36 2024 +0100
+
+    Fixed Home page
+
+[33mcommit 85fd350bce04fc1a8228f595e2ed5922b3a53e74[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 15 21:44:45 2024 +0200
+
+    Finish pop-up errors Category components
+
+[33mcommit 781bf468ecb9713c2278eb86458d9c9c07f3d37d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 15 19:22:25 2024 +0200
+
+    Add ENTER key listener for adding recipients in NewV4
+
+[33mcommit 550f8bbc3e56e5f4b2a4d635540b0cd447b13056[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 15 19:03:37 2024 +0200
+
+    Fix visual bugs dropdown in NewV4
+
+[33mcommit a1c7ab7a93c5a4f346d1bcee8ae94161f2ac639e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Feb 14 18:23:02 2024 +0200
+
+    Add pop-up if category already exists
+
+[33mcommit 15ed891d207fa0ba4491f42860cd715886c899f6[m
+Merge: 6e18e59b 5c858352
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Feb 14 17:11:47 2024 +0200
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 6e18e59ba757073d4b9efe102a97b2fc88bde15d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Feb 14 17:11:27 2024 +0200
+
+    Add an automatic username if empty in SeeRule.vue
+
+[33mcommit 5c8583524cce0ef95a4a8bfa71b1b61d1aaffeb5[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Feb 14 13:55:00 2024 +0100
+
+    Fixing Home vue
+
+[33mcommit d4d2c12f65d075d0a58413be1b29a0b1a479acfa[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Feb 14 00:06:45 2024 +0100
+
+    Starting fixing Home
+
+[33mcommit 7fbc23860e23fe997bc9bfc6de3ea4900cd01ebb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Feb 13 14:56:29 2024 +0200
+
+    Fix visual bug about recipients in New.vue
+
+[33mcommit 5af0ea1f6d3be39f46ab87b823d968431fdd472f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 10 17:10:55 2024 +0200
+
+    Add getBackground on each client file
+
+[33mcommit c4cf9d49b04321bf6093f4c880a702d51341bc07[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 10 15:32:48 2024 +0200
+
+    Auto refresh username in settings without refreshing page
+
+[33mcommit 11ec679ef0cfb17699fbbede91809e2288f1b962[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Feb 10 14:56:14 2024 +0200
+
+    Add Show/Hide password in settings
+
+[33mcommit a52e04a7eaf8327c4dfa231ae073197831851edf[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 22:52:46 2024 +0200
+
+    Fix blue bg in Home + Add pop-up for categories
+
+[33mcommit 7b45a55633f2f57fe6489722f4fe67b844a62b5e[m
+Merge: a374cd41 2caa7a82
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 18:09:04 2024 +0200
+
+    Add pop-ups in HomeV15
+
+[33mcommit a374cd418562484a4a23d51d932514f1770546ae[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 17:50:00 2024 +0200
+
+    Pull from remote main
+
+[33mcommit 13d53449d3d2e48df97283f11c5bd687dd6b6862[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 17:46:41 2024 +0200
+
+    Add pop-ups in HomeV15
+
+[33mcommit 7a55bc31917b8305f77751824d3f86f73616de7c[m
+Merge: 74aaa15c b6458e8d
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 17:46:33 2024 +0200
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 2caa7a8296ddeeb7a0d44455b9a64f7f54c4e19b[m
+Merge: 2f211470 74aaa15c
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 17:42:37 2024 +0200
+
+    Add pop-ups in HomeV15
+
+[33mcommit 2f2114709d5a76ca70c8b46ac53e752c32372d17[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 17:41:19 2024 +0200
+
+    Add pop-ups in HomeV15
+
+[33mcommit b6458e8dc36eea4fc21be630eaf58b6471b376bb[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Fri Feb 9 14:14:49 2024 +0100
+
+    Pushed hover Fail
+
+[33mcommit 74aaa15cd85a216716725ea4b3b7c5d03defe722[m
+Merge: 9337a0e6 d41e0a90
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 10:37:55 2024 +0200
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 997c31b12e094c2f3a6dc571ecd74fd39911a0eb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 10:36:39 2024 +0200
+
+    Merge pop_up + login
+
+[33mcommit 56dd259342e99e2bc297fa5f1a51e294afab222f[m
+Merge: afdfb7a6 7232f50d
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 10:24:28 2024 +0200
+
+    Merge remote-tracking branch 'origin/main' into pop_up
+
+[33mcommit afdfb7a6db9528027d6d1fb0a284abdb5f1506e9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Feb 9 10:24:25 2024 +0200
+
+    Merge pop_up + login
+
+[33mcommit d41e0a90bc1ed0ebd9b4a6ba3f12a73b2c15aa38[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Feb 8 20:32:45 2024 +0100
+
+    Fixed mail spacing in NewMail generation by AI
+
+[33mcommit 9fc6f54063eec080d7749757295c2e12a1b4c15c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 8 16:24:17 2024 +0200
+
+    Fix account creation
+
+[33mcommit 7232f50df3deb2604980d67862c4b732c2a579dd[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Feb 8 11:15:17 2024 +0100
+
+    Fixed some details
+
+[33mcommit 9337a0e69c028524225e33025af1cd84df13659b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 8 10:08:50 2024 +0200
+
+    Fix import logo login page
+
+[33mcommit 045f6910a9854b123523a4e6502406a5fa0f4a72[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Feb 7 23:24:28 2024 +0200
+
+    Add pop-up in login
+
+[33mcommit 5f36c1b549137de7dfcb50cf4e525a91710f05ea[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Feb 7 00:28:21 2024 +0100
+
+    Fixed error in gpt_langchain response and in blocker rule
+
+[33mcommit 643886198c8e0b5a3124a0c06b5d30e4852200d4[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Feb 6 12:05:36 2024 +0100
+
+    Fixed Notification Component
+
+[33mcommit 380bca571459c90f26bf7c8586fb3a0111834484[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Feb 6 11:09:07 2024 +0100
+
+    Added LocalStorage for selectedTopic Category on Home
+
+[33mcommit b0c8af0fdcfd7d87591a471fe8d63174a011357f[m
+Merge: 5857a27c 6aaa3519
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 5 12:34:06 2024 +0200
+
+    Start pop-up component: dismiss not working
+
+[33mcommit 5857a27cbeadffd1d10fae8f331715d6cff792e9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Feb 5 09:55:43 2024 +0200
+
+    Start pop-up component: dismiss not working
+
+[33mcommit 6aaa3519cb11ab99305d84087b605ba26ab1e84e[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Feb 4 16:29:19 2024 +0100
+
+    Finished ReplyLater
+
+[33mcommit 44db1f9853c051d840fda4cd4ef89c0d96e57001[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Feb 3 00:21:33 2024 +0100
+
+    Fixed replyLater for Information
+
+[33mcommit 6192d955f359c1a0925b3085900fa710782377e6[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Fri Feb 2 11:57:53 2024 +0100
+
+    Fixing replyLater => NOT FINISHED YET
+
+[33mcommit 440b5902f6f3e1adfcab65ec340b9ef0c8cf793f[m
+Merge: 403910a3 dc82ff23
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 1 22:30:28 2024 +0300
+
+    Merge remote-tracking branch 'origin/main'
+
+[33mcommit 403910a3dec9c72ecc739f85d85811ea692c7c43[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Feb 1 22:29:23 2024 +0300
+
+    Add basic error templates for backend server
+
+[33mcommit dc82ff23505de3a65f8fd20f249117853cec2569[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Feb 1 15:23:55 2024 +0100
+
+    started to fixed replyLater => Not Finished
+
+[33mcommit 1f3222e999c73d4f697fde3a56ff67322d43d248[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Feb 1 10:40:22 2024 +0100
+
+    Fixed delete UX Home and Fixed empty information or important
+
+[33mcommit e201f417e886f076a29163be333bdc0aa0bc7287[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 31 23:07:58 2024 +0100
+
+    Fixed blockRule and delete email function Home
+
+[33mcommit 99c72e2b6884fda16ca58acfdc24028395c03349[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 31 22:37:33 2024 +0100
+
+    Fixed deleteEmail function Home
+
+[33mcommit 521e47c57af9acbc31e66a59b67a6b68e2ac9bbf[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 31 22:28:26 2024 +0100
+
+    Fixed processeced_email_bdd for testing
+
+[33mcommit 31a8111a05b391682b9b4884135bb146c174cfc2[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 31 17:23:05 2024 +0100
+
+    Fixed openAnswer uncommented usefull function
+
+[33mcommit fc7b70a27441e8b7556fd91d8535b0a9ba8c1e41[m
+Merge: c26691f7 a30330ec
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 31 18:37:34 2024 +0300
+
+    Add profile image in AnswerV1.vue
+
+[33mcommit c26691f7589bd7c7da4b19d7b3a65d387ac5b640[m
+Merge: 78cea0ce 0455027e
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 31 18:33:31 2024 +0300
+
+    Add profile image in AnswerV1.vue
+
+[33mcommit a30330ecda171727cbe8312cdd255db07a19d32e[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 31 15:33:05 2024 +0100
+
+    Fixed design menu clic on Useless or Read Email
+
+[33mcommit 0455027ef6638b5d92f2a1ded8aeb35dedba9ce5[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 31 15:15:35 2024 +0100
+
+    Fixed design hover Useless + red mail
+
+[33mcommit 78cea0ce16b05ed7d7f0523d52a91aca4843663e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 31 17:04:35 2024 +0300
+
+    Remove unused functions & urls
+
+[33mcommit 23b86b804420530322f11382538bc34c24b8f519[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 31 10:38:34 2024 +0100
+
+    Fixed design Home => Information and hover UX/UI
+
+[33mcommit 034200b63be46c229b6f416d3b790b08f2418035[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Jan 30 16:57:02 2024 +0100
+
+    Fixed Answer GPT functions
+
+[33mcommit 1af7876ff45eb599e0b0d61d65e2179e88233ac9[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Jan 30 16:21:08 2024 +0100
+
+    Fixed design Answer => same as New (icon + spacing)
+
+[33mcommit facfc2c68c1a8d35b2ecdd7f4d2110707d8661a8[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Jan 30 15:47:49 2024 +0100
+
+    Fixed Format Answer keywords generations
+
+[33mcommit 9049ff1ec7103308d053724bae5e54653a9651be[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Jan 29 23:48:28 2024 +0100
+
+    Fixed OpenAnswer() open Answer
+
+[33mcommit 77ed5db44523407832dec3b901902679dd05c711[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Jan 29 22:48:59 2024 +0100
+
+    Fixed displayed number mailed in each category Home
+
+[33mcommit 4aa983e02599dce00e098d41f286812d19a5ce31[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Jan 29 20:25:09 2024 +0100
+
+    Working on fixing processed_email_to_bdd to test
+
+[33mcommit fe5c2e7f529fdd3759264b00ba290c2dbd45ee6d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Mon Jan 29 10:52:15 2024 +0300
+
+    Relative url logo
+
+[33mcommit b64cbbf695dd4a6635f02c29ebec5f13d6b2cc7d[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Jan 28 00:54:48 2024 +0100
+
+    Fixed email None OpenAnswer()
+
+[33mcommit d0a12b40e775c9d6c4c083ba0f0f2c72e541485b[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Jan 28 00:42:53 2024 +0100
+
+    Added FetchWithToken Home => OpenAnswer function
+
+[33mcommit 90975f8cac8f572b8cfc7df924eb285607af9c55[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Jan 28 00:26:30 2024 +0100
+
+    Fixed create new rule frome mail home
+
+[33mcommit 17b069874bf3060b0869b7258fe551fff40c8070[m
+Merge: e6c1cd81 315405fc
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Jan 27 11:16:32 2024 +0100
+
+    Merge branch 'main' of https://github.com/Teh45/MailAssistant into main
+
+[33mcommit e6c1cd81f8daae6541ea12fc5239f58f7f357ec8[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Jan 27 11:07:21 2024 +0100
+
+    Updated Design and Responsivness Signup page
+
+[33mcommit 315405fca8ce5a5c528071d5901d3b4e04b3073c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Jan 27 01:50:08 2024 +0300
+
+    Add btn to home via logo
+
+[33mcommit dc75646ee0f910e84d8926305d7f1a0d6d5e3382[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Fri Jan 26 23:29:38 2024 +0100
+
+    Added the handling of several mail for the same contact in New
+
+[33mcommit e5eab1ef3cb6c409d5a85d6a030443d18f389bd7[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Jan 25 11:31:02 2024 +0100
+
+    Integrated test_prompt_gpt.py in the code and started handling result on client side
+
+[33mcommit c322dbdec1a549f838e85a9365c13a00f1d39e9c[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 24 22:31:55 2024 +0100
+
+    Changed color hover border empty elements and change the rule input color
+
+[33mcommit bc7df5fe6333ae6e8ba02d301ae367b1182f5267[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 24 22:17:26 2024 +0100
+
+    Fixed NewVue user input email or username
+
+[33mcommit 48e56e3b97af47c57f00ba354ab8745ab0de2d58[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 24 19:58:51 2024 +0300
+
+    Add function to update contacts if mail usefull
+
+[33mcommit 4095eaf8d13961d6b5ce4e9ec0b6fce821b9eb58[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 24 14:31:05 2024 +0100
+
+    Fixed merging and Rule page => Create and update a rule
+
+[33mcommit 4be48d890e81bb4afd108558d65c080d6178c291[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 24 10:18:06 2024 +0100
+
+    Added section Subscription and Data to the Settings window
+
+[33mcommit 9e4d4885f99756eb1862fd573069ee357588b995[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sun Jan 21 15:07:09 2024 +0100
+
+    Fixed Design category select and hover border
+
+[33mcommit f5ae5b4503de2138622fb2d1d1187935931340eb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Jan 21 14:54:15 2024 +0300
+
+    Set simple AI msgs in a function
+
+[33mcommit 48af382320236ebb012cc961133ecb7c0f034351[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Jan 21 14:21:24 2024 +0300
+
+    Fix img profile bug
+
+[33mcommit 5b748f192bc866101fb94e1bc8de1279981c7f72[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Jan 19 14:11:36 2024 +0100
+
+    Review signup: Save contacts in DB
+
+[33mcommit 936a5fd5d59bb143398583e38d754c3ea39020b6[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Jan 19 11:18:28 2024 +0100
+
+    Testing implemenation of algo to get emails
+
+[33mcommit 3c571854c93f3ccd05b12bddc04fbf09fbc46eb1[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Jan 18 18:06:37 2024 +0100
+
+    Start extract_recipients with algo
+
+[33mcommit 6911c7cffc87a55724691e1b14a332c09fd88662[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Jan 18 12:36:22 2024 +0100
+
+    Merge frontend + backend | Clean code for prod
+
+[33mcommit d30b16cae08431ad40f5299895413b5d2224284c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 17 12:45:34 2024 +0100
+
+    Import fetchWithToken in RulesV2 & HomeV15
+
+[33mcommit 03f828ad20e63e2608bddfe462132eb5ba4d5711[m
+Merge: 948b97d6 8726a3b5
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 17 12:41:12 2024 +0100
+
+    Merge branches prodv15 + auth_back
+
+[33mcommit 948b97d63d9882da11d256b2f4e2d407cd95bde4[m[33m ([m[1;31morigin/prodv15[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 17 12:10:51 2024 +0100
+
+    Commented static email data injection
+
+[33mcommit a475911c9c3d3d306cb4ea5eaceada96098435f3[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Jan 17 12:06:52 2024 +0100
+
+    Fixed rules, Update Rules, Fixed menu Home, Fixed read mail, useless mail, menu Home
+
+[33mcommit 8726a3b51f10260390037a0da233f4cbd7b382df[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Tue Jan 16 16:32:04 2024 +0100
+
+    Fix login with diff account bug + Enhance Prompts
+
+[33mcommit 33e991e325ac38ce251ee2db6ed82d95edd8cf93[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Jan 14 23:07:04 2024 +0100
+
+    Revized prompt engineering with gpt3.5
+
+[33mcommit fd2148da3ec2ca47551f99b14eb960c5921b1f46[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Jan 14 19:45:02 2024 +0100
+
+    Add fast prompt engineering to generate an email with GPT 3.5
+
+[33mcommit 15708b9a82a8ca82d9e2b471cc48f2bc15575190[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Jan 14 11:34:30 2024 +0100
+
+    Fix Outlook registration and debug license errors
+
+[33mcommit a98d8748df811d4b1190bebd94bee6cdc7bf34f3[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Jan 14 10:41:27 2024 +0100
+
+    Add algo to work in all browsers
+
+[33mcommit 46a28ca6dd4e33190d6d78c08b18ec3d6a3458b8[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Jan 13 18:36:21 2024 +0100
+
+    Split code into modules
+
+[33mcommit e088f9ed7f8511c16af1fa2f367cc0a0a6ef81cd[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Jan 13 11:17:33 2024 +0100
+
+    Add forwarding function to handles APIs requests
+
+[33mcommit 6a54c8fd475da8a73409330acf43df192095652d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Jan 13 10:31:51 2024 +0100
+
+    Add socialAPI tokens associated with user in DB
+
+[33mcommit 8c6cb54b431291d8bea6f9a7d47eb66862e5735d[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Jan 11 22:21:14 2024 +0100
+
+    Add Auth full backend
+
+[33mcommit af97ad69a3a833fc8b29dcf5efdcc614a215bb21[m[33m ([m[1;31morigin/prodv14[m[33m)[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Jan 7 11:20:52 2024 +0100
+
+    Add default pp in newMail page
+
+[33mcommit f11050e80b7f3bec4ec2cc788817fae468097bcb[m
+Merge: e9c28c04 a77351ce
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Jan 5 19:08:41 2024 +0100
+
+    Merge remote-tracking branch 'origin/prodv14' into prodv14
+
+[33mcommit e9c28c04acf42c0092bca14e8c914e91227f048e[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Jan 5 19:06:50 2024 +0100
+
+    Add same Graph API reqs as Google API reqs
+
+[33mcommit a77351ce50e2da0e1400dfe948ebab0eca18db91[m
+Author: Telory Frozy <135508142+teloryfrozy@users.noreply.github.com>
+Date:   Fri Jan 5 16:04:30 2024 +0100
+
+    Update .gitignore
+
+[33mcommit 43da5a71afa2dc4fc89d4a7a31889111d9433185[m
+Author: Telory Frozy <135508142+teloryfrozy@users.noreply.github.com>
+Date:   Fri Jan 5 16:03:59 2024 +0100
+
+    Update README.md
+
+[33mcommit 332a978c66f6d2d54024b6d8037346807ba6b7f9[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Jan 5 15:26:59 2024 +0100
+
+    Merge Categories & newMail
+
+[33mcommit 2703bc35362e5125ea4301a849c05af4cd0083bb[m
+Merge: 9d3f8245 84d0b138
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Jan 5 15:25:53 2024 +0100
+
+    Merge Categories & newMail
+
+[33mcommit 9d3f82455215a4b1b44eda1b3eab5706ef85e9a2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Fri Jan 5 14:09:31 2024 +0100
+
+    Tests requests Graph API
+
+[33mcommit 84d0b1383c970ac625ccbc8cfb34c47819ec62a0[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Fri Jan 5 09:39:04 2024 +0100
+
+    Added categories creation, update and delete on page Home
+
+[33mcommit f913b1c516816a05381b0bc584f67a0283d8396b[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Jan 4 18:08:38 2024 +0100
+
+    Improved contacts import in newMail
+
+[33mcommit 4638eb1d742b0b2fc4be1868a3510cb81262aa5a[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Thu Jan 4 17:19:25 2024 +0100
+
+    Add profile img in newMail
+
+[33mcommit 5a8700a612c58accbedb8269fe685b39ec2d7cc6[m[33m ([m[1;31morigin/prodv13JeanOpti[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Jan 4 11:33:59 2024 +0100
+
+    Added Modal Home to add new and edit categories
+
+[33mcommit 0c38e2831da24816106d3ad16a8dbc2c24bb9172[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 3 18:47:26 2024 +0100
+
+    Add contacts import in NewMail page
+
+[33mcommit b2220aebd5e4b6780a3a918d6e63723bc741c9cb[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 3 13:24:11 2024 +0100
+
+    Fix recipients addition in frontend
+
+[33mcommit 3b3ed5403b3ca0bf009adf3f25c643ee21eaa0e2[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 3 09:01:45 2024 +0100
+
+    Auto connection after registration
+
+[33mcommit e21c5d77088435d8e700cd1ed93e21ce0b9d9f74[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Wed Jan 3 08:47:27 2024 +0100
+
+    Add delete Account backend
+
+[33mcommit 4f0231f1e75e7e8675ecd315c5a3988b7e29e1bd[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Jan 2 11:12:16 2024 +0100
+
+    Finished backend auth JWT, Fixed r
+    efresh token, fixed bgColor
+
+[33mcommit c7f1024bf6b5deedd0e94d7d26ef0b6d1e166581[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Jan 2 11:08:02 2024 +0100
+
+    Finished backend auth JWT, Fixed refresh token, fixed bgColor
+
+[33mcommit 092939554695b607bd945f8c9f1d85d97ad1fad0[m[33m ([m[1;31morigin/back_HTTPOnly_back_auth[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Jan 1 12:44:07 2024 +0100
+
+    Added HTTP Only auth (only for Home15.vue)
+
+[33mcommit 5ea850bae7c875300df31261d949f687d9de238c[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Dec 31 10:35:19 2023 +0100
+
+    Start independent google auth
+
+[33mcommit 8fe53af07602b41b4b33d680af8a5c799abd3379[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sun Dec 31 00:17:39 2023 +0100
+
+    Add requirements.txt
+
+[33mcommit 4414f6e2f7963f8672a55d8ac9d3dfe2fb31c18f[m
+Author: teloryfrozy <raptor.frozy@gmail.com>
+Date:   Sat Dec 30 23:37:23 2023 +0100
+
+    Clean code
+
+[33mcommit 9453fa291a6b65165662aecddb8cf0c4a7cee81a[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Dec 30 19:19:15 2023 +0100
+
+    MAJ New mail & Answer Mail, added search mail and reply later pages
+
+[33mcommit 19dbffadc4a567574db0441a5c3e71fb50bec556[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Dec 28 14:34:15 2023 +0100
+
+    Design v2 new mail + notification
+
+[33mcommit 2d902f1ff6239ba9f383c6d7919cf86e5669f0a0[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Dec 26 23:53:13 2023 +0100
+
+    Fixed send new mail with and without files
+
+[33mcommit 720fc16fe646c0e927c8f23d74ce70fe637d8f48[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Dec 25 20:22:24 2023 +0100
+
+    Finished NewMail page
+
+[33mcommit 21a1f1cb838f962351cf373532ed01627e0d105c[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Dec 5 11:23:52 2023 +0100
+
+    New mail => AI destinaries
+
+[33mcommit 372b66f951df4dab19b5747e69a1233a986cf670[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Nov 30 23:01:16 2023 +0100
+
+    Code the CC and CCI button in new mail
+
+[33mcommit 6fc0f0d749d8cb0115561cb0d8b2ccd18f28f28a[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Nov 25 11:05:52 2023 +0100
+
+    Finished part 1 rules page
+
+[33mcommit b086a30c2274897a7ea3ec445f05d22c5d4eda35[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Nov 22 16:30:27 2023 +0100
+
+    Finished settings, fixed v1 fetch rules
+
+[33mcommit a14d5bcd55acdc806af5cfe2b493b8e08b9b4002[m[33m ([m[1;31morigin/prodv7[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Nov 16 00:07:22 2023 +0100
+
+    Fixed read, reply and empty Home15, added Answer v1, fixed Settings V1 nav
+
+[33mcommit f721d3b2e3a40a0f97bcb08dc7f83fe6b3c20c87[m[33m ([m[1;31morigin/prodv6[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Oct 30 22:22:29 2023 +0100
+
+    Fixed the signup categories problem
+
+[33mcommit 4d96da788bbb9d4fa7dbf18cf88598b342921d08[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Oct 30 18:37:01 2023 +0100
+
+    UPDATE link to the code and finish the Auth with Google
+
+[33mcommit a70d11475f783dac771ddc67dc851b084d38dfeb[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Oct 30 11:43:12 2023 +0100
+
+    Correct Authorization with Google, linked the menu, Update the design responsive
+
+[33mcommit dacf024e273bade2f2bde0474a5a59a3eec6fa40[m[33m ([m[1;31morigin/prodv5[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Oct 17 23:30:32 2023 +0200
+
+    Step 3 SignUp form with the creation of the categories
+
+[33mcommit bf72f1865705635fe6e687700ea377f7fd655f9c[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Oct 17 17:02:59 2023 +0200
+
+    Update Form SignUp
+
+[33mcommit b8ea7a5a8e8aad6bbd395bc112f2183b11232081[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Tue Oct 17 15:21:52 2023 +0200
+
+    Fixed Google Login
+
+[33mcommit 588052c1bff77ae235ca800efe4a4e351eb502b8[m[33m ([m[1;31morigin/prodv4[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Oct 12 23:41:23 2023 +0200
+
+    Trying to fix API Google
+
+[33mcommit 0c03b56c7286a46524907165296a16eb63834970[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Oct 12 08:35:11 2023 +0200
+
+    Trying to do Google Social co with vue3
+    -login-google
+
+[33mcommit add7ec51a3c979e5e5f7d83bf2f754865ba017b7[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Wed Oct 11 08:14:33 2023 +0200
+
+    Trying to fix OAuth
+
+[33mcommit f0be10ceb4939a2c204564940d50ae290f6ee2e4[m[33m ([m[1;31morigin/prodv3[m[33m)[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Sat Oct 7 17:09:42 2023 +0200
+
+    Front v1f finished
+
+[33mcommit f38f8f8d8d5de0a79ddb13131528226ad25be944[m[33m ([m[1;31morigin/prodv2[m[33m)[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Fri Sep 29 18:48:48 2023 +0200
+
+    Important/Information mail shown
+
+[33mcommit 9913dda8afe022360dac93665ef7a4975b84b4c7[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Thu Sep 28 10:44:37 2023 +0200
+
+    Received email saved to database (Email,Sender)
+
+[33mcommit beda2565718ee6a10d53cc2df06b40d91bd3c5c3[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Tue Sep 26 16:32:19 2023 +0200
+
+    GET Categories from database
+
+[33mcommit 67759f13840517fe05da38e18ba9438fe406e627[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Mon Sep 25 00:54:59 2023 +0200
+
+    Setup Vue and adding Antoine Code (backend)
+
+[33mcommit ea0c4711b04bb6b8884169e1e948684c174383b9[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Sep 18 15:10:37 2023 +0200
+
+    models.py update
+
+[33mcommit 0f70009e8947c1771b4b1fc50c115505c40d3109[m
+Author: Teh45 <theohubert3@gmx.com>
+Date:   Thu Sep 14 00:18:19 2023 +0200
+
+    Setup Backend API Django and Frontend VueJS
+
+[33mcommit 9dabe089db04d22a9fa5698bb1e1b82b99959d44[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Tue Sep 12 11:48:50 2023 +0200
+
+    no redirection microsoft_api
+
+[33mcommit b65c5d33282cbc772f8e85993e23bc87072467d4[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Tue Sep 12 11:39:36 2023 +0200
+
+    token refresh error handling
+
+[33mcommit a3b83904c64556750cf3de23c8b068ddfb39aee1[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Sep 11 15:22:33 2023 +0200
+
+    runtime.txt
+
+[33mcommit 20fa314c55a3ee078535ead217896a32ecd3dd57[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Sep 11 14:57:40 2023 +0200
+
+    requirements.txt update 2
+
+[33mcommit 788e614220c6063261a3dc61194942080b0c89ec[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Sep 11 14:37:40 2023 +0200
+
+    requirements.txt update
+
+[33mcommit af0f855918305c167ed091fbae9983d8974d818d[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Sep 11 09:34:38 2023 +0200
+
+    microsoft authentication v0.5
+
+[33mcommit c4261ea923a2db1291080842d33fe45f425fba03[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Sat Sep 2 10:00:46 2023 +0200
+
+    recherche mail améliorée
+
+[33mcommit 9eab07c78a333f90c7abc90e7e6acea9ad7bdf77[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Wed Aug 30 13:24:29 2023 +0200
+
+    Module API
+
+[33mcommit 66a5b51244e64f3480f92a22d8f9dae200fbdbc1[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Aug 28 13:11:53 2023 +0200
+
+    Importance Categorization v2
+
+[33mcommit 226d203359bbd7d865e235c366f46b1e30fbdd5f[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Aug 28 09:36:35 2023 +0200
+
+    Short sentence summary
+
+[33mcommit 2cbb7e2a1777b946a6b45d17e9e23c62d70235df[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Thu Aug 24 09:34:24 2023 +0200
+
+    Research bar: getting email (user, contacts)
+
+[33mcommit 619987b15cb94d2e2164fe384ec8608e87842255[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Tue Aug 22 11:37:47 2023 +0200
+
+    Research tab started, email formatting updated, MongoDB created
+
+[33mcommit 6dabdc2984f095df1b0cd98d0551804d1ff56403[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Fri Aug 18 12:13:10 2023 +0200
+
+    OpenAI Response based on answer categories
+
+[33mcommit 6c1ad2dd9135a7364a42f1f0ea109af405e3b871[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Thu Aug 17 12:06:49 2023 +0200
+
+    categorisation
+
+[33mcommit be5ad20dd8c46667c9933c3993837563f5b38b8f[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Thu Aug 17 10:37:52 2023 +0200
+
+    ChatGPT update
+
+[33mcommit e3c652587210c18ceeb215c7259fdbeda78fe650[m
+Author: Antoine Osmont <shost@MacBook-Pro-de-Antoine.local>
+Date:   Mon Aug 14 11:35:05 2023 +0200
+
+    Création

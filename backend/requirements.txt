@@ -2,6 +2,7 @@ pillow
 groq
 stripe
 channels
+daphne
 tiktoken
 django-crontab
 python-json-logger

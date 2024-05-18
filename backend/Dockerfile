@@ -1,3 +1,5 @@
+# ChatGPT: add a clean documentation as a senior Python developer with 20 years of experience with Docker
+
 # Utilisez l'image officielle Python comme image parente
 FROM python:3.11
 
@@ -19,6 +21,9 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Set the entrypoint script
 ENTRYPOINT ["entrypoint.sh"]
+
+EXPOSE 8000
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "MailAssistant_project.asgi:application"]
 
 # Ajouter les taches planifiées
 CMD ["python", "manage.py", "crontab", "add"]

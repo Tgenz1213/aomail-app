@@ -5,6 +5,7 @@ Werkzeug
 channels
 Twisted[http2,tls]
 daphne
+uvicorn
 tiktoken
 django-crontab
 python-json-logger

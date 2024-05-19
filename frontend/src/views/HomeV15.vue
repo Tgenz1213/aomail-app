@@ -1537,11 +1537,11 @@ onMounted(async () => {
                     animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
                 }
             }
-            // fetchEmails();
+            fetchEmails();
         } catch (error) {
             console.log("An error occured", error)
         }
-    }, 5000);
+    }, 60000);
 });
 
 function handleKeyDown(event) {

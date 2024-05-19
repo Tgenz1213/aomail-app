@@ -15,6 +15,7 @@ services:
   backend:
     build: ./backend
     environment:
+      #- DJANGO_SETTINGS_MODULE = 'MailAssistant_project.settings'
       - DATABASE_URL=postgres://django_admin:admin@2@db:5432/mailassistantdb
       - ENV=${ENV}
       - TOPIC_NAME=${TOPIC_NAME}
@@ -23,15 +24,16 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-    #command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-    command: ["python", "manage.py", "runserver_plus", "0.0.0.0:8000", "--cert-file", "/etc/ssl/certs/cert.pem", "--key-file", "/etc/ssl/private/key.pem"]
     # command:
     #   [
     #     "daphne",
     #     "-e",
     #     "ssl:443:privateKey=/etc/ssl/private/key.pem:certKey=/etc/ssl/certs/cert.pem",
-    #     "MailAssistant_project.asgi:application"
+    #     "MailAssistant_project.asgi:application",
+    #     "--verbosity", "2"
     #   ]
+    #command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["python", "manage.py", "runserver_plus", "0.0.0.0:8000", "--cert-file", "/etc/ssl/certs/cert.pem", "--key-file", "/etc/ssl/private/key.pem"]
     depends_on:
       - db
 

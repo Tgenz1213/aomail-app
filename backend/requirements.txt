@@ -1,8 +1,9 @@
 pillow
 groq
-Werkzeug
 stripe
+Werkzeug
 channels
+Twisted[http2,tls]
 daphne
 tiktoken
 django-crontab

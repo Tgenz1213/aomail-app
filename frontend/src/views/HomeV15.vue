@@ -1485,7 +1485,7 @@ let isModalWarningCategoryOpen = ref(false)
 let nbRulesAssociated = ref(null);
 const happy_icon = ref(require('@/assets/happy.png'));
 
-
+console.log("The url of the websocket is:", 'wss://' + window.location.host + '/ws/aomail/');
 const emailSocket = new WebSocket('wss://' + window.location.host + '/ws/aomail/');
 console.log('Initial WebSocket ready state:', emailSocket.readyState);
 
@@ -2304,7 +2304,7 @@ function totalEmailsInCategoryNotRead(categoryName) {
 }
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-    console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)
+    //console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)
     emails.value = emailData;
 }
 async function fetchData() {

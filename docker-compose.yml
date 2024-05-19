@@ -2,8 +2,7 @@ version: '3.8'
 
 services:
   db:
-    #image: postgres:13
-    image: postgres:latest
+    image: postgres:13
     environment:
       POSTGRES_USER: django_admin
       POSTGRES_PASSWORD: admin@2
@@ -25,18 +24,14 @@ services:
       - ./backend:/app
       - /app/node_modules
     #command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-    #command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "MailAssistant_project.asgi:application"]
-    command:
-      [
-        "python",
-        "manage.py",
-        "runserver_plus",
-        "0.0.0.0:8000",
-        "--cert-file",
-        "/etc/ssl/certs/cert.pem",
-        "--key-file",
-        "/etc/ssl/private/key.pem"
-      ]
+    command: ["python", "manage.py", "runserver_plus", "0.0.0.0:8000", "--cert-file", "/etc/ssl/certs/cert.pem", "--key-file", "/etc/ssl/private/key.pem"]
+    # command:
+    #   [
+    #     "daphne",
+    #     "-e",
+    #     "ssl:443:privateKey=/etc/ssl/private/key.pem:certKey=/etc/ssl/certs/cert.pem",
+    #     "MailAssistant_project.asgi:application"
+    #   ]
     depends_on:
       - db
 

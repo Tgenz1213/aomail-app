@@ -23,12 +23,12 @@ django.setup()
 # Define ASGI application protocol type routes handling HTTP and WebSocket requests.
 application = ProtocolTypeRouter(
     {
-        "https": get_asgi_application(),
         "http": get_asgi_application(),
+        "https": get_asgi_application(),
         "websocket": AuthMiddlewareStack(
             URLRouter(
                 [
-                    re_path(r"^ws/aomail/$", ClientWebsocket.as_asgi()),
+                    re_path(r"ws/aomail/$", ClientWebsocket.as_asgi()),
                 ]
             )
         ),

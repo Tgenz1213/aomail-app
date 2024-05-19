@@ -7,22 +7,25 @@ import json
 
 
 class ClientWebsocket(AsyncWebsocketConsumer):
+
     async def connect(self):
-        # Automatically accept all incoming connections
+        print("New WebSocket connection initiated")
         await self.accept()
+        print("======WebSocket connection established======")  # Server-side print
 
-    async def disconnect(self, close_code):
-        # No action needed on disconnect
-        pass
-
-    async def receive(self, text_data=None, bytes_data=None):
-        # Handle incoming messages from the client if necessary
-        pass
-
-    async def send_email_notification(self):
-        # Send a message to this WebSocket
+        # Send a message to the client to log in the JavaScript console
         await self.send(
             text_data=json.dumps(
-                {"message": "email.received"}
+                {
+                    "type": "console.log",
+                    "message": "WebSocket connection established on client side",
+                }
             )
         )
+
+    async def disconnect(self, close_code):
+        print(f"WebSocket disconnected: {close_code}")
+
+    async def send_email_notification(self, json_data):
+        # Send the email data to the client
+        await self.send(text_data=json.dumps({"type": "email_data", "data": json_data}))

@@ -1142,11 +1142,50 @@ def receive_mail_notifications(request):
             def process_email():
                 for i in range(MAX_RETRIES):
                     result = email_to_db(social_api.user, services, social_api)
-                    if result:
-                        channel_layer = get_channel_layer()
-                        async_to_sync(channel_layer.send)(
-                            {"type": "email.notification"},
-                        )
+
+                    if isinstance(result, Email):
+                        # email_data = {
+                        #     "id": result.id,
+                        #     "id_provider": result.provider_id,
+                        #     "email": result.sender.email,
+                        #     "subject": result.subject,
+                        #     "name": result.sender.name,
+                        #     "description": result.email_short_summary,
+                        #     "html_content": result.html_content,
+                        #     "details": [
+                        #         {"id": bp.id, "text": bp.content}
+                        #         for bp in result.bulletpoint_set.all()
+                        #     ],
+                        #     "cc": [
+                        #         {"email": cc.email, "name": cc.name}
+                        #         for cc in result.cc_senders.all()
+                        #     ],
+                        #     "bcc": [
+                        #         {"email": bcc.email, "name": bcc.name}
+                        #         for bcc in result.bcc_senders.all()
+                        #     ],
+                        #     "read": result.read,
+                        #     "rule": result.has_rule,
+                        #     "rule_id": result.rule_id,
+                        #     "answer_later": result.answer_later,
+                        #     "web_link": result.web_link,
+                        #     "has_attachments": result.has_attachments,
+                        # }
+
+                        # formatted_data = defaultdict(lambda: defaultdict(list))
+                        # formatted_data[result.category.name][result.priority].append(
+                        #     email_data
+                        # )
+                        # # Ensuring all priorities are present for each category
+                        # all_priorities = {"Important", "Information", "Useless"}
+                        # for category in formatted_data:
+                        #     for priority in all_priorities:
+                        #         formatted_data[category].setdefault(priority, [])
+                        # print("---------DEBUG formatted_data---------")
+                        # print(formatted_data)
+                        # print("--------------------------------------")
+
+                        # TODO: send notification to client
                         break
                     else:
                         LOGGER.critical(
@@ -1221,7 +1260,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
-            return False
+            return "No decoded data"
 
         # print("THIS AREA --------------------------------------------------------|")
 
@@ -1349,7 +1388,7 @@ def email_to_db(user, services, social_api: SocialAPI):
                 for point in summary_list:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
-            return True
+            return email_entry
 
         except Exception as e:
             LOGGER.error(

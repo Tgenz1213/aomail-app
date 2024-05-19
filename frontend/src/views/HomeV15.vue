@@ -75,8 +75,8 @@
         </div>
     </div>-->
         <div class="flex flex-col justify-center items-center h-screen" :class="bgColor"><!-- DO NOT DELETE : 'bg-gray-900'-->
-            <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
-                <div class="col-span-1 2xl:col-span-1">
+            <div class="flex h-full w-full">
+                <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                     <div class="2xl:hidden h-full">
                         <navbar></navbar>
                     </div>
@@ -84,42 +84,46 @@
                         <navbar2></navbar2>
                     </div>
                 </div>
-                <div class="col-span-10 2xl:col-span-6">
+                <div class="w-[325px] 2xl:w-[450px] bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
+                    <div class="flex flex-col h-full w-full">
+                        <div class="w-full px-4 sm:px-6 lg:px-6">
+                            <!-- Assistant Up -->
+                            <div class="flex pt-6 pb-6">
+                                <div class="mr-4 flex-shrink-0 self-center">
+                                    <!--
+                                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-rose-400 via-amber-400 to-rose-200">
+                                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                                </span>-->
+                                <!--
+                                    <span
+                                        class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+                                        <img :src="happy_icon" alt="New Emails Icon"
+                                            class="max-w-full max-h-full rounded-full">
+                                    </span>-->
+                                    <span
+                                        class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                            class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="mt-1" id="animated-text" ref="animatedText"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1">
                     <!-- <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> WORKS FOR 1920*1200px screens-->
-                    <div class="flex flex-col xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-                        <main class="rounded-t-xl bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
-                            <div class="w-full px-4 sm:px-6 lg:px-6">
+                    <div class="flex flex-col h-full w-full">
+                        <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
+                            <div class="w-full py-2 px-6 sm:px-6 lg:px-6">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
-                                    <div class="col-span-3 h-full justify-center">
-                                        <!-- Assistant Up -->
-                                        <div class="flex pt-6 pb-6">
-                                            <div class="mr-4 flex-shrink-0 self-center">
-                                                <!--
-                                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-rose-400 via-amber-400 to-rose-200">
-                                                <span class="text-lg font-medium leading-none text-white">AO</span>
-                                            </span>-->
-                                            <!--
-                                                <span
-                                                    class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-                                                    <img :src="happy_icon" alt="New Emails Icon"
-                                                        class="max-w-full max-h-full rounded-full">
-                                                </span>-->
-                                                <span
-                                                    class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                        class="w-6 h-6">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <p class="mt-1" id="animated-text" ref="animatedText"></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="pl-4 col-span-8 h-full flex items-center">
+                                    <div class="pl-4 col-span-11 h-full flex items-center">
                                         <div class="w-full flex items-center justify-center pb-5 pt-5">
                                             <div class="sm:hidden">
                                                 <label for="tabs" class="sr-only">Select a tab</label>
@@ -210,11 +214,11 @@
                             <p>En cours de dev</p>
                         </div>--><!-- DO NOT DELETE bg-opacity-90 -->
                         <div v-if="isEmptyTopic()"
-                            class="flex-1 rounded-b-xl bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+                            class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                             <!-- Content goes here -->
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div
-                                    class="flex flex-col justify-center items-center h-full mx-4 my-4 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    class="flex flex-col justify-center items-center h-full mx-4 my-4 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1" stroke="currentColor" class="mx-auto h-14 w-14 text-gray-400">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -225,9 +229,9 @@
                             </div>
                         </div>
                         <div v-else
-                            class="flex-1 rounded-b-xl bg-white bg-opacity-100 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar"
+                            class="flex-1 bg-white bg-opacity-100 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar"
                             ref="scrollableDiv">
-                            <ul role="list" class="flex flex-col w-full h-full rounded-xl">
+                            <ul role="list" class="flex mx-4 flex-col w-auto h-full rounded-xl"><!--DO NOT DELETE : old value reference : without mx-autout and w-[]-->
                                 <div class="pt-6">
                                     <!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"

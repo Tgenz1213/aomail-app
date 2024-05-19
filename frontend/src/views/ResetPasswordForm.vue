@@ -2,9 +2,9 @@
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="password-reset-form">
-        <h1>Réinitialisation du Mot de Passe</h1>
+        <h1>Réinitialisation du Mot de Passe CA NE MARCHE PAS ENCORE</h1>
         <p>Veuillez entrer votre adresse e-mail ci-dessous. Nous vous enverrons un lien pour réinitialiser votre mot de
-            passe.</p>
+            passe. => soit il faut utiliser les built-ins de Django. Soit il faut implémenter son propre système avec synchro DB/tokens + cron pr clear</p>
         <form @submit.prevent="resetPassword" class="form">
             <div class="form-group">
                 <label for="email">Adresse E-mail :</label>

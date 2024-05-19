@@ -583,7 +583,7 @@ def get_user_language(request: HttpRequest) -> Response:
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def set_language(request: HttpRequest) -> Response:
+def set_user_language(request: HttpRequest) -> Response:
     """
     Set the language for the authenticated user.
     """

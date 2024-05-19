@@ -636,7 +636,7 @@
                                                                 :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
                                                                 <span
                                                                     :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{
-                                                                    language.value }}</span>
+                                                                        language.value }}</span>
                                                                 <span v-if="selected"
                                                                     :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
                                                                     <CheckIcon class="h-5 w-5" aria-hidden="true" />
@@ -731,31 +731,55 @@ const intervalId = setInterval(checkAuthorizationCode, 1000);
 
 
 onMounted(() => {
-    // TODO: put this code inside a function
-    const storedLanguageKey = localStorage.getItem('language');
-    if (storedLanguageKey) {
-        const storedLanguage = languages.find(lang => lang.key === storedLanguageKey);
-        if (storedLanguage) {
-            languageSelected.value = storedLanguage;
-        }
-    } else {
-        // TODO: api call
-    }
-
     document.addEventListener("keydown", handleKeyDown);
     fetchEmailLinked();
     fetchUserData();
+    fetchUserLanguage();
+    // TODO: fetch ONLY if the var bgColor is empty
     getBackgroundColor();
 })
 
 
-function handleLanguageChange() {
-    // TODO: check if the language has been change (old value vs current value)
-    // if so
-    //localStorage.setItem('language', languageSelected.value.key);
-    
-    // Additional API call to update user preference can be placed here
-    console.log("Language selected:", languageSelected.value.key);
+async function handleLanguageChange(languageSelected) {
+    const newLanguageKey = languageSelected.value.key;
+    const currentLanguage = localStorage.getItem('language');
+
+    if (newLanguageKey === currentLanguage) {
+        return;
+    }
+    localStorage.setItem('language', newLanguageKey);
+
+    const requestOptions = {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        method: "POST",
+        body: JSON.stringify({ language: newLanguageKey })
+    };
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/set_language/`, requestOptions);
+
+        if ("error" in response) {
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle.value = 'Error get language';
+            notificationMessage.value = response.error;
+            displayPopup();
+        } else if (response.message == "Language updated successfully") {
+            // Show the pop-up
+            backgroundColor = 'bg-green-300';
+            notificationTitle.value = 'Succès!';
+            notificationMessage.value = 'Language updated successfully';
+            displayPopup();
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Error get language';
+        notificationMessage.value = error.message;
+        displayPopup();
+    }
 }
 
 async function openUnLinkModal(email) {
@@ -1064,6 +1088,44 @@ async function handleColorChange(newColor) {
         }
     } catch (error) {
         console.error("Error updating background", error);
+    }
+}
+
+async function fetchUserLanguage() {
+    // TODO: put this code in a function that we export on each vue file (as this must be in all onMounted of ALL vue files)       
+
+    const storedLanguageKey = localStorage.getItem('language');
+    if (storedLanguageKey) {
+        const storedLanguage = languages.find(lang => lang.key === storedLanguageKey);
+        if (storedLanguage) {
+            languageSelected.value = storedLanguage;
+        }
+    } else {
+        const requestOptions = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: "GET"
+        };
+        try {
+            const response = await fetchWithToken(`${API_BASE_URL}user/language/`, requestOptions);
+
+            if ("error" in response) {
+                // Show the pop-up
+                backgroundColor = 'bg-red-300';
+                notificationTitle.value = 'Error get language';
+                notificationMessage.value = response.error;
+                displayPopup();
+            } else if (response.language) {
+                languageSelected.value = response.language;
+            }
+        } catch (error) {
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle.value = 'Error get language';
+            notificationMessage.value = error.message;
+            displayPopup();
+        }
     }
 }
 

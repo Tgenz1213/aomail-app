@@ -1,5 +1,6 @@
 pillow
 groq
+Werkzeug
 stripe
 channels
 daphne

@@ -14,7 +14,7 @@ from django.core.asgi import get_asgi_application
 from django.urls import re_path
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
-from backend.MailAssistant_project.websocket import ClientWebsocket
+from .websocket import ClientWebsocket
 
 # Setting the default Django settings module for the 'asgi' application.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "MailAssistant_project.settings")
@@ -23,6 +23,7 @@ django.setup()
 # Define ASGI application protocol type routes handling HTTP and WebSocket requests.
 application = ProtocolTypeRouter(
     {
+        "https": get_asgi_application(),
         "http": get_asgi_application(),
         "websocket": AuthMiddlewareStack(
             URLRouter(

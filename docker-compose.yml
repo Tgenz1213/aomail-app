@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:13
+    #image: postgres:13
+    image: postgres:latest
     environment:
       POSTGRES_USER: django_admin
       POSTGRES_PASSWORD: admin@2
@@ -21,22 +22,34 @@ services:
     ports:
       - "${BACKEND_PORT}:8000"
     volumes:
-      - ./backend:/app 
-      - /app/node_modules 
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+      - ./backend:/app
+      - /app/node_modules
+    #command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    #command: ["daphne", "-b", "0.0.0.0", "-p", "8000", "MailAssistant_project.asgi:application"]
+    command:
+      [
+        "python",
+        "manage.py",
+        "runserver_plus",
+        "0.0.0.0:8000",
+        "--cert-file",
+        "/etc/ssl/certs/cert.pem",
+        "--key-file",
+        "/etc/ssl/private/key.pem"
+      ]
     depends_on:
       - db
 
   frontend:
     build: ./frontend
-    environment :
+    environment:
       - VUE_APP_ENV=${ENV}
     ports:
       - "${FRONTEND_PORT}:8080"
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: ["npm", "run", "serve"]
+    command: [ "npm", "run", "serve" ]
     depends_on:
       - backend
 

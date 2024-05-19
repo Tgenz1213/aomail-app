@@ -588,7 +588,7 @@ def set_user_language(request: HttpRequest) -> Response:
     Set the language for the authenticated user.
     """
     user = request.user
-    language: str = request.POST.get("language")
+    language: str = request.data.get("language")
 
     if not language:
         return Response(

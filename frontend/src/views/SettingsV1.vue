@@ -618,7 +618,7 @@
                                             <Listbox as="div" v-model="languageSelected" @click="handleLanguageChange">
                                                 <ListboxButton
                                                     class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
-                                                    <span class="block truncate">{{ languageSelected.value }}</span>
+                                                    <span class="block truncate">{{ languageDisplayed }}</span>
                                                     <span
                                                         class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                                         <ChevronUpDownIcon class="h-5 w-5 text-gray-400"
@@ -703,9 +703,8 @@ const languages = [
 ];
 
 
-// TODO: check the localStorage
-// if empty then API call user/get_language
-let languageSelected = ref(languages[0])
+let languageSelected = ref('');
+let languageDisplayed = ref('');
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -739,8 +738,7 @@ onMounted(() => {
     getBackgroundColor();
 })
 
-
-async function handleLanguageChange(languageSelected) {
+async function handleLanguageChange() {
     const newLanguageKey = languageSelected.value.key;
     const currentLanguage = localStorage.getItem('language');
 
@@ -748,11 +746,11 @@ async function handleLanguageChange(languageSelected) {
         return;
     }
     localStorage.setItem('language', newLanguageKey);
+    const storedLanguage = languages.find(lang => lang.key === newLanguageKey);
+    languageDisplayed.value = storedLanguage.value;
 
     const requestOptions = {
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         method: "POST",
         body: JSON.stringify({ language: newLanguageKey })
     };
@@ -1090,15 +1088,14 @@ async function handleColorChange(newColor) {
         console.error("Error updating background", error);
     }
 }
-
 async function fetchUserLanguage() {
-    // TODO: put this code in a function that we export on each vue file (as this must be in all onMounted of ALL vue files)       
-
     const storedLanguageKey = localStorage.getItem('language');
+
     if (storedLanguageKey) {
         const storedLanguage = languages.find(lang => lang.key === storedLanguageKey);
         if (storedLanguage) {
             languageSelected.value = storedLanguage;
+            languageDisplayed.value = storedLanguage.value;
         }
     } else {
         const requestOptions = {
@@ -1107,6 +1104,7 @@ async function fetchUserLanguage() {
             },
             method: "GET"
         };
+
         try {
             const response = await fetchWithToken(`${API_BASE_URL}user/language/`, requestOptions);
 

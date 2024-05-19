@@ -308,6 +308,7 @@ def save_user_data(
     theme,
     color,
     categories,
+    language="french",
 ):
     """Store user creds and settings in DB"""
     try:
@@ -345,6 +346,8 @@ def save_user_data(
             description="",
             user=user,
         )
+
+        Language.objects.create(user=user, language=language)
 
         return {"message": "User data saved successfully"}
 
@@ -573,16 +576,9 @@ def get_user_language(request: HttpRequest) -> Response:
         language = Language.objects.get(user=user).language
         return Response({"language": language}, status=status.HTTP_200_OK)
 
-    except Language.DoesNotExist:
-        LOGGER.error("Language setting not found for the user.")
-        return Response(
-            {"error": "Language setting not found."}, status=status.HTTP_404_NOT_FOUND
-        )
     except Exception as e:
         LOGGER.error(f"Unexpected error in get_user_language: {str(e)}")
-        return Response(
-            {"error": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -613,9 +609,7 @@ def set_language(request: HttpRequest) -> Response:
 
     except Exception as e:
         LOGGER.error(f"Error in set_language: {str(e)}")
-        return Response(
-            {"error": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ######################## CATEGORIES ########################

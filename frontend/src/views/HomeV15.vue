@@ -830,7 +830,7 @@
                                                                             class="cursor-pointer">Vous avez reçu
                                                                             <span
                                                                                 class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                                                                                {{ emails[selectedTopic]['Useless'].filter(e => !e.answer_later).length }}
+                                                                                {{ emails[selectedTopic]['Useless'].filter(e=> !e.answer_later).length }}
                                                                             </span>
                                                                             <span
                                                                                 v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
@@ -1549,21 +1549,7 @@ onMounted(async () => {
 
     setInterval(async () => {
         try {
-            const newTotalUnread = getNumberUnreadMail(emails.value);
-
-            if (initialAnimationDone.value === false) {
-                animateText(getTextNumberUnreadMail(newTotalUnread));
-                totalUnread.value = newTotalUnread;
-                initialAnimationDone.value = true;
-            } else if (newTotalUnread !== totalUnread.value) {
-                totalUnread.value = newTotalUnread;
-
-                if (totalUnread.value > 0 && totalUnread.value <= 2) {
-                    animateText(getTextNumberUnreadMail(totalUnread.value));
-                } else {
-                    animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
-                }
-            }
+            updateNumberUnreadEmails();
             fetchEmails();
         } catch (error) {
             console.log("An error occured", error)
@@ -1585,7 +1571,6 @@ function getNumberUnreadMail(emailData) {
             const emailsInSubcategory = emailData[category][subcategory];
             if (subcategory != 'Useless') {
                 for (const email of emailsInSubcategory) {
-                    console.log(emailsInSubcategory)
                     if (!email.read && !email.answer_later) {
                         totalUnread++;
                     }
@@ -1743,6 +1728,7 @@ function updateEmailReadStatus(emailId) {
                     if (emailIndex !== -1) {
                         // Email found, update its read status
                         emails.value[category][subcategory][emailIndex].read = true;
+                        updateNumberUnreadEmails();
                         return; // Stop the function as we've found and updated the email
                     }
                 }
@@ -1759,6 +1745,7 @@ function updateEmailUnreadStatus(emailId) {
                     const emailIndex = emails.value[category][subcategory].findIndex(email => email.id === emailId);
                     if (emailIndex !== -1) {
                         emails.value[category][subcategory][emailIndex].read = false;
+                        updateNumberUnreadEmails();
                         return;
                     }
                 }
@@ -1767,8 +1754,25 @@ function updateEmailUnreadStatus(emailId) {
     }
 }
 
+function updateNumberUnreadEmails() {
+    const newTotalUnread = getNumberUnreadMail(emails.value);
+
+    if (initialAnimationDone.value === false) {
+        animateText(getTextNumberUnreadMail(newTotalUnread));
+        totalUnread.value = newTotalUnread;
+        initialAnimationDone.value = true;
+    } else if (newTotalUnread !== totalUnread.value) {
+        totalUnread.value = newTotalUnread;
+
+        if (totalUnread.value > 0 && totalUnread.value <= 2) {
+            animateText(getTextNumberUnreadMail(totalUnread.value));
+        } else {
+            animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value);
+        }
+    }
+}
+
 async function transferEmail(email) {
-    console.log(email.id_provider)
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
     try {

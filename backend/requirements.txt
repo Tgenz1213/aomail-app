@@ -2,7 +2,6 @@ pillow
 groq
 stripe
 channels
-tiktoken
 django-crontab
 python-json-logger
 #llmlingua

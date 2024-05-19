@@ -38,6 +38,7 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
     GOOGLE_PROVIDER,
+    LANGUAGES,
     MAX_RETRIES,
     MICROSOFT_PROVIDER,
     STRIPE_PAYMENT_FAILED_URL,
@@ -48,6 +49,7 @@ from MailAssistant.constants import (
 from MailAssistant import library
 from .models import (
     Category,
+    Language,
     MicrosoftListener,
     SocialAPI,
     Email,
@@ -558,15 +560,72 @@ def refresh_token(request):
         return Response({"error": str(e)}, status=400)
 
 
+######################## LANGUAGES ########################
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_language(request: HttpRequest) -> Response:
+    """
+    Retrieve the language setting for the authenticated user.
+    """
+    user = request.user
+
+    try:
+        language = Language.objects.get(user=user).language
+        return Response({"language": language}, status=status.HTTP_200_OK)
+
+    except Language.DoesNotExist:
+        LOGGER.error("Language setting not found for the user.")
+        return Response(
+            {"error": "Language setting not found."}, status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        LOGGER.error(f"Unexpected error in get_user_language: {str(e)}")
+        return Response(
+            {"error": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_language(request: HttpRequest) -> Response:
+    """
+    Set the language for the authenticated user.
+    """
+    user = request.user
+    language: str = request.POST.get("language")
+
+    if not language:
+        return Response(
+            {"error": "No language provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    if language not in LANGUAGES:
+        return Response(
+            {"error": "Language not allowed"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        language_user, created = Language.objects.get_or_create(user=user)
+        language_user.language = language
+        language_user.save()
+        return Response(
+            {"message": "Language updated successfully"}, status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        LOGGER.error(f"Error in set_language: {str(e)}")
+        return Response(
+            {"error": "Server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
 ######################## CATEGORIES ########################
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_categories(request):
-    username = request.user.username
+    user = request.user
 
     try:
-        current_user = User.objects.get(username=username)
-        categories = Category.objects.filter(user=current_user)
+        categories = Category.objects.filter(user=user)
         serializer = CategoryNameSerializer(categories, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

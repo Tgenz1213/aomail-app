@@ -74,7 +74,8 @@
             </div>
         </div>
     </div>-->
-        <div class="flex flex-col justify-center items-center h-screen" :class="bgColor"><!-- DO NOT DELETE : 'bg-gray-900'-->
+        <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
+            <!-- DO NOT DELETE : 'bg-gray-900'-->
             <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
                 <div class="col-span-1 2xl:col-span-1">
                     <div class="2xl:hidden h-full">
@@ -98,7 +99,7 @@
                                             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-rose-400 via-amber-400 to-rose-200">
                                                 <span class="text-lg font-medium leading-none text-white">AO</span>
                                             </span>-->
-                                            <!--
+                                                <!--
                                                 <span
                                                     class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
                                                     <img :src="happy_icon" alt="New Emails Icon"
@@ -220,7 +221,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                     </svg>
-                                    <span class="mt-2 block text-md font-semibold text-gray-900">{{ $t('Home_vue.notif') }}</span>
+                                    <span class="mt-2 block text-md font-semibold text-gray-900">{{ $t('Home_vue.notif')
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -235,7 +237,8 @@
                                         <div class="px-6 pb-6">
                                             <div class="bg-orange-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-3 py-2">
-                                                    <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">Travail - Urgent</p>
+                                                    <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
+                                                        Travail - Urgent</p>
                                                     <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                     <div class="ml-auto">
                                                         <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
@@ -258,8 +261,10 @@
                                                 </div>
                                                 <div class="ml-6 flex-grow">
                                                     <div class="overflow-hidden border-l-4 border-orange-300  hover:rounded-l-xl"
-                                                        style="overflow: visible;"><!-- OLD DO NOT DELETE : border-orange-300 -->
-                                                        <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
+                                                        style="overflow: visible;">
+                                                        <!-- OLD DO NOT DELETE : border-orange-300 -->
+                                                        <ul role="list"
+                                                            class="divide-y divide-gray-200 dark:divide-white">
                                                             <li v-for="item in emails[selectedTopic]['Important'].filter(email => !email.read && !email.answer_later)"
                                                                 :key="item.id"
                                                                 class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center"
@@ -293,12 +298,13 @@
                                                                             class="mt-1 text-md text-gray-700 leading-relaxed">
                                                                             {{ item.description }}</p>
                                                                     </div>
-                                                                    <ul v-show="showHiddenParagraphs[item.id]" role="list"
-                                                                        class="text-black text-sm/6 pt-2"
+                                                                    <ul v-show="showHiddenParagraphs[item.id]"
+                                                                        role="list" class="text-black text-sm/6 pt-2"
                                                                         :ref="el => setParentRef(el, item.id)">
                                                                         <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                        <li v-for="detail in item.details" :key="detail.id"
-                                                                            class="pl-8" :ref="'hiddenText' + item.id"
+                                                                        <li v-for="detail in item.details"
+                                                                            :key="detail.id" class="pl-8"
+                                                                            :ref="'hiddenText' + item.id"
                                                                             :data-text="detail.text">
                                                                         </li>
                                                                     </ul>
@@ -313,8 +319,7 @@
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4">
                                                                                         Ouvrir
                                                                                     </div>
-                                                                                    <button
-                                                                                        @click="openSeeModal(item)"
+                                                                                    <button @click="openSeeModal(item)"
                                                                                         type="button"
                                                                                         class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
                                                                                         <eye-icon
@@ -377,10 +382,12 @@
                                                                                             leave-active-class="transition ease-in duration-75"
                                                                                             leave-from-class="transform opacity-100 scale-100"
                                                                                             leave-to-class="transform opacity-0 scale-95">
-                                                                                            <MenuItems v-show="isMenuOpen"
+                                                                                            <MenuItems
+                                                                                                v-show="isMenuOpen"
                                                                                                 class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                                                                                                 <div class="py-1">
-                                                                                                    <div v-if="item.rule">
+                                                                                                    <div
+                                                                                                        v-if="item.rule">
                                                                                                         <MenuItem
                                                                                                             v-slot="{ active }">
                                                                                                         <a @click.prevent="openRuleEditor(item.rule_id)"
@@ -510,7 +517,8 @@
                                         <div class="px-6 pb-6">
                                             <div class="bg-blue-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-2 py-2">
-                                                    <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">Travail - Informatif</p>
+                                                    <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
+                                                        Travail - Informatif</p>
                                                     <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                     <div class="ml-auto">
                                                         <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -534,7 +542,8 @@
                                                 <div class="ml-6 flex-grow">
                                                     <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300 dark:bg-blue-500"
                                                         style="overflow: visible;">
-                                                        <ul role="list" class="divide-y divide-gray-200 dark:divide-white">
+                                                        <ul role="list"
+                                                            class="divide-y divide-gray-200 dark:divide-white">
                                                             <li v-for="item in emails[selectedTopic]['Information'].filter(email => !email.read && !email.answer_later)"
                                                                 :key="item.id"
                                                                 class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-blue-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center"
@@ -567,12 +576,13 @@
                                                                             class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">
                                                                             {{ item.description }}</p>
                                                                     </div>
-                                                                    <ul v-show="showHiddenParagraphs[item.id]" role="list"
-                                                                        class="text-black text-sm/6 pt-2"
+                                                                    <ul v-show="showHiddenParagraphs[item.id]"
+                                                                        role="list" class="text-black text-sm/6 pt-2"
                                                                         :ref="el => setParentRef(el, item.id)">
                                                                         <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                        <li v-for="detail in item.details" :key="detail.id"
-                                                                            class="pl-8" :ref="'hiddenText' + item.id"
+                                                                        <li v-for="detail in item.details"
+                                                                            :key="detail.id" class="pl-8"
+                                                                            :ref="'hiddenText' + item.id"
                                                                             :data-text="detail.text">
                                                                         </li>
                                                                     </ul>
@@ -587,8 +597,7 @@
                                                                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
                                                                                         Ouvrir
                                                                                     </div>
-                                                                                    <button
-                                                                                        @click="openSeeModal(item)"
+                                                                                    <button @click="openSeeModal(item)"
                                                                                         type="button"
                                                                                         class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
                                                                                         <eye-icon
@@ -650,10 +659,12 @@
                                                                                             leave-active-class="transition ease-in duration-75"
                                                                                             leave-from-class="transform opacity-100 scale-100"
                                                                                             leave-to-class="transform opacity-0 scale-95">
-                                                                                            <MenuItems v-show="isMenuOpen"
+                                                                                            <MenuItems
+                                                                                                v-show="isMenuOpen"
                                                                                                 class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                                                                                                 <div class="py-1">
-                                                                                                    <div v-if="item.rule">
+                                                                                                    <div
+                                                                                                        v-if="item.rule">
                                                                                                         <MenuItem
                                                                                                             v-slot="{ active }">
                                                                                                         <a @click.prevent="openRuleEditor(item.rule_id)"
@@ -784,7 +795,8 @@
                                             <div class="px-6 pb-6">
                                                 <div class="bg-gray-200 bg-opacity-90 rounded-md">
                                                     <div class="flex px-2 py-2">
-                                                        <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">Inutile</p>
+                                                        <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
+                                                            Inutile</p>
                                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                         <div class="ml-auto">
                                                             <trash-icon class="w-6 h-6 text-gray-500" />
@@ -797,8 +809,8 @@
                                                         <span
                                                             class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-400">
                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                                class="w-6 h-6 text-white">
+                                                                viewBox="0 0 24 24" stroke-width="1.5"
+                                                                stroke="currentColor" class="w-6 h-6 text-white">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                             </svg>
@@ -816,7 +828,10 @@
                                                                         <!-- remove @click="toggleEmailVisibility"-->
                                                                         <p @click="toggleEmailVisibility"
                                                                             class="cursor-pointer">Vous avez reçu
-                                                                            <span class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">{{ emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length }}</span>
+                                                                            <span
+                                                                                class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
+                                                                                {{ emails[selectedTopic]['Useless'].filter(e => !e.answer_later).length }}
+                                                                            </span>
                                                                             <span
                                                                                 v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
                                                                                 mail inutile.
@@ -830,7 +845,8 @@
                                                                             <div class="flex gap-x-1 items-center">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                                     fill="none" viewBox="0 0 24 24"
-                                                                                    stroke-width="1.5" stroke="currentColor"
+                                                                                    stroke-width="1.5"
+                                                                                    stroke="currentColor"
                                                                                     class="w-4 h-4">
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
@@ -838,7 +854,8 @@
                                                                                 </svg>
                                                                                 <!-- remove @click="toggleEmailVisibility"-->
                                                                                 <p @click="toggleEmailVisibility"
-                                                                                    class="cursor-pointer">Cliquez pour voir
+                                                                                    class="cursor-pointer">Cliquez pour
+                                                                                    voir
                                                                                     les mails</p>
                                                                             </div>
                                                                         </div>
@@ -930,7 +947,8 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    Actions supplémentaires
+                                                                                                    Actions
+                                                                                                    supplémentaires
                                                                                                 </div>
                                                                                                 <Menu as="div"
                                                                                                     class="relative inline-block text-left">
@@ -980,7 +998,8 @@
                                                                                                                     </a>
                                                                                                                     </MenuItem>
                                                                                                                 </div>
-                                                                                                                <div v-else>
+                                                                                                                <div
+                                                                                                                    v-else>
                                                                                                                     <MenuItem
                                                                                                                         v-slot="{ active }">
                                                                                                                     <a @click.prevent="openNewRule(item.name, item.email)"
@@ -1085,13 +1104,14 @@
                                             </div>
                                         </li>
                                     </div>
-                                    <div v-if="readEmailsInSelectedTopic().length > 0"
-                                        class="group/main">
+                                    <div v-if="readEmailsInSelectedTopic().length > 0" class="group/main">
                                         <li class="">
                                             <div class="px-6 pb-6"><!--bg-emerald-50 bg-opacity-60-->
                                                 <div class="bg-stone-200 bg-opacity-90 rounded-md">
                                                     <div class="flex px-2 py-2">
-                                                        <p class="flex-1 text-sm font-semibold leading-6 text-stone-600 px-4">Lu</p>
+                                                        <p
+                                                            class="flex-1 text-sm font-semibold leading-6 text-stone-600 px-4">
+                                                            Lu</p>
                                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                         <div class="ml-auto">
                                                             <CheckIcon class="w-6 h-6 text-stone-500" />
@@ -1104,8 +1124,8 @@
                                                         <span
                                                             class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-stone-400">
                                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                                class="w-6 h-6 text-white">
+                                                                viewBox="0 0 24 24" stroke-width="1.5"
+                                                                stroke="currentColor" class="w-6 h-6 text-white">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                             </svg>
@@ -1122,7 +1142,8 @@
                                                                     class="px-6 py-5 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                     <div class="flex group gap-x-2">
                                                                         <p @click="toggleReadEmailVisibility"
-                                                                            class="cursor-pointer">Vous avez récemment lu
+                                                                            class="cursor-pointer">Vous avez récemment
+                                                                            lu
                                                                             <span
                                                                                 class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">
                                                                                 {{ readEmailsInSelectedTopic().length }}
@@ -1139,14 +1160,16 @@
                                                                             <div class="flex gap-x-1 items-center">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                                     fill="none" viewBox="0 0 24 24"
-                                                                                    stroke-width="1.5" stroke="currentColor"
+                                                                                    stroke-width="1.5"
+                                                                                    stroke="currentColor"
                                                                                     class="w-4 h-4">
                                                                                     <path stroke-linecap="round"
                                                                                         stroke-linejoin="round"
                                                                                         d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                 </svg>
                                                                                 <p @click="toggleReadEmailVisibility"
-                                                                                    class="cursor-pointer">Cliquez pour voir
+                                                                                    class="cursor-pointer">Cliquez pour
+                                                                                    voir
                                                                                     les mails</p>
                                                                             </div>
                                                                         </div>
@@ -1225,7 +1248,8 @@
                                                                                         <div v-show="hoveredItemId === item.id"
                                                                                             class="group action-buttons">
                                                                                             <div class="relative group">
-                                                                                                <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
+                                                                                                <div
+                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
                                                                                                     Non Lu
                                                                                                 </div>
                                                                                                 <button
@@ -1233,7 +1257,7 @@
                                                                                                     type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
                                                                                                     <check-icon
-                                                                                                    class="w-5 h-5 text-stone-500 group-hover:text-white" />
+                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
@@ -1274,7 +1298,8 @@
                                                                                                 class="cursor-pointer relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    Actions supplémentaires
+                                                                                                    Actions
+                                                                                                    supplémentaires
                                                                                                 </div>
                                                                                                 <Menu as="div"
                                                                                                     class="relative inline-block text-left">
@@ -1324,7 +1349,8 @@
                                                                                                                     </a>
                                                                                                                     </MenuItem>
                                                                                                                 </div>
-                                                                                                                <div v-else>
+                                                                                                                <div
+                                                                                                                    v-else>
                                                                                                                     <MenuItem
                                                                                                                         v-slot="{ active }">
                                                                                                                     <a @click.prevent="openNewRule(item.name, item.email)"
@@ -1441,7 +1467,8 @@
         <UpdateCategoryModal :isOpen="isModalUpdateOpen" :errorMessage="modalUpdateErrorMessage"
             :category="categoryToUpdate" @closeModal="closeUpdateModal" @updateCategory="handleUpdateCategory"
             @deleteCategory="handleCategoryDelete" />
-        <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @closeSeeModal="closeSeeModal" @openAnswer="openAnswer" @markEmailAsRead="markEmailAsRead" />
+        <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @closeSeeModal="closeSeeModal"
+            @openAnswer="openAnswer" @markEmailAsRead="markEmailAsRead" />
     </div>
 </template>
 
@@ -1489,21 +1516,21 @@ console.log("The url of the websocket is:", 'wss://' + window.location.host + '/
 const emailSocket = new WebSocket('wss://' + window.location.host + '/ws/aomail/');
 console.log('Initial WebSocket ready state:', emailSocket.readyState);
 
-emailSocket.onopen = function() {
+emailSocket.onopen = function () {
     console.log('WebSocket connection established. Ready state:', emailSocket.readyState);
 };
 
-emailSocket.onclose = function(e) {
+emailSocket.onclose = function (e) {
     console.log('WebSocket is closing. Ready state:', emailSocket.readyState);
     console.error('Aomail web socket closed unexpectedly. Code:', e.code, 'Reason:', e.reason);
 };
 
-emailSocket.onerror = function(e) {
+emailSocket.onerror = function (e) {
     console.log('Error occurred. WebSocket ready state:', emailSocket.readyState);
     console.error('WebSocket encountered an error. Event:', e);
 };
 
-emailSocket.onmessage = function(e) {
+emailSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     console.log('Message received:', data);
 };
@@ -1541,7 +1568,7 @@ onMounted(async () => {
         } catch (error) {
             console.log("An error occured", error)
         }
-    }, 60000);
+    }, 6000);
 });
 
 function handleKeyDown(event) {
@@ -1556,10 +1583,12 @@ function getNumberUnreadMail(emailData) {
     for (const category in emailData) {
         for (const subcategory in emailData[category]) {
             const emailsInSubcategory = emailData[category][subcategory];
-
-            for (const email of emailsInSubcategory) {
-                if (!email.read && !email.answer_later) {
-                    totalUnread++;
+            if (subcategory != 'Useless') {
+                for (const email of emailsInSubcategory) {
+                    console.log(emailsInSubcategory)
+                    if (!email.read && !email.answer_later) {
+                        totalUnread++;
+                    }
                 }
             }
         }
@@ -1648,7 +1677,7 @@ function toggleTooltip() {
 }
 
 async function markEmailAsUnread(emailId) {
-        
+
     updateEmailUnreadStatus(emailId);
 
     try {
@@ -1749,23 +1778,23 @@ async function transferEmail(email) {
                 'Content-Type': 'application/json'
             }
         });
-        
 
-        
-        
+
+
+
         sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
-sessionStorage.setItem("cc", data.email.cc);
-sessionStorage.setItem("bcc", data.email.bcc);
-sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
-sessionStorage.setItem("email", JSON.stringify(email.email));
-sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
-sessionStorage.setItem("details", JSON.stringify(email.details));
-sessionStorage.setItem("emailReceiver", data.email.email_receiver);
-sessionStorage.setItem("date", JSON.stringify(data.email.date));
+        sessionStorage.setItem("cc", data.email.cc);
+        sessionStorage.setItem("bcc", data.email.bcc);
+        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
+        sessionStorage.setItem("email", JSON.stringify(email.email));
+        sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
+        sessionStorage.setItem("details", JSON.stringify(email.details));
+        sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+        sessionStorage.setItem("date", JSON.stringify(data.email.date));
 
 
-console.log("_____________data.email.cc______________", data.email.cc)
-console.log("_____________data.email.bcc______________", data.email.bcc)
+        console.log("_____________data.email.cc______________", data.email.cc)
+        console.log("_____________data.email.bcc______________", data.email.bcc)
 
         router.push({
             name: 'transfer'
@@ -1901,18 +1930,18 @@ async function openAnswer(email) {
             }
         });
 
-        
-        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
-sessionStorage.setItem("cc", data.email.cc);
-sessionStorage.setItem("bcc", data.email.bcc);
-sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
-sessionStorage.setItem("email", JSON.stringify(email.email));
-sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
-sessionStorage.setItem("details", JSON.stringify(email.details));
-sessionStorage.setItem("emailReceiver", data.email.email_receiver);
 
-console.log("_____________data.email.cc______________", data.email.cc)
-console.log("_____________data.email.bcc______________", data.email.bcc)
+        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
+        sessionStorage.setItem("cc", data.email.cc);
+        sessionStorage.setItem("bcc", data.email.bcc);
+        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
+        sessionStorage.setItem("email", JSON.stringify(email.email));
+        sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
+        sessionStorage.setItem("details", JSON.stringify(email.details));
+        sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+
+        console.log("_____________data.email.cc______________", data.email.cc)
+        console.log("_____________data.email.bcc______________", data.email.bcc)
 
         router.push({
             name: 'answer'
@@ -1931,7 +1960,7 @@ function updateModalStatus(status) {
 }
 
 function openSeeModal(emailItem) {
-    selectedEmail.value = emailItem; 
+    selectedEmail.value = emailItem;
     isModalSeeOpen.value = true;
 }
 function closeSeeModal() {
@@ -2098,14 +2127,14 @@ async function handleCategoryDelete(categoryNameToDelete) {
         const url = `${API_BASE_URL}api/get_rules_linked/`;
 
         const options = {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        "categoryName": categoryNameToDelete
-    })
-};
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "categoryName": categoryNameToDelete
+            })
+        };
 
         const response = await fetchWithToken(url, options);
 
@@ -2130,15 +2159,15 @@ async function deleteCategory(categoryNameToDelete) {
     try {
         const url = `${API_BASE_URL}api/delete_category/`;
 
-const options = {
-    method: 'DELETE',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        "categoryName": categoryNameToDelete
-    })
-};
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "categoryName": categoryNameToDelete
+            })
+        };
 
         const response = await fetchWithToken(url, options);
 
@@ -2278,10 +2307,12 @@ function isEmptyTopic() {
 function totalEmailsInCategory(categoryName) {
     let totalCount = 0;
     if (emails.value[categoryName]) {
-        for (let subcategory of Object.values(emails.value[categoryName])) {
-            for (let email of subcategory) {
-                if (email.answer_later == false) {
-                    totalCount++;
+        for (let [subcategoryName, subcategory] of Object.entries(emails.value[categoryName])) {
+            if (subcategoryName !== 'Useless' && Array.isArray(subcategory)) {
+                for (let email of subcategory) {
+                    if (email.answer_later === false) {
+                        totalCount++;
+                    }
                 }
             }
         }
@@ -2292,10 +2323,12 @@ function totalEmailsInCategory(categoryName) {
 function totalEmailsInCategoryNotRead(categoryName) {
     let totalCount = 0;
     if (emails.value[categoryName]) {
-        for (let subcategory of Object.values(emails.value[categoryName])) {
-            for (let email of subcategory) {
-                if (!email.read && !email.answer_later) {
-                    totalCount++;
+        for (let [subcategoryName, subcategory] of Object.entries(emails.value[categoryName])) {
+            if (subcategoryName !== 'Useless' && Array.isArray(subcategory)) {
+                for (let email of subcategory) {
+                    if (!email.read && !email.answer_later) {
+                        totalCount++;
+                    }
                 }
             }
         }

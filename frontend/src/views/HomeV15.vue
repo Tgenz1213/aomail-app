@@ -1554,7 +1554,7 @@ onMounted(async () => {
         } catch (error) {
             console.log("An error occured", error)
         }
-    }, 6000);
+    }, 60000);
 });
 
 function handleKeyDown(event) {

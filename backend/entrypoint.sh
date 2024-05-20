@@ -32,15 +32,15 @@ else
     exit 1
 fi
 
-# # Set cron tasks
-# print_message $BLUE "Setting cron tasks..."
-# python manage.py crontab add
-# if [ $? -eq 0 ]; then
-#     print_message $GREEN "Cron tasks set successfully."
-# else
-#     print_message $RED "Setting cron tasks failed."
-#     exit 1
-# fi
+# Set cron tasks
+print_message $BLUE "Setting cron tasks..."
+python manage.py crontab add
+if [ $? -eq 0 ]; then
+    print_message $GREEN "Cron tasks set successfully."
+else
+    print_message $RED "Setting cron tasks failed."
+    exit 1
+fi
 
 # Start the Django application
 print_message $BLUE "Starting Django application..."

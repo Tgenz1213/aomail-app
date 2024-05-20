@@ -6,17 +6,15 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 
 import json
 from datetime import timedelta
-from pathlib import Path
+
+# from pathlib import Path
 from MailAssistant.constants import (
     BACKEND_DIR,
     EMAIL_NO_REPLY,
     EMAIL_NO_REPLY_PASSWORD,
     HOSTS_URLS,
     CORS_ALLOWED_ORIGINS,
-    MEDIA_URL,
-    MEDIA_ROOT,
 )
-from MailAssistant.schedule_tasks import Command
 
 
 ######################## CHECKLIST FOR PRODUCTION ########################
@@ -223,9 +221,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
-"""CRONJOBS = [
+CRONJOBS = [
     (
-        "0 3 * * *",
-        Command.update_subscription_status,
-    ),  # Run the task every day at 3 am
-]"""
+        "*/1 * * * *",
+        "MailAssistant.schedule_tasks.debug_cron",
+    )  # supposed to run every minute
+]

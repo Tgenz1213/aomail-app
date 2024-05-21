@@ -1544,12 +1544,11 @@ onMounted(async () => {
         fetchData().then(() => {
             resolve();
         });
-        animateText("Calcul des mails non lus en cours");
+        //animateText("Calcul des mails non lus en cours");
     });
 
     setInterval(async () => {
         try {
-            updateNumberUnreadEmails();
             fetchEmails();
         } catch (error) {
             console.log("An error occured", error)
@@ -2342,7 +2341,8 @@ function totalEmailsInCategoryNotRead(categoryName) {
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
     //console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)
-    emails.value = emailData;
+    emails.value = emailData;    
+    updateNumberUnreadEmails();
 }
 async function fetchData() {
     try {

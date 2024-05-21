@@ -45,7 +45,8 @@ def renew_gmail_subscriptions():
     the associated Gmail accounts to email notifications.
     """
     # Calculate the datetime from which all subscriptions need to be renewed
-    renewal_threshold = timezone.now() - timedelta(days=3)
+    today = timezone.now()
+    renewal_threshold = today - timedelta(days=3)
 
     # Get all GoogleListener instances that need to be renewed
     google_listeners = GoogleListener.objects.filter(
@@ -61,4 +62,10 @@ def renew_gmail_subscriptions():
         if not subscribed:
             LOGGER.critical(
                 f"Failed to renew the subscription for user: {user}, email: {email}"
+            )
+        else:
+            google_listener.last_modified = today
+            google_listener.save()
+            LOGGER.info(
+                f"Successfully renewed the subscription for user: {user}, email: {email}"
             )

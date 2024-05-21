@@ -11,6 +11,7 @@ import time
 from django.db import IntegrityError
 import jwt
 import stripe
+from django.utils import timezone
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
@@ -49,6 +50,7 @@ from MailAssistant.constants import (
 from MailAssistant import library
 from .models import (
     Category,
+    GoogleListener,
     Language,
     MicrosoftListener,
     SocialAPI,
@@ -224,6 +226,10 @@ def subscribe_listeners(type_api, user, email) -> bool:
     if type_api == "google":
         subscribed = google_api.subscribe_to_email_notifications(user, email)
         if subscribed:
+            social_api = google_api.get_social_api(user, email)
+            GoogleListener.objects.create(
+                last_modified=timezone.now(), social_api=social_api
+            )
             return True
 
     elif type_api == "microsoft":

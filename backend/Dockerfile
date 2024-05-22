@@ -23,7 +23,3 @@ ENTRYPOINT ["entrypoint.sh"]
 # Copy SSL certificates
 COPY ./creds/keys/key.pem /etc/ssl/private/
 COPY ./creds/keys/cert.pem /etc/ssl/certs/
-
-EXPOSE 8000
-EXPOSE 443
-

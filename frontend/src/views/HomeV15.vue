@@ -830,7 +830,9 @@
                                                                             class="cursor-pointer">Vous avez reçu
                                                                             <span
                                                                                 class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                                                                                {{ emails[selectedTopic]['Useless'].filter(e=> !e.answer_later).length }}
+                                                                                {{
+                                                                                emails[selectedTopic]['Useless'].filter(e=>
+                                                                                !e.answer_later).length }}
                                                                             </span>
                                                                             <span
                                                                                 v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
@@ -1511,29 +1513,8 @@ let initialAnimationDone = ref(false);
 let isModalWarningCategoryOpen = ref(false)
 let nbRulesAssociated = ref(null);
 const happy_icon = ref(require('@/assets/happy.png'));
+let lockEmailsAccess = ref(false);
 
-console.log("The url of the websocket is:", 'wss://' + window.location.host + '/ws/aomail/');
-const emailSocket = new WebSocket('wss://' + window.location.host + '/ws/aomail/');
-console.log('Initial WebSocket ready state:', emailSocket.readyState);
-
-emailSocket.onopen = function () {
-    console.log('WebSocket connection established. Ready state:', emailSocket.readyState);
-};
-
-emailSocket.onclose = function (e) {
-    console.log('WebSocket is closing. Ready state:', emailSocket.readyState);
-    console.error('Aomail web socket closed unexpectedly. Code:', e.code, 'Reason:', e.reason);
-};
-
-emailSocket.onerror = function (e) {
-    console.log('Error occurred. WebSocket ready state:', emailSocket.readyState);
-    console.error('WebSocket encountered an error. Event:', e);
-};
-
-emailSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    console.log('Message received:', data);
-};
 
 onMounted(async () => {
     document.addEventListener("keydown", handleKeyDown);
@@ -1553,7 +1534,7 @@ onMounted(async () => {
         } catch (error) {
             console.log("An error occured", error)
         }
-    }, 60000);
+    }, 15000);
 });
 
 function handleKeyDown(event) {
@@ -1661,7 +1642,7 @@ function toggleTooltip() {
 }
 
 async function markEmailAsUnread(emailId) {
-
+    lockEmailsAccess.value = true;
     updateEmailUnreadStatus(emailId);
 
     try {
@@ -1686,9 +1667,10 @@ async function markEmailAsUnread(emailId) {
         notificationMessage = error.message;
         displayPopup();
     }
+    lockEmailsAccess.value = false;
 }
 async function markEmailAsRead(emailId) {
-
+    lockEmailsAccess.value = true;
     updateEmailReadStatus(emailId);
 
     try {
@@ -1713,6 +1695,7 @@ async function markEmailAsRead(emailId) {
         notificationMessage = error.message;
         displayPopup();
     }
+    lockEmailsAccess.value = false;
 }
 
 function updateEmailReadStatus(emailId) {
@@ -1813,6 +1796,7 @@ async function transferEmail(email) {
 }
 
 async function markEmailReplyLater(email) {
+    lockEmailsAccess.value = true;
     const emailId = email.id
     email.answer_later = true;
     isMenuOpen.value = false;
@@ -1840,6 +1824,7 @@ async function markEmailReplyLater(email) {
         notificationMessage = error.message;
         displayPopup();
     }
+    lockEmailsAccess.value = false;
 }
 
 function deleteEmailFromState(emailId) {
@@ -1863,6 +1848,7 @@ function deleteEmailFromState(emailId) {
 }
 
 async function setRuleBlockForSender(email) {
+    lockEmailsAccess.value = true;
     const emailId = email.id;
 
     try {
@@ -1872,7 +1858,7 @@ async function setRuleBlockForSender(email) {
                 'Content-Type': 'application/json',
             }
         });
-        console.log("RESPONSE", response);
+        
         if (response.block) {
             deleteEmail(emailId);
         } else {
@@ -1889,9 +1875,11 @@ async function setRuleBlockForSender(email) {
         notificationMessage = error.message;
         displayPopup();
     }
+    lockEmailsAccess.value = false;
 }
 
 async function deleteEmail(emailId) {
+    lockEmailsAccess.value = true;
     deleteEmailFromState(emailId);
 
     try {
@@ -1915,6 +1903,7 @@ async function deleteEmail(emailId) {
         notificationMessage = error.message;
         displayPopup();
     }
+    lockEmailsAccess.value = false;
 }
 
 function openInNewWindow(web_link) {
@@ -2341,7 +2330,9 @@ function totalEmailsInCategoryNotRead(categoryName) {
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
     //console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)
-    emails.value = emailData;    
+    if (lockEmailsAccess.value == false) {
+        emails.value = emailData;
+    }
     updateNumberUnreadEmails();
 }
 async function fetchData() {

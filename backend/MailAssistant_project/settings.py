@@ -44,7 +44,6 @@ from MailAssistant.constants import (
 CONFIG = json.load(open("creds/django_creds.json"))
 SECRET_KEY = CONFIG["secret_key"]
 BACKEND_LOG_PATH = "backend.log"
-BACKEND_JSON_LOG = "logger.json"
 CUSTOM_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
@@ -64,8 +63,7 @@ DATABASES = CONFIG["database_conf"]
 
 # ----------------------- DJANGO DEPENDENCIES -----------------------#
 INSTALLED_APPS = [
-    "channels",
-    "daphne",
+    "channels",  # TODO remove
     "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -127,12 +125,6 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": BACKEND_LOG_PATH,
             "level": "INFO",
-            "formatter": "verbose",
-        },
-        "json_file": {
-            "class": "logging.FileHandler",
-            "filename": BACKEND_JSON_LOG,
-            "level": "ERROR",
             "formatter": "json",
         },
     },
@@ -142,7 +134,7 @@ LOGGING = {
             "propagate": False,
         },
         "": {
-            "handlers": ["console", "file", "json_file"],
+            "handlers": ["console", "file"],
             "level": "INFO",
         },
     },

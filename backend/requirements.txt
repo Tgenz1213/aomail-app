@@ -2,14 +2,10 @@ pillow
 groq
 stripe
 Werkzeug
-channels
-Twisted[http2,tls]
-daphne
-uvicorn
 tiktoken
 django-crontab
+channels
 python-json-logger
-#llmlingua
 aiohttp
 aiosignal
 annotated-types

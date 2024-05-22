@@ -1565,9 +1565,9 @@ function getTextNumberUnreadMail(totalUnread) {
     if (totalUnread === 0) {
         return 'Vous n\'avez pas reçu de nouveau mail';
     } else if (totalUnread === 1) {
-        return `Vous avez reçu ${totalUnread} nouveau mail`;
+        return `Vous avez reçu ${totalUnread} nouveau mail (non inutile)`;
     } else {
-        return `Vous avez reçu ${totalUnread} nouveaux mails`;
+        return `Vous avez reçu ${totalUnread} nouveaux mails (non inutile)`;
     }
 }
 
@@ -2298,35 +2298,31 @@ function isEmptyTopic() {
 // Updated to work only with the the email not red by the user
 function totalEmailsInCategory(categoryName) {
     let totalCount = 0;
-    if (emails.value[categoryName]) {
-        for (let [subcategoryName, subcategory] of Object.entries(emails.value[categoryName])) {
-            if (subcategoryName !== 'Useless' && Array.isArray(subcategory)) {
-                for (let email of subcategory) {
-                    if (email.answer_later === false) {
-                        totalCount++;
-                    }
-                }
-            }
+    const category = emails.value[categoryName];
+
+    if (category) {
+        for (const subcategory of Object.values(category)) {
+            totalCount += subcategory.filter(email => !email.answer_later).length;
         }
     }
+
     return totalCount;
 }
 
+
 function totalEmailsInCategoryNotRead(categoryName) {
     let totalCount = 0;
-    if (emails.value[categoryName]) {
-        for (let [subcategoryName, subcategory] of Object.entries(emails.value[categoryName])) {
-            if (subcategoryName !== 'Useless' && Array.isArray(subcategory)) {
-                for (let email of subcategory) {
-                    if (!email.read && !email.answer_later) {
-                        totalCount++;
-                    }
-                }
-            }
+    const category = emails.value[categoryName];
+
+    if (category) {
+        for (const subcategory of Object.values(category)) {
+            totalCount += subcategory.filter(email => !email.read && !email.answer_later).length;
         }
     }
+
     return totalCount;
 }
+
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
     //console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)

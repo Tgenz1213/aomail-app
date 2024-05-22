@@ -15,7 +15,7 @@
                 class="flex-grow bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
                 <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
                 <div
-                    class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5">
+                    class="flex items-center justify-center h-[65px] 2xl:h-[75px]">
                     <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
                     <div class="flex gap-x-2 items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
@@ -27,9 +27,9 @@
                     </div>
                 </div>
                 <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
-                    <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[calc(5/8*100vh)]" style="margin-right: 2px;"
+                    <div class="overflow-y-auto h-[70vh] 2xl:h-[calc(5/8*100vh)]" style="margin-right: 2px;"
                         ref="scrollableDiv">
-                        <div class="px-10 py-6">
+                        <div class="px-10 py-4">
                             <div class="flex-grow">
                                 <div id="AIContainer">
                                 </div>
@@ -42,7 +42,7 @@
                             <div class="flex flex-grow items-stretch">
                                 <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
                                     @input="adjustHeight" v-model="textareaValue"
-                                    class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                    class="overflow-y-hidden left-0 pl-3 only:block w-full border-none rounded-none bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6"
                                     placeholder="Instruction"></textarea>
                             </div>
                             <button type="button" @click="handleAIClick"
@@ -60,9 +60,9 @@
             <div id="secondMainColumn"
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
                 <!--xl:h-[695px] xl:w-[560px]-->
-                <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
+                <div class="flex flex-col h-full w-full">
                     <div
-                        class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 bg-gray-50">
+                        class="flex items-center justify-center h-[65px] 2xl:h-[75px]">
                         <div class="flex gap-x-2 items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                 stroke-width="1" stroke="currentColor" class="w-6 h-6">
@@ -73,9 +73,9 @@
                             </h1>
                         </div>
                     </div>
-                    <form class="flex flex-grow w-full px-10">
+                    <form class="flex flex-grow w-full px-10 py-4">
                         <div class="flex flex-col space-y-5 h-full w-full">
-                            <div class="pt-8">
+                            <div class="">
                                 <div class="flex flex-wrap">
                                     <!-- Main Recipients List -->
                                     <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">

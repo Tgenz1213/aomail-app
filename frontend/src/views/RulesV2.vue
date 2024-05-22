@@ -20,9 +20,9 @@
             </div>
         </div>
     </div>-->
-  <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
-    <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
-      <div class="col-span-1 2xl:col-span-1">
+  <div class="flex flex-col justify-center items-center h-screen">
+    <div class="flex h-full w-full">
+      <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
         <div class="2xl:hidden h-full">
           <navbar></navbar>
         </div>
@@ -31,7 +31,7 @@
         </div>
       </div>
       <div
-        class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+        class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
         <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full relative"> <!-- ADDED relative -->
           <div class="divide-y divide-gray-200">
@@ -43,7 +43,7 @@
             <SearchbarV2 @input="updateSearchQuery"></SearchbarV2>
           </div>
           <div v-if="rules.length > 0" class="flex-grow overflow-y-auto"
-            style="margin-right: 2px; margin-bottom: 105px;">
+            style="margin-right: 2px; margin-bottom: 120px;">
             <div class="p-6">
               <!-- IF AT LEAST ONE RULE EXIST -->
               <ul v-if="filteredRules.length > 0" category="list"
@@ -111,7 +111,7 @@
             </div>
           </div>
           <div v-if="rules.length > 0"
-            class="cursor-pointer flex items-center justify-center w-auto right-6 left-6 absolute bottom-6 h-[85px] rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
+            class="cursor-pointer flex items-center justify-center w-auto right-6 left-6 absolute bottom-5 h-[85px] rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
             @click="showModal = true">
             <div class="flex-col">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"

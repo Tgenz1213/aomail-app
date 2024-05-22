@@ -74,7 +74,7 @@
             </div>
         </div>
     </div>-->
-        <div class="flex flex-col justify-center items-center h-screen" :class="bgColor"><!-- DO NOT DELETE : 'bg-gray-900'-->
+        <div class="flex flex-col justify-center items-center h-screen"><!-- DO NOT DELETE : 'bg-gray-900'-->
             <div class="flex h-full w-full">
                 <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                     <div class="2xl:hidden h-full">
@@ -82,39 +82,6 @@
                     </div>
                     <div class="hidden 2xl:block h-full">
                         <navbar2></navbar2>
-                    </div>
-                </div>
-                <div class="w-[325px] 2xl:w-[450px] bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
-                    <div class="flex flex-col h-full w-full">
-                        <div class="w-full px-4 sm:px-6 lg:px-6">
-                            <!-- Assistant Up -->
-                            <div class="flex pt-6 pb-6">
-                                <div class="mr-4 flex-shrink-0 self-center">
-                                    <!--
-                                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-rose-400 via-amber-400 to-rose-200">
-                                    <span class="text-lg font-medium leading-none text-white">AO</span>
-                                </span>-->
-                                <!--
-                                    <span
-                                        class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-                                        <img :src="happy_icon" alt="New Emails Icon"
-                                            class="max-w-full max-h-full rounded-full">
-                                    </span>-->
-                                    <span
-                                        class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                            class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div>
-                                    <p class="mt-1" id="animated-text" ref="animatedText"></p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="flex-1">
@@ -231,7 +198,7 @@
                         <div v-else
                             class="flex-1 bg-white bg-opacity-100 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar"
                             ref="scrollableDiv">
-                            <ul role="list" class="flex mx-4 flex-col w-auto h-full rounded-xl"><!--DO NOT DELETE : old value reference : without mx-autout and w-[]-->
+                            <ul role="list" class="flex mx-2 flex-col w-auto h-full rounded-xl"><!--DO NOT DELETE : old value reference : without mx-autout and w-[]-->
                                 <div class="pt-6">
                                     <!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
@@ -1434,6 +1401,43 @@
                                     </div>
                                 </div>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-[325px] 2xl:w-[450px] bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
+                    <div class="flex flex-col h-full w-full">
+                        <div class="w-full px-4 sm:px-6 lg:px-6 h-full">
+                            <!-- Assistant Up -->
+                            <div class="flex pt-6 pb-6">
+                                <div class="mr-4 flex-shrink-0 self-center">
+                                    <!--
+                                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-rose-400 via-amber-400 to-rose-200">
+                                    <span class="text-lg font-medium leading-none text-white">AO</span>
+                                </span>-->
+                                <!--
+                                    <span
+                                        class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+                                        <img :src="happy_icon" alt="New Emails Icon"
+                                            class="max-w-full max-h-full rounded-full">
+                                    </span>-->
+                                    <span
+                                        class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                            class="w-6 h-6">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                        </svg>
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="mt-1" id="animated-text" ref="animatedText"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                        </div>
+                        <div class="flex h-[170px]"><!--lg:ring-1 lg:ring-black lg:ring-opacity-5-->
                         </div>
                     </div>
                 </div>

@@ -2,9 +2,9 @@
   <ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
     :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor"
     @dismiss-popup="dismissPopup" />
-  <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
-    <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
-      <div class="col-span-1 2xl:col-span-1">
+  <div class="flex flex-col justify-center bg-white items-center h-screen">
+    <div class="flex h-full w-full">
+      <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
         <div class="2xl:hidden h-full">
           <navbar></navbar>
         </div>
@@ -13,13 +13,13 @@
         </div>
       </div>
       <div
-        class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+        class="flex-1">
         <!-- WORKS FOR 1920*1200px screens <div
         class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> -->
         <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full divide-y divide-gray-200">
           <div
-            class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
+            class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 bg-gray-50">
             <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
             <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">Répondre plus tard</h1>
           </div>

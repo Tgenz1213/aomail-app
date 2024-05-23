@@ -26,10 +26,10 @@
                     <p class="text-gray-600 font-semibold">{{ email.name }}</p>
                     <p class="text-gray-600 text-sm">&lt;{{ email.email }}&gt;</p>
                   </div>
-                  <div class="flex items-center gap-x-2">
+                  <!-- <div class="flex items-center gap-x-2">
                     <p class="text-gray-600 font-semibold">CC : </p>
                     <p class="text-gray-600 text-sm">theohubert3@gmx.com</p>
-                  </div>
+                  </div> -->
                 </div>
                 <div class="flex items-center ml-auto">
                   <div class="relative group">

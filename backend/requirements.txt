@@ -3,9 +3,6 @@ groq
 stripe
 tiktoken
 django-crontab
-Werkzeug # todo remove
-channels # todo remove
-pyOpenSSL # todo remove
 python-json-logger
 aiohttp
 aiosignal

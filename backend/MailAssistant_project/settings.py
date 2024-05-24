@@ -63,7 +63,6 @@ DATABASES = CONFIG["database_conf"]
 
 # ----------------------- DJANGO DEPENDENCIES -----------------------#
 INSTALLED_APPS = [
-    "channels",  # TODO remove
     "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",

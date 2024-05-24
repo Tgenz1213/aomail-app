@@ -4,7 +4,7 @@ Handles conversations with prompt engineering for user/AI interaction.
 
 import json
 from django.contrib.auth.models import User
-from langchain.memory import ChatMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
 from MailAssistant.ai_providers import claude
 from MailAssistant.constants import HUMAN, ASSISTANT
 

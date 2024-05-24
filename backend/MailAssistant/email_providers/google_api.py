@@ -33,7 +33,6 @@ from email.utils import parsedate_to_datetime
 from MailAssistant.serializers import EmailDataSerializer
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
 from MailAssistant.constants import (

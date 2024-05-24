@@ -19,8 +19,3 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Set the entrypoint script
 ENTRYPOINT ["entrypoint.sh"]
-
-# TODO: remove
-# Copy SSL certificates
-COPY ./creds/keys/key.pem /etc/ssl/private/
-COPY ./creds/keys/cert.pem /etc/ssl/certs/

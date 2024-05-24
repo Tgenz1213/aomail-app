@@ -37,7 +37,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation.Delete') }}</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation.Delete') }}
+                        </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
@@ -82,7 +83,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation2.unlink') }}</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation2.unlink') }}
+                        </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
@@ -95,7 +97,7 @@
                         <button type="button"
                             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
                             @click="closeUnlinkModal">{{ $t('Global action.cancel') }}</button>
-                            <div class="flex-grow"></div>
+                        <div class="flex-grow"></div>
                         <button type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
                             @click="unLinkAccount">
@@ -127,7 +129,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.description') }}</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.description')
+                            }}</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
@@ -168,7 +171,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.email link') }}</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.email link')
+                            }}</p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
@@ -186,7 +190,7 @@
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
-                        class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                            class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                             @click="linkNewEmail">{{ $t('settings_navigation3.link') }}</button>
                     </div>
                 </div>
@@ -229,21 +233,24 @@
                                                 @click="setActiveSection('account')">
                                                 <user-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.account') }}</a>
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.account')
+                                                    }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'preferences', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'preferences' }]"
                                                 @click="setActiveSection('preferences')">
                                                 <adjustments-vertical-icon class="w-4 h-4" />
                                                 <a
-                                                    :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">{{ $t('settings_navigation.Preferences') }}</a>
+                                                    :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">{{
+                                                        $t('settings_navigation.Preferences') }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription' }]"
                                                 @click="setActiveSection('subscription')">
                                                 <credit-card-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.Abonnement') }}</a>
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.Abonnement')
+                                                    }}</a>
                                             </div>
 
                                             <div class="text-sm font-medium cursor-pointer"
@@ -251,7 +258,8 @@
                                                 @click="setActiveSection('data')">
                                                 <circle-stack-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.Mes données') }}</a>
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.Mes données')
+                                                    }}</a>
                                             </div>
                                         </nav>
                                     </div>
@@ -263,7 +271,8 @@
                     <div v-if="activeSection === 'account'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.account') }}
+                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                                $t('settings_navigation.account') }}
                             </h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
@@ -279,14 +288,15 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Profil_change') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                $t('settings_navigation.Profil_change') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6 pb-10">
                                         <div class="flex space-x-1 items-center">
                                             <envelope-icon class="w-4 h-4" />
-                                            <label
-                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Id') }}</label>
+                                            <label class="block text-sm font-medium leading-6 text-gray-900">{{
+                                                $t('settings_navigation.Id') }}</label>
                                         </div>
                                         <div class="relative items-stretch mt-2">
                                             <input v-model="userData" type="text" name="username" id="username"
@@ -299,7 +309,8 @@
                                                     <div class="flex space-x-1 items-center">
                                                         <key-icon class="w-4 h-4" />
                                                         <label
-                                                            class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Password_change') }}</label>
+                                                            class="block text-sm font-medium leading-6 text-gray-900">{{
+                                                                $t('settings_navigation.Password_change') }}</label>
                                                     </div>
                                                     <div class="relative items-stretch mt-2 flex">
                                                         <input v-if="!showPassword" type="password"
@@ -334,7 +345,8 @@
                                                     <div class="flex space-x-1 items-center">
                                                         <key-icon class="w-4 h-4" />
                                                         <label
-                                                            class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Confirmer') }}</label>
+                                                            class="block text-sm font-medium leading-6 text-gray-900">{{
+                                                                $t('settings_navigation.Confirmer') }}</label>
                                                     </div>
                                                     <div class="relative items-stretch mt-2 flex">
                                                         <input v-if="!showConfirmPassword" type="password"
@@ -367,7 +379,8 @@
                                         </div>
                                         <div class="flex justify-end pt-4">
                                             <button @click="handleSubmit"
-                                                class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('settings_navigation.modifier') }}</button>
+                                                class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{
+                                                    $t('settings_navigation.modifier') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -377,15 +390,16 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation3.email link') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                $t('settings_navigation3.email link') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">
                                         <div class="overflow-y-auto max-h-[120px]">
                                             <!-- TODO: set dynamicelly -->
-                                            <div class="flex justify-center">
+                                            <div class="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
                                                 <div class="w-full max-w-lg">
-                                                    <div class="max-h-20"> <!-- TODO: set dynamicelly -->
+                                                    <div class="max-h-20 sm:max-h-24 md:max-h-32 lg:max-h-40"> <!-- TODO: set dynamicelly -->
                                                         <ul role="list" class="space-y-1">
                                                             <li v-for="email in emailsLinked" :key="email.email"
                                                                 class="border border-black flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
@@ -503,7 +517,8 @@
                                         <div class="w-full border-t border-gray-300"></div>
                                     </div>
                                     <div class="relative flex justify-center">
-                                        <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Delete') }}</span>
+                                        <span class="bg-white px-2 text-sm text-gray-500">{{
+                                            $t('settings_navigation.Delete') }}</span>
                                     </div>
                                 </div>
                                 <div class="pt-6">
@@ -533,7 +548,8 @@
                     <div v-if="activeSection === 'subscription'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.Abonnement') }}</h1>
+                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                                $t('settings_navigation.Abonnement') }}</h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
                             <credit-card-icon class="w-6 h-6 text-gray-500" />
@@ -576,14 +592,15 @@
                     <div v-if="activeSection === 'preferences'"
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.Preferences') }}</h1>
+                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                                $t('settings_navigation.Preferences') }}</h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
                             <adjustments-vertical-icon class="w-6 h-6 text-gray-500" />
                         </div>
                         <!-- TO DO : CENTER -->
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10">
-                            <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
+
                             <div class="mx-auto max-w-lg">
                                 <!-- Content goes here -->
                                 <div class="flex flex-col">
@@ -592,20 +609,36 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Theme') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
+                                        </div>
+                                    </div>
+                                    <div class="pt-6 pb-10">
+                                        <div class="relative items-stretch mt-2">
+                                            <!-- TODO: put this in a component with the backend API calls -->
+                                            <LanguageSelector :initialColor="bgColor" @colorSelected="handleLanguageChange"/>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="relative">
+                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                            <div class="w-full border-t border-gray-300"></div>
+                                        </div>
+                                        <div class="relative flex justify-center">
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                $t('settings_navigation.Theme') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6 pb-10">
                                         <div class="relative items-stretch mt-2">
                                             <theme></theme>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation2.Colors') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                $t('settings_navigation2.Colors') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">
@@ -624,6 +657,73 @@
 <script setup>
 import { API_BASE_URL } from '@/main';
 import { useRouter } from 'vue-router';
+
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
+
+// TODO: display the language name in the current selected language
+const languages = {
+    french: {
+        key: 'french',
+        value: 'Français 🇫🇷',
+        translations: {
+            french: 'Français',
+            american: 'French',
+            german: 'Französisch',
+            russian: 'Французский',
+            spanish: 'Francés',
+            chinese: '法语',
+            indian: 'फ्रेंच'
+        }
+    },
+    american: {
+        key: 'american',
+        value: 'American 🇺🇸',
+        translations: {
+            french: 'Américain',
+            american: 'American',
+            german: 'Amerikanisch',
+            russian: 'Американский',
+            spanish: 'Americano',
+            chinese: '美国人',
+            indian: 'अमेरिकन'
+        }
+    },
+    // Ajoutez les autres langues de manière similaire
+    german: {
+        key: 'german',
+        value: 'Deutsch 🇩🇪',
+        translations: {
+            french: 'Allemand',
+            american: 'German',
+            german: 'Deutsch',
+            russian: 'Немецкий',
+            spanish: 'Alemán',
+            chinese: '德语',
+            indian: 'जर्मन'
+        }
+    },
+    // Continuez pour les autres langues
+};
+
+let languageSelected = ref('');
+let languageDisplayed = ref('');
+
+// Rest of your script content remains the same...
+
+async function fetchUserLanguage() {
+    const storedLanguageKey = localStorage.getItem('language');
+
+    if (storedLanguageKey) {
+        const storedLanguage = languages[storedLanguageKey];
+        if (storedLanguage) {
+            languageSelected.value = storedLanguage;
+            languageDisplayed.value = storedLanguage.translations[storedLanguageKey];
+        }
+    } else {
+        // Fetch the default or user's language from API and update accordingly
+    }
+};
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -647,13 +747,60 @@ let userDescription = ref('');
 const router = useRouter();
 const intervalId = setInterval(checkAuthorizationCode, 1000);
 
-
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     fetchEmailLinked();
     fetchUserData();
-    getBackgroundColor();
-})
+    fetchUserLanguage();
+    
+    // Vérifier si bgColor est vide, et si c'est le cas, récupérer la couleur de fond
+    if (!bgColor.value) {
+        getBackgroundColor();
+    }
+});
+
+
+async function handleLanguageChange() {
+    const newLanguageKey = languageSelected.value.key;
+    const currentLanguage = localStorage.getItem('language');
+
+    if (newLanguageKey === currentLanguage) {
+        return;
+    }
+    localStorage.setItem('language', newLanguageKey);
+    const storedLanguage = languages.find(lang => lang.key === newLanguageKey);
+    languageDisplayed.value = storedLanguage.value;
+
+    const requestOptions = {
+        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        body: JSON.stringify({ language: newLanguageKey })
+    };
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/set_language/`, requestOptions);
+
+        if ("error" in response) {
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle.value = 'Error get language';
+            notificationMessage.value = response.error;
+            displayPopup();
+        } else if (response.message == "Language updated successfully") {
+            // Show the pop-up
+            backgroundColor = 'bg-green-300';
+            notificationTitle.value = 'Succès!';
+            notificationMessage.value = 'Language updated successfully';
+            displayPopup();
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-300';
+        notificationTitle.value = 'Error get language';
+        notificationMessage.value = error.message;
+        displayPopup();
+    }
+}
 
 async function openUnLinkModal(email) {
     emailSelected.value = email;
@@ -963,6 +1110,44 @@ async function handleColorChange(newColor) {
         console.error("Error updating background", error);
     }
 }
+async function fetchUserLanguage() {
+    const storedLanguageKey = localStorage.getItem('language');
+
+    if (storedLanguageKey) {
+        const storedLanguage = languages.find(lang => lang.key === storedLanguageKey);
+        if (storedLanguage) {
+            languageSelected.value = storedLanguage;
+            languageDisplayed.value = storedLanguage.value;
+        }
+    } else {
+        const requestOptions = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            method: "GET"
+        };
+
+        try {
+            const response = await fetchWithToken(`${API_BASE_URL}user/language/`, requestOptions);
+
+            if ("error" in response) {
+                // Show the pop-up
+                backgroundColor = 'bg-red-300';
+                notificationTitle.value = 'Error get language';
+                notificationMessage.value = response.error;
+                displayPopup();
+            } else if (response.language) {
+                languageSelected.value = response.language;
+            }
+        } catch (error) {
+            // Show the pop-up
+            backgroundColor = 'bg-red-300';
+            notificationTitle.value = 'Error get language';
+            notificationMessage.value = error.message;
+            displayPopup();
+        }
+    }
+}
 
 async function fetchUserData() {
     const requestOptions = {
@@ -1199,6 +1384,7 @@ import { ref, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import Theme from '../components/SettingsTheme.vue';
+import LanguageSelector from '../components/LanguageSelector';
 import Color from '../components/SettingsColor.vue';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import Subscription from '../components/SettingsSubscription.vue'
@@ -1225,6 +1411,7 @@ export default {
         EnvelopeIcon,
         KeyIcon,
         CreditCardIcon,
+        LanguageSelector,
         CircleStackIcon
     },
     data() {

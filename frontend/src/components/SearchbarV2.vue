@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <div
-      class="sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 shadow bg-white px-4 sm:gap-x-6 sm:px-6 lg:px-8">
+      class="sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 border-b border-black shadow-sm border-opacity-10 bg-white px-4 sm:gap-x-6 sm:px-6 lg:px-8">
       <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 pt-3.5">
         <form class="relative flex flex-1" action="#" method="GET">
           <label for="search-field" class="sr-only">{{ $t('Global action.searchbar') }}</label>

@@ -12,7 +12,7 @@
                 </div>
             </div>
             <div id="firstMainColumn"
-                class="flex-grow bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
+                class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
                 <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
                 <div
                     class="flex items-center justify-center h-[65px] 2xl:h-[75px]">
@@ -26,8 +26,8 @@
                         <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('New_vue.titre') }}</h1>
                     </div>
                 </div>
-                <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
-                    <div class="overflow-y-auto h-[70vh] 2xl:h-[calc(5/8*100vh)]" style="margin-right: 2px;"
+                <div class="flex flex-1 flex-col divide-y">
+                    <div class="overflow-y-auto flex-1" style="margin-right: 2px;"
                         ref="scrollableDiv">
                         <div class="px-10 py-4">
                             <div class="flex-grow">
@@ -36,23 +36,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex-grow">
-                        <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full">
-                            <!-- Old value (26/12/2023) -->
-                            <div class="flex flex-grow items-stretch">
-                                <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
-                                    @input="adjustHeight" v-model="textareaValue"
-                                    class="overflow-y-hidden left-0 pl-3 only:block w-full border-none rounded-none bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6"
-                                    placeholder="Instruction"></textarea>
-                            </div>
-                            <button type="button" @click="handleAIClick"
-                                class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                                </svg>
-                            </button>
+                    <div class="flex flex-col h-[150px]">
+                        <!-- Old value (26/12/2023) -->
+                        <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
+                            @input="adjustHeight" v-model="textareaValue"
+                            class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0"
+                            placeholder="Instruction">
+                        </textarea>
+                        <div class="flex justify-end m-3">
+                            <button type="button" class="w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
                         </div>
                     </div>
                 </div>
@@ -238,7 +230,7 @@
                             </div>
                             </div>
                         </div>-->
-                            <div class="flex flex-col flex-grow">
+                            <div class="flex flex-1 flex-col">
                                 <!--<div class="flex space-x-1 items-center">
                             <Bars3BottomLeftIcon class="w-4 h-4" />
                             <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
@@ -247,45 +239,47 @@
                                     <div id="editor" class="w-full"></div>
                                     <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
                                 </div>
-                                <div class="flex gap-x-2 mb-4">
-                                    <div class="inline-flex rounded-lg shadow-lg">
-                                        <button @click="sendEmail"
-                                            class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('New_vue.Action_envoyer') }}</button>
-                                        <Menu as="div" class="relative -ml-px block">
-                                            <MenuButton
-                                                class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
-                                                <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
-                                                <span class="sr-only">{{ $t('New_vue.Options') }}</span>
-                                                <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
-                                            </MenuButton>
-                                            <transition enter-active-class="transition ease-out duration-100"
-                                                enter-from-class="transform opacity-0 scale-95"
-                                                enter-to-class="transform opacity-100 scale-100"
-                                                leave-active-class="transition ease-in duration-75"
-                                                leave-from-class="transform opacity-100 scale-100"
-                                                leave-to-class="transform opacity-0 scale-95">
-                                                <MenuItems
-                                                    class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                    <div class="py-1">
-                                                        <MenuItem v-for="item in items" :key="item.name"
-                                                            v-slot="{ active }">
-                                                        <a :href="item.href"
-                                                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                                                item.name }}</a>
-                                                        </MenuItem>
-                                                    </div>
-                                                </MenuItems>
-                                            </transition>
-                                        </Menu>
-                                    </div>
-                                    <div class="flex items-stretch gap-1 flex-grow">
-                                        <select v-model="emailSelected" @change="setEmailSelected"
-                                            class="block w-full px-4 py-2 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                            <option v-for="email in emailsLinked" :key="email.email"
-                                                :value="email.email">
-                                                {{ email.email }}
-                                            </option>
-                                        </select>
+                                <div>
+                                    <div class="flex gap-x-2 mb-4">
+                                        <div class="inline-flex rounded-lg shadow-lg">
+                                            <button @click="sendEmail"
+                                                class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('New_vue.Action_envoyer') }}</button>
+                                            <Menu as="div" class="relative -ml-px block">
+                                                <MenuButton
+                                                    class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
+                                                    <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                                                    <span class="sr-only">{{ $t('New_vue.Options') }}</span>
+                                                    <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
+                                                </MenuButton>
+                                                <transition enter-active-class="transition ease-out duration-100"
+                                                    enter-from-class="transform opacity-0 scale-95"
+                                                    enter-to-class="transform opacity-100 scale-100"
+                                                    leave-active-class="transition ease-in duration-75"
+                                                    leave-from-class="transform opacity-100 scale-100"
+                                                    leave-to-class="transform opacity-0 scale-95">
+                                                    <MenuItems
+                                                        class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                        <div class="py-1">
+                                                            <MenuItem v-for="item in items" :key="item.name"
+                                                                v-slot="{ active }">
+                                                            <a :href="item.href"
+                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
+                                                                    item.name }}</a>
+                                                            </MenuItem>
+                                                        </div>
+                                                    </MenuItems>
+                                                </transition>
+                                            </Menu>
+                                        </div>
+                                        <div class="flex items-stretch gap-1 flex-grow">
+                                            <select v-model="emailSelected" @change="setEmailSelected"
+                                                class="block w-full px-4 py-2 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                                <option v-for="email in emailsLinked" :key="email.email"
+                                                    :value="email.email">
+                                                    {{ email.email }}
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

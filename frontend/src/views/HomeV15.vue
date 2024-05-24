@@ -1481,9 +1481,18 @@
                             <div class="flex-1"></div>
                             <div class="flex h-[170px]"></div>
                         </div>
+                        <div class="flex flex-col h-[225px] lg:border-t lg:border-black lg:border-opacity-10">
+                            <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
+                                @input="adjustHeight" v-model="textareaValue"
+                                class="overflow-y-hidden pt-3 pl-5 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0"
+                                placeholder="Instruction">
+                            </textarea>
+                            <div class="flex justify-end m-3">
+                                <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
         <!-- Category Modal -->

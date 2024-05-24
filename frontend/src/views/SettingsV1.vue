@@ -198,9 +198,9 @@
         </div>
     </transition>
 
-    <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
-        <div class="grid grid-cols-11 2xl:grid-cols-7 gap-8 2xl:gap-6">
-            <div class="col-span-1 2xl:col-span-1">
+    <div class="flex flex-col justify-center items-center h-screen">
+        <div class="flex h-full w-full">
+            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <div class="2xl:hidden h-full">
                     <navbar></navbar>
                 </div>
@@ -208,12 +208,12 @@
                     <navbar2></navbar2>
                 </div>
             </div>
-            <div class="col-span-10 2xl:col-span-6">
-                <div class="flex flex-col xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-                    <main class="rounded-xl bg-gray-100 bg-opacity-75 ring-1 shadow-sm ring-black ring-opacity-5">
+            <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+                <div class="flex flex-col h-full">
+                    <main class="bg-gray-100 bg-opacity-75 ring-1 shadow-sm ring-black ring-opacity-5">
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                            <div class="flex items-center pb-5">
-                                <div class="w-full flex items-center justify-center pt-5">
+                            <div class="flex items-center">
+                                <div class="w-full flex items-center justify-center py-6">
                                     <div class="sm:hidden">
                                         <!-- <label for="tabs" class="sr-only">Select a tab</label>
                                         <-- Use an "onChange" listener to redirect the user to the selected tab URL. ->
@@ -267,62 +267,93 @@
                             </div>
                         </div>
                     </main>
-
                     <div v-if="activeSection === 'account'"
-                        class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
-                        <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
-                                $t('settings_navigation.account') }}
-                            </h1>
-                        </div>
-                        <div class="float-right mt-[-70px] mr-[10px]">
-                            <user-icon class="w-6 h-6 text-gray-500" />
-                        </div>
+                        class="flex-1 h-full ring-1 shadow-sm ring-black ring-opacity-5">
                         <!-- TO DO : CENTER -->
-                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10">
+                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
-                            <div class="flex justify-center gap-20 px-10">
-                                <div class="flex-col flex-grow">
-                                    <div class="relative">
-                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                            <div class="w-full border-t border-gray-300"></div>
+                            <div class="flex flex-col">
+                                <div class="px-5 pb-12">
+                                    <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.account') }}
+                                    </h1>
+                                    <!--<div class="float-right mt-[-35px] mr-[10px]">
+                                        <user-icon class="w-6 h-6 text-gray-500" />
+                                    </div>-->
+                                </div>
+                                <div class="flex justify-center gap-20 px-10">
+                                    <div class="flex-col flex-grow">
+                                        <div class="relative">
+                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                <div class="w-full border-t border-gray-300"></div>
+                                            </div>
+                                            <div class="relative flex justify-center">
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Profil_change') }}</span>
+                                            </div>
                                         </div>
-                                        <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                $t('settings_navigation.Profil_change') }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="pt-6 pb-10">
-                                        <div class="flex space-x-1 items-center">
-                                            <envelope-icon class="w-4 h-4" />
-                                            <label class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                $t('settings_navigation.Id') }}</label>
-                                        </div>
-                                        <div class="relative items-stretch mt-2">
-                                            <input v-model="userData" type="text" name="username" id="username"
-                                                autocomplete="username"
-                                                class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
-                                        </div>
-                                        <div class="pt-4">
-                                            <div class="grid grid-cols-2 gap-6">
-                                                <div class="flex flex-col">
-                                                    <div class="flex space-x-1 items-center">
-                                                        <key-icon class="w-4 h-4" />
-                                                        <label
-                                                            class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                                $t('settings_navigation.Password_change') }}</label>
+                                        <div class="pt-6 pb-10">
+                                            <div class="flex space-x-1 items-center">
+                                                <envelope-icon class="w-4 h-4" />
+                                                <label
+                                                    class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Id') }}</label>
+                                            </div>
+                                            <div class="relative items-stretch mt-2">
+                                                <input v-model="userData" type="text" name="username" id="username"
+                                                    autocomplete="username"
+                                                    class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                            </div>
+                                            <div class="pt-4">
+                                                <div class="grid grid-cols-2 gap-6">
+                                                    <div class="flex flex-col">
+                                                        <div class="flex space-x-1 items-center">
+                                                            <key-icon class="w-4 h-4" />
+                                                            <label
+                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Password_change') }}</label>
+                                                        </div>
+                                                        <div class="relative items-stretch mt-2 flex">
+                                                            <input v-if="!showPassword" type="password"
+                                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                                v-model="newPassword" />
+                                                            <input v-else type="text"
+                                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                                v-model="newPassword" />
+                                                            <div class="flex items-center">
+                                                                <button @click="togglePasswordVisibility"
+                                                                    class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300">
+                                                                    <svg v-if="!showPassword"
+                                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                        viewBox="0 0 24 24" stroke-width="1.5"
+                                                                        stroke="currentColor" class="w-6 h-6">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                                    </svg>
+                                                                    <svg v-else xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                                                        stroke="currentColor" class="w-6 h-6">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                            d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div class="relative items-stretch mt-2 flex">
-                                                        <input v-if="!showPassword" type="password"
-                                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                            v-model="newPassword" />
-                                                        <input v-else type="text"
-                                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                            v-model="newPassword" />
-                                                        <div class="flex items-center">
-                                                            <button @click="togglePasswordVisibility"
+                                                    <div class="flex flex-col">
+                                                        <div class="flex space-x-1 items-center">
+                                                            <key-icon class="w-4 h-4" />
+                                                            <label
+                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Confirmer') }}</label>
+                                                        </div>
+                                                        <div class="relative items-stretch mt-2 flex">
+                                                            <input v-if="!showConfirmPassword" type="password"
+                                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                                v-model="confirmPassword" />
+                                                            <input v-else type="text"
+                                                                class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
+                                                                v-model="confirmPassword" />
+                                                            <button @click="toggleConfirmPasswordVisibility"
                                                                 class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300">
-                                                                <svg v-if="!showPassword"
+                                                                <svg v-if="!showConfirmPassword"
                                                                     xmlns="http://www.w3.org/2000/svg" fill="none"
                                                                     viewBox="0 0 24 24" stroke-width="1.5"
                                                                     stroke="currentColor" class="w-6 h-6">
@@ -331,8 +362,8 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                                 </svg>
-                                                                <svg v-else xmlns="http://www.w3.org/2000/svg"
-                                                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                    viewBox="0 0 24 24" stroke-width="1.5"
                                                                     stroke="currentColor" class="w-6 h-6">
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
@@ -341,204 +372,167 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="flex flex-col">
-                                                    <div class="flex space-x-1 items-center">
-                                                        <key-icon class="w-4 h-4" />
-                                                        <label
-                                                            class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                                $t('settings_navigation.Confirmer') }}</label>
-                                                    </div>
-                                                    <div class="relative items-stretch mt-2 flex">
-                                                        <input v-if="!showConfirmPassword" type="password"
-                                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                            v-model="confirmPassword" />
-                                                        <input v-else type="text"
-                                                            class="flex-1 rounded-l-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
-                                                            v-model="confirmPassword" />
-                                                        <button @click="toggleConfirmPasswordVisibility"
-                                                            class="p-2 bg-gray-50 rounded-r-md ring-l-none ring-1 ring-inset ring-gray-300">
-                                                            <svg v-if="!showConfirmPassword"
-                                                                xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5"
-                                                                stroke="currentColor" class="w-6 h-6">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                                            </svg>
-                                                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5"
-                                                                stroke="currentColor" class="w-6 h-6">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-                                                            </svg>
-                                                        </button>
+                                            </div>
+                                            <div class="flex justify-end pt-4">
+                                                <button @click="handleSubmit"
+                                                    class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('settings_navigation.modifier') }}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-col flex-grow">
+                                        <div class="relative">
+                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                <div class="w-full border-t border-gray-300"></div>
+                                            </div>
+                                            <div class="relative flex justify-center">
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation3.email link') }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="pt-6">
+                                            <div class="overflow-y-auto max-h-[120px]">
+                                                <!-- TODO: set dynamicelly -->
+                                                <div class="flex justify-center">
+                                                    <div class="w-full max-w-lg">
+                                                        <div class="max-h-20"> <!-- TODO: set dynamicelly -->
+                                                            <ul role="list" class="space-y-1">
+                                                                <li v-for="email in emailsLinked" :key="email.email"
+                                                                    class="border border-black flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
+                                                                    <svg v-if="email.type_api === 'microsoft'"
+                                                                        xmlns="http://www.w3.org/2000/svg" width="21"
+                                                                        height="21" viewBox="0 0 21 21">
+                                                                        <rect x="1" y="1" width="9" height="9"
+                                                                            fill="#f25022" />
+                                                                        <rect x="1" y="11" width="9" height="9"
+                                                                            fill="#00a4ef" />
+                                                                        <rect x="11" y="1" width="9" height="9"
+                                                                            fill="#7fba00" />
+                                                                        <rect x="11" y="11" width="9" height="9"
+                                                                            fill="#ffb900" />
+                                                                    </svg>
+                                                                    <svg v-if="email.type_api === 'google'"
+                                                                        class="-ml-0.5 h-5 w-5" aria-hidden="true"
+                                                                        viewBox="0 0 24 24"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="currentColor">
+                                                                        <path
+                                                                            d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
+                                                                            id="Shape" fill="#4285F4"></path>
+                                                                        <path
+                                                                            d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
+                                                                            id="Shape" fill="#34A853"></path>
+                                                                        <path
+                                                                            d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
+                                                                            id="Shape" fill="#FBBC05"></path>
+                                                                        <path
+                                                                            d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
+                                                                            id="Shape" fill="#EB4335"></path>
+                                                                    </svg>
+                                                                    <span>{{ email.email }}</span>
+                                                                    <div class="flex">
+                                                                        <button type="button"
+                                                                            class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
+                                                                            @click.stop="openUserDescriptionModal(email.email)">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                fill="none" viewBox="0 0 24 24"
+                                                                                stroke-width="1.5" stroke="currentColor"
+                                                                                class="w-6 h-6">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                                                            </svg>
+                                                                        </button>
+                                                                        <button type="button"
+                                                                            class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent"
+                                                                            @click="openUnLinkModal(email.email)">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                fill="none" viewBox="0 0 24 24"
+                                                                                stroke-width="1.5" stroke="currentColor"
+                                                                                class="w-6 h-6">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                                            </svg>
+                                                                        </button>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="flex justify-end pt-4">
-                                            <button @click="handleSubmit"
-                                                class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{
-                                                    $t('settings_navigation.modifier') }}</button>
+                                        <div class="flex flex-row justify-between">
+                                            <div class="pt-4">
+                                                <div class="relative items-stretch mt-2 flex justify-center items-center">
+                                                    <button type="button"
+                                                        class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                        @click="authorize_microsoft">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21"
+                                                            viewBox="0 0 21 21">
+                                                            <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                                                            <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+                                                            <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                                                            <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                                                        </svg>
+                                                        {{ $t('settings_navigation3.Outlook') }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="py-4">
+                                                <div class="relative items-stretch mt-2 flex justify-center items-center">
+                                                    <button type="button"
+                                                        class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                        @click="authorize_google">
+                                                        <svg class="-ml-0.5 h-5 w-5" aria-hidden="true" viewBox="0 0 24 24"
+                                                            xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                                                            <path
+                                                                d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
+                                                                id="Shape" fill="#4285F4"></path>
+                                                            <path
+                                                                d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
+                                                                id="Shape" fill="#34A853"></path>
+                                                            <path
+                                                                d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
+                                                                id="Shape" fill="#FBBC05"></path>
+                                                            <path
+                                                                d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
+                                                                id="Shape" fill="#EB4335"></path>
+                                                        </svg>
+                                                        {{ $t('settings_navigation3.Google') }}
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex-col flex-grow">
+                                <div class="mx-auto max-w-lg pt-6">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                $t('settings_navigation3.email link') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Delete') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">
-                                        <div class="overflow-y-auto max-h-[120px]">
-                                            <!-- TODO: set dynamicelly -->
-                                            <div class="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
-                                                <div class="w-full max-w-lg">
-                                                    <div class="max-h-20 sm:max-h-24 md:max-h-32 lg:max-h-40"> <!-- TODO: set dynamicelly -->
-                                                        <ul role="list" class="space-y-1">
-                                                            <li v-for="email in emailsLinked" :key="email.email"
-                                                                class="border border-black flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
-                                                                <svg v-if="email.type_api === 'microsoft'"
-                                                                    xmlns="http://www.w3.org/2000/svg" width="21"
-                                                                    height="21" viewBox="0 0 21 21">
-                                                                    <rect x="1" y="1" width="9" height="9"
-                                                                        fill="#f25022" />
-                                                                    <rect x="1" y="11" width="9" height="9"
-                                                                        fill="#00a4ef" />
-                                                                    <rect x="11" y="1" width="9" height="9"
-                                                                        fill="#7fba00" />
-                                                                    <rect x="11" y="11" width="9" height="9"
-                                                                        fill="#ffb900" />
-                                                                </svg>
-                                                                <svg v-if="email.type_api === 'google'"
-                                                                    class="-ml-0.5 h-5 w-5" aria-hidden="true"
-                                                                    viewBox="0 0 24 24"
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    fill="currentColor">
-                                                                    <path
-                                                                        d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
-                                                                        id="Shape" fill="#4285F4"></path>
-                                                                    <path
-                                                                        d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
-                                                                        id="Shape" fill="#34A853"></path>
-                                                                    <path
-                                                                        d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
-                                                                        id="Shape" fill="#FBBC05"></path>
-                                                                    <path
-                                                                        d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
-                                                                        id="Shape" fill="#EB4335"></path>
-                                                                </svg>
-                                                                <span>{{ email.email }}</span>
-                                                                <div class="flex">
-                                                                    <button type="button"
-                                                                        class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
-                                                                        @click.stop="openUserDescriptionModal(email.email)">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke-width="1.5" stroke="currentColor"
-                                                                            class="w-6 h-6">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                                                                        </svg>
-                                                                    </button>
-                                                                    <button type="button"
-                                                                        class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent"
-                                                                        @click="openUnLinkModal(email.email)">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                            fill="none" viewBox="0 0 24 24"
-                                                                            stroke-width="1.5" stroke="currentColor"
-                                                                            class="w-6 h-6">
-                                                                            <path stroke-linecap="round"
-                                                                                stroke-linejoin="round"
-                                                                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                                                        </svg>
-                                                                    </button>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
+                                        <div class="flex space-x-1 items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <input type="radio"
+                                                    class="form-radio text-red-600 border-red-400 focus:border-red-500 focus:ring-red-200 h-5 w-5"
+                                                    name="choice">
+                                                <label for="push-everything" class="block text-sm font-medium leading-6">
+                                                    {{ $t('settings_navigation.Confirmer_supp') }}</label>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-row justify-between">
-                                        <div class="pt-4">
-                                            <div class="relative items-stretch mt-2 flex justify-center items-center">
-                                                <button type="button"
-                                                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                                    @click="authorize_microsoft">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21"
-                                                        viewBox="0 0 21 21">
-                                                        <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-                                                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-                                                        <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-                                                        <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-                                                    </svg>
-                                                    {{ $t('settings_navigation3.Outlook') }}
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="py-4">
-                                            <div class="relative items-stretch mt-2 flex justify-center items-center">
-                                                <button type="button"
-                                                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                                    @click="authorize_google">
-                                                    <svg class="-ml-0.5 h-5 w-5" aria-hidden="true" viewBox="0 0 24 24"
-                                                        xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                                                        <path
-                                                            d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
-                                                            id="Shape" fill="#4285F4"></path>
-                                                        <path
-                                                            d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
-                                                            id="Shape" fill="#34A853"></path>
-                                                        <path
-                                                            d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
-                                                            id="Shape" fill="#FBBC05"></path>
-                                                        <path
-                                                            d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
-                                                            id="Shape" fill="#EB4335"></path>
-                                                    </svg>
-                                                    {{ $t('settings_navigation3.Google') }}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mx-auto max-w-lg pt-6">
-                                <div class="relative">
-                                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                        <div class="w-full border-t border-gray-300"></div>
-                                    </div>
-                                    <div class="relative flex justify-center">
-                                        <span class="bg-white px-2 text-sm text-gray-500">{{
-                                            $t('settings_navigation.Delete') }}</span>
-                                    </div>
-                                </div>
-                                <div class="pt-6">
-                                    <div class="flex space-x-1 items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <input type="radio"
-                                                class="form-radio text-red-600 border-red-400 focus:border-red-500 focus:ring-red-200 h-5 w-5"
-                                                name="choice">
-                                            <label for="push-everything" class="block text-sm font-medium leading-6">
-                                                {{ $t('settings_navigation.Confirmer_supp') }}</label>
-                                        </div>
-                                        <button @click="openModal" type="submit"
-                                            class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                            </svg>
+                                            <button @click="openModal" type="submit"
+                                                class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                </svg>
 
-                                            {{ $t('settings_navigation.supprimer') }}</button>
+                                                {{ $t('settings_navigation.supprimer') }}</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -615,7 +609,37 @@
                                     <div class="pt-6 pb-10">
                                         <div class="relative items-stretch mt-2">
                                             <!-- TODO: put this in a component with the backend API calls -->
-                                            <LanguageSelector :initialColor="bgColor" @colorSelected="handleLanguageChange"/>
+                                            <Listbox as="div" v-model="languageSelected" @click="handleLanguageChange">
+                                                <ListboxButton
+                                                    class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
+                                                    <span class="block truncate">{{ languageDisplayed }}</span>
+                                                    <span
+                                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400"
+                                                            aria-hidden="true" />
+                                                    </span>
+                                                </ListboxButton>
+                                                <transition leave-active-class="transition ease-in duration-100"
+                                                    leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                                    <ListboxOptions
+                                                        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                                        <ListboxOption as="template" v-for="language in languages"
+                                                            :key="language.key" :value="language"
+                                                            v-slot="{ active, selected }">
+                                                            <li
+                                                                :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                                                <span
+                                                                    :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{
+                                                                        language.value }}</span>
+                                                                <span v-if="selected"
+                                                                    :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                </span>
+                                                            </li>
+                                                        </ListboxOption>
+                                                    </ListboxOptions>
+                                                </transition>
+                                            </Listbox>
                                         </div>
                                     </div>
                                     <!-- <div class="relative">
@@ -662,68 +686,19 @@ import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headless
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
 // TODO: display the language name in the current selected language
-const languages = {
-    french: {
-        key: 'french',
-        value: 'Français 🇫🇷',
-        translations: {
-            french: 'Français',
-            american: 'French',
-            german: 'Französisch',
-            russian: 'Французский',
-            spanish: 'Francés',
-            chinese: '法语',
-            indian: 'फ्रेंच'
-        }
-    },
-    american: {
-        key: 'american',
-        value: 'American 🇺🇸',
-        translations: {
-            french: 'Américain',
-            american: 'American',
-            german: 'Amerikanisch',
-            russian: 'Американский',
-            spanish: 'Americano',
-            chinese: '美国人',
-            indian: 'अमेरिकन'
-        }
-    },
-    // Ajoutez les autres langues de manière similaire
-    german: {
-        key: 'german',
-        value: 'Deutsch 🇩🇪',
-        translations: {
-            french: 'Allemand',
-            american: 'German',
-            german: 'Deutsch',
-            russian: 'Немецкий',
-            spanish: 'Alemán',
-            chinese: '德语',
-            indian: 'जर्मन'
-        }
-    },
-    // Continuez pour les autres langues
-};
+const languages = [
+    { key: 'french', value: 'Français 🇫🇷' },
+    { key: 'american', value: 'American 🇺🇸' },
+    { key: 'german', value: 'Deutsch 🇩🇪' },
+    { key: 'russian', value: 'Русский 🇷🇺' },
+    { key: 'spanish', value: 'Español 🇪🇸' },
+    { key: 'chinese', value: '中文 🇨🇳' },
+    { key: 'indian', value: 'हिन्दी 🇮🇳' },
+];
+
 
 let languageSelected = ref('');
 let languageDisplayed = ref('');
-
-// Rest of your script content remains the same...
-
-async function fetchUserLanguage() {
-    const storedLanguageKey = localStorage.getItem('language');
-
-    if (storedLanguageKey) {
-        const storedLanguage = languages[storedLanguageKey];
-        if (storedLanguage) {
-            languageSelected.value = storedLanguage;
-            languageDisplayed.value = storedLanguage.translations[storedLanguageKey];
-        }
-    } else {
-        // Fetch the default or user's language from API and update accordingly
-    }
-};
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -752,13 +727,9 @@ onMounted(() => {
     fetchEmailLinked();
     fetchUserData();
     fetchUserLanguage();
-    
-    // Vérifier si bgColor est vide, et si c'est le cas, récupérer la couleur de fond
-    if (!bgColor.value) {
-        getBackgroundColor();
-    }
-});
-
+    // TODO: fetch ONLY if the var bgColor is empty
+    getBackgroundColor();
+})
 
 async function handleLanguageChange() {
     const newLanguageKey = languageSelected.value.key;

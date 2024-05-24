@@ -11,6 +11,7 @@ import time
 from django.db import IntegrityError
 import jwt
 import stripe
+from django.utils import timezone
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
@@ -38,6 +39,7 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
     GOOGLE_PROVIDER,
+    LANGUAGES,
     MAX_RETRIES,
     MICROSOFT_PROVIDER,
     STRIPE_PAYMENT_FAILED_URL,
@@ -48,6 +50,8 @@ from MailAssistant.constants import (
 from MailAssistant import library
 from .models import (
     Category,
+    GoogleListener,
+    Language,
     MicrosoftListener,
     SocialAPI,
     Email,
@@ -222,6 +226,10 @@ def subscribe_listeners(type_api, user, email) -> bool:
     if type_api == "google":
         subscribed = google_api.subscribe_to_email_notifications(user, email)
         if subscribed:
+            social_api = google_api.get_social_api(user, email)
+            GoogleListener.objects.create(
+                last_modified=timezone.now(), social_api=social_api
+            )
             return True
 
     elif type_api == "microsoft":
@@ -306,6 +314,7 @@ def save_user_data(
     theme,
     color,
     categories,
+    language="french",
 ):
     """Store user creds and settings in DB"""
     try:
@@ -343,6 +352,8 @@ def save_user_data(
             description="",
             user=user,
         )
+
+        Language.objects.create(user=user, language=language)
 
         return {"message": "User data saved successfully"}
 
@@ -558,15 +569,63 @@ def refresh_token(request):
         return Response({"error": str(e)}, status=400)
 
 
+######################## LANGUAGES ########################
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_language(request: HttpRequest) -> Response:
+    """
+    Retrieve the language setting for the authenticated user.
+    """
+    user = request.user
+
+    try:
+        language = Language.objects.get(user=user).language
+        return Response({"language": language}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        LOGGER.error(f"Unexpected error in get_user_language: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_user_language(request: HttpRequest) -> Response:
+    """
+    Set the language for the authenticated user.
+    """
+    user = request.user
+    language: str = request.data.get("language")
+
+    if not language:
+        return Response(
+            {"error": "No language provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    if language not in LANGUAGES:
+        return Response(
+            {"error": "Language not allowed"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        language_user, created = Language.objects.get_or_create(user=user)
+        language_user.language = language
+        language_user.save()
+        return Response(
+            {"message": "Language updated successfully"}, status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        LOGGER.error(f"Error in set_language: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 ######################## CATEGORIES ########################
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_categories(request):
-    username = request.user.username
+    user = request.user
 
     try:
-        current_user = User.objects.get(username=username)
-        categories = Category.objects.filter(user=current_user)
+        categories = Category.objects.filter(user=user)
         serializer = CategoryNameSerializer(categories, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

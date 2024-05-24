@@ -14,8 +14,8 @@ ENV = os.environ.get("ENV")
 ENCRYPTION_KEYS = json.load(open(f"{CREDS_PATH}encryption_keys.json"))
 
 # ----------------------- PICTURES ------------------------#
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BACKEND_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BACKEND_DIR, "media")
 
 # ----------------------- URLS AND CORS -----------------------#
 DOMAIN = f"https://{ENV}.aomail.ai"
@@ -32,6 +32,8 @@ EMAIL_NO_REPLY = EMAILS_CREDS["email"]
 EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 ADMIN_EMAIL_LIST = EMAILS_CREDS["email_admins"]
 
+######################## LANGUAGES ########################
+LANGUAGES = ["french", "american", "german", "russian", "spanish", "chinese", "indian"]
 
 ######################## STRIPE ########################
 STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json"))

@@ -58,7 +58,7 @@
         <ul role="list" class="flex flex-col space-y-1">
           <li v-for="item in navigation" :key="item.name">
             <a :href="item.href"
-              :class="[useRoute().path === item.href ? 'bg-white text-gray-900 lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow-sm' : 'text-gray-900 hover:text-black hover:shadow-sm hover:bg-white', 'group flex gap-x-3 rounded-lg p-3 text-sm leading-6 font-semibold']">
+              :class="[useRoute().path === item.href ? 'bg-gray-100 text-gray-900 lg:ring-1 lg:ring-black lg:ring-opacity-5' : 'text-gray-500 hover:text-black hover:bg-gray-100', 'group flex gap-x-3 rounded-lg p-3 text-sm leading-6 font-semibold']">
               <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
               <span class="sr-only">{{ item.name }}</span>
             </a>

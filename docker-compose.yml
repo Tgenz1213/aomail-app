@@ -15,28 +15,31 @@ services:
   backend:
     build: ./backend
     environment:
+      #- DJANGO_SETTINGS_MODULE = 'MailAssistant_project.settings'
       - DATABASE_URL=postgres://django_admin:admin@2@db:5432/mailassistantdb
       - ENV=${ENV}
       - TOPIC_NAME=${TOPIC_NAME}
     ports:
       - "${BACKEND_PORT}:8000"
     volumes:
-      - ./backend:/app 
-      - /app/node_modules 
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+      - ./backend:/app
+      - /app/node_modules
+    #command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    # TODO remove
+    command: ["python", "manage.py", "runserver_plus", "0.0.0.0:8000", "--cert-file", "/etc/ssl/certs/cert.pem", "--key-file", "/etc/ssl/private/key.pem"]
     depends_on:
       - db
 
   frontend:
     build: ./frontend
-    environment :
+    environment:
       - VUE_APP_ENV=${ENV}
     ports:
       - "${FRONTEND_PORT}:8080"
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: ["npm", "run", "serve"]
+    command: [ "npm", "run", "serve" ]
     depends_on:
       - backend
 

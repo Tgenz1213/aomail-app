@@ -6,17 +6,15 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 
 import json
 from datetime import timedelta
-from pathlib import Path
+
+# from pathlib import Path
 from MailAssistant.constants import (
     BACKEND_DIR,
     EMAIL_NO_REPLY,
     EMAIL_NO_REPLY_PASSWORD,
     HOSTS_URLS,
     CORS_ALLOWED_ORIGINS,
-    MEDIA_URL,
-    MEDIA_ROOT,
 )
-from MailAssistant.schedule_tasks import Command
 
 
 ######################## CHECKLIST FOR PRODUCTION ########################
@@ -46,7 +44,6 @@ from MailAssistant.schedule_tasks import Command
 CONFIG = json.load(open("creds/django_creds.json"))
 SECRET_KEY = CONFIG["secret_key"]
 BACKEND_LOG_PATH = "backend.log"
-BACKEND_JSON_LOG = "logger.json"
 CUSTOM_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
@@ -66,6 +63,7 @@ DATABASES = CONFIG["database_conf"]
 
 # ----------------------- DJANGO DEPENDENCIES -----------------------#
 INSTALLED_APPS = [
+    "channels",  # TODO remove
     "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -127,12 +125,6 @@ LOGGING = {
             "class": "logging.FileHandler",
             "filename": BACKEND_LOG_PATH,
             "level": "INFO",
-            "formatter": "verbose",
-        },
-        "json_file": {
-            "class": "logging.FileHandler",
-            "filename": BACKEND_JSON_LOG,
-            "level": "ERROR",
             "formatter": "json",
         },
     },
@@ -142,7 +134,7 @@ LOGGING = {
             "propagate": False,
         },
         "": {
-            "handlers": ["console", "file", "json_file"],
+            "handlers": ["console", "file"],
             "level": "INFO",
         },
     },
@@ -221,10 +213,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
-# TODO: add a scheduled task that deletes all emails to no reply every day
-"""CRONJOBS = [
+CRONJOBS = [
     (
-        "0 3 * * *",
-        Command.update_subscription_status,
-    ),  # Run the task every day at 3 am
-]"""
+        "*/1 * * * *",
+        "MailAssistant.schedule_tasks.debug_cron",
+    )  # supposed to run every minute
+]

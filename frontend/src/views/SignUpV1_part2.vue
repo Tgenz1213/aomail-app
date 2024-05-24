@@ -8,7 +8,8 @@
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
           <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
-          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.titre') }}</h2>
+          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.titre')
+            }}</h2>
         </div>
         <div class="2xl:mt-10 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
           <div class="flex flex-col bg-slate-200 bg-opacity-80 rounded-lg">
@@ -522,7 +523,8 @@
           <p class="mt-6 text-center text-sm text-gray-500">
             {{ $t('SignUp_p1_vue.text') }}
             {{ ' ' }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.Login') }}</a>
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.Login')
+              }}</a>
           </p>
         </div>
       </div>
@@ -609,6 +611,12 @@ async function submitSignupData(event) {
   event.preventDefault();
   // TODO: checkbox I read all the infos and accept the terms
   console.log("The user has read and accepted our terms");
+
+  // Show the pop-up
+  backgroundColor.value = 'bg-green-300';
+  notificationTitle.value = 'Création de compte en cours...';
+  notificationMessage.value = 'Attente de réponse de la base de données';
+  displayPopup();
 
   try {
     // Prepare the data for registration

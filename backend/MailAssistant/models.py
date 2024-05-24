@@ -42,14 +42,6 @@ class Language(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-class MicrosoftListener(models.Model):
-    """Stores information about Microsoft subscriptions"""
-
-    subscription_id = models.CharField(max_length=50, unique=True)
-    email = models.CharField(max_length=320)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
 class Contact(models.Model):
     """Stores contacts of an email account"""
 
@@ -99,6 +91,26 @@ class Rule(models.Model):
     sender = models.OneToOneField(Sender, on_delete=models.CASCADE)
 
 
+class MicrosoftListener(models.Model):
+    """Stores information about Microsoft subscriptions"""
+
+    subscription_id = models.CharField(max_length=50, unique=True)
+    email = models.CharField(max_length=320)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class GoogleListener(models.Model):
+    """Stores information about Google subscriptions"""
+
+    last_modified = models.DateTimeField(null=True)
+    social_api = models.ForeignKey(
+        SocialAPI,
+        on_delete=models.CASCADE,
+        related_name="social_api_google_listener",
+        null=True,
+    )
+
+
 class Email(models.Model):
     """Model for storing email information."""
 
@@ -111,7 +123,7 @@ class Email(models.Model):
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
     content = models.TextField()
-    html_content = models.TextField(default="") # quick fix
+    html_content = models.TextField(default="")  # quick fix
     subject = models.CharField(max_length=400)
     priority = models.CharField(max_length=50)
     read = models.BooleanField()
@@ -128,22 +140,29 @@ class Email(models.Model):
 class CC_sender(models.Model):
     """Model for storing CC sender information."""
 
-    mail_id = models.ForeignKey(Email, on_delete=models.CASCADE, related_name="cc_senders")
+    mail_id = models.ForeignKey(
+        Email, on_delete=models.CASCADE, related_name="cc_senders"
+    )
     email = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
 
 
 class BCC_sender(models.Model):
     """Model for storing BCC sender information."""
-    
-    mail_id = models.ForeignKey(Email, on_delete=models.CASCADE, related_name="bcc_senders")
+
+    mail_id = models.ForeignKey(
+        Email, on_delete=models.CASCADE, related_name="bcc_senders"
+    )
     email = models.CharField(max_length=200)
     name = models.CharField(max_length=200)
+
 
 class Picture(models.Model):
     """Model for storing pictures sender of a mail"""
 
-    mail_id = models.ForeignKey(Email, on_delete=models.CASCADE, related_name="picture_mail")
+    mail_id = models.ForeignKey(
+        Email, on_delete=models.CASCADE, related_name="picture_mail"
+    )
     picture = models.TextField()
 
 

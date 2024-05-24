@@ -30,8 +30,7 @@
           <navbar2></navbar2>
         </div>
       </div>
-      <div
-        class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+      <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
         <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full relative"> <!-- ADDED relative -->
           <div class="divide-y divide-gray-200">
@@ -67,7 +66,7 @@
                         </div>
                         <span
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/20">{{
-    rule.category }}</span>
+                          rule.category }}</span>
                       </div>
                       <div v-if="rule.priority !== ''" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">
@@ -76,13 +75,13 @@
                         </div>
                         <span v-if="rule.priority === 'Important'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{
-    rule.priority }}</span>
+                          rule.priority }}</span>
                         <span v-if="rule.priority === 'Informatif'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{
-    rule.priority }}</span>
+                          rule.priority }}</span>
                         <span v-if="rule.priority === 'Inutile'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">{{
-    rule.priority }}</span>
+                          rule.priority }}</span>
                       </div>
                       <div v-if="rule.mail_stop === true" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">
@@ -127,9 +126,9 @@
     </div>
   </div>
   <ModalSeeRule :isOpen="showModal" @update:isOpen="updateModalStatus" :emailSenders="emailSenders"
-    :categories="categories" :sender="senderSelected" @fetch-rules="fetchRules"/>
+    :categories="categories" :sender="senderSelected" @fetch-rules="fetchRules" />
   <UpdateRule :isOpen="showUpdateModal" :rule="ruleSelected" :categories="categories" :emailSenders="emailSenders"
-    @update:isOpen="updateModalUpdateStatus" @fetch-rules="fetchRules"/>
+    @update:isOpen="updateModalUpdateStatus" @fetch-rules="fetchRules" />
 </template>
 
 <script>

@@ -31,7 +31,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="flex flex-col h-[150px]">
+                    <div class="flex flex-col h-[20vh]">
                         <!-- Old value (26/12/2023) -->
                         <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
                             @input="adjustHeight" v-model="textareaValue"

@@ -133,7 +133,13 @@ class Search:
         """
         response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         return result_json
 
@@ -170,7 +176,13 @@ class Search:
         """
         response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         return result_json
 
@@ -229,7 +241,13 @@ class Search:
         """
         response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         category = result_json["category"]
         organization = result_json["organization"]
@@ -293,7 +311,13 @@ class Search:
         """
         response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         category = result_json["category"]
         organization = result_json["organization"]

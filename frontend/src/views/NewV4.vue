@@ -234,12 +234,22 @@
                                 <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
                             </div>
                             <div class="flex gap-x-2 mb-4">
+                                <div class="flex items-stretch gap-1 flex-grow">
+                                    <select v-model="emailSelected" @change="setEmailSelected"
+                                        class="block w-full px-4 py-2 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                        <option v-for="email in emailsLinked" :key="email.email"
+                                            :value="email.email">
+                                            {{ email.email }}
+                                        </option>
+                                    </select>
+                                </div>
                                 <div class="inline-flex rounded-lg shadow-lg">
                                     <button @click="sendEmail"
-                                        class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('New_vue.Action_envoyer') }}</button>
-                                    <Menu as="div" class="relative -ml-px block">
+                                        class="bg-gray-700 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center">{{ $t('New_vue.Action_envoyer') }} <PaperAirplaneIcon  class="w-4" aria-hidden="true" /></button>
+
+                                        <Menu as="div" class="relative -ml-px block">
                                         <MenuButton
-                                            class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
+                                            class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10">
                                             <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
                                             <span class="sr-only">{{ $t('New_vue.Options') }}</span>
                                             <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
@@ -263,15 +273,6 @@
                                             </MenuItems>
                                         </transition>
                                     </Menu>
-                                </div>
-                                <div class="flex items-stretch gap-1 flex-grow">
-                                    <select v-model="emailSelected" @change="setEmailSelected"
-                                        class="block w-full px-4 py-2 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                        <option v-for="email in emailsLinked" :key="email.email"
-                                            :value="email.email">
-                                            {{ email.email }}
-                                        </option>
-                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -2192,6 +2193,10 @@ import {
     ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 
+import {
+    PaperAirplaneIcon
+} from '@heroicons/vue/24/solid'
+
 
 export default {
     components: {
@@ -2199,7 +2204,8 @@ export default {
         Navbar2,
         UserGroupIcon,
         Bars2Icon,
-        ChevronDownIcon
+        ChevronDownIcon,
+        PaperAirplaneIcon
         // ChatBubbleOvalLeftEllipsisIcon,
         // Bars3BottomLeftIcon
     },

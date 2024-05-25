@@ -10,6 +10,8 @@ import re
 import threading
 
 
+ABS_TREE_PATH = "backend/MailAssistant/controllers/trees/"
+
 def preprocess_email(email_content: str) -> str:
     """Removes links from the email content and strips text of unnecessary spacings"""
     # Remove links enclosed in <http...> or http... followed by a space
@@ -130,10 +132,8 @@ class Search:
         self, user_id: int, question: str = None, knowledge_tree: dict = None
     ) -> None:
         self.user_id = user_id
-
-        # TODO: change the path when we will move this file
-        self.file_path = f"backend/MailAssistant/tests/{user_id}.json"
-
+        self.file_path = f"{ABS_TREE_PATH}{user_id}.json"
+        
         self.question = question
         if knowledge_tree:
             self.knowledge_tree = knowledge_tree

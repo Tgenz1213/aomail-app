@@ -248,7 +248,12 @@ class Search:
         return result_json
 
     def summarize_conversation(
-        self, body: str, email_id: str, language: str = "French"
+        self,
+        subject: str,
+        body: str,
+        user_description: str | None,
+        email_id: str,
+        language: str = "French",
     ) -> dict[str:list]:
         """Summarizes an email conversation in the specified language with keypoints."""
 
@@ -256,10 +261,18 @@ class Search:
         For each email in the following conversation, summarize it in {language} as a list of up to three ultra-concise keypoints (up to seven words) that encapsulate the core information. This will aid the user in recalling the past conversation.
         Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
         The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
+        If a user description is clearly provided, use it to enhance the keypoints.
         In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describes the conversation.
+        If you hesitate on any of them, or if it is unclear or not explicitly mentioned, set it to 'Unknown'.
         To assist you in categorizing the conversation, here are the existing categories and organizations: {self.get_categories()}.
         If you can classify the conversation in an existing category/organization: Do it. If you hesitate, create another category/organization in {language}.
 
+        User description:
+        {user_description}
+        
+        Email subject:
+        {subject}
+        
         Email conversation:
         {body}
         
@@ -295,17 +308,30 @@ class Search:
         return keypoints
 
     def summarize_email(
-        self, body: str, email_id: str, language: str = "French"
+        self,
+        subject: str,
+        body: str,
+        user_description: str | None,
+        email_id: str,
+        language: str = "French",
     ) -> dict[str:list]:
         """Summarizes an email conversation in the specified language with keypoints."""
 
         template = f"""As a smart email assistant, 
         Summarize the email body in {language} as a list of up to three ultra-concise keypoints (up to seven words each) that encapsulate the core information. This will aid the user in recalling the content of the email.
         The sentences must be highly relevant and should not include minor details or unnecessary information. If in doubt, do not add the keypoint.
+        If a user description is clearly provided, use it to enhance the keypoints.
         In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describe the conversation.
+        If you hesitate on any of them, or if it is unclear or not explicitly mentioned, set it to 'Unknown'.
         To assist you in categorizing the email, here are the existing categories and organizations: {self.get_categories()}.
         If you can classify the email within an existing category/organization, do so. If uncertain, create another category/organization in {language}.
 
+        User description:
+        {user_description}
+        
+        Email subject:
+        {subject}
+        
         Email body:
         {body}
         

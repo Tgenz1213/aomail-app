@@ -485,8 +485,8 @@ def categorize_and_summarize_email(
     response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
 
-    # print("Claude")
-    # print(clear_response)
+    print("Claude")
+    print(clear_response)
 
     print("=====================NUMBER OF TOKENS OUTPUT =========================")
     print(count_tokens(clear_response))

@@ -1,40 +1,16 @@
 {
-    "Neurosciences": {
+    "Emploi": {
         "organizations": {
-            "Intelligentsia": {
+            "Entreprise": {
                 "topics": {
-                    "Neurone et système neuronal": {
+                    "Stage": {
                         "keypoints": [
-                            "Neurone : structure biologique",
-                            "Axone, corps cellulaire, dendrites",
-                            "Système neuronal : réseau de neurones",
-                            "Potentiel d'action : codage biologique",
-                            "Différence de voltage entre neurones",
-                            "Système comparable à logique binaire",
-                            "Activation du potentiel d'action",
-                            "Signal électrique, chimique, électrique",
-                            "Changement d'état du pôle récepteur"
+                            "Transmettre convention de stage",
+                            "Proposer dates de stage",
+                            "Demander confirmation"
                         ],
                         "emails": [
-                            "18fae5381321d822"
-                        ]
-                    }
-                }
-            }
-        }
-    },
-    "Technologie": {
-        "organizations": {
-            "Intelligentsia": {
-                "topics": {
-                    "Stage en R&D": {
-                        "keypoints": [
-                            "Stage en R&D, CI, Docker, Django",
-                            "Rappel de la date limite",
-                            "Répondre avant le 3 juin"
-                        ],
-                        "emails": [
-                            "18fae5a58cb551f9"
+                            "18fae61aa2f4c3dc"
                         ]
                     }
                 }

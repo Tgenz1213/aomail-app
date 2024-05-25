@@ -1,107 +1,17 @@
 """
-TODO: implement integration with Search
-
-TEST FILE TO IMPLEMENT A GRPAH TO SEARCH DATA about a user question
+Handles AI-driven search to extract data from emails."
 """
 
 import json
+import logging
 import os
-import re
 import threading
+from MailAssistant.ai_providers import claude
 
 
+######################## LOGGING CONFIGURATION ########################
+LOGGER = logging.getLogger(__name__)
 ABS_TREE_PATH = "/app/MailAssistant/controllers/trees/"
-
-
-def preprocess_email(email_content: str) -> str:
-    """Removes links from the email content and strips text of unnecessary spacings"""
-    # Remove links enclosed in <http...> or http... followed by a space
-    email_content = re.sub(r"<http(.*?)>", "", email_content)
-    email_content = re.sub(r"http(.*?)\ ", "", email_content)
-    email_content = re.sub(r"http\S+", "", email_content)
-
-    # rmv email addresses
-    email_content = re.sub(r"<mailto:(.*?)>", "", email_content)
-    email_content = re.sub(r"mailto:(.*?)\ ", "", email_content)
-    # Remove email addresses containing "@"
-    email_content = re.sub(
-        r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", email_content
-    )
-    email_content = re.sub(
-        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", email_content
-    )
-
-    # Delete patterns like "[image: ...]"
-    email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)
-    # Convert Windows line endings to Unix line endings
-    email_content = email_content.replace("\r\n", "\n")
-    # Remove spaces at the start and end of each line
-    email_content = "\n".join(line.strip() for line in email_content.split("\n"))
-    # Delete multiple spaces
-    email_content = re.sub(r" +", " ", email_content)
-    # Reduce multiple consecutive newlines to two newlines
-    email_content = re.sub(r"\n{3,}", "\n\n", email_content)
-
-    return email_content.strip()
-
-
-# Sample data structure as described
-data = {
-    "Sport": {
-        "organizations": {
-            "Angers Métropole Cyclisme": {
-                "topics": {
-                    "New season": {
-                        "keypoints": [
-                            "commence 01/09/2024",
-                            "quentin revient en France",
-                        ],
-                        "emails": ["id_email23", "id_email4"],
-                    }
-                }
-            }
-        }
-    },
-    "Études": {
-        "organizations": {
-            "ESAIP": {
-                "topics": {
-                    "Semestre 4": {
-                        "keypoints": [
-                            "fin vers mi juin",
-                            "erasmus",
-                            "évaluer le dortoir",
-                        ],
-                        "emails": ["id_email1", "id_email2"],
-                    }
-                }
-            }
-        }
-    },
-}
-
-
-import json
-import anthropic
-from colorama import Fore, init
-
-######################## Claude 3 API SETTINGS ########################
-init(autoreset=True)
-
-
-######################## TEXT PROCESSING UTILITIES ########################
-def get_prompt_response(formatted_prompt):
-    """Returns the prompt response"""
-    client = anthropic.Anthropic(
-        api_key="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"
-    )
-    response = client.messages.create(
-        model="claude-3-haiku-20240307",
-        max_tokens=1000,
-        temperature=0.0,
-        messages=[{"role": "user", "content": formatted_prompt}],
-    )
-    return response
 
 
 class Search:
@@ -148,6 +58,9 @@ class Search:
     def get_categories(self) -> dict[str, list[str]]:
         """
         Extracts and returns categories and their associated organizations from the knowledge tree.
+
+        Returns:
+            dict[str, list[str]]: A dictionary where the keys are category names and the values are lists of organization names within each category.
         """
         if not self.knowledge_tree:
             return []
@@ -163,6 +76,12 @@ class Search:
     def get_keypoints(self, selected_categories: dict[str, list[str]]) -> dict:
         """
         Retrieves keypoints for the selected categories and organizations.
+
+        Args:
+            selected_categories (dict[str, List[str]]): A dictionary where keys are category names and values are lists of organization names.
+
+        Returns:
+            dict[str, dict[str, dict[str, dict[str, List[str]]]]]: A nested dictionary containing keypoints for each category, organization, and topic.
         """
         if not self.knowledge_tree:
             return []
@@ -212,7 +131,7 @@ class Search:
             "categoryN": [selected organizations]
         }}
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         result_json = json.loads(clear_response)
 
@@ -221,6 +140,13 @@ class Search:
     def get_answer(self, keypoints: dict, language: str = "French") -> dict:
         """
         Generates an answer based on the keypoints and checks if further details are needed.
+
+        Args:
+            keypoints (dict[str, str]): A dictionary containing key points of the user's data.
+            language (str, optional): The language in which the answer should be provided. Defaults to "French".
+
+        Returns:
+            dict[str, str]: A dictionary containing the answer and a boolean indicating if the answer is likely to be good.
         """
         template = f"""You are an email assistant that helps a user to answer their question.
 
@@ -242,7 +168,7 @@ class Search:
         }}
         Ensure the JSON is properly formatted and parsable by Python.
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         result_json = json.loads(clear_response)
 
@@ -256,8 +182,19 @@ class Search:
         email_id: str,
         language: str = "French",
     ) -> dict[str:list]:
-        """Summarizes an email conversation in the specified language with keypoints."""
+        """
+        Summarizes an email conversation in the specified language with keypoints.
 
+        Args:
+            subject (str): The subject of the email conversation.
+            body (str): The body of the email conversation.
+            user_description (Optional[str]): A description provided by the user to enhance keypoints.
+            email_id (str): The unique identifier of the email.
+            language (str, optional): The language in which to summarize the conversation. Defaults to "French".
+
+        Returns:
+            dict[str, List[str]]: A dictionary containing the summarized keypoints for each email.
+        """
         template = f"""As a smart email assistant, 
         For each email in the following conversation, summarize it in {language} as a list of up to three ultra-concise keypoints (up to seven words) that encapsulate the core information. This will aid the user in recalling the past conversation.
         Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
@@ -290,11 +227,9 @@ class Search:
             }}
         }}
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         result_json = json.loads(clear_response)
-
-        print(f"{Fore.GREEN}summarize_conversation result:{result_json}")
 
         category = result_json["category"]
         organization = result_json["organization"]
@@ -316,8 +251,19 @@ class Search:
         email_id: str,
         language: str = "French",
     ) -> dict[str:list]:
-        """Summarizes an email conversation in the specified language with keypoints."""
+        """
+        Summarizes an email conversation in the specified language with keypoints.
 
+        Args:
+            subject (str): The subject of the email.
+            body (str): The body content of the email.
+            user_description (Optional[str]): A description provided by the user to enhance the summary.
+            email_id (str): The unique identifier for the email.
+            language (str, optional): The language in which to summarize the email. Defaults to "French".
+
+        Returns:
+            dict[str, List[str]]: A dictionary containing the category, organization, topic, and keypoints of the email.
+        """
         template = f"""As a smart email assistant, 
         Summarize the email body in {language} as a list of up to three ultra-concise keypoints (up to seven words each) that encapsulate the core information. This will aid the user in recalling the content of the email.
         The sentences must be highly relevant and should not include minor details or unnecessary information. If in doubt, do not add the keypoint.
@@ -345,11 +291,9 @@ class Search:
             "keypoints": [list of keypoints]
         }}
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
         result_json = json.loads(clear_response)
-
-        print(f"{Fore.GREEN}summarize_email result:{result_json}")
 
         category = result_json["category"]
         organization = result_json["organization"]
@@ -363,18 +307,35 @@ class Search:
     def save_user_data(self, data: dict) -> None:
         """
         Saves updated user data to a JSON file.
+
+        Args:
+            data (dict): The user data to be saved.
         """
-        print("WE ARE CREATING THE FILE DW", self.file_path)
-        with open(self.file_path, "w", encoding="utf-8") as json_file:
-            json.dump(data, json_file, ensure_ascii=False, indent=4)
-        print("Data saved to JSON file successfully.")
+        try:
+            with open(self.file_path, "w", encoding="utf-8") as json_file:
+                json.dump(data, json_file, ensure_ascii=False, indent=4)
+            LOGGER.info(
+                f"Data saved to JSON file successfully - user_id: {self.user_id}"
+            )
+        except (OSError, TypeError) as e:
+            LOGGER.error(
+                f"Failed to save data to JSON file - user_id: {self.user_id}, error: {e}"
+            )
 
     def load_user_data(self) -> dict:
         """
         Loads user data from a JSON file.
+
+        Returns:
+            dict: The user data loaded from the JSON file.
         """
-        with open(self.file_path, "r", encoding="utf-8") as json_file:
-            return json.load(json_file)
+        try:
+            with open(self.file_path, "r", encoding="utf-8") as json_file:
+                return json.load(json_file)
+        except (OSError, json.JSONDecodeError) as e:
+            LOGGER.error(
+                f"Failed to load data from JSON file - user_id: {self.user_id}, error: {e}"
+            )
 
     def add_user_data(
         self,
@@ -442,40 +403,3 @@ class Search:
             ]["emails"] = prev_emails
 
         self.save_user_data(self.knowledge_tree)
-
-
-# THIS CODE IS TO TEST AO ANSWER WITH TREE KNOWLEDGE
-"""
-question = "When does the cycling season start?"
-# TODO: get real user id
-user_id = 2
-# data = {} # remove this line to test with Augustin data
-search = Search(user_id)
-
-search = Search(user_id, question, data)
-selected_categories = search.get_selected_categories()
-keypoints = search.get_keypoints(selected_categories)
-
-if not selected_categories or not keypoints:
-    print("You do not have enough data to answer the question")
-else:
-    answer = search.get_answer(keypoints)
-
-    if answer["sure"] == False:
-        emails = []
-        print(
-            f"{Fore.YELLOW}Ao is not sure, here is the list of emails that will help you to verify its answer"
-        )
-
-        for category in keypoints:
-            for organization in keypoints[category]:
-                for topic in keypoints[category][organization]:
-                    emails.extend(
-                        search.knowledge_tree[category]["organizations"][organization][
-                            "topics"
-                        ][topic]["emails"]
-                    )
-
-        print(emails)
-    answer = answer["answer"]
-    print(f"The answer to the question is:\n{answer}")"""

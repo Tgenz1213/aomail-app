@@ -22,5 +22,23 @@
                 }
             }
         }
+    },
+    "Technologie": {
+        "organizations": {
+            "Intelligentsia": {
+                "topics": {
+                    "Stage en R&D": {
+                        "keypoints": [
+                            "Stage en R&D, CI, Docker, Django",
+                            "Rappel de la date limite",
+                            "Répondre avant le 3 juin"
+                        ],
+                        "emails": [
+                            "18fae5a58cb551f9"
+                        ]
+                    }
+                }
+            }
+        }
     }
 }

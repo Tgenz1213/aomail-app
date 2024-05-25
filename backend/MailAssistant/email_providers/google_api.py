@@ -1219,7 +1219,6 @@ def email_to_db(user, services, social_api: SocialAPI):
         image_files,
     ) = get_mail_to_db(services)
 
-    # TODO:
     if is_reply:
         # summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1237,7 +1236,16 @@ def email_to_db(user, services, social_api: SocialAPI):
         print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
     else:
         # summarize single email with Search
-        ...
+        email_content = library.preprocess_email(decoded_data)
+
+        user_id = user.id
+        search = Search(user_id)
+        email_id = get_mail_id(services, 0)
+        keypoints = search.summarize_email(email_content, email_id)
+        print(
+            "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+        )
+        print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
 
     # print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
     # print(safe_html)

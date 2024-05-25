@@ -7,8 +7,8 @@ FOR NOW NOTHING WORKS
 import logging
 from django.utils import timezone
 from datetime import timedelta
-from backend.MailAssistant.models import GoogleListener
-from backend.MailAssistant.email_providers import google_api
+from MailAssistant.models import GoogleListener
+from MailAssistant.email_providers import google_api
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -31,9 +31,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 def debug_cron():
-    print(
-        "--------------------------IF YOU SEE THIS CELERY TASKS ARE WORKING PROPERLY!!!! ------------------------"
-    )
+    print("IF YOU SEE THIS CELERY TASKS ARE WORKING PROPERLY!")
+    LOGGER.error("THE DUMMY TASK HAS BEEN RAN")
 
 
 def renew_gmail_subscriptions():

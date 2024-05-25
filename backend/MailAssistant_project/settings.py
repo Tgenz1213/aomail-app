@@ -212,9 +212,14 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
+# documentation: https://crontab.guru/
 CRONJOBS = [
     (
-        "*/1 * * * *",
+        "* * * * *",  # every minute
         "MailAssistant.schedule_tasks.debug_cron",
-    )  # supposed to run every minute
+    ),
+    (
+        "0 3 * * *",  # At 03:00 am every day
+        "MailAssistant.schedule_tasks.renew_gmail_subscriptions",
+    ),
 ]

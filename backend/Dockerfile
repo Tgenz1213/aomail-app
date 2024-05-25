@@ -1,6 +1,9 @@
 # Use the official Python image as the base image
 FROM python:3.11
 
+# Install cron
+RUN apt-get update && apt-get install -y cron
+
 # Set the working directory in the container
 WORKDIR /app
 
@@ -19,3 +22,5 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Set the entrypoint script
 ENTRYPOINT ["entrypoint.sh"]
+
+CMD python manage.py runserver 0.0.0.0:8000

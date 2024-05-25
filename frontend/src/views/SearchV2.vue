@@ -61,7 +61,8 @@
               <div class="flex flex-col w-full px-6 pt-6">
                 <div class="flex space-x-1 items-center">
                   <magnifying-glass-icon class="w-4 h-4" />
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('Search_vue.Recherche') }}</label>
+                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
+                    $t('Search_vue.Recherche') }}</label>
                 </div>
                 <div class="flex space-x-2 items-center">
                   <div class="flex-grow w-full">
@@ -72,7 +73,8 @@
                   </div>
                   <div class="flex-1 mt-2">
                     <button type="button" @click="searchEmails"
-                      class="w-28 rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">{{ $t('Search_vue.bouton_recherche') }}</button>
+                      class="w-28 rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">{{
+                        $t('Search_vue.bouton_recherche') }}</button>
                   </div>
                 </div>
               </div>
@@ -138,8 +140,9 @@
                   <div class="col-span-1 shadow-sm">
                     <div class="flex space-x-1 items-center">
                       <adjustments-horizontal-icon class="w-4 h-4" />
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">TODO: list of selected: Type de pièce jointe
-                        </label>
+                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">TODO: list of
+                        selected: Type de pièce jointe
+                      </label>
                     </div>
                     <div class="relative items-stretch mt-2">
 
@@ -181,7 +184,7 @@
                   <!-- SECOND ROW OF INPUTS -->
 
 
-                  
+
                   <div class="col-span-1 shadow-sm">
                     <div class="flex space-x-1 items-center">
                       <user-icon class="w-4 h-4" />
@@ -202,8 +205,8 @@
 
                         <ComboboxOptions v-if="filteredFromPeople.length > 0"
                           class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                          <ComboboxOption v-for="person in filteredFromPeople" :value="person" :key="person" as="template"
-                            v-slot="{ active, selected }">
+                          <ComboboxOption v-for="person in filteredFromPeople" :value="person" :key="person"
+                            as="template" v-slot="{ active, selected }">
                             <li @click="toggleSelectionFromAddress(person)"
                               :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
                               <div class="flex">
@@ -239,17 +242,25 @@
 
                     </div>
                   </div>
-                  <div class="col-span-1 shadow-sm">  
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Tout les fields doivent être ds advanced à part recherche</label>
-                    
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INT FIELD: max_results</label>
+                  <div class="col-span-1 shadow-sm">
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Tout les fields doivent
+                      être ds advanced à part recherche</label>
 
-                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">BOOL FIELD: advanced</label>
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">LIST FIELD: emails Linked for search</label>
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: subject</label>
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: body</label>
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: date_from</label>
-                      <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD: search_in</label>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INT FIELD:
+                      max_results</label>
+
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">BOOL FIELD:
+                      advanced</label>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">LIST FIELD: emails
+                      Linked for search</label>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
+                      subject</label>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
+                      body</label>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
+                      date_from</label>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
+                      search_in</label>
                   </div>
 
 
@@ -333,7 +344,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                               d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
                           </svg>
-                          <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('Search_vue.Resultats_négatif') }}</span>
+                          <span class="mt-2 block text-sm font-semibold text-gray-900">{{
+                            $t('Search_vue.Resultats_négatif') }}</span>
                         </div>
                       </div>
                     </div>
@@ -500,31 +512,31 @@ onMounted(async () => {
 
 
 async function fetchEmailLinked() {
-    const requestOptions = {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    };
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions);
-
-        if ("error" in response) {
-            // Show the pop-up
-            backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur récupération des emails liés';
-            notificationMessage = response.error;
-            displayPopup();
-        } else {
-            emailsLinked.value = response;
-        }
-    } catch (error) {
-        // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur récupération des emails liés';
-        notificationMessage = error.message;
-        displayPopup();
+  const requestOptions = {
+    headers: {
+      'Content-Type': 'application/json'
     }
+  };
+
+  try {
+    const response = await fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions);
+
+    if ("error" in response) {
+      // Show the pop-up
+      backgroundColor = 'bg-red-300';
+      notificationTitle = 'Erreur récupération des emails liés';
+      notificationMessage = response.error;
+      displayPopup();
+    } else {
+      emailsLinked.value = response;
+    }
+  } catch (error) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-300';
+    notificationTitle = 'Erreur récupération des emails liés';
+    notificationMessage = error.message;
+    displayPopup();
+  }
 }
 
 // ULTRA IMPORTANT: THIS FUNCTION IS LIKE SEARCH MANUALLY BUT WITH USER STRING INPUT
@@ -538,9 +550,9 @@ async function fetchEmailLinked() {
 //   loading();
 //   scrollToBottom();
 
-  
+
 //   const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
-  
+
 
 //   const requestOptions = {
 //     method: 'POST',
@@ -562,42 +574,57 @@ async function fetchEmailLinked() {
 
 // THIS FUNCTION IS USED TO ANSWER A USER QUESTION WITH TREE KNOWLEDGE
 async function handleAIClick() {
-//             Step 1: Prompt with categories and organizations and user query
-//             Step 2: Prompt with topics and details
-//             Step 3: Display answer to user
-if (isAIWriting.value) {
-  return;
-}
-isAIWriting.value = true;
+  if (isAIWriting.value) {
+    return;
+  }
+  isAIWriting.value = true;
 
-loading();
-scrollToBottom();
+  loading();
+  scrollToBottom();
 
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      question: textareaValue.value
+    }),
+  };
 
+  textareaValue.value = "";
 
+  try {
+    const result = await fetchWithToken(`${API_BASE_URL}user/search_tree_knowledge/`, requestOptions);
 
-const requestOptions = {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    question: textareaValue.value
-  }),
-};
+    const aiIcon = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
 
-textareaValue.value = "";
-const result = await fetchWithToken(`${API_BASE_URL}user/search_tree_knowledge/`, requestOptions);
-console.log(result)
- 
-// TODO: implement clean logic with error handling
-// if result.message == "Not have enough data" => the user does not have data to answer the question asked
+    let message = '';
+    if (result.error) {
+      // Show the pop-up
+      backgroundColor = 'bg-red-300';
+      notificationTitle = 'Erreur answer tree knowledge a trad en fr et fo faire court';
+      notificationMessage = result.error;
+      displayPopup();
+    } else if (result.message) {
+      message = "You do not have enough data to answer the question";
+    } else {
+      const { sure, answer, emails } = result.answer;
+      message = answer;
 
-const message1 = result.answer.answer;
-  const ai_icon1 = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
-  await displayMessage(message1, ai_icon1);
-hideLoading();
-isAIWriting.value = false;
+      if (!sure) {
+        message += "\n\nVoici les emails pour que vous vérifier par vous-même: " + emails.join(', ');
+      }
+    }
+
+    await displayMessage(message, aiIcon);
+  } catch (error) {
+    console.error('Error fetching AI response:', error);
+    await displayMessage('An error occurred while processing your request. Please try again later.', aiIcon);
+  } finally {
+    hideLoading();
+    isAIWriting.value = false;
+  }
 }
 
 async function searchEmails() {
@@ -615,7 +642,7 @@ async function searchEmails() {
   const toAddressesSelected = selectedRecipients.value.map(recipient => recipient.email);
   const from_addressesSelected = selectedFromAddresses.value.map(recipient => recipient.email);
   const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
-  
+
   loading();
   scrollToBottom();
 
@@ -713,7 +740,7 @@ async function askQueryUser() {
   await waitForAIWriting();
 
   //const message1 = "Cette page est non fonctionnelle et en cours de développement";
-  const message1 = "Search avec IA désactivée | tree_knowledge en cours d'implémentation...";
+  const message1 = "Recherche avec IA désactivée ❌ | Connaissance arborescente activée ✅";
   const ai_icon1 = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
   await displayMessage(message1, ai_icon1);
 }

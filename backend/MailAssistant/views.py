@@ -1669,40 +1669,58 @@ def search_emails(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def search_tree_knowledge(request: HttpRequest):
-    """Searches emails using AI interpretation of user query."""
-    user = request.user
-    user_id = user.id
-    parameters: dict = json.loads(request.body)
-    question: str = parameters["question"]
+    """
+    Searches emails using AI interpretation of user query.
+    """
+    try:
+        user = request.user
+        user_id = user.id
+        parameters:dict = json.loads(request.body)
+        question = parameters.get("question")
 
-    search = Search(user_id, question)
-    selected_categories = search.get_selected_categories()
-    keypoints = search.get_keypoints(selected_categories)
+        if not question:
+            return Response(
+                {"error": "Question is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-    if not selected_categories or not keypoints:
-        print("You do not have enough data to answer the question")
-        return Response(
-            {"message": "Not have enough data"},
-            status=status.HTTP_200_OK,
-        )
-    else:
+        search = Search(user_id, question)
+        selected_categories = search.get_selected_categories()
+        keypoints = search.get_keypoints(selected_categories)
+
+        if not selected_categories or not keypoints:
+            return Response(
+                {"message": "Not have enough data"},
+                status=status.HTTP_200_OK,
+            )
+
         answer = search.get_answer(keypoints)
+        emails = []
 
-        if answer["sure"] == False:
-            emails = []
+        for category in keypoints:
+            for organization in keypoints[category]:
+                for topic in keypoints[category][organization]:
+                    emails.extend(
+                        search.knowledge_tree[category]["organizations"][
+                            organization
+                        ]["topics"][topic]["emails"]
+                    )
 
-            for category in keypoints:
-                for organization in keypoints[category]:
-                    for topic in keypoints[category][organization]:
-                        emails.extend(
-                            search.knowledge_tree[category]["organizations"][
-                                organization
-                            ]["topics"][topic]["emails"]
-                        )
+        answer["emails"] = emails
 
-            answer["emails"] = emails
+        return Response({"answer": answer}, status=status.HTTP_200_OK)
 
-    return Response({"answer": answer}, status=status.HTTP_200_OK)
+    except json.JSONDecodeError:
+        return Response(
+            {"error": "Invalid JSON format"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])

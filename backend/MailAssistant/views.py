@@ -1682,7 +1682,7 @@ def search_tree_knowledge(request: HttpRequest):
     if not selected_categories or not keypoints:
         print("You do not have enough data to answer the question")
         return Response(
-            {"message": "You do not have enough data to answer the question"},
+            {"message": "Not have enough data"},
             status=status.HTTP_200_OK,
         )
     else:

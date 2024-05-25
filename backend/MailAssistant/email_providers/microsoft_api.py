@@ -1363,6 +1363,8 @@ def email_to_db(user, email, id_email):
                 date=sent_date,
                 web_link=web_link,
                 has_attachments=has_attachments,
+                answer=answer,
+                relevance=relevance,
             )
 
             contact_name, contact_email = from_name[0], from_name[1]

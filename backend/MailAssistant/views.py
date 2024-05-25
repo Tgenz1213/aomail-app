@@ -62,7 +62,7 @@ from MailAssistant.constants import (
     STRIPE_SECRET_KEY,
 )
 from MailAssistant import library
-from backend.MailAssistant.controllers.tree_knowledge import Search
+from MailAssistant.controllers.tree_knowledge import Search
 from .models import (
     Category,
     GoogleListener,
@@ -1691,10 +1691,6 @@ def search_tree_knowledge(request: HttpRequest):
         if answer["sure"] == False:
             emails = []
 
-            print(
-                f"Ao is not sure, here is the list of emails that will help you to verify its answer"
-            )
-
             for category in keypoints:
                 for organization in keypoints[category]:
                     for topic in keypoints[category][organization]:
@@ -1704,10 +1700,7 @@ def search_tree_knowledge(request: HttpRequest):
                             ]["topics"][topic]["emails"]
                         )
 
-            print(emails)
             answer["emails"] = emails
-        a = answer["answer"]
-        print(f"The answer to the question is:\n{a}")
 
     return Response({"answer": answer}, status=status.HTTP_200_OK)
 

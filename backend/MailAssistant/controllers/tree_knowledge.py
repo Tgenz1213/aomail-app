@@ -240,6 +240,7 @@ class Search:
             "sure": bool,
             "answer": "answer to the user question in {language}"
         }}
+        Ensure the JSON is properly formatted and parsable by Python.
         """
         response = get_prompt_response(template)
         clear_response = response.content[0].text.strip()
@@ -478,4 +479,3 @@ else:
         print(emails)
     answer = answer["answer"]
     print(f"The answer to the question is:\n{answer}")"""
-

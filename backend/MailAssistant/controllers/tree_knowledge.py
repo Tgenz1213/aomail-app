@@ -10,7 +10,8 @@ import re
 import threading
 
 
-ABS_TREE_PATH = "backend/MailAssistant/controllers/trees/"
+ABS_TREE_PATH = "/app/MailAssistant/controllers/trees/"
+
 
 def preprocess_email(email_content: str) -> str:
     """Removes links from the email content and strips text of unnecessary spacings"""
@@ -133,7 +134,7 @@ class Search:
     ) -> None:
         self.user_id = user_id
         self.file_path = f"{ABS_TREE_PATH}{user_id}.json"
-        
+
         self.question = question
         if knowledge_tree:
             self.knowledge_tree = knowledge_tree
@@ -336,6 +337,7 @@ class Search:
         """
         Saves updated user data to a JSON file.
         """
+        print("WE ARE CREATING THE FILE DW", self.file_path)
         with open(self.file_path, "w", encoding="utf-8") as json_file:
             json.dump(data, json_file, ensure_ascii=False, indent=4)
         print("Data saved to JSON file successfully.")
@@ -420,10 +422,13 @@ class Search:
    Step 2: Prompt with topics and details
    Step 3: Display answer to user
 """
+"""
 question = "When does the cycling season start?"
 # TODO: get real user id
-user_id = 1
+user_id = 2
 # data = {} # remove this line to test with Augustin data
+search = Search(user_id)
+
 search = Search(user_id, question, data)
 selected_categories = search.get_selected_categories()
 keypoints = search.get_keypoints(selected_categories)
@@ -450,7 +455,7 @@ else:
 
         print(emails)
     answer = answer["answer"]
-    print(f"The answer to the question is:\n{answer}")
+    print(f"The answer to the question is:\n{answer}")"""
 
 
 # THIS CODE IS TO TEST SUMMARIZING A CONVERSATION AND SAVING IT IN THE JSON FILE

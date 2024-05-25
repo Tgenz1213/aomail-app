@@ -1,0 +1,26 @@
+{
+    "Neurosciences": {
+        "organizations": {
+            "Intelligentsia": {
+                "topics": {
+                    "Neurone et système neuronal": {
+                        "keypoints": [
+                            "Neurone : structure biologique",
+                            "Axone, corps cellulaire, dendrites",
+                            "Système neuronal : réseau de neurones",
+                            "Potentiel d'action : codage biologique",
+                            "Différence de voltage entre neurones",
+                            "Système comparable à logique binaire",
+                            "Activation du potentiel d'action",
+                            "Signal électrique, chimique, électrique",
+                            "Changement d'état du pôle récepteur"
+                        ],
+                        "emails": [
+                            "18fae5381321d822"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

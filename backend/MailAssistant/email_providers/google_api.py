@@ -54,6 +54,7 @@ from MailAssistant.constants import (
     GOOGLE_SCOPES,
     MEDIA_ROOT,
 )
+from MailAssistant.controllers.tree_knowledge import Search
 from .. import library
 from ..models import (
     Contact,
@@ -522,6 +523,31 @@ def get_mail_to_db(services):
         bcc_info,
         image_files,
     )
+
+
+def get_mail_id(services, int_mail: int) -> str:
+    """
+    Retrieve the email ID of a specific email from the user's Gmail inbox.
+
+    Args:
+        services (dict): A dictionary containing service objects for various APIs.
+                         It should include a "gmail" service object.
+        int_mail (int): The index of the email in the inbox to retrieve the ID for.
+
+    Returns:
+        str: The ID of the specified email if found, otherwise None.
+    """
+    service = services["gmail"]
+
+    results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+    messages = results.get("messages", [])
+    if not messages:
+        LOGGER.info("No new messages.")
+        return None
+    message = messages[int_mail]
+    email_id = message["id"]
+
+    return email_id
 
 
 # TO DELETE IN THE FUTURE ?
@@ -1196,7 +1222,19 @@ def email_to_db(user, services, social_api: SocialAPI):
     # TODO:
     if is_reply:
         # summarize conversation with Search
-        ...
+        email_content = library.preprocess_email(decoded_data)
+        user_id = user.id
+        search = Search(user_id)
+        email_id = get_mail_id(services, 0)
+        keypoints = search.summarize_conversation(email_content, email_id)
+        print(
+            "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
+        )
+        print(keypoints)
+        print(
+            "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+        )
+        print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
     else:
         # summarize single email with Search
         ...
@@ -1253,6 +1291,11 @@ def email_to_db(user, services, social_api: SocialAPI):
         ) = claude.categorize_and_summarize_email(
             subject, decoded_data, category_dict, user_description
         )
+        # print("================== ANNOYING BARRIER TO REMIND THAT ==================")
+        # print("We are not using nor saving in DB: answer")
+        # print(answer)
+        # print("We are not using nor saving in DB: relevance")
+        # print(relevance)
 
         if (
             importance_dict["UrgentWorkInformation"] >= 50

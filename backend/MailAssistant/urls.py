@@ -57,6 +57,7 @@ urlpatterns = [
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok    
     path('user/search_emails_ai/', views.search_emails_ai , name='search_emails_ai'), # ok
+    path('user/search_tree_knowledge/', views.search_tree_knowledge, name='search_tree_knowledge'), # ok
     path('user/social_api/unlink/', views.unlink_email, name='unlink_email'), # ok
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok

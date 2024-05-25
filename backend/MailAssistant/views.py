@@ -1,5 +1,19 @@
 """
 Handles frontend requests and redirects them to the appropriate API.
+
+TODO:
+- Clean the code by adding data types.
+- Improve documentation to be concise.
+- STOP using differents libs to do the same thing => only use 1
+    EXAMPLE:
+    status=200 | status=status.HTTP_200_OK => choose 1 and stick to it
+    JsonResponse | Response => choose 1 and stick to it
+- Ensure Pylance can recognize variable types and methods.
+    EXAMPLE:
+    def view_function(request: HttpRequest):
+        user = request.user
+        # USE THIS instead of 'data'
+        parameters: dict = json.loads(request.body)
 """
 
 import datetime
@@ -48,6 +62,7 @@ from MailAssistant.constants import (
     STRIPE_SECRET_KEY,
 )
 from MailAssistant import library
+from backend.MailAssistant.controllers.tree_knowledge import Search
 from .models import (
     Category,
     GoogleListener,
@@ -1649,6 +1664,52 @@ def search_emails(request):
         search_result.join()
 
     return Response(result, status=200)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def search_tree_knowledge(request: HttpRequest):
+    """Searches emails using AI interpretation of user query."""
+    user = request.user
+    user_id = user.id
+    parameters: dict = json.loads(request.body)
+    question: str = parameters["question"]
+
+    search = Search(user_id, question)
+    selected_categories = search.get_selected_categories()
+    keypoints = search.get_keypoints(selected_categories)
+
+    if not selected_categories or not keypoints:
+        print("You do not have enough data to answer the question")
+        return Response(
+            {"message": "You do not have enough data to answer the question"},
+            status=status.HTTP_200_OK,
+        )
+    else:
+        answer = search.get_answer(keypoints)
+
+        if answer["sure"] == False:
+            emails = []
+
+            print(
+                f"Ao is not sure, here is the list of emails that will help you to verify its answer"
+            )
+
+            for category in keypoints:
+                for organization in keypoints[category]:
+                    for topic in keypoints[category][organization]:
+                        emails.extend(
+                            search.knowledge_tree[category]["organizations"][
+                                organization
+                            ]["topics"][topic]["emails"]
+                        )
+
+            print(emails)
+            answer["emails"] = emails
+        a = answer["answer"]
+        print(f"The answer to the question is:\n{a}")
+
+    return Response({"answer": answer}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

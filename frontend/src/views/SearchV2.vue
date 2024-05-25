@@ -372,7 +372,6 @@ let backgroundColor = ref('');
 let timerId = ref(null);
 
 
-
 // Main variables
 const AIContainer = ref(null);
 const bgColor = ref('');
@@ -528,36 +527,72 @@ async function fetchEmailLinked() {
     }
 }
 
+// ULTRA IMPORTANT: THIS FUNCTION IS LIKE SEARCH MANUALLY BUT WITH USER STRING INPUT
+// async function handleAIClick() {
+
+//   if (isAIWriting.value) {
+//     return;
+//   }
+//   isAIWriting.value = true;
+
+//   loading();
+//   scrollToBottom();
+
+  
+//   const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
+  
+
+//   const requestOptions = {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json'
+//     },
+//     body: JSON.stringify({
+//       emails: emailsLinkedSelected,
+//       query: textareaValue.value
+//     }),
+//   };
+
+//   textareaValue.value = "";
+//   const result = await fetchWithToken(`${API_BASE_URL}user/search_emails_ai/`, requestOptions);
+//   searchResult.value = result;
+//   hideLoading();
+//   isAIWriting.value = false;
+// }
+
+// THIS FUNCTION IS USED TO ANSWER A USER QUESTION WITH TREE KNOWLEDGE
 async function handleAIClick() {
+//             Step 1: Prompt with categories and organizations and user query
+//             Step 2: Prompt with topics and details
+//             Step 3: Display answer to user
+if (isAIWriting.value) {
+  return;
+}
+isAIWriting.value = true;
 
-  if (isAIWriting.value) {
-    return;
-  }
-  isAIWriting.value = true;
+loading();
+scrollToBottom();
 
-  loading();
-  scrollToBottom();
 
-  
-  const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
-  
 
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      emails: emailsLinkedSelected,
-      query: textareaValue.value
-    }),
-  };
 
-  textareaValue.value = "";
-  const result = await fetchWithToken(`${API_BASE_URL}user/search_emails_ai/`, requestOptions);
-  searchResult.value = result;
-  hideLoading();
-  isAIWriting.value = false;
+const requestOptions = {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    question: textareaValue.value
+  }),
+};
+
+textareaValue.value = "";
+const result = await fetchWithToken(`${API_BASE_URL}user/search_tree_knowledge/`, requestOptions);
+const message1 = "TEst";
+  const ai_icon1 = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
+  await displayMessage(message1, ai_icon1);
+hideLoading();
+isAIWriting.value = false;
 }
 
 async function searchEmails() {

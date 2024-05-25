@@ -39,7 +39,7 @@
                             placeholder="Instruction">
                         </textarea>
                         <div class="flex justify-end m-3">
-                            <button type="button" class="w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
+                            <button type="button" class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
                         </div>
                     </div>
                 </div>

@@ -7,10 +7,13 @@
                         "keypoints": [
                             "Transmettre convention de stage",
                             "Proposer dates de stage",
-                            "Demander confirmation"
+                            "Demander confirmation",
+                            "Dates du stage proposées",
+                            "Demander retour si non convient"
                         ],
                         "emails": [
-                            "18fae61aa2f4c3dc"
+                            "18fae61aa2f4c3dc",
+                            "18fae6b27110707d"
                         ]
                     }
                 }

@@ -1219,17 +1219,18 @@ def email_to_db(user, services, social_api: SocialAPI):
         image_files,
     ) = get_mail_to_db(services)
 
-
     user_description = (
-            social_api.user_description if social_api.user_description != None else ""
-        )
+        social_api.user_description if social_api.user_description != None else ""
+    )
     if is_reply:
         # summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
         user_id = user.id
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
-        keypoints = search.summarize_conversation(subject, email_content,user_description,email_id)
+        keypoints = search.summarize_conversation(
+            subject, email_content, user_description, email_id
+        )
         print(
             "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
         )
@@ -1245,7 +1246,9 @@ def email_to_db(user, services, social_api: SocialAPI):
         user_id = user.id
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
-        keypoints = search.summarize_email(subject, email_content,user_description,email_id)
+        keypoints = search.summarize_email(
+            subject, email_content, user_description, email_id
+        )
         print(
             "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
         )
@@ -1282,8 +1285,6 @@ def email_to_db(user, services, social_api: SocialAPI):
                     category = rule.category
                     rule_category = True
 
-        
-
         # print("-------------------------> 5", "SUBJECT : ",subject, "DATA : ",decoded_data, "CATEGORY : ",category_dict, "USER DESCRIPTION : ",user_description)
 
         # print(
@@ -1301,12 +1302,6 @@ def email_to_db(user, services, social_api: SocialAPI):
         ) = claude.categorize_and_summarize_email(
             subject, decoded_data, category_dict, user_description
         )
-        # print("================== ANNOYING BANNER TO REMIND THAT ==================")
-        # print("We are not using nor saving in DB: answer")
-        # print(answer)
-        # print("We are not using nor saving in DB: relevance")
-        # print(relevance)
-        # print("=====================================================================")
 
         if (
             importance_dict["UrgentWorkInformation"] >= 50
@@ -1366,6 +1361,8 @@ def email_to_db(user, services, social_api: SocialAPI):
                 date=sent_date,
                 web_link=web_link,
                 has_attachments=has_attachments,
+                answer=answer,
+                relevance=relevance,
             )
 
             contact_name, contact_email = from_name[0], from_name[1]

@@ -4,12 +4,7 @@
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="flex h-full w-full">
             <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <div class="2xl:hidden h-full">
-                    <navbar></navbar>
-                </div>
-                <div class="hidden 2xl:block h-full">
-                    <navbar2></navbar2>
-                </div>
+                <navbar></navbar>
             </div>
             <div id="firstMainColumn"
                 class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">

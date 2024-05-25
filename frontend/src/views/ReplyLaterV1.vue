@@ -5,12 +5,7 @@
   <div class="flex flex-col justify-center bg-white items-center h-screen">
     <div class="flex h-full w-full">
       <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-        <div class="2xl:hidden h-full">
-          <navbar></navbar>
-        </div>
-        <div class="hidden 2xl:block h-full">
-          <navbar2></navbar2>
-        </div>
+        <navbar></navbar>
       </div>
       <div
         class="flex-1">

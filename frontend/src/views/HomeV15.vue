@@ -77,12 +77,7 @@
         <div class="flex flex-col justify-center items-center h-screen"><!-- DO NOT DELETE : 'bg-gray-900'-->
             <div class="flex h-full w-full">
                 <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                    <div class="2xl:hidden h-full">
-                        <navbar></navbar>
-                    </div>
-                    <div class="hidden 2xl:block h-full">
-                        <navbar2></navbar2>
-                    </div>
+                    <navbar></navbar>
                 </div>
                 <div class="flex-1">
                     <!-- <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> WORKS FOR 1920*1200px screens-->

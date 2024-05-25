@@ -4,12 +4,7 @@
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
       <div class="col-span-1 2xl:col-span-1">
-        <div class="2xl:hidden h-full">
-          <navbar></navbar>
-        </div>
-        <div class="hidden 2xl:block h-full">
-          <navbar2></navbar2>
-        </div>
+        <navbar></navbar>
       </div>
       <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
         <div class="flex gap-4 w-full h-full">

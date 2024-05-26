@@ -132,6 +132,10 @@ LOGGING = {
             "handlers": ["console"],
             "propagate": False,
         },
+        "httpx": {  # Exclude httpx logs
+            "handlers": ["console"],
+            "propagate": False,
+        },
         "": {
             "handlers": ["console", "file"],
             "level": "INFO",

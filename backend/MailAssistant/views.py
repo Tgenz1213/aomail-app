@@ -116,6 +116,7 @@ def signup(request):
     code = request.data.get("code")
     username = request.data.get("login")
     password = request.data.get("password")
+    language = request.data.get("language")
     theme = request.data.get("theme")
     color = request.data.get("color")
     categories = request.data.get("categories")
@@ -189,6 +190,7 @@ def signup(request):
         theme,
         color,
         categories,
+        language
     )
     if "error" in result:
         user.delete()
@@ -330,7 +332,7 @@ def save_user_data(
     theme,
     color,
     categories,
-    language="french",
+    language,
 ):
     """Store user creds and settings in DB"""
     try:

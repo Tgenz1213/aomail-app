@@ -76,12 +76,7 @@
         <div class="flex flex-col justify-center items-center h-screen"><!-- DO NOT DELETE : 'bg-gray-900'-->
             <div class="flex h-full w-full">
                 <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                    <div class="2xl:hidden h-full">
-                        <navbar></navbar>
-                    </div>
-                    <div class="hidden 2xl:block h-full">
-                        <navbar2></navbar2>
-                    </div>
+                    <navbar></navbar>
                 </div>
                 <div class="flex-1">
                     <!-- <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> WORKS FOR 1920*1200px screens-->
@@ -179,8 +174,7 @@
                         <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5">
                             <p>En cours de dev</p>
                         </div>--><!-- DO NOT DELETE bg-opacity-90 -->
-                        <div v-if="isEmptyTopic()"
-                            class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+                        <div v-if="isEmptyTopic()" class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                             <!-- Content goes here -->
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div
@@ -198,7 +192,8 @@
                         <div v-else
                             class="flex-1 bg-white bg-opacity-100 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar"
                             ref="scrollableDiv">
-                            <ul role="list" class="flex mx-2 flex-col w-auto h-full rounded-xl"><!--DO NOT DELETE : old value reference : without mx-autout and w-[]-->
+                            <ul role="list" class="flex mx-2 flex-col w-auto h-full rounded-xl">
+                                <!--DO NOT DELETE : old value reference : without mx-autout and w-[]-->
                                 <div class="pt-6">
                                     <!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
@@ -788,8 +783,8 @@
                                                                             <span
                                                                                 class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
                                                                                 {{
-                                                                                emails[selectedTopic]['Useless'].filter(e=>
-                                                                                !e.answer_later).length }}
+                                                                                    emails[selectedTopic]['Useless'].filter(e =>
+                                                                                        !e.answer_later).length }}
                                                                             </span>
                                                                             <span
                                                                                 v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
@@ -1404,40 +1399,65 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-[325px] 2xl:w-[450px] bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
-                    <div class="flex flex-col h-full w-full">
-                        <div class="w-full px-4 sm:px-6 lg:px-6 h-full">
-                            <!-- Assistant Up -->
-                            <div class="flex pt-6 pb-6">
-                                <div class="mr-4 flex-shrink-0 self-center">
-                                    <!--
+
+                <!--
                                 <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-rose-400 via-amber-400 to-rose-200">
                                     <span class="text-lg font-medium leading-none text-white">AO</span>
                                 </span>-->
-                                <!--
+                <!--
                                     <span
                                         class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
                                         <img :src="happy_icon" alt="New Emails Icon"
                                             class="max-w-full max-h-full rounded-full">
                                     </span>-->
-                                    <span
-                                        class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                            class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div>
-                                    <p class="mt-1" id="animated-text" ref="animatedText"></p>
+
+
+                <div class="bg-gray-50 p-4 ring-1 shadow-sm ring-black ring-opacity-5">
+                    <button @click="toggleVisibility"
+                        class="bg-blue-500 text-white px-4 py-2 rounded mb-4 flex items-center">
+                        <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </button>
+                    <div v-if="!isHidden" class="w-[325px] 2xl:w-[450px]">
+                        <div class="flex flex-col h-full w-full">
+                            <div class="w-full px-4 sm:px-6 lg:px-6 h-full">
+                                <!-- Assistant Up -->
+                                <div class="flex pt-6 pb-6">
+                                    <div class="mr-4 flex-shrink-0 self-center">
+                                        <span
+                                            class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p class="mt-1" id="animated-text" ref="animatedText"></p>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="flex-1"></div>
+                            <div class="flex h-[170px]"></div>
                         </div>
-                        <div class="flex-1">
-                        </div>
-                        <div class="flex h-[170px]"><!--lg:ring-1 lg:ring-black lg:ring-opacity-5-->
+                        <div class="flex flex-col h-[225px] lg:border-t lg:border-black lg:border-opacity-10">
+                            <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
+                                @input="adjustHeight" v-model="textareaValue"
+                                class="overflow-y-hidden pt-3 pl-5 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0"
+                                placeholder="Instruction">
+                            </textarea>
+                            <div class="flex justify-end m-3">
+                                <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1495,6 +1515,12 @@ let nbRulesAssociated = ref(null);
 const happy_icon = ref(require('@/assets/happy.png'));
 let lockEmailsAccess = ref(false);
 
+
+let isHidden = ref(false);
+
+const toggleVisibility = () => {
+    isHidden.value = !isHidden.value;
+};
 
 onMounted(async () => {
     document.addEventListener("keydown", handleKeyDown);
@@ -1838,7 +1864,7 @@ async function setRuleBlockForSender(email) {
                 'Content-Type': 'application/json',
             }
         });
-        
+
         if (response.block) {
             deleteEmail(emailId);
         } else {

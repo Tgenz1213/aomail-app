@@ -201,16 +201,11 @@
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                <div class="2xl:hidden h-full">
-                    <navbar></navbar>
-                </div>
-                <div class="hidden 2xl:block h-full">
-                    <navbar2></navbar2>
-                </div>
+                <navbar></navbar>
             </div>
-            <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+            <div class="flex-1 bg-white ring-1 ring-black ring-opacity-5">
                 <div class="flex flex-col h-full">
-                    <main class="bg-gray-100 bg-opacity-75 ring-1 shadow-sm ring-black ring-opacity-5">
+                    <main class="bg-gray-50 ring-1 ring-black ring-opacity-5">
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div class="flex items-center">
                                 <div class="w-full flex items-center justify-center py-6">
@@ -268,7 +263,7 @@
                         </div>
                     </main>
                     <div v-if="activeSection === 'account'"
-                        class="flex-1 h-full ring-1 shadow-sm ring-black ring-opacity-5">
+                        class="flex-1 h-full">
                         <!-- TO DO : CENTER -->
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->

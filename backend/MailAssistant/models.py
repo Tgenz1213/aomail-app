@@ -135,6 +135,8 @@ class Email(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     date = models.DateTimeField(null=True)
     has_attachments = models.BooleanField(default=False)
+    answer = models.CharField(max_length=50, default="")
+    relevance = models.CharField(max_length=50, default="")
 
 
 class CC_sender(models.Model):

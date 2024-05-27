@@ -1,5 +1,19 @@
 """
 Handles frontend requests and redirects them to the appropriate API.
+
+TODO:
+- Clean the code by adding data types.
+- Improve documentation to be concise.
+- STOP using differents libs to do the same thing => only use 1
+    EXAMPLE:
+    status=200 | status=status.HTTP_200_OK => choose 1 and stick to it
+    JsonResponse | Response => choose 1 and stick to it
+- Ensure Pylance can recognize variable types and methods.
+    EXAMPLE:
+    def view_function(request: HttpRequest):
+        user = request.user
+        # USE THIS instead of 'data'
+        parameters: dict = json.loads(request.body)
 """
 
 import datetime
@@ -48,6 +62,7 @@ from MailAssistant.constants import (
     STRIPE_SECRET_KEY,
 )
 from MailAssistant import library
+from MailAssistant.controllers.tree_knowledge import Search
 from .models import (
     Category,
     GoogleListener,
@@ -1649,6 +1664,63 @@ def search_emails(request):
         search_result.join()
 
     return Response(result, status=200)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def search_tree_knowledge(request: HttpRequest):
+    """
+    Searches emails using AI interpretation of user query.
+    """
+    try:
+        user = request.user
+        user_id = user.id
+        parameters:dict = json.loads(request.body)
+        question = parameters.get("question")
+
+        if not question:
+            return Response(
+                {"error": "Question is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        search = Search(user_id, question)
+        selected_categories = search.get_selected_categories()
+        keypoints = search.get_keypoints(selected_categories)
+
+        if not selected_categories or not keypoints:
+            return Response(
+                {"message": "Not have enough data"},
+                status=status.HTTP_200_OK,
+            )
+
+        answer = search.get_answer(keypoints)
+        emails = []
+
+        for category in keypoints:
+            for organization in keypoints[category]:
+                for topic in keypoints[category][organization]:
+                    emails.extend(
+                        search.knowledge_tree[category]["organizations"][
+                            organization
+                        ]["topics"][topic]["emails"]
+                    )
+
+        answer["emails"] = emails
+
+        return Response({"answer": answer}, status=status.HTTP_200_OK)
+
+    except json.JSONDecodeError:
+        return Response(
+            {"error": "Invalid JSON format"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        return Response(
+            {"error": "An error occurred while processing your request"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])

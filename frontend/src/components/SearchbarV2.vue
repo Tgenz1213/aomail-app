@@ -1,65 +1,38 @@
-<!--
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
--->
 <template>
   <div class="">
     <div
-      class="sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 shadow bg-white px-4 sm:gap-x-6 sm:px-6 lg:px-8">
+      class="sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 border-b border-black shadow-sm border-opacity-10 bg-white px-4 sm:gap-x-6 sm:px-6 lg:px-8">
       <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 pt-3.5">
         <form class="relative flex flex-1" action="#" method="GET">
           <label for="search-field" class="sr-only">{{ $t('Global action.searchbar') }}</label>
           <MagnifyingGlassIcon class="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
             aria-hidden="true" />
           <input v-model="searchQuery" id="search-field"
-            class="h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
+            class="h-full w-full border-0 py-0 pl-8 pr-8 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
             placeholder="Recherche..." type="search" name="search" />
+          <button v-if="searchQuery" type="button" @click="clearSearch"
+            class="absolute inset-y-0 right-0 flex items-center pr-2">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+              fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M10 9.293l4.646-4.647a.5.5 0 01.708.708L10.707 10l4.647 4.646a.5.5 0 01-.708.708L10 10.707l-4.646 4.647a.5.5 0 01-.708-.708L9.293 10 4.646 5.354a.5.5 0 01.708-.708L10 9.293z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
         </form>
       </div>
     </div>
   </div>
 </template>
-  
+
 <script setup>
-/*import { ref } from 'vue'
-import {
-  CalendarIcon,
-  ChartPieIcon,
-  DocumentDuplicateIcon,
-  FolderIcon,
-  HomeIcon,
-  UsersIcon,
-} from '@heroicons/vue/24/outline'*/
+import { ref } from 'vue';
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid';
 
-/*
-const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-  { name: 'Team', href: '#', icon: UsersIcon, current: false },
-  { name: 'Projects', href: '#', icon: FolderIcon, current: false },
-  { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
-  { name: 'Documents', href: '#', icon: DocumentDuplicateIcon, current: false },
-  { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
-]
-const teams = [
-  { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-  { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-  { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-]
-const userNavigation = [
-  { name: 'Your profile', href: '#' },
-  { name: 'Sign out', href: '#' },
-]
- 
-const sidebarOpen = ref(false)*/
+const searchQuery = ref('');
+const emits = defineEmits(['updateSearchQuery']);
+
+const clearSearch = () => {
+  searchQuery.value = '';
+};
 </script>

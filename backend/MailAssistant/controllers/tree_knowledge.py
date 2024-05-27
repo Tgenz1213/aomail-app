@@ -1,104 +1,17 @@
 """
-TODO: implement integration with Search
-
-TEST FILE TO IMPLEMENT A GRPAH TO SEARCH DATA about a user question
+Handles AI-driven search to extract data from emails."
 """
 
 import json
+import logging
 import os
-import re
 import threading
+from MailAssistant.ai_providers import claude
 
 
-def preprocess_email(email_content: str) -> str:
-    """Removes links from the email content and strips text of unnecessary spacings"""
-    # Remove links enclosed in <http...> or http... followed by a space
-    email_content = re.sub(r"<http(.*?)>", "", email_content)
-    email_content = re.sub(r"http(.*?)\ ", "", email_content)
-    email_content = re.sub(r"http\S+", "", email_content)
-
-    # rmv email addresses
-    email_content = re.sub(r"<mailto:(.*?)>", "", email_content)
-    email_content = re.sub(r"mailto:(.*?)\ ", "", email_content)
-    # Remove email addresses containing "@"
-    email_content = re.sub(
-        r"<\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b>", "", email_content
-    )
-    email_content = re.sub(
-        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", "", email_content
-    )
-
-    # Delete patterns like "[image: ...]"
-    email_content = re.sub(r"\[image:[^\]]+\]", "", email_content)
-    # Convert Windows line endings to Unix line endings
-    email_content = email_content.replace("\r\n", "\n")
-    # Remove spaces at the start and end of each line
-    email_content = "\n".join(line.strip() for line in email_content.split("\n"))
-    # Delete multiple spaces
-    email_content = re.sub(r" +", " ", email_content)
-    # Reduce multiple consecutive newlines to two newlines
-    email_content = re.sub(r"\n{3,}", "\n\n", email_content)
-
-    return email_content.strip()
-
-
-# Sample data structure as described
-data = {
-    "Sport": {
-        "organizations": {
-            "Angers Métropole Cyclisme": {
-                "topics": {
-                    "New season": {
-                        "keypoints": [
-                            "commence 01/09/2024",
-                            "quentin revient en France",
-                        ],
-                        "emails": ["id_email23", "id_email4"],
-                    }
-                }
-            }
-        }
-    },
-    "Études": {
-        "organizations": {
-            "ESAIP": {
-                "topics": {
-                    "Semestre 4": {
-                        "keypoints": [
-                            "fin vers mi juin",
-                            "erasmus",
-                            "évaluer le dortoir",
-                        ],
-                        "emails": ["id_email1", "id_email2"],
-                    }
-                }
-            }
-        }
-    },
-}
-
-
-import json
-import anthropic
-from colorama import Fore, init
-
-######################## Claude 3 API SETTINGS ########################
-init(autoreset=True)
-
-
-######################## TEXT PROCESSING UTILITIES ########################
-def get_prompt_response(formatted_prompt):
-    """Returns the prompt response"""
-    client = anthropic.Anthropic(
-        api_key="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"
-    )
-    response = client.messages.create(
-        model="claude-3-haiku-20240307",
-        max_tokens=1000,
-        temperature=0.0,
-        messages=[{"role": "user", "content": formatted_prompt}],
-    )
-    return response
+######################## LOGGING CONFIGURATION ########################
+LOGGER = logging.getLogger(__name__)
+ABS_TREE_PATH = "/app/MailAssistant/controllers/trees/"
 
 
 class Search:
@@ -130,9 +43,7 @@ class Search:
         self, user_id: int, question: str = None, knowledge_tree: dict = None
     ) -> None:
         self.user_id = user_id
-
-        # TODO: change the path when we will move this file
-        self.file_path = f"backend/MailAssistant/tests/{user_id}.json"
+        self.file_path = f"{ABS_TREE_PATH}{user_id}.json"
 
         self.question = question
         if knowledge_tree:
@@ -147,6 +58,9 @@ class Search:
     def get_categories(self) -> dict[str, list[str]]:
         """
         Extracts and returns categories and their associated organizations from the knowledge tree.
+
+        Returns:
+            dict[str, list[str]]: A dictionary where the keys are category names and the values are lists of organization names within each category.
         """
         if not self.knowledge_tree:
             return []
@@ -162,6 +76,12 @@ class Search:
     def get_keypoints(self, selected_categories: dict[str, list[str]]) -> dict:
         """
         Retrieves keypoints for the selected categories and organizations.
+
+        Args:
+            selected_categories (dict[str, List[str]]): A dictionary where keys are category names and values are lists of organization names.
+
+        Returns:
+            dict[str, dict[str, dict[str, dict[str, List[str]]]]]: A nested dictionary containing keypoints for each category, organization, and topic.
         """
         if not self.knowledge_tree:
             return []
@@ -211,15 +131,28 @@ class Search:
             "categoryN": [selected organizations]
         }}
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         return result_json
 
     def get_answer(self, keypoints: dict, language: str = "French") -> dict:
         """
         Generates an answer based on the keypoints and checks if further details are needed.
+
+        Args:
+            keypoints (dict[str, str]): A dictionary containing key points of the user's data.
+            language (str, optional): The language in which the answer should be provided. Defaults to "French".
+
+        Returns:
+            dict[str, str]: A dictionary containing the answer and a boolean indicating if the answer is likely to be good.
         """
         template = f"""You are an email assistant that helps a user to answer their question.
 
@@ -239,26 +172,57 @@ class Search:
             "sure": bool,
             "answer": "answer to the user question in {language}"
         }}
+        Ensure the JSON is properly formatted and parsable by Python.
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         return result_json
 
     def summarize_conversation(
-        self, body: str, email_id: str, language: str = "French"
+        self,
+        subject: str,
+        body: str,
+        user_description: str | None,
+        email_id: str,
+        language: str = "French",
     ) -> dict[str:list]:
-        """Summarizes an email conversation in the specified language with keypoints."""
+        """
+        Summarizes an email conversation in the specified language with keypoints.
 
+        Args:
+            subject (str): The subject of the email conversation.
+            body (str): The body of the email conversation.
+            user_description (Optional[str]): A description provided by the user to enhance keypoints.
+            email_id (str): The unique identifier of the email.
+            language (str, optional): The language in which to summarize the conversation. Defaults to "French".
+
+        Returns:
+            dict[str, List[str]]: A dictionary containing the summarized keypoints for each email.
+        """
         template = f"""As a smart email assistant, 
         For each email in the following conversation, summarize it in {language} as a list of up to three ultra-concise keypoints (up to seven words) that encapsulate the core information. This will aid the user in recalling the past conversation.
         Increment the number of keys to match the number of emails. The number of keys must STRICTLY correspond to the number of emails.
         The sentence must be highly relevant and not deal with details or unnecessary information. If you hesitate, do not add the keypoint.
+        If a user description is clearly provided, use it to enhance the keypoints.
         In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describes the conversation.
+        If you hesitate on any of them, or if it is unclear or not explicitly mentioned, set it to 'Unknown'.
         To assist you in categorizing the conversation, here are the existing categories and organizations: {self.get_categories()}.
         If you can classify the conversation in an existing category/organization: Do it. If you hesitate, create another category/organization in {language}.
 
+        User description:
+        {user_description}
+        
+        Email subject:
+        {subject}
+        
         Email conversation:
         {body}
         
@@ -275,11 +239,15 @@ class Search:
             }}
         }}
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
-
-        print(f"{Fore.GREEN}summarize_conversation result:{result_json}")
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         category = result_json["category"]
         organization = result_json["organization"]
@@ -294,17 +262,41 @@ class Search:
         return keypoints
 
     def summarize_email(
-        self, body: str, email_id: str, language: str = "French"
+        self,
+        subject: str,
+        body: str,
+        user_description: str | None,
+        email_id: str,
+        language: str = "French",
     ) -> dict[str:list]:
-        """Summarizes an email conversation in the specified language with keypoints."""
+        """
+        Summarizes an email conversation in the specified language with keypoints.
 
+        Args:
+            subject (str): The subject of the email.
+            body (str): The body content of the email.
+            user_description (Optional[str]): A description provided by the user to enhance the summary.
+            email_id (str): The unique identifier for the email.
+            language (str, optional): The language in which to summarize the email. Defaults to "French".
+
+        Returns:
+            dict[str, List[str]]: A dictionary containing the category, organization, topic, and keypoints of the email.
+        """
         template = f"""As a smart email assistant, 
         Summarize the email body in {language} as a list of up to three ultra-concise keypoints (up to seven words each) that encapsulate the core information. This will aid the user in recalling the content of the email.
         The sentences must be highly relevant and should not include minor details or unnecessary information. If in doubt, do not add the keypoint.
+        If a user description is clearly provided, use it to enhance the keypoints.
         In {language}: Add a 'category' (one word), an 'organization', and a 'topic' that best describe the conversation.
+        If you hesitate on any of them, or if it is unclear or not explicitly mentioned, set it to 'Unknown'.
         To assist you in categorizing the email, here are the existing categories and organizations: {self.get_categories()}.
         If you can classify the email within an existing category/organization, do so. If uncertain, create another category/organization in {language}.
 
+        User description:
+        {user_description}
+        
+        Email subject:
+        {subject}
+        
         Email body:
         {body}
         
@@ -317,11 +309,15 @@ class Search:
             "keypoints": [list of keypoints]
         }}
         """
-        response = get_prompt_response(template)
+        response = claude.get_prompt_response(template)
         clear_response = response.content[0].text.strip()
-        result_json = json.loads(clear_response)
-
-        print(f"{Fore.GREEN}summarize_email result:{result_json}")
+        try:
+            result_json = json.loads(clear_response)
+        except json.JSONDecodeError:
+            LOGGER.critical(
+                f"The AI failed to return a proper JSON format for user {self.user_id}"
+            )
+            raise
 
         category = result_json["category"]
         organization = result_json["organization"]
@@ -335,17 +331,35 @@ class Search:
     def save_user_data(self, data: dict) -> None:
         """
         Saves updated user data to a JSON file.
+
+        Args:
+            data (dict): The user data to be saved.
         """
-        with open(self.file_path, "w", encoding="utf-8") as json_file:
-            json.dump(data, json_file, ensure_ascii=False, indent=4)
-        print("Data saved to JSON file successfully.")
+        try:
+            with open(self.file_path, "w", encoding="utf-8") as json_file:
+                json.dump(data, json_file, ensure_ascii=False, indent=4)
+            LOGGER.info(
+                f"Data saved to JSON file successfully - user_id: {self.user_id}"
+            )
+        except (OSError, TypeError) as e:
+            LOGGER.error(
+                f"Failed to save data to JSON file - user_id: {self.user_id}, error: {e}"
+            )
 
     def load_user_data(self) -> dict:
         """
         Loads user data from a JSON file.
+
+        Returns:
+            dict: The user data loaded from the JSON file.
         """
-        with open(self.file_path, "r", encoding="utf-8") as json_file:
-            return json.load(json_file)
+        try:
+            with open(self.file_path, "r", encoding="utf-8") as json_file:
+                return json.load(json_file)
+        except (OSError, json.JSONDecodeError) as e:
+            LOGGER.error(
+                f"Failed to load data from JSON file - user_id: {self.user_id}, error: {e}"
+            )
 
     def add_user_data(
         self,
@@ -413,201 +427,3 @@ class Search:
             ]["emails"] = prev_emails
 
         self.save_user_data(self.knowledge_tree)
-
-
-# THIS CODE IS TO TEST AO ANSWER WITH TREE KNOWLEDGE
-"""Step 1: Prompt with categories and organizations and user query
-   Step 2: Prompt with topics and details
-   Step 3: Display answer to user
-"""
-question = "When does the cycling season start?"
-# TODO: get real user id
-user_id = 1
-# data = {} # remove this line to test with Augustin data
-search = Search(user_id, question, data)
-selected_categories = search.get_selected_categories()
-keypoints = search.get_keypoints(selected_categories)
-
-if not selected_categories or not keypoints:
-    print("You do not have enough data to answer the question")
-else:
-    answer = search.get_answer(keypoints)
-
-    if answer["sure"] == False:
-        emails = []
-        print(
-            f"{Fore.YELLOW}Ao is not sure, here is the list of emails that will help you to verify its answer"
-        )
-
-        for category in keypoints:
-            for organization in keypoints[category]:
-                for topic in keypoints[category][organization]:
-                    emails.extend(
-                        search.knowledge_tree[category]["organizations"][organization][
-                            "topics"
-                        ][topic]["emails"]
-                    )
-
-        print(emails)
-    answer = answer["answer"]
-    print(f"The answer to the question is:\n{answer}")
-
-
-# THIS CODE IS TO TEST SUMMARIZING A CONVERSATION AND SAVING IT IN THE JSON FILE
-'''email_prompt = """
-Bonjour Monsieur CROCHET,
-
-Merci du compliment. Je vous suis très reconnaissant.
-Je suis entrain de finir mon ERASMUS et de passer les derniers examens.
-
-Je viens de trouvé un stage en tant qu'ingénieur backend dans une 
-startup cet été.
-
-Bonne vacances,
-
-Augustin ROLET
-
-On 12/22/2023 11:18 PM, CROCHET Moise wrote:
-> Cher Augustin,
->
-> Tu es toujours aussi perspicace, même en vacances. C'est une qualité.
->
-> Prends le temps de te poser un peu et prépare ton séjour d'études à venir.
->
-> A l'occasion, cela me ferait plaisir de faire un visio avec toi d'ici 
-> quelques temps. Nous pourrons échanger tranquillement sur toutes les 
-> questions qui te préoccupent.
->
-> D'ici là, profite des fêtes de fin d'année pour te ressourcer en 
-> famille. Vous avez besoin de repos en cette fin de semestre.
->
-> A très bientôt.
-> Bien à toi.
-> Moïse
->
-> Envoyé à partir de Outlook pour Android <https://aka.ms/AAb9ysg>
-> ------------------------------------------------------------------------
-> *From:* ROLET Augustin <arolet.ing2027@esaip.org>
-> *Sent:* Friday, December 22, 2023 6:08:28 PM
-
-> *To:* CROCHET Moise <mcrochet@esaip.org>
-> *Subject:* Re: Alternance Cours
->
-> Merci monsieur pour votre réponse,
->
-> Je vais éviter d'être prolixe comme à mon habitude.
->
-> Backend Engineer <https://careers.vinted.com/jobs/j/4198667101>
->
-> Data Analyst <https://careers.vinted.com/jobs/j/4223185101>
->
-> Lead Backend Engineer <https://careers.vinted.com/jobs/j/4217362101>
->
-> _Question simple: Est ce que la plupart des étudiants (initiaux et 
-> apprentis) ont le niveau pour prétendre à ce type de poste en sortie 
-> d'école ? (A mon avis non car c'est ultra sélectif)_
->
-> La technique prime sur ce type de poste (qui est mon objectif 
-> principal et c'est pour ça que je me tue à la tâche tout les soirs). 
-> C'est extrêmement dur d'être accepté chez Vinted. L'année dernière 
-> j'ai "reverse engineered" leur API et eu accès à des données privées 
-> (adresse, sexe) des utilisateurs (en autres). Je sais que d'ici 3 ans 
-> (voir toute la vie), très peu auront le niveau. Il faut 3 ans d'xp 
-> mini. Je ne suis pas contre être chef de projet un jour mais il faut 
-> que je commence en bas et que je le mérite. Aucun ingénieur ne 
-> commence chef de projet et ça me fait mal au cœur de voir certains 
-> rêver qu'ils vont arriver et commander les autres alors qu'ils ont 0 xp.
->
-> 1) Tout ça pour dire que le but c'est d'avoir un job (besoin vital) et 
-> après on peut se concentrer sur d'autres choses. Je suis ultra 
-> pragmatique. Les entreprises ne veulent pas de blabla, juste est ce 
-> que tu sais faire ça ? et si Non est ce que tu sais faire un truc 
-> similaire et tu apprendras vite ?
->
-> 2) Est ce que tu sais parler anglais, oui ou non ?
->
-> 3) Quels sont des défauts ?
->
-> 4) Et un projet à faire
->
-> C'est ça le process de recrutement en IR si je ne dis pas de bêtise 
-> (je sais il y a aussi des tests de personnalité mais cela ne compense 
-> pas la technique)
->
-> Augustin
->
-"""
-
-# TODO: use library.preprocess_email() in production
-email_content = preprocess_email(email_prompt)
-
-user_id = 1
-search = Search(user_id)
-keypoints = search.summarize_conversation(email_content, "emailIDTest")
-print(json.dumps(search.load_user_data(), indent=4, ensure_ascii=False))
-'''
-
-# THIS CODE IS TO TEST SUMMARIZING A SINGLE EMAIL AND SAVING IT IN THE JSON FILE
-'''email_prompt = """
-Bonjour à
-tous,
-
-J'espère
-avant toute chose que vous allez tous bien.
-
-Comme
-évoqué avec certains d'entre vous, je souhaite faire un
-dernier point rapide en visio pour savoir comment se déroule
-la fin de votre expérience internationale. Ainsi,
-
-vous
-trouverez ci-dessous un lien vers un fichier Excel partagé
-pour indiquer vos noms dans le créneau qui vous convient le
-mieux :
-
-Entretiens_ING2-EN_23-24_n°6_mai24.xlsx
-
-Comme
-habituellement, si les plages horaires ne coïncident pas
-avec vos emplois du temps respectifs, je peux prévoir des
-créneaux supplémentaires. Le cas échéant, n'hésitez pas à
-revenir vers moi.
-
-Une fois
-vos créneaux réservés, je vous enverrai une invitation TEAMS
-via vos comptes esaip à la date et horaire convenus.
-
-Au
-plaisir de vous revoir prochainement.
-
-Bonne
-fin de journée.
-
-Cordialement.
-
-MC
-
-Moïse
-CROCHET
-
-Pilote
-du cycle préparatoire - Enseignant-chercheur
-
-02 41 96 65 51
-
-Campus
-Ouest
-
-18,
-rue du 8 mai 1945 - CS 80022 - 49180
-St-Barthélemy d'Anjou Cedex
-"""
-
-# TODO: use library.preprocess_email() in production
-email_content = preprocess_email(email_prompt)
-
-user_id = 1
-search = Search(user_id)
-keypoints = search.summarize_email(email_content, "emailIDTest")
-print(json.dumps(search.load_user_data(), indent=4, ensure_ascii=False))
-'''

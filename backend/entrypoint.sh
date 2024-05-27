@@ -32,6 +32,10 @@ else
     exit 1
 fi
 
+# Start cron service
+print_message $BLUE "Starting Cron service"
+service cron start
+
 # Set cron tasks
 print_message $BLUE "Setting cron tasks..."
 python manage.py crontab add
@@ -42,6 +46,9 @@ else
     exit 1
 fi
 
+print_message $BLUE "Active cron jobs"
+python manage.py crontab show
+
 # Start the Django application
-print_message $BLUE "Starting Django application..."
+print_message $BLUE "Starting Django application"
 exec "$@"

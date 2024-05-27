@@ -33,7 +33,6 @@ from email.utils import parsedate_to_datetime
 from MailAssistant.serializers import EmailDataSerializer
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
 from MailAssistant.constants import (
@@ -55,6 +54,7 @@ from MailAssistant.constants import (
     GOOGLE_SCOPES,
     MEDIA_ROOT,
 )
+from MailAssistant.controllers.tree_knowledge import Search
 from .. import library
 from ..models import (
     Contact,
@@ -523,6 +523,31 @@ def get_mail_to_db(services):
         bcc_info,
         image_files,
     )
+
+
+def get_mail_id(services, int_mail: int) -> str:
+    """
+    Retrieve the email ID of a specific email from the user's Gmail inbox.
+
+    Args:
+        services (dict): A dictionary containing service objects for various APIs.
+                         It should include a "gmail" service object.
+        int_mail (int): The index of the email in the inbox to retrieve the ID for.
+
+    Returns:
+        str: The ID of the specified email if found, otherwise None.
+    """
+    service = services["gmail"]
+
+    results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+    messages = results.get("messages", [])
+    if not messages:
+        LOGGER.info("No new messages.")
+        return None
+    message = messages[int_mail]
+    email_id = message["id"]
+
+    return email_id
 
 
 # TO DELETE IN THE FUTURE ?
@@ -1129,12 +1154,6 @@ def receive_mail_notifications(request):
         decoded_json: dict = json.loads(decoded_data)
         email = decoded_json.get("emailAddress")
 
-        # attributes = message_data.get("attributes", {})
-        # print(f"DEBUG envelope: {envelope}")
-        # print(f"DEBUG decoded_json: {decoded_json}")
-        # print(f"DEBUG message_data: {message_data}")
-        # print(f"DEBUG attributes: {attributes}")
-
         try:
             social_api = SocialAPI.objects.get(email=email)
             services = authenticate_service(social_api.user, email)
@@ -1143,49 +1162,7 @@ def receive_mail_notifications(request):
                 for i in range(MAX_RETRIES):
                     result = email_to_db(social_api.user, services, social_api)
 
-                    if isinstance(result, Email):
-                        # email_data = {
-                        #     "id": result.id,
-                        #     "id_provider": result.provider_id,
-                        #     "email": result.sender.email,
-                        #     "subject": result.subject,
-                        #     "name": result.sender.name,
-                        #     "description": result.email_short_summary,
-                        #     "html_content": result.html_content,
-                        #     "details": [
-                        #         {"id": bp.id, "text": bp.content}
-                        #         for bp in result.bulletpoint_set.all()
-                        #     ],
-                        #     "cc": [
-                        #         {"email": cc.email, "name": cc.name}
-                        #         for cc in result.cc_senders.all()
-                        #     ],
-                        #     "bcc": [
-                        #         {"email": bcc.email, "name": bcc.name}
-                        #         for bcc in result.bcc_senders.all()
-                        #     ],
-                        #     "read": result.read,
-                        #     "rule": result.has_rule,
-                        #     "rule_id": result.rule_id,
-                        #     "answer_later": result.answer_later,
-                        #     "web_link": result.web_link,
-                        #     "has_attachments": result.has_attachments,
-                        # }
-
-                        # formatted_data = defaultdict(lambda: defaultdict(list))
-                        # formatted_data[result.category.name][result.priority].append(
-                        #     email_data
-                        # )
-                        # # Ensuring all priorities are present for each category
-                        # all_priorities = {"Important", "Information", "Useless"}
-                        # for category in formatted_data:
-                        #     for priority in all_priorities:
-                        #         formatted_data[category].setdefault(priority, [])
-                        # print("---------DEBUG formatted_data---------")
-                        # print(formatted_data)
-                        # print("--------------------------------------")
-
-                        # TODO: send notification to client
+                    if result:
                         break
                     else:
                         LOGGER.critical(
@@ -1242,13 +1219,40 @@ def email_to_db(user, services, social_api: SocialAPI):
         image_files,
     ) = get_mail_to_db(services)
 
-    # TODO:
+    user_description = (
+        social_api.user_description if social_api.user_description != None else ""
+    )
     if is_reply:
         # summarize conversation with Search
-        ...
+        email_content = library.preprocess_email(decoded_data)
+        user_id = user.id
+        search = Search(user_id)
+        email_id = get_mail_id(services, 0)
+        keypoints = search.summarize_conversation(
+            subject, email_content, user_description, email_id
+        )
+        print(
+            "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
+        )
+        print(keypoints)
+        print(
+            "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+        )
+        print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
     else:
         # summarize single email with Search
-        ...
+        email_content = library.preprocess_email(decoded_data)
+
+        user_id = user.id
+        search = Search(user_id)
+        email_id = get_mail_id(services, 0)
+        keypoints = search.summarize_email(
+            subject, email_content, user_description, email_id
+        )
+        print(
+            "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+        )
+        print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
 
     # print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
     # print(safe_html)
@@ -1280,10 +1284,6 @@ def email_to_db(user, services, social_api: SocialAPI):
                     print("---------- SETTING RULE CATEGORY... ---------")
                     category = rule.category
                     rule_category = True
-
-        user_description = (
-            social_api.user_description if social_api.user_description != None else ""
-        )
 
         # print("-------------------------> 5", "SUBJECT : ",subject, "DATA : ",decoded_data, "CATEGORY : ",category_dict, "USER DESCRIPTION : ",user_description)
 
@@ -1361,6 +1361,8 @@ def email_to_db(user, services, social_api: SocialAPI):
                 date=sent_date,
                 web_link=web_link,
                 has_attachments=has_attachments,
+                answer=answer,
+                relevance=relevance,
             )
 
             contact_name, contact_email = from_name[0], from_name[1]
@@ -1388,7 +1390,7 @@ def email_to_db(user, services, social_api: SocialAPI):
                 for point in summary_list:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
-            return email_entry
+            return True
 
         except Exception as e:
             LOGGER.error(

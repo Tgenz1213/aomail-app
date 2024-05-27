@@ -12,7 +12,7 @@ from MailAssistant.ai_providers.ai_memory import (
     GenerateEmailConversation,
 )
 from django.core.mail import send_mail
-from langchain.memory import ChatMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
 from django.template.loader import render_to_string
 from MailAssistant.constants import (

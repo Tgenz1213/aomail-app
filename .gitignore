@@ -27,3 +27,4 @@ logger.json
 __pycache__/
 migrations/
 media/
+trees/

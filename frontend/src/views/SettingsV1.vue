@@ -391,9 +391,10 @@
                                         <div class="pt-6">
                                             <div class="overflow-y-auto max-h-[120px]">
                                                 <!-- TODO: set dynamicelly -->
-                                                <div class="flex justify-center">
+                                                <div class="w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl">
                                                     <div class="w-full max-w-lg">
-                                                        <div class="max-h-20"> <!-- TODO: set dynamicelly -->
+                                                       <!-- TODO: set dynamicelly -->
+                                                        <div class="max-h-20 sm:max-h-24 md:max-h-32 lg:max-h-40"> 
                                                             <ul role="list" class="space-y-1">
                                                                 <li v-for="email in emailsLinked" :key="email.email"
                                                                     class="border border-black flex items-center justify-between overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
@@ -607,39 +608,9 @@
                                         </div>
                                     </div>
                                     <div class="pt-6 pb-10">
-                                        <div class="relative items-stretch mt-2">
-                                            <!-- TODO: put this in a component with the backend API calls -->
-                                            <Listbox as="div" v-model="languageSelected" @click="handleLanguageChange">
-                                                <ListboxButton
-                                                    class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
-                                                    <span class="block truncate">{{ languageDisplayed }}</span>
-                                                    <span
-                                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400"
-                                                            aria-hidden="true" />
-                                                    </span>
-                                                </ListboxButton>
-                                                <transition leave-active-class="transition ease-in duration-100"
-                                                    leave-from-class="opacity-100" leave-to-class="opacity-0">
-                                                    <ListboxOptions
-                                                        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                                        <ListboxOption as="template" v-for="language in languages"
-                                                            :key="language.key" :value="language"
-                                                            v-slot="{ active, selected }">
-                                                            <li
-                                                                :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                                                <span
-                                                                    :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{
-                                                                        language.value }}</span>
-                                                                <span v-if="selected"
-                                                                    :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                                </span>
-                                                            </li>
-                                                        </ListboxOption>
-                                                    </ListboxOptions>
-                                                </transition>
-                                            </Listbox>
+                                        <div class="pt-6">
+                                            <!-- TO DO : Composents -->
+                                            <LanguageChange :initialLanguage="selectedLanguage" @language-updated="handleLanguageChange" ></LanguageChange>
                                         </div>
                                     </div>
                                     <!-- <div class="relative">
@@ -682,11 +653,11 @@
 import { API_BASE_URL } from '@/main';
 import { useRouter } from 'vue-router';
 
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
+//import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+//import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
 // TODO: display the language name in the current selected language
-const languages = [
+/*const languages = [
     { key: 'french', value: 'Français 🇫🇷' },
     { key: 'american', value: 'American 🇺🇸' },
     { key: 'german', value: 'Deutsch 🇩🇪' },
@@ -694,7 +665,7 @@ const languages = [
     { key: 'spanish', value: 'Español 🇪🇸' },
     { key: 'chinese', value: '中文 🇨🇳' },
     { key: 'indian', value: 'हिन्दी 🇮🇳' },
-];
+];*/
 
 
 let languageSelected = ref('');
@@ -714,6 +685,7 @@ let emailsLinked = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');
 let isModalOpen = ref(false);
+let selectedLanguage = localStorage.getItem('language');
 let isModalUserDescriptionOpen = ref(false);
 let isUnlinkModalOpen = ref(false);
 let isModalAddUserDescriptionOpen = ref(false);
@@ -728,7 +700,11 @@ onMounted(() => {
     fetchUserData();
     fetchUserLanguage();
     // TODO: fetch ONLY if the var bgColor is empty
-    getBackgroundColor();
+    
+    // Vérifier si bgColor est vide, et si c'est le cas, récupérer la couleur de fond
+    if (!bgColor.value) {
+        getBackgroundColor();
+    }
 })
 
 async function handleLanguageChange() {
@@ -1355,7 +1331,7 @@ import { ref, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import Theme from '../components/SettingsTheme.vue';
-import LanguageSelector from '../components/LanguageSelector';
+import LanguageChange from '../components/LanguageChange';
 import Color from '../components/SettingsColor.vue';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import Subscription from '../components/SettingsSubscription.vue'
@@ -1382,7 +1358,7 @@ export default {
         EnvelopeIcon,
         KeyIcon,
         CreditCardIcon,
-        LanguageSelector,
+        LanguageChange,
         CircleStackIcon
     },
     data() {

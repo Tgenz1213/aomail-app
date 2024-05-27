@@ -256,6 +256,16 @@
     "modifier": "Modifier"
   },
 
+  "languages": {
+    "french": "Français 🇫🇷",
+    "american": "Américain 🇺🇸",
+    "german": "Allemand 🇩🇪",
+    "russian": "Russe 🇷🇺",
+    "spanish": "Espagnol 🇪🇸",
+    "chinese": "Chinois 🇨🇳",
+    "indian": "Hindi 🇮🇳"
+  },
+
   "UpdateRule_vue": {
     "titre": "Modifier les règles",
     "cat": "Catégorie",

@@ -7,7 +7,7 @@ Each model corresponds to a database table, storing data and implementing securi
 from django.db import models
 from django.contrib.auth.models import User
 
-
+# UNDER DEVELOPMENT
 class Subscription(models.Model):
     """Model for storing subscription information."""
 

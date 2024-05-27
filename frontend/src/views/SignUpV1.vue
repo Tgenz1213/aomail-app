@@ -595,7 +595,8 @@
                         </div>
                       </div>
                       <div class="pt-6">
-                        <color @colorSelected="updateBgColor"></color>
+                        <theme></theme>
+                        <!-- <color @colorSelected="updateBgColor"></color> -->
                       </div>
                     </div>
                     <div>

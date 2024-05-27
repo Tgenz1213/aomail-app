@@ -605,7 +605,7 @@
                                     <div class="pt-6 pb-10">
                                         <div class="pt-6">
                                             <!-- TO DO : Composents -->
-                                            <LanguageChange :initialLanguage="selectedLanguage" @language-updated="handleLanguageChange" ></LanguageChange>
+                                            <LanguageChange :initialLanguage="selectedLanguage" @languageUpdated="handleLanguageChange" ></LanguageChange>
                                         </div>
                                     </div>
                                     <!-- <div class="relative">
@@ -651,16 +651,7 @@ import { useRouter } from 'vue-router';
 //import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 //import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
-// TODO: display the language name in the current selected language
-/*const languages = [
-    { key: 'french', value: 'Français 🇫🇷' },
-    { key: 'american', value: 'American 🇺🇸' },
-    { key: 'german', value: 'Deutsch 🇩🇪' },
-    { key: 'russian', value: 'Русский 🇷🇺' },
-    { key: 'spanish', value: 'Español 🇪🇸' },
-    { key: 'chinese', value: '中文 🇨🇳' },
-    { key: 'indian', value: 'हिन्दी 🇮🇳' },
-];*/
+
 
 
 let languageSelected = ref('');
@@ -693,7 +684,6 @@ onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     fetchEmailLinked();
     fetchUserData();
-    fetchUserLanguage();
     // TODO: fetch ONLY if the var bgColor is empty
     // Vérifier si bgColor est vide, et si c'est le cas, récupérer la couleur de fond
     if (!bgColor.value) {
@@ -1049,44 +1039,6 @@ async function handleColorChange(newColor) {
         }
     } catch (error) {
         console.error("Error updating background", error);
-    }
-}
-async function fetchUserLanguage() {
-    const storedLanguageKey = localStorage.getItem('language');
-
-    if (storedLanguageKey) {
-        const storedLanguage = languages.find(lang => lang.key === storedLanguageKey);
-        if (storedLanguage) {
-            languageSelected.value = storedLanguage;
-            languageDisplayed.value = storedLanguage.value;
-        }
-    } else {
-        const requestOptions = {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: "GET"
-        };
-
-        try {
-            const response = await fetchWithToken(`${API_BASE_URL}user/language/`, requestOptions);
-
-            if ("error" in response) {
-                // Show the pop-up
-                backgroundColor = 'bg-red-300';
-                notificationTitle.value = 'Error get language';
-                notificationMessage.value = response.error;
-                displayPopup();
-            } else if (response.language) {
-                languageSelected.value = response.language;
-            }
-        } catch (error) {
-            // Show the pop-up
-            backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Error get language';
-            notificationMessage.value = error.message;
-            displayPopup();
-        }
     }
 }
 

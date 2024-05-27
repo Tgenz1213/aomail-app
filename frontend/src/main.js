@@ -33,7 +33,7 @@ const fetchUserLanguage = async () => {
   };
 
   try {
-    const url = `${API_BASE_URL}user/language/`;
+    const url = `${API_BASE_URL}user/preferences/language/`;
     const response = await fetchWithToken(url, requestOptions);
 
     if (response.error) {

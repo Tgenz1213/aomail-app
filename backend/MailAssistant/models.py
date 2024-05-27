@@ -35,11 +35,8 @@ class Sender(models.Model):
     name = models.CharField(max_length=200)
 
 
-class Language(models.Model):
-    """Stores language of users"""
 
-    language = models.CharField(max_length=50)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
 
 
 class Contact(models.Model):
@@ -63,6 +60,7 @@ class Preference(models.Model):
     """Model for storing user preferences."""
 
     theme = models.CharField(max_length=50)
+    language = models.CharField(max_length=50)
     bg_color = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 

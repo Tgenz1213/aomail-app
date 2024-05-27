@@ -86,7 +86,7 @@ const updateLanguageSelection = async (newLanguage) => {
   localStorage.setItem('language', newLanguageKey);
 
   try {
-    const response = await fetchWithToken(`${API_BASE_URL}user/set_language/`, {
+    const response = await fetchWithToken(`${API_BASE_URL}user/preferences/set_language/`, {
       headers: { 'Content-Type': 'application/json' },
       method: "POST",
       body: JSON.stringify({ language: newLanguageKey }),

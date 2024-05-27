@@ -38,8 +38,11 @@ urlpatterns = [
     path('api/get_mail_by_id', views.get_mail_by_id, name='get_mail_by_id'), # ok
     #----------------------- USER -----------------------#
     path('user/categories/', views.get_user_categories, name='user-categories'), # ok
-    path('user/language/', views.get_user_language, name='get_user_language'), # ok
-    path('user/set_language/', views.set_user_language, name='set_user_language'), # ok
+    path('user/preferences/language/', views.get_user_language, name='get_user_language'), # ok
+    path('user/preferences/set_language/', views.set_user_language, name='set_user_language'), # ok
+
+    path('user/preferences/theme/', views.get_user_theme, name='get_user_theme'), # ok
+    path('user/preferences/set_theme', views.set_user_theme, name='set_user_theme'), # ok
 
     
 

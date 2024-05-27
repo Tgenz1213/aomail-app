@@ -66,7 +66,6 @@ from MailAssistant.controllers.tree_knowledge import Search
 from .models import (
     Category,
     GoogleListener,
-    Language,
     MicrosoftListener,
     SocialAPI,
     Email,
@@ -344,8 +343,8 @@ def save_user_data(
         social_api.save()
 
         # Save user preferences
-        preference = Preference(theme=theme, bg_color=color, user=user)
-        preference.save()
+        preference = Preference.objects.create(theme=theme, bg_color=color, language=language, user=user)
+
 
         # Save user categories
         if categories:
@@ -367,8 +366,6 @@ def save_user_data(
             description="",
             user=user,
         )
-
-        Language.objects.create(user=user, language=language)
 
         return {"message": "User data saved successfully"}
 
@@ -594,7 +591,7 @@ def get_user_language(request: HttpRequest) -> Response:
     user = request.user
 
     try:
-        language = Language.objects.get(user=user).language
+        language = Preference.objects.get(user=user).language
         return Response({"language": language}, status=status.HTTP_200_OK)
 
     except Exception as e:
@@ -621,9 +618,9 @@ def set_user_language(request: HttpRequest) -> Response:
         )
 
     try:
-        language_user, created = Language.objects.get_or_create(user=user)
-        language_user.language = language
-        language_user.save()
+        preferences = Preference.objects.get(user=user)
+        preferences.language = language
+        preferences.save()
         return Response(
             {"message": "Language updated successfully"}, status=status.HTTP_200_OK
         )
@@ -632,6 +629,12 @@ def set_user_language(request: HttpRequest) -> Response:
         LOGGER.error(f"Error in set_language: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# TODO
+# get_user_theme
+
+
+
+# set_user_theme
 
 ######################## CATEGORIES ########################
 @api_view(["GET"])

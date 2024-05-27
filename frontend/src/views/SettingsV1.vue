@@ -693,7 +693,7 @@ onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     fetchEmailLinked();
     fetchUserData();
-    fetchUserLanguage();
+    // fetchUserLanguage();
     // TODO: fetch ONLY if the var bgColor is empty
     
     // Vérifier si bgColor est vide, et si c'est le cas, récupérer la couleur de fond
@@ -1052,44 +1052,44 @@ async function handleColorChange(newColor) {
         console.error("Error updating background", error);
     }
 }
-async function fetchUserLanguage() {
-    const storedLanguageKey = localStorage.getItem('language');
+// async function fetchUserLanguage() {
+//     const storedLanguageKey = localStorage.getItem('language');
 
-    if (storedLanguageKey) {
-        const storedLanguage = languages.find(lang => lang.key === storedLanguageKey);
-        if (storedLanguage) {
-            languageSelected.value = storedLanguage;
-            languageDisplayed.value = storedLanguage.value;
-        }
-    } else {
-        const requestOptions = {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            method: "GET"
-        };
+//     if (storedLanguageKey) {
+//         const storedLanguage = languages.find(lang => lang.key === storedLanguageKey);
+//         if (storedLanguage) {
+//             languageSelected.value = storedLanguage;
+//             languageDisplayed.value = storedLanguage.value;
+//         }
+//     } else {
+//         const requestOptions = {
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             method: "GET"
+//         };
 
-        try {
-            const response = await fetchWithToken(`${API_BASE_URL}user/language/`, requestOptions);
+//         try {
+//             const response = await fetchWithToken(`${API_BASE_URL}user/language/`, requestOptions);
 
-            if ("error" in response) {
-                // Show the pop-up
-                backgroundColor = 'bg-red-300';
-                notificationTitle.value = 'Error get language';
-                notificationMessage.value = response.error;
-                displayPopup();
-            } else if (response.language) {
-                languageSelected.value = response.language;
-            }
-        } catch (error) {
-            // Show the pop-up
-            backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Error get language';
-            notificationMessage.value = error.message;
-            displayPopup();
-        }
-    }
-}
+//             if ("error" in response) {
+//                 // Show the pop-up
+//                 backgroundColor = 'bg-red-300';
+//                 notificationTitle.value = 'Error get language';
+//                 notificationMessage.value = response.error;
+//                 displayPopup();
+//             } else if (response.language) {
+//                 languageSelected.value = response.language;
+//             }
+//         } catch (error) {
+//             // Show the pop-up
+//             backgroundColor = 'bg-red-300';
+//             notificationTitle.value = 'Error get language';
+//             notificationMessage.value = error.message;
+//             displayPopup();
+//         }
+//     }
+// }
 
 async function fetchUserData() {
     const requestOptions = {

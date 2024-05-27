@@ -265,12 +265,12 @@
                     <div v-if="activeSection === 'account'"
                         class="flex-1 h-full">
                         <!-- TO DO : CENTER -->
-                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
+                        <div class="mx-auto max-w-7xl h-full w-full flex items-center justify-center">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
-                            <div class="flex flex-col">
-                                <div class="flex justify-center gap-20 px-10">
+                            <div class="flex flex-col h-full w-full py-10 px-8">
+                                <div class="flex justify-center gap-x-10">
                                     <div class="flex-col flex-grow">
-                                        <div class="relative">
+                                        <div class="relative w-full">
                                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>

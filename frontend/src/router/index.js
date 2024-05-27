@@ -82,6 +82,7 @@ async function fetchWithToken(url, options = {}) {
   }
 }
 
+// TODO: remove + in all vue files
 async function getBackgroundColor() {
   const response = await fetchWithToken(`${API_BASE_URL}user/preferences/bg_color/`);
   const bgColor = response.bg_color;

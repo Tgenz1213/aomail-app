@@ -604,8 +604,7 @@
                                     </div>
                                     <div class="pt-6 pb-10">
                                         <div class="pt-6">
-                                            <!-- TO DO : Composents -->
-                                            <LanguageChange :initialLanguage="selectedLanguage" @languageUpdated="handleLanguageChange" ></LanguageChange>
+                                            <LanguageChange></LanguageChange>
                                         </div>
                                     </div>
                                     <!-- <div class="relative">
@@ -654,8 +653,8 @@ import { useRouter } from 'vue-router';
 
 
 
-let languageSelected = ref('');
-let languageDisplayed = ref('');
+// let languageSelected = ref('');
+// let languageDisplayed = ref('');
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -691,47 +690,48 @@ onMounted(() => {
     }
 })
 
-async function handleLanguageChange() {
-    const newLanguageKey = languageSelected.value.key;
-    const currentLanguage = localStorage.getItem('language');
+// async function handleLanguageChange() {
+//     console.log("FUNCTION TRIGGERED inside client file!!!")
+//     const newLanguageKey = languageSelected.value.key;
+//     const currentLanguage = localStorage.getItem('language');
 
-    if (newLanguageKey === currentLanguage) {
-        return;
-    }
-    localStorage.setItem('language', newLanguageKey);
-    const storedLanguage = languages.find(lang => lang.key === newLanguageKey);
-    languageDisplayed.value = storedLanguage.value;
+//     if (newLanguageKey === currentLanguage) {
+//         return;
+//     }
+//     localStorage.setItem('language', newLanguageKey);
+//     const storedLanguage = languages.find(lang => lang.key === newLanguageKey);
+//     languageDisplayed.value = storedLanguage.value;
 
-    const requestOptions = {
-        headers: { 'Content-Type': 'application/json' },
-        method: "POST",
-        body: JSON.stringify({ language: newLanguageKey })
-    };
+//     const requestOptions = {
+//         headers: { 'Content-Type': 'application/json' },
+//         method: "POST",
+//         body: JSON.stringify({ language: newLanguageKey })
+//     };
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/set_language/`, requestOptions);
+//     try {
+//         const response = await fetchWithToken(`${API_BASE_URL}user/set_language/`, requestOptions);
 
-        if ("error" in response) {
-            // Show the pop-up
-            backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Error get language';
-            notificationMessage.value = response.error;
-            displayPopup();
-        } else if (response.message == "Language updated successfully") {
-            // Show the pop-up
-            backgroundColor = 'bg-green-300';
-            notificationTitle.value = 'Succès!';
-            notificationMessage.value = 'Language updated successfully';
-            displayPopup();
-        }
-    } catch (error) {
-        // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Error get language';
-        notificationMessage.value = error.message;
-        displayPopup();
-    }
-}
+//         if ("error" in response) {
+//             // Show the pop-up
+//             backgroundColor = 'bg-red-300';
+//             notificationTitle.value = 'Error get language';
+//             notificationMessage.value = response.error;
+//             displayPopup();
+//         } else if (response.message == "Language updated successfully") {
+//             // Show the pop-up
+//             backgroundColor = 'bg-green-300';
+//             notificationTitle.value = 'Succès!';
+//             notificationMessage.value = 'Language updated successfully';
+//             displayPopup();
+//         }
+//     } catch (error) {
+//         // Show the pop-up
+//         backgroundColor = 'bg-red-300';
+//         notificationTitle.value = 'Error get language';
+//         notificationMessage.value = error.message;
+//         displayPopup();
+//     }
+// }
 
 async function openUnLinkModal(email) {
     emailSelected.value = email;

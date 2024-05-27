@@ -79,7 +79,7 @@ const updateThemeSelection = async (newTheme) => {
   localStorage.setItem('theme', newThemeKey);
 
   try {
-    const response = await fetchWithToken(`${API_BASE_URL}user/set_theme/`, {
+    const response = await fetchWithToken(`${API_BASE_URL}user/preferences/set_theme/`, {
       headers: { 'Content-Type': 'application/json' },
       method: "POST",
       body: JSON.stringify({ theme: newThemeKey }),

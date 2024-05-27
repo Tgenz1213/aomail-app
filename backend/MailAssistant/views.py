@@ -60,6 +60,7 @@ from MailAssistant.constants import (
     STRIPE_PAYMENT_SUCCESS_URL,
     STRIPE_PRICES,
     STRIPE_SECRET_KEY,
+    THEMES,
 )
 from MailAssistant import library
 from MailAssistant.controllers.tree_knowledge import Search
@@ -629,12 +630,48 @@ def set_user_language(request: HttpRequest) -> Response:
         LOGGER.error(f"Error in set_language: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# TODO
-# get_user_theme
+######################## THEMES ########################
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_theme(request: HttpRequest) -> Response:
+    """
+    Retrieve the theme setting for the authenticated user.
+    """
+    user = request.user
+    try:
+        theme = Preference.objects.get(user=user).theme
+        return Response({"theme": theme}, status=status.HTTP_200_OK)
+    except Exception as e:
+        LOGGER.error(f"Unexpected error in get_user_theme: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_user_theme(request: HttpRequest) -> Response:
+    """
+    Set the theme for the authenticated user.
+    """
+    user = request.user
+    theme = request.data.get("theme")
+
+    if not theme:
+        return Response({"error": "No theme provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if theme not in THEMES:
+        return Response({"error": "Theme not allowed"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        preference = Preference.objects.get(user=user)
+        preference.theme = theme
+        preference.save()
+        return Response({"message": "Theme updated successfully"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        LOGGER.error(f"Error in set_user_theme: {e}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
-# set_user_theme
 
 ######################## CATEGORIES ########################
 @api_view(["GET"])

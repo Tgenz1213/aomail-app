@@ -42,7 +42,7 @@ urlpatterns = [
     path('user/preferences/set_language/', views.set_user_language, name='set_user_language'), # ok
 
     path('user/preferences/theme/', views.get_user_theme, name='get_user_theme'), # ok
-    path('user/preferences/set_theme', views.set_user_theme, name='set_user_theme'), # ok
+    path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok
 
     
 

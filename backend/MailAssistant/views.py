@@ -139,6 +139,7 @@ def signup(request):
 
     # Check email requirements
     if email:
+        print(f"\n\n\n\nTHE EMAIL: {email}\n\n\n\n")
         if SocialAPI.objects.filter(email=email).exists():
             return Response(
                 {"error": "Email address already used by another account"}, status=400
@@ -194,16 +195,16 @@ def signup(request):
         return Response(result, status=400)
 
     # (useless for now): TODO: use create_subscription function
-    end_date = datetime.datetime.now() + datetime.timedelta(days=30)
-    end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
-    Subscription.objects.create(
-        user=user,
-        plan="start_plan",
-        stripe_subscription_id=None,
-        end_date=end_date_utc,
-        billing_interval=None,
-        amount=0.0,
-    )
+    # end_date = datetime.datetime.now() + datetime.timedelta(days=30)
+    # end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
+    # Subscription.objects.create(
+    #     user=user,
+    #     plan="start_plan",
+    #     stripe_subscription_id=None,
+    #     end_date=end_date_utc,
+    #     billing_interval=None,
+    #     amount=0.0,
+    # )
 
     # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
@@ -333,7 +334,7 @@ def save_user_data(
 ):
     """Store user creds and settings in DB"""
     try:
-        social_api = SocialAPI(
+        SocialAPI.objects.create(
             user=user,
             user_description=user_description,
             type_api=type_api,
@@ -341,10 +342,9 @@ def save_user_data(
             access_token=access_token,
             refresh_token=refresh_token,
         )
-        social_api.save()
 
         # Save user preferences
-        preference = Preference.objects.create(theme=theme, bg_color=color, language=language, user=user)
+        Preference.objects.create(theme=theme, bg_color=color, language=language, user=user)
 
 
         # Save user categories
@@ -355,10 +355,9 @@ def save_user_data(
                     category_name = category_data.get("name")
                     category_description = category_data.get("description")
 
-                    category = Category(
+                    Category.objects.create(
                         name=category_name, description=category_description, user=user
                     )
-                    category.save()
             except json.JSONDecodeError:
                 return {"error": "Invalid categories data"}
 
@@ -667,7 +666,7 @@ def set_user_theme(request: HttpRequest) -> Response:
         preference.save()
         return Response({"message": "Theme updated successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
-        LOGGER.error(f"Error in set_user_theme: {e}")
+        LOGGER.error(f"Error in set_user_theme: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

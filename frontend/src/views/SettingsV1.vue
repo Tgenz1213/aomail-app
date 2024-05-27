@@ -621,10 +621,9 @@
                                             <theme></theme>
                                         </div>
                                     </div>
-                                    <div class="pt-6">
-                                        <theme></theme>
-                                        <!-- <color :initialColor="bgColor" @colorSelected="handleColorChange"></color> -->
-                                    </div>
+                                    <!-- <div class="pt-6">
+                                        <color :initialColor="bgColor" @colorSelected="handleColorChange"></color>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>

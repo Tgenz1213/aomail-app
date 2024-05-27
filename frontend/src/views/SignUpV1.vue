@@ -698,7 +698,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import Theme from '../components/SettingsTheme.vue';
+import Theme from '../components/SettingsThemeSignUp.vue';
 import Color from '../components/SettingsColor.vue';
 import { API_BASE_URL } from '@/main';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
@@ -716,7 +716,6 @@ let userDescription = ref('');
 let password = ref('');
 let confirmPassword = ref('');
 let credentialError = ref('');
-let theme = ref('');
 let isModalOpen = ref(false);
 let isModalUpdateOpen = ref(false);
 let categoryName = ref('');
@@ -957,7 +956,6 @@ async function nextStep0() {
 }
 function nextStep1() {
   localStorage.setItem('bgColor', bgColor.value);
-  localStorage.setItem('theme', 'light');
   step.value++;
 }
 function goStep0() {

@@ -695,7 +695,6 @@ onMounted(() => {
     fetchUserData();
     fetchUserLanguage();
     // TODO: fetch ONLY if the var bgColor is empty
-    
     // Vérifier si bgColor est vide, et si c'est le cas, récupérer la couleur de fond
     if (!bgColor.value) {
         getBackgroundColor();

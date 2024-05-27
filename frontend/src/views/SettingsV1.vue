@@ -200,7 +200,7 @@
 
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
-            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+            <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <navbar></navbar>
             </div>
             <div class="flex-1 bg-white ring-1 ring-black ring-opacity-5">
@@ -208,7 +208,7 @@
                     <main class="bg-gray-50 ring-1 ring-black ring-opacity-5">
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div class="flex items-center">
-                                <div class="w-full flex items-center justify-center py-6">
+                                <div class="w-full flex items-center justify-center py-6 2xl:py-7">
                                     <div class="sm:hidden">
                                         <!-- <label for="tabs" class="sr-only">Select a tab</label>
                                         <-- Use an "onChange" listener to redirect the user to the selected tab URL. ->
@@ -265,19 +265,12 @@
                     <div v-if="activeSection === 'account'"
                         class="flex-1 h-full">
                         <!-- TO DO : CENTER -->
-                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center">
+                        <div class="mx-auto max-w-7xl h-full w-full flex items-center justify-center">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
-                            <div class="flex flex-col">
-                                <div class="px-5 pb-12">
-                                    <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.account') }}
-                                    </h1>
-                                    <!--<div class="float-right mt-[-35px] mr-[10px]">
-                                        <user-icon class="w-6 h-6 text-gray-500" />
-                                    </div>-->
-                                </div>
-                                <div class="flex justify-center gap-20 px-10">
+                            <div class="flex flex-col h-full w-full py-10 px-8">
+                                <div class="flex justify-center gap-x-10">
                                     <div class="flex-col flex-grow">
-                                        <div class="relative">
+                                        <div class="relative w-full">
                                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
@@ -534,27 +527,16 @@
                             </div>
                         </div>
                     </div>
-
                     <div v-if="activeSection === 'subscription'"
-                        class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
-                        <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
-                                $t('settings_navigation.Abonnement') }}</h1>
-                        </div>
-                        <div class="float-right mt-[-70px] mr-[10px]">
-                            <credit-card-icon class="w-6 h-6 text-gray-500" />
-                        </div>
-                        <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
-                        <div class="mx-8 2xl:mx-16">
-                            <!-- Content goes here -->
-                            <subscription @openBillingModal="openBillingModal"></subscription>
-                        </div>
+                        class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12">
+                        <subscription @openBillingModal="openBillingModal"></subscription>
                     </div>
                     <div v-if="activeSection === 'data'"
-                        class="flex flex-col h-full rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
+                        class="flex flex-col h-full section">
+                        <!--
                         <div class="flex">
                             <div class="flex-1">
-                                <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
+                                <div class="flex px-6 py-6">
                                     <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">
                                         {{ $t('settings_navigation.Mes données') }}</h1>
                                 </div>
@@ -562,7 +544,7 @@
                                     <circle-stack-icon class="w-6 h-6 text-gray-500" />
                                 </div>
                             </div>
-                        </div>
+                        </div>-->
                         <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
                         <div class="m-6 2xl:m-8 flex-grow">
                             <div
@@ -580,50 +562,53 @@
                         </div>
                     </div>
                     <div v-if="activeSection === 'preferences'"
-                        class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
-                        <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
-                            <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
-                                $t('settings_navigation.Preferences') }}</h1>
-                        </div>
-                        <div class="float-right mt-[-70px] mr-[10px]">
-                            <adjustments-vertical-icon class="w-6 h-6 text-gray-500" />
-                        </div>
+                        class="flex-1 section">
                         <!-- TO DO : CENTER -->
-                        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10">
-
-                            <div class="mx-auto max-w-lg">
-                                <!-- Content goes here -->
-                                <div class="flex flex-col">
-                                    <div class="relative">
-                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                            <div class="w-full border-t border-gray-300"></div>
+                        <div class="mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 pt-10">
+                            <!-- Content goes here -->
+                            <div class="flex flex-col h-full pb-6">
+                                <div class="flex gap-x-10 w-full">
+                                    <div class="flex-1 flex flex-col">
+                                        <div class="relative">
+                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                <div class="w-full border-t border-gray-300"></div>
+                                            </div>
+                                            <div class="relative flex justify-center">
+                                                <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
+                                            </div>
                                         </div>
-                                        <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
-                                        </div>
-                                    </div>
-                                    <div class="pt-6 pb-10">
-                                        <div class="pt-6">
+                                        <div class="pt-10 pb-10">
                                             <LanguageChange></LanguageChange>
                                         </div>
                                     </div>
-                                    <div class="relative">
-                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                            <div class="w-full border-t border-gray-300"></div>
+                                    <div class="flex-1 flex flex-col">
+                                        <div class="relative">
+                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                <div class="w-full border-t border-gray-300"></div>
+                                            </div>
+                                            <div class="relative flex justify-center">
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                    $t('settings_navigation.Theme') }}</span>
+                                            </div>
                                         </div>
-                                        <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                $t('settings_navigation.Theme') }}</span>
+                                        <div class="pt-10 pb-10">
+                                            <div class="relative items-stretch">
+                                                <theme></theme>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="pt-6 pb-10">
-                                        <div class="relative items-stretch mt-2">
-                                            <theme></theme>
-                                        </div>
+                                </div>
+                                <div
+                                    class="flex-1 w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center">
+                                    <div class="flex flex-col h-full items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            stroke-width="1" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+                                        </svg>
+                                        <span class="mt-2 block text-sm font-semibold text-gray-900">En cours de
+                                            construction</span>
                                     </div>
-                                    <!-- <div class="pt-6">
-                                        <color :initialColor="bgColor" @colorSelected="handleColorChange"></color>
-                                    </div> -->
                                 </div>
                             </div>
                         </div>

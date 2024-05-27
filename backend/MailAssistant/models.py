@@ -7,13 +7,15 @@ Each model corresponds to a database table, storing data and implementing securi
 from django.db import models
 from django.contrib.auth.models import User
 
-# UNDER DEVELOPMENT
+
 class Subscription(models.Model):
+    # UNDER DEVELOPMENT
     """Model for storing subscription information."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plan = models.CharField(max_length=50)
-    stripe_subscription_id = models.CharField(max_length=200, blank=True, null=True)
+    stripe_subscription_id = models.CharField(
+        max_length=200, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True)
@@ -33,10 +35,6 @@ class Sender(models.Model):
 
     email = models.CharField(max_length=200, unique=True)
     name = models.CharField(max_length=200)
-
-
-
-
 
 
 class Contact(models.Model):
@@ -112,7 +110,8 @@ class GoogleListener(models.Model):
 class Email(models.Model):
     """Model for storing email information."""
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_emails")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="user_emails")
     social_api = models.ForeignKey(
         SocialAPI, on_delete=models.CASCADE, related_name="social_api_emails", null=True
     )
@@ -170,4 +169,14 @@ class BulletPoint(models.Model):
     """Model for storing bullet points."""
 
     content = models.TextField()
+    email = models.ForeignKey(Email, on_delete=models.CASCADE)
+
+
+class KeyPoint(models.Model):
+    """Model for storing keypoints needed by Ao for knowledge search."""
+
+    category = models.TextField(max_length=50)
+    organization = models.TextField(max_length=50)
+    topic = models.TextField(max_length=50)
+    content = models.TextField(max_length=50)
     email = models.ForeignKey(Email, on_delete=models.CASCADE)

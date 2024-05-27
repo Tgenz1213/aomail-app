@@ -58,6 +58,7 @@ from MailAssistant.controllers.tree_knowledge import Search
 from .. import library
 from ..models import (
     Contact,
+    KeyPoint,
     Rule,
     SocialAPI,
     BulletPoint,
@@ -1249,6 +1250,9 @@ def email_to_db(user, services, social_api: SocialAPI):
         keypoints = search.summarize_email(
             subject, email_content, user_description, email_id
         )
+
+        for keypoint in keypoints:
+                    KeyPoint.objects.create(content=keypoint, email=email_entry)
         print(
             "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
         )

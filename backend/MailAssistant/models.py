@@ -175,6 +175,8 @@ class BulletPoint(models.Model):
 class KeyPoint(models.Model):
     """Model for storing keypoints needed by Ao for knowledge search."""
 
+    is_reply = models.BooleanField()
+    position = models.IntegerField(default=None)
     category = models.TextField(max_length=50)
     organization = models.TextField(max_length=50)
     topic = models.TextField(max_length=50)

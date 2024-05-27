@@ -112,23 +112,4 @@ const setNotification = (color, title, message) => {
 
 // Watchers
 watch(selectedLanguage, updateLanguageSelection);
-
-// Utility functions for class bindings
-const getOptionClasses = (active, selected) => ({
-  'bg-gray-800 text-white': active,
-  'text-gray-900': !active,
-  'relative cursor-default select-none py-2 pl-3 pr-9': true,
-});
-
-const getLabelClasses = (selected) => ({
-  'font-semibold': selected,
-  'font-normal': !selected,
-  'block truncate': true,
-});
-
-const getCheckIconClasses = (active) => ({
-  'text-white': active,
-  'text-gray-500': !active,
-  'absolute inset-y-0 right-0 flex items-center pr-4': true,
-});
 </script>

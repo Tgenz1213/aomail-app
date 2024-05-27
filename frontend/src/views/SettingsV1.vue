@@ -626,12 +626,12 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                $t('settings_navigation2.Colors') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">Thème</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">
-                                        <color :initialColor="bgColor" @colorSelected="handleColorChange"></color>
+                                        <theme></theme>
+                                        <!-- <color :initialColor="bgColor" @colorSelected="handleColorChange"></color> -->
                                     </div>
                                 </div>
                             </div>

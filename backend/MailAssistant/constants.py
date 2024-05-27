@@ -32,8 +32,9 @@ EMAIL_NO_REPLY = EMAILS_CREDS["email"]
 EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 ADMIN_EMAIL_LIST = EMAILS_CREDS["email_admins"]
 
-######################## LANGUAGES ########################
+######################## PREFERENCES ########################
 LANGUAGES = ["french", "american", "german", "russian", "spanish", "chinese", "indian"]
+THEMES = ["dark", "light"]
 
 ######################## STRIPE ########################
 STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json"))

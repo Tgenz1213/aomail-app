@@ -626,11 +626,8 @@ import { useRouter } from 'vue-router';
 //import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 //import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'
 
+// TODO: REMOVE OR COMMENT EVERYTHING RELATED WITH BACKGROUND COLOR
 
-
-
-// let languageSelected = ref('');
-// let languageDisplayed = ref('');
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -646,7 +643,6 @@ let emailsLinked = ref('');
 let newPassword = ref('');
 let confirmPassword = ref('');
 let isModalOpen = ref(false);
-let selectedLanguage = localStorage.getItem('language');
 let isModalUserDescriptionOpen = ref(false);
 let isUnlinkModalOpen = ref(false);
 let isModalAddUserDescriptionOpen = ref(false);
@@ -667,48 +663,6 @@ onMounted(() => {
     }
 })
 
-// async function handleLanguageChange() {
-//     console.log("FUNCTION TRIGGERED inside client file!!!")
-//     const newLanguageKey = languageSelected.value.key;
-//     const currentLanguage = localStorage.getItem('language');
-
-//     if (newLanguageKey === currentLanguage) {
-//         return;
-//     }
-//     localStorage.setItem('language', newLanguageKey);
-//     const storedLanguage = languages.find(lang => lang.key === newLanguageKey);
-//     languageDisplayed.value = storedLanguage.value;
-
-//     const requestOptions = {
-//         headers: { 'Content-Type': 'application/json' },
-//         method: "POST",
-//         body: JSON.stringify({ language: newLanguageKey })
-//     };
-
-//     try {
-//         const response = await fetchWithToken(`${API_BASE_URL}user/set_language/`, requestOptions);
-
-//         if ("error" in response) {
-//             // Show the pop-up
-//             backgroundColor = 'bg-red-300';
-//             notificationTitle.value = 'Error get language';
-//             notificationMessage.value = response.error;
-//             displayPopup();
-//         } else if (response.message == "Language updated successfully") {
-//             // Show the pop-up
-//             backgroundColor = 'bg-green-300';
-//             notificationTitle.value = 'Succès!';
-//             notificationMessage.value = 'Language updated successfully';
-//             displayPopup();
-//         }
-//     } catch (error) {
-//         // Show the pop-up
-//         backgroundColor = 'bg-red-300';
-//         notificationTitle.value = 'Error get language';
-//         notificationMessage.value = error.message;
-//         displayPopup();
-//     }
-// }
 
 async function openUnLinkModal(email) {
     emailSelected.value = email;

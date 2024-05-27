@@ -24,7 +24,8 @@
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorUpdateMessage">{{ errorUpdateMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.name') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.name')
+              }}</label>
             <div class="mt-2">
               <input id="updateCategoryName" v-model="updateCategoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
@@ -32,7 +33,8 @@
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.name') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.name')
+              }}</label>
             <div class="mt-2">
               <textarea id="updateCategoryDescription" v-model="updateCategoryDescription" rows="3"
                 style="min-height: 60px"
@@ -81,7 +83,8 @@
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.name') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.name')
+              }}</label>
             <div class="mt-2">
               <input v-model="categoryName" name="email" id="categoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
@@ -89,7 +92,8 @@
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.Add_categorie') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('SignUp_p1_vue.Add_categorie') }}</label>
             <div class="mt-2">
               <textarea v-model="categoryDescription" id="categoryDescription" name="about" rows="3"
                 style="min-height: 60px"
@@ -112,7 +116,8 @@
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
           <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
-          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.titre') }}
+          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.titre')
+            }}
           </h2>
         </div>
         <div class="2xl:mt-10 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
@@ -473,7 +478,8 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.Id') }}</label>
+                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{
+                          $t('SignUp_p1_vue.Id') }}</label>
                       </div>
                       <div class="mt-2">
                         <input v-model="login" id="login" type="login"
@@ -487,7 +493,8 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.password') }}</label>
+                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{
+                          $t('SignUp_p1_vue.password') }}</label>
                       </div>
                       <div class="relative items-stretch mt-2 flex">
                         <input id="password" v-if="!showPassword" type="password"
@@ -522,7 +529,8 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
-                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.password_confirm') }}</label>
+                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{
+                          $t('SignUp_p1_vue.password_confirm') }}</label>
                       </div>
                       <div class="relative items-stretch mt-2 flex">
                         <input id="confirmPassword" v-if="!showConfirmPassword" type="password"
@@ -559,7 +567,8 @@
                       </div>
                       <div class="mt-2">
                         <input v-model="userDescription"
-                          placeholder="Résumez-vous en quelques mots afin d'aider l'assistant (impossible à trad)" id="userDescription"
+                          placeholder="Résumez-vous en quelques mots afin d'aider l'assistant (impossible à trad)"
+                          id="userDescription"
                           class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                       </div>
                     </div>
@@ -591,11 +600,12 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p1_vue.Colors') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
                         </div>
                       </div>
                       <div class="pt-6">
-                        <color @colorSelected="updateBgColor"></color>
+                        <language></language>
+                        <!-- <color @colorSelected="updateBgColor"></color> -->
                       </div>
                     </div>
                     <div>
@@ -628,7 +638,8 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
                                 </svg>
-                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('SignUp_p1_vue.Add_categorie') }}</span>
+                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{
+                                  $t('SignUp_p1_vue.Add_categorie') }}</span>
                               </button>
                             </div>
                             <div v-else class="max-h-64 overflow-y-auto flex flex-col gap-y-4">
@@ -688,7 +699,8 @@
           <p class="mt-6 text-center text-sm text-gray-600">
             {{ $t('SignUp_p1_vue.text') }}
             {{ ' ' }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.Login') }}</a>
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.Login')
+              }}</a>
           </p>
         </div>
       </div>
@@ -697,8 +709,9 @@
 </template>
 
 <script setup>
+import Language from '../components/SettingsLanguageSignUp.vue';
 import { ref, onMounted } from 'vue';
-import Theme from '../components/SettingsTheme.vue';
+import Theme from '../components/SettingsThemeSignUp.vue';
 import Color from '../components/SettingsColor.vue';
 import { API_BASE_URL } from '@/main';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
@@ -716,7 +729,6 @@ let userDescription = ref('');
 let password = ref('');
 let confirmPassword = ref('');
 let credentialError = ref('');
-let theme = ref('');
 let isModalOpen = ref(false);
 let isModalUpdateOpen = ref(false);
 let categoryName = ref('');
@@ -957,7 +969,6 @@ async function nextStep0() {
 }
 function nextStep1() {
   localStorage.setItem('bgColor', bgColor.value);
-  localStorage.setItem('theme', 'light');
   step.value++;
 }
 function goStep0() {
@@ -1023,6 +1034,7 @@ async function submitSignupData() {
 export default {
   components: {
     Theme,
+    Language,
     Color,
     XMarkIcon
   },

@@ -40,6 +40,7 @@ const fetchUserLanguage = async () => {
       console.log(response.error);
     } else if (response.language) {
       languageSelected.value = response.language;
+      localStorage.setItem('language', languageSelected.value);
     }
   } catch (error) {
     console.log(error.message);
@@ -51,7 +52,7 @@ await fetchUserLanguage();
 // i18n Configuration
 const i18n = createI18n({
   locale: languageSelected.value,
-  fallbackLocale: 'french',
+  fallbackLocale: 'english',
   messages,
 });
 

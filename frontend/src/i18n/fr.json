@@ -1,114 +1,95 @@
 {
   "Global action": {
     "cancel": "Annuler",
-    "supp": "Supprimer",
+    "delete": "Supprimer",
     "create": "Créer",
-    "categorie": "Catégorie",
-    "searchbar": "Rechercher",
-    "annuler": "Annuler",
+    "category": "Catégorie",
+    "searchbar_search": "Recherche",
     "update": "Mettre à jour"
   },
-
-  "Global": {
-    "Home": "Accueil",
-    "NewMail": "Nouveau Mail",
-    "SearchMail": "Rechercher un Mail",
-    "Rules": "Règles",
-    "ReplyLater": "Répondre plus tard",
-    "Settings": "Paramètres"
-  },
-
   "UserLogin_vue": {
-    "titre": "Connectez-vous à votre compte",
-    "Id": "Nom d'utilisateur",
+    "connect_account": "Se connecter à votre compte",
+    "id_name": "Nom d'utilisateur",
     "password": "Mot de passe",
-    "password_oublie": "Mot de passe oublié ?",
-    "Connexion": "Connexion",
-    "text": "Vous n'avez pas de compte ?",
-    "free": "Commencez votre essai gratuit"
+    "forgotten_password": "Mot de passe oublié ?",
+    "login": "Connexion",
+    "do_not_have_account": "Vous n'avez pas de compte ?",
+    "free_trial": "Commencez votre essai gratuit"
   },
-
   "SignUp_p1_vue": {
-    "titre": "S'inscrire",
-    "Id": "Nom d'utilisateur",
+    "sign_up": "S'inscrire",
+    "username": "Nom d'utilisateur",
     "password": "Mot de passe",
     "password_confirm": "Confirmez le mot de passe",
-    "Continuer": "Continuer",
+    "continue": "Continuer",
     "Theme": "Thème",
     "Colors": "Couleurs",
-    "categorie": "Créez vos différentes catégories dans lesquelles vous souhaitez que l'assistant place automatiquement vos emails.",
-    "categorie2": "Brève description de la catégorie",
+    "create_categorie": "Créez vos différentes catégories dans lesquelles vous souhaitez que l'assistant classe automatiquement vos e-mails.",
+    "categorie_description": "Brève description de la catégorie",
     "description": "Cette description permettra à l'assistant de comprendre la catégorie",
-    "infos": "Voulez-vous en savoir plus ?",
-    "Add_categorie": "Ajouter une catégorie",
-    "Add_categorie2": "Ajouter une autre catégorie ?",
-    "modif": "Modifier une catégorie",
-    "name": "Nom de la catégorie",
-    "text": "Vous avez un compte ?",
+    "infos": "Vous voulez en savoir plus ?",
+    "add_categorie": "Ajouter une catégorie",
+    "add_another_categorie": "Ajouter une autre catégorie ?",
+    "modify_category": "Modifier une catégorie",
+    "category_name": "Nom de la catégorie",
+    "you_have_an_account": "Vous avez un compte ?",
     "Login": "Se connecter"
   },
-
   "SignUp_p2_vue": {
-    "titre": "Inscrivez-vous à MailAssistant",
+    "titre": "Inscription à MailAssistant",
     "Gmail": "Lier un compte Gmail",
     "Outlook": "Lier un compte Outlook",
     "Google": "Lier votre compte Google",
-    "Outlook2": "Lier votre compte Outlook",
-
-    "titre2": "Présentation des outils",
-    "notif": "Travail en cours",
-    "Finish": "Finaliser votre inscription",
-    "titre3": "Quelques infos sur la confidentialité des données"
+    "link_Outlook_account": "Lier votre compte Outlook",
+    "tools_presentation": "Présentation des outils",
+    "work_in_progress": "Travail en cours",
+    "finish_inscription": "Finaliser votre inscription",
+    "some_infos_on_data_confidentiality": "Quelques informations sur la confidentialité des données"
   },
-
   "Home_vue": {
-    "notif": "Aucun nouvel email",
-    "resume": "Cliquez pour voir le résumé",
-    "Open": "Ouvrir",
+    "no_new_email": "Pas de nouvel e-mail",
+    "click_to_see_the_summary": "Cliquez pour voir le résumé",
+    "open": "Ouvrir",
     "suppof": "Suppression de",
-    "Action_répondre": "Répondre",
+    "answer": "Répondre",
     "Mes_données": "Mes données",
-    "Actionssupp": "Actions supplémentaires",
-    "Résultats_changer": "Changer la règle",
-    "Résultats_create": "Créer une règle",
-    "Répondretard": "Répondre plus tard",
-    "Transfer": "Transférer",
-    "Checkresume": "Cliquez pour voir le résumé",
-    "lu": "Lu",
+    "additional_actions": "Actions supplémentaires",
+    "change_the_rule": "Changer la règle",
+    "create_a_rule": "Créer une règle",
+    "reply_later": "Répondre plus tard",
+    "transfer": "Transférer",
+    "read": "Lire",
     "notif3": "Non lu",
-    "notif2": "Vous avez reçu",
-    "useless": "email inutile",
-    "useless2": "emails inutiles",
-    "Checkmail": "Cliquez pour voir l'email",
-    "Bloquer": "Bloquer",
-    "read": "Vous avez récemment lu",
-    "I": "Je suis",
-    "nettoyer": "en train de nettoyer automatiquement",
-    "themail": "l'email que vous avez lu",
-    "You": "Vous avez",
+    "you_received": "Vous avez reçu",
+    "useless_email": "E-mail inutile",
+    "useless_mails": "E-mails inutiles",
+    "click_to_see_the_mail": "Cliquez pour voir l'e-mail",
+    "block": "Bloquer",
+    "You_read_recently": "Vous avez lu récemment",
+    "I_m": "Je vais",
+    "going_to_clean_automatically": "nettoyer automatiquement",
+    "the_mail_you_have_read": "l'e-mail que vous avez lu",
+    "You_have": "Vous avez",
     "rules": "règle",
     "link": "lien",
-    "cat": "à cette catégorie.",
-    "Warning": "La suppression de la catégorie entraînera également la suppression de toutes les règles associées",
-    "supp": "Supprimer"
+    "at_this_category": "dans cette catégorie.",
+    "Warning_for_deleting_the_category": "Supprimer la catégorie entraînera également la suppression de toutes les règles associées",
+    "delete": "Supprimer"
   },
-
   "settings_navigation": {
     "Preferences": "Préférences",
-    "account": "Mon compte",
-    "Abonnement": "Abonnement",
-    "Mes données": "Mes données",
-
-    "Profil_change": "Changer mon nom d'utilisateur ou mon mot de passe",
-    "Id": "nom d'utilisateur",
-    "Password_change": "nouveau mot de passe",
-    "Confirmer": "Confirmer votre nouveau mot de passe",
-    "modifier": "Modifier",
-    "Delete": "Supprimer votre compte",
-    "Confirmer_supp": "Confirmer la suppression de mon compte (action irréversible)",
-    "supprimer": "Supprimer"
+    "my_account": "Mon compte",
+    "subscription": "Abonnement",
+    "my_data": "Mes données",
+    "change_my_username_or_my_password": "Changer mon nom d'utilisateur ou mon mot de passe",
+    "username": "Nom d'utilisateur",
+    "new_password": "Nouveau mot de passe",
+    "Confirm": "Confirmez votre nouveau mot de passe",
+    "modify": "Modifier",
+    "delete_account": "Supprimer votre compte",
+    "confirmer_delete_account": "Confirmer la suppression de mon compte (action irréversible)",
+    "delete": "Supprimer"
   },
-
   "settings_navigation2": {
     "titre": "Mon Abonnement",
     "titre2": "Mes données",
@@ -117,145 +98,112 @@
     "Theme": "Thème",
     "Langue": "Langue",
     "Colors": "Couleurs",
-    "unlink": "délier mon email",
-    "Test function": "Cette fonctionnalité est en test. Évitez à tout prix de lier et de délier une adresse email car Ao aura du mal à recevoir les emails correctement."
+    "unlink_my_email": "Dissocier mon e-mail",
+    "this_feature_is_under_test": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
   },
-
   "settings_navigation3": {
-    "description": "Mettre à jour ma description",
-    "email link": "Lier une nouvelle adresse email",
+    "update_my_description": "Mettre à jour ma description",
+    "Link_a_new_email_address": "Lier une nouvelle adresse e-mail",
     "link": "Lier",
     "Outlook": "Lier mon compte Outlook",
     "Google": "Lier mon compte Google",
     "Langue": "Langue",
     "Colors": "Couleurs",
-    "unlink": "délier mon email",
-    "Test function": "Cette fonctionnalité est en test. Évitez à tout prix de lier et de délier une adresse email car Ao aura du mal à recevoir les emails correctement."
+    "unlink": "Dissocier mon e-mail",
+    "Test function": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
   },
-
   "Rules_vue": {
-    "titre": "Règles de l'assistant",
-    "catégorie": "catégorie :",
-    "prio": "priorité : ",
-    "mail": "email bloqué",
-    "règles": "cliquez pour créer une règle"
+    "assistant_rules": "Règles de l'assistant",
+    "catégorie": "Catégorie :",
+    "priotity": "Priorité :",
+    "blocked_mail": "E-mail bloqué",
+    "create_rules": "Cliquez pour créer une règle"
   },
-
   "Transfer_vue": {
-    "titre": "Assistant IA",
-    "titre2": "Recherche manuelle",
-    "Destinataire": "Destinataire",
-    "objet": "Objet",
+    "AI_assistant": "Assistant IA",
+    "manual_search": "Recherche manuelle",
+    "recipient": "Destinataire",
+    "subject": "Objet",
     "send": "Envoyer"
   },
-
   "Search_vue": {
-    "titre": "Assistant IA",
-    "titre2": "Recherche manuelle",
-    "Recherche": "Recherche",
-    "bouton_recherche": "Rechercher",
-    "Contacts": "Contacts (optionnel)",
-    "Type": "Type de recherche (optionnel)",
-    "Résultats_négatif": "Aucun résultat"
+    "AI_assistant": "Assistant IA",
+    "manual_Search": "Recherche manuelle"
   },
-
   "New_vue": {
-    "titre": "Assistant IA",
-    "Saisie": "Saisir manuellement",
-    "Destinataire": "Destinataire",
-    "Objet": "Objet",
-    "Options": "Ouvrir les options",
-    "Action_envoyer": "Envoyer"
+    "AI_assistant": "Assistant IA",
+    "enter_manually": "Entrer manuellement",
+    "recipient": "Destinataire",
+    "subject": "Objet",
+    "options": "Ouvrir les options",
+    "send": "Envoyer"
   },
-
   "Answer_vue": {
-    "titre": "Assistant IA",
-    "Saisie": "Saisir manuellement",
-    "Destinataire": "Destinataire",
-    "Objet": "Objet",
-    "Action_envoyer": "Envoyer"
+    "AI_assistant": "Assistant IA",
+    "enter_manually": "Entrer manuellement",
+    "recipient": "Destinataire",
+    "send": "Envoyer"
   },
-
   "401_vue": {
-    "titre": "Vous n'êtes pas connecté",
-    "titre2": "Vous serez redirigé vers la page de connexion dans"
+    "you_are_not_connected": "Vous n'êtes pas connecté",
+    "redirection_to_login": "Vous serez redirigé vers la page de connexion dans"
   },
-
   "404_vue": {
-    "titre": "404 - Page Non Trouvée",
-    "titre2": "La page que vous recherchez n'existe pas"
+    "page_not_found": "404 - Page non trouvée",
+    "page_does_not_exist": "La page que vous recherchez n'existe pas"
   },
-
-  "Stripepayment_vue": {
-    "titre": "Paiement Réussi",
-    "product": "produit",
-    "titre2": "Votre paiement a été effectué avec succès. Merci pour votre achat !"
+  "StripepaymentSuccess_vue": {
+    "payment_successful": "Paiement réussi",
+    "product": "Produit",
+    "thank_you": "Votre paiement a été effectué avec succès. Merci pour votre achat !"
   },
-
-  "StripepaymentF_vue": {
-    "titre": "Paiement Réussi",
-    "product": "produit",
-    "titre2": "Votre paiement a été effectué avec succès. Merci pour votre achat !"
+  "StripepaymentFailed_vue": {
+    "payment_not_successful": "Le paiement n'a pas réussi",
+    "product": "Produit",
+    "payment_not_successful_try_again": "Votre paiement n'a pas été effectué. Veuillez réessayer !"
   },
-
   "ReplyLater_vue": {
-    "titre": "Répondre plus tard",
-    "Travail": "Travail Urgent",
-    "Travail2": "Travail - Informatif",
-    "Notif": "Pas d'emails à répondre plus tard",
-    "Resume": "cliquez pour voir le résumé",
-    "Action_Ouvrir": "Ouvrir",
-    "Action_répondre": "Répondre",
-    "Action_supprimer": "Supprimer",
-    "Actionssupp": "Actions supplémentaires",
-    "Inutile": "Inutile",
-    "Transfer": "Transférer",
-    "Résultats_changer": "Changer la règle",
-    "Résultats_create": "créer une règle"
-  },
-
-  "Newcategory_vue": {
-    "categorie": "Créer une nouvelle catégorie.",
-    "categorie2": "Brève description de la catégorie",
-    "description": "Cette description permettra à l'assistant de comprendre la catégorie",
-    "name": "Nom de la catégorie"
-  },
-
-  "UpdateCategoryModal_vue": {
-    "titre": "Modifier une catégorie",
-    "category": "Nom de la catégorie ",
-    "description": "Brève description de la catégorie",
-    "desc2": "Cette description permettra à l'assistant de comprendre la catégorie",
-    "option2": "Informatif",
-    "option3": "Inutile",
-    "mail": "Bloquer les emails",
-    "modifier": "Modifier"
-  },
-
-  "Seerules_vue": {
-    "titre": "Nouvelles règles",
-    "cat": "Catégorie",
-    "nocategory": "Aucune catégorie définie",
-    "nopriority": "Aucune priorité définie",
-    "option1": "Important",
-    "option2": "Informatif",
-    "option3": "Inutile",
-    "mail": "Bloquer les emails",
-    "modifier": "Modifier"
-  },
-
-  "SeeMail_vue": {
-    "titre": "Plus d'actions",
-    "answer": "Répondre",
+    "reply_later": "Répondre plus tard",
+    "no_emails_to_reply_later": "Pas d'e-mails à répondre plus tard",
+    "click_to_see_the_summary": "Cliquez pour voir le résumé",
     "open": "Ouvrir",
-    "lu": "Lire",
-    "tab": "Sélectionner un onglet",
-    "mail": "Résumé de l'email",
-    "mail2": "Email complet",
-    "mail3": "Bloquer les emails",
-    "modifier": "Modifier"
+    "answer": "Répondre",
+    "Remove_from_reply_later": "Retirer des e-mails à répondre plus tard",
+    "additional_actions": "Actions supplémentaires",
+    "transfer": "Transférer",
+    "change_the_rule": "Changer la règle",
+    "create_a_rule": "Créer une règle"
   },
-
+  "Newcategory_vue": {
+    "new_categorie": "Créer une nouvelle catégorie.",
+    "categorie_description": "Brève description de la catégorie",
+    "description_for_tha_assistant": "Cette description permettra à l'assistant de comprendre la catégorie",
+    "category_name": "Nom de la catégorie"
+  },
+  "UpdateCategoryModal_vue": {
+    "modify_a_category": "Modifier une catégorie",
+    "category_name": "Nom de la catégorie",
+    "description_of_the_category": "Brève description de la catégorie",
+    "description_of_the_category_for_the_assistant": "Cette description permettra à l'assistant de comprendre la catégorie"
+  },
+  "Seerules_vue": {
+    "new_rules": "Nouvelles règles",
+    "category": "Catégorie",
+    "no_category_defined": "Aucune catégorie définie",
+    "no_priority_defined": "Aucune priorité définie",
+    "Important": "Important",
+    "Informative": "Informatif",
+    "Useless": "Inutile",
+    "blocked_mail": "Bloquer les e-mails"
+  },
+  "SeeMail_vue": {
+    "more_actions": "Plus d'actions",
+    "answer": "Répondre",
+    "read": "Lire",
+    "select_tab": "Sélectionner un onglet",
+    "mail_resume": "Résumé de l'e-mail",
+    "full_mail": "E-mail complet"
+  },
   "languages": {
     "french": "Français 🇫🇷",
     "american": "Américain 🇺🇸",
@@ -265,16 +213,15 @@
     "chinese": "Chinois 🇨🇳",
     "indian": "Hindi 🇮🇳"
   },
-
   "UpdateRule_vue": {
-    "titre": "Modifier les règles",
-    "cat": "Catégorie",
-    "nocategory": "Aucune catégorie définie",
-    "nopriority": "Aucune priorité définie",
-    "option1": "Important",
-    "option2": "Informatif",
-    "option3": "Inutile",
-    "mail": "Bloquer les emails",
-    "modifier": "Modifier"
+    "modify_the_rules": "Modifier les règles",
+    "category": "Catégorie",
+    "no_category_defined": "Aucune catégorie définie",
+    "no_priority": "Aucune priorité définie",
+    "important": "Important",
+    "informative": "Informatif",
+    "useless": "Inutile",
+    "block_the_mail": "Bloquer les e-mails",
+    "modify": "Modifier"
   }
 }

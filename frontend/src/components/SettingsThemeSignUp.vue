@@ -34,7 +34,10 @@ const themes = ref([
     { key: 'dark', value: 'Thème Foncé' },
 ]);
 
-const storedThemeKey = localStorage.getItem("theme") || 'light';
+if (!localStorage.getItem("theme")) {
+    localStorage.setItem("theme", "light");
+}
+const storedThemeKey = localStorage.getItem("theme");
 const selectedTheme = ref(themes.value.find(theme => theme.key === storedThemeKey));
 
 const updateThemeSelection = (newTheme) => {

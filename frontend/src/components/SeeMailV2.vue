@@ -35,7 +35,7 @@
                   <div class="relative group">
                       <div
                           class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                          {{ $t('SeeMail_vue.titre') }} 
+                          {{ $t('SeeMail_vue.more_actions') }} 
                       </div>
                       <div class="flex justify-center">
                         <span class="isolate inline-flex rounded-2xl">
@@ -44,7 +44,7 @@
                                 <div class="relative group">
                                     <div
                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                        {{ $t('SeeMail_vue.lu') }} 
+                                        {{ $t('SeeMail_vue.read') }} 
                                     </div>
                                     <button
                                         @click="markEmailAsRead(email.id)"
@@ -90,7 +90,7 @@
                                 <div class="relative group">
                                     <div
                                         class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[90px] w-[185px]">
-                                        {{ $t('SeeMail_vue.titre') }} 
+                                        {{ $t('SeeMail_vue.more_actions') }} 
                                     </div>
                                     <Menu as="div"
                                         class="relative inline-block text-left">

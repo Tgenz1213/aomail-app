@@ -1,20 +1,20 @@
-# Utilisez l'image officielle Node.js comme image parente
+# Use the official Node.js image as the base image
 FROM node:lts-alpine
 
-# Définissez le répertoire de travail dans le conteneur
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copiez le fichier 'package.json' et 'package-lock.json' (si disponible)
+# Copy 'package.json' and 'package-lock.json' (if available)
 COPY package*.json ./
 
-# Installez les dépendances du projet
+# Install the project dependencies
 RUN npm install
 
-# Copiez le reste des fichiers de votre projet dans le répertoire de travail
+# Copy the rest of your project's files into the working directory
 #COPY . .
 
-# Exposez le port utilisé par le serveur de développement Vue.js
-EXPOSE 8080
+# Expose the port used by the Vue.js development server
+# EXPOSE 8080
 
-# Commande pour démarrer l'application en mode développement
-CMD ["npm", "run", "serve"]
+# Command to start the application in development mode
+#CMD ["npm", "run", "serve"]

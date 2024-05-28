@@ -1,280 +1,227 @@
 {
   "Global action": {
     "cancel": "Cancel",
-    "supp": "delete",
+    "delete": "delete",
     "create": "Create",
-    "categorie": "Category",
-    "searchbar": "search",
-    "annuler": "cancel",
-    "update" : "update"
+    "category": "Category",
+    "searchbar_search": "search",
+    "update": "update"
   },
-  
-    "Global": {
-      "Home": "Home",
-      "NewMail": "New Mail",
-      "SearchMail": "Search Mail",
-      "Rules": "Rules",
-      "ReplyLater": "Reply Later",
-      "Settings": "Settings"
-    },
-
-    "UserLogin_vue": {
-      "titre": "Connect to your account",
-      "Id": "Username",
-      "password": "password",
-      "password_oublie": "password forgotten ?",
-      "Connexion": "Login",
-      "text": "You don't have an account ?",
-      "free": "Begin your free trial"
-    },
-
-    "SignUp_p1_vue": {
-      "titre": "Sign up",
-      "Id": "Username",
-      "password": "Password",
-      "password_confirm": "Confirm password",
-      "Continuer": "Continue",
-      "Theme": "Theme",
-      "Colors" : "Colors",
-      "categorie": "Create your different categories in which you want the assistant to place automatically your emails.",
-      "categorie2": "Brief description of the categorie",
-      "description": "This description will enable the assistant to understand the category",
-      "infos" : "Whant to know more ?",
-      "Add_categorie" : "Add a categorie",
-      "Add_categorie2" : "Add another categorie ?",
-      "modif": "Modify a category",
-      "name": "Category name",
-      "text": "You have an account ?",
-      "Login": "Log in"
-    },
-
-    "SignUp_p2_vue": {
-      "titre": "Register to MailAssistant",
-      "Gmail": "Link a Gmail account",
-      "Outlook": "Link a Outlook account",
-      "Google": "Link your Google account",
-      "Outlook2": "Link your Outlook account",
-      
-      "titre2" : "Tools presentation",
-      "notif": "Work in progress",
-      "Finish": "Finalize your inscription",
-      "titre3" : "Some infos on data confidentiality"
-    },
-
-    "Home_vue": { 
-      "notif": "No new email",
-      "resume": "Click to see the summary",
-      "Open": "Open",
-      "suppof": "Suppression of",
-      "Action_répondre": "Answer",
-      "Mes_données": "My data",
-      "Actionssupp" : "Additional actions",
-      "Résultats_changer" : "Change the rule",
-      "Résultats_create" : "create a rule",
-      "Répondretard" : "Reply later",
-      "Transfer": "Transfer",
-      "Checkresume" : "Click to see the summary",
-      "lu" : "Read",
-      "notif3": "unread",
-      "notif2" : "You received",
-      "useless" : "useless email",
-      "useless2" : "useless mails",
-      "Checkmail" : "Click to see the mail",
-      "Bloquer" : "Block",
-      "read" : "You read recently",
-      "I" : "I'm",
-      "nettoyer" : "going to clean automatically",
-      "themail" : "the mail you have read",
-      "You" : "You have",
-      "rules" : "rule",
-      "link" : "link",
-      "cat" : "at this category.",
-      "Warning" : " Deleting the category will also result in deleting all associated rules",
-      "supp" : "Delete"
-    },
-
-    "settings_navigation": { 
-      "Preferences": "Preferences",
-      "account": "My account",
-      "Abonnement": "Subscription",
-      "Mes données": "My data",
-
-      "Profil_change": "Change my username or my password",
-      "Id" : "username",
-      "Password_change" : "new password",
-      "Confirmer" : "Confirm the new password",
-      "modifier" : "Modify",
-      "Delete" : "Delete your account",
-      "Confirmer_supp" : "Confirm the deletion of my account (non-reversible action)",
-      "supprimer" : "Delete"
-    },
-
-    "settings_navigation2": { 
-      "titre": "My Subscription",
-      "titre2": "My data",
-      "notif": "Work in progress",
-      "titre3": "My preferences",
-      "Theme": "Theme",
-      "Langue" : "Language",
-      "Colors" : "Colors",
-      "unlink" : "unlink my email",
-      "Test function" : "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
-    },
-
-    "settings_navigation3": { 
-      "description": "Update my description",
-      "email link": "Link a new email address",
-      "link": "Link",
-      "Outlook": "Link my Outlook account",
-      "Google": "Link my Google account",
-      "Langue" : "Language",
-      "Colors" : "Colors",
-      "unlink" : "unlink my email",
-      "Test function" : "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
-    },
-
-    "Rules_vue": {
-      "titre": "Assistant rules",
-      "catégorie": "catégorie :",
-      "prio": "priority : ",
-      "mail": "blocked email",
-      "règles" : "click to create a rule"
-    },
-
-    "Transfer_vue": {
-      "titre": "AI assistant",
-      "titre2": "Manual Search",
-      "Destinataire": "Recipient",
-      "objet": "Subject",
-      "send" : "dend"
-    },
-
-    "Search_vue": {
-      "titre": "AI assistant",
-      "titre2": "Manual Search",
-      "Recherche": "research",
-      "bouton_recherche": "Search",
-      "Contacts" : "Contacts (optional)",
-      "Type" : "Type of research (optional)",
-      "Résultats_négatif" : "No results"
-    },
-
-    "New_vue": {
-      "titre": "AI assistant",
-      "Saisie": "Enter manually",
-      "Destinataire": "Recipient",
-      "Objet": "Subject",
-      "Options": "Open options",
-      "Action_envoyer": "Send"
-    },
-
-    "Answer_vue": {
-      "titre": "AI assistant",
-      "Saisie": "Enter manually",
-      "Destinataire": "Recipient",
-      "Objet": "Subject",
-      "Action_envoyer": "Send"
-    },
-
-    "401_vue": {
-      "titre": "You are not connected",
-      "titre2": "You will be redirected to the login page in"
-    },
-
-    "404_vue": {
-      "titre": "404 - Page Not Found",
-      "titre2": "The page you are looking for does not exist"
-    },
-
-    "Stripepayment_vue": {
-      "titre": "Payment Successful",
-      "product":"product",
-      "titre2": "Your payment was successful. Thank you for your purchase!"
-    },
-
-    "StripepaymentF_vue": {
-      "titre": "Payment Successful",
-      "product":"product",
-      "titre2": "Your payment was successful. Thank you for your purchase!"
-    },
-
-    "ReplyLater_vue": {
-      "titre": "Reply later",
-      "Travail": "Urgent-work",
-      "Travail2": "Work - Informative",
-      "Notif": "No emails to reply later",
-      "Resume": "click to see the summary",
-      "Action_Ouvrir": "Open",
-      "Action_répondre": "Answer",
-      "Action_supprimer" : "Delete",
-      "Actionssupp" : "Additional actions",
-      "Inutile":"Useless",
-      "Transfer": "transfer",
-      "Résultats_changer" : "Change the rule",
-      "Résultats_create" : "create a rules"
-    },
-
-    "Newcategory_vue": {
-      "categorie": "Create a new category.",
-      "categorie2": "Brief description of the categorie",
-      "description": "This description will enable the assistant to understand the category",
-      "name": "Category name"
-    },
-
-    "UpdateCategoryModal_vue": {
-      "titre": "Modify a category",
-      "category": "Name of the category ",
-      "description": "Brief description of the categorie",
-      "desc2": "This description will enable the assistant to understand the category",
-      "option2": "Informative",
-      "option3": "Useless",
-      "mail": "Block the mails",
-      "modifier" : "Modify"
-    },
-
-    "Seerules_vue": {
-      "titre": "New rules",
-      "cat": "Category",
-      "nocategory": "No category defined",
-      "nopriority": "No priority defined",
-      "option1": "Important",
-      "option2": "Informative",
-      "option3": "Useless",
-      "mail": "Block the mails",
-      "modifier" : "Modify"
-    },
-
-    "SeeMail_vue": {
-      "titre": "More actions",
-      "answer": "Answer",
-      "open": "Open",
-      "lu": "Read",
-      "tab": "Select a tab",
-      "mail": "email resume",
-      "mail2": "Full email",
-      "mail3": "Block the mails",
-      "modifier" : "Modify"
-    },
-
-    "languages": {
-      "french": "French 🇫🇷",
-      "american": "American 🇺🇸",
-      "german": "German 🇩🇪",
-      "russian": "Russian 🇷🇺",
-      "spanish": "Spanish 🇪🇸",
-      "chinese": "Chinese 🇨🇳",
-      "indian": "Hindi 🇮🇳"
-    },
-
-    "UpdateRule_vue": {
-      "titre": "Modify the rules",
-      "cat": "Category",
-      "nocategory": "No category defined",
-      "nopriority": "No priority defined",
-      "option1": "Important",
-      "option2": "Informative",
-      "option3": "Useless",
-      "mail": "Block the mails",
-      "modifier" : "Modify"
-    }
+  "UserLogin_vue": {
+    "connect_account": "Connect to your account",
+    "id_name": "Username",
+    "password": "password",
+    "forgotten_password": "password forgotten ?",
+    "login": "Login",
+    "do_not_have_account": "You don't have an account ?",
+    "free_trial": "Begin your free trial"
+  },
+  "SignUp_p1_vue": {
+    "sign_up": "Sign up",
+    "username": "Username",
+    "password": "Password",
+    "password_confirm": "Confirm password",
+    "continue": "Continue",
+    "Theme": "Theme",
+    "Colors": "Colors",
+    "create_categorie": "Create your different categories in which you want the assistant to place automatically your emails.",
+    "categorie_description": "Brief description of the categorie",
+    "description": "This description will enable the assistant to understand the category",
+    "infos": "Whant to know more ?",
+    "add_categorie": "Add a categorie",
+    "add_another_categorie": "Add another categorie ?",
+    "modify_category": "Modify a category",
+    "category_name": "Category name",
+    "you_have_an_account": "You have an account ?",
+    "Login": "Log in"
+  },
+  "SignUp_p2_vue": {
+    "titre": "Register to MailAssistant",
+    "Gmail": "Link a Gmail account",
+    "Outlook": "Link a Outlook account",
+    "Google": "Link your Google account",
+    "link_Outlook_account": "Link your Outlook account",
+    "tools_presentation": "Tools presentation",
+    "work_in_progress": "Work in progress",
+    "finish_inscription": "Finalize your inscription",
+    "some_infos_on_data_confidentiality": "Some infos on data confidentiality"
+  },
+  "Home_vue": {
+    "no_new_email": "No new email",
+    "click_to_see_the_summary": "Click to see the summary",
+    "open": "Open",
+    "suppof": "Suppression of",
+    "answer": "Answer",
+    "Mes_données": "My data",
+    "additional_actions": "Additional actions",
+    "change_the_rule": "Change the rule",
+    "create_a_rule": "create a rule",
+    "reply_later": "Reply later",
+    "transfer": "Transfer",
+    "read": "Read",
+    "notif3": "unread",
+    "you_received": "You received",
+    "useless_email": "useless email",
+    "useless_mails": "useless mails",
+    "click_to_see_the_mail": "Click to see the mail",
+    "block": "Block",
+    "You_read_recently": "You read recently",
+    "I_m": "I'm",
+    "going_to_clean_automatically": "going to clean automatically",
+    "the_mail_you_have_read": "the mail you have read",
+    "You_have": "You have",
+    "rules": "rule",
+    "link": "link",
+    "at_this_category": "at this category.",
+    "Warning_for_deleting_the_category": " Deleting the category will also result in deleting all associated rules",
+    "delete": "Delete"
+  },
+  "settings_navigation": {
+    "Preferences": "Preferences",
+    "my_account": "My account",
+    "subscription": "Subscription",
+    "my_data": "My data",
+    "change_my_username_or_my_password": "Change my username or my password",
+    "username": "username",
+    "new_password": "new password",
+    "Confirm": "Confirm your new password",
+    "modify": "Modify",
+    "delete_account": "Delete your account",
+    "confirmer_delete_account": "Confirm the deletion of my account (non-reversible action)",
+    "delete": "Delete"
+  },
+  "settings_navigation2": {
+    "titre": "My Subscription",
+    "titre2": "My data",
+    "notif": "Work in progress",
+    "titre3": "My preferences",
+    "Theme": "Theme",
+    "Langue": "Language",
+    "Colors": "Colors",
+    "unlink_my_email": "unlink my email",
+    "this_feature_is_under_test": "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
+  },
+  "settings_navigation3": {
+    "update_my_description": "Update my description",
+    "Link_a_new_email_address": "Link a new email address",
+    "link": "Link",
+    "Outlook": "Link my Outlook account",
+    "Google": "Link my Google account",
+    "Langue": "Language",
+    "Colors": "Colors",
+    "unlink": "unlink my email",
+    "Test function": "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
+  },
+  "Rules_vue": {
+    "assistant_rules": "Assistant rules",
+    "catégorie": "catégorie :",
+    "priotity": "priority : ",
+    "blocked_mail": "blocked email",
+    "create_rules": "click to create a rule"
+  },
+  "Transfer_vue": {
+    "AI_assistant": "AI assistant",
+    "manual_search": "Manual Search",
+    "recipient": "Recipient",
+    "subject": "Subject",
+    "send": "dend"
+  },
+  "Search_vue": {
+    "AI_assistant": "AI assistant",
+    "manual_Search": "Manual Search"
+  },
+  "New_vue": {
+    "AI_assistant": "AI assistant",
+    "enter_manually": "Enter manually",
+    "recipient": "Recipient",
+    "subject": "Subject",
+    "options": "Open options",
+    "send": "Send"
+  },
+  "Answer_vue": {
+    "AI_assistant": "AI assistant",
+    "enter_manually": "Enter manually",
+    "recipient": "Recipient",
+    "send": "Send"
+  },
+  "401_vue": {
+    "you_are_not_connected": "You are not connected",
+    "redirection_to_login": "You will be redirected to the login page in"
+  },
+  "404_vue": {
+    "page_not_found": "404 - Page Not Found",
+    "page_does_not_exist": "The page you are looking for does not exist"
+  },
+  "StripepaymentSuccess_vue": {
+    "payment_successful": "Payment Successful",
+    "product": "product",
+    "thank_you": "Your payment was successful. Thank you for your purchase!"
+  },
+  "StripepaymentFailed_vue": {
+    "payment_not_successful": "The payment was not successful",
+    "product": "product",
+    "payment_not_successful_try_again": "Your payment was not successful. Please try again !"
+  },
+  "ReplyLater_vue": {
+    "reply_later": "Reply later",
+    "no_emails_to_reply_later": "No emails to reply later",
+    "click_to_see_the_summary": "click to see the summary",
+    "open": "Open",
+    "answer": "Reply",
+    "Remove_from_reply_later": "Remove from reply later mails",
+    "additional_actions": "Additional actions",
+    "transfer": "transfer",
+    "change_the_rule": "Change the rule",
+    "create_a_rule": "create a rule"
+  },
+  "Newcategory_vue": {
+    "new_categorie": "Create a new category.",
+    "categorie_description": "Brief description of the categorie",
+    "description_for_tha_assistant": "This description will enable the assistant to understand the category",
+    "category_name": "Category name"
+  },
+  "UpdateCategoryModal_vue": {
+    "modify_a_category": "Modify a category",
+    "category_name": "Name of the category ",
+    "description_of_the_category": "Brief description of the categorie",
+    "description_of_the_category_for_the_assistant": "This description will enable the assistant to understand the category"
+  },
+  "Seerules_vue": {
+    "new_rules": "New rules",
+    "category": "Category",
+    "no_category_defined": "No category defined",
+    "no_priority_defined": "No priority defined",
+    "Important": "Important",
+    "Informative": "Informative",
+    "Useless": "Useless",
+    "blocked_mail": "Block the mails"
+  },
+  "SeeMail_vue": {
+    "more_actions": "More actions",
+    "answer": "Answer",
+    "read": "Read",
+    "select_tab": "Select a tab",
+    "mail_resume": "email resume",
+    "full_mail": "Full email"
+  },
+  "languages": {
+    "french": "French 🇫🇷",
+    "american": "American 🇺🇸",
+    "german": "German 🇩🇪",
+    "russian": "Russian 🇷🇺",
+    "spanish": "Spanish 🇪🇸",
+    "chinese": "Chinese 🇨🇳",
+    "indian": "Hindi 🇮🇳"
+  },
+  "UpdateRule_vue": {
+    "modify_the_rules": "Modify the rules",
+    "category": "Category",
+    "no_category_defined": "No category defined",
+    "no_priority": "No priority defined",
+    "important": "Important",
+    "informative": "Informative",
+    "useless": "Useless",
+    "block_the_mail": "Block the mails",
+    "modify": "Modify"
   }
+}

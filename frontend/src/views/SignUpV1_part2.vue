@@ -8,7 +8,7 @@
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
           <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
-          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.titre')
+          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.sign_up')
             }}</h2>
         </div>
         <div class="2xl:mt-10 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
@@ -434,7 +434,7 @@
                               <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
                               <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                             </svg>
-                            {{ $t('SignUp_p2_vue.Outlook2') }}
+                            {{ $t('SignUp_p2_vue.link_Outlook_account') }}
                           </button>
                         </div>
                       </div>
@@ -442,7 +442,7 @@
                         <div class="pt-10">
                           <button @click="nextStep3"
                             class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
-                            {{ $t('SignUp_p1_vue.Continue') }}</button>
+                            {{ $t('SignUp_p1_vue.continue') }}</button>
                         </div>
                       </div>
                     </div>
@@ -454,12 +454,12 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.titre2') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.tools_presentation') }}</span>
                         </div>
                       </div>
                       <div class="py-6">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('SignUp_p2_vue.notif') }}</p>
+                          <p class="font-semibold">{{ $t('SignUp_p2_vue.work_in_progress') }}</p>
                           <!-- To add : A video that explain the tool -->
                         </div>
                       </div>
@@ -468,12 +468,12 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.titre3') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.some_infos_on_data_confidentiality') }}</span>
                         </div>
                       </div>
                       <div class="pt-4">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('SignUp_p2_vue.notif') }}</p>
+                          <p class="font-semibold">{{ $t('SignUp_p2_vue.work_in_progress') }}</p>
                           <!-- To add : A video that explain how data is saved and used -->
                         </div>
                       </div>
@@ -481,7 +481,7 @@
                         <div class="pt-8">
                           <button @click="submitSignupData"
                             class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
-                            {{ $t('SignUp_p2_vue.Finish') }}</button>
+                            {{ $t('SignUp_p2_vue.finish_inscription') }}</button>
                         </div>
                       </div>
                     </div>
@@ -521,9 +521,9 @@
             </div>
           </div>
           <p class="mt-6 text-center text-sm text-gray-500">
-            {{ $t('SignUp_p1_vue.text') }}
+            {{ $t('SignUp_p1_vue.you_have_an_account') }}
             {{ ' ' }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.Login')
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.sign_up')
               }}</a>
           </p>
         </div>

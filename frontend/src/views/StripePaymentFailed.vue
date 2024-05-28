@@ -1,8 +1,8 @@
 <template>
     <div>
-        <h1>{{ $t('StripepaymentF_vue.titre') }}</h1>
-        <p>{{ $t('StripepaymentF_vue.titre2') }}</p>
-        <p>{{ $t('StripepaymentF_vue.product') }}: {{ errorMessage }}</p>
+        <h1>{{ $t('StripepaymentFailed_vue.payment_not_successful') }}</h1>
+        <p>{{ $t('StripepaymentFailed_vue.titre2') }}</p>
+        <p>{{ $t('StripepaymentFailed_vue.payment_not_successful_try_again') }}: {{ errorMessage }}</p>
     </div>
 </template>
 

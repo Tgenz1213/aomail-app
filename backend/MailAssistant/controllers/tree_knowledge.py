@@ -48,7 +48,8 @@ class Search:
         self.question = question
         if knowledge_tree:
             self.knowledge_tree = knowledge_tree
-            threading.Thread(target=self.save_user_data, args=(knowledge_tree,)).start()
+            threading.Thread(target=self.save_user_data,
+                             args=(knowledge_tree,)).start()
         elif not os.path.exists(self.file_path):
             self.knowledge_tree = {}
         else:
@@ -104,7 +105,7 @@ class Search:
 
         return keypoints
 
-    def get_selected_categories(self) -> dict[str : list[str]]:
+    def get_selected_categories(self) -> dict[str: list[str]]:
         """
         Returns the highly relevant categories and organizations to answer the user's question.
 
@@ -193,7 +194,7 @@ class Search:
         user_description: str | None,
         email_id: str,
         language: str = "French",
-    ) -> dict[str:list]:
+    ) -> dict:
         """
         Summarizes an email conversation in the specified language with keypoints.
 
@@ -232,7 +233,7 @@ class Search:
             "category": "",
             "organization": "",
             "topic": "",
-            "keypoints": {{        
+            "keypoints": {{
                 "1": [list of keypoints],
                 "2": [list of keypoints],
                 "n": [list of keypoints]
@@ -257,7 +258,8 @@ class Search:
         user_keypoints = [
             keypoint for index in keypoints for keypoint in keypoints[index]
         ]
-        self.add_user_data(category, organization, topic, user_keypoints, [email_id])
+        self.add_user_data(category, organization, topic,
+                           user_keypoints, [email_id])
 
         return keypoints
 
@@ -268,7 +270,7 @@ class Search:
         user_description: str | None,
         email_id: str,
         language: str = "French",
-    ) -> dict[str:list]:
+    ) -> dict:
         """
         Summarizes an email conversation in the specified language with keypoints.
 
@@ -324,7 +326,8 @@ class Search:
         topic = result_json["topic"]
         keypoints = result_json["keypoints"]
 
-        self.add_user_data(category, organization, topic, keypoints, [email_id])
+        self.add_user_data(category, organization,
+                           topic, keypoints, [email_id])
 
         return keypoints
 
@@ -385,7 +388,8 @@ class Search:
             self.knowledge_tree[category]["organizations"] = {}
         if organization not in self.knowledge_tree[category]["organizations"]:
             self.knowledge_tree[category]["organizations"][organization] = {}
-            self.knowledge_tree[category]["organizations"][organization]["topics"] = {}
+            self.knowledge_tree[category]["organizations"][organization]["topics"] = {
+            }
         if (
             topic
             not in self.knowledge_tree[category]["organizations"][organization][

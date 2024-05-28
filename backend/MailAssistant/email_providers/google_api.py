@@ -58,6 +58,7 @@ from MailAssistant.controllers.tree_knowledge import Search
 from .. import library
 from ..models import (
     Contact,
+    KeyPoint,
     Rule,
     SocialAPI,
     BulletPoint,
@@ -152,7 +153,8 @@ def get_credentials(user, email):
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
     except ObjectDoesNotExist:
-        LOGGER.error(f"No credentials for user with ID {user.id} and email: {email}")
+        LOGGER.error(
+            f"No credentials for user with ID {user.id} and email: {email}")
         creds = None
 
     return creds
@@ -271,7 +273,8 @@ def send_email(request: HttpRequest):
             service.users().messages().send(userId="me", body=body).execute()
 
             threading.Thread(
-                target=library.save_contacts, args=(user, email, all_recipients)
+                target=library.save_contacts, args=(
+                    user, email, all_recipients)
             ).start()
 
             return Response({"message": "Email sent successfully!"}, status=200)
@@ -437,7 +440,8 @@ def get_mail_to_db(services):
                     has_attachments = True
                     timestamp = int(time.time())
                     image_filename = f"image_{timestamp}.{img_type}"
-                    image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
+                    image_path = os.path.join(
+                        MEDIA_ROOT, "pictures", image_filename)
 
                     img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
                     os.makedirs(os.path.dirname(image_path), exist_ok=True)
@@ -467,7 +471,8 @@ def get_mail_to_db(services):
                     .get(userId="me", messageId=email_id, id=attachment_id)
                     .execute()
                 )
-                file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
+                file_data = base64.urlsafe_b64decode(
+                    attachment["data"].encode("UTF-8"))
             elif "data" in part["body"]:
                 file_data = base64.urlsafe_b64decode(
                     part["body"]["data"].encode("UTF-8")
@@ -539,7 +544,8 @@ def get_mail_id(services, int_mail: int) -> str:
     """
     service = services["gmail"]
 
-    results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+    results = service.users().messages().list(
+        userId="me", labelIds=["INBOX"]).execute()
     messages = results.get("messages", [])
     if not messages:
         LOGGER.info("No new messages.")
@@ -559,7 +565,8 @@ def get_mail(services, int_mail=None, id_mail=None):
 
     if int_mail is not None:
         results = (
-            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+            service.users().messages().list(
+                userId="me", labelIds=["INBOX"]).execute()
         )
         messages = results.get("messages", [])
         if not messages:
@@ -605,7 +612,8 @@ def get_mail(services, int_mail=None, id_mail=None):
                 "___________________________________________________________________________________"
             )
             if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+                decoded_data = library.concat_text(
+                    decoded_data, decoded_data_temp)
     elif "body" in msg["payload"]:
         data = msg["payload"]["body"]["data"]
 
@@ -650,7 +658,8 @@ def search_emails_ai(
     query_parts = []
 
     if from_addresses:
-        from_query = " OR ".join([f"from:{address}" for address in from_addresses])
+        from_query = " OR ".join(
+            [f"from:{address}" for address in from_addresses])
         query_parts.append(f"({from_query})")
     if to_addresses:
         to_query = " OR ".join([f"to:{address}" for address in to_addresses])
@@ -741,7 +750,8 @@ def search_emails_manually(
                 )
                 query_parts.append(f"({from_query})")
             if to_addresses:
-                to_query = " OR ".join([f"to:{address}" for address in to_addresses])
+                to_query = " OR ".join(
+                    [f"to:{address}" for address in to_addresses])
                 query_parts.append(f"({to_query})")
             if subject:
                 query_parts.append(f"(subject:{subject})")
@@ -755,7 +765,8 @@ def search_emails_manually(
                 )
                 query_parts.append(f"({search_in_query})")
             if file_extensions:
-                file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
+                file_query = " OR ".join(
+                    [f"filename:{ext}" for ext in file_extensions])
                 query_parts.append(f" AND ({file_query})")
 
             if query_parts:
@@ -835,13 +846,15 @@ def search_emails(services, search_query, max_results=2):
             )
             headers = msg.get("payload", {}).get("headers", [])
             sender = next(
-                (header["value"] for header in headers if header["name"] == "From"),
+                (header["value"]
+                 for header in headers if header["name"] == "From"),
                 None,
             )
 
             if sender:
                 email = sender.split("<")[-1].split(">")[0].strip().lower()
-                name = sender.split("<")[0].strip().lower() if "<" in sender else email
+                name = sender.split("<")[0].strip(
+                ).lower() if "<" in sender else email
 
                 # Additional filtering: Check if the sender email/name matches the search query
                 if search_query.lower() in email or search_query.lower() in name:
@@ -932,7 +945,8 @@ def set_all_contacts(user, email):
 
                 email = email_match.group(0) if email_match else None
                 name = (
-                    name_match.group(1) if name_match and name_match.group(1) else email
+                    name_match.group(
+                        1) if name_match and name_match.group(1) else email
                 )
 
                 if not email:
@@ -1175,7 +1189,8 @@ def receive_mail_notifications(request):
                             "email_provider": GOOGLE_PROVIDER,
                             "user": social_api.user,
                         }
-                        email_html = render_to_string("ai_failed_email.html", context)
+                        email_html = render_to_string(
+                            "ai_failed_email.html", context)
                         # send_mail(
                         #     subject="Critical Alert: Email Processing Failure",
                         #     message="",
@@ -1228,13 +1243,13 @@ def email_to_db(user, services, social_api: SocialAPI):
         user_id = user.id
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
-        keypoints = search.summarize_conversation(
+        conversation_summary = search.summarize_conversation(
             subject, email_content, user_description, email_id
         )
         print(
             "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
         )
-        print(keypoints)
+        print(conversation_summary)
         print(
             "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
         )
@@ -1246,13 +1261,13 @@ def email_to_db(user, services, social_api: SocialAPI):
         user_id = user.id
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
-        keypoints = search.summarize_email(
+        email_summary = search.summarize_email(
             subject, email_content, user_description, email_id
         )
-        print(
-            "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        )
-        print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
+        # print(
+        #     "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+        # )
+        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
 
     # print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
     # print(safe_html)
@@ -1341,7 +1356,8 @@ def email_to_db(user, services, social_api: SocialAPI):
 
             sender = Sender.objects.filter(email=sender_email).first()
             if not sender:
-                sender = Sender.objects.create(email=sender_email, name=sender_name)
+                sender = Sender.objects.create(
+                    email=sender_email, name=sender_name)
 
         try:
             email_entry = Email.objects.create(
@@ -1365,6 +1381,37 @@ def email_to_db(user, services, social_api: SocialAPI):
                 relevance=relevance,
             )
 
+            if is_reply:
+                conversation_summary_category = conversation_summary["category"]
+                conversation_summary_organization = conversation_summary["organization"]
+                conversation_summary_topic = conversation_summary["topic"]
+                keypoints: dict = conversation_summary["keypoints"]
+
+                for index, keypoint in keypoints.items():
+                    KeyPoint.objects.create(
+                        is_reply=True,
+                        position=index,
+                        category=conversation_summary_category,
+                        organization=conversation_summary_organization,
+                        topic=conversation_summary_topic,
+                        content=keypoint,
+                        email=email_entry
+                    )
+            else:
+                email_summary_category = email_summary["category"]
+                email_summary_organization = email_summary["organization"]
+                email_summary_topic = email_summary["topic"]
+
+                for keypoint in email_summary["keypoints"]:
+                    KeyPoint.objects.create(
+                        is_reply=False,
+                        category=email_summary_category,
+                        organization=email_summary_organization,
+                        topic=email_summary_topic,
+                        content=keypoint,
+                        email=email_entry
+                    )
+
             contact_name, contact_email = from_name[0], from_name[1]
             Contact.objects.get_or_create(
                 user=user, email=contact_email, username=contact_name
@@ -1384,11 +1431,13 @@ def email_to_db(user, services, social_api: SocialAPI):
 
             if image_files:
                 for image_path in image_files:
-                    Picture.objects.create(mail_id=email_entry, picture=image_path)
+                    Picture.objects.create(
+                        mail_id=email_entry, picture=image_path)
 
             if summary_list:
                 for point in summary_list:
-                    BulletPoint.objects.create(content=point, email=email_entry)
+                    BulletPoint.objects.create(
+                        content=point, email=email_entry)
 
             return True
 

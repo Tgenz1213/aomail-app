@@ -24,14 +24,10 @@
 3) Run your assigned script: start_username_build.sh
 
 
-# DEBUGGING DATABASE
-# line by line
+# DEBUGGING DATABASE MIGRATIONS ERROR
 ```bash
-docker compose -p {theo_project} run backend python manage.py makemigrations
-docker compose -p {theo_project} run backend python manage.py migrate
-```
-# Enter these two commands when the migrations are not applied
-```bash
+sudo rm -fr backend/MailAssistant/migrations
 docker compose -p {theo_project} run backend python manage.py makemigrations --empty MailAssistant
-docker compose -p {theo_project} run backend python manage.py makemigrations MailAssistant
+./start_{theo}_build.sh
+./start_{theo}_build.sh
 ```

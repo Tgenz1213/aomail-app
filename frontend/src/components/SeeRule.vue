@@ -17,7 +17,7 @@
         </div>
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
-            <p class="block font-semibold leading-6 text-gray-900">{{ $t('Seerules_vue.titre') }}</p>
+            <p class="block font-semibold leading-6 text-gray-900">{{ $t('Seerules_vue.new_rules') }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
@@ -62,11 +62,11 @@
           <div>
             <div class="flex space-x-1 items-center">
               <ArchiveBoxIcon class="w-4 h-4" />
-              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('Seerules_vue.cat') }}</label>
+              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('Seerules_vue.category') }}</label>
             </div>
             <select id="category" name="category" v-model="formData.category"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('Seerules_vue.nocategory') }}</option>
+              <option value="">{{ $t('Seerules_vue.no_category_defined') }}</option>
               <option v-for="category in categories" :key="category.name" :value="category.name">{{ category.name }}
               </option>
             </select>
@@ -78,10 +78,10 @@
             </div>
             <select id="priority" name="priority" v-model="formData.priority"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('Seerules_vue.nopriority') }}</option>
-              <option value="Important">{{ $t('Seerules_vue.option1') }}</option>
-              <option value="Informatif">{{ $t('Seerules_vue.option2') }}</option>
-              <option value="Inutile">{{ $t('Seerules_vue.option3') }}</option>
+              <option value="">{{ $t('Seerules_vue.no_priority_defined') }}</option>
+              <option value="Important">{{ $t('Seerules_vue.Important') }}</option>
+              <option value="Informatif">{{ $t('Seerules_vue.Informative') }}</option>
+              <option value="Inutile">{{ $t('Seerules_vue.Useless') }}</option>
             </select>
           </div>
           <SwitchGroup as="div" class="flex items-center pt-2">
@@ -91,7 +91,7 @@
                 :class="[formData.block ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
             </Switch>
             <SwitchLabel as="span" class="ml-3 text-sm">
-              <span class="font-medium text-gray-900">{{ $t('Seerules_vue.mail') }}</span>
+              <span class="font-medium text-gray-900">{{ $t('Seerules_vue.blocked_mail') }}</span>
               {{ ' ' }}
               <!--<span class="text-gray-500"></span>-->
             </SwitchLabel>

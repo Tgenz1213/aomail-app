@@ -157,6 +157,23 @@ def signup(request):
     refresh = RefreshToken.for_user(user)
     django_access_token = str(refresh.access_token)
 
+    # Save user data
+    result = save_user_data(
+        user,
+        type_api,
+        user_description,
+        email,
+        access_token,
+        refresh_token,
+        theme,
+        color,
+        categories,
+        language
+    )
+    if "error" in result:
+        user.delete()
+        return Response(result, status=400)
+
     # Asynchronous function to store all contacts
     try:
         if type_api == "google":
@@ -178,23 +195,6 @@ def signup(request):
     except Exception as e:
         user.delete()
         return Response({"error": str(e)}, status=400)
-
-    # Save user data
-    result = save_user_data(
-        user,
-        type_api,
-        user_description,
-        email,
-        access_token,
-        refresh_token,
-        theme,
-        color,
-        categories,
-        language
-    )
-    if "error" in result:
-        user.delete()
-        return Response(result, status=400)
 
     # (useless for now): TODO: use create_subscription function
     # end_date = datetime.datetime.now() + datetime.timedelta(days=30)

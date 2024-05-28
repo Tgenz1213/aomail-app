@@ -1391,37 +1391,39 @@
                             </svg>
                         </button>
                     </div>
-                    <div v-if="!isHidden" class="w-[325px] 2xl:w-[450px] flex-grow">
-                        <div class="flex flex-col h-full">
-                            <div class="flex-grow">
-                                <div class="flex p-5">
-                                    <div class="mr-4 flex-shrink-0 self-center">
-                                        <span
-                                            class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                                            </svg>
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <p class="mt-1" id="animated-text" ref="animatedText"></p>
+                    <transition name="slide">
+                        <div v-if="!isHidden" class="w-[325px] 2xl:w-[450px] flex-grow">
+                            <div class="flex flex-col h-full">
+                                <div class="flex-grow">
+                                    <div class="flex p-5">
+                                        <div class="mr-4 flex-shrink-0 self-center">
+                                            <span
+                                                class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <p class="mt-1" id="animated-text" ref="animatedText"></p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="flex flex-col justify-end h-[160px] border-t">
-                                <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
-                                        @input="adjustHeight" v-model="textareaValue"
-                                        class="overflow-y-hidden flex flex-1 pt-3 pl-5 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0"
-                                        placeholder="Instruction">
-                                </textarea>
-                                <div class="flex justify-end m-3">
-                                    <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
+                                <div class="flex flex-col justify-end h-[160px] border-t">
+                                    <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
+                                            @input="adjustHeight" v-model="textareaValue"
+                                            class="overflow-y-hidden flex flex-1 pt-3 pl-5 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0"
+                                            placeholder="Instruction">
+                                    </textarea>
+                                    <div class="flex justify-end m-3">
+                                        <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </transition>
                 </div>
             </div>
         </div>
@@ -2373,3 +2375,23 @@ export default {
     }
 }
 </script>
+
+<!-- NOT WORKING YET 
+<style scoped>
+/* Slide animation effect Home right side menu */
+.slide-enter-active, .slide-leave-active {
+  @apply transition-transform duration-500 ease-in-out;
+}
+.slide-enter-from {
+  @apply transform translate-x-full;
+}
+.slide-enter-to {
+  @apply transform translate-x-0;
+}
+.slide-leave-from {
+  @apply transform translate-x-0;
+}
+.slide-leave-to {
+  @apply transform translate-x-full;
+}
+</style>-->

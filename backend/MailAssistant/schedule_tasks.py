@@ -68,3 +68,7 @@ def renew_gmail_subscriptions():
             LOGGER.info(
                 f"Successfully renewed the subscription for user: {user}, email: {email}"
             )
+
+
+# if __name__ == "__main__":
+#     debug_cron()

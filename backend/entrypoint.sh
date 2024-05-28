@@ -34,7 +34,7 @@ fi
 
 # Start cron service
 print_message $BLUE "Starting Cron service"
-service cron start
+cron
 
 # Set cron tasks
 print_message $BLUE "Setting cron tasks..."

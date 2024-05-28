@@ -560,7 +560,7 @@
                     <div v-if="activeSection === 'preferences'"
                         class="flex-1 section">
                         <!-- TO DO : CENTER -->
-                        <div class="mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 pt-10">
+                        <div class="mx-auto w-full h-full px-8 2xl:px-12 pt-10">
                             <!-- Content goes here -->
                             <div class="flex flex-col h-full pb-6">
                                 <div class="flex gap-x-10 w-full">

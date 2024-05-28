@@ -37,14 +37,14 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation.Delete') }}
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation.delete_account') }}
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $t('settings_navigation.Confirmer_supp') }}
+                            {{ $t('settings_navigation.confirmer_delete_account') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
@@ -60,7 +60,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            {{ $t('settings_navigation.Delete') }}
+                            {{ $t('settings_navigation.delete_account') }}
                         </button>
                     </div>
                 </div>
@@ -83,14 +83,14 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation2.unlink') }}
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation2.unlink_my_email') }}
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $t('settings_navigation2.Test function') }}
+                            {{ $t('settings_navigation2.this_feature_is_under_test') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
@@ -106,7 +106,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            {{ $t('settings_navigation2.unlink') }}
+                            {{ $t('settings_navigation2.unlink_my_email') }}
                         </button>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.description')
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.update_my_description')
                             }}</p>
                     </div>
                 </div>
@@ -171,7 +171,7 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.email link')
+                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.Link_a_new_email_address')
                             }}</p>
                     </div>
                 </div>
@@ -228,7 +228,7 @@
                                                 @click="setActiveSection('account')">
                                                 <user-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.account')
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.my_account')
                                                     }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
@@ -244,7 +244,7 @@
                                                 @click="setActiveSection('subscription')">
                                                 <credit-card-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.Abonnement')
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.subscription')
                                                     }}</a>
                                             </div>
 
@@ -253,7 +253,7 @@
                                                 @click="setActiveSection('data')">
                                                 <circle-stack-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.Mes données')
+                                                    class="text-sm font-medium">{{ $t('settings_navigation.my_data')
                                                     }}</a>
                                             </div>
                                         </nav>
@@ -269,7 +269,7 @@
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
                             <div class="flex flex-col">
                                 <div class="px-5 pb-12">
-                                    <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.account') }}
+                                    <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('settings_navigation.my_account') }}
                                     </h1>
                                     <!--<div class="float-right mt-[-35px] mr-[10px]">
                                         <user-icon class="w-6 h-6 text-gray-500" />
@@ -282,14 +282,14 @@
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
                                             <div class="relative flex justify-center">
-                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Profil_change') }}</span>
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.change_my_username_or_my_password') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-6 pb-10">
                                             <div class="flex space-x-1 items-center">
                                                 <envelope-icon class="w-4 h-4" />
                                                 <label
-                                                    class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Id') }}</label>
+                                                    class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.username') }}</label>
                                             </div>
                                             <div class="relative items-stretch mt-2">
                                                 <input v-model="userData" type="text" name="username" id="username"
@@ -302,7 +302,7 @@
                                                         <div class="flex space-x-1 items-center">
                                                             <key-icon class="w-4 h-4" />
                                                             <label
-                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Password_change') }}</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.new_password') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showPassword" type="password"
@@ -337,7 +337,7 @@
                                                         <div class="flex space-x-1 items-center">
                                                             <key-icon class="w-4 h-4" />
                                                             <label
-                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Confirmer') }}</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Confirm') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showConfirmPassword" type="password"
@@ -370,7 +370,7 @@
                                             </div>
                                             <div class="flex justify-end pt-4">
                                                 <button @click="handleSubmit"
-                                                    class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('settings_navigation.modifier') }}</button>
+                                                    class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('settings_navigation.modify') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -380,7 +380,7 @@
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
                                             <div class="relative flex justify-center">
-                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation3.email link') }}</span>
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation3.Link_a_new_email_address') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-6">
@@ -507,7 +507,7 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.Delete') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.delete_account') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-6">
@@ -517,7 +517,7 @@
                                                     class="form-radio text-red-600 border-red-400 focus:border-red-500 focus:ring-red-200 h-5 w-5"
                                                     name="choice">
                                                 <label for="push-everything" class="block text-sm font-medium leading-6">
-                                                    {{ $t('settings_navigation.Confirmer_supp') }}</label>
+                                                    {{ $t('settings_navigation.confirmer_delete_account') }}</label>
                                             </div>
                                             <button @click="openModal" type="submit"
                                                 class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">
@@ -527,7 +527,7 @@
                                                         d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                                 </svg>
 
-                                                {{ $t('settings_navigation.supprimer') }}</button>
+                                                {{ $t('settings_navigation.delete') }}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -556,7 +556,7 @@
                             <div class="flex-1">
                                 <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
                                     <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">
-                                        {{ $t('settings_navigation.Mes données') }}</h1>
+                                        {{ $t('settings_navigation.my_data') }}</h1>
                                 </div>
                                 <div class="float-right mt-[-70px] mr-[10px]">
                                     <circle-stack-icon class="w-6 h-6 text-gray-500" />

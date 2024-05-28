@@ -17,7 +17,7 @@
         </div>
         <div class="flex items-center w-full h-16 bg-gr ay-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
-            <p class="block font-semibold leading-6 text-gray-900">{{ $t('UpdateRule_vue.titre') }}</p>
+            <p class="block font-semibold leading-6 text-gray-900">{{ $t('UpdateRule_vue.modify_the_rules') }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
@@ -62,11 +62,11 @@
           <div>
             <div class="flex space-x-1 items-center">
               <ArchiveBoxIcon class="w-4 h-4" />
-              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('UpdateRule_vue.cat') }}</label>
+              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('UpdateRule_vue.category') }}</label>
             </div>
             <select id="category" name="category" v-model="formData.category"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('UpdateRule_vue.nocategory') }}</option>
+              <option value="">{{ $t('UpdateRule_vue.no_category_defined') }}</option>
               <option v-for="category in categories" :key="category.name" :value="category.name">{{ category.name }}
               </option>
             </select>
@@ -78,10 +78,10 @@
             </div>
             <select id="priority" name="priority" v-model="formData.priority"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('UpdateRule_vue.nopriority') }}</option>
-              <option value="Important">{{ $t('UpdateRule_vue.option1') }}</option>
-              <option value="Informatif">{{ $t('UpdateRule_vue.option2') }}</option>
-              <option value="Inutile">{{ $t('UpdateRule_vue.option3') }}</option>
+              <option value="">{{ $t('UpdateRule_vue.no_priority') }}</option>
+              <option value="Important">{{ $t('UpdateRule_vue.important') }}</option>
+              <option value="Informatif">{{ $t('UpdateRule_vue.informative') }}</option>
+              <option value="Inutile">{{ $t('UpdateRule_vue.useless') }}</option>
             </select>
           </div>
           <SwitchGroup as="div" class="flex items-center pt-2">
@@ -91,7 +91,7 @@
                 :class="[formData.block ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
             </Switch>
             <SwitchLabel as="span" class="ml-3 text-sm">
-              <span class="font-medium text-gray-900">{{ $t('UpdateRule_vue.mail') }}</span>
+              <span class="font-medium text-gray-900">{{ $t('UpdateRule_vue.block_the_mail') }}</span>
               {{ ' ' }}
               <!--<span class="text-gray-500"></span>-->
             </SwitchLabel>
@@ -100,7 +100,7 @@
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
               class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              @click="updateUserRule">{{ $t('UpdateRule_vue.modifier') }}</button>
+              @click="updateUserRule">{{ $t('UpdateRule_vue.modify') }}</button>
             <button type="button"
               class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
               @click="deleteRuleHandler">
@@ -109,7 +109,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
               </svg>
-              {{ $t('Global action.supp') }}
+              {{ $t('Global action.delete') }}
             </button>
           </div>
         </div>

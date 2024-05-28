@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>{{ $t('"404_vue.titre') }}</h1>
-    <p>{{ $t('"404_vue.titre2') }}</p>
+    <h1>{{ $t('"404_vue.page_not_found') }}</h1>
+    <p>{{ $t('"404_vue.page_does_not_exist') }}</p>
   </div>
 </template>
   

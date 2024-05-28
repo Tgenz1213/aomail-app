@@ -30,7 +30,7 @@
         <div class="flex flex-col h-full relative"> <!-- ADDED relative -->
           <div class="divide-y divide-gray-200">
             <div
-              class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
+              class="flex items-center justify-center h-[70px] 2xl:h-[80px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
               <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
               <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Rules_vue.assistant_rules') }}</h1>
             </div>

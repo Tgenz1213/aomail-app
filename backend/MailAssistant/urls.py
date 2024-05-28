@@ -40,11 +40,8 @@ urlpatterns = [
     path('user/categories/', views.get_user_categories, name='user-categories'), # ok
     path('user/preferences/language/', views.get_user_language, name='get_user_language'), # ok
     path('user/preferences/set_language/', views.set_user_language, name='set_user_language'), # ok
-
     path('user/preferences/theme/', views.get_user_theme, name='get_user_theme'), # ok
-    path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok
-
-    
+    path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok   
 
     path('user/emails/', views.get_user_emails, name='user-emails'), # ok
     path('user/emails/<int:email_id>/mark-read/', views.set_email_read, name='email-mark-read'), # ok

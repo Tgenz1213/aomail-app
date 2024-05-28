@@ -7,7 +7,6 @@
     "searchbar_search": "Recherche",
     "update": "Mettre à jour"
   },
-
   "UserLogin_vue": {
     "connect_account": "Se connecter à votre compte",
     "id_name": "Nom d'utilisateur",
@@ -17,7 +16,6 @@
     "do_not_have_account": "Vous n'avez pas de compte ?",
     "free_trial": "Commencez votre essai gratuit"
   },
-
   "SignUp_p1_vue": {
     "sign_up": "S'inscrire",
     "username": "Nom d'utilisateur",
@@ -37,7 +35,6 @@
     "you_have_an_account": "Vous avez un compte ?",
     "Login": "Se connecter"
   },
-
   "SignUp_p2_vue": {
     "titre": "Inscription à MailAssistant",
     "Gmail": "Lier un compte Gmail",
@@ -49,7 +46,6 @@
     "finish_inscription": "Finaliser votre inscription",
     "some_infos_on_data_confidentiality": "Quelques informations sur la confidentialité des données"
   },
-
   "Home_vue": {
     "no_new_email": "Pas de nouvel e-mail",
     "click_to_see_the_summary": "Cliquez pour voir le résumé",
@@ -80,7 +76,6 @@
     "Warning_for_deleting_the_category": "Supprimer la catégorie entraînera également la suppression de toutes les règles associées",
     "delete": "Supprimer"
   },
-
   "settings_navigation": {
     "Preferences": "Préférences",
     "my_account": "Mon compte",
@@ -89,13 +84,12 @@
     "change_my_username_or_my_password": "Changer mon nom d'utilisateur ou mon mot de passe",
     "username": "Nom d'utilisateur",
     "new_password": "Nouveau mot de passe",
-    "Confirm": "Confirmez votre nouveau mot de passe",
+    "Confirm": "Confirmez le nouveau mot de passe",
     "modify": "Modifier",
     "delete_account": "Supprimer votre compte",
     "confirmer_delete_account": "Confirmer la suppression de mon compte (action irréversible)",
     "delete": "Supprimer"
   },
-
   "settings_navigation2": {
     "titre": "Mon Abonnement",
     "titre2": "Mes données",
@@ -107,7 +101,6 @@
     "unlink_my_email": "Dissocier mon e-mail",
     "this_feature_is_under_test": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
   },
-
   "settings_navigation3": {
     "update_my_description": "Mettre à jour ma description",
     "Link_a_new_email_address": "Lier une nouvelle adresse e-mail",
@@ -119,7 +112,6 @@
     "unlink": "Dissocier mon e-mail",
     "Test function": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
   },
-
   "Rules_vue": {
     "assistant_rules": "Règles de l'assistant",
     "catégorie": "Catégorie :",
@@ -127,7 +119,6 @@
     "blocked_mail": "E-mail bloqué",
     "create_rules": "Cliquez pour créer une règle"
   },
-
   "Transfer_vue": {
     "AI_assistant": "Assistant IA",
     "manual_search": "Recherche manuelle",
@@ -135,14 +126,12 @@
     "subject": "Objet",
     "send": "Envoyer"
   },
-
   "Search_vue": {
     "AI_assistant": "Assistant IA",
     "Search_button": "Rechercher",
     "negative_results": "Résultats négatifs",
     "manual_Search": "Recherche manuelle"
   },
-
   "New_vue": {
     "AI_assistant": "Assistant IA",
     "enter_manually": "Entrer manuellement",
@@ -151,36 +140,30 @@
     "options": "Ouvrir les options",
     "send": "Envoyer"
   },
-
   "Answer_vue": {
     "AI_assistant": "Assistant IA",
     "enter_manually": "Entrer manuellement",
     "recipient": "Destinataire",
     "send": "Envoyer"
   },
-
   "401_vue": {
     "you_are_not_connected": "Vous n'êtes pas connecté",
     "redirection_to_login": "Vous serez redirigé vers la page de connexion dans"
   },
-
   "404_vue": {
     "page_not_found": "404 - Page non trouvée",
     "page_does_not_exist": "La page que vous recherchez n'existe pas"
   },
-
   "StripepaymentSuccess_vue": {
     "payment_successful": "Paiement réussi",
     "product": "Produit",
     "thank_you": "Votre paiement a été effectué avec succès. Merci pour votre achat !"
   },
-
   "StripepaymentFailed_vue": {
     "payment_not_successful": "Le paiement n'a pas réussi",
     "product": "Produit",
     "payment_not_successful_try_again": "Votre paiement n'a pas été effectué. Veuillez réessayer !"
   },
-
   "ReplyLater_vue": {
     "reply_later": "Répondre plus tard",
     "no_emails_to_reply_later": "Pas d'e-mails à répondre plus tard",
@@ -193,21 +176,18 @@
     "change_the_rule": "Changer la règle",
     "create_a_rule": "Créer une règle"
   },
-
   "Newcategory_vue": {
     "new_categorie": "Créer une nouvelle catégorie.",
     "categorie_description": "Brève description de la catégorie",
     "description_for_tha_assistant": "Cette description permettra à l'assistant de comprendre la catégorie",
     "category_name": "Nom de la catégorie"
   },
-
   "UpdateCategoryModal_vue": {
     "modify_a_category": "Modifier une catégorie",
     "category_name": "Nom de la catégorie",
     "description_of_the_category": "Brève description de la catégorie",
     "description_of_the_category_for_the_assistant": "Cette description permettra à l'assistant de comprendre la catégorie"
   },
-
   "Seerules_vue": {
     "new_rules": "Nouvelles règles",
     "category": "Catégorie",
@@ -218,7 +198,6 @@
     "Useless": "Inutile",
     "blocked_mail": "Bloquer les e-mails"
   },
-
   "SeeMail_vue": {
     "more_actions": "Plus d'actions",
     "answer": "Répondre",
@@ -227,7 +206,6 @@
     "mail_resume": "Résumé de l'e-mail",
     "full_mail": "E-mail complet"
   },
-
   "languages": {
     "french": "Français 🇫🇷",
     "american": "Américain 🇺🇸",
@@ -237,7 +215,6 @@
     "chinese": "Chinois 🇨🇳",
     "indian": "Hindi 🇮🇳"
   },
-
   "UpdateRule_vue": {
     "modify_the_rules": "Modifier les règles",
     "category": "Catégorie",

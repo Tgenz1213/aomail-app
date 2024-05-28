@@ -62,7 +62,8 @@
           <div>
             <div class="flex space-x-1 items-center">
               <ArchiveBoxIcon class="w-4 h-4" />
-              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('UpdateRule_vue.category') }}</label>
+              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{
+                $t('UpdateRule_vue.category') }}</label>
             </div>
             <select id="category" name="category" v-model="formData.category"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
@@ -430,14 +431,14 @@ export default {
           // Fetch the category ID using fetchWithToken
           const categoryUrl = `${API_BASE_URL}api/get-category-id/`;
           const categoryData = await fetchWithToken(categoryUrl, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json' 
-    },
-    body: JSON.stringify({
-        "categoryName": this.formData.category
-    })
-});
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              "categoryName": this.formData.category
+            })
+          });
           const categoryId = categoryData.id;
           console.log("CategoryId", categoryId);
 

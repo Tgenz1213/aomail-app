@@ -1,3 +1,11 @@
+<pre>
+ ______   ______   __    __   ______   __   __        
+/\  __ \ /\  __ \ /\ "-./  \ /\  __ \ /\ \ /\ \       
+\ \  __ \\ \ \/\ \\ \ \-./\ \\ \  __ \\ \ \\ \ \____  
+ \ \_\ \_\\ \_____\\ \_\ \ \_\\ \_\ \_\\ \_\\ \_____\ 
+  \/_/\/_/ \/_____/ \/_/  \/_/ \/_/\/_/ \/_/ \/_____/                                                 
+</pre>
+
 # Aomail: 🤖 Ao helps users to classify their emails
 
 **Working**
@@ -14,3 +22,12 @@
 1) Setup the tunel with Wireguard by giving your public key
 2) Setup VSC and wsl to connect to the server via ssh
 3) Run your assigned script: start_username_build.sh
+
+
+# DEBUGGING DATABASE MIGRATIONS ERROR
+```bash
+sudo rm -fr backend/MailAssistant/migrations
+docker compose -p {theo_project} run backend python manage.py makemigrations --empty MailAssistant
+./start_{theo}_build.sh
+./start_{theo}_build.sh
+```

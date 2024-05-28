@@ -254,7 +254,8 @@ def get_unique_senders(access_token) -> dict:
             messages = response_data.get("value", [])
             for message in messages:
                 sender = message.get("sender", {})
-                email_address = sender.get("emailAddress", {}).get("address", "")
+                email_address = sender.get(
+                    "emailAddress", {}).get("address", "")
                 name = sender.get("emailAddress", {}).get("name", "")
                 senders_info[email_address] = name
         else:
@@ -288,7 +289,8 @@ def get_profile_image(request: HttpRequest):
 
             if photo_data:
                 # convert image to url
-                photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
+                photo_data_base64 = base64.b64encode(
+                    photo_data).decode("utf-8")
                 photo_url = f"data:image/png;base64,{photo_data_base64}"
                 return Response({"profile_image_url": photo_url}, status=200)
             else:
@@ -411,7 +413,8 @@ def send_email(request: HttpRequest):
                 if response.status_code == 202:
 
                     threading.Thread(
-                        target=library.save_contacts, args=(user, email, all_recipients)
+                        target=library.save_contacts, args=(
+                            user, email, all_recipients)
                     ).start()
 
                     return JsonResponse(
@@ -433,7 +436,8 @@ def send_email(request: HttpRequest):
             LOGGER.error(f"Error preparing email data: {str(e)}")
             return JsonResponse({"error": str(e)}, status=500)
 
-    LOGGER.error(f"Serializer errors preparing email data: {serializer.errors}")
+    LOGGER.error(
+        f"Serializer errors preparing email data: {serializer.errors}")
     return JsonResponse(serializer.errors, status=400)
 
 
@@ -461,7 +465,8 @@ def set_email_read(social_api, mail_id):
     access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
     data = {"IsRead": True}
-    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
+    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/",
+                   headers=headers, json=data)
 
 
 def set_email_unread(social_api, mail_id):
@@ -470,7 +475,8 @@ def set_email_unread(social_api, mail_id):
     access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
     data = {"IsRead": False}
-    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
+    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/",
+                   headers=headers, json=data)
 
 
 def search_emails_ai(
@@ -523,7 +529,8 @@ def search_emails_ai(
     def run_request(graph_endpoint):
         try:
             headers = {"Authorization": f"Bearer {access_token}"}
-            response = requests.get(graph_endpoint, headers=headers, params=params)
+            response = requests.get(
+                graph_endpoint, headers=headers, params=params)
             response.raise_for_status()
             data: dict = response.json()
             messages = data.get("value", [])
@@ -573,7 +580,8 @@ def search_emails_manually(
 
     def run_request(graph_endpoint, params):
         try:
-            response = requests.get(graph_endpoint, headers=headers, params=params)
+            response = requests.get(
+                graph_endpoint, headers=headers, params=params)
             response.raise_for_status()
             data: dict = response.json()
             messages = data.get("value", [])
@@ -669,7 +677,8 @@ def search_emails(access_token: str, search_query: str, max_results: int = 2):
 
         for message in messages:
             sender: str = (
-                message.get("from", {}).get("emailAddress", {}).get("address", "")
+                message.get("from", {}).get(
+                    "emailAddress", {}).get("address", "")
             )
 
             if sender:
@@ -706,9 +715,11 @@ def set_all_contacts(access_token, user):
 
         for contact in contacts:
             name = contact.get("displayName", "")
-            email_address = contact.get("emailAddresses", [{}])[0].get("address", "")
+            email_address = contact.get("emailAddresses", [{}])[
+                0].get("address", "")
             provider_id = contact.get("id", "")
-            all_contacts[(user, name, email_address, provider_id)].add(email_address)
+            all_contacts[(user, name, email_address, provider_id)
+                         ].add(email_address)
 
         # Part 2: Retrieving from Outlook
         response = requests.get(graph_api_messages_endpoint, headers=headers)
@@ -718,7 +729,8 @@ def set_all_contacts(access_token, user):
 
         for message in messages:
             sender: str = (
-                message.get("from", {}).get("emailAddress", {}).get("address", "")
+                message.get("from", {}).get(
+                    "emailAddress", {}).get("address", "")
             )
             if sender:
                 name = sender.split("@")[0]
@@ -731,7 +743,8 @@ def set_all_contacts(access_token, user):
         for contact_info, emails in all_contacts.items():
             _, name, email_address, provider_id = contact_info
             for _ in emails:
-                library.save_email_sender(user, name, email_address, provider_id)
+                library.save_email_sender(
+                    user, name, email_address, provider_id)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
@@ -894,7 +907,8 @@ def calculate_expiration_date(days=0, hours=0, minutes=0) -> str:
     expiration_date = datetime.datetime.now() + datetime.timedelta(
         days=days, hours=hours, minutes=minutes
     )
-    expiration_date_str = expiration_date.strftime("%Y-%m-%dT%H:%M:%S.0000000Z")
+    expiration_date_str = expiration_date.strftime(
+        "%Y-%m-%dT%H:%M:%S.0000000Z")
     return expiration_date_str
 
 
@@ -1236,9 +1250,11 @@ class MicrosoftContactNotification(View):
                         if response.status_code == 200:
                             contact_data = response.json()
                             name = contact_data.get("displayName")
-                            email = contact_data.get("emailAddresses")[0].get("address")
+                            email = contact_data.get("emailAddresses")[
+                                0].get("address")
                         else:
-                            print("Error get contact inof fail:", response.reason)
+                            print("Error get contact inof fail:",
+                                  response.reason)
 
                     except Exception as e:
                         print("DEBUG>>>> get contact inof fail", str(e))
@@ -1344,7 +1360,8 @@ def email_to_db(user, email, id_email):
 
             sender = Sender.objects.filter(email=sender_email).first()
             if not sender:
-                sender = Sender.objects.create(email=sender_email, name=sender_name)
+                sender = Sender.objects.create(
+                    email=sender_email, name=sender_name)
 
         try:
             email_entry = Email.objects.create(
@@ -1374,7 +1391,8 @@ def email_to_db(user, email, id_email):
 
             if summary_list:
                 for point in summary_list:
-                    BulletPoint.objects.create(content=point, email=email_entry)
+                    BulletPoint.objects.create(
+                        content=point, email=email_entry)
 
             return True
 

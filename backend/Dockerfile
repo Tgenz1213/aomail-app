@@ -20,4 +20,4 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Set the entrypoint script
 ENTRYPOINT ["entrypoint.sh"]
 
-CMD python manage.py runserver 0.0.0.0:8000
+#CMD python manage.py runserver 0.0.0.0:8000

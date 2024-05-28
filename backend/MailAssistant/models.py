@@ -57,8 +57,8 @@ class Category(models.Model):
 class Preference(models.Model):
     """Model for storing user preferences."""
 
-    theme = models.CharField(max_length=50)
-    language = models.CharField(max_length=50)
+    theme = models.CharField(max_length=50, default="light")
+    language = models.CharField(max_length=50, default="en")
     bg_color = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 

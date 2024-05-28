@@ -4,7 +4,7 @@
     @dismiss-popup="dismissPopup" />
   <div class="flex flex-col justify-center bg-white items-center h-screen">
     <div class="flex h-full w-full">
-      <div class="w-[90px] ring-1 ring-black ring-opacity-5">
+      <div class="w-[90px] 2xl:w-[100px] ring-1 ring-black ring-opacity-5">
         <navbar></navbar>
       </div>
       <div

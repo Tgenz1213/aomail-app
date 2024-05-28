@@ -128,6 +128,8 @@
   },
   "Search_vue": {
     "AI_assistant": "Assistant IA",
+    "Search_button": "Rechercher",
+    "negative_results": "Résultats négatifs",
     "manual_Search": "Recherche manuelle"
   },
   "New_vue": {

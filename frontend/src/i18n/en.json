@@ -102,7 +102,7 @@
       "Profil_change": "Change my username or my password",
       "Id" : "username",
       "Password_change" : "new password",
-      "Confirmer" : "Confirm your new password",
+      "Confirmer" : "Confirm the new password",
       "modifier" : "Modify",
       "Delete" : "Delete your account",
       "Confirmer_supp" : "Confirm the deletion of my account (non-reversible action)",

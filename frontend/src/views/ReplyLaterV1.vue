@@ -4,7 +4,7 @@
     @dismiss-popup="dismissPopup" />
   <div class="flex flex-col justify-center bg-white items-center h-screen">
     <div class="flex h-full w-full">
-      <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+      <div class="w-[90px] ring-1 ring-black ring-opacity-5">
         <navbar></navbar>
       </div>
       <div
@@ -14,7 +14,7 @@
         <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full divide-y divide-gray-200">
           <div
-            class="flex items-center justify-center h-[70px] 2xl:h-[80px] lg:ring-1 lg:ring-black lg:ring-opacity-5 bg-gray-50">
+            class="flex items-center justify-center h-[70px] 2xl:h-[80px] border-l bg-gray-50">
             <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
             <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('ReplyLater_vue.reply_later') }}</h1>
           </div>

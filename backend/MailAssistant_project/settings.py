@@ -58,8 +58,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# ----------------------- DATABASE CONFIGURATION -----------------------#
-DATABASES = CONFIG["database_conf"]
 
 # ----------------------- DJANGO DEPENDENCIES -----------------------#
 INSTALLED_APPS = [
@@ -179,7 +177,8 @@ EMAIL_HOST_PASSWORD = EMAIL_NO_REPLY_PASSWORD
 # ----------------------- AUTHENTICATION SETTINGS -----------------------#
 SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Token expires in 1 day
-    "ROTATE_REFRESH_TOKENS": False,  # Whether to rotate refresh tokens upon each request
+    # Whether to rotate refresh tokens upon each request
+    "ROTATE_REFRESH_TOKENS": False,
     "ALGORITHM": "HS256",
     "VERIFYING_KEY": None,
     "VALIDATED_KEY": None,
@@ -216,12 +215,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ----------------------- SCHEDULED TASKS -----------------------#
-# documentation: https://crontab.guru/
 CRONJOBS = [
-    (
-        "* * * * *",  # every minute
-        "MailAssistant.schedule_tasks.debug_cron",
-    ),
     (
         "0 3 * * *",  # At 03:00 am every day
         "MailAssistant.schedule_tasks.renew_gmail_subscriptions",

@@ -61,7 +61,7 @@
             <div class="flex space-x-1 items-center">
               <magnifying-glass-icon class="w-4 h-4" />
               <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
-                $t('Search_vue.Recherche') }}</label>
+                $t('Search_vue.manual_Search') }}</label>
             </div>
             <div class="flex space-x-2 items-center">
               <div class="flex-grow w-full">
@@ -73,7 +73,7 @@
               <div class="flex-1 mt-2">
                 <button type="button" @click="searchEmails"
                   class="w-28 rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">{{
-                    $t('Search_vue.bouton_recherche') }}</button>
+                    $t('Search_vue.Search_button') }}</button>
               </div>
             </div>
           </div>
@@ -320,7 +320,7 @@
                           d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
                       </svg>
                       <span class="mt-2 block text-sm font-semibold text-gray-900">{{
-                        $t('Search_vue.Resultats_négatif') }}</span>
+                        $t('Search_vue.negative_results') }}</span>
                     </div>
                   </div>
                 </div>

@@ -116,10 +116,10 @@
           </h2>
         </div>
         <div class="2xl:mt-10 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
-          <div class="flex flex-col bg-slate-200 bg-opacity-80 rounded-lg">
-            <div class="divide-y divide-slate-200">
+          <div class="flex flex-col rounded-lg ">
+            <div class="">
               <div
-                class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-lg bg-gray-400 bg-opacity-10">
+                class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-lg">
                 <nav aria-label="Progress">
                   <!--<div class="absolute right-4 left-4">-->
                   <ol role="list" class="flex items-center" v-if="step === 0">
@@ -140,7 +140,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a @click="nextStep0"
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 1</span>
@@ -152,7 +152,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a @click="goStep2"
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 2</span>
@@ -164,7 +164,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
@@ -176,7 +176,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
@@ -216,7 +216,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a @click="nextStep1"
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 3</span>
@@ -228,7 +228,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
@@ -240,7 +240,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
@@ -295,7 +295,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a @click="submitSignupData"
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 4</span>
@@ -307,7 +307,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
@@ -377,7 +377,7 @@
                         <div class="h-0.5 w-full bg-white"></div>
                       </div>
                       <a
-                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-white hover:border-gray-300">
+                        class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
                         <span class="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
                           aria-hidden="true"></span>
                         <span class="sr-only">Step 5</span>
@@ -460,7 +460,7 @@
                   <!--</div>-->
                 </nav>
               </div>
-              <div class="bg-white px-6 py-10 shadow sm:rounded-b-lg sm:px-12 hover:shadow-lg">
+              <div class="bg-white px-6 py-10">
                 <form class="space-y-6">
                   <div class="flex flex-col gap-y-4" v-if="step === 0">
                     <div v-if="credentialError" class="mt-2 text-sm text-red-600">
@@ -686,7 +686,7 @@
             </div>
           </div>
           <p class="mt-6 text-center text-sm text-gray-600">
-            {{ $t('SignUp_p1_vue."you_have_an_account') }}
+            {{ $t('SignUp_p1_vue.you_have_an_account') }}
             {{ ' ' }}
             <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.Login') }}</a>
           </p>
@@ -707,7 +707,7 @@ import ShowNotification from '../components/ShowNotification.vue';
 
 const router = useRouter();
 
-let bgColor = ref('bg-gradient-to-r from-sky-300 to-blue-300');
+let bgColor = ref('bg-white');
 let showPassword = ref(false);
 let showConfirmPassword = ref(false);
 let step = ref(0);

@@ -539,7 +539,7 @@
                         class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm hover:shadow-lg ring-black ring-opacity-5 section">
                         <div class="flex px-6 py-6 shadow-sm border-b border-gray-200 bg-gray-50 rounded-t-2xl">
                             <h1 class="text-2xl" style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
-                                $t('settings_navigation.Abonnement') }}</h1>
+                                $t('settings_navigation.subscription') }}</h1>
                         </div>
                         <div class="float-right mt-[-70px] mr-[10px]">
                             <credit-card-icon class="w-6 h-6 text-gray-500" />

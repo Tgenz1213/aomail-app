@@ -5,17 +5,7 @@
     "create": "Créer",
     "category": "Catégorie",
     "searchbar_search": "Recherche",
-    "annuler": "Annuler",
     "update": "Mettre à jour"
-  },
-
-  "Global": {
-    "Home": "Accueil",
-    "NewMail": "Nouveau Mail",
-    "SearchMail": "Rechercher un Mail",
-    "Rules": "Règles",
-    "ReplyLater": "Répondre Plus Tard",
-    "Settings": "Paramètres"
   },
 
   "UserLogin_vue": {
@@ -61,35 +51,34 @@
   },
 
   "Home_vue": {
-    "notif": "Pas de nouvel e-mail",
-    "resume": "Cliquez pour voir le résumé",
-    "Open": "Ouvrir",
+    "no_new_email": "Pas de nouvel e-mail",
+    "click_to_see_the_summary": "Cliquez pour voir le résumé",
+    "open": "Ouvrir",
     "suppof": "Suppression de",
-    "Action_répondre": "Répondre",
+    "answer": "Répondre",
     "Mes_données": "Mes données",
-    "Actionssupp": "Actions supplémentaires",
-    "Résultats_changer": "Changer la règle",
-    "Résultats_create": "Créer une règle",
-    "Répondretard": "Répondre plus tard",
-    "Transfer": "Transférer",
-    "Checkresume": "Cliquez pour voir le résumé",
-    "lu": "Lu",
-    "notif3": "non lu",
-    "notif2": "Vous avez reçu",
-    "useless": "e-mail inutile",
-    "useless2": "e-mails inutiles",
-    "Checkmail": "Cliquez pour voir le mail",
-    "Bloquer": "Bloquer",
-    "read": "Vous avez lu récemment",
-    "I": "Je",
-    "nettoyer": "vais nettoyer automatiquement",
-    "themail": "le mail que vous avez lu",
-    "You": "Vous avez",
+    "additional_actions": "Actions supplémentaires",
+    "change_the_rule": "Changer la règle",
+    "create_a_rule": "Créer une règle",
+    "reply_later": "Répondre plus tard",
+    "transfer": "Transférer",
+    "read": "Lire",
+    "notif3": "Non lu",
+    "you_received": "Vous avez reçu",
+    "useless_email": "E-mail inutile",
+    "useless_mails": "E-mails inutiles",
+    "click_to_see_the_mail": "Cliquez pour voir l'e-mail",
+    "block": "Bloquer",
+    "You_read_recently": "Vous avez lu récemment",
+    "I_m": "Je vais",
+    "going_to_clean_automatically": "nettoyer automatiquement",
+    "the_mail_you_have_read": "l'e-mail que vous avez lu",
+    "You_have": "Vous avez",
     "rules": "règle",
     "link": "lien",
-    "cat": "dans cette catégorie.",
-    "Warning": "Supprimer la catégorie entraînera également la suppression de toutes les règles associées",
-    "supp": "Supprimer"
+    "at_this_category": "dans cette catégorie.",
+    "Warning_for_deleting_the_category": "Supprimer la catégorie entraînera également la suppression de toutes les règles associées",
+    "delete": "Supprimer"
   },
 
   "settings_navigation": {
@@ -115,7 +104,7 @@
     "Theme": "Thème",
     "Langue": "Langue",
     "Colors": "Couleurs",
-    "unlink_my_email": "dissocier mon email",
+    "unlink_my_email": "Dissocier mon e-mail",
     "this_feature_is_under_test": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
   },
 
@@ -127,7 +116,7 @@
     "Google": "Lier mon compte Google",
     "Langue": "Langue",
     "Colors": "Couleurs",
-    "unlink": "dissocier mon email",
+    "unlink": "Dissocier mon e-mail",
     "Test function": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
   },
 
@@ -149,6 +138,8 @@
 
   "Search_vue": {
     "AI_assistant": "Assistant IA",
+    "Search_button": "Rechercher",
+    "negative_results": "Résultats négatifs",
     "manual_Search": "Recherche manuelle"
   },
 
@@ -191,19 +182,16 @@
   },
 
   "ReplyLater_vue": {
-    "titre": "Répondre plus tard",
-    "Travail": "Travail Urgent",
-    "Travail2": "Travail - Informatif",
-    "Notif": "Pas de courriels à répondre plus tard",
-    "Resume": "Cliquez pour voir le résumé",
-    "Action_Ouvrir": "Ouvrir",
-    "Action_répondre": "Répondre",
-    "Action_supprimer": "Supprimer",
-    "Actionssupp": "Actions supplémentaires",
-    "Inutile": "Inutile",
-    "Transfer": "Transférer",
-    "Résultats_changer": "Changer la règle",
-    "Résultats_create": "Créer une règle"
+    "reply_later": "Répondre plus tard",
+    "no_emails_to_reply_later": "Pas d'e-mails à répondre plus tard",
+    "click_to_see_the_summary": "Cliquez pour voir le résumé",
+    "open": "Ouvrir",
+    "answer": "Répondre",
+    "Remove_from_reply_later": "Retirer des e-mails à répondre plus tard",
+    "additional_actions": "Actions supplémentaires",
+    "transfer": "Transférer",
+    "change_the_rule": "Changer la règle",
+    "create_a_rule": "Créer une règle"
   },
 
   "Newcategory_vue": {

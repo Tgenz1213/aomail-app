@@ -119,7 +119,7 @@
           <div class="flex flex-col rounded-lg ">
             <div class="">
               <div
-                class="flex items-center justify-center h-[65px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-lg">
+                class="flex items-center justify-center h-[65px]">
                 <nav aria-label="Progress">
                   <!--<div class="absolute right-4 left-4">-->
                   <ol role="list" class="flex items-center" v-if="step === 0">

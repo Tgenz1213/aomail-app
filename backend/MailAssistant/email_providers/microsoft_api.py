@@ -39,6 +39,7 @@ from MailAssistant.constants import (
     REDIRECT_URI_SIGNUP,
     USELESS,
 )
+from backend.MailAssistant.controllers.tree_knowledge import Search
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -812,24 +813,19 @@ def get_mail_to_db(access_token, int_mail=None, id_mail=None):
 
     message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
-    message_data = response.json()
-
+    message_data: dict = response.json()
     conversation_id = message_data.get("conversationId")
 
     # TODO: delete => and in models too
     web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
 
     has_attachments = message_data["hasAttachments"]
-
-    subject = message_data.get("subject")
+    subject: str = message_data.get("subject")
+    is_reply: bool = subject.lower().startswith('re:')
     sender = message_data.get("from")
     from_info = parse_name_and_email(sender)
     sent_date = None
     decoded_data = parse_message_body(message_data)
-    print(
-        "-------------------------------MICROSOFT HTML------------------------------------"
-    )
-    print(decoded_data)
     decoded_data_temp = library.html_clear(decoded_data)
     preprocessed_data = library.preprocess_email(decoded_data_temp)
 
@@ -841,6 +837,7 @@ def get_mail_to_db(access_token, int_mail=None, id_mail=None):
         sent_date,
         web_link,
         has_attachments,
+        is_reply
     )
 
 
@@ -1283,7 +1280,7 @@ def email_to_db(user, email, id_email):
 
     social_api = get_social_api(user, email)
     access_token = refresh_access_token(social_api)
-    subject, from_name, decoded_data, email_id, sent_date, web_link, has_attachments = (
+    subject, from_name, decoded_data, email_id, sent_date, web_link, has_attachments, is_reply = (
         get_mail_to_db(access_token, None, id_email)
     )
 
@@ -1310,11 +1307,38 @@ def email_to_db(user, email, id_email):
         user_description = (
             social_api.user_description if social_api.user_description != None else ""
         )
+        if is_reply:
+            # summarize conversation with Search
+            email_content = library.preprocess_email(decoded_data)
+            user_id = user.id
+            search = Search(user_id)
+            conversation_summary = search.summarize_conversation(
+                subject, email_content, user_description, email_id
+            )
+            print(
+                "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
+            )
+            print(conversation_summary)
+            print(
+                "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+            )
+            print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
+        else:
+            # summarize single email with Search
+            email_content = library.preprocess_email(decoded_data)
 
-        print(
-            "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
-        )
-        print(decoded_data)
+            user_id = user.id
+            search = Search(user_id)
+            email_summary = search.summarize_email(
+                subject, email_content, user_description, email_id
+            )
+
+
+
+        # print(
+        #     "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
+        # )
+        # print(decoded_data)
 
         (
             topic,

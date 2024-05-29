@@ -47,11 +47,12 @@ class Search:
                     "topics": {}}
             if topic_name not in knowledge_tree[category_name]["organizations"][organization_name]["topics"]:
                 knowledge_tree[category_name]["organizations"][organization_name]["topics"][topic_name] = {
-                    "keypoints": []}
+                    "keypoints": [], "emails": []}
 
-            keypoints_list: list = knowledge_tree[category_name]["organizations"][
-                organization_name]["topics"][topic_name]["keypoints"]
-            keypoints_list.append(key_point.content)
+            knowledge_tree[category_name]["organizations"][
+                organization_name]["topics"][topic_name]["keypoints"].append(key_point.content)
+            knowledge_tree[category_name]["organizations"][
+                organization_name]["topics"][topic_name]["emails"].append(key_point.email.provider_id)
 
         return knowledge_tree
 

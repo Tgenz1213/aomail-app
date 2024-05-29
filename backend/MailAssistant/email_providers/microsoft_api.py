@@ -43,7 +43,7 @@ from MailAssistant.controllers.tree_knowledge import Search
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from ..models import Contact, KeyPoint, MicrosoftListener, Rule, SocialAPI
+from ..models import Contact, KeyPoint, MicrosoftListener, Preference, Rule, SocialAPI
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from .. import library
@@ -1307,13 +1307,14 @@ def email_to_db(user, email, id_email):
         user_description = (
             social_api.user_description if social_api.user_description != None else ""
         )
+        language = Preference.objects.get(user=user).language
         if is_reply:
             # summarize conversation with Search
             email_content = library.preprocess_email(decoded_data)
             user_id = user.id
             search = Search(user_id)
             conversation_summary = search.summarize_conversation(
-                subject, email_content, user_description, email_id
+                subject, email_content, user_description, email_id, language
             )
             # print(
             #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
@@ -1330,7 +1331,7 @@ def email_to_db(user, email, id_email):
             user_id = user.id
             search = Search(user_id)
             email_summary = search.summarize_email(
-                subject, email_content, user_description, email_id
+                subject, email_content, user_description, email_id, language
             )
             # print(
             #     "=================== SINGLE EMAIL KEPINT ==================="

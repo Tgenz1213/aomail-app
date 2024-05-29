@@ -59,6 +59,7 @@ from .. import library
 from ..models import (
     Contact,
     KeyPoint,
+    Preference,
     Rule,
     SocialAPI,
     BulletPoint,
@@ -1237,6 +1238,7 @@ def email_to_db(user, services, social_api: SocialAPI):
     user_description = (
         social_api.user_description if social_api.user_description != None else ""
     )
+    language = Preference.objects.get(user=user).language
     if is_reply:
         # summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1244,7 +1246,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
         conversation_summary = search.summarize_conversation(
-            subject, email_content, user_description, email_id
+            subject, email_content, user_description, email_id, language
         )
         # print(
         #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
@@ -1262,7 +1264,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
         email_summary = search.summarize_email(
-            subject, email_content, user_description, email_id
+            subject, email_content, user_description, email_id, language
         )
         # print(
         #     "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="

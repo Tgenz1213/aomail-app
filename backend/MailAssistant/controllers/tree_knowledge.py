@@ -7,6 +7,7 @@ import logging
 import os
 import threading
 from MailAssistant.ai_providers import claude
+from MailAssistant.models import KeyPoint
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -56,7 +57,7 @@ class Search:
             self.knowledge_tree = self.load_user_data()
         self.categories = self.get_categories()
 
-    def get_categories(self) -> dict[str, list[str]]:
+    '''def get_categories(self) -> dict[str, list[str]]:
         """
         Extracts and returns categories and their associated organizations from the knowledge tree.
 
@@ -72,6 +73,26 @@ class Search:
                 organization
                 for organization in self.knowledge_tree[category]["organizations"]
             ]
+        return categories'''
+
+    def get_categories(self) -> dict:
+        """
+        Extracts and returns categories and their associated organizations from the database for the specified user.
+
+        Returns:
+            dict: A dictionary where the keys are category names and the values are lists of organization names within each category.
+        """
+        categories = {}
+        key_points = KeyPoint.objects.filter(email__user_id=self.user_id).values('category', 'organization')
+        print(key_points, "IF YOU SEE THIS IT MEANS WE CAN MIGRATE")
+        for key_point in key_points:
+            category_name = key_point['category']
+            organization = key_point['organization']
+            if category_name not in categories:
+                categories[category_name] = []
+            if organization not in categories[category_name]:
+                categories[category_name].append(organization)
+
         return categories
 
     def get_keypoints(self, selected_categories: dict[str, list[str]]) -> dict:
@@ -206,7 +227,7 @@ class Search:
             language (str, optional): The language in which to summarize the conversation. Defaults to "French".
 
         Returns:
-            dict[str, List[str]]: A dictionary containing the summarized keypoints for each email.
+            dict: A dictionary containing the category, organization, topic, and keypoints of the email.
         """
         template = f"""As a smart email assistant, 
         For each email in the following conversation, summarize it in {language} as a list of up to three ultra-concise keypoints (up to seven words) that encapsulate the core information. This will aid the user in recalling the past conversation.
@@ -282,7 +303,7 @@ class Search:
             language (str, optional): The language in which to summarize the email. Defaults to "French".
 
         Returns:
-            dict[str, List[str]]: A dictionary containing the category, organization, topic, and keypoints of the email.
+            dict: A dictionary containing the category, organization, topic, and keypoints of the email.
         """
         template = f"""As a smart email assistant, 
         Summarize the email body in {language} as a list of up to three ultra-concise keypoints (up to seven words each) that encapsulate the core information. This will aid the user in recalling the content of the email.

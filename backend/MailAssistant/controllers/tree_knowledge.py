@@ -261,7 +261,7 @@ class Search:
         self.add_user_data(category, organization, topic,
                            user_keypoints, [email_id])
 
-        return keypoints
+        return result_json
 
     def summarize_email(
         self,
@@ -329,7 +329,7 @@ class Search:
         self.add_user_data(category, organization,
                            topic, keypoints, [email_id])
 
-        return keypoints
+        return result_json
 
     def save_user_data(self, data: dict) -> None:
         """

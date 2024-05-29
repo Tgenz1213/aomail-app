@@ -39,7 +39,7 @@ from MailAssistant.constants import (
     REDIRECT_URI_SIGNUP,
     USELESS,
 )
-from backend.MailAssistant.controllers.tree_knowledge import Search
+from MailAssistant.controllers.tree_knowledge import Search
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -1332,6 +1332,10 @@ def email_to_db(user, email, id_email):
             email_summary = search.summarize_email(
                 subject, email_content, user_description, email_id
             )
+            print(
+                "=================== SINGLE EMAIL KEPINT ==================="
+            )
+            print(email_summary)
 
         # print(
         #     "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
@@ -1411,31 +1415,40 @@ def email_to_db(user, email, id_email):
                 conversation_summary_organization = conversation_summary["organization"]
                 conversation_summary_topic = conversation_summary["topic"]
                 keypoints: dict = conversation_summary["keypoints"]
+                print("DEBUG: ", keypoints)
 
                 for index, keypoint in keypoints.items():
-                    KeyPoint.objects.create(
-                        is_reply=True,
-                        position=index,
-                        category=conversation_summary_category,
-                        organization=conversation_summary_organization,
-                        topic=conversation_summary_topic,
-                        content=keypoint,
-                        email=email_entry
-                    )
+                    try:
+                        KeyPoint.objects.create(
+                            is_reply=True,
+                            position=index,
+                            category=conversation_summary_category,
+                            organization=conversation_summary_organization,
+                            topic=conversation_summary_topic,
+                            content=keypoint,
+                            email=email_entry
+                        )
+                    except Exception as e:
+                        print(f"Could not create keyoint ; {str(e)}")
+
             else:
                 email_summary_category = email_summary["category"]
                 email_summary_organization = email_summary["organization"]
                 email_summary_topic = email_summary["topic"]
+                print("DEBUG: ", email_summary["keypoints"])
 
                 for keypoint in email_summary["keypoints"]:
-                    KeyPoint.objects.create(
-                        is_reply=False,
-                        category=email_summary_category,
-                        organization=email_summary_organization,
-                        topic=email_summary_topic,
-                        content=keypoint,
-                        email=email_entry
-                    )
+                    try:
+                        KeyPoint.objects.create(
+                            is_reply=False,
+                            category=email_summary_category,
+                            organization=email_summary_organization,
+                            topic=email_summary_topic,
+                            content=keypoint,
+                            email=email_entry
+                        )
+                    except Exception as e:
+                        print(f"Could not create keyoint ; {str(e)}")
 
             contact_name, contact_email = from_name[0], from_name[1]
             Contact.objects.get_or_create(

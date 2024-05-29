@@ -43,7 +43,7 @@ from backend.MailAssistant.controllers.tree_knowledge import Search
 from ..serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from ..models import Contact, MicrosoftListener, Rule, SocialAPI
+from ..models import Contact, KeyPoint, MicrosoftListener, Rule, SocialAPI
 from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
 from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
 from .. import library
@@ -1333,8 +1333,6 @@ def email_to_db(user, email, id_email):
                 subject, email_content, user_description, email_id
             )
 
-
-
         # print(
         #     "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
         # )
@@ -1407,6 +1405,37 @@ def email_to_db(user, email, id_email):
                 answer=answer,
                 relevance=relevance,
             )
+
+            if is_reply:
+                conversation_summary_category = conversation_summary["category"]
+                conversation_summary_organization = conversation_summary["organization"]
+                conversation_summary_topic = conversation_summary["topic"]
+                keypoints: dict = conversation_summary["keypoints"]
+
+                for index, keypoint in keypoints.items():
+                    KeyPoint.objects.create(
+                        is_reply=True,
+                        position=index,
+                        category=conversation_summary_category,
+                        organization=conversation_summary_organization,
+                        topic=conversation_summary_topic,
+                        content=keypoint,
+                        email=email_entry
+                    )
+            else:
+                email_summary_category = email_summary["category"]
+                email_summary_organization = email_summary["organization"]
+                email_summary_topic = email_summary["topic"]
+
+                for keypoint in email_summary["keypoints"]:
+                    KeyPoint.objects.create(
+                        is_reply=False,
+                        category=email_summary_category,
+                        organization=email_summary_organization,
+                        topic=email_summary_topic,
+                        content=keypoint,
+                        email=email_entry
+                    )
 
             contact_name, contact_email = from_name[0], from_name[1]
             Contact.objects.get_or_create(

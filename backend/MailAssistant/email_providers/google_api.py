@@ -1389,16 +1389,17 @@ def email_to_db(user, services, social_api: SocialAPI):
                 conversation_summary_topic = conversation_summary["topic"]
                 keypoints: dict = conversation_summary["keypoints"]
 
-                for index, keypoint in keypoints.items():
-                    KeyPoint.objects.create(
-                        is_reply=True,
-                        position=index,
-                        category=conversation_summary_category,
-                        organization=conversation_summary_organization,
-                        topic=conversation_summary_topic,
-                        content=keypoint,
-                        email=email_entry
-                    )
+                for index, keypoints_list in keypoints.items():
+                    for keypoint in keypoints_list:
+                        KeyPoint.objects.create(
+                            is_reply=True,
+                            position=index,
+                            category=conversation_summary_category,
+                            organization=conversation_summary_organization,
+                            topic=conversation_summary_topic,
+                            content=keypoint,
+                            email=email_entry
+                        )
             else:
                 email_summary_category = email_summary["category"]
                 email_summary_organization = email_summary["organization"]

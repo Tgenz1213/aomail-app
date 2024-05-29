@@ -1765,6 +1765,11 @@ def search_tree_knowledge(request: HttpRequest):
 
         language = Preference.objects.get(user=user).language
         answer = search.get_answer(keypoints, language)
+        print("---debug", answer)
+        print(search.knowledge_tree)
+
+        # TODO: GET EMAILS ID FROM Email table otherwise it fails
+
         emails = []
 
         for category in keypoints:

@@ -1416,10 +1416,9 @@ def email_to_db(user, email, id_email):
                 conversation_summary_organization = conversation_summary["organization"]
                 conversation_summary_topic = conversation_summary["topic"]
                 keypoints: dict = conversation_summary["keypoints"]
-                print("DEBUG: ", keypoints)
 
-                for index, keypoint in keypoints.items():
-                    try:
+                for index, keypoints_list in keypoints.items():
+                    for keypoint in keypoints_list:
                         KeyPoint.objects.create(
                             is_reply=True,
                             position=index,
@@ -1429,27 +1428,21 @@ def email_to_db(user, email, id_email):
                             content=keypoint,
                             email=email_entry
                         )
-                    except Exception as e:
-                        print(f"Could not create keyoint ; {str(e)}")
 
             else:
                 email_summary_category = email_summary["category"]
                 email_summary_organization = email_summary["organization"]
                 email_summary_topic = email_summary["topic"]
-                print("DEBUG: ", email_summary["keypoints"])
 
                 for keypoint in email_summary["keypoints"]:
-                    try:
-                        KeyPoint.objects.create(
-                            is_reply=False,
-                            category=email_summary_category,
-                            organization=email_summary_organization,
-                            topic=email_summary_topic,
-                            content=keypoint,
-                            email=email_entry
-                        )
-                    except Exception as e:
-                        print(f"Could not create keyoint ; {str(e)}")
+                    KeyPoint.objects.create(
+                        is_reply=False,
+                        category=email_summary_category,
+                        organization=email_summary_organization,
+                        topic=email_summary_topic,
+                        content=keypoint,
+                        email=email_entry
+                    )
 
             contact_name, contact_email = from_name[0], from_name[1]
             Contact.objects.get_or_create(

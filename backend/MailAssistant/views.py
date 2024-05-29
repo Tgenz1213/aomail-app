@@ -1747,6 +1747,13 @@ def search_tree_knowledge(request: HttpRequest):
             )
 
         search = Search(user_id, question)
+        if not search.can_answer():
+            return Response(
+                {"message": "Not have enough data"},
+                status=status.HTTP_200_OK,
+            )
+
+        # TODO: debug if Ao fails with little data - if so: improve prompt engineering
         selected_categories = search.get_selected_categories()
         keypoints = search.get_keypoints(selected_categories)
 
@@ -1756,7 +1763,8 @@ def search_tree_knowledge(request: HttpRequest):
                 status=status.HTTP_200_OK,
             )
 
-        answer = search.get_answer(keypoints)
+        language = Preference.objects.get(user=user).language
+        answer = search.get_answer(keypoints, language)
         emails = []
 
         for category in keypoints:

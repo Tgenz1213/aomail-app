@@ -1246,7 +1246,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
         conversation_summary = search.summarize_conversation(
-            subject, email_content, user_description, email_id, language
+            subject, email_content, user_description, language
         )
         # print(
         #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
@@ -1264,7 +1264,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
         email_summary = search.summarize_email(
-            subject, email_content, user_description, email_id, language
+            subject, email_content, user_description, language
         )
         # print(
         #     "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="

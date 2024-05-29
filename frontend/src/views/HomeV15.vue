@@ -1375,45 +1375,61 @@
                         </div>
                     </div>
                 </div>
+                
+<!-- UNCOMMENT TO SEPARATE BUTTON FROM DIV TO FOLD/UNFOLD -->
+                <!-- <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col relative"> -->
+    <!-- <div class="p-4 flex justify-end">
+      <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
+        <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+        </svg>
+        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+    </div> -->
+    <!-- </div> -->
 
-
-                <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col">
-  <div class="p-4 flex w-full">
-    <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 px-4 py-2 rounded w-full items-center inline-flex pr-10">
-      <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
-      </svg>
-      <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-      </svg>
-    </button>
-  </div>
-  
-  <div :class="isHidden ? 'animate-slideOut' : 'animate-slideIn'" class="w-[325px] 2xl:w-[450px] flex-grow">
-    <div class="flex flex-col h-full">
-      <div class="flex-grow">
-        <div class="flex p-5">
-          <div class="mr-4 flex-shrink-0 self-center">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-              </svg>
-            </span>
-          </div>
-          <div>
-            <p class="mt-1" id="animated-text" ref="animatedText"></p>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col justify-end h-[160px] border-t">
-        <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden flex flex-1 pt-3 pl-5 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0" placeholder="Instruction"></textarea>
-        <div class="flex justify-end m-3">
-          <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
-        </div>
-      </div>
+    <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col relative">
+        <!-- REMOVE START -->
+        <div class="p-4 flex justify-end">
+      <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
+        <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+        </svg>
+        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
     </div>
+    <!-- REMOVE END -->
+
+
+    <div :class="isHidden ? 'animate-slideOut' : 'animate-slideIn'" class="w-[325px] 2xl:w-[450px] flex-grow">
+        <div class="flex flex-col h-full">
+          <div class="flex-grow">
+            <div class="flex p-5">
+              <div class="mr-4 flex-shrink-0 self-center">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                  </svg>
+                </span>
+              </div>
+              <div>
+                <p class="mt-1" id="animated-text" ref="animatedText"></p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col justify-end h-[160px] border-t">
+            <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight" v-model="textareaValue" class="overflow-y-hidden flex flex-1 pt-3 pl-5 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0" placeholder="Instruction"></textarea>
+            <div class="flex justify-end m-3">
+              <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
+            </div>
+          </div>
+        </div>
+      </div>
   </div>
-</div>
 
             </div>
         </div>

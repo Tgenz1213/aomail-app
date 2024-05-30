@@ -1413,7 +1413,7 @@
     </div> -->
     <!-- </div> -->
 
-    <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col">
+                <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col">
                     <div class="p-4 flex w-full">
                         <button @click="toggleVisibility"
                             class="bg-gray-200 text-gray-500 px-4 py-2 rounded w-full items-center inline-flex pr-10">
@@ -1430,7 +1430,7 @@
                         </button>
                     </div>
                     <!--<transition name="slide">-->
-                        <div v-if="!isHidden" class="w-[325px] 2xl:w-[450px] flex-grow">
+                        <div v-show="!isHidden" class="w-[325px] 2xl:w-[450px] flex-grow">
                             <div class="flex flex-col h-full">
                                 <div class="flex-grow">
                                     <div class="flex p-5">

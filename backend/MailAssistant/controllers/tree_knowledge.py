@@ -1,77 +1,84 @@
 """
-Handles AI-driven search to extract data from emails."
+Handles AI-driven search to extract data from emails and help Ao to answer user questions.
 """
 
 import json
 import logging
-import os
-import threading
 from MailAssistant.ai_providers import claude
+from MailAssistant.models import KeyPoint
 
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
-ABS_TREE_PATH = "/app/MailAssistant/controllers/trees/"
 
 
 class Search:
     """
     Class for searching through categorized email data within a knowledge tree.
-
-    Example of a knowledge tree of a user:
-    {
-        "Studies": {
-            "organizations": {
-                "ESAIP": {
-                    "topics": {
-                        "Semester 4": {
-                            "keypoints": [
-                                "ends around mid-June",
-                                "erasmus",
-                                "evaluate the dormitory"
-                            ],
-                            "emails": ["id_email1", "id_email2"]
-                        }
-                    }
-                }
-            }
-        }
-    }
     """
 
     def __init__(
-        self, user_id: int, question: str = None, knowledge_tree: dict = None
+        self, user_id: int, question: str = None
     ) -> None:
         self.user_id = user_id
-        self.file_path = f"{ABS_TREE_PATH}{user_id}.json"
-
         self.question = question
-        if knowledge_tree:
-            self.knowledge_tree = knowledge_tree
-            threading.Thread(target=self.save_user_data,
-                             args=(knowledge_tree,)).start()
-        elif not os.path.exists(self.file_path):
-            self.knowledge_tree = {}
-        else:
-            self.knowledge_tree = self.load_user_data()
+        self.knowledge_tree = self.get_knowledge_tree()
         self.categories = self.get_categories()
 
-    def get_categories(self) -> dict[str, list[str]]:
+    def get_knowledge_tree(self) -> dict:
         """
-        Extracts and returns categories and their associated organizations from the knowledge tree.
+        Retrieves the knowledge tree of the user from the database.
 
         Returns:
-            dict[str, list[str]]: A dictionary where the keys are category names and the values are lists of organization names within each category.
+            dict: The knowledge tree of the user.
+        """
+        knowledge_tree = {}
+        key_points = KeyPoint.objects.filter(email__user_id=self.user_id)
+
+        for key_point in key_points:
+            category_name = key_point.category
+            organization_name = key_point.organization
+            topic_name = key_point.topic
+
+            if category_name not in knowledge_tree:
+                knowledge_tree[category_name] = {"organizations": {}}
+            if organization_name not in knowledge_tree[category_name]["organizations"]:
+                knowledge_tree[category_name]["organizations"][organization_name] = {
+                    "topics": {}}
+            if topic_name not in knowledge_tree[category_name]["organizations"][organization_name]["topics"]:
+                knowledge_tree[category_name]["organizations"][organization_name]["topics"][topic_name] = {
+                    "keypoints": [], "emails": []}
+
+            knowledge_tree[category_name]["organizations"][
+                organization_name]["topics"][topic_name]["keypoints"].append(key_point.content)
+            knowledge_tree[category_name]["organizations"][
+                organization_name]["topics"][topic_name]["emails"].append(key_point.email.provider_id)
+
+        return knowledge_tree
+
+    def get_categories(self) -> dict:
+        """
+        Extracts and returns categories and their associated organizations from the database for the specified user.
+
+        Returns:
+            dict: A dictionary where the keys are category names and the values are lists of organization names within each category.
         """
         if not self.knowledge_tree:
-            return []
+            return {}
 
         categories = {}
-        for category in self.knowledge_tree:
-            categories[category] = [
-                organization
-                for organization in self.knowledge_tree[category]["organizations"]
-            ]
+        key_points = KeyPoint.objects.filter(
+            email__user_id=self.user_id).values('category', 'organization')
+
+        for key_point in key_points:
+            category_name = key_point['category']
+            organization = key_point['organization']
+            if category_name not in categories:
+                categories[category_name] = []
+            if organization not in categories[category_name]:
+                category_organizations: list = categories[category_name]
+                category_organizations.append(organization)
+
         return categories
 
     def get_keypoints(self, selected_categories: dict[str, list[str]]) -> dict:
@@ -84,9 +91,6 @@ class Search:
         Returns:
             dict[str, dict[str, dict[str, dict[str, List[str]]]]]: A nested dictionary containing keypoints for each category, organization, and topic.
         """
-        if not self.knowledge_tree:
-            return []
-
         keypoints = {}
         for category in selected_categories:
             keypoints[category] = {}
@@ -104,6 +108,16 @@ class Search:
                     ]
 
         return keypoints
+
+    def can_answer(self) -> bool:
+        """
+        Checks if Ao can potentially answer a question.
+
+        Returns:
+            bool: True if Ao has data to search through and may answer a question, 
+                False otherwise.
+        """
+        return self.categories != {}
 
     def get_selected_categories(self) -> dict[str: list[str]]:
         """
@@ -144,7 +158,7 @@ class Search:
 
         return result_json
 
-    def get_answer(self, keypoints: dict, language: str = "French") -> dict:
+    def get_answer(self, keypoints: dict, language: str) -> dict:
         """
         Generates an answer based on the keypoints and checks if further details are needed.
 
@@ -192,8 +206,7 @@ class Search:
         subject: str,
         body: str,
         user_description: str | None,
-        email_id: str,
-        language: str = "French",
+        language: str
     ) -> dict:
         """
         Summarizes an email conversation in the specified language with keypoints.
@@ -202,11 +215,10 @@ class Search:
             subject (str): The subject of the email conversation.
             body (str): The body of the email conversation.
             user_description (Optional[str]): A description provided by the user to enhance keypoints.
-            email_id (str): The unique identifier of the email.
             language (str, optional): The language in which to summarize the conversation. Defaults to "French".
 
         Returns:
-            dict[str, List[str]]: A dictionary containing the summarized keypoints for each email.
+            dict: A dictionary containing the category, organization, topic, and keypoints of the email.
         """
         template = f"""As a smart email assistant, 
         For each email in the following conversation, summarize it in {language} as a list of up to three ultra-concise keypoints (up to seven words) that encapsulate the core information. This will aid the user in recalling the past conversation.
@@ -250,26 +262,14 @@ class Search:
             )
             raise
 
-        category = result_json["category"]
-        organization = result_json["organization"]
-        topic = result_json["topic"]
-        keypoints = result_json["keypoints"]
-
-        user_keypoints = [
-            keypoint for index in keypoints for keypoint in keypoints[index]
-        ]
-        self.add_user_data(category, organization, topic,
-                           user_keypoints, [email_id])
-
-        return keypoints
+        return result_json
 
     def summarize_email(
         self,
         subject: str,
         body: str,
         user_description: str | None,
-        email_id: str,
-        language: str = "French",
+        language: str
     ) -> dict:
         """
         Summarizes an email conversation in the specified language with keypoints.
@@ -278,11 +278,10 @@ class Search:
             subject (str): The subject of the email.
             body (str): The body content of the email.
             user_description (Optional[str]): A description provided by the user to enhance the summary.
-            email_id (str): The unique identifier for the email.
             language (str, optional): The language in which to summarize the email. Defaults to "French".
 
         Returns:
-            dict[str, List[str]]: A dictionary containing the category, organization, topic, and keypoints of the email.
+            dict: A dictionary containing the category, organization, topic, and keypoints of the email.
         """
         template = f"""As a smart email assistant, 
         Summarize the email body in {language} as a list of up to three ultra-concise keypoints (up to seven words each) that encapsulate the core information. This will aid the user in recalling the content of the email.
@@ -321,113 +320,4 @@ class Search:
             )
             raise
 
-        category = result_json["category"]
-        organization = result_json["organization"]
-        topic = result_json["topic"]
-        keypoints = result_json["keypoints"]
-
-        self.add_user_data(category, organization,
-                           topic, keypoints, [email_id])
-
-        return keypoints
-
-    def save_user_data(self, data: dict) -> None:
-        """
-        Saves updated user data to a JSON file.
-
-        Args:
-            data (dict): The user data to be saved.
-        """
-        try:
-            with open(self.file_path, "w", encoding="utf-8") as json_file:
-                json.dump(data, json_file, ensure_ascii=False, indent=4)
-            LOGGER.info(
-                f"Data saved to JSON file successfully - user_id: {self.user_id}"
-            )
-        except (OSError, TypeError) as e:
-            LOGGER.error(
-                f"Failed to save data to JSON file - user_id: {self.user_id}, error: {e}"
-            )
-
-    def load_user_data(self) -> dict:
-        """
-        Loads user data from a JSON file.
-
-        Returns:
-            dict: The user data loaded from the JSON file.
-        """
-        try:
-            with open(self.file_path, "r", encoding="utf-8") as json_file:
-                return json.load(json_file)
-        except (OSError, json.JSONDecodeError) as e:
-            LOGGER.error(
-                f"Failed to load data from JSON file - user_id: {self.user_id}, error: {e}"
-            )
-
-    def add_user_data(
-        self,
-        category: str,
-        organization: str,
-        topic: str,
-        keypoints: list[str],
-        emails: list[str],
-    ) -> None:
-        """
-        Adds or updates user data for a specific topic within a structured dictionary.
-        Ensures no duplication of keypoints or emails, maintaining case-insensitivity.
-
-        Parameters:
-            - category (str): Top-level classification.
-            - organization (str): Sub-level classification under category.
-            - topic (str): Specific topic under organization for data storage.
-            - keypoints (list[str]): List of unique keypoints related to the topic.
-            - emails (list[str]): List of unique emails associated with the topic.
-        """
-        if category not in self.knowledge_tree:
-            self.knowledge_tree[category] = {}
-            self.knowledge_tree[category]["organizations"] = {}
-        if organization not in self.knowledge_tree[category]["organizations"]:
-            self.knowledge_tree[category]["organizations"][organization] = {}
-            self.knowledge_tree[category]["organizations"][organization]["topics"] = {
-            }
-        if (
-            topic
-            not in self.knowledge_tree[category]["organizations"][organization][
-                "topics"
-            ]
-        ):
-            self.knowledge_tree[category]["organizations"][organization]["topics"][
-                topic
-            ] = {}
-            self.knowledge_tree[category]["organizations"][organization]["topics"][
-                topic
-            ]["keypoints"] = keypoints
-            self.knowledge_tree[category]["organizations"][organization]["topics"][
-                topic
-            ]["emails"] = emails
-        else:
-            prev_keypoints: list = self.knowledge_tree[category]["organizations"][
-                organization
-            ]["topics"][topic]["keypoints"]
-
-            for keypoint in keypoints:
-                if keypoint.lower() not in map(str.lower, prev_keypoints):
-                    prev_keypoints.append(keypoint)
-
-            self.knowledge_tree[category]["organizations"][organization]["topics"][
-                topic
-            ]["keypoints"] = prev_keypoints
-
-            prev_emails: list = self.knowledge_tree[category]["organizations"][
-                organization
-            ]["topics"][topic]["emails"]
-
-            for email in emails:
-                if email.lower() not in prev_emails:
-                    prev_emails.append(email)
-
-            self.knowledge_tree[category]["organizations"][organization]["topics"][
-                topic
-            ]["emails"] = prev_emails
-
-        self.save_user_data(self.knowledge_tree)
+        return result_json

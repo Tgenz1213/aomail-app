@@ -59,6 +59,7 @@ from .. import library
 from ..models import (
     Contact,
     KeyPoint,
+    Preference,
     Rule,
     SocialAPI,
     BulletPoint,
@@ -1237,6 +1238,7 @@ def email_to_db(user, services, social_api: SocialAPI):
     user_description = (
         social_api.user_description if social_api.user_description != None else ""
     )
+    language = Preference.objects.get(user=user).language
     if is_reply:
         # summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1244,16 +1246,16 @@ def email_to_db(user, services, social_api: SocialAPI):
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
         conversation_summary = search.summarize_conversation(
-            subject, email_content, user_description, email_id
+            subject, email_content, user_description, language
         )
-        print(
-            "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
-        )
-        print(conversation_summary)
-        print(
-            "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        )
-        print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
+        # print(
+        #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
+        # )
+        # print(conversation_summary)
+        # print(
+        #     "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+        # )
+        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
     else:
         # summarize single email with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1262,7 +1264,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
         email_summary = search.summarize_email(
-            subject, email_content, user_description, email_id
+            subject, email_content, user_description, language
         )
         # print(
         #     "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
@@ -1387,16 +1389,17 @@ def email_to_db(user, services, social_api: SocialAPI):
                 conversation_summary_topic = conversation_summary["topic"]
                 keypoints: dict = conversation_summary["keypoints"]
 
-                for index, keypoint in keypoints.items():
-                    KeyPoint.objects.create(
-                        is_reply=True,
-                        position=index,
-                        category=conversation_summary_category,
-                        organization=conversation_summary_organization,
-                        topic=conversation_summary_topic,
-                        content=keypoint,
-                        email=email_entry
-                    )
+                for index, keypoints_list in keypoints.items():
+                    for keypoint in keypoints_list:
+                        KeyPoint.objects.create(
+                            is_reply=True,
+                            position=index,
+                            category=conversation_summary_category,
+                            organization=conversation_summary_organization,
+                            topic=conversation_summary_topic,
+                            content=keypoint,
+                            email=email_entry
+                        )
             else:
                 email_summary_category = email_summary["category"]
                 email_summary_organization = email_summary["organization"]

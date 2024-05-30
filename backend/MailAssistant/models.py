@@ -176,7 +176,7 @@ class KeyPoint(models.Model):
     """Model for storing keypoints needed by Ao for knowledge search."""
 
     is_reply = models.BooleanField()
-    position = models.IntegerField(default=None)
+    position = models.IntegerField(null=True, default=None)
     category = models.TextField(max_length=50)
     organization = models.TextField(max_length=50)
     topic = models.TextField(max_length=50)

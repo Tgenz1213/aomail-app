@@ -2120,6 +2120,9 @@ def get_user_emails(request):
                 if delta_time > datetime.timedelta(weeks=1):
                     email.delete()
                     continue
+                    
+            email_date = email.date.date() if email.date else None
+            email_time = email.date.strftime('%H:%M') if email.date else None
 
             email_data = {
                 "id": email.id,
@@ -2147,6 +2150,8 @@ def get_user_emails(request):
                 "answer_later": email.answer_later,
                 "web_link": email.web_link,
                 "has_attachments": email.has_attachments,
+                "date": email_date,
+                "time": email_time,
             }
 
             formatted_data[email.category.name][email.priority].append(

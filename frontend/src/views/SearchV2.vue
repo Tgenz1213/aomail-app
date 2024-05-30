@@ -63,21 +63,37 @@
               <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
                 $t('Search_vue.manual_Search') }}</label>
             </div>
-            <div class="flex space-x-2 items-center">
+            <div class="flex space-x-2 items-center pr-2">
               <div class="flex-grow w-full">
                 <div class="relative flex flex-grow items-stretch mt-2">
                   <input v-model="query" type="text" placeholder="Rechercher" autocomplete="given-name"
-                    class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                    class="block w-full rounded-md border-0 pl-10 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-4 text-gray-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
+                    </svg>
+                  </div>
                 </div>
               </div>
+              
               <div class="flex-1 mt-2">
                 <button type="button" @click="searchEmails"
-                  class="w-28 rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">{{
-                    $t('Search_vue.Search_button') }}</button>
+                  class="w-28 rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">{{
+                    $t('Search_vue.search_button') }}</button>
               </div>
+
+              <div class="flex-1 mt-2">
+                <button type="button" @click="Hide_filtres()"
+                  class="rounded-md bg-gray-700 p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">
+                  <svg class="w-6 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
+                  </svg>
+                </button>
+              </div>
+
             </div>
           </div>
-          <div class="flex flex-col w-full px-6 pt-4">
+          <div class="flex flex-col w-full px-6 pt-4 bg-white hidden" id="filtres">
             <div class="grid grid-cols-2 gap-4">
               <div class="col-span-1 shadow-sm">
                 <div class="flex space-x-1 items-center">
@@ -174,7 +190,7 @@
 
 
 
-              <div class="col-span-1 shadow-sm">
+              <div class="col-span-1">
                 <div class="flex space-x-1 items-center">
                   <user-icon class="w-4 h-4" />
                   <label for="email" class="block text-sm font-medium leading-6 text-gray-900">fromAddressesSelected
@@ -231,7 +247,7 @@
 
                 </div>
               </div>
-              <div class="col-span-1 shadow-sm">
+              <div class="col-span-1">
                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Tout les fields doivent
                   être ds advanced à part recherche</label>
 
@@ -643,19 +659,22 @@ async function searchEmails() {
   hideLoading();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+async function Hide_filtres() {
+    var toggleDiv = document.getElementById('filtres');
+    if (toggleDiv.classList.contains('hidden')) {
+      toggleDiv.classList.remove('hidden');
+      setTimeout(function () {
+        toggleDiv.classList.remove('opacity-0');
+        toggleDiv.classList.add('opacity-100');
+      }, 10);
+    } else {
+      toggleDiv.classList.remove('opacity-100');
+      toggleDiv.classList.add('opacity-0');
+      setTimeout(function () {
+        toggleDiv.classList.add('hidden');
+      }, 250);
+    }
+  }
 
 
 

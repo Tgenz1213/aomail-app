@@ -190,6 +190,17 @@
                                                 </div>
                                             </div>
                                             <!-- Your content -->
+                                            <div class ="pt-3 px-24">
+                                                <div class="relative">
+                                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                                <div class="w-full border-t border-gray-300"></div>
+                                                            </div>
+                                                            <div class="relative flex justify-center">
+                                                                <span class="bg-white px-2 text-sm text-gray-500">29/05/2024</span>
+                                                            </div>
+                                                </div>
+                                            </div>
+
                                             <div class="flex px-4 pt-4">
                                                 <div class="flex">
                                                     <span
@@ -464,6 +475,17 @@
                                                 </div>
                                             </div>
                                             <!-- Your content -->
+                                            <div class ="pt-3 px-4">
+                                                <div class="relative">
+                                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                                <div class="w-full border-t border-gray-300"></div>
+                                                            </div>
+                                                            <div class="relative flex justify-center">
+                                                                <span class="bg-white px-2 text-sm text-gray-500">29/05/2024</span>
+                                                            </div>
+                                                </div>
+                                            </div>
+
                                             <div class="flex px-4 pt-4">
                                                 <div class="flex">
                                                     <span
@@ -491,9 +513,10 @@
                                                                     @click="toggleHiddenParagraph(item.id)">
                                                                     <div class="flex-auto group">
                                                                         <div class="flex gap-x-4">
-                                                                            <p
-                                                                                class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">
-                                                                                {{ item.name }}</p>
+                                                                            <div class="flex items-center">
+                                                                                <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.name }}</p>
+                                                                                <p class="text-sm leading-6 text-blue-800 dark:text-white">12:59</p>   
+                                                                            </div> 
                                                                             <div
                                                                                 class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
                                                                                 <div class="flex gap-x-1 items-center">

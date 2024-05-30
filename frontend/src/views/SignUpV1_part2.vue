@@ -11,7 +11,7 @@
           <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.sign_up')
             }}</h2>
         </div>
-        <div class="2xl:mt-10 sm:mt-8 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
+        <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
           <div class="flex flex-col">
             <div class="">
               <div
@@ -22,7 +22,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Current Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
@@ -33,7 +33,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -45,7 +45,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -57,7 +57,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -69,7 +69,7 @@
                     <li class="relative">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -83,7 +83,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Completed Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -98,7 +98,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Current Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
                         aria-current="step">
@@ -109,7 +109,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -121,7 +121,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -133,7 +133,7 @@
                     <li class="relative">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -147,7 +147,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Completed Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -162,7 +162,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -177,7 +177,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Current Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-400 bg-white"
                         aria-current="step">
@@ -188,7 +188,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -200,7 +200,7 @@
                     <li class="relative">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -214,7 +214,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Completed Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -229,7 +229,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -244,7 +244,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -259,7 +259,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Current Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
@@ -270,7 +270,7 @@
                     <li class="relative">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a @click="nextStep3"
                         class="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white">
@@ -284,7 +284,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Completed Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -299,7 +299,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Current Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -314,7 +314,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -329,7 +329,7 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Upcoming Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
                         class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
@@ -344,7 +344,7 @@
                     <li class="relative">
                       <!-- Current Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-white"></div>
+                        <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a class="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-700 bg-white"
                         aria-current="step">
@@ -355,7 +355,7 @@
                   </ol>
                 </nav>
               </div>
-              <div class="bg-white px-6 py-10 sm:px-12 "> 
+              <div class="bg-white px-6 py-4 sm:px-12 "> 
                 <form class="space-y-6">
                   <div v-if="step === 3">
                     <div class="flex flex-col">

@@ -36,7 +36,10 @@
 
 
 
-                        <div class="flex justify-end m-3 2xl:m-5">
+
+
+
+                        <div v-if="stepcontainer == 1" class="flex justify-end m-3 2xl:m-5">
                             <div class="flex mt-4 space-x-4 items-center">
                                 <div>
                                     <select id="lengthSelect"
@@ -62,6 +65,11 @@
                                     </button>
                                 </div>
                             </div>
+                        </div>
+
+                        <div v-else class="flex justify-end m-3 2xl:m-5">
+                            <button @click="handleAIClick" type="button"
+                                class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
                         </div>
 
 
@@ -1293,8 +1301,9 @@ function personSelected(person) {
     }
 
     if (isFirstTimeDestinary.value) {
-        askContent();
+        // askContent(); OLD
         stepcontainer = 1;
+        askContent(); // NEW (move the 2 buttons len + formality)
         isFirstTimeDestinary.value = false;
     }
 
@@ -1498,6 +1507,45 @@ function askContent() {
     `;
     */
     const ai_icon = happy_icon;
+    // const messageHTML = `
+    //   <div class="pb-12">
+    //     <div class="flex">
+    //         <div class="mr-4">
+    //             <!--
+    //             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+    //                 <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
+    //             </span>-->
+    //             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+    //               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+    //                 <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+    //               </svg>
+    //             </span>
+    //         </div>
+    //         <div>
+    //             <div class="flex flex-col">
+    //               <p ref="animatedText${counter_display}"></p>
+    //               <div class="flex mt-4">
+    //                 <div class="mr-4">
+    //                     <select id="lengthSelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
+    //                         <option value="very short">Très bref</option>
+    //                         <option value="short" selected>Bref</option>
+    //                         <option value="long">Long</option>
+    //                     </select>
+    //                 </div>
+    //                 <div>
+    //                     <select id="formalitySelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
+    //                         <option value="very informal">Informel</option>
+    //                         <!--<option value="informal">Peu formel</option>-->
+    //                         <option value="formal" selected>Formel</option>
+    //                         <option value="very formal">Très formel</option>
+    //                     </select>
+    //                 </div>
+    //               </div>
+    //             </div>
+    //         </div>
+    //     </div>
+    //   </div>
+    // `;
     const messageHTML = `
       <div class="pb-12">
         <div class="flex">
@@ -1515,22 +1563,6 @@ function askContent() {
             <div>
                 <div class="flex flex-col">
                   <p ref="animatedText${counter_display}"></p>
-                  <div class="flex mt-4">
-                    <div class="mr-4">
-                        <select id="lengthSelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
-                            <option value="very short">Très bref</option>
-                            <option value="short" selected>Bref</option>
-                            <option value="long">Long</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select id="formalitySelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
-                            <option value="very informal">Informel</option>
-                            <!--<option value="informal">Peu formel</option>-->
-                            <option value="formal" selected>Formel</option>
-                            <option value="very formal">Très formel</option>
-                        </select>
-                    </div>
                   </div>
                 </div>
             </div>
@@ -1546,18 +1578,18 @@ function askContent() {
 
     scrollToBottom();
 
-    const lengthSelect = document.getElementById('lengthSelect');
-    const formalitySelect = document.getElementById('formalitySelect');
+    // const lengthSelect = document.getElementById('lengthSelect');
+    // const formalitySelect = document.getElementById('formalitySelect');
 
-    lengthSelect.addEventListener('change', () => {
-        lengthValue.value = lengthSelect.value;
-        console.log('Length:', lengthValue);
-    });
+    // lengthSelect.addEventListener('change', () => {
+    //     lengthValue.value = lengthSelect.value;
+    //     console.log('Length:', lengthValue);
+    // });
 
-    formalitySelect.addEventListener('change', () => {
-        formalityValue.value = formalitySelect.value;
-        console.log('Formality:', formalityValue);
-    });
+    // formalitySelect.addEventListener('change', () => {
+    //     formalityValue.value = formalitySelect.value;
+    //     console.log('Formality:', formalityValue);
+    // });
 }
 
 function askContentAdvice() {
@@ -1787,8 +1819,11 @@ function NextStepRecipier() {
         const nextButton = document.getElementById('nextButton');
         if (nextButton) {
             nextButton.addEventListener('click', () => {
+                console.log("DEBUG B4", stepcontainer)
                 stepcontainer = 1;
+                console.log("DEBUG AFTER click ( Passez à la suite)", stepcontainer)
                 askContent();
+                console.log("DEBUG AFTER askContent ( Passez à la suite)", stepcontainer)
             });
         }
     }, 0);

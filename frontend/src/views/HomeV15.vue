@@ -55,14 +55,14 @@
 
         <div class="flex flex-col justify-center items-center h-screen"><!-- DO NOT DELETE : 'bg-gray-900'-->
             <div class="flex h-full w-full">
-                <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+                <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                     <navbar></navbar>
                 </div>
                 <div class="flex-1">
                     <!-- <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> WORKS FOR 1920*1200px screens-->
                     <div class="flex flex-col h-full w-full">
                         <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
-                            <div class="w-full py-2 px-6 sm:px-6 lg:px-6">
+                            <div class="w-full py-2 2xl:py-3 px-6 2xl:px-8">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
                                     <div class="pl-4 col-span-11 h-full flex items-center">
                                         <div class="w-full flex items-center justify-center pb-5 pt-5">
@@ -78,9 +78,9 @@
                                                 </select>
                                             </div>
                                             <div class="hidden sm:block w-full">
-                                                <nav class="flex flex-wrap space-x-2 justify-center items-center w-full"
+                                                <nav class="flex flex-wrap space-x-2 2xl:space-x-4 justify-center items-center w-full"
                                                     aria-label="Tabs">
-                                                    <div class="flex space-x-4">
+                                                    <div class="flex space-x-4 2xl:space-x-6">
                                                         <a v-for="category in categories" :key="category"
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
                                                             <div v-if="category.name !== 'Others'"
@@ -1433,7 +1433,7 @@
                         </button>
                     </div>
                     <!--<transition name="slide">-->
-                        <div v-show="!isHidden" class="w-[325px] 2xl:w-[450px] flex-grow">
+                        <div v-show="!isHidden" class="w-[325px] 2xl:w-[525px] flex-grow">
                             <div class="flex flex-col h-full">
                                 <div class="flex-grow">
                                     <div class="flex p-5">

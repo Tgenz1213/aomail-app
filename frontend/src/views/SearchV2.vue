@@ -53,63 +53,74 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
             </svg>
-            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Search_vue.manual_Search') }}</h1>
+            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Search_vue.manual_Search') }}</h1> 
           </div>
         </div>
-        <div class="flex flex-col h-full w-full">
+        <div class="flex flex-col h-5/6 w-full">
           <div class="flex flex-col w-full px-6 pt-2">
             <div class="flex space-x-1 items-center">
-              <magnifying-glass-icon class="w-4 h-4" />
+            <!--  <magnifying-glass-icon class="w-4 h-4" />
               <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
-                $t('Search_vue.manual_Search') }}</label>
+                $t('Search_vue.manual_Search') }}</label>-->
             </div>
-            <div class="flex space-x-2 items-center pr-2">
+
+
+            <div class="flex space-x-2 items-stretch pr-2 h-full"> <!-- Utilisation de items-stretch pour étirer les éléments en hauteur -->
               <div class="flex-grow w-full">
-                <div class="relative flex flex-grow items-stretch mt-2">
-                  <input v-model="query" type="text" placeholder="Rechercher" autocomplete="given-name"
-                    class="block w-full rounded-md border-0 pl-10 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                <div class="relative flex flex-grow items-stretch h-full"> <!-- Utilisation de items-stretch ici aussi -->
+                  <input v-model="query"
+                    type="text"
+                    :placeholder="$t('Search_vue.manual_Search')"
+                    autocomplete="given-name"
+                    class="block w-full rounded-md border-0 pl-10 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset 
+                    ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 
+                    sm:text-sm sm:leading-6 text-sm font-medium text-gray-900 2xl:text-base h-full"
+                    style="vertical-align: middle;">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="w-5 h-4 text-gray-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
-                    </svg>
+                    <magnifying-glass-icon class="w-4 h-4" />
                   </div>
                 </div>
               </div>
-              
-              <div class="flex-1 mt-2">
-                <button type="button" @click="searchEmails"
-                  class="w-28 rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">{{
-                    $t('Search_vue.search_button') }}</button>
-              </div>
 
-              <div class="flex-1 mt-2">
-                <button type="button" @click="Hide_filtres()"
-                  class="rounded-md bg-gray-700 p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">
-                  <svg class="w-6 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
-                  </svg>
+              <div class="flex-grow"> <!-- Suppression de styles de marge supplémentaires pour permettre un étirement complet -->
+                <button type="button" @click="searchEmails"
+                  class="bg-gray-700 rounded-md px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between w-full h-full 2xl:px-7 2xl:py-2 2xl:text-lg">
+                  {{ $t('Search_vue.search_button') }}
+                  <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
                 </button>
               </div>
 
+              <div class="flex-grow"> <!-- Suppression de styles de marge supplémentaires pour permettre un étirement complet -->
+                <button type="button" @click="Hide_filtres()"
+                  class="rounded-md bg-gray-700 p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 w-full h-full">
+                  <svg class="w-6 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4 a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
+                  </svg>
+                </button>
+              </div>
             </div>
+
           </div>
           <div class="flex flex-col w-full px-6 pt-4 bg-white hidden" id="filtres">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="col-span-1 shadow-sm">
-                <div class="flex space-x-1 items-center">
-                  <user-icon class="w-4 h-4" />
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">toAddressesSelected
-                    (optionnel)</label>
-                </div>
+            <div class="grid grid-cols-3 gap-4">
+
+
+              <div class="col-span-1">
                 <div class="relative items-stretch mt-2">
                   <Combobox as="div" v-model="selectedPerson">
-                    <ComboboxInput
-                      class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                      @input="query = $event.target.value" :display-value="(person) => person?.username" />
-                    <ComboboxButton
-                      class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                      <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </ComboboxButton>
+                    <div class="relative">
+                      <ComboboxInput
+                        class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                        ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 "
+                        @input="query = $event.target.value"
+                        :display-value="(person) => person?.username"
+                        placeholder="toAddressesSelected"/>
+                      <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <ComboboxButton
+                        class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                      </ComboboxButton>
+                    </div>
                     <ComboboxOptions v-if="filteredPeople.length > 0"
                       class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
                       <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template"
@@ -143,76 +154,60 @@
                   </div>
                 </div>
               </div>
-              <div class="col-span-1 shadow-sm">
-                <div class="flex space-x-1 items-center">
-                  <adjustments-horizontal-icon class="w-4 h-4" />
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">TODO: list of
-                    selected: Type de pièce jointe
-                  </label>
+
+
+
+                <div class="col-span-1">
+                  <div class="relative items-stretch mt-2">
+                        <Listbox as="div" v-model="attachmentSelected">
+                          <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                            <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" /> <!-- Ajustement de la taille de l'icône -->
+                            <span class="block truncate text-gray-700 mt-2 mb-2">
+                              {{ attachmentSelected ? attachmentSelected.name : 'Type de pièce jointe' }}
+                            </span>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400  mt-2 mb-2" aria-hidden="true" />
+                            </span>
+                          </ListboxButton>
+                          <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                            <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                              <ListboxOption as="template" v-for="type in attachmentTypes" :key="type.extension" :value="type" v-slot="{ active, attachmentSelected }">
+                                <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                  <span :class="[attachmentSelected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']"> <!-- Ajustement de la marge gauche -->
+                                    {{ type.name }} {{ type.extension }}
+                                  </span>
+                                  <span v-if="attachmentSelected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                  </span>
+                                </li>
+                              </ListboxOption>
+                            </ListboxOptions>
+                          </transition>
+                        </Listbox>
+                  </div>
                 </div>
+
+                <div class="col-span-1">
                 <div class="relative items-stretch mt-2">
-                  <!-- TODO: a LIST of attachments choices -->
-                  <Listbox as="div" v-model="attachmentSelected">
-                    <ListboxButton
-                      class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-                      <span class="block truncate">{{ attachmentSelected ? attachmentSelected.name : 'Aucune'
-                        }}</span>
-                      <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <Combobox as="div" v-model="selectedPerson">
+                    <div class="relative">
+                      <ComboboxInput
+                        class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                        ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                        @input="query = $event.target.value"
+                        :display-value="(person) => person?.username"
+                        placeholder="fromAddresses"/>
+                      <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <ComboboxButton
+                        class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                         <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                      </span>
-                    </ListboxButton>
-                    <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                      leave-to-class="opacity-0">
-                      <ListboxOptions
-                        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                        <ListboxOption as="template" v-for="type in attachmentTypes" :key="type.extension"
-                          :value="type" v-slot="{ active, attachmentSelected }">
-                          <li
-                            :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                            <span :class="[attachmentSelected ? 'font-semibold' : 'font-normal', 'block truncate']">
-                              {{ type.name }} {{ type.extension }}
-                            </span>
-                            <span v-if="attachmentSelected"
-                              :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                              <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                            </span>
-                          </li>
-                        </ListboxOption>
-                      </ListboxOptions>
-                    </transition>
-                  </Listbox>
-
-
-
-                </div>
-              </div>
-              <!-- SECOND ROW OF INPUTS -->
-
-
-
-              <div class="col-span-1">
-                <div class="flex space-x-1 items-center">
-                  <user-icon class="w-4 h-4" />
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">fromAddressesSelected
-                    (optionnel)</label>
-                </div>
-                <div class="relative items-stretch mt-2">
-
-
-                  <Combobox as="div" v-model="selectedFromPerson">
-                    <ComboboxInput
-                      class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                      @input="query = $event.target.value" :display-value="(person) => person?.username" />
-                    <ComboboxButton
-                      class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                      <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </ComboboxButton>
-
-                    <ComboboxOptions v-if="filteredFromPeople.length > 0"
+                      </ComboboxButton>
+                    </div>
+                    <ComboboxOptions v-if="filteredPeople.length > 0"
                       class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                      <ComboboxOption v-for="person in filteredFromPeople" :value="person" :key="person"
-                        as="template" v-slot="{ active, selected }">
-                        <li @click="toggleSelectionFromAddress(person)"
+                      <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template"
+                        v-slot="{ active, selected }">
+                        <li @click="toggleSelection(person)"
                           :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
                           <div class="flex">
                             <span :class="['truncate', selected && 'font-semibold']">
@@ -231,23 +226,138 @@
                       </ComboboxOption>
                     </ComboboxOptions>
                   </Combobox>
-
-                  <div v-if="selectedFromAddresses.length > 0" class="mt-2 flex flex-wrap">
-                    <span v-for="recipient in selectedFromAddresses" :key="recipient.email"
+                  <div v-if="selectedRecipients.length > 0" class="mt-2 flex flex-wrap">
+                    <span v-for="recipient in selectedRecipients" :key="recipient.email"
                       class="bg-gray-200 px-2 py-1.5 rounded-full text-sm font-semibold mr-2 mb-2">
                       {{ recipient.username }}
-                      <button @click="removeRecipientFromAddress(recipient)"
+                      <button @click="removeRecipient(recipient)"
                         class="ml-1 text-red-600 focus:outline-none hover:text-red-800">&times;</button>
                     </span>
                   </div>
-
-
-
-
-
                 </div>
               </div>
-              <div class="col-span-1">
+
+                <!-- SECOND ROW OF INPUTS -->
+
+                <div class="col-span-1">
+                  <div class="relative items-stretch mt-2">
+                        <Listbox as="div" v-model="attachmentSelected">
+                          <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                            <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" /> <!-- Ajustement de la taille de l'icône -->
+                            <span class="block truncate text-gray-700 mt-2 mb-2">
+                              {{ attachmentSelected ? attachmentSelected.name : 'Linked for search' }}
+                            </span>
+                            <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400  mt-2 mb-2" aria-hidden="true" />
+                            </span>
+                          </ListboxButton>
+                          <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                            <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                              <ListboxOption as="template" v-for="type in attachmentTypes" :key="type.extension" :value="type" v-slot="{ active, attachmentSelected }">
+                                <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                  <span :class="[attachmentSelected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']"> <!-- Ajustement de la marge gauche -->
+                                    {{ type.name }} {{ type.extension }}
+                                  </span>
+                                  <span v-if="attachmentSelected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                  </span>
+                                </li>
+                              </ListboxOption>
+                            </ListboxOptions>
+                          </transition>
+                        </Listbox>
+                  </div>
+                </div>
+
+               
+                <div class="col-span-1">
+                  <div class="relative items-stretch mt-2">
+                    <Combobox as="div" v-model="selectedPerson">
+                      <div class="relative">
+                        <ComboboxInput
+                          class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                          ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                          @input="query = $event.target.value"
+                          :display-value="(person) => person?.username"
+                          placeholder="subject"/>
+                        <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <ComboboxButton
+                          class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </ComboboxButton>
+                      </div>
+                    </Combobox>
+                  </div>
+                </div>
+
+                
+               <!-- PLACER LE BOOLEAN ICI -->
+                
+
+                 <!-- THIRD ROW OF INPUTS -->
+
+                 <div class="col-span-1">
+                  <div class="relative items-stretch mt-2">
+                    <Combobox as="div" v-model="selectedPerson">
+                      <div class="relative">
+                        <ComboboxInput
+                          class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                          ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                          @input="query = $event.target.value"
+                          :display-value="(person) => person?.username"
+                          placeholder="body"/>
+                        <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <ComboboxButton
+                          class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </ComboboxButton>
+                      </div>
+                    </Combobox>
+                  </div>
+                </div>
+
+                <div class="col-span-1">
+                  <div class="relative items-stretch mt-2">
+                    <Combobox as="div" v-model="selectedPerson">
+                      <div class="relative">
+                        <ComboboxInput
+                          class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                          ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                          @input="query = $event.target.value"
+                          :display-value="(person) => person?.username"
+                          placeholder="date_from"/>
+                        <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <ComboboxButton
+                          class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </ComboboxButton>
+                      </div>
+                    </Combobox>
+                  </div>
+                </div>
+
+                <div class="col-span-1">
+                  <div class="relative items-stretch mt-2">
+                    <Combobox as="div" v-model="selectedPerson">
+                      <div class="relative">
+                        <ComboboxInput
+                          class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                          ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                          @input="query = $event.target.value"
+                          :display-value="(person) => person?.username"
+                          placeholder="search_in"/>
+                        <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <ComboboxButton
+                          class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </ComboboxButton>
+                      </div>
+                    </Combobox>
+                  </div>
+                </div>
+
+
+             <!-- <div class="col-span-1">
                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Tout les fields doivent
                   être ds advanced à part recherche</label>
 
@@ -266,27 +376,18 @@
                   date_from</label>
                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
                   search_in</label>
-              </div>
-
-
-
-
-
-
-
-
-
+              </div>-->
 
             </div>
           </div>
           <!-- h-[600px] 2xl:h-[700px] -->
           <div class="flex-grow p-6 mr-2">
-            <div class="h-96 flex flex-col">
+            <div class="h-96 flex flex-col h-full">
               <div class="flex-1 overflow-y-auto">
                 <div
                   class="flex h-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-center">
                   <div
-                    class="flex-1 rounded-xl bg-white lg:mt-4 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar max-h-full">
+                    class="flex-1 rounded-xl bg-white lg:mt-4 overflow-y-auto custom-scrollbar max-h-full">
                     <ul v-if="searchResult && Object.keys(searchResult).length > 0" role="list"
                       class="flex flex-col w-full">
                       <li v-for="(listIds, email) in searchResult.Gmail" :key="email" class="mb-4">
@@ -329,7 +430,7 @@
                         </ul>
                       </li>
                     </ul>
-                    <div v-else>
+                    <div v-else class="h-full">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                         stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -362,7 +463,7 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
-import { CheckIcon, ChevronUpDownIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
+import { CheckIcon, ChevronUpDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
 
 
 let showNotification = ref(false);

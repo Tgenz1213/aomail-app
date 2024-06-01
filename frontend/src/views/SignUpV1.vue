@@ -601,6 +601,22 @@
                         <language></language>
                         <!-- <color @colorSelected="updateBgColor"></color> -->
                       </div>
+
+
+                      <div class="relative">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                          <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center">
+                          <span class="bg-white px-2 text-sm text-gray-500">TIMEZONES</span>
+                        </div>
+                      </div>
+                      <div class="pt-6">
+                        <timezone></timezone>
+                        <!-- <color @colorSelected="updateBgColor"></color> -->
+                      </div>
+
+
                     </div>
                     <div>
                       <div class="pt-6">
@@ -703,6 +719,7 @@
 
 <script setup>
 import Language from '../components/SettingsLanguageSignUp.vue';
+import TimeZone from '../components/SettingsTimeZoneSignUp.vue';
 import { ref, onMounted } from 'vue';
 import Theme from '../components/SettingsThemeSignUp.vue';
 import Color from '../components/SettingsColor.vue';
@@ -1028,6 +1045,7 @@ export default {
   components: {
     Theme,
     Language,
+    TimeZone,
     Color,
     XMarkIcon
   },

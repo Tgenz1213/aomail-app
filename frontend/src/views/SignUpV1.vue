@@ -613,7 +613,6 @@
                       </div>
                       <div class="pt-6">
                         <timezone></timezone>
-                        <!-- <color @colorSelected="updateBgColor"></color> -->
                       </div>
 
 

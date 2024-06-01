@@ -214,17 +214,9 @@
                                                         <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                                     </div>
                                                     <div class="ml-6 flex-grow">
-                                                        <div class="overflow-hidden border-l-4 border-orange-300  hover:rounded-l-xl"
-                                                            style="overflow: visible;">
-                                                            <!-- OLD DO NOT DELETE : border-orange-300 -->
-                                                            <ul role="list"
-                                                                class="divide-y divide-gray-200 dark:divide-white">
-                                                                <li v-for="item in emails[selectedTopic]['Important'].filter(email => !email.read && !email.answer_later)"
-                                                                    :key="item.id"
-                                                                    class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center"
-                                                                    @mouseover="setHoveredItem(item.id)"
-                                                                    @mouseleave="clearHoveredItem">
-                                                                    <!-- SAVE DO NOT DELETE : px-6 md:py-2 2xl:py-4 -->
+                                                        <div class="overflow-hidden border-l-4 border-orange-300  hover:rounded-l-xl" style="overflow: visible;">
+                                                            <ul role="list" class="divide-y divide-gray-200">
+                                                                <li v-for="item in emailsByDate" :key="item.id" class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                                                                     <div class="col-span-8 cursor-pointer"
                                                                         @click="toggleHiddenParagraph(item.id)">
                                                                         <div class="flex-auto group">

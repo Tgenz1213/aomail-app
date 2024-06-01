@@ -576,6 +576,39 @@
                   </div>
                   <div v-if="step === 1">
                     <div class="flex flex-col">
+                      
+                      <div class="relative">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                          <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center">
+                          <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
+                        </div>
+                      </div>
+                      <div class="pt-6">
+                        <div class="relative items-stretch mt-2">
+                        <language></language>
+                      </div>
+                        <!-- <color @colorSelected="updateBgColor"></color> -->
+                      </div>
+
+                      <div class="relative">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                          <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center">
+                          <span class="bg-white px-2 text-sm text-gray-500">TIMEZONES - UX: add search</span>
+                        </div>
+                      </div>
+                      <div class="pt-6 pb-10">
+                        <div class="relative items-stretch mt-2">
+                        <TimeZone />
+                        </div>
+                      </div>
+
+
+                      
+
                       <div class="relative">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                           <div class="w-full border-t border-gray-300"></div>
@@ -589,31 +622,7 @@
                           <theme></theme>
                         </div>
                       </div>
-                      <div class="relative">
-                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                          <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
-                        </div>
-                      </div>
-                      <div class="pt-6">
-                        <language></language>
-                        <!-- <color @colorSelected="updateBgColor"></color> -->
-                      </div>
-
-
-                      <div class="relative">
-                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                          <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">TIMEZONES</span>
-                        </div>
-                      </div>
-                      <div class="pt-6">
-                        <timezone></timezone>
-                      </div>
+                      
 
 
                     </div>

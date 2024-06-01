@@ -33,12 +33,16 @@ import { ref, watch } from 'vue';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
 import moment from 'moment-timezone';
 
+
+if (!localStorage.getItem("timezone")) {
+    localStorage.setItem("timezone", "UTC");
+}
 const timezones = ref(moment.tz.names());
 // Load the first 25% of the list to avoid UX freeze
 const initialLoadCount = Math.ceil(timezones.value.length * 0.25);
 const visibleTimezones = ref(timezones.value.slice(0, initialLoadCount));
 
-const selectedTimeZone = ref(localStorage.getItem('timezone') || 'UTC');
+const selectedTimeZone = ref(localStorage.getItem("timezone"));
 
 // Lazy load more timezones
 const loadMoreTimezones = () => {

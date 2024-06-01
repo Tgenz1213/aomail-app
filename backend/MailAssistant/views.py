@@ -116,6 +116,7 @@ def signup(request):
     code = request.data.get("code")
     username = request.data.get("login")
     password = request.data.get("password")
+    timezone = request.data.get("timezone")
     language = request.data.get("language")
     theme = request.data.get("theme")
     color = request.data.get("color")
@@ -168,7 +169,8 @@ def signup(request):
         theme,
         color,
         categories,
-        language
+        language,
+        timezone
     )
     if "error" in result:
         user.delete()
@@ -336,6 +338,7 @@ def save_user_data(
     color,
     categories,
     language,
+    timezone
 ):
     """Store user creds and settings in DB"""
     try:
@@ -350,7 +353,7 @@ def save_user_data(
 
         # Save user preferences
         Preference.objects.create(
-            theme=theme, bg_color=color, language=language, user=user)
+            theme=theme, bg_color=color, language=language, timezone=timezone, user=user)
 
         # Save user categories
         if categories:

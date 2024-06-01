@@ -30,7 +30,7 @@
 import { ref, watch } from 'vue';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
 // TODO (good luck) fix packages conflicts
-// import moment from 'moment-timezone';
+import moment from 'moment-timezone';
 
 // Get the list of all time zones
 const timezones = ref(moment.tz.names());

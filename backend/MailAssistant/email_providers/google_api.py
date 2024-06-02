@@ -8,6 +8,7 @@ import logging
 import re
 import threading
 import time
+import random
 import json
 import os
 from django.http import HttpRequest
@@ -53,6 +54,7 @@ from MailAssistant.constants import (
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
     MEDIA_ROOT,
+    BASE_URL_MA,
 )
 from MailAssistant.controllers.tree_knowledge import Search
 from .. import library
@@ -440,7 +442,8 @@ def get_mail_to_db(services):
                 for img_type, img_data in img_tags:
                     has_attachments = True
                     timestamp = int(time.time())
-                    image_filename = f"image_{timestamp}.{img_type}"
+                    random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+                    image_filename = f"image_{timestamp}_{random_str}.{img_type}"
                     image_path = os.path.join(
                         MEDIA_ROOT, "pictures", image_filename)
 
@@ -456,11 +459,9 @@ def get_mail_to_db(services):
                     )
         elif part["mimeType"].startswith("image/"):
             has_attachments = True
-            image_filename = part.get("filename", "")
-            if not image_filename:
-                # Generate a unique filename if not provided
-                timestamp = int(time.time())
-                image_filename = f"image_{timestamp}.jpg"
+            timestamp = int(time.time())
+            random_str = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+            image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
             image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
 
             if "attachmentId" in part["body"]:
@@ -484,8 +485,8 @@ def get_mail_to_db(services):
             with open(image_path, "wb") as img_file:
                 img_file.write(file_data)
             image_files.append(image_path)
-            email_html += f'<img src="{image_path}" alt="Embedded Image" />'
-            email_txt_html += f'<img src="{image_path}" alt="Embedded Image" />'
+            email_html += f'<img src="{BASE_URL_MA}pictures/{image_path}" alt="Embedded Image" />'
+            email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_path}" alt="Embedded Image" />'
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
                 for subpart in part["parts"]:
@@ -507,9 +508,7 @@ def get_mail_to_db(services):
         cid_ref = img["src"].lstrip("cid:")
         for image_file in image_files:
             if cid_ref in image_file:
-                img["src"] = os.path.join(
-                    MEDIA_URL, "pictures", os.path.basename(image_file)
-                )
+                img["src"] = f"{BASE_URL_MA}pictures/{os.path.basename(image_file)}"
 
     cleaned_html = library.html_clear(email_html)
     preprocessed_data = library.preprocess_email(cleaned_html)

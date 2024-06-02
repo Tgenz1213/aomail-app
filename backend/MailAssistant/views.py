@@ -680,6 +680,44 @@ def set_user_theme(request: HttpRequest) -> Response:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+######################## TIMEZONES ########################
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_timezone(request: HttpRequest) -> Response:
+    """
+    Retrieve the timezone setting for the authenticated user.
+    """
+    user = request.user
+    try:
+        timezone = Preference.objects.get(user=user).timezone
+        return Response({"timezone": timezone}, status=status.HTTP_200_OK)
+    except Exception as e:
+        LOGGER.error(f"Unexpected error in get_user_timezone: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def set_user_timezone(request: HttpRequest) -> Response:
+    """
+    Set the timezone for the authenticated user.
+    """
+    user = request.user
+    timezone = request.data.get("timezone")
+
+    if not timezone:
+        return Response({"error": "No timezone provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        preference = Preference.objects.get(user=user)
+        preference.timezone = timezone
+        preference.save()
+        return Response({"message": "timezone updated successfully"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        LOGGER.error(f"Error in set_user_timezone: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 ######################## CATEGORIES ########################
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -2123,7 +2161,7 @@ def get_user_emails(request):
                 if delta_time > datetime.timedelta(weeks=1):
                     email.delete()
                     continue
-                    
+
             email_date = email.date.date() if email.date else None
             email_time = email.date.strftime('%H:%M') if email.date else None
 

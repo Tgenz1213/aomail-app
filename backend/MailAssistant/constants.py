@@ -33,7 +33,13 @@ EMAIL_NO_REPLY_PASSWORD = EMAILS_CREDS["app_password"]
 ADMIN_EMAIL_LIST = EMAILS_CREDS["email_admins"]
 
 ######################## PREFERENCES ########################
-LANGUAGES = ["french", "american", "german", "russian", "spanish", "chinese", "indian"]
+LANGUAGES = ["french",
+             "american",
+             "german",
+             "russian",
+             "spanish",
+             "chinese",
+             "indian"]
 THEMES = ["dark", "light"]
 
 ######################## STRIPE ########################

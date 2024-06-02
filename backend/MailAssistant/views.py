@@ -2,6 +2,8 @@
 Handles frontend requests and redirects them to the appropriate API.
 
 TODO:
+- Define all constants that are only used in views.py directly in views.py
+- Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.
 - Improve documentation to be concise.
 - STOP using differents libs to do the same thing => only use 1
@@ -17,6 +19,7 @@ TODO:
 """
 
 import datetime
+from functools import wraps
 import json
 import logging
 import re
@@ -65,7 +68,7 @@ from MailAssistant.constants import (
     THEMES,
     MEDIA_ROOT,
 )
-from MailAssistant import library
+from MailAssistant.library import subscription
 from MailAssistant.controllers.tree_knowledge import Search
 from .models import (
     Category,
@@ -102,6 +105,7 @@ from .serializers import (
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
+FREE_PLAN = "free_plan"
 
 
 ######################## REGISTRATION ########################
@@ -119,6 +123,7 @@ def signup(request):
     code = request.data.get("code")
     username = request.data.get("login")
     password = request.data.get("password")
+    timezone = request.data.get("timezone")
     language = request.data.get("language")
     theme = request.data.get("theme")
     color = request.data.get("color")
@@ -171,7 +176,8 @@ def signup(request):
         theme,
         color,
         categories,
-        language
+        language,
+        timezone
     )
     if "error" in result:
         user.delete()
@@ -199,25 +205,25 @@ def signup(request):
         user.delete()
         return Response({"error": str(e)}, status=400)
 
-    # (useless for now): TODO: use create_subscription function
-    # end_date = datetime.datetime.now() + datetime.timedelta(days=30)
-    # end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
-    # Subscription.objects.create(
-    #     user=user,
-    #     plan="start_plan",
-    #     stripe_subscription_id=None,
-    #     end_date=end_date_utc,
-    #     billing_interval=None,
-    #     amount=0.0,
-    # )
+    end_date = datetime.datetime.now() + datetime.timedelta(days=30)
+    end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
+    Subscription.objects.create(
+        user=user,
+        plan="free_plan",
+        stripe_subscription_id=None,
+        end_date=end_date_utc,
+        billing_interval=None,
+        amount=0.0,
+    )
 
     # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
-        context = {
-            "title": "Votre compte Aomail a été créé avec succès",
-        }
-        email_html = render_to_string("account_created.html", context)
+        # TODO: validate if we keep the email (may be useless)
+        # context = {
+        #     "title": "Votre compte Aomail a été créé avec succès",
+        # }
+        # email_html = render_to_string("account_created.html", context)
         # send_mail(
         #     subject="[Aomail] Votre compte a été créé avec succès",
         #     message="",
@@ -339,6 +345,7 @@ def save_user_data(
     color,
     categories,
     language,
+    timezone
 ):
     """Store user creds and settings in DB"""
     try:
@@ -353,7 +360,7 @@ def save_user_data(
 
         # Save user preferences
         Preference.objects.create(
-            theme=theme, bg_color=color, language=language, user=user)
+            theme=theme, bg_color=color, language=language, timezone=timezone, user=user)
 
         # Save user categories
         if categories:
@@ -382,34 +389,9 @@ def save_user_data(
         return {"error": str(e)}
 
 
-# UNDER CONSTRUCTION #
-def create_subscription(user, stripe_plan_id, email="nothingForNow"):
-    stripe_customer = stripe.Customer.create(email=email)
-    stripe_customer_id = stripe_customer.id
-
-    stripe_subscription = stripe.Subscription.create(
-        customer=stripe_customer_id,
-        items=[
-            {
-                "plan": stripe_plan_id,
-            },
-        ],
-        trial_period_days=30,
-    )
-
-    # Creation of default subscription plan
-    Subscription.objects.create(
-        user=user,
-        plan="start_plan",
-        stripe_subscription_id=stripe_subscription.id,
-        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
-        billing_interval=None,
-        amount=STRIPE_PRICES[stripe_plan_id],
-    )
-
-
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def is_authenticated(request):
     """Used in index.js by the router to check if the user can access enpoints"""
     return JsonResponse({"isAuthenticated": True}, status=200)
@@ -475,6 +457,7 @@ def receive_payment_notifications(request):
 
         if event["type"] == "invoice.payment_succeeded":
             # TODO: Handle successful + informations for customer
+            # use create_subscription
             ...  # data base operations
             # Subscription.objects.get(...)
             redirect(STRIPE_PAYMENT_SUCCESS_URL)
@@ -492,14 +475,16 @@ def receive_payment_notifications(request):
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
 # ----------------------- GET REQUESTS -----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def unread_mails(request):
     """Returns the number of unread emails"""
     return forward_request(request._request, "unread_mails")
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_profile_image(request):
     """Returns the profile image of the user"""
     return forward_request(request._request, "get_profile_image")
@@ -507,7 +492,8 @@ def get_profile_image(request):
 
 # ----------------------- POST REQUESTS -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def send_email(request):
     return forward_request(request._request, "send_email")
 
@@ -591,7 +577,8 @@ def refresh_token(request):
 
 ######################## LANGUAGES ########################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_language(request: HttpRequest) -> Response:
     """
     Retrieve the language setting for the authenticated user.
@@ -608,7 +595,8 @@ def get_user_language(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_user_language(request: HttpRequest) -> Response:
     """
     Set the language for the authenticated user.
@@ -655,7 +643,8 @@ def serve_image(request, image_name):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_theme(request: HttpRequest) -> Response:
     """
     Retrieve the theme setting for the authenticated user.
@@ -670,7 +659,8 @@ def get_user_theme(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_user_theme(request: HttpRequest) -> Response:
     """
     Set the theme for the authenticated user.
@@ -694,9 +684,50 @@ def set_user_theme(request: HttpRequest) -> Response:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+######################## TIMEZONES ########################
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def get_user_timezone(request: HttpRequest) -> Response:
+    """
+    Retrieve the timezone setting for the authenticated user.
+    """
+    user = request.user
+    try:
+        timezone = Preference.objects.get(user=user).timezone
+        return Response({"timezone": timezone}, status=status.HTTP_200_OK)
+    except Exception as e:
+        LOGGER.error(f"Unexpected error in get_user_timezone: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def set_user_timezone(request: HttpRequest) -> Response:
+    """
+    Set the timezone for the authenticated user.
+    """
+    user = request.user
+    timezone = request.data.get("timezone")
+
+    if not timezone:
+        return Response({"error": "No timezone provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        preference = Preference.objects.get(user=user)
+        preference.timezone = timezone
+        preference.save()
+        return Response({"message": "timezone updated successfully"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        LOGGER.error(f"Error in set_user_timezone: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 ######################## CATEGORIES ########################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_categories(request):
     user = request.user
 
@@ -715,7 +746,8 @@ def get_user_categories(request):
 
 
 @api_view(["PUT"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_category(request):
     current_name = request.data.get("categoryName")
     if not current_name:
@@ -735,13 +767,6 @@ def update_category(request):
             {"error": "Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    # if re.search(r"[^a-zA-Z\s]", current_name):
-    #     return Response(
-    #         {
-    #             "error": "The category name contains an invalid character: only letters and spaces are allowed"
-    #         },
-    #         status=status.HTTP_400_BAD_REQUEST,
-    #     )
 
     try:
         category = Category.objects.get(name=current_name, user=request.user)
@@ -761,7 +786,8 @@ def update_category(request):
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_category(request):
     current_name = request.data.get("categoryName")
     if not current_name:
@@ -786,7 +812,8 @@ def delete_category(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_rules_linked(request):
     """Returns the rules associated with the category."""
     current_name = request.data.get("categoryName")
@@ -800,7 +827,8 @@ def get_rules_linked(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def create_category(request):
     data = request.data.copy()
     data["user"] = request.user.id
@@ -821,13 +849,6 @@ def create_category(request):
             {"error": f"Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    # if re.search(r"[^a-zA-Z\s]", name):
-    #     return Response(
-    #         {
-    #             "error": "The category name contains an invalid character: only letters and spaces are allowed"
-    #         },
-    #         status=status.HTTP_400_BAD_REQUEST,
-    #     )
 
     existing_category = Category.objects.filter(
         user=request.user, name=name).exists()
@@ -849,7 +870,8 @@ def create_category(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_category_id(request):
     user = request.user
     category_name = request.data.get("categoryName")
@@ -862,7 +884,8 @@ def get_category_id(request):
 
 ############################# CONTACT ##############################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_contacts(request):
     try:
         user_contacts = Contact.objects.filter(user=request.user)
@@ -878,7 +901,8 @@ def get_user_contacts(request):
 
 ######################## PROMPT ENGINEERING ########################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def find_user_view_ai(request):
     """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
     search_query = request.GET.get("query")
@@ -974,7 +998,8 @@ def find_user_view_ai(request):
 
 # ----------------------- REDACTION -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def new_email_ai(request):
     serializer = NewEmailAISerializer(data=request.data)
 
@@ -993,7 +1018,8 @@ def new_email_ai(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def improve_email_writing(request):
     """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
 
@@ -1014,7 +1040,8 @@ def improve_email_writing(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def correct_email_language(request):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
@@ -1042,7 +1069,8 @@ def correct_email_language(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def check_email_copywriting(request):
     serializer = EmailCopyWritingSerializer(data=request.data)
 
@@ -1064,7 +1092,8 @@ def check_email_copywriting(request):
 
 # ----------------------- ANSWER -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def generate_email_response_keywords(request):
     serializer = EmailProposalAnswerSerializer(data=request.data)
 
@@ -1084,7 +1113,8 @@ def generate_email_response_keywords(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def generate_email_answer(request):
     serializer = EmailGenerateAnswer(data=request.data)
 
@@ -1105,7 +1135,8 @@ def generate_email_answer(request):
 
 # ----------------------- REPLY LATER -----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_answer_later_emails(request):
     try:
         user = request.user
@@ -1150,7 +1181,8 @@ def get_answer_later_emails(request):
 ######################## DATABASE OPERATIONS ########################
 # ----------------------- BACKGROUND COLOR-----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_bg_color(request):
     try:
         preferences = Preference.objects.get(user=request.user)
@@ -1162,7 +1194,8 @@ def get_user_bg_color(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_user_bg_color(request):
     try:
         preferences = Preference.objects.get(user=request.user)
@@ -1181,7 +1214,8 @@ def set_user_bg_color(request):
 
 # ----------------------- CREDENTIALS UPDATE-----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_username(request):
     user = request.user
     new_username = request.data.get("username")
@@ -1202,7 +1236,8 @@ def update_username(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_password(request):
     user = request.user
     new_password = request.data.get("password")
@@ -1228,7 +1263,8 @@ def update_password(request):
 
 # ----------------------- ACCOUNT-----------------------#
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_account(request):
     """Removes the user from the database"""
     user = request.user
@@ -1313,7 +1349,8 @@ def unsubscribe_listeners(user, email=None):
 
 # ----------------------- RULES -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_rule_block_for_sender(request, email_id):
     user = request.user
 
@@ -1335,7 +1372,8 @@ def set_rule_block_for_sender(request, email_id):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_rules(request):
     user_rules = Rule.objects.filter(user=request.user)
     rules_data = []
@@ -1359,7 +1397,8 @@ def get_user_rules(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_rule_by_id(request, id_rule):
     try:
         # Retrieve the rule with the given id that belongs to the user
@@ -1384,7 +1423,8 @@ def get_user_rule_by_id(request, id_rule):
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_user_rule_by_id(request, id_rule):
     try:
         # Retrieve the rule with the given id that belongs to the user
@@ -1399,7 +1439,8 @@ def delete_user_rule_by_id(request, id_rule):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def create_user_rule(request):
     data = request.data
     user = request.user
@@ -1422,7 +1463,8 @@ def create_user_rule(request):
 
 
 @api_view(["PUT"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_user_rule(request):
     try:
         rule = Rule.objects.get(id=request.data.get("id"), user=request.user)
@@ -1446,7 +1488,8 @@ def update_user_rule(request):
 
 # ----------------------- USER -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def check_sender_for_user(request):
     email = request.data.get("email")
 
@@ -1461,14 +1504,16 @@ def check_sender_for_user(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_details(request):
     """Returns the username"""
     return Response({"username": request.user.username})
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_emails_linked(request):
     """Returns the list of linked emails with the user account."""
 
@@ -1489,7 +1534,8 @@ def get_emails_linked(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def unlink_email(request):
     """Unlinks the email and deletes all stored emails associated with the user account."""
     user = request.user
@@ -1507,7 +1553,8 @@ def unlink_email(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def link_email(request):
     """Links the email with the user account."""
 
@@ -1577,7 +1624,8 @@ def link_email(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def search_emails_ai(request):
     """Searches emails using AI interpretation of user query."""
     user = request.user
@@ -1666,7 +1714,8 @@ def search_emails_ai(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def search_emails(request):
     user = request.user
     data: dict = request.data
@@ -1746,7 +1795,8 @@ def search_emails(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def search_tree_knowledge(request: HttpRequest):
     """
     Searches emails using AI interpretation of user query.
@@ -1811,7 +1861,8 @@ def search_tree_knowledge(request: HttpRequest):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_user_description(request):
     """Updates the user desctiption of the given email."""
     data = request.data
@@ -1829,7 +1880,8 @@ def update_user_description(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_description(request):
     """Retrieves user description of the given email."""
     data = request.data
@@ -1844,7 +1896,8 @@ def get_user_description(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def create_sender(request):
     """Create a new sender associated with the authenticated user"""
     serializer = SenderSerializer(data=request.data)
@@ -1860,7 +1913,8 @@ def create_sender(request):
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_email(request, email_id):
     try:
         user = request.user
@@ -1905,7 +1959,8 @@ def check_username(request):
 
 # ----------------------- EMAIL -----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_mail_by_id(request):
     user = request.user
     mail_id = request.GET.get("email_id")
@@ -1955,7 +2010,8 @@ def get_mail_by_id(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_read(request, email_id):
     """Mark a specific email as read for the authenticated user"""
     user = request.user
@@ -1976,7 +2032,8 @@ def set_email_read(request, email_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_undread(request, email_id):
     """Mark a specific email as read for the authenticated user"""
     user = request.user
@@ -1997,7 +2054,8 @@ def set_email_undread(request, email_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_reply_later(request, email_id):
     """Mark a specific email for later reply for the authenticated user"""
     user = request.user
@@ -2010,7 +2068,8 @@ def set_email_reply_later(request, email_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_not_reply_later(request, email_id):
     """Unmark a specific email for later reply."""
     user = request.user
@@ -2022,9 +2081,140 @@ def set_email_not_reply_later(request, email_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def get_user_emails(request):
+    """Retrieves and formats user emails grouped by category and priority"""
+    user = request.user
+    emails = Email.objects.filter(user=user).prefetch_related(
+        "category", "bulletpoint_set", "cc_senders", "bcc_senders"
+    )
+    emails = emails.annotate(
+        has_rule=Exists(Rule.objects.filter(
+            sender=OuterRef("sender"), user=user))
+    )
+    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
+        "id"
+    )[:1]
+    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+
+    formatted_data = defaultdict(lambda: defaultdict(list))
+
+    one_third = len(emails) // 3
+    emails1 = emails[:one_third]
+    emails2 = emails[one_third: 2 * one_third]
+    emails3 = emails[2 * one_third:]
+
+    def process_emails(email_list: list[Email]):
+        for email in email_list:
+            if email.read_date:
+                current_datetime_utc = datetime.datetime.now().replace(
+                    tzinfo=datetime.timezone.utc
+                )
+                delta_time = current_datetime_utc - email.read_date
+
+                # Delete read email older than 1 week
+                if delta_time > datetime.timedelta(weeks=1):
+                    email.delete()
+                    continue
+
+            email_date = email.date.date() if email.date else None
+            email_time = email.date.strftime('%H:%M') if email.date else None
+
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "subject": email.subject,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "html_content": email.html_content,
+                "details": [
+                    {"id": bp.id, "text": bp.content}
+                    for bp in email.bulletpoint_set.all()
+                ],
+                "cc": [
+                    {"email": cc.email, "name": cc.name}
+                    for cc in email.cc_senders.all()
+                ],
+                "bcc": [
+                    {"email": bcc.email, "name": bcc.name}
+                    for bcc in email.bcc_senders.all()
+                ],
+                "read": email.read,
+                "rule": email.has_rule,
+                "rule_id": email.rule_id,
+                "answer_later": email.answer_later,
+                "web_link": email.web_link,
+                "has_attachments": email.has_attachments,
+                "date": email_date,
+                "time": email_time,
+            }
+
+            formatted_data[email.category.name][email.priority].append(
+                email_data)
+
+    # Multi-threading for faster computation with large amount of emails
+    thread1 = threading.Thread(target=process_emails, args=(emails1,))
+    thread2 = threading.Thread(target=process_emails, args=(emails2,))
+    thread3 = threading.Thread(target=process_emails, args=(emails3,))
+
+    thread1.start()
+    thread2.start()
+    thread3.start()
+
+    thread1.join()
+    thread2.join()
+    thread3.join()
+
+    # Ensuring all priorities are present for each category
+    all_priorities = {"Important", "Information", "Useless"}
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    return Response(formatted_data, status=status.HTTP_200_OK)
+
+
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
+def create_subscription(user, stripe_plan_id, email="nothingForNow"):
+    stripe_customer = stripe.Customer.create(email=email)
+    stripe_customer_id = stripe_customer.id
+
+    stripe_subscription = stripe.Subscription.create(
+        customer=stripe_customer_id,
+        items=[
+            {
+                "plan": stripe_plan_id,
+            },
+        ],
+        trial_period_days=30,
+    )
+
+    # Creation of default subscription plan
+    Subscription.objects.create(
+        user=user,
+        plan="start_plan",
+        stripe_subscription_id=stripe_subscription.id,
+        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+        billing_interval=None,
+        amount=STRIPE_PRICES[stripe_plan_id],
+    )
+
+
+######################################################################################
+######################## THESE FUNCTIONS ARE NOT USED ANYMORE ########################
+######################################################################################
+######################## TESTING FUNCTIONS ########################
+
+
 """ TO DELETE
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_emails(request):
 
     user = request.user
@@ -2099,110 +2289,9 @@ def get_user_emails(request):
 
     return Response(formatted_data, status=status.HTTP_200_OK)
 """
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_user_emails(request):
-    """Retrieves and formats user emails grouped by category and priority"""
-    user = request.user
-    emails = Email.objects.filter(user=user).prefetch_related(
-        "category", "bulletpoint_set", "cc_senders", "bcc_senders"
-    )
-    emails = emails.annotate(
-        has_rule=Exists(Rule.objects.filter(
-            sender=OuterRef("sender"), user=user))
-    )
-    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
-        "id"
-    )[:1]
-    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
-
-    formatted_data = defaultdict(lambda: defaultdict(list))
-
-    one_third = len(emails) // 3
-    emails1 = emails[:one_third]
-    emails2 = emails[one_third: 2 * one_third]
-    emails3 = emails[2 * one_third:]
-
-    def process_emails(email_list: list[Email]):
-        for email in email_list:
-            if email.read_date:
-                current_datetime_utc = datetime.datetime.now().replace(
-                    tzinfo=datetime.timezone.utc
-                )
-                delta_time = current_datetime_utc - email.read_date
-
-                # Delete read email older than 1 week
-                if delta_time > datetime.timedelta(weeks=1):
-                    email.delete()
-                    continue
-                    
-            email_date = email.date.date() if email.date else None
-            email_time = email.date.strftime('%H:%M') if email.date else None
-
-            email_data = {
-                "id": email.id,
-                "id_provider": email.provider_id,
-                "email": email.sender.email,
-                "subject": email.subject,
-                "name": email.sender.name,
-                "description": email.email_short_summary,
-                "html_content": email.html_content,
-                "details": [
-                    {"id": bp.id, "text": bp.content}
-                    for bp in email.bulletpoint_set.all()
-                ],
-                "cc": [
-                    {"email": cc.email, "name": cc.name}
-                    for cc in email.cc_senders.all()
-                ],
-                "bcc": [
-                    {"email": bcc.email, "name": bcc.name}
-                    for bcc in email.bcc_senders.all()
-                ],
-                "read": email.read,
-                "rule": email.has_rule,
-                "rule_id": email.rule_id,
-                "answer_later": email.answer_later,
-                "web_link": email.web_link,
-                "has_attachments": email.has_attachments,
-                "date": email_date,
-                "time": email_time,
-            }
-
-            formatted_data[email.category.name][email.priority].append(
-                email_data)
-
-    # Multi-threading for faster computation with large amount of emails
-    thread1 = threading.Thread(target=process_emails, args=(emails1,))
-    thread2 = threading.Thread(target=process_emails, args=(emails2,))
-    thread3 = threading.Thread(target=process_emails, args=(emails3,))
-
-    thread1.start()
-    thread2.start()
-    thread3.start()
-
-    thread1.join()
-    thread2.join()
-    thread3.join()
-
-    # Ensuring all priorities are present for each category
-    all_priorities = {"Important", "Information", "Useless"}
-    for category in formatted_data:
-        for priority in all_priorities:
-            formatted_data[category].setdefault(priority, [])
-
-    return Response(formatted_data, status=status.HTTP_200_OK)
-
-
-######################################################################################
-######################## THESE FUNCTIONS ARE NOT USED ANYMORE ########################
-######################################################################################
-
-######################## TESTING FUNCTIONS ########################
 """@api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_mail_view(request):
     user = request.user
     email = request.headers.get("email")
@@ -2233,7 +2322,8 @@ def get_mail_view(request):
 
 """# TO TEST AUTH API
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def authenticate_service_view(request):
     user = request.user
     email = request.headers.get("email")
@@ -2249,7 +2339,8 @@ def authenticate_service_view(request):
 
 """# TO TEST Gmail Save in BDD Last Email
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def save_last_mail_view(request):
     user = request.user
     email = request.headers.get("email")
@@ -2264,7 +2355,8 @@ def save_last_mail_view(request):
 
 # [OUTLOOK] TO TEST Gmail Save in BDD Last Email
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def save_last_mail_outlook(request):
     user = request.user
     email = request.headers.get("email")
@@ -2276,7 +2368,8 @@ def save_last_mail_outlook(request):
         return Response({"error": "Failed to authenticate"}, status=400)"""
 
 """@api_view(['GET'])
-@permission_classes([IsAuthenticated])  
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])  
 def get_user_emails(request):
     user = request.user
     emails = Email.objects.filter(id_user=user)
@@ -2284,7 +2377,8 @@ def get_user_emails(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])  
 def get_email_bullet_points(request, email_id):
     user = request.user
 
@@ -2593,7 +2687,8 @@ def get_db_categories():
 # TO UPDATE
 """
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_login(request):
     try:
         user = Users.objects.get(id_user=request.user.id)
@@ -2605,7 +2700,8 @@ def get_user_login(request):
 """
 # TODO: Change later with the list of email of the user saved in a BD for optimization
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def find_user_view(request):
     user = request.user
     email = request.headers.get('email')
@@ -2627,14 +2723,16 @@ def find_user_view(request):
 
 
 '''@api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_parsed_contacts(request):
     """Returns a list of parsed unique contacts"""
     return forward_request(request._request, 'get_parsed_contacts')'''
 
 
 '''@api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_unique_email_senders_view(request):
     """Fetches unique email senders' information, combining data from user's contacts and email senders."""
     return forward_request(request._request, 'get_unique_email_senders')'''
@@ -2651,7 +2749,8 @@ def get_message(request):
 
 
 """@api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])  # Ensure the user is authenticated
 def get_email_bullet_points(request, email_id):
     user = request.user
 
@@ -3017,7 +3116,8 @@ def gpt_langchain_response(subject, decoded_data, category_list):
 
 
 '''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
     user = request.user
@@ -3112,7 +3212,8 @@ def get_user_emails(request):
 
 '''
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
     start = time.time()
@@ -3211,7 +3312,8 @@ def get_user_emails(request):
 
 
 '''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_first_email(request):
     """Returns the first email associated with the user in mailassistantdb"""
     user = request.user
@@ -3228,7 +3330,8 @@ def get_first_email(request):
 
 """# TODO: OLD - delete after implementing new solution
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def new_email_recommendations(request):
     serializer = EmailAIRecommendationsSerializer(data=request.data)
 
@@ -3252,7 +3355,8 @@ def new_email_recommendations(request):
 '''
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_first_email(request: HttpRequest):
     """Returns the first email of the user account."""
     email = SocialAPI.objects.filter(user=request.user).first().email

@@ -1,25 +1,68 @@
 """
 Utility Functions for Email Processing
+
+TODO: 
+- rename this file into utils.py
+- Log important messages/errors using IP, user id, clear error name when possible
+- Clean the code by adding data types.
+- Improve documentation to be concise.
 """
 
+import datetime
 import logging
 import re
 import base64
 from django.db import IntegrityError
-from MailAssistant.constants import DEFAULT_CATEGORY
+from django.http import HttpRequest
+from django.shortcuts import redirect
+from MailAssistant.constants import BASE_URL, DEFAULT_CATEGORY
 from .models import Category, Contact
 from bs4 import BeautifulSoup
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet
 
+from django.utils import timezone
+from rest_framework.decorators import api_view, permission_classes
+from functools import wraps
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from MailAssistant.models import Subscription
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 
 
+# ----------------------- DECORATOR -----------------------#
+# THIS IS USED TO CHECK IF THE USER SUBSCRIPTION IS STILL VALID
+def subscription(allowed_plans):
+    def decorator(view_func):
+        @wraps(view_func)
+        @permission_classes([IsAuthenticated])
+        def _wrapped_view(request: HttpRequest, *args, **kwargs):
+            user = request.user
+            now = timezone.now()
+            active_subscription = Subscription.objects.filter(
+                user=user, end_date__gt=now, plan__in=allowed_plans
+            ).exists()
+
+            if not active_subscription:
+                # TODO: Redirect to a subscription expired page with expiration date
+                # explain on this page what the user can still acces (ONLY settings page)
+                # explain that we will stop receiving its email in X days => according to google and microsoft (make a request to know)
+
+                print("User does not have an active subscription.")
+
+                #  (NOT 401 page) => TODO: change (it does not work anyway => TO debug)
+                return redirect(f"{BASE_URL}not-authorized")
+
+            return view_func(request, *args, **kwargs)
+
+        return _wrapped_view
+    return decorator
+
+
 # ----------------------- LOGGING -----------------------#
-def get_ip_with_port(request):
+def get_ip_with_port(request: HttpRequest):
     """Returns the ip with the connection port"""
     try:
         source_port = request.META.get("SERVER_PORT", None)
@@ -34,18 +77,21 @@ def get_ip_with_port(request):
         return ip_with_port
 
     except Exception as e:
-        LOGGER.error(f"An error occurred while generating IP with port: {str(e)}")
+        LOGGER.error(
+            f"An error occurred while generating IP with port: {str(e)}")
 
 
 # ----------------------- CRYPTOGRAPHY -----------------------#
 def encrypt_unsalted(encryption_key, plaintext):
     """Encrypts input plaintext"""
     aes_key = base64.b64decode(encryption_key.encode("utf-8"))
-    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(), backend=default_backend())
+    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(),
+                    backend=default_backend())
     encryptor = cipher.encryptor()
     padded_plaintext = plaintext + " " * (16 - len(plaintext) % 16)
     ciphertext = (
-        encryptor.update(padded_plaintext.encode("utf-8")) + encryptor.finalize()
+        encryptor.update(padded_plaintext.encode("utf-8")) +
+        encryptor.finalize()
     )
     ciphertext_base64 = base64.b64encode(ciphertext).decode("utf-8")
     return ciphertext_base64
@@ -55,7 +101,8 @@ def decrypt_unsalted(encryption_key, ciphertext_base64):
     """Decrypts input encrypted ciphertext"""
     aes_key = base64.b64decode(encryption_key.encode("utf-8"))
     ciphertext = base64.b64decode(ciphertext_base64.encode("utf-8"))
-    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(), backend=default_backend())
+    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(),
+                    backend=default_backend())
     decryptor = cipher.decryptor()
     decrypted_text = decryptor.update(ciphertext) + decryptor.finalize()
     unpadded_text = decrypted_text.rstrip()
@@ -87,7 +134,8 @@ def is_no_reply_email(sender_email):
 def save_email_sender(user, sender_name, sender_email, sender_id):
     """Saves the sender if the mail is relevant"""
     if not is_no_reply_email(sender_email):
-        existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
+        existing_contact = Contact.objects.filter(
+            user=user, email=sender_email).first()
 
         if not existing_contact:
             try:
@@ -117,14 +165,16 @@ def save_contacts(user, email, all_recipients):
                         if part
                     ]
                 )
-                Contact.objects.create(email=email, user=user, username=username)
+                Contact.objects.create(
+                    email=email, user=user, username=username)
 
 
 ######################## EMAIL DATA PROCESSING ########################
 def get_db_categories(current_user) -> dict[str, str]:
     """Retrieves categories specific to the given user from the database."""
     categories = Category.objects.filter(user=current_user)
-    category_list = {category.name: category.description for category in categories}
+    category_list = {
+        category.name: category.description for category in categories}
     category_list.pop(DEFAULT_CATEGORY)
 
     return category_list
@@ -151,7 +201,8 @@ def contains_html(text: str | bytes) -> bool:
     """Returns True if the given text contains HTML, False otherwise."""
     if isinstance(text, bytes):
         text = text.decode("utf-8", "ignore")
-    html_patterns = [r"<[a-z]+>", r"</[a-z]+>", r"&[a-z]+;", r"<!DOCTYPE html>"]
+    html_patterns = [r"<[a-z]+>", r"</[a-z]+>",
+                     r"&[a-z]+;", r"<!DOCTYPE html>"]
 
     for pattern in html_patterns:
         if re.search(pattern, text, re.IGNORECASE):
@@ -208,7 +259,8 @@ def process_part(part: dict, plaintext_var: list) -> str | None:
 
             decoded_data = concat_text(decoded_data, subpart_data)
             if plaintext_var[0] == 1 and decoded_data:
-                decoded_data = re.sub(r"\[image[^\]]+\]\s*<\S+>", "", decoded_data)
+                decoded_data = re.sub(
+                    r"\[image[^\]]+\]\s*<\S+>", "", decoded_data)
                 decoded_data = re.sub(r"\[image[^\]]+\]", "", decoded_data)
     return decoded_data
 
@@ -270,7 +322,8 @@ def preprocess_email(email_content: str) -> str:
     # Convert Windows line endings to Unix line endings
     email_content = email_content.replace("\r\n", "\n")
     # Remove spaces at the start and end of each line
-    email_content = "\n".join(line.strip() for line in email_content.split("\n"))
+    email_content = "\n".join(line.strip()
+                              for line in email_content.split("\n"))
     # Delete multiple spaces
     email_content = re.sub(r" +", " ", email_content)
     # Reduce multiple consecutive newlines to two newlines

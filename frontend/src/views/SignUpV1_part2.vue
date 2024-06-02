@@ -628,6 +628,7 @@ async function submitSignupData(event) {
       body: JSON.stringify({
         login: sessionStorage.getItem('login'),
         password: sessionStorage.getItem('password'),
+        timezone: localStorage.getItem('timezone'),
         language: localStorage.getItem('language'),
         theme: localStorage.getItem('theme'),
         color: localStorage.getItem('bgColor'),

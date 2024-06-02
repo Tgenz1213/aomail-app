@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 
 
 class Subscription(models.Model):
-    # UNDER DEVELOPMENT
     """Model for storing subscription information."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -57,6 +56,7 @@ class Category(models.Model):
 class Preference(models.Model):
     """Model for storing user preferences."""
 
+    timezone = models.CharField(max_length=50, default="UTC")
     theme = models.CharField(max_length=50, default="light")
     language = models.CharField(max_length=50, default="en")
     bg_color = models.CharField(max_length=200)

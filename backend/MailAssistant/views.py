@@ -387,7 +387,8 @@ def save_user_data(
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def is_authenticated(request):
     """Used in index.js by the router to check if the user can access enpoints"""
     return JsonResponse({"isAuthenticated": True}, status=200)
@@ -471,14 +472,16 @@ def receive_payment_notifications(request):
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
 # ----------------------- GET REQUESTS -----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def unread_mails(request):
     """Returns the number of unread emails"""
     return forward_request(request._request, "unread_mails")
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_profile_image(request):
     """Returns the profile image of the user"""
     return forward_request(request._request, "get_profile_image")
@@ -486,7 +489,8 @@ def get_profile_image(request):
 
 # ----------------------- POST REQUESTS -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def send_email(request):
     return forward_request(request._request, "send_email")
 
@@ -570,7 +574,8 @@ def refresh_token(request):
 
 ######################## LANGUAGES ########################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_language(request: HttpRequest) -> Response:
     """
     Retrieve the language setting for the authenticated user.
@@ -587,7 +592,8 @@ def get_user_language(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_user_language(request: HttpRequest) -> Response:
     """
     Set the language for the authenticated user.
@@ -620,7 +626,8 @@ def set_user_language(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_theme(request: HttpRequest) -> Response:
     """
     Retrieve the theme setting for the authenticated user.
@@ -635,7 +642,8 @@ def get_user_theme(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_user_theme(request: HttpRequest) -> Response:
     """
     Set the theme for the authenticated user.
@@ -661,7 +669,8 @@ def set_user_theme(request: HttpRequest) -> Response:
 
 ######################## TIMEZONES ########################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_timezone(request: HttpRequest) -> Response:
     """
     Retrieve the timezone setting for the authenticated user.
@@ -676,7 +685,8 @@ def get_user_timezone(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_user_timezone(request: HttpRequest) -> Response:
     """
     Set the timezone for the authenticated user.
@@ -699,7 +709,8 @@ def set_user_timezone(request: HttpRequest) -> Response:
 
 ######################## CATEGORIES ########################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_categories(request):
     user = request.user
 
@@ -718,7 +729,8 @@ def get_user_categories(request):
 
 
 @api_view(["PUT"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_category(request):
     current_name = request.data.get("categoryName")
     if not current_name:
@@ -757,7 +769,8 @@ def update_category(request):
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_category(request):
     current_name = request.data.get("categoryName")
     if not current_name:
@@ -782,7 +795,8 @@ def delete_category(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_rules_linked(request):
     """Returns the rules associated with the category."""
     current_name = request.data.get("categoryName")
@@ -796,7 +810,8 @@ def get_rules_linked(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def create_category(request):
     data = request.data.copy()
     data["user"] = request.user.id
@@ -838,7 +853,8 @@ def create_category(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_category_id(request):
     user = request.user
     category_name = request.data.get("categoryName")
@@ -851,7 +867,8 @@ def get_category_id(request):
 
 ############################# CONTACT ##############################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_contacts(request):
     try:
         user_contacts = Contact.objects.filter(user=request.user)
@@ -867,7 +884,8 @@ def get_user_contacts(request):
 
 ######################## PROMPT ENGINEERING ########################
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def find_user_view_ai(request):
     """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
     search_query = request.GET.get("query")
@@ -963,7 +981,8 @@ def find_user_view_ai(request):
 
 # ----------------------- REDACTION -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def new_email_ai(request):
     serializer = NewEmailAISerializer(data=request.data)
 
@@ -982,7 +1001,8 @@ def new_email_ai(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def improve_email_writing(request):
     """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
 
@@ -1003,7 +1023,8 @@ def improve_email_writing(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def correct_email_language(request):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
@@ -1031,7 +1052,8 @@ def correct_email_language(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def check_email_copywriting(request):
     serializer = EmailCopyWritingSerializer(data=request.data)
 
@@ -1053,7 +1075,8 @@ def check_email_copywriting(request):
 
 # ----------------------- ANSWER -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def generate_email_response_keywords(request):
     serializer = EmailProposalAnswerSerializer(data=request.data)
 
@@ -1073,7 +1096,8 @@ def generate_email_response_keywords(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def generate_email_answer(request):
     serializer = EmailGenerateAnswer(data=request.data)
 
@@ -1094,7 +1118,8 @@ def generate_email_answer(request):
 
 # ----------------------- REPLY LATER -----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_answer_later_emails(request):
     try:
         user = request.user
@@ -1139,7 +1164,8 @@ def get_answer_later_emails(request):
 ######################## DATABASE OPERATIONS ########################
 # ----------------------- BACKGROUND COLOR-----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_bg_color(request):
     try:
         preferences = Preference.objects.get(user=request.user)
@@ -1151,7 +1177,8 @@ def get_user_bg_color(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_user_bg_color(request):
     try:
         preferences = Preference.objects.get(user=request.user)
@@ -1170,7 +1197,8 @@ def set_user_bg_color(request):
 
 # ----------------------- CREDENTIALS UPDATE-----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_username(request):
     user = request.user
     new_username = request.data.get("username")
@@ -1191,7 +1219,8 @@ def update_username(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_password(request):
     user = request.user
     new_password = request.data.get("password")
@@ -1217,7 +1246,8 @@ def update_password(request):
 
 # ----------------------- ACCOUNT-----------------------#
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_account(request):
     """Removes the user from the database"""
     user = request.user
@@ -1302,7 +1332,8 @@ def unsubscribe_listeners(user, email=None):
 
 # ----------------------- RULES -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_rule_block_for_sender(request, email_id):
     user = request.user
 
@@ -1324,7 +1355,8 @@ def set_rule_block_for_sender(request, email_id):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_rules(request):
     user_rules = Rule.objects.filter(user=request.user)
     rules_data = []
@@ -1348,7 +1380,8 @@ def get_user_rules(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_rule_by_id(request, id_rule):
     try:
         # Retrieve the rule with the given id that belongs to the user
@@ -1373,7 +1406,8 @@ def get_user_rule_by_id(request, id_rule):
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_user_rule_by_id(request, id_rule):
     try:
         # Retrieve the rule with the given id that belongs to the user
@@ -1388,7 +1422,8 @@ def delete_user_rule_by_id(request, id_rule):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def create_user_rule(request):
     data = request.data
     user = request.user
@@ -1411,7 +1446,8 @@ def create_user_rule(request):
 
 
 @api_view(["PUT"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_user_rule(request):
     try:
         rule = Rule.objects.get(id=request.data.get("id"), user=request.user)
@@ -1435,7 +1471,8 @@ def update_user_rule(request):
 
 # ----------------------- USER -----------------------#
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def check_sender_for_user(request):
     email = request.data.get("email")
 
@@ -1450,14 +1487,16 @@ def check_sender_for_user(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_details(request):
     """Returns the username"""
     return Response({"username": request.user.username})
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_emails_linked(request):
     """Returns the list of linked emails with the user account."""
 
@@ -1478,7 +1517,8 @@ def get_emails_linked(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def unlink_email(request):
     """Unlinks the email and deletes all stored emails associated with the user account."""
     user = request.user
@@ -1496,7 +1536,8 @@ def unlink_email(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def link_email(request):
     """Links the email with the user account."""
 
@@ -1566,7 +1607,8 @@ def link_email(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def search_emails_ai(request):
     """Searches emails using AI interpretation of user query."""
     user = request.user
@@ -1655,7 +1697,8 @@ def search_emails_ai(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def search_emails(request):
     user = request.user
     data: dict = request.data
@@ -1735,7 +1778,8 @@ def search_emails(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def search_tree_knowledge(request: HttpRequest):
     """
     Searches emails using AI interpretation of user query.
@@ -1800,7 +1844,8 @@ def search_tree_knowledge(request: HttpRequest):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def update_user_description(request):
     """Updates the user desctiption of the given email."""
     data = request.data
@@ -1818,7 +1863,8 @@ def update_user_description(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_description(request):
     """Retrieves user description of the given email."""
     data = request.data
@@ -1833,7 +1879,8 @@ def get_user_description(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def create_sender(request):
     """Create a new sender associated with the authenticated user"""
     serializer = SenderSerializer(data=request.data)
@@ -1849,7 +1896,8 @@ def create_sender(request):
 
 
 @api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def delete_email(request, email_id):
     try:
         user = request.user
@@ -1894,7 +1942,8 @@ def check_username(request):
 
 # ----------------------- EMAIL -----------------------#
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_mail_by_id(request):
     user = request.user
     mail_id = request.GET.get("email_id")
@@ -1944,7 +1993,8 @@ def get_mail_by_id(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_read(request, email_id):
     """Mark a specific email as read for the authenticated user"""
     user = request.user
@@ -1965,7 +2015,8 @@ def set_email_read(request, email_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_undread(request, email_id):
     """Mark a specific email as read for the authenticated user"""
     user = request.user
@@ -1986,7 +2037,8 @@ def set_email_undread(request, email_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_reply_later(request, email_id):
     """Mark a specific email for later reply for the authenticated user"""
     user = request.user
@@ -1999,7 +2051,8 @@ def set_email_reply_later(request, email_id):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def set_email_not_reply_later(request, email_id):
     """Unmark a specific email for later reply."""
     user = request.user
@@ -2012,7 +2065,8 @@ def set_email_not_reply_later(request, email_id):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
     user = request.user
@@ -2142,7 +2196,8 @@ def create_subscription(user, stripe_plan_id, email="nothingForNow"):
 
 """ TO DELETE
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_emails(request):
 
     user = request.user
@@ -2218,7 +2273,8 @@ def get_user_emails(request):
     return Response(formatted_data, status=status.HTTP_200_OK)
 """
 """@api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_mail_view(request):
     user = request.user
     email = request.headers.get("email")
@@ -2249,7 +2305,8 @@ def get_mail_view(request):
 
 """# TO TEST AUTH API
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def authenticate_service_view(request):
     user = request.user
     email = request.headers.get("email")
@@ -2265,7 +2322,8 @@ def authenticate_service_view(request):
 
 """# TO TEST Gmail Save in BDD Last Email
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def save_last_mail_view(request):
     user = request.user
     email = request.headers.get("email")
@@ -2280,7 +2338,8 @@ def save_last_mail_view(request):
 
 # [OUTLOOK] TO TEST Gmail Save in BDD Last Email
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def save_last_mail_outlook(request):
     user = request.user
     email = request.headers.get("email")
@@ -2292,7 +2351,8 @@ def save_last_mail_outlook(request):
         return Response({"error": "Failed to authenticate"}, status=400)"""
 
 """@api_view(['GET'])
-@permission_classes([IsAuthenticated])  
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])  
 def get_user_emails(request):
     user = request.user
     emails = Email.objects.filter(id_user=user)
@@ -2300,7 +2360,8 @@ def get_user_emails(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])  
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])  
 def get_email_bullet_points(request, email_id):
     user = request.user
 
@@ -2609,7 +2670,8 @@ def get_db_categories():
 # TO UPDATE
 """
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_login(request):
     try:
         user = Users.objects.get(id_user=request.user.id)
@@ -2621,7 +2683,8 @@ def get_user_login(request):
 """
 # TODO: Change later with the list of email of the user saved in a BD for optimization
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def find_user_view(request):
     user = request.user
     email = request.headers.get('email')
@@ -2643,14 +2706,16 @@ def find_user_view(request):
 
 
 '''@api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_parsed_contacts(request):
     """Returns a list of parsed unique contacts"""
     return forward_request(request._request, 'get_parsed_contacts')'''
 
 
 '''@api_view(['GET'])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_unique_email_senders_view(request):
     """Fetches unique email senders' information, combining data from user's contacts and email senders."""
     return forward_request(request._request, 'get_unique_email_senders')'''
@@ -2667,7 +2732,8 @@ def get_message(request):
 
 
 """@api_view(['GET'])
-@permission_classes([IsAuthenticated])  # Ensure the user is authenticated
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])  # Ensure the user is authenticated
 def get_email_bullet_points(request, email_id):
     user = request.user
 
@@ -3033,7 +3099,8 @@ def gpt_langchain_response(subject, decoded_data, category_list):
 
 
 '''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
     user = request.user
@@ -3128,7 +3195,8 @@ def get_user_emails(request):
 
 '''
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
     start = time.time()
@@ -3227,7 +3295,8 @@ def get_user_emails(request):
 
 
 '''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_first_email(request):
     """Returns the first email associated with the user in mailassistantdb"""
     user = request.user
@@ -3244,7 +3313,8 @@ def get_first_email(request):
 
 """# TODO: OLD - delete after implementing new solution
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def new_email_recommendations(request):
     serializer = EmailAIRecommendationsSerializer(data=request.data)
 
@@ -3268,7 +3338,8 @@ def new_email_recommendations(request):
 '''
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_first_email(request: HttpRequest):
     """Returns the first email of the user account."""
     email = SocialAPI.objects.filter(user=request.user).first().email

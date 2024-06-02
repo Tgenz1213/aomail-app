@@ -21,10 +21,12 @@ import json
 import logging
 import re
 import threading
+import os
 import time
 from django.db import IntegrityError
 import jwt
 import stripe
+from django.http import FileResponse, Http404
 from django.utils import timezone
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -61,6 +63,7 @@ from MailAssistant.constants import (
     STRIPE_PRICES,
     STRIPE_SECRET_KEY,
     THEMES,
+    MEDIA_ROOT,
 )
 from MailAssistant import library
 from MailAssistant.controllers.tree_knowledge import Search
@@ -633,6 +636,20 @@ def set_user_language(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Error in set_language: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+######################## PICTURES ########################
+def serve_image(request, image_name):
+    image_path = os.path.join(MEDIA_ROOT, 'pictures', image_name)
+    if os.path.exists(image_path):
+        _, ext = os.path.splitext(image_path)
+        content_type = 'image/jpeg' if ext.lower() == '.jpg' else 'image/png' if ext.lower() == '.png' else None
+        if content_type:
+            return FileResponse(open(image_path, 'rb'), content_type=content_type)
+        else:
+            raise Http404("Unsupported image format")
+    else:
+        raise Http404("Image not found")
 
 ######################## THEMES ########################
 

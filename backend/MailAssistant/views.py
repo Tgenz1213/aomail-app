@@ -2,6 +2,7 @@
 Handles frontend requests and redirects them to the appropriate API.
 
 TODO:
+- Define all constants that are only used in views.py directly in views.py
 - Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.
 - Improve documentation to be concise.
@@ -18,6 +19,7 @@ TODO:
 """
 
 import datetime
+from functools import wraps
 import json
 import logging
 import re
@@ -63,7 +65,7 @@ from MailAssistant.constants import (
     STRIPE_SECRET_KEY,
     THEMES,
 )
-from MailAssistant import library
+from MailAssistant.library import subscription
 from MailAssistant.controllers.tree_knowledge import Search
 from .models import (
     Category,
@@ -100,6 +102,7 @@ from .serializers import (
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
+FREE_PLAN = "free_plan"
 
 
 ######################## REGISTRATION ########################
@@ -735,13 +738,6 @@ def update_category(request):
             {"error": "Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    # if re.search(r"[^a-zA-Z\s]", current_name):
-    #     return Response(
-    #         {
-    #             "error": "The category name contains an invalid character: only letters and spaces are allowed"
-    #         },
-    #         status=status.HTTP_400_BAD_REQUEST,
-    #     )
 
     try:
         category = Category.objects.get(name=current_name, user=request.user)
@@ -821,13 +817,6 @@ def create_category(request):
             {"error": f"Description length greater than 300"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    # if re.search(r"[^a-zA-Z\s]", name):
-    #     return Response(
-    #         {
-    #             "error": "The category name contains an invalid character: only letters and spaces are allowed"
-    #         },
-    #         status=status.HTTP_400_BAD_REQUEST,
-    #     )
 
     existing_category = Category.objects.filter(
         user=request.user, name=name).exists()
@@ -2022,85 +2011,6 @@ def set_email_not_reply_later(request, email_id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-""" TO DELETE
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_user_emails(request):
-
-    user = request.user
-    emails = Email.objects.filter(user=user).prefetch_related(
-        "category", "bulletpoint_set"
-    )
-    emails = emails.annotate(
-        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
-    )
-    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
-        "id"
-    )[:1]
-    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
-    formatted_data = defaultdict(lambda: defaultdict(list))
-
-    one_third = len(emails) // 3
-    emails1 = emails[:one_third]
-    emails2 = emails[one_third : 2 * one_third]
-    emails3 = emails[2 * one_third :]
-
-    def process_emails(email_list: list[Email]):
-        for email in email_list:
-            if email.read_date:
-                current_datetime_utc = datetime.datetime.now().replace(
-                    tzinfo=datetime.timezone.utc
-                )
-                delta_time = current_datetime_utc - email.read_date
-
-                # delete read email since 2 weeks
-                if delta_time > datetime.timedelta(weeks=2):
-                    email.delete()
-                    continue
-
-            email_data = {
-                "id": email.id,
-                "id_provider": email.provider_id,
-                "email": email.sender.email,
-                "name": email.sender.name,
-                "description": email.email_short_summary,
-                "details": [
-                    {"id": bp.id, "text": bp.content}
-                    for bp in email.bulletpoint_set.all()
-                ],
-                "read": email.read,
-                "rule": email.has_rule,
-                "rule_id": email.rule_id,
-                "answer_later": email.answer_later,
-                "web_link": email.web_link,
-                "has_attachments": email.has_attachments,
-            }
-
-            formatted_data[email.category.name][email.priority].append(email_data)
-
-    # Multi Threading for faster computation with large amount of emails
-    thread1 = threading.Thread(target=process_emails, args=(emails1,))
-    thread1.start()
-    thread1.join()
-
-    thread2 = threading.Thread(target=process_emails, args=(emails2,))
-    thread2.start()
-    thread2.join()
-
-    thread3 = threading.Thread(target=process_emails, args=(emails3,))
-    thread3.start()
-    thread3.join()
-
-    # Ensuring all priorities are present for each category
-    all_priorities = {"Important", "Information", "Useless"}
-    for category in formatted_data:
-        for priority in all_priorities:
-            formatted_data[category].setdefault(priority, [])
-
-    return Response(formatted_data, status=status.HTTP_200_OK)
-"""
-
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_user_emails(request):
@@ -2228,6 +2138,85 @@ def create_subscription(user, stripe_plan_id, email="nothingForNow"):
 ######################## THESE FUNCTIONS ARE NOT USED ANYMORE ########################
 ######################################################################################
 ######################## TESTING FUNCTIONS ########################
+
+
+""" TO DELETE
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_user_emails(request):
+
+    user = request.user
+    emails = Email.objects.filter(user=user).prefetch_related(
+        "category", "bulletpoint_set"
+    )
+    emails = emails.annotate(
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
+    )
+    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
+        "id"
+    )[:1]
+    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+    formatted_data = defaultdict(lambda: defaultdict(list))
+
+    one_third = len(emails) // 3
+    emails1 = emails[:one_third]
+    emails2 = emails[one_third : 2 * one_third]
+    emails3 = emails[2 * one_third :]
+
+    def process_emails(email_list: list[Email]):
+        for email in email_list:
+            if email.read_date:
+                current_datetime_utc = datetime.datetime.now().replace(
+                    tzinfo=datetime.timezone.utc
+                )
+                delta_time = current_datetime_utc - email.read_date
+
+                # delete read email since 2 weeks
+                if delta_time > datetime.timedelta(weeks=2):
+                    email.delete()
+                    continue
+
+            email_data = {
+                "id": email.id,
+                "id_provider": email.provider_id,
+                "email": email.sender.email,
+                "name": email.sender.name,
+                "description": email.email_short_summary,
+                "details": [
+                    {"id": bp.id, "text": bp.content}
+                    for bp in email.bulletpoint_set.all()
+                ],
+                "read": email.read,
+                "rule": email.has_rule,
+                "rule_id": email.rule_id,
+                "answer_later": email.answer_later,
+                "web_link": email.web_link,
+                "has_attachments": email.has_attachments,
+            }
+
+            formatted_data[email.category.name][email.priority].append(email_data)
+
+    # Multi Threading for faster computation with large amount of emails
+    thread1 = threading.Thread(target=process_emails, args=(emails1,))
+    thread1.start()
+    thread1.join()
+
+    thread2 = threading.Thread(target=process_emails, args=(emails2,))
+    thread2.start()
+    thread2.join()
+
+    thread3 = threading.Thread(target=process_emails, args=(emails3,))
+    thread3.start()
+    thread3.join()
+
+    # Ensuring all priorities are present for each category
+    all_priorities = {"Important", "Information", "Useless"}
+    for category in formatted_data:
+        for priority in all_priorities:
+            formatted_data[category].setdefault(priority, [])
+
+    return Response(formatted_data, status=status.HTTP_200_OK)
+"""
 """@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_mail_view(request):

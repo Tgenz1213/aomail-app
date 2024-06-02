@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 
 
 class Subscription(models.Model):
-    # UNDER DEVELOPMENT
     """Model for storing subscription information."""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)

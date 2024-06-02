@@ -2,6 +2,7 @@
 Handles frontend requests and redirects them to the appropriate API.
 
 TODO:
+- Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.
 - Improve documentation to be concise.
 - STOP using differents libs to do the same thing => only use 1
@@ -198,25 +199,25 @@ def signup(request):
         user.delete()
         return Response({"error": str(e)}, status=400)
 
-    # (useless for now): TODO: use create_subscription function
-    # end_date = datetime.datetime.now() + datetime.timedelta(days=30)
-    # end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
-    # Subscription.objects.create(
-    #     user=user,
-    #     plan="start_plan",
-    #     stripe_subscription_id=None,
-    #     end_date=end_date_utc,
-    #     billing_interval=None,
-    #     amount=0.0,
-    # )
+    end_date = datetime.datetime.now() + datetime.timedelta(days=30)
+    end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
+    Subscription.objects.create(
+        user=user,
+        plan="free_plan",
+        stripe_subscription_id=None,
+        end_date=end_date_utc,
+        billing_interval=None,
+        amount=0.0,
+    )
 
     # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
-        context = {
-            "title": "Votre compte Aomail a été créé avec succès",
-        }
-        email_html = render_to_string("account_created.html", context)
+        # TODO: validate if we keep the email (may be useless)
+        # context = {
+        #     "title": "Votre compte Aomail a été créé avec succès",
+        # }
+        # email_html = render_to_string("account_created.html", context)
         # send_mail(
         #     subject="[Aomail] Votre compte a été créé avec succès",
         #     message="",
@@ -382,32 +383,6 @@ def save_user_data(
         return {"error": str(e)}
 
 
-# UNDER CONSTRUCTION #
-def create_subscription(user, stripe_plan_id, email="nothingForNow"):
-    stripe_customer = stripe.Customer.create(email=email)
-    stripe_customer_id = stripe_customer.id
-
-    stripe_subscription = stripe.Subscription.create(
-        customer=stripe_customer_id,
-        items=[
-            {
-                "plan": stripe_plan_id,
-            },
-        ],
-        trial_period_days=30,
-    )
-
-    # Creation of default subscription plan
-    Subscription.objects.create(
-        user=user,
-        plan="start_plan",
-        stripe_subscription_id=stripe_subscription.id,
-        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
-        billing_interval=None,
-        amount=STRIPE_PRICES[stripe_plan_id],
-    )
-
-
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def is_authenticated(request):
@@ -475,6 +450,7 @@ def receive_payment_notifications(request):
 
         if event["type"] == "invoice.payment_succeeded":
             # TODO: Handle successful + informations for customer
+            # use create_subscription
             ...  # data base operations
             # Subscription.objects.get(...)
             redirect(STRIPE_PAYMENT_SUCCESS_URL)
@@ -2220,10 +2196,37 @@ def get_user_emails(request):
     return Response(formatted_data, status=status.HTTP_200_OK)
 
 
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
+def create_subscription(user, stripe_plan_id, email="nothingForNow"):
+    stripe_customer = stripe.Customer.create(email=email)
+    stripe_customer_id = stripe_customer.id
+
+    stripe_subscription = stripe.Subscription.create(
+        customer=stripe_customer_id,
+        items=[
+            {
+                "plan": stripe_plan_id,
+            },
+        ],
+        trial_period_days=30,
+    )
+
+    # Creation of default subscription plan
+    Subscription.objects.create(
+        user=user,
+        plan="start_plan",
+        stripe_subscription_id=stripe_subscription.id,
+        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+        billing_interval=None,
+        amount=STRIPE_PRICES[stripe_plan_id],
+    )
+
+
 ######################################################################################
 ######################## THESE FUNCTIONS ARE NOT USED ANYMORE ########################
 ######################################################################################
-
 ######################## TESTING FUNCTIONS ########################
 """@api_view(["GET"])
 @permission_classes([IsAuthenticated])

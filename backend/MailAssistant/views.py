@@ -718,7 +718,7 @@ def set_user_timezone(request: HttpRequest) -> Response:
         preference = Preference.objects.get(user=user)
         preference.timezone = timezone
         preference.save()
-        return Response({"message": "timezone updated successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Timezone updated successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Error in set_user_timezone: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

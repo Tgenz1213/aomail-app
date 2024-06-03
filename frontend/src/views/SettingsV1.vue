@@ -37,7 +37,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation.delete_account') }}
+                        <p class="block font-semibold leading-6 text-gray-900">{{
+                            $t('settings_navigation.delete_account') }}
                         </p>
                     </div>
                 </div>
@@ -83,7 +84,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation2.unlink_my_email') }}
+                        <p class="block font-semibold leading-6 text-gray-900">{{
+                            $t('settings_navigation2.unlink_my_email') }}
                         </p>
                     </div>
                 </div>
@@ -129,7 +131,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.update_my_description')
+                        <p class="block font-semibold leading-6 text-gray-900">{{
+                            $t('settings_navigation3.update_my_description')
                             }}</p>
                     </div>
                 </div>
@@ -171,7 +174,8 @@
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
-                        <p class="block font-semibold leading-6 text-gray-900">{{ $t('settings_navigation3.Link_a_new_email_address')
+                        <p class="block font-semibold leading-6 text-gray-900">{{
+                            $t('settings_navigation3.Link_a_new_email_address')
                             }}</p>
                     </div>
                 </div>
@@ -244,7 +248,8 @@
                                                 @click="setActiveSection('subscription')">
                                                 <credit-card-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.subscription')
+                                                    class="text-sm font-medium">{{
+                                                        $t('settings_navigation.subscription')
                                                     }}</a>
                                             </div>
 
@@ -262,8 +267,7 @@
                             </div>
                         </div>
                     </main>
-                    <div v-if="activeSection === 'account'"
-                        class="flex-1 h-full">
+                    <div v-if="activeSection === 'account'" class="flex-1 h-full">
                         <!-- TO DO : CENTER -->
                         <div class="h-full w-full flex items-center justify-center">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
@@ -275,14 +279,16 @@
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
                                             <div class="relative flex justify-center">
-                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.change_my_username_or_my_password') }}</span>
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                    $t('settings_navigation.change_my_username_or_my_password')
+                                                    }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-6 pb-10">
                                             <div class="flex space-x-1 items-center">
                                                 <envelope-icon class="w-4 h-4" />
-                                                <label
-                                                    class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.username') }}</label>
+                                                <label class="block text-sm font-medium leading-6 text-gray-900">{{
+                                                    $t('settings_navigation.username') }}</label>
                                             </div>
                                             <div class="relative items-stretch mt-2">
                                                 <input v-model="userData" type="text" name="username" id="username"
@@ -295,7 +301,8 @@
                                                         <div class="flex space-x-1 items-center">
                                                             <key-icon class="w-4 h-4" />
                                                             <label
-                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.new_password') }}</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900">{{
+                                                                $t('settings_navigation.new_password') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showPassword" type="password"
@@ -311,15 +318,19 @@
                                                                         xmlns="http://www.w3.org/2000/svg" fill="none"
                                                                         viewBox="0 0 24 24" stroke-width="1.5"
                                                                         stroke="currentColor" class="w-6 h-6">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round"
                                                                             d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round"
                                                                             d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                                     </svg>
                                                                     <svg v-else xmlns="http://www.w3.org/2000/svg"
-                                                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                                        stroke="currentColor" class="w-6 h-6">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        fill="none" viewBox="0 0 24 24"
+                                                                        stroke-width="1.5" stroke="currentColor"
+                                                                        class="w-6 h-6">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round"
                                                                             d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
                                                                     </svg>
                                                                 </button>
@@ -330,7 +341,8 @@
                                                         <div class="flex space-x-1 items-center">
                                                             <key-icon class="w-4 h-4" />
                                                             <label
-                                                                class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settings_navigation.Confirm') }}</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900">{{
+                                                                $t('settings_navigation.Confirm') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showConfirmPassword" type="password"
@@ -350,8 +362,8 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                                 </svg>
-                                                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                    viewBox="0 0 24 24" stroke-width="1.5"
+                                                                <svg v-else xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                                                     stroke="currentColor" class="w-6 h-6">
                                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                                         d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
@@ -363,7 +375,8 @@
                                             </div>
                                             <div class="flex justify-end pt-4">
                                                 <button @click="handleSubmit"
-                                                    class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('settings_navigation.modify') }}</button>
+                                                    class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{
+                                                    $t('settings_navigation.modify') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -373,7 +386,8 @@
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
                                             <div class="relative flex justify-center">
-                                                <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation.delete') }}</span>
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                    $t('settings_navigation.delete') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-6">
@@ -382,13 +396,15 @@
                                                     <input type="radio"
                                                         class="form-radio text-red-600 border-red-400 focus:border-red-500 focus:ring-red-200 h-5 w-5"
                                                         name="choice">
-                                                    <label for="push-everything" class="block text-sm font-medium leading-6">
+                                                    <label for="push-everything"
+                                                        class="block text-sm font-medium leading-6">
                                                         {{ $t('settings_navigation.confirmer_delete_account') }}</label>
                                                 </div>
                                                 <button @click="openModal" type="submit"
                                                     class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                        class="w-6 h-6">
                                                         <path stroke-linecap="round" stroke-linejoin="round"
                                                             d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                                     </svg>
@@ -404,12 +420,13 @@
                                             <div class="w-full border-t border-gray-300"></div>
                                         </div>
                                         <div class="relative flex justify-center">
-                                            <span class="bg-white px-2 text-sm text-gray-500">{{ $t('settings_navigation3.Link_a_new_email_address') }}</span>
+                                            <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                $t('settings_navigation3.Link_a_new_email_address') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-[52px]">
                                         <div class="overflow-y-auto w-full"><!--max-h-[120px]-->
-                                            <div class="max-h-20 sm:max-h-24 md:max-h-32 lg:max-h-40 w-full"> 
+                                            <div class="max-h-20 sm:max-h-24 md:max-h-32 lg:max-h-40 w-full">
                                                 <ul role="list" class="space-y-1 w-full">
                                                     <li v-for="email in emailsLinked" :key="email.email"
                                                         class="border border-black w-full overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
@@ -417,8 +434,7 @@
                                                             <svg v-if="email.type_api === 'microsoft'"
                                                                 xmlns="http://www.w3.org/2000/svg" width="21"
                                                                 height="21" viewBox="0 0 21 21">
-                                                                <rect x="1" y="1" width="9" height="9"
-                                                                    fill="#f25022" />
+                                                                <rect x="1" y="1" width="9" height="9" fill="#f25022" />
                                                                 <rect x="1" y="11" width="9" height="9"
                                                                     fill="#00a4ef" />
                                                                 <rect x="11" y="1" width="9" height="9"
@@ -428,8 +444,7 @@
                                                             </svg>
                                                             <svg v-if="email.type_api === 'google'"
                                                                 class="-ml-0.5 h-5 w-5" aria-hidden="true"
-                                                                viewBox="0 0 24 24"
-                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                                                                 fill="currentColor">
                                                                 <path
                                                                     d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
@@ -449,10 +464,9 @@
                                                                 <button type="button"
                                                                     class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
                                                                     @click.stop="openUserDescriptionModal(email.email)">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        fill="none" viewBox="0 0 24 24"
-                                                                        stroke-width="1.5" stroke="currentColor"
-                                                                        class="w-6 h-6">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                        viewBox="0 0 24 24" stroke-width="1.5"
+                                                                        stroke="currentColor" class="w-6 h-6">
                                                                         <path stroke-linecap="round"
                                                                             stroke-linejoin="round"
                                                                             d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -461,10 +475,9 @@
                                                                 <button type="button"
                                                                     class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent"
                                                                     @click="openUnLinkModal(email.email)">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        fill="none" viewBox="0 0 24 24"
-                                                                        stroke-width="1.5" stroke="currentColor"
-                                                                        class="w-6 h-6">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                        viewBox="0 0 24 24" stroke-width="1.5"
+                                                                        stroke="currentColor" class="w-6 h-6">
                                                                         <path stroke-linecap="round"
                                                                             stroke-linejoin="round"
                                                                             d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -523,12 +536,10 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="activeSection === 'subscription'"
-                        class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12">
+                    <div v-if="activeSection === 'subscription'" class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12">
                         <subscription @openBillingModal="openBillingModal"></subscription>
                     </div>
-                    <div v-if="activeSection === 'data'"
-                        class="flex flex-col h-full section">
+                    <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
                         <!--
                         <div class="flex">
                             <div class="flex-1">
@@ -557,8 +568,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="activeSection === 'preferences'"
-                        class="flex-1 section">
+                    <div v-if="activeSection === 'preferences'" class="flex-1 section">
                         <!-- TO DO : CENTER -->
                         <div class="mx-auto w-full h-full px-8 2xl:px-12 pt-10">
                             <!-- Content goes here -->
@@ -594,11 +604,27 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="flex gap-x-10 w-full">
+                                    <div class="flex-1 flex flex-col">
+                                        <div class="relative">
+                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                <div class="w-full border-t border-gray-300"></div>
+                                            </div>
+                                            <div class="relative flex justify-center">
+                                                <span class="bg-white px-2 text-sm text-gray-500">SettingsTimeZone</span>
+                                            </div>
+                                        </div>
+                                        <div class="pt-10 pb-10">
+                                            <SettingsTimeZone></SettingsTimeZone>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div
                                     class="flex-1 w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center">
                                     <div class="flex flex-col h-full items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                            stroke-width="1" stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
+                                            stroke-width="1" stroke="currentColor"
+                                            class="w-12 h-12 mx-auto text-gray-400">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
                                         </svg>
@@ -1215,6 +1241,7 @@ import {
     CreditCardIcon,
     CircleStackIcon
 } from '@heroicons/vue/24/outline'
+import SettingsTimeZone from '@/components/SettingsTimeZone.vue';
 
 
 export default {
@@ -1231,6 +1258,7 @@ export default {
         KeyIcon,
         CreditCardIcon,
         LanguageChange,
+        SettingsTimeZone,
         CircleStackIcon
     },
     data() {

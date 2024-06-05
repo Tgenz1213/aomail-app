@@ -13,8 +13,7 @@ class Subscription(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plan = models.CharField(max_length=50)
-    stripe_subscription_id = models.CharField(
-        max_length=200, blank=True, null=True)
+    stripe_subscription_id = models.CharField(max_length=200, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     start_date = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(null=True)
@@ -110,8 +109,7 @@ class GoogleListener(models.Model):
 class Email(models.Model):
     """Model for storing email information."""
 
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user_emails")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_emails")
     social_api = models.ForeignKey(
         SocialAPI, on_delete=models.CASCADE, related_name="social_api_emails", null=True
     )

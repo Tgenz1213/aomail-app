@@ -165,33 +165,26 @@ def improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-""" OLD Ask Theo Before Delete"""
-
-
+""" OLD Ask Theo Before Delete (It's still used)""" 
 def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
-    template = f"""{HUMAN}As an email assistant, write a {length} and {formality} email in {language}.
+    template = f"""As an email assistant, write a {length} and {formality} email in {language}.
     Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
     It must strictly contain only the information that is present in the input.
     Add a standard greeting and sign-off without a signature (unless explicitly mentioned) if nothing is specified.
     
     ---
     Answer must ONLY be in JSON format with two keys: subject (STRING) and body in HTML format without spaces and unusual line breaks.
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
     # print(clear_text)
 
     result_json: dict = json.loads(clear_text)
-
     subject_text = result_json.get("subject")
     email_body = result_json.get("body")
-
-    # print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
-    # print(f"{Fore.GREEN}Subject: {subject_text}")
-    # print(f"{Fore.CYAN}Email Body: {email_body}")
 
     return subject_text, email_body
 
@@ -322,75 +315,9 @@ def generate_email_response(
     return body
 
 
-'''def generate_email_response(
-    input_subject: str, input_body: str, user_instruction: str, language: str
-) -> str:
-    """Generates an email response based on the given response type"""
-
-    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{user_instruction}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
-    # OLD prompt
-    """template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{user_instruction}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
-    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
-
-    ----
-
-    Answer must be above HTML without spaces
-    {ASSISTANT}
-    """"""
-    template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
-    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
-    2. Here is a template to follow, with placeholders for the dynamic content:
-    <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
-
-    ---
-    Answer must be above HTML without spaces
-    {ASSISTANT}
-    """
-    response = get_prompt_response(template)
-    body = response.content[0].text.strip()
-
-    print(f"{Fore.GREEN}[REPLY] body: {body}")
-
-    return body
-'''
-
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
-""" OLD v1 Ask Theo before DELETE
-    importance_list = {
-        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
-        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
-        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
-    }"""
-""" OLD v2 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
-        "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
-        "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
-    }"""
-""" OLD v3 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
-        "Information": "Details relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
-        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
-        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }"""
-""" OLD v4 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority and require immediate attention or action (truly relevant to the user).",
-        "WorkInformation": "Messages relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
-        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
-        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }"""
-"""OLd prompt engineering
-1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
-    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
-    3. In {language}: Provide up to 5 (according to email length) short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
-    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
-    5. If the email appears to be a response or a conversation. Always summarize only the last email and IGNORE the previous ones.
-    Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
-"""
 
 
 def categorize_and_summarize_email(
@@ -555,6 +482,42 @@ def search_emails(query: str, language: str = "French") -> dict:
     return queries_dict
 
 
+
+""" OLD v1 Ask Theo before DELETE
+    importance_list = {
+        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
+        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
+        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
+    }"""
+""" OLD v2 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
+        "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
+        "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
+    }"""
+""" OLD v3 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
+        "Information": "Details relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
+    }"""
+""" OLD v4 Ask Theo before DELETE
+    importance_list = {
+        "Important": "Messages that are high priority and require immediate attention or action (truly relevant to the user).",
+        "WorkInformation": "Messages relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
+        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
+        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
+    }"""
+"""OLd prompt engineering
+1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
+    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
+    3. In {language}: Provide up to 5 (according to email length) short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
+    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
+    5. If the email appears to be a response or a conversation. Always summarize only the last email and IGNORE the previous ones.
+    Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
+"""
+
 '''# TODO: OLD - delete after implementing new solution
 def new_mail_recommendation(
     mail_content, email_subject, user_recommendation, language="FRENCH"
@@ -581,4 +544,38 @@ def new_mail_recommendation(
     print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
 
     return subject_text, email_body
+'''
+
+
+
+'''def generate_email_response(
+    input_subject: str, input_body: str, user_instruction: str, language: str
+) -> str:
+    """Generates an email response based on the given response type"""
+
+    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{user_instruction}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
+    # OLD prompt
+    """template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{user_instruction}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
+
+    ----
+
+    Answer must be above HTML without spaces
+    {ASSISTANT}
+    """"""
+    template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
+    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
+    2. Here is a template to follow, with placeholders for the dynamic content:
+    <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
+
+    ---
+    Answer must be above HTML without spaces
+    {ASSISTANT}
+    """
+    response = get_prompt_response(template)
+    body = response.content[0].text.strip()
+
+    print(f"{Fore.GREEN}[REPLY] body: {body}")
+
+    return body
 '''

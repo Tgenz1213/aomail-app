@@ -13,6 +13,7 @@ import random
 import json
 import os
 from django.http import HttpRequest
+from django.contrib.auth.models import User
 import httplib2
 import requests
 from collections import defaultdict
@@ -143,7 +144,17 @@ def link_email_tokens(authorization_code):
 
 
 ######################## CREDENTIALS ########################
-def get_credentials(user, email):
+def get_credentials(user: User, email: str) -> credentials.Credentials | None:
+    """
+    Retrieve and return Google API credentials for the specified user and email.
+
+    Args:
+        user (User): The user object.
+        email (str): The email address associated with the user's Google account.
+
+    Returns:
+        credentials.Credentials or None: The Google API credentials, or None if not found.
+    """
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
         creds_data = {
@@ -155,16 +166,23 @@ def get_credentials(user, email):
             "scopes": GOOGLE_SCOPES,
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
-
     except ObjectDoesNotExist:
         LOGGER.error(f"No credentials for user with ID {user.id} and email: {email}")
         creds = None
-
     return creds
 
 
-def get_social_api(user, email):
-    """Returns the SocialAPI instance"""
+def get_social_api(user: User, email: str) -> SocialAPI | None:
+    """
+    Retrieve and return the SocialAPI instance for the specified user and email.
+
+    Args:
+        user (User): The user object.
+        email (str): The email address associated with the user's social API.
+
+    Returns:
+        SocialAPI or None: The SocialAPI instance, or None if not found.
+    """
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
         return social_api
@@ -175,7 +193,18 @@ def get_social_api(user, email):
         return None
 
 
-def refresh_credentials(creds):
+def refresh_credentials(
+    creds: credentials.Credentials,
+) -> credentials.Credentials | None:
+    """
+    Refresh the given Google API credentials.
+
+    Args:
+        creds (credentials.Credentials): The Google API credentials to refresh.
+
+    Returns:
+        credentials.Credentials or None: The refreshed credentials, or None if refresh fails.
+    """
     try:
         creds.refresh(Request())
     except auth_exceptions.RefreshError as e:
@@ -184,8 +213,15 @@ def refresh_credentials(creds):
     return creds
 
 
-def save_credentials(creds, user, email):
-    """Update the database with valid access token"""
+def save_credentials(creds: credentials.Credentials, user: User, email: str):
+    """
+    Update the database with the new access token for the specified user and email.
+
+    Args:
+        creds (credentials.Credentials): The updated Google API credentials.
+        user (User): The user object.
+        email (str): The email address associated with the user's social API.
+    """
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
         social_api.access_token = creds.token
@@ -194,19 +230,35 @@ def save_credentials(creds, user, email):
         LOGGER.error(f"Failed to save credentials: {str(e)}")
 
 
-def build_services(creds) -> dict:
-    """Returns a dictionary of endpoints"""
+def build_services(creds: credentials.Credentials) -> dict:
+    """
+    Build and return a dictionary of Google API service endpoints.
 
+    Args:
+        creds (credentials.Credentials): The Google API credentials to use for building the services.
+
+    Returns:
+        dict: A dictionary of Google API service endpoints.
+    """
     services = {
         "gmail": build("gmail", "v1", cache_discovery=False, credentials=creds),
         "calendar": build("calendar", "v3", cache_discovery=False, credentials=creds),
         "people": build("people", "v1", cache_discovery=False, credentials=creds),
     }
-
     return services
 
 
-def authenticate_service(user, email) -> dict:
+def authenticate_service(user: User, email: str) -> dict | None:
+    """
+    Authenticate and build Google API services for the specified user and email.
+
+    Args:
+        user (User): The user object.
+        email (str): The email address associated with the user's Google account.
+
+    Returns:
+        dict or None: A dictionary of Google API service endpoints, or None if authentication fails.
+    """
     creds = get_credentials(user, email)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
@@ -1234,8 +1286,9 @@ def email_to_db(user, services, social_api: SocialAPI):
     )
     language = Preference.objects.get(user=user).language
     if is_reply:
-        # summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
+
+        # summarize conversation with Search
         user_id = user.id
         search = Search(user_id)
         email_id = get_mail_id(services, 0)
@@ -1452,12 +1505,10 @@ def email_to_db(user, services, social_api: SocialAPI):
             return str(e)
 
 
-"""
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
-
-
+"""
 # TODO: handle all email providers
 # TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
 # TODO: add possibility to modify user_desription in settings

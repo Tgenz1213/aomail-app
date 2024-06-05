@@ -420,7 +420,7 @@ def categorize_and_summarize_email(
         "Not Relevant": "Message is not relevant to the recipient.",
     }
 
-    template = f"""{HUMAN}Given the following email:
+    template = f"""Given the following email:
 
     Subject:
     {subject}
@@ -444,7 +444,6 @@ def categorize_and_summarize_email(
 
     Relevance Categories:
     {relevance_list}
-
 
     Complete the following tasks in {language}:
     - Categorize the email according to the user description (if provided) and given categories.
@@ -477,8 +476,7 @@ def categorize_and_summarize_email(
             "Promotional": Percentage for Promotional,
             "News": Percentage for News 
         }}
-    }}
-    {ASSISTANT}"""
+    }}"""
 
     print("=====================NUMBER OF TOKENS INPUT=========================")
     print(count_tokens(template))

@@ -59,7 +59,7 @@ class Preference(models.Model):
     timezone = models.CharField(max_length=50, default="UTC")
     theme = models.CharField(max_length=50, default="light")
     language = models.CharField(max_length=50, default="en")
-    bg_color = models.CharField(max_length=200)
+    bg_color = models.CharField(max_length=200)  # TODO: remove
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 

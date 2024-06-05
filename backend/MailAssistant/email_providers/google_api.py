@@ -6,6 +6,7 @@ import base64
 import datetime
 import logging
 import re
+import string
 import threading
 import time
 import random
@@ -1303,10 +1304,10 @@ def email_to_db(user, services, social_api: SocialAPI):
 
         # print("-------------------------> 5", "SUBJECT : ",subject, "DATA : ",decoded_data, "CATEGORY : ",category_dict, "USER DESCRIPTION : ",user_description)
 
-        # print(
-        #     "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
-        # )
-        # print(decoded_data)
+        print(
+            "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
+        )
+        print(decoded_data)
 
         (
             topic,

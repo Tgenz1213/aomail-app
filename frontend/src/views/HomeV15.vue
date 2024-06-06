@@ -1123,7 +1123,8 @@
                                                                                     <div class="flex gap-x-4">
                                                                                         <div class="flex items-center">
                                                                                             <p class="text-sm font-semibold leading-6 text-stone-700 mr-2">{{ item.name }}</p>
-                                                                                            <p class="text-sm leading-6 text-stone-700">{{ item.time }}</p>   
+                                                                                            <p class="text-sm leading-6 text-stone-700 mr-2">{{ item.time }}</p>   
+                                                                                            <p class="text-xs leading-6 text-stone-700">{{ item.date }}</p> 
                                                                                         </div>
                                                                                         <div
                                                                                             class="hidden group-hover:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">

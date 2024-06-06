@@ -1461,7 +1461,7 @@
             :category="categoryToUpdate" @closeModal="closeUpdateModal" @updateCategory="handleUpdateCategory"
             @deleteCategory="handleCategoryDelete" />
         <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @closeSeeModal="closeSeeModal"
-            @openAnswer="openAnswer" @markEmailAsRead="markEmailAsRead" />
+            @openAnswer="openAnswer" @openRuleEditor="openRuleEditor" @openNewRule="openNewRule" @markEmailAsRead="markEmailAsRead" @markEmailReplyLater="markEmailReplyLater" @transferEmail="transferEmail" />
     </div>
 </template>
 

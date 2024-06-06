@@ -814,7 +814,8 @@
                                                                                     class="flex items-baseline justify-between gap-x-4">
                                                                                     <div class="flex items-center">
                                                                                         <p class="text-sm font-semibold leading-6 text-gray-800 mr-2">{{ item.name }}</p>
-                                                                                        <p class="text-sm leading-6 text-gray-800">{{ item.time }}</p>   
+                                                                                        <p class="text-sm leading-6 text-gray-800 mr-2">{{ item.time }}</p>
+                                                                                        <p class="text-xs leading-6 text-gray-800 mr-2">{{ item.date }}</p>   
                                                                                     </div>
                                                                                 </div>
                                                                                 <p>{{ item.description }}</p>

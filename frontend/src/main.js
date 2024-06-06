@@ -44,6 +44,7 @@ const fetchUserPreference = async (endpoint, key, allowedValues) => {
   }
 };
 
+// TODO: load timezone
 const initializePreferences = async () => {
   const currentUrl = window.location.href;
 

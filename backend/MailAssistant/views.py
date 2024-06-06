@@ -177,7 +177,7 @@ def signup(request):
         color,
         categories,
         language,
-        timezone
+        timezone,
     )
     if "error" in result:
         user.delete()
@@ -192,8 +192,7 @@ def signup(request):
         elif type_api == "microsoft":
             if microsoft_api.verify_license(access_token):
                 threading.Thread(
-                    target=microsoft_api.set_all_contacts, args=(
-                        access_token, user)
+                    target=microsoft_api.set_all_contacts, args=(access_token, user)
                 ).start()
             else:
                 user.delete()
@@ -260,8 +259,7 @@ def subscribe_listeners(type_api, user, email) -> bool:
             return True
 
     elif type_api == "microsoft":
-        subscribed_email = microsoft_api.subscribe_to_email_notifications(
-            user, email)
+        subscribed_email = microsoft_api.subscribe_to_email_notifications(user, email)
         subscribed_contact = microsoft_api.subscribe_to_contact_notifications(
             user, email
         )
@@ -275,12 +273,10 @@ def validate_authorization_code(type_api, code):
     """Validates the authorization code for a given API type"""
     try:
         if type_api == "google":
-            access_token, refresh_token = google_api.exchange_code_for_tokens(
-                code)
+            access_token, refresh_token = google_api.exchange_code_for_tokens(code)
             email = google_api.get_email(access_token, refresh_token)
         elif type_api == "microsoft":
-            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(
-                code)
+            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
             email = microsoft_api.get_email(access_token)
         return {
             "access_token": access_token,
@@ -345,7 +341,7 @@ def save_user_data(
     color,
     categories,
     language,
-    timezone
+    timezone,
 ):
     """Store user creds and settings in DB"""
     try:
@@ -360,7 +356,8 @@ def save_user_data(
 
         # Save user preferences
         Preference.objects.create(
-            theme=theme, bg_color=color, language=language, timezone=timezone, user=user)
+            theme=theme, bg_color=color, language=language, timezone=timezone, user=user
+        )
 
         # Save user categories
         if categories:
@@ -628,16 +625,21 @@ def set_user_language(request: HttpRequest) -> Response:
 
 ######################## PICTURES ########################
 def serve_image(request, image_name):
-    image_path = os.path.join(MEDIA_ROOT, 'pictures', image_name)
+    image_path = os.path.join(MEDIA_ROOT, "pictures", image_name)
     if os.path.exists(image_path):
         _, ext = os.path.splitext(image_path)
-        content_type = 'image/jpeg' if ext.lower() == '.jpg' else 'image/png' if ext.lower() == '.png' else None
+        content_type = (
+            "image/jpeg"
+            if ext.lower() == ".jpg"
+            else "image/png" if ext.lower() == ".png" else None
+        )
         if content_type:
-            return FileResponse(open(image_path, 'rb'), content_type=content_type)
+            return FileResponse(open(image_path, "rb"), content_type=content_type)
         else:
             raise Http404("Unsupported image format")
     else:
         raise Http404("Image not found")
+
 
 ######################## THEMES ########################
 
@@ -669,16 +671,22 @@ def set_user_theme(request: HttpRequest) -> Response:
     theme = request.data.get("theme")
 
     if not theme:
-        return Response({"error": "No theme provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "No theme provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     if theme not in THEMES:
-        return Response({"error": "Theme not allowed"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Theme not allowed"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         preference = Preference.objects.get(user=user)
         preference.theme = theme
         preference.save()
-        return Response({"message": "Theme updated successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Theme updated successfully"}, status=status.HTTP_200_OK
+        )
     except Exception as e:
         LOGGER.error(f"Error in set_user_theme: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -712,13 +720,17 @@ def set_user_timezone(request: HttpRequest) -> Response:
     timezone = request.data.get("timezone")
 
     if not timezone:
-        return Response({"error": "No timezone provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "No timezone provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         preference = Preference.objects.get(user=user)
         preference.timezone = timezone
         preference.save()
-        return Response({"message": "timezone updated successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Timezone updated successfully"}, status=status.HTTP_200_OK
+        )
     except Exception as e:
         LOGGER.error(f"Error in set_user_timezone: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -780,8 +792,7 @@ def update_category(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
-        LOGGER.error(
-            f"Serializer errors in update_category: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in update_category: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -850,8 +861,7 @@ def create_category(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    existing_category = Category.objects.filter(
-        user=request.user, name=name).exists()
+    existing_category = Category.objects.filter(user=request.user, name=name).exists()
 
     if existing_category:
         return Response(
@@ -908,8 +918,7 @@ def find_user_view_ai(request):
     search_query = request.GET.get("query")
 
     if search_query:
-        main_list, cc_list, bcc_list = claude.extract_contacts_recipients(
-            search_query)
+        main_list, cc_list, bcc_list = claude.extract_contacts_recipients(search_query)
 
         if not main_list:
             return Response(
@@ -939,12 +948,10 @@ def find_user_view_ai(request):
 
         def find_emails(input_str, contacts_dict):
             # Split input_str into substrings if it contains spaces
-            input_substrings = input_str.split() if " " in input_str else [
-                input_str]
+            input_substrings = input_str.split() if " " in input_str else [input_str]
 
             # Convert input substrings to lowercase for case-insensitive matching
-            input_substrings_lower = [sub_str.lower()
-                                      for sub_str in input_substrings]
+            input_substrings_lower = [sub_str.lower() for sub_str in input_substrings]
 
             # List comprehension to find matching emails
             matching_emails = [
@@ -976,10 +983,8 @@ def find_user_view_ai(request):
         main_recipients_with_emails = find_emails_for_recipients(
             main_list, contacts_dict
         )
-        cc_recipients_with_emails = find_emails_for_recipients(
-            cc_list, contacts_dict)
-        bcc_recipients_with_emails = find_emails_for_recipients(
-            bcc_list, contacts_dict)
+        cc_recipients_with_emails = find_emails_for_recipients(cc_list, contacts_dict)
+        bcc_recipients_with_emails = find_emails_for_recipients(bcc_list, contacts_dict)
 
         return Response(
             {
@@ -1008,8 +1013,7 @@ def new_email_ai(request):
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
 
-        subject_text, mail_text = claude.generate_email(
-            input_data, length, formality)
+        subject_text, mail_text = claude.generate_email(input_data, length, formality)
 
         return Response({"subject": subject_text, "mail": mail_text})
     else:
@@ -1034,8 +1038,7 @@ def improve_email_writing(request):
 
         return Response({"subject": subject_text, "email_body": email_body})
     else:
-        LOGGER.error(
-            f"Serializer errors in improve_email_writing: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in improve_email_writing: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
 
@@ -1128,8 +1131,7 @@ def generate_email_answer(request):
 
         return Response({"email_answer": email_answer})
     else:
-        LOGGER.error(
-            f"Serializer errors in generate_email_answer: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in generate_email_answer: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
 
@@ -1145,8 +1147,7 @@ def get_answer_later_emails(request):
         )
 
         emails = emails.annotate(
-            has_rule=Exists(Rule.objects.filter(
-                sender=OuterRef("sender"), user=user))
+            has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
         )
         rule_id_subquery = Rule.objects.filter(
             sender=OuterRef("sender"), user=user
@@ -1207,8 +1208,7 @@ def set_user_bg_color(request):
         serializer.save()
         return Response(serializer.data, status=201)
     else:
-        LOGGER.error(
-            f"Serializer errors in set_user_bg_color: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
         return Response(serializer.errors, status=400)
 
 
@@ -1300,8 +1300,7 @@ def unsubscribe_listeners(user, email=None):
                         "email_provider": GOOGLE_PROVIDER,
                         "user": user,
                     }
-                    email_html = render_to_string(
-                        "unsubscribe_failure.html", context)
+                    email_html = render_to_string("unsubscribe_failure.html", context)
                     send_mail(
                         subject="Critical Alert: Google Unsubscription Failure",
                         message="",
@@ -1312,8 +1311,7 @@ def unsubscribe_listeners(user, email=None):
                     )
 
     if email:
-        microsoft_listeners = MicrosoftListener.objects.filter(
-            user=user, email=email)
+        microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
     else:
         microsoft_listeners = MicrosoftListener.objects.filter(user=user)
 
@@ -1335,8 +1333,7 @@ def unsubscribe_listeners(user, email=None):
                         "email_provider": MICROSOFT_PROVIDER,
                         "user": user,
                     }
-                    email_html = render_to_string(
-                        "unsubscribe_failure.html", context)
+                    email_html = render_to_string("unsubscribe_failure.html", context)
                     send_mail(
                         subject="Critical Alert: Microsoft Unsubscription Failure",
                         message="",
@@ -1454,8 +1451,7 @@ def create_user_rule(request):
         serializer.save()
         return Response(serializer.data, status=201)
     else:
-        LOGGER.error(
-            f"Serializer errors in create_user_rule: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in create_user_rule: {serializer.errors}")
         return Response(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
@@ -1478,8 +1474,7 @@ def update_user_rule(request):
         serializer.save()
         return Response(serializer.data, status=200)
     else:
-        LOGGER.error(
-            f"Serializer errors in update_user_rule: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in update_user_rule: {serializer.errors}")
         return Response(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
@@ -1604,8 +1599,7 @@ def link_email(request):
             ).start()
         elif type_api == "microsoft":
             threading.Thread(
-                target=microsoft_api.set_all_contacts, args=(
-                    access_token, user)
+                target=microsoft_api.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
         return Response({"error": str(e)}, status=400)
@@ -1838,9 +1832,9 @@ def search_tree_knowledge(request: HttpRequest):
             for organization in keypoints[category]:
                 for topic in keypoints[category][organization]:
                     emails.extend(
-                        search.knowledge_tree[category]["organizations"][
-                            organization
-                        ]["topics"][topic]["emails"]
+                        search.knowledge_tree[category]["organizations"][organization][
+                            "topics"
+                        ][topic]["emails"]
                     )
 
         answer["emails"] = emails
@@ -1907,8 +1901,7 @@ def create_sender(request):
         sender = Sender.objects.create(email=data["email"], name=data["name"])
         return Response({"id": sender.id}, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(
-            f"Serializer errors in create_sender: {serializer.errors}")
+        LOGGER.error(f"Serializer errors in create_sender: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1925,8 +1918,7 @@ def delete_email(request, email_id):
         email.delete()
 
         if type_api == "google":
-            result = google_api.delete_email(
-                user, social_api.email, provider_id)
+            result = google_api.delete_email(user, social_api.email, provider_id)
         elif type_api == "microsoft":
             result = microsoft_api.delete_email(provider_id, social_api)
 
@@ -2091,8 +2083,7 @@ def get_user_emails(request):
         "category", "bulletpoint_set", "cc_senders", "bcc_senders"
     )
     emails = emails.annotate(
-        has_rule=Exists(Rule.objects.filter(
-            sender=OuterRef("sender"), user=user))
+        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
     )
     rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
         "id"
@@ -2103,8 +2094,8 @@ def get_user_emails(request):
 
     one_third = len(emails) // 3
     emails1 = emails[:one_third]
-    emails2 = emails[one_third: 2 * one_third]
-    emails3 = emails[2 * one_third:]
+    emails2 = emails[one_third : 2 * one_third]
+    emails3 = emails[2 * one_third :]
 
     def process_emails(email_list: list[Email]):
         for email in email_list:
@@ -2120,7 +2111,7 @@ def get_user_emails(request):
                     continue
 
             email_date = email.date.date() if email.date else None
-            email_time = email.date.strftime('%H:%M') if email.date else None
+            email_time = email.date.strftime("%H:%M") if email.date else None
 
             email_data = {
                 "id": email.id,
@@ -2152,8 +2143,7 @@ def get_user_emails(request):
                 "time": email_time,
             }
 
-            formatted_data[email.category.name][email.priority].append(
-                email_data)
+            formatted_data[email.category.name][email.priority].append(email_data)
 
     # Multi-threading for faster computation with large amount of emails
     thread1 = threading.Thread(target=process_emails, args=(emails1,))

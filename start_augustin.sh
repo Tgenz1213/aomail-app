@@ -42,3 +42,8 @@ echo "ID found: $ID"
 # Define the cron job and add it if it doesn't exist
 CRON_JOB="0 3 * * * docker exec -i ${ENV}_project-backend-1 /usr/local/bin/python /app/manage.py crontab run $ID"
 (crontab -l | grep -F "$CRON_JOB") && echo "Cron job already exists" || (crontab -l; echo "$CRON_JOB") | crontab -
+
+
+# Run migrations
+docker exec -it "${container_name}" python manage.py makemigrations
+docker exec -it "${container_name}" python manage.py migrate

@@ -41,7 +41,9 @@ urlpatterns = [
     path('user/preferences/language/', views.get_user_language, name='get_user_language'), # ok
     path('user/preferences/set_language/', views.set_user_language, name='set_user_language'), # ok
     path('user/preferences/theme/', views.get_user_theme, name='get_user_theme'), # ok
-    path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok   
+    path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok
+    path('user/preferences/timezone/', views.get_user_timezone, name='get_user_timezone'), # ok
+    path('user/preferences/set_timezone/', views.set_user_timezone, name='set_user_timezone'), # ok   
 
     path('user/emails/', views.get_user_emails, name='user-emails'), # ok
     path('user/emails/<int:email_id>/mark-read/', views.set_email_read, name='email-mark-read'), # ok
@@ -65,6 +67,8 @@ urlpatterns = [
     path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
+    #----------------------- EMAIL PICTURES -----------------------#
+    path('pictures/<path:image_name>', views.serve_image, name='serve_image'),
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
     path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok

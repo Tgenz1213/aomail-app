@@ -44,6 +44,7 @@ const fetchUserPreference = async (endpoint, key, allowedValues) => {
   }
 };
 
+// TODO: load timezone
 const initializePreferences = async () => {
   const currentUrl = window.location.href;
 
@@ -53,8 +54,9 @@ const initializePreferences = async () => {
     currentUrl !== `${BASE_URL}/signup_part2`
   ) {
     const language = await fetchUserPreference('user/preferences/language/', 'language', languages);
-    languageSelected.value = language || 'english';
-    await fetchUserPreference('user/preferences/theme/', 'theme', themes);
+    languageSelected.value = language;
+    const theme = await fetchUserPreference('user/preferences/theme/', 'theme', themes);
+    themeSelected.value = theme;
   }
 };
 

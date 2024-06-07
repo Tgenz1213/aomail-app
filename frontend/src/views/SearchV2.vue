@@ -104,7 +104,7 @@
             <div class="flex flex-col gap-4">
 
 
-              <div class="flex gap-4">
+              <div class="flex flex-col gap-4">
                 <div class="relative items-stretch mt-2">
                   <Combobox as="div" v-model="selectedPerson">
                     <div class="relative">
@@ -397,7 +397,7 @@
             </div>
 
             <!-- Séparateur -->
-            <div class="px-6">
+            <div class="">
               <div class="relative">
                 <div class="absolute inset-0 flex items-center" aria-hidden="true">
                   <div class="w-full border-t border-gray-300"></div>
@@ -417,7 +417,7 @@
               <span class="isolate inline-flex items-center rounded-2xl">
                 <!-- Icône Oeil (Voir) avec texte -->
                 <div class="relative group">
-                  <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                  <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                     <EyeIcon class="w-5 h-5" />
                     Voir
                   </button>
@@ -426,7 +426,7 @@
             </div>
 
             <!-- Séparateur -->
-            <div class="px-6">
+            <div class="px-4">
               <div class="relative">
                 <div class="absolute inset-0 flex items-center" aria-hidden="true">
                   <div class="w-full border-t border-gray-300"></div>

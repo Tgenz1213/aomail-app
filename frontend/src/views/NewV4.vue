@@ -32,13 +32,7 @@
                             v-model="textareaValue"
                             class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
                             placeholder="Instruction">
-                            </textarea>
-
-
-
-
-
-
+                        </textarea>
                         <div v-if="stepcontainer == 1" class="flex justify-end m-3 2xl:m-5">
                             <div class="flex mt-4 space-x-4 items-center">
                                 <div>
@@ -66,17 +60,10 @@
                                 </div>
                             </div>
                         </div>
-
                         <div v-else class="flex justify-end m-3 2xl:m-5">
                             <button @click="handleAIClick" type="button"
                                 class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
                         </div>
-
-
-
-
-
-
                     </div>
                 </div>
             </div>

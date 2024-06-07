@@ -50,9 +50,9 @@
                                 <button
                                     @click="markEmailAsRead(email.id)"
                                     type="button"
-                                    class="relative inline-flex items-center rounded-l-2xl px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                    class="relative inline-flex items-center rounded-l-2xl px-1.5 py-1 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                     <check-icon
-                                    class="w-5 h-5 text-gray-400 hover:text-white" />
+                                    class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
                                 </button>
                             </div>
                         </div>
@@ -65,9 +65,9 @@
                               </div>
                               <button @click="openAnswer(email)"
                                   type="button"
-                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                   <arrow-uturn-left-icon
-                                  class="w-5 h-5 text-gray-400 hover:text-white" />
+                                  class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
                               </button>
                           </div>
                       </div>
@@ -80,27 +80,26 @@
                               </div>
                               <button @click="openRuleEditor"
                                   type="button"
-                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                   <BeakerIcon
-                                  class="w-5 h-5 text-gray-400 hover:text-white" />
+                                  class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
                               </button>
                           </div>
                       </div>
                           <div class="group action-buttons">
                               <div class="relative group">
-                                  <!-- Updated tooltip positioning -->
                                   <div
-                                      class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
-                                      {{ $t('SeeMail_vue.more_actions') }} 
-                                  </div>
+                                    class="absolute hidden group-hover:block px-2 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2 -translate-x-3">
+                                    {{ $t('SeeMail_vue.more_actions') }} 
+                                </div>
                                   <Menu as="div"
                                       class="relative inline-block text-left">
                                       <div>
                                           <MenuButton
                                               @click="toggleTooltip"
-                                              class="relative inline-flex items-center rounded-r-2xl px-1.5 py-1 text-orange-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                              class="relative inline-flex items-center rounded-r-2xl px-1.5 py-1 font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
                                               <ellipsis-horizontal-icon
-                                              class="w-5 h-5 text-gray-400 hover:text-white" />
+                                              class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
                                           </MenuButton>
                                         </div>
                                         <transition

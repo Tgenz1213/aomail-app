@@ -237,15 +237,19 @@
                             <div class="flex-1 pb-[68px] 2xl:pb-[42px]">
                                 <div id="editor" class="w-full h-full"></div>
                             </div>
-                            <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6">
+                            <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6 lg:pt-6">
+
+                                <!--EMAIL LIST-->
                                 <div class="flex items-stretch gap-2 flex-grow 2xl:gap-3">
                                     <select v-model="emailSelected" @change="setEmailSelected"
-                                        class="block w-full px-4 py-2 rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 2xl:px-5 2xl:py-3 2xl:text-base">
-                                        <option v-for="email in emailsLinked" :key="email.email" :value="email.email">
+                                        class="block w-full px-4 py-2 rounded-md shadow-sm border-gray-300 focus:border-black-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 2xl:px-5 2xl:py-3 2xl:text-base">
+                                        <option v-for="email in emailsLinked" :key="email.email" :value="email.email"
+                                            class="bg-white text-black hover:bg-red-500 hover:text-white focus:bg-red-500 focus:text-white">
                                             {{ email.email }}
                                         </option>
                                     </select>
                                 </div>
+
                                 <div class="inline-flex rounded-lg shadow-lg">
                                     <button @click="sendEmail"
                                         class="bg-gray-700 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-2 2xl:text-lg">{{

@@ -269,7 +269,7 @@
                     <Combobox as="div" v-model="selectedPerson">
                       <div class="relative">
                         <ComboboxInput
-                          class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                          class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset
                           ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                           @input="query = $event.target.value"
                           :display-value="(person) => person?.username"
@@ -417,14 +417,14 @@
                 </div>
     
                <!-- Droite : Actions (visuellement statique) -->
-                <span class="isolate inline-flex rounded-2xl items-center">
-                  <!-- Icône Oeil (Voir) avec texte -->
-                  <div class="relative group pt-8">
-                    <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                      <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
-                      Voir
-                    </button>
-                  </div>
+               <span class="isolate inline-flex items-center rounded-2xl"> <!-- Ajout de items-center pour aligner verticalement -->
+                    <!-- Icône Oeil (Voir) avec texte -->
+                    <div class="relative group">
+                        <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                            <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
+                            Voir
+                        </button>
+                    </div>
                 </span>
               </div>
               

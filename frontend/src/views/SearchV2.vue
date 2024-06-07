@@ -65,16 +65,14 @@
             </div>
 
 
-            <div class="flex space-x-2 items-stretch pr-2 h-full"> <!-- Utilisation de items-stretch pour étirer les éléments en hauteur -->
-              <div class="flex-grow w-full">
-                <div class="relative flex flex-grow items-stretch h-full"> <!-- Utilisation de items-stretch ici aussi -->
+            <div class="flex space-x-2 items-stretch pr-2 h-full w-full">
+              <div class="flex-grow w-full h-full">
+                <div class="relative flex flex-grow items-stretch h-full">
                   <input v-model="query"
                     type="text"
                     :placeholder="$t('Search_vue.manual_Search')"
                     autocomplete="given-name"
-                    class="block w-full rounded-md border-0 pl-10 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset 
-                    ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 
-                    sm:text-sm sm:leading-6 text-sm font-medium text-gray-900 2xl:text-base h-full"
+                    class="block w-full h-full rounded-md border-0 bg-white pl-12 py-2 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-14 2xl:pr-14 2xl:text-base"
                     style="vertical-align: middle;">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <magnifying-glass-icon class="w-4 h-4" />
@@ -82,18 +80,17 @@
                 </div>
               </div>
 
-              <div class="flex-grow"> <!-- Suppression de styles de marge supplémentaires pour permettre un étirement complet -->
+              <div class="flex-grow h-full">
                 <button type="button" @click="searchEmails"
-                  class="bg-gray-700 rounded-md px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between w-full h-full 2xl:px-7 2xl:py-2 2xl:text-lg">
+                  class="w-full h-full bg-gray-700 rounded-md px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:px-7 2xl:py-3 2xl:text-lg">
                   {{ $t('Search_vue.search_button') }}
-                 <!-- <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" /> -->
                   <magnifying-glass-icon class="w-4 2xl:w-5" />
                 </button>
               </div>
 
-              <div class="flex-grow"> <!-- Suppression de styles de marge supplémentaires pour permettre un étirement complet -->
+              <div class="flex-grow h-full">
                 <button type="button" @click="Hide_filtres()"
-                  class="rounded-md bg-gray-700 p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 w-full h-full">
+                  class="w-full h-full bg-gray-700 rounded-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3">
                   <svg class="w-6 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4 a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
                   </svg>
@@ -378,86 +375,86 @@
 
           <!-- Liste email -->
 
-          <div class="flex flex-col w-full max-h-64 overflow-auto px-6 pt-2" id="liste_email">
+          <div class="flex flex-col w-full max-h-64 overflow-auto px-4 pt-2" id="liste_email">
             <!-- Élément de la liste -->
             <div class="flex justify-between items-center p-4 email-item">
-                <!-- Gauche : Détails de l'email -->
-                <div class="flex flex-col justify-center">
-                    <span class="font-bold text-sm">Expéditeur</span>
-                    <span class="text-sm">Objet du mail - Début du mail...</span>
-                </div>
+              <!-- Gauche : Détails de l'email -->
+              <div class="flex flex-col justify-center">
+                <span class="font-bold text-sm">Expéditeur</span>
+                <span class="text-sm">Objet du mail - Début du mail...</span>
+              </div>
 
-                <!-- Droite : Actions (visuellement statique) -->
-                <span class="isolate inline-flex items-center rounded-2xl"> <!-- Ajout de items-center pour aligner verticalement -->
-                    <!-- Icône Oeil (Voir) avec texte -->
-                    <div class="relative group">
-                        <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                            <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
-                            Voir
-                        </button>
-                    </div>
-                </span>
+              <!-- Droite : Actions (visuellement statique) -->
+              <span class="isolate inline-flex items-center rounded-2xl">
+                <!-- Icône Oeil (Voir) avec texte -->
+                <div class="relative group">
+                  <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                    <EyeIcon class="w-5 h-5" />
+                    Voir
+                  </button>
+                </div>
+              </span>
             </div>
 
-              <!-- Séparateur -->
-              <div class="px-4">
-                <div class="relative">
-                  <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div class="w-full border-t border-gray-300"></div>
-                  </div>
+            <!-- Séparateur -->
+            <div class="px-6">
+              <div class="relative">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div class="w-full border-t border-gray-300"></div>
                 </div>
               </div>
-
-               <!-- Élément de la liste -->
-            <div class="flex justify-between items-center p-4 email-item">
-                <!-- Gauche : Détails de l'email -->
-                <div class="flex flex-col">
-                  <span class="font-bold text-sm">Expéditeur</span>
-                  <span class="text-sm">Objet du mail - Début du mail...</span>
-                </div>
-    
-               <!-- Droite : Actions (visuellement statique) -->
-               <span class="isolate inline-flex items-center rounded-2xl"> <!-- Ajout de items-center pour aligner verticalement -->
-                    <!-- Icône Oeil (Voir) avec texte -->
-                    <div class="relative group">
-                        <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                            <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
-                            Voir
-                        </button>
-                    </div>
-                </span>
-              </div>
-              
-              <!-- Séparateur -->
-              <div class="px-4">
-                <div class="relative">
-                  <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div class="w-full border-t border-gray-300"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Élément de la liste -->
-            <div class="flex justify-between items-center p-4 email-item">
-                <!-- Gauche : Détails de l'email -->
-                <div class="flex flex-col justify-center">
-                    <span class="font-bold text-sm">Expéditeur</span>
-                    <span class="text-sm">Objet du mail - Début du mail...</span>
-                </div>
-
-                <!-- Droite : Actions (visuellement statique) -->
-                <span class="isolate inline-flex items-center rounded-2xl"> <!-- Ajout de items-center pour aligner verticalement -->
-                    <!-- Icône Oeil (Voir) avec texte -->
-                    <div class="relative group">
-                        <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                            <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
-                            Voir
-                        </button>
-                    </div>
-                </span>
             </div>
-              
-              <!-- Répétez les éléments pour chaque email -->
+
+            <!-- Élément de la liste -->
+            <div class="flex justify-between items-center p-4 email-item">
+              <!-- Gauche : Détails de l'email -->
+              <div class="flex flex-col justify-center">
+                <span class="font-bold text-sm">Expéditeur</span>
+                <span class="text-sm">Objet du mail - Début du mail...</span>
+              </div>
+
+              <!-- Droite : Actions (visuellement statique) -->
+              <span class="isolate inline-flex items-center rounded-2xl">
+                <!-- Icône Oeil (Voir) avec texte -->
+                <div class="relative group">
+                  <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                    <EyeIcon class="w-5 h-5" />
+                    Voir
+                  </button>
+                </div>
+              </span>
+            </div>
+
+            <!-- Séparateur -->
+            <div class="px-6">
+              <div class="relative">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div class="w-full border-t border-gray-300"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Élément de la liste -->
+            <div class="flex justify-between items-center p-4 email-item">
+              <!-- Gauche : Détails de l'email -->
+              <div class="flex flex-col justify-center">
+                <span class="font-bold text-sm">Expéditeur</span>
+                <span class="text-sm">Objet du mail - Début du mail...</span>
+              </div>
+
+              <!-- Droite : Actions (visuellement statique) -->
+              <span class="isolate inline-flex items-center rounded-2xl">
+                <!-- Icône Oeil (Voir) avec texte -->
+                <div class="relative group">
+                  <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                    <EyeIcon class="w-5 h-5" />
+                    Voir
+                  </button>
+                </div>
+              </span>
+            </div>
+
+  <!-- Répétez les éléments pour chaque email -->
           </div>
 
           <!-- h-[600px] 2xl:h-[700px] -->

@@ -455,7 +455,7 @@
                                     </li>
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && countEmailsInCategoryAndPriority(selectedTopic, 'Information') > 0" class="">
                                         <div class="px-6 pb-6">
-                                            <div class="bg-blue-100 bg-opacity-90 rounded-md mb-4">
+                                            <div class="bg-blue-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-2 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
                                                     Travail - Informatif

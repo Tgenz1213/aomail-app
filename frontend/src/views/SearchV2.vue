@@ -42,7 +42,7 @@
         </div>
       </div>
       <div id="secondMainColumn"
-        class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
+        class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
         <!--xl:h-[695px] xl:w-[560px]-->
         <div
           class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
@@ -56,7 +56,7 @@
             <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Search_vue.manual_Search') }}</h1> 
           </div>
         </div>
-        <div class="flex flex-col h-5/6 w-full">
+        <div class="flex flex-grow flex-col w-full">
           <div class="flex flex-col w-full px-6 pt-2">
             <div class="flex space-x-1 items-center">
             <!--  <magnifying-glass-icon class="w-4 h-4" />
@@ -86,7 +86,8 @@
                 <button type="button" @click="searchEmails"
                   class="bg-gray-700 rounded-md px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between w-full h-full 2xl:px-7 2xl:py-2 2xl:text-lg">
                   {{ $t('Search_vue.search_button') }}
-                  <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
+                 <!-- <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" /> -->
+                  <magnifying-glass-icon class="w-4 2xl:w-5" />
                 </button>
               </div>
 
@@ -102,10 +103,11 @@
 
           </div>
           <div class="flex flex-col w-full px-6 pt-4 bg-white hidden" id="filtres">
-            <div class="grid grid-cols-3 gap-4">
+
+            <div class="flex flex-col gap-4">
 
 
-              <div class="col-span-1">
+              <div class="flex gap-4">
                 <div class="relative items-stretch mt-2">
                   <Combobox as="div" v-model="selectedPerson">
                     <div class="relative">
@@ -153,16 +155,12 @@
                     </span>
                   </div>
                 </div>
-              </div>
 
-
-
-                <div class="col-span-1">
                   <div class="relative items-stretch mt-2">
                         <Listbox as="div" v-model="attachmentSelected">
                           <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                             <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" /> <!-- Ajustement de la taille de l'icône -->
-                            <span class="block truncate text-gray-700 mt-2 mb-2">
+                            <span class="block truncate text-gray-700">
                               {{ attachmentSelected ? attachmentSelected.name : 'Type de pièce jointe' }}
                             </span>
                             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -185,9 +183,7 @@
                           </transition>
                         </Listbox>
                   </div>
-                </div>
 
-                <div class="col-span-1">
                 <div class="relative items-stretch mt-2">
                   <Combobox as="div" v-model="selectedPerson">
                     <div class="relative">
@@ -237,18 +233,19 @@
                 </div>
               </div>
 
+
                 <!-- SECOND ROW OF INPUTS -->
 
-                <div class="col-span-1">
+                <div class="flex items-end gap-4">
                   <div class="relative items-stretch mt-2">
                         <Listbox as="div" v-model="attachmentSelected">
-                          <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                          <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-7 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                             <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" /> <!-- Ajustement de la taille de l'icône -->
-                            <span class="block truncate text-gray-700 mt-2 mb-2">
+                            <span class="block truncate text-gray-700">
                               {{ attachmentSelected ? attachmentSelected.name : 'Linked for search' }}
                             </span>
                             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400  mt-2 mb-2" aria-hidden="true" />
+                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
                             </span>
                           </ListboxButton>
                           <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
@@ -267,10 +264,7 @@
                           </transition>
                         </Listbox>
                   </div>
-                </div>
 
-               
-                <div class="col-span-1">
                   <div class="relative items-stretch mt-2">
                     <Combobox as="div" v-model="selectedPerson">
                       <div class="relative">
@@ -288,15 +282,7 @@
                       </div>
                     </Combobox>
                   </div>
-                </div>
 
-                
-               <!-- PLACER LE BOOLEAN ICI -->
-                
-
-                 <!-- THIRD ROW OF INPUTS -->
-
-                 <div class="col-span-1">
                   <div class="relative items-stretch mt-2">
                     <Combobox as="div" v-model="selectedPerson">
                       <div class="relative">
@@ -314,9 +300,16 @@
                       </div>
                     </Combobox>
                   </div>
-                </div>
+                </div>  
+                
+                
+               <!-- PLACER LE BOOLEAN ICI -->
+                
 
-                <div class="col-span-1">
+                 <!-- THIRD ROW OF INPUTS -->
+
+                <div class="flex items-end gap-4">
+             
                   <div class="relative items-stretch mt-2">
                     <Combobox as="div" v-model="selectedPerson">
                       <div class="relative">
@@ -334,9 +327,9 @@
                       </div>
                     </Combobox>
                   </div>
-                </div>
+              
 
-                <div class="col-span-1">
+                
                   <div class="relative items-stretch mt-2">
                     <Combobox as="div" v-model="selectedPerson">
                       <div class="relative">
@@ -379,9 +372,97 @@
               </div>-->
 
             </div>
+
           </div>
+
+
+          <!-- Liste email -->
+
+          <div class="flex flex-col w-full max-h-64 overflow-auto px-6 pt-2" id="liste_email">
+            <!-- Élément de la liste -->
+            <div class="flex justify-between items-center p-4 email-item">
+                <!-- Gauche : Détails de l'email -->
+                <div class="flex flex-col justify-center">
+                    <span class="font-bold text-sm">Expéditeur</span>
+                    <span class="text-sm">Objet du mail - Début du mail...</span>
+                </div>
+
+                <!-- Droite : Actions (visuellement statique) -->
+                <span class="isolate inline-flex items-center rounded-2xl"> <!-- Ajout de items-center pour aligner verticalement -->
+                    <!-- Icône Oeil (Voir) avec texte -->
+                    <div class="relative group">
+                        <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                            <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
+                            Voir
+                        </button>
+                    </div>
+                </span>
+            </div>
+
+              <!-- Séparateur -->
+              <div class="px-4">
+                <div class="relative">
+                  <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-gray-300"></div>
+                  </div>
+                </div>
+              </div>
+
+               <!-- Élément de la liste -->
+            <div class="flex justify-between items-center p-4 email-item">
+                <!-- Gauche : Détails de l'email -->
+                <div class="flex flex-col">
+                  <span class="font-bold text-sm">Expéditeur</span>
+                  <span class="text-sm">Objet du mail - Début du mail...</span>
+                </div>
+    
+               <!-- Droite : Actions (visuellement statique) -->
+                <span class="isolate inline-flex rounded-2xl items-center">
+                  <!-- Icône Oeil (Voir) avec texte -->
+                  <div class="relative group pt-8">
+                    <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                      <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
+                      Voir
+                    </button>
+                  </div>
+                </span>
+              </div>
+              
+              <!-- Séparateur -->
+              <div class="px-4">
+                <div class="relative">
+                  <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-gray-300"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Élément de la liste -->
+            <div class="flex justify-between items-center p-4 email-item">
+                <!-- Gauche : Détails de l'email -->
+                <div class="flex flex-col justify-center">
+                    <span class="font-bold text-sm">Expéditeur</span>
+                    <span class="text-sm">Objet du mail - Début du mail...</span>
+                </div>
+
+                <!-- Droite : Actions (visuellement statique) -->
+                <span class="isolate inline-flex items-center rounded-2xl"> <!-- Ajout de items-center pour aligner verticalement -->
+                    <!-- Icône Oeil (Voir) avec texte -->
+                    <div class="relative group">
+                        <button class="border-2 border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                            <EyeIcon class="w-5 h-5" /> <!-- Utilisation de EyeIcon -->
+                            Voir
+                        </button>
+                    </div>
+                </span>
+            </div>
+              
+              <!-- Répétez les éléments pour chaque email -->
+          </div>
+
           <!-- h-[600px] 2xl:h-[700px] -->
-          <div class="flex-grow p-6 mr-2">
+         
+          <div class="flex-grow p-6 mr-2 block" id="no_mail" v-show="!isLoggedIn">
             <div class="h-96 flex flex-col h-full">
               <div class="flex-1 overflow-y-auto">
                 <div
@@ -449,6 +530,8 @@
     </div>
   </div>
 </template>
+
+
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
@@ -485,6 +568,7 @@ const scrollToBottom = async () => {
   element.scrollTop = element.scrollHeight;
 };
 let isAIWriting = ref(false);
+let isLoggedIn = ref(false);
 let searchResult = ref({});
 const textareaValue = ref('');
 
@@ -525,6 +609,16 @@ const filteredFromPeople = computed(() =>
       return person.username.toLowerCase().includes(queryGetContacts.value.toLowerCase())
     })
 )
+
+const checkLoginStatus = () => {
+  const emailList = document.getElementById('liste_email');
+  const hasEmails = emailList.getElementsByClassName('email-item').length > 0;
+  isLoggedIn.value = hasEmails;
+};
+
+onMounted(() => {
+  checkLoginStatus();
+});
 
 const filteredPeople = computed(() =>
   queryGetContacts.value === ''
@@ -898,5 +992,19 @@ function displayPopup() {
   timerId = setTimeout(() => {
     dismissPopup();
   }, 4000);
+}
+</script>
+
+<script>
+
+import {
+    EyeIcon
+} from '@heroicons/vue/24/outline'
+
+export default {
+    name: 'UserHome',
+    components: { 
+        EyeIcon
+    }
 }
 </script>

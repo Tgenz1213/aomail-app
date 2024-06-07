@@ -32,75 +32,76 @@
                   </div> -->
                 </div>
                 <div class="flex items-center ml-auto">
-                  <div class="relative group">
+                  <!-- <div class="relative group"> -->
                       <div
-                          class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
+                          class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
                           {{ $t('SeeMail_vue.more_actions') }} 
                       </div>
                       <div class="flex justify-center">
                         <span class="isolate inline-flex rounded-2xl">
-                            <div
-                                class="group action-buttons">
-                                <div class="relative group">
-                                    <div
-                                        class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                        {{ $t('SeeMail_vue.read') }} 
-                                    </div>
-                                    <button
-                                        @click="markEmailAsRead(email.id)"
-                                        type="button"
-                                        class="relative -ml-px inline-flex items-center rounded-l-2xl px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                        <check-icon
-                                            class="w-5 h-5 text-gray-400 group-hover:text-white" />
-                                    </button>
+                          
+                          <div class="group action-buttons">
+                            <div class="relative group">
+                                <!-- Adjusted tooltip positioning -->
+                                <div
+                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
+                                    {{ $t('SeeMail_vue.read') }} 
                                 </div>
+                                <button
+                                    @click="markEmailAsRead(email.id)"
+                                    type="button"
+                                    class="relative inline-flex items-center rounded-l-2xl px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                    <check-icon
+                                    class="w-5 h-5 text-gray-400 hover:text-white" />
+                                </button>
                             </div>
-                            <div
-                                class="group action-buttons">
-                                <div class="relative group">
-                                    <div
-                                        class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                        {{ $t('SeeMail_vue.answer') }} 
-                                    </div>
-                                    <button @click="openAnswer(email)"
-                                        type="button"
-                                        class="relative -ml-px inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                        <arrow-uturn-left-icon
-                                            class="w-5 h-5 text-gray-400 group-hover:text-white" />
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="group action-buttons">
-                                <div class="relative group">
-                                    <div
-                                        class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                        Répondre
-                                    </div>
-                                    <button @click="openRuleEditor"
-                                        type="button"
-                                        class="relative -ml-px inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                        <BeakerIcon
-                                            class="w-5 h-5 text-gray-400 group-hover:text-white" />
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="group action-buttons">
-                                <div class="relative group">
-                                    <div
-                                        class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[90px] w-[185px]">
-                                        {{ $t('SeeMail_vue.more_actions') }} 
-                                    </div>
-                                    <Menu as="div"
-                                        class="relative inline-block text-left">
-                                        <div>
-                                            <MenuButton
-                                                @click="toggleTooltip"
-                                                class="relative -ml-px inline-flex items-center rounded-r-2xl px-1.5 py-1 text-orange-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                                <ellipsis-horizontal-icon
-                                                    class="w-5 h-5 group-hover:text-white text-gray-400 group-active:text-orange-400 group-focus:text-orange focus:text-orange-400" />
-                                            </MenuButton>
+                        </div>
+                        <div class="group action-buttons">
+                          <div class="relative group">
+                              <!-- Updated tooltip positioning -->
+                              <div
+                                  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
+                                  {{ $t('SeeMail_vue.answer') }} 
+                              </div>
+                              <button @click="openAnswer(email)"
+                                  type="button"
+                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                  <arrow-uturn-left-icon
+                                  class="w-5 h-5 text-gray-400 hover:text-white" />
+                              </button>
+                          </div>
+                      </div>
+                      <div class="group action-buttons">
+                          <div class="relative group">
+                              <!-- Updated tooltip positioning -->
+                              <div
+                                  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
+                                  Répondre
+                              </div>
+                              <button @click="openRuleEditor"
+                                  type="button"
+                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                  <BeakerIcon
+                                  class="w-5 h-5 text-gray-400 hover:text-white" />
+                              </button>
+                          </div>
+                      </div>
+                          <div class="group action-buttons">
+                              <div class="relative group">
+                                  <!-- Updated tooltip positioning -->
+                                  <div
+                                      class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
+                                      {{ $t('SeeMail_vue.more_actions') }} 
+                                  </div>
+                                  <Menu as="div"
+                                      class="relative inline-block text-left">
+                                      <div>
+                                          <MenuButton
+                                              @click="toggleTooltip"
+                                              class="relative inline-flex items-center rounded-r-2xl px-1.5 py-1 text-orange-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                              <ellipsis-horizontal-icon
+                                              class="w-5 h-5 text-gray-400 hover:text-white" />
+                                          </MenuButton>
                                         </div>
                                         <!--
                                         <transition
@@ -230,7 +231,7 @@
                         </span>
                     </div>
                   </div>
-                </div>
+                <!--</div> -->
               </div>
             </div>
             <!-- EN cours de dev

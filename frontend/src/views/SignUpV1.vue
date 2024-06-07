@@ -187,10 +187,10 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Completed Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-gray-500"></div>
+                        <div class="h-0.5 w-full bg-gray-500 "></div>
                       </div>
                       <a @click="goStep0"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -254,7 +254,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a @click="goStep0"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -269,7 +269,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a @click="goStep1"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -320,8 +320,8 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
-                      <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      <a 
+                      class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -336,7 +336,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -391,7 +391,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                      class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -406,7 +406,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"

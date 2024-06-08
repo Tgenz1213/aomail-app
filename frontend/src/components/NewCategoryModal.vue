@@ -41,7 +41,7 @@
                         </div>
                         <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
                             <button type="button" class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
-                                @click="addCategory">{{ $t('Global action.create') }}</button>
+                                @click="addCategory">{{ $t('constants.create') }}</button>
                         </div>
                     </div>
                 </div>

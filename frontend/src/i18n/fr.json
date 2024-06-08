@@ -1,10 +1,10 @@
 {
-  "Global action": {
+  "constants": {
     "cancel": "Annuler",
     "delete": "Supprimer",
     "create": "Créer",
     "category": "Catégorie",
-    "searchbar_search": "Recherche",
+    "search": "Recherche",
     "update": "Mettre à jour"
   },
   "userLoginPage": {
@@ -14,26 +14,26 @@
     "forgottenPassword": "Mot de passe oublié ?",
     "login": "Connexion",
     "doNotHaveAccount": "Vous n'avez pas de compte ?",
-    "beginfreeTrial": "Commencez votre essai gratuit"
+    "beginFreeTrial": "Commencer votre essai gratuit"
   },
-  "SignUp_p1_vue": {
-    "sign_up": "S'inscrire",
+  "signUpPart1Page": {
+    "signUp": "S'inscrire",
     "username": "Nom d'utilisateur",
     "password": "Mot de passe",
-    "password_confirm": "Confirmez le mot de passe",
+    "passwordConfirm": "Confirmer le mot de passe",
     "continue": "Continuer",
-    "Theme": "Thème",
-    "Colors": "Couleurs",
-    "create_categorie": "Créez vos différentes catégories dans lesquelles vous souhaitez que l'assistant classe automatiquement vos e-mails.",
-    "categorie_description": "Brève description de la catégorie",
-    "description": "Cette description permettra à l'assistant de comprendre la catégorie",
-    "infos": "Vous voulez en savoir plus ?",
-    "add_categorie": "Ajouter une catégorie",
-    "add_another_categorie": "Ajouter une autre catégorie ?",
-    "modify_category": "Modifier une catégorie",
-    "category_name": "Nom de la catégorie",
-    "you_have_an_account": "Vous avez un compte ?",
-    "Login": "Se connecter"
+    "theme": "Thème",
+    "colors": "Couleurs",
+    "createCategory": "Créez vos différentes catégories dans lesquelles vous souhaitez que l'assistant classe automatiquement vos e-mails.",
+    "categoryDescription": "Brève description de la catégorie",
+    "categoryDescriptionExplanation": "Cette description permettra à l'assistant de comprendre la catégorie",
+    "wantToKnowMore": "Vous voulez en savoir plus ?",
+    "addCategory": "Ajouter une catégorie",
+    "addAnotherCategory": "Ajouter une autre catégorie ?",
+    "modifyCategory": "Modifier une catégorie",
+    "categoryName": "Nom de la catégorie",
+    "youHaveAnAccount": "Vous avez un compte ?",
+    "login": "Se connecter"
   },
   "SignUp_p2_vue": {
     "titre": "Inscription à MailAssistant",

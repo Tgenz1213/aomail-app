@@ -1,39 +1,39 @@
 {
-  "Global action": {
+  "constants": {
     "cancel": "Cancel",
-    "delete": "delete",
+    "delete": "Delete",
     "create": "Create",
     "category": "Category",
-    "searchbar_search": "search",
-    "update": "update"
+    "search": "Search",
+    "update": "Update"
   },
   "userLoginPage": {
-    "connectAccount": "Connect to your account",
+    "connectAccount": "Connect to Your Account",
     "username": "Username",
     "password": "Password",
     "forgottenPassword": "Password forgotten?",
-    "login": "Login",
-    "doNotHaveAccount": "You don't have an account?",
-    "beginfreeTrial": "Begin your free trial"
-},
-  "SignUp_p1_vue": {
-    "sign_up": "Sign up",
+    "login": "Log In",
+    "doNotHaveAccount": "Don't have an account?",
+    "beginFreeTrial": "Begin Your Free Trial"
+  },
+  "signUpPart1Page": {
+    "signUp": "Sign Up",
     "username": "Username",
     "password": "Password",
-    "password_confirm": "Confirm password",
+    "passwordConfirm": "Confirm Password",
     "continue": "Continue",
-    "Theme": "Theme",
-    "Colors": "Colors",
-    "create_categorie": "Create your different categories in which you want the assistant to place automatically your emails.",
-    "categorie_description": "Brief description of the categorie",
-    "description": "This description will enable the assistant to understand the category",
-    "infos": "Whant to know more ?",
-    "add_categorie": "Add a categorie",
-    "add_another_categorie": "Add another categorie ?",
-    "modify_category": "Modify a category",
-    "category_name": "Category name",
-    "you_have_an_account": "You have an account ?",
-    "Login": "Log in"
+    "theme": "Theme",
+    "colors": "Colors",
+    "createCategory": "Create your different categories where you want the assistant to automatically place your emails.",
+    "categoryDescription": "Brief description of the category",
+    "categoryDescriptionExplanation": "This description will help the assistant understand the category.",
+    "wantToKnowMore": "Want to know more?",
+    "addCategory": "Add a Category",
+    "addAnotherCategory": "Add another Category?",
+    "modifyCategory": "Modify a Category",
+    "categoryName": "Category Name",
+    "youHaveAnAccount": "Do you have an account?",
+    "login": "Log In"
   },
   "SignUp_p2_vue": {
     "titre": "Register to MailAssistant",

@@ -51,7 +51,7 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="closeModal">{{ $t('Global action.cancel') }}</button>
+                            @click="closeModal">{{ $t('constants.cancel') }}</button>
                         <div class="flex-grow"></div> <!-- Flexible spacer -->
                         <button type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -98,7 +98,7 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
-                            @click="closeUnlinkModal">{{ $t('Global action.cancel') }}</button>
+                            @click="closeUnlinkModal">{{ $t('constants.cancel') }}</button>
                         <div class="flex-grow"></div>
                         <button type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -151,7 +151,7 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="updateUserDescription">{{ $t('Global action.update') }}</button>
+                            @click="updateUserDescription">{{ $t('constants.update') }}</button>
                     </div>
                 </div>
             </div>

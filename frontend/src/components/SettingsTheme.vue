@@ -7,7 +7,7 @@
     <Listbox as="div" v-model="selectedTheme">
       <ListboxButton
         class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
-        <span class="block truncate">{{ selectedTheme.value }}</span>
+        <span class="block truncate">{{ $t(selectedTheme.value) }}</span>
         <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
         </span>
@@ -20,7 +20,7 @@
             v-slot="{ active, selected }">
             <li
               :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-              <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ theme.value }}</span>
+              <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ $t(theme.value) }}</span>
               <span v-if="selected"
                 :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
                 <CheckIcon class="h-5 w-5" aria-hidden="true" />
@@ -39,11 +39,15 @@ import ShowNotification from '../components/ShowNotification.vue';
 import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
+import { useI18n } from 'vue-i18n';
+
+// Use i18n
+const { t } = useI18n();
 
 // Theme options
 const themes = ref([
-  { key: 'light', value: 'Thème Clair' },
-  { key: 'dark', value: 'Thème Foncé' },
+  { key: 'light', value: 'constants.themeList.lightTheme' },
+  { key: 'dark', value: 'constants.themeList.darkTheme' },
 ]);
 
 // Selected theme

@@ -38,14 +38,14 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation.delete_account') }}
+                            $t('settingsPage.accountPage.deleteAccount') }}
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $t('settings_navigation.confirmer_delete_account') }}
+                            {{ $t('settingsPage.accountPage.confirmDeleteAccount') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
@@ -61,7 +61,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            {{ $t('settings_navigation.delete_account') }}
+                            {{ $t('settingsPage.accountPage.deleteAccount') }}
                         </button>
                     </div>
                 </div>
@@ -85,14 +85,14 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation2.unlink_my_email') }}
+                            $t('settingsPage.accountPage.unlinkMyEmail') }}
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $t('settings_navigation2.this_feature_is_under_test') }}
+                            {{ $t('settingsPage.accountPage.thisFeatureIsUnderTest') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
@@ -108,7 +108,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            {{ $t('settings_navigation2.unlink_my_email') }}
+                            {{ $t('settingsPage.accountPage.unlinkMyEmail') }}
                         </button>
                     </div>
                 </div>
@@ -132,7 +132,7 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation3.update_my_description')
+                            $t('settingsPage.accountPage.updateMyDescription')
                             }}</p>
                     </div>
                 </div>
@@ -175,7 +175,7 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation3.Link_a_new_email_address')
+                            $t('settingsPage.accountPage.linkANewEmailAddress')
                             }}</p>
                     </div>
                 </div>
@@ -195,7 +195,7 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="linkNewEmail">{{ $t('settings_navigation3.link') }}</button>
+                            @click="linkNewEmail">{{ $t('settingsPage.accountPage.link') }}</button>
                     </div>
                 </div>
             </div>
@@ -232,7 +232,7 @@
                                                 @click="setActiveSection('account')">
                                                 <user-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.my_account')
+                                                    class="text-sm font-medium">{{ $t('settingsPage.accountPage.myAccountTitle')
                                                     }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
@@ -241,7 +241,7 @@
                                                 <adjustments-vertical-icon class="w-4 h-4" />
                                                 <a
                                                     :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">{{
-                                                        $t('settings_navigation.Preferences') }}</a>
+                                                        $t('settingsPage.preferencesPage.preferencesTitle') }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription' }]"
@@ -249,7 +249,7 @@
                                                 <credit-card-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription' }"
                                                     class="text-sm font-medium">{{
-                                                        $t('settings_navigation.subscription')
+                                                        $t('settingsPage.subscriptionPage.subscriptionTitle')
                                                     }}</a>
                                             </div>
 
@@ -258,7 +258,7 @@
                                                 @click="setActiveSection('data')">
                                                 <circle-stack-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.my_data')
+                                                    class="text-sm font-medium">{{ $t('settingsPage.dataPage.myData')
                                                     }}</a>
                                             </div>
                                         </nav>
@@ -280,7 +280,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('settings_navigation.change_my_username_or_my_password')
+                                                    $t('settingsPage.accountPage.changeMyUsernameOrMyPassword')
                                                     }}</span>
                                             </div>
                                         </div>
@@ -288,7 +288,7 @@
                                             <div class="flex space-x-1 items-center">
                                                 <envelope-icon class="w-4 h-4" />
                                                 <label class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                    $t('settings_navigation.username') }}</label>
+                                                    $t('constants.username') }}</label>
                                             </div>
                                             <div class="relative items-stretch mt-2">
                                                 <input v-model="userData" type="text" name="username" id="username"
@@ -302,7 +302,7 @@
                                                             <key-icon class="w-4 h-4" />
                                                             <label
                                                                 class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                                    $t('settings_navigation.new_password') }}</label>
+                                                                    $t('settingsPage.accountPage.newPassword') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showPassword" type="password"
@@ -342,7 +342,7 @@
                                                             <key-icon class="w-4 h-4" />
                                                             <label
                                                                 class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                                    $t('settings_navigation.Confirm') }}</label>
+                                                                    $t('settingsPage.accountPage.confirmYourNewPassword') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showConfirmPassword" type="password"
@@ -376,7 +376,7 @@
                                             <div class="flex justify-end pt-4">
                                                 <button @click="handleSubmit"
                                                     class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{
-                                                        $t('settings_navigation.modify') }}</button>
+                                                        $t('settingsPage.accountPage.modify') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -387,7 +387,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('settings_navigation.delete') }}</span>
+                                                    $t('constants.delete') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-6">
@@ -398,7 +398,7 @@
                                                         name="choice">
                                                     <label for="push-everything"
                                                         class="block text-sm font-medium leading-6">
-                                                        {{ $t('settings_navigation.confirmer_delete_account') }}</label>
+                                                        {{ $t('settingsPage.accountPage.confirmDeleteAccount') }}</label>
                                                 </div>
                                                 <button @click="openModal" type="submit"
                                                     class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">
@@ -409,7 +409,7 @@
                                                             d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                                     </svg>
 
-                                                    {{ $t('settings_navigation.delete') }}</button>
+                                                    {{ $t('constants.delete') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -421,7 +421,7 @@
                                         </div>
                                         <div class="relative flex justify-center">
                                             <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                $t('settings_navigation3.Link_a_new_email_address') }}</span>
+                                                $t('settingsPage.accountPage.linkANewEmailAddress') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-[52px]">
@@ -621,8 +621,9 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
                                     </svg>
-                                    <span class="mt-2 block text-sm font-semibold text-gray-900">En cours de
-                                        construction</span>
+                                    <span class="mt-2 block text-sm font-semibold text-gray-900">
+                                        {{ $t('constants.underDevelopment') }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -639,7 +640,8 @@
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
                                             <div class="relative flex justify-center">
-                                                <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                    $t('constants.language') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
@@ -653,7 +655,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('settings_navigation.Theme') }}</span>
+                                                    $t('constants.theme') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
@@ -671,7 +673,8 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span
-                                                    class="bg-white px-2 text-sm text-gray-500">SettingsTimeZone</span>
+                                                    class="bg-white px-2 text-sm text-gray-500">{{
+                                                    $t('constants.timezone') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
@@ -688,8 +691,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
                                         </svg>
-                                        <span class="mt-2 block text-sm font-semibold text-gray-900">En cours de
-                                            construction</span>
+                                        <span class="mt-2 block text-sm font-semibold text-gray-900">
+                                            {{ $t('constants.underDevelopment') }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

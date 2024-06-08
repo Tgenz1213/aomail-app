@@ -30,8 +30,8 @@ import { ref, watch } from 'vue';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
 
 const themes = ref([
-    { key: 'light', value: 'Thème Clair' },
-    { key: 'dark', value: 'Thème Foncé' },
+    { key: 'light', value: 'constants.themeList.lightTheme' },
+    { key: 'dark', value: 'constants.themeList.darkTheme' },
 ]);
 
 if (!localStorage.getItem("theme")) {

@@ -1,29 +1,69 @@
 {
   "constants": {
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "create": "Create",
+    "userActions": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "create": "Create",
+      "update": "Update",
+      "open": "Open",
+      "send": "Send",
+      "changeTheRule": "Change the rule",
+      "createARule": "Create a rule",
+      "transfer": "Transfer",
+      "reply": "Reply",
+      "search": "Search",
+      "modify": "Modify",
+      "clickToSeeTheSummary": "Click to see the summary",
+      "replyLater": "Reply later",
+      "enterManually": "Enter manually",
+      "modifyACategory": "Modify a category",
+      "login": "Log In"
+    },
+    "ruleModalConstants": {
+      "noCategoryDefined": "No category defined",
+      "noPriority": "No priority defined",
+      "important": "Important",
+      "informative": "Informative",
+      "useless": "Useless",
+      "blockTheEmail": "Block the emails"
+    },
+    "additionalActions": "Additional actions",
+    "manualSearch": "Manual search",
+    "subject": "Subject",
+    "aiAssistant": "AI assistant",
+    "recipient": "Recipient",
     "category": "Category",
-    "search": "Search",
-    "update": "Update",
-    "workInProgress": "Work in progress"
+    "username": "Username",
+    "password": "Password",
+    "workInProgress": "Work in progress",
+    "underDevelopment": "Under Development",
+    "language": "Language",
+    "languagesList": {
+      "french": "French 🇫🇷",
+      "american": "American 🇺🇸",
+      "german": "German 🇩🇪",
+      "russian": "Russian 🇷🇺",
+      "spanish": "Spanish 🇪🇸",
+      "chinese": "Chinese 🇨🇳",
+      "indian": "Hindi 🇮🇳"
+    },
+    "theme": "Theme",
+    "themeList": {
+      "darkTheme": "Dark theme",
+      "lightTheme": "Light theme"
+    },
+    "timezone": "Timezone"
   },
   "userLoginPage": {
     "connectAccount": "Connect to Your Account",
-    "username": "Username",
-    "password": "Password",
     "forgottenPassword": "Password forgotten?",
-    "login": "Log In",
     "doNotHaveAccount": "Don't have an account?",
     "beginFreeTrial": "Begin Your Free Trial"
   },
   "signUpPart1Page": {
     "signUp": "Sign Up",
-    "username": "Username",
-    "password": "Password",
     "passwordConfirm": "Confirm Password",
     "continue": "Continue",
-    "theme": "Theme",
     "colors": "Colors",
     "createCategory": "Create your different categories where you want the assistant to automatically place your emails.",
     "categoryDescription": "Brief description of the category",
@@ -31,10 +71,8 @@
     "wantToKnowMore": "Want to know more?",
     "addCategory": "Add a Category",
     "addAnotherCategory": "Add another Category?",
-    "modifyCategory": "Modify a Category",
     "categoryName": "Category Name",
-    "youHaveAnAccount": "Do you have an account?",
-    "login": "Log In"
+    "youHaveAnAccount": "Do you have an account?"
   },
   "signUpPart2Page": {
     "registerToAomail": "Register to Aomail",
@@ -48,16 +86,8 @@
   },
   "homePage": {
     "noNewEmail": "No new email",
-    "clickToSeeTheSummary": "Click to see the summary",
-    "open": "Open",
     "suppressionOf": "Suppression of",
     "answer": "Answer",
-    "myData": "My data",
-    "additionalActions": "Additional actions",
-    "changeTheRule": "Change the rule",
-    "createARule": "Create a rule",
-    "replyLater": "Reply later",
-    "transfer": "Transfer",
     "read": "Read",
     "unread": "Unread",
     "youReceived": "You received",
@@ -76,156 +106,119 @@
     "toThisCategory": "to this category.",
     "warningForDeletingTheCategory": "Deleting the category will also result in deleting all associated rules",
     "email": "email.",
-    "emails": "emails."
+    "emails": "emails.",
+    "modals": {
+      "newCategoryModal": {
+        "newCategory": "Create a new category",
+        "categoryDescription": "Brief description of the category",
+        "descriptionForTheAssistant": "This description will enable the assistant to understand the category",
+        "categoryName": "Category name"
+      },
+      "updateCategoryModal": {
+        "categoryName": "Name of the category",
+        "descriptionOfTheCategory": "Brief description of the category",
+        "descriptionOfTheCategoryForTheAssistant": "This description will enable the assistant to understand the category"
+      },
+      "seeEmailModal": {
+        "moreActions": "More actions",
+        "read": "Read",
+        "selectTab": "Select a tab",
+        "emailResume": "Email summary",
+        "fullEmail": "Full email"
+      }
+    }
   },
-  "settings_navigation": {
-    "Preferences": "Preferences",
-    "my_account": "My account",
-    "subscription": "Subscription",
-    "my_data": "My data",
-    "change_my_username_or_my_password": "Change my username or my password",
-    "username": "username",
-    "new_password": "new password",
-    "Confirm": "Confirm your new password",
-    "modify": "Modify",
-    "delete_account": "Delete your account",
-    "confirmer_delete_account": "Confirm the deletion of my account (non-reversible action)",
-    "delete": "Delete"
+  "settingsPage": {
+    "preferencesPage": {
+      "preferencesTitle": "Preferences"
+    },
+    "subscriptionPage": {
+      "subscriptionTitle": "Subscription",
+      "selectPlan": "Select",
+      "perMonth": "/month",
+      "perYear": "/year",
+      "yearly": "Yearly",
+      "monthly": "Monthly",
+      "numberOfEmailAddress": "Number of email address",
+      "numberOfEmailAddresses": "Number of email addresses",
+      "emailServiceProviders": "Providers",
+      "emailServiceProvider": "Provider",
+      "youAreUsingATestVersionOfAomail": "You are using a test version of Aomail",
+      "aiModels": "AI models",
+      "aiModel": "AI model",
+      "gptLlmProvider": "GPT",
+      "claudeLlmProvider": "Claude",
+      "mistalLlmProvider": "Mistral"
+    },
+    "accountPage": {
+      "myAccountTitle": "My account",
+      "changeMyUsernameOrMyPassword": "Change my username or my password",
+      "newPassword": "New password",
+      "confirmYourNewPassword": "Confirm your new password",
+      "deleteAccount": "Delete your account",
+      "confirmDeleteAccount": "Confirm the deletion of my account (non-reversible action)",
+      "chooseTheEmailServiceProvider": "Choose the email service provider",
+      "unlinkMyEmail": "Unlink my email",
+      "thisFeatureIsUnderTest": "This feature is under test. Avoid at all costs linking and unlinking an email address because Ao will have trouble receiving emails properly.",
+      "updateMyDescription": "Update my description",
+      "linkANewEmailAddress": "Link a new email address",
+      "link": "Link",
+      "connectOutlook": "Connect Outlook",
+      "connectGoogle": "Connect Gmail"
+    },
+    "dataPage": {
+      "myData": "My data"
+    }
   },
-  "settings_navigation2": {
-    "titre": "My Subscription",
-    "titre2": "My data",
-    "notif": "Work in progress",
-    "titre3": "My preferences",
-    "Theme": "Theme",
-    "Langue": "Language",
-    "Colors": "Colors",
-    "unlink_my_email": "unlink my email",
-    "this_feature_is_under_test": "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
+  "rulesPage": {
+    "assistantRules": "Assistant rules",
+    "category": "Category:",
+    "priority": "Priority:",
+    "blockedEmail": "Blocked email",
+    "createRule": "Click to create a rule",
+    "modals": {
+      "createRule": {
+        "newRule": "New rule"
+      },
+      "updateRule": {
+        "modifyTheRule": "Modify the rule"
+      }
+    }
   },
-  "settings_navigation3": {
-    "update_my_description": "Update my description",
-    "Link_a_new_email_address": "Link a new email address",
-    "link": "Link",
-    "Outlook": "Connect",
-    "Google": "Connect",
-    "Langue": "Language",
-    "Colors": "Colors",
-    "unlink": "unlink my email",
-    "Test function": "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
+  "transferPage": {
+    "MaYbE": "LaTeR"
   },
-  "Rules_vue": {
-    "assistant_rules": "Assistant rules",
-    "catégorie": "catégorie :",
-    "priotity": "priority : ",
-    "blocked_mail": "blocked email",
-    "create_rules": "click to create a rule"
+  "searchPage": {
+    "noResults": "No results"
   },
-  "Transfer_vue": {
-    "AI_assistant": "AI assistant",
-    "manual_search": "Manual Search",
-    "recipient": "Recipient",
-    "subject": "Subject",
-    "send": "dend"
+  "newPage": {
+    "options": "Open options"
   },
-  "Search_vue": {
-    "AI_assistant": "AI assistant",
-    "search_button": "Search",
-    "negative_results": "negative results",
-    "manual_Search": "Manual Search"
+  "answerPage": {
+    "MaYbE": "LaTeR"
   },
-  "New_vue": {
-    "AI_assistant": "AI assistant",
-    "enter_manually": "Enter manually",
-    "recipient": "Recipient",
-    "subject": "Subject",
-    "options": "Open options",
-    "send": "Send"
+  "errorWebPagesTemplates": {
+    "error401Page": {
+      "youAreNotConnected": "You are not connected",
+      "redirectionToLogin": "You will be redirected to the login page in"
+    },
+    "error404Page": {
+      "pageNotFound": "404 - Page not found",
+      "pageDoesNotExist": "The page you are looking for does not exist"
+    }
   },
-  "Answer_vue": {
-    "AI_assistant": "AI assistant",
-    "enter_manually": "Enter manually",
-    "recipient": "Recipient",
-    "send": "Send"
+  "stripePaymentSuccessPage": {
+    "paymentSuccessful": "Payment successful",
+    "product": "Product",
+    "thankYou": "Your payment was successful. Thank you for your purchase!"
   },
-  "401_vue": {
-    "you_are_not_connected": "You are not connected",
-    "redirection_to_login": "You will be redirected to the login page in"
+  "stripePaymentFailedPage": {
+    "paymentNotSuccessful": "The payment was not successful",
+    "product": "Product",
+    "paymentNotSuccessfulTryAgain": "Your payment was not successful. Please try again!"
   },
-  "404_vue": {
-    "page_not_found": "404 - Page Not Found",
-    "page_does_not_exist": "The page you are looking for does not exist"
-  },
-  "StripepaymentSuccess_vue": {
-    "payment_successful": "Payment Successful",
-    "product": "product",
-    "thank_you": "Your payment was successful. Thank you for your purchase!"
-  },
-  "StripepaymentFailed_vue": {
-    "payment_not_successful": "The payment was not successful",
-    "product": "product",
-    "payment_not_successful_try_again": "Your payment was not successful. Please try again !"
-  },
-  "ReplyLater_vue": {
-    "reply_later": "Reply later",
-    "no_emails_to_reply_later": "No emails to reply later",
-    "click_to_see_the_summary": "click to see the summary",
-    "open": "Open",
-    "answer": "Reply",
-    "Remove_from_reply_later": "Withdraw",
-    "additional_actions": "Additional actions",
-    "transfer": "transfer",
-    "change_the_rule": "Change the rule",
-    "create_a_rule": "create a rule"
-  },
-  "Newcategory_vue": {
-    "new_categorie": "Create a new category.",
-    "categorie_description": "Brief description of the categorie",
-    "description_for_tha_assistant": "This description will enable the assistant to understand the category",
-    "category_name": "Category name"
-  },
-  "UpdateCategoryModal_vue": {
-    "modify_a_category": "Modify a category",
-    "category_name": "Name of the category ",
-    "description_of_the_category": "Brief description of the categorie",
-    "description_of_the_category_for_the_assistant": "This description will enable the assistant to understand the category"
-  },
-  "Seerules_vue": {
-    "new_rules": "New rules",
-    "category": "Category",
-    "no_category_defined": "No category defined",
-    "no_priority_defined": "No priority defined",
-    "Important": "Important",
-    "Informative": "Informative",
-    "Useless": "Useless",
-    "blocked_mail": "Block the mails"
-  },
-  "SeeMail_vue": {
-    "more_actions": "More actions",
-    "answer": "Answer",
-    "read": "Read",
-    "select_tab": "Select a tab",
-    "mail_resume": "email resume",
-    "full_mail": "Full email"
-  },
-  "languages": {
-    "french": "French 🇫🇷",
-    "american": "American 🇺🇸",
-    "german": "German 🇩🇪",
-    "russian": "Russian 🇷🇺",
-    "spanish": "Spanish 🇪🇸",
-    "chinese": "Chinese 🇨🇳",
-    "indian": "Hindi 🇮🇳"
-  },
-  "UpdateRule_vue": {
-    "modify_the_rules": "Modify the rules",
-    "category": "Category",
-    "no_category_defined": "No category defined",
-    "no_priority": "No priority defined",
-    "important": "Important",
-    "informative": "Informative",
-    "useless": "Useless",
-    "block_the_mail": "Block the mails",
-    "modify": "Modify"
+  "replyLaterPage": {
+    "noEmailsToReplyLater": "No emails to reply later",
+    "removeFromReplyLater": "Remove from Reply Later"
   }
 }

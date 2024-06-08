@@ -55,7 +55,7 @@
     "timezone": "Fuseau horaire"
   },
   "userLoginPage": {
-    "connectAccount": "Se connecter à votre compte",
+    "connectAccount": "Se connecter",
     "forgottenPassword": "Mot de passe oublié ?",
     "doNotHaveAccount": "Vous n'avez pas de compte ?",
     "beginFreeTrial": "Commencer votre essai gratuit"
@@ -86,13 +86,16 @@
   },
   "homePage": {
     "noNewEmail": "Pas de nouvel e-mail",
+    "youDidNotReceiveNewEmail": "Vous n'avez pas reçu de nouvel e-mail",
     "suppressionOf": "Suppression de",
     "answer": "Répondre",
     "read": "Lire",
     "unread": "Non lu",
     "youReceived": "Vous avez reçu",
-    "uselessEmail": "e-mail inutile",
-    "uselessEmails": "e-mails inutiles",
+    "newEmail": "nouvel e-mail",
+    "newEmails": "nouveaux e-mails",
+    "uselessEmail": " e-mail inutile",
+    "uselessEmails": " e-mails inutiles",
     "clickToSeeTheEmail": "Cliquez pour voir l'e-mail",
     "block": "Bloquer",
     "youReadRecently": "Vous avez lu récemment",
@@ -105,8 +108,8 @@
     "linked": "liée",
     "toThisCategory": "à cette catégorie.",
     "warningForDeletingTheCategory": "La suppression de la catégorie entraînera également la suppression de toutes les règles associées",
-    "email": "e-mail.",
-    "emails": "e-mails.",
+    "email": " e-mail.",
+    "emails": " e-mails.",
     "modals": {
       "newCategoryModal": {
         "newCategory": "Créer une nouvelle catégorie",

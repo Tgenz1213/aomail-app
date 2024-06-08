@@ -459,7 +459,7 @@
                       </div>
                       <div class="py-6">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('constants.workInProgress') }}</p>
+                          <p class="font-semibold">{{ $t('constants.userActions.workInProgress') }}</p>
                           <!-- To add : A video that explain the tool -->
                         </div>
                       </div>
@@ -473,7 +473,7 @@
                       </div>
                       <div class="pt-4">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('constants.workInProgress') }}</p>
+                          <p class="font-semibold">{{ $t('constants.userActions.workInProgress') }}</p>
                           <!-- To add : A video that explain how data is saved and used -->
                         </div>
                       </div>

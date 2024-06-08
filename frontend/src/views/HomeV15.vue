@@ -28,9 +28,15 @@
                         <div>
                             <div class="flex space-x-1 items-center">
                                 <label class="block text-sm font-medium leading-6 text-gray-900">
-                                    {{ $t('Home_vue.You_have') }}  {{ nbRulesAssociated }}  {{ $t('Home_vue.rules') }} <span v-if="nbRulesAssociated > 1">s</span>
-                                    {{ $t('Home_vue.link') }} <span v-if="nbRulesAssociated > 1">s</span>  {{ $t('Home_vue.at_this_category') }} 
-                                    {{ $t('Home_vue.Warning_for_deleting_the_category') }} 
+                                    <template v-if="nbRulesAssociated <= 1">
+                                        {{ $t('homePage.youHave') }} {{ nbRulesAssociated }} {{ $t('homePage.rule') }}
+                                        {{ $t('homePage.linked') }} {{ $t('homePage.toThisCategory') }}
+                                    </template>
+                                    <template v-else>
+                                        {{ $t('homePage.youHave') }} {{ nbRulesAssociated }} {{ $t('homePage.rules') }}
+                                        {{ $t('homePage.linked') }} {{ $t('homePage.toThisCategory') }}
+                                    </template>
+                                    {{ $t('homePage.warningForDeletingTheCategory') }}
                                 </label>
                             </div>
                         </div>
@@ -164,7 +170,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                     </svg>
-                                    <span class="mt-2 block text-md font-semibold text-gray-900">{{ $t('Home_vue.no_new_email')
+                                    <span class="mt-2 block text-md font-semibold text-gray-900">{{ $t('HomePage.noNewEmail')
                                         }}</span>
                                 </div>
                             </div>
@@ -237,7 +243,7 @@
                                                                                                 stroke-linejoin="round"
                                                                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                         </svg>
-                                                                                        <p>{{ $t('Home_vue.click_to_see_the_summary') }}</p>
+                                                                                        <p>{{ $t('HomePage.clickToSeeTheSummary') }}</p>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -264,7 +270,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                            {{ $t('Home_vue.open') }}
+                                                                                            {{ $t('HomePage.open') }}
                                                                                         </div>
                                                                                         <button @click="openSeeModal(item)"
                                                                                             type="button"
@@ -279,7 +285,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                                                                            {{ $t('Home_vue.read') }}
+                                                                                            {{ $t('HomePage.read') }}
                                                                                         </div>
                                                                                         <button
                                                                                             @click="markEmailAsRead(item.id)"
@@ -295,7 +301,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                            {{ $t('Home_vue.answer') }}
+                                                                                            {{ $t('HomePage.answer') }}
                                                                                         </div>
                                                                                         <button @click="openAnswer(item)"
                                                                                             type="button"
@@ -310,7 +316,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[90px] w-[185px]">
-                                                                                            {{ $t('Home_vue.additional_actions') }}
+                                                                                            {{ $t('HomePage.additionalActions') }}
                                                                                         </div>
                                                                                         <Menu as="div"
                                                                                             class="relative inline-block text-left">
@@ -352,7 +358,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span>{{ $t('Home_vue.change_the_rule') }}</span>
+                                                                                                                    <span>{{ $t('HomePage.changeTheRule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -375,7 +381,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span>{{ $t('Home_vue.create_a_rule') }}</span>
+                                                                                                                    <span>{{ $t('HomePage.createARule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -404,7 +410,7 @@
                                                                                                                         d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('Home_vue.reply_later') }}</span>
+                                                                                                                <span>{{ $t('HomePage.replyLater') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -432,7 +438,7 @@
                                                                                                                         d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('Home_vue.transfer') }}</span>
+                                                                                                                <span>{{ $t('HomePage.transfer') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -515,7 +521,7 @@
                                                                                                 stroke-linejoin="round"
                                                                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                         </svg>
-                                                                                        <p>{{ $t('Home_vue.click_to_see_the_summary') }}</p>
+                                                                                        <p>{{ $t('HomePage.clickToSeeTheSummary') }}</p>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -542,7 +548,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                                                                            {{ $t('Home_vue.open') }}
+                                                                                            {{ $t('HomePage.open') }}
                                                                                         </div>
                                                                                         <button @click="openSeeModal(item)"
                                                                                             type="button"
@@ -557,7 +563,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                                                                            {{ $t('Home_vue.read') }}
+                                                                                            {{ $t('HomePage.read') }}
                                                                                         </div>
                                                                                         <button type="button"
                                                                                             class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -572,7 +578,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                            {{ $t('Home_vue.answer') }}
+                                                                                            {{ $t('HomePage.answer') }}
                                                                                         </div>
                                                                                         <button @click="openAnswer(item)"
                                                                                             type="button"
@@ -587,7 +593,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-center text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                            {{ $t('Home_vue.additional_actions') }}
+                                                                                            {{ $t('HomePage.additionalActions') }}
                                                                                         </div>
                                                                                         <Menu as="div"
                                                                                             class="relative inline-block text-left">
@@ -629,7 +635,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span> {{ $t('Home_vue.change_the_rule') }}</span>
+                                                                                                                    <span> {{ $t('HomePage.changeTheRule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -652,7 +658,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span>{{ $t('Home_vue.create_a_rule') }}</span>
+                                                                                                                    <span>{{ $t('HomePage.createARule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -681,7 +687,7 @@
                                                                                                                         d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('Home_vue.reply_later') }}</span>
+                                                                                                                <span>{{ $t('HomePage.replyLater') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -709,7 +715,7 @@
                                                                                                                         d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('Home_vue.transfer') }}</span>
+                                                                                                                <span>{{ $t('HomePage.transfer') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -769,7 +775,7 @@
                                                                     <div class="flex gap-x-2">
                                                                         <!-- remove @click="toggleEmailVisibility"-->
                                                                         <p @click="toggleEmailVisibility"
-                                                                            class="cursor-pointer"> {{ $t('Home_vue.you_received') }}
+                                                                            class="cursor-pointer"> {{ $t('HomePage.youReceived') }}
                                                                             <span
                                                                                 class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
                                                                                 {{
@@ -778,10 +784,10 @@
                                                                             </span>
                                                                             <span
                                                                                 v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
-                                                                                {{ $t('Home_vue.useless_email') }}
+                                                                                {{ $t('HomePage.uselessEmail') }}
                                                                             </span>
                                                                             <span v-else>
-                                                                                {{ $t('Home_vue.useless_mails') }}
+                                                                                {{ $t('HomePage.uselessEmails') }}
                                                                             </span>
                                                                         </p>
                                                                         <div
@@ -798,7 +804,7 @@
                                                                                 </svg>
                                                                                 <!-- remove @click="toggleEmailVisibility"-->
                                                                                 <p @click="toggleEmailVisibility"
-                                                                                    class="cursor-pointer">    {{ $t('Home_vue.click_to_see_the_mail') }}</p>
+                                                                                    class="cursor-pointer">{{ $t('HomePage.clickToSeeTheEmail') }}</p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -829,7 +835,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    {{ $t('Home_vue.open') }}
+                                                                                                    {{ $t('HomePage.open') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openSeeModal(item)"
@@ -845,7 +851,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('Home_vue.block') }}
+                                                                                                    {{ $t('HomePage.block') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -860,7 +866,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('Home_vue.delete') }}
+                                                                                                    {{ $t('constants.delete') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -875,7 +881,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                                    {{ $t('Home_vue.answer') }}
+                                                                                                    {{ $t('HomePage.answer') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openAnswer(item)"
@@ -935,7 +941,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('Home_vue.change_the_rule') }}</span>
+                                                                                                                            <span>{{ $t('HomePage.changeTheRule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -959,7 +965,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('Home_vue.create_a_rule') }}</span>
+                                                                                                                            <span>{{ $t('HomePage.createARule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -989,7 +995,7 @@
                                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('Home_vue.reply_later') }}</span>
+                                                                                                                        <span>{{ $t('HomePage.replyLater') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1019,7 +1025,7 @@
                                                                                                                                 d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('Home_vue.transfer') }}</span>
+                                                                                                                        <span>{{ $t('HomePage.transfer') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1081,16 +1087,16 @@
                                                                     <div class="flex group gap-x-2">
                                                                         <p @click="toggleReadEmailVisibility"
                                                                             class="cursor-pointer">
-                                                                            {{ $t('Home_vue.You_read_recently') }}
+                                                                            {{ $t('HomePage.youReadRecently') }}
                                                                             <span
                                                                                 class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">
                                                                                 {{ readEmailsInSelectedTopic().length }}
                                                                             </span>
                                                                             <span
                                                                                 v-if="readEmailsInSelectedTopic().length === 1">
-                                                                                mail</span>
-                                                                            <span v-else> mails</span>. {{ $t('Home_vue.I_m') }}
-                                                                            <span class="font-medium">{{ $t('Home_vue.going_to_clean_automatically') }}</span> {{ $t('Home_vue.the_mail_you_have_read') }}
+                                                                                {{ $t('HomePage.email') }}</span>
+                                                                            <span v-else>{{ $t('HomePage.emails') }}</span> {{ $t('HomePage.iAm') }}
+                                                                            <span class="font-medium">{{ $t('HomePage.goingToCleanAutomatically') }}</span> {{ $t('HomePage.theEmailsYouHaveRead') }}
                                                                         </p>
                                                                         <div
                                                                             class="hidden group-hover/main:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">
@@ -1105,7 +1111,7 @@
                                                                                         d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                 </svg>
                                                                                 <p @click="toggleReadEmailVisibility"
-                                                                                    class="cursor-pointer">{{ $t('Home_vue.click_to_see_the_mail') }}</p>
+                                                                                    class="cursor-pointer">{{ $t('HomePage.clickToSeeTheEmail') }}</p>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1141,7 +1147,7 @@
                                                                                                         stroke-linejoin="round"
                                                                                                         d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                                 </svg>
-                                                                                                <p>{{ $t('Home_vue.click_to_see_the_summary') }}</p>
+                                                                                                <p>{{ $t('HomePage.clickToSeeTheSummary') }}</p>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -1170,7 +1176,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    {{ $t('Home_vue.open') }}
+                                                                                                    {{ $t('HomePage.open') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openSeeModal(item)"
@@ -1202,7 +1208,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('Home_vue.delete') }}
+                                                                                                    {{ $t('HomePage.delete') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
@@ -1217,7 +1223,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                                    {{ $t('Home_vue.answer') }}
+                                                                                                    {{ $t('HomePage.answer') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openAnswer(item)"
@@ -1278,7 +1284,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('Home_vue.change_the_rule') }}</span>
+                                                                                                                            <span>{{ $t('HomePage.changeTheRule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1302,7 +1308,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('Home_vue.create_a_rule') }}</span>
+                                                                                                                            <span>{{ $t('HomePage.createARule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1332,7 +1338,7 @@
                                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('Home_vue.reply_later') }}</span>
+                                                                                                                        <span>{{ $t('HomePage.replyLater') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1361,7 +1367,7 @@
                                                                                                                                 d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('Home_vue.transfer') }}</span>
+                                                                                                                        <span>{{ $t('HomePage.transfer') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>

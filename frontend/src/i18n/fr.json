@@ -73,8 +73,7 @@
     "rules": "règle",
     "link": "lien",
     "at_this_category": "dans cette catégorie.",
-    "Warning_for_deleting_the_category": "Supprimer la catégorie entraînera également la suppression de toutes les règles associées",
-    "delete": "Supprimer"
+    "Warning_for_deleting_the_category": "Supprimer la catégorie entraînera également la suppression de toutes les règles associées"
   },
   "settings_navigation": {
     "Preferences": "Préférences",

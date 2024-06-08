@@ -7,15 +7,15 @@
     "searchbar_search": "search",
     "update": "update"
   },
-  "UserLogin_vue": {
-    "connect_account": "Connect to your account",
-    "id_name": "Username",
-    "password": "password",
-    "forgotten_password": "password forgotten ?",
+  "userLoginPage": {
+    "connectAccount": "Connect to your account",
+    "username": "Username",
+    "password": "Password",
+    "forgottenPassword": "Password forgotten?",
     "login": "Login",
-    "do_not_have_account": "You don't have an account ?",
-    "free_trial": "Begin your free trial"
-  },
+    "doNotHaveAccount": "You don't have an account?",
+    "beginfreeTrial": "Begin your free trial"
+},
   "SignUp_p1_vue": {
     "sign_up": "Sign up",
     "username": "Username",

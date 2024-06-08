@@ -7,14 +7,14 @@
     "searchbar_search": "Recherche",
     "update": "Mettre à jour"
   },
-  "UserLogin_vue": {
-    "connect_account": "Se connecter à votre compte",
-    "id_name": "Nom d'utilisateur",
+  "userLoginPage": {
+    "connectAccount": "Se connecter à votre compte",
+    "username": "Nom d'utilisateur",
     "password": "Mot de passe",
-    "forgotten_password": "Mot de passe oublié ?",
+    "forgottenPassword": "Mot de passe oublié ?",
     "login": "Connexion",
-    "do_not_have_account": "Vous n'avez pas de compte ?",
-    "free_trial": "Commencez votre essai gratuit"
+    "doNotHaveAccount": "Vous n'avez pas de compte ?",
+    "beginfreeTrial": "Commencez votre essai gratuit"
   },
   "SignUp_p1_vue": {
     "sign_up": "S'inscrire",

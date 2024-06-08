@@ -158,7 +158,7 @@
                             <!-- Content goes here -->
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div
-                                    class="flex flex-col justify-center items-center h-full mx-4 my-4 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1" stroke="currentColor" class="mx-auto h-14 w-14 text-gray-400">
                                         <path stroke-linecap="round" stroke-linejoin="round"

@@ -1281,6 +1281,9 @@ def email_to_db(user, services, social_api: SocialAPI):
         image_files,
     ) = get_mail_to_db(services)
 
+    if Email.objects.filter(provider_id=email_id).exists():
+        return True
+
     user_description = (
         social_api.user_description if social_api.user_description != None else ""
     )

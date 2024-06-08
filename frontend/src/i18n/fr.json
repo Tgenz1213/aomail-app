@@ -35,16 +35,16 @@
     "youHaveAnAccount": "Vous avez un compte ?",
     "login": "Se connecter"
   },
-  "SignUp_p2_vue": {
-    "titre": "Inscription à MailAssistant",
-    "Gmail": "Lier un compte Gmail",
-    "Outlook": "Lier un compte Outlook",
-    "Google": "Lier votre compte Google",
-    "link_Outlook_account": "Lier votre compte Outlook",
-    "tools_presentation": "Présentation des outils",
+  "signUpPart2Page": {
+    "registerToAomail": "Inscription à Aomail",
+    "linkAGmailAccount": "Lier un compte Gmail",
+    "linkAnOutlookAccount": "Lier un compte Outlook",
+    "linkYourGmailAccount": "Lier votre compte Google",
+    "linkYourOutlookAccount": "Lier votre compte Outlook",
+    "toolsPresentation": "Présentation des outils",
     "work_in_progress": "Travail en cours",
-    "finish_inscription": "Finaliser votre inscription",
-    "some_infos_on_data_confidentiality": "Quelques informations sur la confidentialité des données"
+    "finalizeRegistration": "Finaliser votre inscription",
+    "informationOnDataConfidentiality": "Quelques informations sur la confidentialité des données"
   },
   "Home_vue": {
     "no_new_email": "Pas de nouvel e-mail",

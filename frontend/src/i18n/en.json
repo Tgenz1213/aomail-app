@@ -5,7 +5,8 @@
     "create": "Create",
     "category": "Category",
     "search": "Search",
-    "update": "Update"
+    "update": "Update",
+    "workInProgress": "Work in progress"
   },
   "userLoginPage": {
     "connectAccount": "Connect to Your Account",
@@ -35,16 +36,15 @@
     "youHaveAnAccount": "Do you have an account?",
     "login": "Log In"
   },
-  "SignUp_p2_vue": {
-    "titre": "Register to MailAssistant",
-    "Gmail": "Link a Gmail account",
-    "Outlook": "Link a Outlook account",
-    "Google": "Link your Google account",
-    "link_Outlook_account": "Link your Outlook account",
-    "tools_presentation": "Tools presentation",
-    "work_in_progress": "Work in progress",
-    "finish_inscription": "Finalize your inscription",
-    "some_infos_on_data_confidentiality": "Some infos on data confidentiality"
+  "signUpPart2Page": {
+    "registerToAomail": "Register to Aomail",
+    "linkAGmailAccount": "Link a Gmail account",
+    "linkAnOutlookAccount": "Link an Outlook account",
+    "linkYourGmailAccount": "Link your Gmail account",
+    "linkYourOutlookAccount": "Link your Outlook account",
+    "toolsPresentation": "Tools presentation",
+    "finalizeRegistration": "Finalize your registration",
+    "informationOnDataConfidentiality": "Some information on data confidentiality"
   },
   "Home_vue": {
     "no_new_email": "No new email",

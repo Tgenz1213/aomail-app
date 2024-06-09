@@ -32,7 +32,8 @@
             <div
               class="flex items-center justify-center h-[70px] 2xl:h-[80px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
               <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('rulesPage.assistantRules') }}</h1>
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('rulesPage.assistantRules') }}
+              </h1>
             </div>
             <SearchbarV2 @input="updateSearchQuery"></SearchbarV2>
           </div>
@@ -61,22 +62,23 @@
                         </div>
                         <span
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/20">{{
-                          rule.category }}</span>
+                            rule.category }}</span>
                       </div>
                       <div v-if="rule.priority !== ''" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">
                           <ExclamationCircleIcon class="w-4 h-4" />
                           <p class="font-semibold text-sm">{{ $t('Rules_vue.priotity') }}</p>
                         </div>
+                        <!-- TODO: check where this has been set in French and fix into English (it's in the backend, probably in views.py) -->
                         <span v-if="rule.priority === 'Important'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{
-                          rule.priority }}</span>
+                            rule.priority }}</span>
                         <span v-if="rule.priority === 'Informatif'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{
-                          rule.priority }}</span>
+                            rule.priority }}</span>
                         <span v-if="rule.priority === 'Inutile'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">{{
-                          rule.priority }}</span>
+                            rule.priority }}</span>
                       </div>
                       <div v-if="rule.mail_stop === true" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">

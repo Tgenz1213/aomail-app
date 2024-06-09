@@ -158,7 +158,7 @@
                           <ListboxButton class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                             <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" /> <!-- Ajustement de la taille de l'icône -->
                             <span class="block truncate text-gray-700">
-                              {{ attachmentSelected ? attachmentSelected.name : 'Type de pièce jointe' }}
+                              {{ attachmentSelected ? attachmentSelected.name : 'TODO Type de pièce jointe' }}
                             </span>
                             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                               <ChevronUpDownIcon class="h-5 w-5 text-gray-400  mt-2 mb-2" aria-hidden="true" />
@@ -700,7 +700,7 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
   })
   .catch(error => {
     backgroundColor = 'bg-red-300';
-    notificationTitle.value = 'Erreur récupération des contacts';
+    notificationTitle.value = 'TODO Erreur récupération des contacts';
     notificationMessage.value = error;
     displayPopup();
   });
@@ -734,7 +734,7 @@ async function fetchEmailLinked() {
     if ("error" in response) {
       // Show the pop-up
       backgroundColor = 'bg-red-300';
-      notificationTitle = 'Erreur récupération de vos emails';
+      notificationTitle = 'TODO Erreur récupération de vos emails';
       notificationMessage = response.error;
       displayPopup();
     } else {
@@ -743,7 +743,7 @@ async function fetchEmailLinked() {
   } catch (error) {
     // Show the pop-up
     backgroundColor = 'bg-red-300';
-    notificationTitle = 'Erreur récupération de vos emails';
+    notificationTitle = 'TODO Erreur récupération de vos emails';
     notificationMessage = error.message;
     displayPopup();
   }

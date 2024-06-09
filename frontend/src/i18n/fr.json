@@ -194,10 +194,12 @@
       "preferencesTitle": "Préférences",
       "popUpConstants": {
         "errorMessages": {
-          "errorGettingLanguage": "Erreur lors de l'obtention de la langue"
+          "errorGettingLanguage": "Erreur lors de l'obtention de la langue",
+          "errorUpdatingTheme": "Erreur lors de la mise à jour du thème"
         },
         "successMessages": {
-          "languageUpdatedSuccessfully": "Langue mise à jour avec succès"
+          "languageUpdatedSuccessfully": "Langue mise à jour avec succès",
+          "themeUpdatedSuccessfully": "Thème mis à jour avec succès"
         }
       }
     },

@@ -89,13 +89,15 @@ const updateThemeSelection = async (newTheme) => {
       body: JSON.stringify({ theme: newThemeKey }),
     });
 
+
+    // TODO    
     if (response.error) {
-      setThemeNotification('bg-red-300', 'Error updating theme', response.error);
+      setThemeNotification('bg-red-300', t('settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTheme'), response.error);
     } else if (response.message === "Theme updated successfully") {
-      setThemeNotification('bg-green-300', 'Success!', 'Theme updated successfully');
+      setThemeNotification('bg-green-300', t('constants.popUpConstants.successMessages.success'), t('settingsPage.preferencesPage.popUpConstants.successMessages.themeUpdatedSuccessfully'));
     }
   } catch (error) {
-    setThemeNotification('bg-red-300', 'Error updating theme', error.message);
+    setThemeNotification('bg-red-300', t('settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTheme'), error.message);
   }
 };
 

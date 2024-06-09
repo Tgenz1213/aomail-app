@@ -93,13 +93,13 @@ const updateLanguageSelection = async (newLanguage) => {
     });
 
     if (response.error) {
-      setNotification('bg-red-300', 'Error getting language', response.error);
+      setNotification('bg-red-300', 'TODO Error getting language', response.error);
     } else if (response.message === "Language updated successfully") {
       i18n.global.locale = newLanguageKey;
-      setNotification('bg-green-300', 'Success!', 'Language updated successfully');
+      setNotification('bg-green-300', 'TODO Success!', 'TODO Language updated successfully');
     }
   } catch (error) {
-    setNotification('bg-red-300', 'Error getting language', error.message);
+    setNotification('bg-red-300', 'TODO Error getting language', error.message);
   }
 };
 

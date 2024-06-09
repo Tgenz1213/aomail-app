@@ -184,7 +184,15 @@
   },
   "settingsPage": {
     "preferencesPage": {
-      "preferencesTitle": "Preferences"
+      "preferencesTitle": "Preferences",
+      "popUpConstants": {
+        "errorMessages": {
+          "errorGettingLanguage": "Error getting language"
+        },
+        "successMessages": {
+          "languageUpdatedSuccessfully": "Language updated successfully"
+        }
+      }
     },
     "subscriptionPage": {
       "subscriptionTitle": "Subscription",

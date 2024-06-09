@@ -9,7 +9,7 @@
             aria-hidden="true" />
           <input v-model="searchQuery" id="search-field"
             class="h-full w-full border-0 py-0 pl-8 pr-8 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-            placeholder="Recherche..." type="search" name="search" />
+            :placeholder="$t('rulesPage.search')" type="search" name="search" />
           <button v-if="searchQuery" type="button" @click="clearSearch"
             class="absolute inset-y-0 right-0 flex items-center pr-2">
             <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
@@ -28,6 +28,10 @@
 <script setup>
 import { ref } from 'vue';
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid';
+import { useI18n } from 'vue-i18n';
+
+// Use i18n
+const { t } = useI18n();
 
 const searchQuery = ref('');
 const emits = defineEmits(['updateSearchQuery']);

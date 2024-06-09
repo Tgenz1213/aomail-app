@@ -25,7 +25,7 @@
       "important": "Important",
       "informative": "Informative",
       "useless": "Useless",
-      "blockTheEmail": "Block the emails"
+      "blockTheEmails": "Block the emails"
     },
     "categoryModalConstants": {
       "modifyTheCategory": "Modify the category",
@@ -217,9 +217,11 @@
     }
   },
   "rulesPage": {
+    "search": "Search...",
     "assistantRules": "Assistant rules",
-    "category": "Category:",
-    "priority": "Priority:",
+    "contactField": "Contact",
+    "categoryField": "Category",
+    "priorityField": "Priority",
     "blockedEmail": "Blocked email",
     "createRule": "Click to create a rule",
     "modals": {
@@ -228,6 +230,24 @@
       },
       "updateRule": {
         "modifyTheRule": "Modify the rule"
+      }
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "noSelectedEmailAddress": "No email address selected",
+        "emailFormatIncorrect": "The email format is incorrect",
+        "senderCreationError": "Error creating the sender",
+        "senderExistenceCheckError": "Error checking sender existence",
+        "ruleCreationError": "Error creating the rule",
+        "ruleAlreadyExistsForSender": "A rule already exists for this sender",
+        "ruleIdRequiredForUpdate": "Rule ID is required for updating",
+        "ruleUpdateError": "Error updating the rule",
+        "ruleDeletionError": "Error deleting the rule"
+      },
+      "successMessages": {
+        "ruleCreatedSuccessfully": "Your rule has been created",
+        "ruleDeletedSuccessfully": "Your rule has been successfully deleted",
+        "ruleUpdatedSuccessfully": "Your rule has been updated"
       }
     }
   },

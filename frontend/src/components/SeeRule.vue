@@ -17,7 +17,8 @@
         </div>
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
-            <p class="block font-semibold leading-6 text-gray-900">{{ $t('Seerules_vue.new_rules') }}</p>
+            <p class="block font-semibold leading-6 text-gray-900">{{ $t('rulesPage.modals.updateRule.modifyTheRule') }}
+            </p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
@@ -25,7 +26,8 @@
             <p class="text-red-500">{{ errorMessage }}</p>
             <div class="flex space-x-1 items-center">
               <UserIcon class="w-4 h-4" />
-              <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
+              <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">{{ $t('rulesPage.contactField')
+                }}</ComboboxLabel>
             </div>
             <div class="relative mt-2">
               <ComboboxInput id="inputField"
@@ -62,11 +64,12 @@
           <div>
             <div class="flex space-x-1 items-center">
               <ArchiveBoxIcon class="w-4 h-4" />
-              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('Seerules_vue.category') }}</label>
+              <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{
+                $t('constants.category') }}</label>
             </div>
             <select id="category" name="category" v-model="formData.category"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('Seerules_vue.no_category_defined') }}</option>
+              <option value="">{{ $t('constants.ruleModalConstants.noCategoryDefined') }}</option>
               <option v-for="category in categories" :key="category.name" :value="category.name">{{ category.name }}
               </option>
             </select>
@@ -74,14 +77,15 @@
           <div>
             <div class="flex space-x-1 items-center">
               <ExclamationCircleIcon class="w-4 h-4" />
-              <label for="priority" class="block text-sm font-medium leading-6 text-gray-900">Priorité</label>
+              <label for="priority" class="block text-sm font-medium leading-6 text-gray-900">{{
+                $t('rulesPage.priorityField') }}</label>
             </div>
             <select id="priority" name="priority" v-model="formData.priority"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('Seerules_vue.no_priority_defined') }}</option>
-              <option value="Important">{{ $t('Seerules_vue.Important') }}</option>
-              <option value="Informatif">{{ $t('Seerules_vue.Informative') }}</option>
-              <option value="Inutile">{{ $t('Seerules_vue.Useless') }}</option>
+              <option value="">{{ $t('constants.ruleModalConstants.noPriority') }}</option>
+              <option value="Important">{{ $t('constants.ruleModalConstants.important') }}</option>
+              <option value="Informatif">{{ $t('constants.ruleModalConstants.informative') }}</option>
+              <option value="Inutile">{{ $t('constants.ruleModalConstants.useless') }}</option>
             </select>
           </div>
           <SwitchGroup as="div" class="flex items-center pt-2">
@@ -91,7 +95,7 @@
                 :class="[formData.block ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
             </Switch>
             <SwitchLabel as="span" class="ml-3 text-sm">
-              <span class="font-medium text-gray-900">{{ $t('Seerules_vue.blocked_mail') }}</span>
+              <span class="font-medium text-gray-900">{{ $t('constants.ruleModalConstants.blockTheEmails') }}</span>
               {{ ' ' }}
               <!--<span class="text-gray-500"></span>-->
             </SwitchLabel>
@@ -133,6 +137,7 @@ import {
   ShieldCheckIcon,
   ExclamationCircleIcon
 } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n';
 
 export default {
   components: {
@@ -156,10 +161,13 @@ export default {
     sender: Object
   },
   data() {
+    const { t } = useI18n();
+
     return {
       query: '',
       selectedPerson: null,
       currentSelectedPersonUsername: '',
+      t: t,
       formData: {
         info_AI: '',
         priority: '',
@@ -309,7 +317,7 @@ export default {
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
         this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur dans postSender';
+        this.notificationTitle = t('rulesPage.popUpConstants.errorMessages.senderCreationError');
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();
@@ -353,7 +361,7 @@ export default {
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
         this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur dans checkSenderExists';
+        this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.senderExistenceCheckError');
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();
@@ -381,14 +389,14 @@ export default {
           // Fetch the category ID using fetchWithToken
           const categoryUrl = `${API_BASE_URL}api/get-category-id/`;
           const categoryData = await fetchWithToken(categoryUrl, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json' 
-    },
-    body: JSON.stringify({
-        "categoryName": this.formData.category
-    })
-});
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              "categoryName": this.formData.category
+            })
+          });
           const categoryId = categoryData.id;
           console.log("CategoryId", categoryId);
 
@@ -418,19 +426,19 @@ export default {
 
         if ('error' in ruleResponseData) {
           if (ruleResponseData.error === 'A rule already exists for that sender') {
-            this.notificationMessage = "Une règle existe déjà pour cet expéditeur";
+            this.notificationMessage = this.t('rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender');
           } else {
             this.notificationMessage = ruleResponseData.error;
           }
           this.backgroundColor = 'bg-red-300';
-          this.notificationTitle = 'Erreur lors de la création de la règle';
+          this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
           this.displayPopup();
           this.closeModal();
         } else {
           this.selectedPerson = null;
           this.backgroundColor = 'bg-green-300';
-          this.notificationTitle = 'Succès !';
-          this.notificationMessage = 'Votre règle a été créée';
+          this.notificationTitle = this.t('constants.popUpConstants.successMessages.success');
+          this.notificationMessage = this.t('rulesPage.popUpConstants.successMessages.ruleCreatedSuccessfully');
           this.displayPopup();
           this.closeModal();
           this.$emit('fetch-rules');
@@ -439,7 +447,7 @@ export default {
       } catch (error) {
         console.error('Error in creating rule:', error);
         this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur lors de la création de la règle';
+        this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();

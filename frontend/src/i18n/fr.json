@@ -25,7 +25,7 @@
       "important": "Important",
       "informative": "Informatif",
       "useless": "Inutile",
-      "blockTheEmail": "Bloquer les e-mails"
+      "blockTheEmails": "Bloquer les e-mails"
     },
     "categoryModalConstants": {
       "categoryDescription": "Brève description de la catégorie",
@@ -218,9 +218,11 @@
     }
   },
   "rulesPage": {
+    "search": "Recherche...",
     "assistantRules": "Règles de Ao",
-    "category": "Catégorie :",
-    "priority": "Priorité :",
+    "contactField": "Contact",
+    "categoryField": "Catégorie",
+    "priorityField": "Priorité",
     "blockedEmail": "E-mail bloqué",
     "createRule": "Cliquez pour créer une règle",
     "modals": {
@@ -229,6 +231,24 @@
       },
       "updateRule": {
         "modifyTheRule": "Modifier la règle"
+      }
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "noSelectedEmailAddress": "Aucune adresse email sélectionnée",
+        "emailFormatIncorrect": "Le format de l'email est incorrect",
+        "senderCreationError": "Erreur création de l'expéditeur",
+        "senderExistenceCheckError": "Erreur vérification expéditeur existe",
+        "ruleCreationError": "Erreur lors de la création de la règle",
+        "ruleAlreadyExistsForSender": "Une règle existe déjà pour cet expéditeur",
+        "ruleIdRequiredForUpdate": "L'identifiant de règle est requis pour la mise à jour.",
+        "ruleUpdateError": "Erreur lors de la mise à jour de la règle",
+        "ruleDeletionError": "Erreur lors de la suppression"
+      },
+      "successMessages": {
+        "ruleCreatedSuccessfully": "Votre règle a été créée",
+        "ruleDeletedSuccessfully": "Votre règle a bien été supprimée",
+        "ruleUpdatedSuccessfully": "Votre règle a été mise à jour"
       }
     }
   },

@@ -1,14 +1,14 @@
 <template>
   <div v-if="props.isOpen">
     <transition name="modal-fade">
-      <div @click.self="closeModal" class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+      <div @click.self="closeModal"
+        class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
         v-if="isOpen">
         <div class="bg-white rounded-lg relative w-[450px]">
           <slot></slot>
           <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
             <button @click="closeModal" @keydown="handleKeyDown" type="button"
               class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-              <span class="sr-only">Close</span>
               <XMarkIcon class="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
@@ -21,7 +21,8 @@
           <div class="flex flex-col gap-4 px-8 py-6">
             <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
             <div>
-              <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryName') }}</label>
+              <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
+                $t('constants.categoryModalConstants.categoryName') }}</label>
               <div class="mt-2">
                 <input id="categoryName" v-model="categoryName"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
@@ -29,16 +30,18 @@
               </div>
             </div>
             <div>
-              <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryDescription') }}</label>
+              <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
+                $t('constants.categoryModalConstants.categoryDescription') }}</label>
               <div class="mt-2">
                 <textarea id="categoryDescription" v-model="categoryDescription" rows="3" style="min-height: 60px"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
               </div>
-              <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
+              <p class="mt-3 text-sm leading-6 text-gray-600">{{
+                $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
             </div>
             <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
-              <button type="button" 
-              class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              <button type="button"
+                class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                 @click="updateCategoryHandler">{{ $t('constants.userActions.update') }}</button>
               <button type="button"
                 class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -64,6 +67,10 @@ import { ref, watch } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { API_BASE_URL } from '@/main';
 import { onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+// Use i18n
+const { t } = useI18n();
 
 const props = defineProps({
   isOpen: Boolean,
@@ -101,15 +108,12 @@ async function updateCategoryHandler() {
     description: categoryDescription.value,
   };
 
-  // if (/[^a-zA-Z\s]/.test(categoryName.value)) {
-  //   errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
-  // } else 
   if (categoryDescription.value.length > 300) {
-    errorMessage.value = "Pas plus de 300 caractères pour la description";
+    errorMessage.value = t('homePage.modals.newCategoryModal.maxDescriptionCharacters');
   } else if (categoryName.value.length > 50) {
-    errorMessage.value = "Pas plus de 50 caractères pour le nom";
+    errorMessage.value = t('homePage.modals.newCategoryModal.maxNameCharacters');
   } else if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-    errorMessage.value = "Veuillez remplir tous les champs";
+    errorMessage.value = t('homePage.modals.pleaseFillAllFields');
   } else {
     try {
       const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -117,17 +121,16 @@ async function updateCategoryHandler() {
 
       for (let i = 0; i < fetchedCategories.length; i++) {
         if (fetchedCategories[i]['name'] == categoryName.value && categoryName.value != currentName) {
-          errorMessage.value = 'La catégorie: ' + categoryName.value + ' existe déjà'
+          errorMessage.value = t('homePage.modals.newCategoryModal.theCategoryExists') + categoryName.value + t('homePage.modals.newCategoryModal.alreadyExists');
           categoryName.value = props.category?.name || '';
           return;
         }
       }
-
       // Update the category
       emits('updateCategory', updatedCategory);
 
     } catch (error) {
-      emits('updateCategory', { error: 'Erreur vérification catégories existantes', description: error });
+      emits('updateCategory', { error: t('homePage.modals.newCategoryModal.errorCheckingExistingCategories'), description: error });
       categoryName.value = props.category?.name || '';
       return;
     }

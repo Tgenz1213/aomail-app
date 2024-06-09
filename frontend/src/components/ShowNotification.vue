@@ -22,7 +22,6 @@
                             <div class="ml-4 flex flex-shrink-0">
                                 <button type="button" @click="dismissPopup"
                                     class="inline-flex rounded-md text-gray-900 hover:text-black focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
-                                    <span class="sr-only">Close</span>
                                     <XMarkIcon class="h-5 w-5 text-gray-900" aria-hidden="true" />
                                 </button>
                             </div>

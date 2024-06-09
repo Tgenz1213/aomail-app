@@ -61,16 +61,18 @@
     "beginFreeTrial": "Begin Your Free Trial"
   },
   "signUpPart1Page": {
+    "modifyTheCategory": "Modify the category",
+    "summaryUserPlaceholder": "Summarize yourself in a few words to help Ao",
     "signUp": "Sign Up",
     "passwordConfirm": "Confirm Password",
     "continue": "Continue",
     "colors": "Colors",
-    "createCategory": "Create your different categories where you want the assistant to automatically place your emails.",
+    "createCategory": "Create your different categories where you want Ao to automatically place your emails.",
     "categoryDescription": "Brief description of the category",
-    "categoryDescriptionExplanation": "This description will help the assistant understand the category.",
+    "categoryDescriptionExplanation": "This description will help Ao understand the category.",
     "wantToKnowMore": "Want to know more?",
-    "addCategory": "Add a Category",
-    "addAnotherCategory": "Add another Category?",
+    "addCategory": "Add a category",
+    "addAnotherCategory": "Add another category",
     "categoryName": "Category Name",
     "youHaveAnAccount": "Do you have an account?"
   },
@@ -114,13 +116,13 @@
       "newCategoryModal": {
         "newCategory": "Create a new category",
         "categoryDescription": "Brief description of the category",
-        "descriptionForTheAssistant": "This description will enable the assistant to understand the category",
+        "descriptionForTheAssistant": "This description will help Ao to understand the category",
         "categoryName": "Category name"
       },
       "updateCategoryModal": {
         "categoryName": "Name of the category",
         "descriptionOfTheCategory": "Brief description of the category",
-        "descriptionOfTheCategoryForTheAssistant": "This description will enable the assistant to understand the category"
+        "descriptionOfTheCategoryForTheAssistant": "This description will help Ao to understand the category"
       },
       "seeEmailModal": {
         "moreActions": "More actions",

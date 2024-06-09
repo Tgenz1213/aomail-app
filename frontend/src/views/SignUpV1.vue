@@ -18,7 +18,7 @@
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
             <p class="block leading-6 text-gray-900" style="font-family: 'Poppins', sans-serif; font-weight: 500;">
-              {{ $t('signUpPart1Page.modifyCategory') }}</p>
+              {{ $t('signUpPart1Page.modifyTheCategory') }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
@@ -38,7 +38,7 @@
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('signUpPart1Page.categorieDescriptionExplanation') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('signUpPart1Page.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
@@ -95,7 +95,7 @@
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('signUpPart1Page.addAnotherCategory') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('signUpPart1Page.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
@@ -473,7 +473,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.userActions.username') }}</label>
+                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.username') }}</label>
                       </div>
                       <div class="mt-2">
                         <input v-model="login" id="login" type="login"
@@ -488,7 +488,7 @@
                             d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
                         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{
-                          $t('signUpPart1Page.password') }}</label>
+                          $t('constants.password') }}</label>
                       </div>
                       <div class="relative items-stretch mt-2 flex">
                         <input id="password" v-if="!showPassword" type="password"
@@ -561,10 +561,10 @@
                       </div>
                       <div class="mt-2">
                         <input v-model="userDescription"
-                          placeholder="Résumez-vous en quelques mots afin d'aider l'assistant (impossible à trad)"
-                          id="userDescription"
-                          class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
-                      </div>
+      :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
+      id="userDescription"
+      class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+  </div>
                     </div>
                     <div>
                       <div class="pt-6">
@@ -582,7 +582,7 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.language') }}</span>
                         </div>
                       </div>
                       <div class="pt-6">
@@ -597,7 +597,7 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">TIMEZONES - UX: add search</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.timezone') }}</span>
                         </div>
                       </div>
                       <div class="pt-6 pb-10">
@@ -614,7 +614,7 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('signUpPart1Page.theme') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.theme') }}</span>
                         </div>
                       </div>
                       <div class="pt-6 pb-10">
@@ -641,7 +641,7 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500"> {{ $t('constants.userActions.category') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500"> {{ $t('constants.category') }}</span>
                         </div>
                       </div>
                       <div class="pt-2">
@@ -688,7 +688,7 @@
                               </ul>
                               <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                                {{ $t('signUpPart1Page.categoryDescription') }}</button>
+                                {{ $t('signUpPart1Page.addAnotherCategory') }}</button>
                               <!--<button @click="isModalOpen = !isModalOpen" type="button" class="h-[25px] w-full rounded-lg border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                                 <span class="text-sm font-semibold text-gray-900">Ajouter une autre catégorie</span>
                               </button>-->
@@ -715,7 +715,7 @@
           </div>
           <p class="mt-6 text-center text-sm text-gray-600">
             {{ $t('signUpPart1Page.youHaveAnAccount') }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('signUpPart1Page.login')
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('constants.userActions.login')
               }}</a>
           </p>
         </div>

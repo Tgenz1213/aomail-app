@@ -61,16 +61,18 @@
     "beginFreeTrial": "Commencer votre essai gratuit"
   },
   "signUpPart1Page": {
+    "modifyTheCategory": "Modifier la catégorie",
+    "summaryUserPlaceholder": "Résumez-vous en quelques mots afin d'aider Ao",
     "signUp": "S'inscrire",
     "passwordConfirm": "Confirmer le mot de passe",
     "continue": "Continuer",
     "colors": "Couleurs",
-    "createCategory": "Créez vos différentes catégories dans lesquelles vous souhaitez que l'assistant classe automatiquement vos e-mails.",
+    "createCategory": "Créez vos différentes catégories dans lesquelles vous souhaitez que Ao classe automatiquement vos e-mails.",
     "categoryDescription": "Brève description de la catégorie",
-    "categoryDescriptionExplanation": "Cette description permettra à l'assistant de comprendre la catégorie",
+    "categoryDescriptionExplanation": "Cette description permettra à Ao de comprendre la catégorie",
     "wantToKnowMore": "Vous voulez en savoir plus ?",
     "addCategory": "Ajouter une catégorie",
-    "addAnotherCategory": "Ajouter une autre catégorie ?",
+    "addAnotherCategory": "Ajouter une autre catégorie",
     "categoryName": "Nom de la catégorie",
     "youHaveAnAccount": "Vous avez un compte ?"
   },
@@ -114,13 +116,13 @@
       "newCategoryModal": {
         "newCategory": "Créer une nouvelle catégorie",
         "categoryDescription": "Brève description de la catégorie",
-        "descriptionForTheAssistant": "Cette description permettra à l'assistant de comprendre la catégorie",
+        "descriptionForTheAssistant": "Cette description permettra à Ao de comprendre la catégorie",
         "categoryName": "Nom de la catégorie"
       },
       "updateCategoryModal": {
         "categoryName": "Nom de la catégorie",
         "descriptionOfTheCategory": "Brève description de la catégorie",
-        "descriptionOfTheCategoryForTheAssistant": "Cette description permettra à l'assistant de comprendre la catégorie"
+        "descriptionOfTheCategoryForTheAssistant": "Cette description permettra à Ao de comprendre la catégorie"
       },
       "seeEmailModal": {
         "moreActions": "Plus d'actions",
@@ -174,7 +176,7 @@
     }
   },
   "rulesPage": {
-    "assistantRules": "Règles de l'assistant",
+    "assistantRules": "Règles de Ao",
     "category": "Catégorie :",
     "priority": "Priorité :",
     "blockedEmail": "E-mail bloqué",

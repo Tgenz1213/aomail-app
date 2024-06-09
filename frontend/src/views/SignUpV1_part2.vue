@@ -459,7 +459,7 @@
                       </div>
                       <div class="py-6">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('constants.userActions.workInProgress') }}</p>
+                          <p class="font-semibold">{{ $t('constants.workInProgress') }}</p>
                           <!-- To add : A video that explain the tool -->
                         </div>
                       </div>
@@ -473,7 +473,7 @@
                       </div>
                       <div class="pt-4">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('constants.userActions.workInProgress') }}</p>
+                          <p class="font-semibold">{{ $t('constants.workInProgress') }}</p>
                           <!-- To add : A video that explain how data is saved and used -->
                         </div>
                       </div>
@@ -522,7 +522,7 @@
           </div>
           <p class="mt-6 text-center text-sm text-gray-500">
             {{ $t('signUpPart1Page.youHaveAnAccount') }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('signUpPart1Page.signUp')
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('constants.userActions.login')
               }}</a>
           </p>
         </div>

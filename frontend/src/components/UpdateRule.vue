@@ -11,7 +11,6 @@
         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
           <button @click="closeModal" @keydown="handleKeyDown" type="button"
             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-            <span class="sr-only">Close</span>
             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
@@ -290,7 +289,7 @@ export default {
         }
       }
       else {
-        this.errorMessage = "Le format de l'email est incorrect";
+        this.errorMessage = this.t('rulesPage.popUpConstants.errorMessages.emailFormatIncorrect');
       }
     },
     async deleteRuleHandler() {
@@ -331,7 +330,7 @@ export default {
     },
     async postSender() {
       if (!this.selectedPerson) {
-        this.errorMessage = "Aucune adresse email sélectionnée";
+        this.errorMessage = this.t('rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress');
         return;
       }
 
@@ -364,10 +363,10 @@ export default {
     },
     async checkSenderExists() {
       if (!this.selectedPerson) {
-        this.errorMessage = "Aucune adresse email sélectionnée";
+        this.errorMessage = this.t('rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress');
         return;
       }
-
+      
       const senderData = {
         email: this.selectedPerson.email, // username is the email => TO FIX : rename
       };

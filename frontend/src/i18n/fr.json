@@ -37,6 +37,11 @@
       "administrative": "Administratifs"
     },
     "sendEmailConstants": {
+      "improveEmailWriting": "Améliore l'écriture du mail",
+      "doesThisResponseSuitYou": "Est-ce que cette réponse vous convient ?",
+      "howCanIAssistWritingEmailResponse": "Comment puis-je vous aider à rédiger une réponse à cet email ?",
+      "carbonCopyInitialsTwoDots": "CC:",
+      "blindCarbonCopyInitialsTwoDots": "CCI:",
       "noSuggestionsEnteredPleaseTryAgain": "Vous n'avez saisi aucune suggestion, veuillez réessayer.",
       "betterEmailFeedbackRequest": "Est-ce que ce mail vous convient mieux ?",
       "noRecipientsEntered": "Vous n'avez saisi aucun destinataire, veuillez réessayer.",
@@ -73,6 +78,7 @@
         "emailSuccessfullySent": "Votre email a été envoyé avec succès."
       }
     },
+    "redirectionInProgress": "Redirection en cours...",
     "homeNavbar": "Accueil",
     "newEmailNavbar": "Nouveau Email",
     "searchEmailNavbar": "Recherche Email",
@@ -316,7 +322,7 @@
     }
   },
   "newPage": {
-    "options": "Ouvrir les options",
+    "openOptions": "Ouvrir les options",
     "carbonCopyInitials": "CC",
     "blindCarbonCopyInitials": "CCI",
     "veryBrief": "Très bref",
@@ -325,8 +331,8 @@
     "informal": "Informel",
     "formal": "Formel",
     "veryFormal": "Très formel",
-    "subject": "Sujet:",
-    "emailContent": "Email:",
+    "subject": "Sujet: ",
+    "emailContent": "Email: ",
     "correctSpelling": "Corrige l'orthographe",
     "checkCopywriting": "Vérifie le copywriting",
     "improveWriting": "Améliore l'écriture",
@@ -337,7 +343,7 @@
     "moveToNextStep": "Passez à la suite"
   },
   "answerPage": {
-    "MaYbE": "LaTeR"
+    "responseSentTitle": "Réponse envoyée !"
   },
   "errorWebPagesTemplates": {
     "error401Page": {

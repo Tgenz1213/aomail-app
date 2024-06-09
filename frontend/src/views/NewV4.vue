@@ -15,7 +15,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
                         </svg>
-                        <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{ $t('constants.aiAssistant') }}</h1>
+                        <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{ $t('constants.aiAssistant') }}
+                        </h1>
                     </div>
                 </div>
                 <div class="flex flex-1 flex-col divide-y">
@@ -62,7 +63,8 @@
                         </div>
                         <div v-else class="flex justify-end m-3 2xl:m-5">
                             <button @click="handleAIClick" type="button"
-                                class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('constants.userActions.send') }}</button>
+                                class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{
+                                    $t('constants.userActions.send') }}</button>
                         </div>
                     </div>
                 </div>
@@ -77,7 +79,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
                             </svg>
-                            <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{ $t('constants.userActions.enterManually')
+                            <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{
+                                $t('constants.userActions.enterManually')
                                 }}</h1>
                         </div>
                     </div>
@@ -97,7 +100,8 @@
                                     <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
                                         <div v-for="person in selectedCC" :key="person.email"
                                             class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2">
-                                            <span class="font-semibold mr-1 2xl:mr-2">CC:</span>
+                                            <span class="font-semibold mr-1 2xl:mr-2">{{
+                                                $t('constants.sendEmailConstants.carbonCopyInitialsTwoDots') }}</span>
                                             {{ person.username || person.email }}
                                             <button @click="removePersonFromCC(person)">×</button>
                                         </div>
@@ -106,7 +110,9 @@
                                     <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
                                         <div v-for="person in selectedCCI" :key="person.email"
                                             class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2">
-                                            <span class="font-semibold mr-1 2xl:mr-2">CCI:</span>
+                                            <span class="font-semibold mr-1 2xl:mr-2">{{
+                                                $t('constants.sendEmailConstants.blindCarbonCopyInitialsTwoDots')
+                                                }}</span>
                                             {{ person.username || person.email }}
                                             <button @click="removePersonFromCCI(person)">×</button>
                                         </div>
@@ -170,7 +176,7 @@
                                         <button type="button" @click="toggleCC"
                                             :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
                                             class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 2xl:px-3 2xl:py-2 2xl:text-base">
-                                            {{ $t('newPage.carbonCopyInitials') }}                                           
+                                            {{ $t('newPage.carbonCopyInitials') }}
                                         </button>
                                         <button type="button" @click="toggleCCI"
                                             :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
@@ -221,7 +227,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="flex-1 pb-[68px] 2xl:pb-[42px]">
                                 <div id="editor" class="w-full h-full"></div>
                             </div>
@@ -230,58 +236,67 @@
                                 <!-- EMAIL LIST -->
                                 <div class="relative flex-grow flex items-stretch">
                                     <Listbox as="div" v-model="emailSelected" class="w-full flex flex-col">
-                                    <ListboxButton class="relative w-full h-full cursor-default rounded-md bg-white px-6 py-2 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6 2xl:px-7 2xl:py-3 2xl:text-base">
-                                        <span class="block truncate">{{ emailSelected }}</span>
-                                        <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                        </span>
-                                    </ListboxButton>
-                                    <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                                        leave-to-class="opacity-0">
-                                        <ListboxOptions
-                                        class="absolute z-10 mb-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm bottom-full">
-                                        <ListboxOption as="template" v-for="email in emailsLinked" :key="email.email" :value="email.email"
-                                            v-slot="{ active, selected }">
-                                            <li
-                                            :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                            <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ email.email }}</span>
-                                            <span v-if="selected"
-                                                :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                        <ListboxButton
+                                            class="relative w-full h-full cursor-default rounded-md bg-white px-6 py-2 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6 2xl:px-7 2xl:py-3 2xl:text-base">
+                                            <span class="block truncate">{{ emailSelected }}</span>
+                                            <span
+                                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                                             </span>
-                                            </li>
-                                        </ListboxOption>
-                                        </ListboxOptions>
-                                    </transition>
+                                        </ListboxButton>
+                                        <transition leave-active-class="transition ease-in duration-100"
+                                            leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                            <ListboxOptions
+                                                class="absolute z-10 mb-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm bottom-full">
+                                                <ListboxOption as="template" v-for="email in emailsLinked"
+                                                    :key="email.email" :value="email.email"
+                                                    v-slot="{ active, selected }">
+                                                    <li
+                                                        :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                                        <span
+                                                            :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{
+                                                                email.email }}</span>
+                                                        <span v-if="selected"
+                                                            :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                        </span>
+                                                    </li>
+                                                </ListboxOption>
+                                            </ListboxOptions>
+                                        </transition>
                                     </Listbox>
                                 </div>
 
                                 <div class="inline-flex rounded-lg shadow-lg items-stretch">
                                     <button @click="sendEmail"
-                                    class="bg-gray-700 rounded-l-lg px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg">
-                                    {{ $t('constants.userActions.send') }}
-                                    <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
+                                        class="bg-gray-700 rounded-l-lg px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg">
+                                        {{ $t('constants.userActions.send') }}
+                                        <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
                                     </button>
                                     <Menu as="div" class="relative -ml-px block items-stretch">
-                                    <MenuButton
-                                        class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
-                                        <span class="sr-only">{{ $t('New_vue.options') }}</span>
-                                        <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
-                                    </MenuButton>
-                                    <transition enter-active-class="transition ease-out duration-100"
-                                        enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                                        leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                                        leave-to-class="transform opacity-0 scale-95">
-                                        <MenuItems
-                                        class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                        <div class="py-1">
-                                            <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                                            <a :href="item.href"
-                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm 2xl:px-5 2xl:py-3 2xl:text-base']">{{ item.name }}</a>
-                                            </MenuItem>
-                                        </div>
-                                        </MenuItems>
-                                    </transition>
+                                        <MenuButton
+                                            class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
+                                            <span class="sr-only">{{ $t('newPage.openOptions') }}</span>
+                                            <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
+                                        </MenuButton>
+                                        <transition enter-active-class="transition ease-out duration-100"
+                                            enter-from-class="transform opacity-0 scale-95"
+                                            enter-to-class="transform opacity-100 scale-100"
+                                            leave-active-class="transition ease-in duration-75"
+                                            leave-from-class="transform opacity-100 scale-100"
+                                            leave-to-class="transform opacity-0 scale-95">
+                                            <MenuItems
+                                                class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                <div class="py-1">
+                                                    <MenuItem v-for="item in items" :key="item.name"
+                                                        v-slot="{ active }">
+                                                    <a :href="item.href"
+                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm 2xl:px-5 2xl:py-3 2xl:text-base']">{{
+                                                            item.name }}</a>
+                                                    </MenuItem>
+                                                </div>
+                                            </MenuItems>
+                                        </transition>
                                     </Menu>
                                 </div>
                             </div>
@@ -330,9 +345,9 @@ import {
     ComboboxOption,
     Listbox,
     ListboxButton,
-    ListboxOptions, 
-    ListboxOption, 
-    ChevronUpDownIcon, 
+    ListboxOptions,
+    ListboxOption,
+    ChevronUpDownIcon,
     ComboboxOptions,
 } from '@headlessui/vue'
 import { useI18n } from 'vue-i18n';
@@ -377,7 +392,7 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     .catch(error => {
         console.error("Error fetching contacts:", error);
         // Show the pop-up
-        backgroundColor = 'bg-red-300';       
+        backgroundColor = 'bg-red-300';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.contactFetchError');
         notificationMessage.value = error;
         displayPopup();
@@ -882,7 +897,7 @@ async function handleAIClick() {
                         }
 
                         if (noUsersAdded) {
-                            console.log("DEBUG");                            
+                            console.log("DEBUG");
                             const message = t('constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually');
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                             //const ai_icon = neutral_icon;
@@ -954,7 +969,7 @@ async function handleAIClick() {
                               <p><strong>${t('newPage.emailContent')}</strong> ${formattedMail}</p>
                           </div>
                       </div>
-                  `;                  
+                  `;
                         AIContainer.value.innerHTML += messageHTML;
                         inputValue.value = result.subject;
                         MailCreatedByAI.value = true;
@@ -1732,7 +1747,7 @@ function askChoiceRecipier(list, type) {
     const userLabel = (type === 'main') ? t('newPage.mainRecipient') : (type === 'cc') ? t('newPage.ccRecipient') : t('newPage.bccRecipient');
     // Display the username before the list of emails
     const usernameHTML = `<div>${t('newPage.forUser')}<strong>${firstUsername}</strong> [${userLabel}]</div>`;
-   
+
     list.forEach((item, index) => {
         // Extract the first (and presumably only) key in the dictionary, which is the username
         const username = Object.keys(item)[0];
@@ -1828,7 +1843,7 @@ function NextStepRecipier() {
         </div>
       </div>
     `;
-    
+
     AIContainer.value.innerHTML += messageHTML;
 
     setTimeout(() => {

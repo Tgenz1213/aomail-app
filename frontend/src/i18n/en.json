@@ -37,6 +37,11 @@
       "administrative": "Administrative"
     },
     "sendEmailConstants": {
+      "improveEmailWriting": "Improve email writing",
+      "doesThisResponseSuitYou": "Does this response suit you?",
+      "howCanIAssistWritingEmailResponse": "How can I assist you in writing a response to this email?",
+      "carbonCopyInitialsTwoDots": "CC:",
+      "blindCarbonCopyInitialsTwoDots": "BCC:",
       "noSuggestionsEnteredPleaseTryAgain": "You haven't entered any suggestions, please try again.",
       "betterEmailFeedbackRequest": "Does this email suit you better?",
       "noRecipientsEntered": "You have not entered any recipients, please try again.",
@@ -73,6 +78,7 @@
         "emailSuccessfullySent": "Your email has been successfully sent."
       }
     },
+    "redirectionInProgress": "Redirection in progress...",
     "homeNavbar": "Home",
     "newEmailNavbar": "New Email",
     "searchEmailNavbar": "Search Email",
@@ -200,7 +206,7 @@
         "successMessages": {
           "languageUpdatedSuccessfully": "Language updated successfully",
           "themeUpdatedSuccessfully": "Theme updated successfully",
-          "timezoneUpdatedSuccessfully":"Timezone updated successfully"
+          "timezoneUpdatedSuccessfully": "Timezone updated successfully"
         }
       }
     },
@@ -315,7 +321,7 @@
     }
   },
   "newPage": {
-    "options": "Open options",
+    "openOptions": "Open options",
     "carbonCopyInitials": "CC",
     "blindCarbonCopyInitials": "BCC",
     "veryBrief": "Very brief",
@@ -324,8 +330,8 @@
     "informal": "Informal",
     "formal": "Formal",
     "veryFormal": "Very formal",
-    "subject": "Subject:",
-    "emailContent": "Email:",
+    "subject": "Subject: ",
+    "emailContent": "Email: ",
     "correctSpelling": "Correct the spelling",
     "checkCopywriting": "Check the copywriting",
     "improveWriting": "Improve the writing",
@@ -335,7 +341,7 @@
     "bccRecipient": "Blind Copy"
   },
   "answerPage": {
-    "MaYbE": "LaTeR"
+    "responseSentTitle": "Response sent!"
   },
   "errorWebPagesTemplates": {
     "error401Page": {

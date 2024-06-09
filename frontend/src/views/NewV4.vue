@@ -38,18 +38,18 @@
                                 <div>
                                     <select id="lengthSelect"
                                         class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                                        <option value="very short">Très bref</option>
-                                        <option value="short" selected>Bref</option>
-                                        <option value="long">Long</option>
+                                        <option value="very short">{{ $t('newPage.veryBrief') }}</option>
+                                        <option value="short" selected>{{ $t('newPage.brief') }}</option>
+                                        <option value="long">{{ $t('newPage.long') }}</option>
                                     </select>
                                 </div>
                                 <div>
                                     <select id="formalitySelect"
                                         class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                                        <option value="very informal">Informel</option>
+                                        <option value="very informal">{{ $t('newPage.informal') }}</option>
                                         <!--<option value="informal">Peu formel</option>-->
-                                        <option value="formal" selected>Formel</option>
-                                        <option value="very formal">Très formel</option>
+                                        <option value="formal" selected>{{ $t('newPage.formal') }}</option>
+                                        <option value="very formal">{{ $t('newPage.veryFormal') }}</option>
                                     </select>
                                 </div>
                                 <div class="flex items-center">
@@ -802,8 +802,8 @@ async function handleAIClick() {
                                             </svg>
                                         </span>   
                                     </div>
-                                    <div>
-                                        <p>J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent</p>
+                                    <div>                                        
+                                        <p>${t('constants.sendEmailConstants.multipleEmailsFoundForSomeRecipients')}</p>
                                     </div>
                                 </div>
                             `;
@@ -950,11 +950,11 @@ async function handleAIClick() {
                               </span>   
                           </div>
                           <div>
-                              <p><strong>Objet:</strong> ${result.subject}</p>
-                              <p><strong>Email:</strong> ${formattedMail}</p>
+                              <p><strong>${t('newPage.subject')}</strong> ${result.subject}</p>
+                              <p><strong>${t('newPage.emailContent')}</strong> ${formattedMail}</p>
                           </div>
                       </div>
-                  `;
+                  `;                  
                         AIContainer.value.innerHTML += messageHTML;
                         inputValue.value = result.subject;
                         MailCreatedByAI.value = true;
@@ -1037,8 +1037,8 @@ async function handleAIClick() {
                               </span>   
                           </div>
                           <div>
-                              <p><strong>Objet:</strong> ${result.subject}</p>
-                              <p><strong>Email:</strong> ${formattedMail}</p>
+                              <p><strong>${t('newPage.subject')}</strong> ${result.subject}</p>
+                              <p><strong>${t('newPage.emailContent')}</strong> ${formattedMail}</p>
                           </div>
                       </div>
                   `;
@@ -1673,19 +1673,19 @@ function askContentAdvice() {
                   <div class="flex mt-4">
                     <div class="mr-4">
                       <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Corrige l'orthographe
+                        ${t('newPage.correctSpelling')}
                       </button>
                     </div>
                     <div>
                       <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Vérifie le copywriting
+                        ${t('newPage.checkCopywriting')}
                       </button>
                     </div>
                   </div>
                   <div class="flex mt-4">
                     <div class="mr-4">
                       <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Améliore l'écriture
+                        ${t('newPage.improveWriting')}
                       </button>
                     </div>
                   </div>
@@ -1729,10 +1729,10 @@ function askChoiceRecipier(list, type) {
 
     const firstUsername = Object.keys(list[0])[0];
     // Display the type of recipient
-    const userLabel = (type === 'main') ? 'Principal' : (type === 'cc') ? 'Copie' : 'Copie cachée';
+    const userLabel = (type === 'main') ? t('newPage.mainRecipient') : (type === 'cc') ? t('newPage.ccRecipient') : t('newPage.bccRecipient');
     // Display the username before the list of emails
-    const usernameHTML = `<div>Pour l'utilisateur : <strong>${firstUsername}</strong> [${userLabel}]</div>`;
-
+    const usernameHTML = `<div>${t('newPage.forUser')}<strong>${firstUsername}</strong> [${userLabel}]</div>`;
+   
     list.forEach((item, index) => {
         // Extract the first (and presumably only) key in the dictionary, which is the username
         const username = Object.keys(item)[0];
@@ -1822,13 +1822,13 @@ function NextStepRecipier() {
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-                Passez à la suite
+                ${t('newPage.moveToNextStep')}
               </button>
           </div>
         </div>
       </div>
     `;
-
+    
     AIContainer.value.innerHTML += messageHTML;
 
     setTimeout(() => {
@@ -1881,8 +1881,8 @@ async function checkSpelling() {
                       </span>   
                   </div>
                   <div>
-                      <p><strong>Objet:</strong> ${result.corrected_subject}</p>
-                      <p><strong>Email:</strong> ${formattedMail}</p>
+                      <p><strong>${t('newPage.subject')}</strong> ${result.corrected_subject}</p>
+                      <p><strong>${t('newPage.emailContent')}</strong> ${formattedMail}</p>
                   </div>
               </div>
           `;
@@ -2020,8 +2020,8 @@ async function WriteBetter() {
                     </span>   
                 </div>
                 <div>
-                    <p><strong>Objet:</strong> ${result.subject}</p>
-                    <p><strong>Email:</strong> ${result.email_body}</p>
+                    <p><strong>${t('newPage.subject')}</strong> ${result.subject}</p>
+                    <p><strong>${t('newPage.emailContent')}</strong> ${result.email_body}</p>
                 </div>
             </div>
         `;

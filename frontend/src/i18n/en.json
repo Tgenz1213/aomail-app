@@ -48,7 +48,8 @@
       "emailCompositionAssistance": "How can I assist you in composing your email?",
       "spellingCorrectionRequest": "I have corrected the spelling, would you like anything else?",
       "processingErrorApology": "I apologize, there was a processing error.",
-      "copywritingCheckRequest": "I have checked the copywriting, would you like anything else?"
+      "copywritingCheckRequest": "I have checked the copywriting, would you like anything else?",
+      "multipleEmailsFoundForSomeRecipients": "I found multiple emails for some recipients, select the emails that correspond."
     },
     "popUpConstants": {
       "errorMessages": {
@@ -260,7 +261,22 @@
   "newPage": {
     "options": "Open options",
     "carbonCopyInitials": "CC",
-    "blindCarbonCopyInitials": "BCC"
+    "blindCarbonCopyInitials": "BCC",
+    "veryBrief": "Very brief",
+    "brief": "Brief",
+    "long": "Long",
+    "informal": "Informal",
+    "formal": "Formal",
+    "veryFormal": "Very formal",
+    "subject": "Subject:",
+    "emailContent": "Email:",
+    "correctSpelling": "Correct the spelling",
+    "checkCopywriting": "Check the copywriting",
+    "improveWriting": "Improve the writing",
+    "forUser": "For user : ",
+    "mainRecipient": "Main Recipient",
+    "ccRecipient": "Copy",
+    "bccRecipient": "Blind Copy"
   },
   "answerPage": {
     "MaYbE": "LaTeR"

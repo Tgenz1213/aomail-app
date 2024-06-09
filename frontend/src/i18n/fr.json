@@ -48,7 +48,8 @@
       "emailCompositionAssistance": "Comment puis-je vous aider à rédiger votre e-mail ?",
       "spellingCorrectionRequest": "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?",
       "processingErrorApology": "Je m'excuse, j'ai fait une erreur de traitement.",
-      "copywritingCheckRequest": "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?"
+      "copywritingCheckRequest": "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?",
+      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent"
     },
     "popUpConstants": {
       "errorMessages": {
@@ -261,7 +262,23 @@
   "newPage": {
     "options": "Ouvrir les options",
     "carbonCopyInitials": "CC",
-    "blindCarbonCopyInitials": "CCI"
+    "blindCarbonCopyInitials": "CCI",
+    "veryBrief": "Très bref",
+    "brief": "Bref",
+    "long": "Long",
+    "informal": "Informel",
+    "formal": "Formel",
+    "veryFormal": "Très formel",
+    "subject": "Sujet:",
+    "emailContent": "Email:",
+    "correctSpelling": "Corrige l'orthographe",
+    "checkCopywriting": "Vérifie le copywriting",
+    "improveWriting": "Améliore l'écriture",
+    "forUser": "Pour l'utilisateur : ",
+    "mainRecipient": "Principal",
+    "ccRecipient": "Copie",
+    "bccRecipient": "Copie cachée",
+    "moveToNextStep":"Passez à la suite"
   },
   "answerPage": {
     "MaYbE": "LaTeR"

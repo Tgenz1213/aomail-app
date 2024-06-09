@@ -7,16 +7,15 @@
       <div class="w-[90px] 2xl:w-[100px] ring-1 ring-black ring-opacity-5">
         <navbar></navbar>
       </div>
-      <div
-        class="flex-1">
+      <div class="flex-1">
         <!-- WORKS FOR 1920*1200px screens <div
         class="col-span-10 2xl:col-span-6 bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> -->
         <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
         <div class="flex flex-col h-full divide-y divide-gray-200">
-          <div
-            class="flex items-center justify-center h-[70px] 2xl:h-[80px] border-l bg-gray-50">
+          <div class="flex items-center justify-center h-[70px] 2xl:h-[80px] border-l bg-gray-50">
             <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('ReplyLater_vue.reply_later') }}</h1>
+            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('ReplyLater_vue.reply_later') }}
+            </h1>
           </div>
           <div class="flex-grow overflow-y-auto" style="margin-right: 2px;">
             <div class="px-4 py-2 h-full">
@@ -30,29 +29,28 @@
                       <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
                     </svg>
-                    <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('ReplyLater_vue.no_emails_to_reply_later') }}</span>
+                    <span class="mt-2 block text-sm font-semibold text-gray-900">{{
+                      $t('ReplyLater_vue.no_emails_to_reply_later') }}</span>
                   </div>
                 </div>
               </div>
               <div v-if="nbr_reply_answer > 0">
                 <ul role="list" class="flex flex-col w-full h-full rounded-xl">
                   <div class="pt-6">
-                    <li v-if="emails['Important'] && emails['Important'].length > 0"
-                      class="">
+                    <li v-if="emails['Important'] && emails['Important'].length > 0" class="">
                       <div class="px-6 pb-6">
                         <div class="bg-orange-100 bg-opacity-90 rounded-md">
                           <div class="flex px-3 py-2">
                             <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">Travail - Urgent</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
-                                <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
+                              <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
                             </div>
                           </div>
                         </div>
                         <div class="flex px-4 pt-4">
                           <div class="flex">
-                            <span
-                              class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-orange-300">
+                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-orange-300">
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-6 h-6 text-white">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -70,7 +68,8 @@
                                   <div class="col-span-8 cursor-pointer" @click="toggleHiddenParagraph(item.id)">
                                     <div class="flex-auto group">
                                       <div class="flex gap-x-4">
-                                        <p class="text-sm font-semibold leading-6 text-orange-700 dark:text-white">{{ item.name
+                                        <p class="text-sm font-semibold leading-6 text-orange-700 dark:text-white">{{
+                                          item.name
                                           }}</p>
                                         <div
                                           class="hidden group-hover:block px-2 py-0.5 bg-orange-300 text-white text-sm shadow rounded-xl">
@@ -87,8 +86,8 @@
                                       <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
                                         item.description }}</p>
                                     </div>
-                                    <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
-                                      :ref="'parentElement' + item.id">
+                                    <ul v-show="showHiddenParagraphs[item.id]" role="list"
+                                      class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
                                       <!-- Potential design update : bg-white shadow rounded-xl -->
                                       <li v-for="detail in item.details" :key="detail.id" class="pl-8"
                                         :ref="'hiddenText' + item.id" :data-text="detail.text">
@@ -118,7 +117,8 @@
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
-                                              <arrow-uturn-left-icon class="w-5 h-5 text-orange-400 group-hover:text-white" />
+                                              <arrow-uturn-left-icon
+                                                class="w-5 h-5 text-orange-400 group-hover:text-white" />
                                             </button>
                                           </div>
                                         </div>
@@ -211,8 +211,8 @@
                                                       <span class="flex gap-x-2 items-center">
                                                         <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1"
                                                           stroke="currentColor" xmlns="http://www.w3.org/2000/svg"
-                                                          xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
-                                                          xmlns:serif="http://www.serif.com/"
+                                                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                          xml:space="preserve" xmlns:serif="http://www.serif.com/"
                                                           style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
                                                           <path
                                                             d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
@@ -297,18 +297,17 @@
                         </div>
                       </div>
                     </li>
-                    <li v-if="emails['Information'] && emails['Information'].length > 0"
-                      class="">
+                    <li v-if="emails['Information'] && emails['Information'].length > 0" class="">
                       <div class="px-6 pb-6">
                         <div class="bg-blue-100 bg-opacity-90 rounded-md">
                           <div class="flex px-2 py-2">
                             <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">Travail - Informatif</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
-                                <information-circle-icon class="w-6 h-6 text-blue-500" />
+                              <information-circle-icon class="w-6 h-6 text-blue-500" />
                             </div>
                           </div>
-                        </div>                    
+                        </div>
                         <div class="flex px-4 pt-4">
                           <div class="flex">
                             <span
@@ -332,7 +331,7 @@
                                       <div class="flex gap-x-4">
                                         <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white">{{
                                           item.name
-                                          }}</p>
+                                        }}</p>
                                         <div
                                           class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
                                           <div class="flex gap-x-1 items-center">
@@ -348,8 +347,8 @@
                                       <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
                                         item.description }}</p>
                                     </div>
-                                    <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
-                                      :ref="'parentElement' + item.id">
+                                    <ul v-show="showHiddenParagraphs[item.id]" role="list"
+                                      class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
                                       <!-- Potential design update : bg-white shadow rounded-xl -->
                                       <li v-for="detail in item.details" :key="detail.id" class="pl-8"
                                         :ref="'hiddenText' + item.id" :data-text="detail.text">
@@ -379,7 +378,8 @@
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                              <arrow-uturn-left-icon class="w-5 h-5 text-blue-400 group-hover:text-white" />
+                                              <arrow-uturn-left-icon
+                                                class="w-5 h-5 text-blue-400 group-hover:text-white" />
                                             </button>
                                           </div>
                                         </div>
@@ -472,8 +472,8 @@
                                                       <span class="flex gap-x-2 items-center">
                                                         <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1"
                                                           stroke="currentColor" xmlns="http://www.w3.org/2000/svg"
-                                                          xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
-                                                          xmlns:serif="http://www.serif.com/"
+                                                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                          xml:space="preserve" xmlns:serif="http://www.serif.com/"
                                                           style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
                                                           <path
                                                             d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
@@ -558,15 +558,14 @@
                         </div>
                       </div>
                     </li>
-                    <div v-if="emails['Useless'] && emails['Useless'].length > 0"
-                      class="">
+                    <div v-if="emails['Useless'] && emails['Useless'].length > 0" class="">
                       <div class="px-6 pb-6">
                         <div class="bg-gray-200 bg-opacity-90 rounded-md">
                           <div class="flex px-2 py-2">
                             <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">Inutile</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
-                                <trash-icon class="w-6 h-6 text-gray-500" />
+                              <trash-icon class="w-6 h-6 text-gray-500" />
                             </div>
                           </div>
                         </div>
@@ -606,8 +605,8 @@
                                       <p class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">{{
                                         item.description }}</p>
                                     </div>
-                                    <ul v-show="showHiddenParagraphs[item.id]" role="list" class="text-black text-sm/6 pt-2"
-                                      :ref="'parentElement' + item.id">
+                                    <ul v-show="showHiddenParagraphs[item.id]" role="list"
+                                      class="text-black text-sm/6 pt-2" :ref="'parentElement' + item.id">
                                       <!-- Potential design update : bg-white shadow rounded-xl -->
                                       <li v-for="detail in item.details" :key="detail.id" class="pl-8"
                                         :ref="'hiddenText' + item.id" :data-text="detail.text">
@@ -637,7 +636,8 @@
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                              <arrow-uturn-left-icon class="w-5 h-5 text-gray-500 group-hover:text-white" />
+                                              <arrow-uturn-left-icon
+                                                class="w-5 h-5 text-gray-500 group-hover:text-white" />
                                             </button>
                                           </div>
                                         </div>
@@ -730,8 +730,8 @@
                                                       <span class="flex gap-x-2 items-center">
                                                         <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1"
                                                           stroke="currentColor" xmlns="http://www.w3.org/2000/svg"
-                                                          xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve"
-                                                          xmlns:serif="http://www.serif.com/"
+                                                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                          xml:space="preserve" xmlns:serif="http://www.serif.com/"
                                                           style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
                                                           <path
                                                             d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
@@ -957,6 +957,8 @@ export default {
       // TODO: fix url is only for gmail
       // Use the modal Théo is creating
       console.log("EMAIL", id_provider);
+
+      // TODO: remove this it's no longer needed
       const gmailBaseUrl = 'https://mail.google.com/mail/u/0/#inbox/';
       // Construct the URL with the Gmail message ID
       const urlToOpen = `${gmailBaseUrl}${id_provider}`;
@@ -976,14 +978,14 @@ export default {
         if (response.answer_later != false) {
           console.error('Failed to mark email for reply later', response);
           this.backgroundColor = 'bg-red-300';
-          this.notificationTitle = 'Échec de marquage d\'email pour répondre pour ne plus répondre plus tard';
+          this.notificationTitle = 'TODO Échec de marquage d\'email à ne plus répondre plus tard';
           this.notificationMessage = response;
           displayPopup();
         }
       } catch (error) {
         console.error('Error in unmarkReplyLater:', error.message);
         this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Échec de marquage d\'email pour répondre pour ne plus répondre plus tard';
+        this.notificationTitle = 'TODO Échec de marquage d\'email à ne plus répondre plus tard';
         this.notificationMessage = error.message;
         displayPopup();
       }
@@ -1024,7 +1026,7 @@ export default {
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
         this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Échec d\'ouverture de la page de réponse';
+        this.notificationTitle = 'TODO Échec d\'ouverture de la page de réponse';
         this.notificationMessage = error.message;
         this.displayPopup();
       }
@@ -1064,7 +1066,7 @@ export default {
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
         this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Échec d\'ouverture de la page de transfert';
+        this.notificationTitle = 'TODO Échec d\'ouverture de la page de transfert';
         this.notificationMessage = error.message;
         this.displayPopup();
       }
@@ -1086,14 +1088,14 @@ export default {
         } else {
           console.error('Failed to delete email', response.error);
           this.backgroundColor = 'bg-red-300';
-          this.notificationTitle = 'Erreur de suppression d\'email';
+          this.notificationTitle = "TODO Échec de suppression d'email";
           this.notificationMessage = response.error;
           this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleteEmail:', error.message);
         this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur de suppression d\'email';
+        this.notificationTitle = "TODO Échec de suppression d'email";
         this.notificationMessage = error.message;
         this.displayPopup();
       }

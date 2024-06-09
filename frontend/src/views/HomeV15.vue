@@ -14,7 +14,6 @@
                     <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                         <button @click="closeWarningCategoryModal" type="button"
                             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                            <span class="sr-only">Close</span>
                             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                         </button>
                     </div>
@@ -123,8 +122,8 @@
                                                                 <!-- TODO: var language and retrieve the good translation -->
                                                                 <span class="px-3 py-2 cursor-pointer"
                                                                     @click="selectCategory(category)"
-                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">{{
-                                                                        "Autres" }}
+                                                                    :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">
+                                                                    {{ $t('homePage.otherCategory') }}
                                                                 </span>
                                                                 <div @click="selectCategory(category)"
                                                                     class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center cursor-pointer"
@@ -1667,14 +1666,14 @@ async function markEmailAsUnread(emailId) {
         if (response.read != false) {
             console.log("RESPONSE markEmailAsUnread", response);
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de marquage de l\'email comme non lu';
+            notificationTitle = 'TODO Échec de marquage de l\'email comme non lu';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsUnread:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de marquage de l\'email comme non lu';
+        notificationTitle = 'TODO Échec de marquage de l\'email comme non lu';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1695,14 +1694,14 @@ async function markEmailAsRead(emailId) {
         if (response.read != true) {
             console.log("RESPONSE", response);
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de marquage de l\'email comme lu';
+            notificationTitle = 'TODO Échec de marquage de l\'email comme lu';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsRead:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de marquage de l\'email comme lu';
+        notificationTitle = 'TODO Échec de marquage de l\'email comme lu';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1800,7 +1799,7 @@ async function transferEmail(email) {
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de transfer d\'email';
+        notificationTitle = 'TODO Échec de transfer d\'email';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1824,14 +1823,14 @@ async function markEmailReplyLater(email) {
         } else {
             console.error('Failed to mark email for reply later', response);
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de marquage d\'email pour répondre pour plus tard';
+            notificationTitle = 'TODO Échec de marquage d\'email pour répondre pour plus tard';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailReplyLater:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de marquage d\'email pour répondre pour plus tard';
+        notificationTitle = 'TODO Échec de marquage d\'email pour répondre pour plus tard';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1875,14 +1874,14 @@ async function setRuleBlockForSender(email) {
         } else {
             console.error('Failed to set block rule for sender', response);
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec du bloquage de l\'addresse email';
+            notificationTitle = 'TODO Échec du bloquage de l\'addresse email';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in setRuleBlockForSender:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec du bloquage de l\'addresse email';
+        notificationTitle = 'TODO Échec du bloquage de l\'addresse email';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1903,14 +1902,14 @@ async function deleteEmail(emailId) {
 
         if (!response.message) {
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Échec de suppression d\'email';
+            notificationTitle = 'TODO Échec de suppression d\'email';
             notificationMessage = response.error;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in deleteEmail:', error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec de suppression d\'email';
+        notificationTitle = 'TODO Échec de suppression d\'email';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1952,7 +1951,7 @@ async function openAnswer(email) {
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Échec d\'ouverture de la page de réponse';
+        notificationTitle = 'TODO Échec d\'ouverture de la page de réponse';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -2020,7 +2019,7 @@ async function handleAddCategory(categoryData) {
         if ('error' in response) {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur lors de l\'ajout de la catégorie';
+            notificationTitle = 'TODO Erreur lors de l\'ajout de la catégorie';
             notificationMessage = response.error;
             displayPopup();
 
@@ -2028,8 +2027,8 @@ async function handleAddCategory(categoryData) {
         } else if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'La catégorie a été ajoutée';
+            notificationTitle = 'TODO Succès !';
+            notificationMessage = 'TODO La catégorie a été ajoutée';
             displayPopup();
 
             closeModal();
@@ -2043,7 +2042,7 @@ async function handleAddCategory(categoryData) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur lors de l\'ajout de la catégorie';
+        notificationTitle = 'TODO Erreur lors de l\'ajout de la catégorie';
         notificationMessage = error.message;
         displayPopup();
 
@@ -2066,8 +2065,8 @@ async function handleUpdateCategory(updatedCategory) {
     if (!updatedCategory.name.trim()) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
-        notificationMessage = 'Le nom de la catégorie ne peut pas être vide';
+        notificationTitle = 'TODO Erreur lors de la mise à jour de la catégorie';
+        notificationMessage = 'TODO Le nom de la catégorie ne peut pas être vide';
         displayPopup();
 
         closeUpdateModal();
@@ -2092,8 +2091,8 @@ async function handleUpdateCategory(updatedCategory) {
         if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'La catégorie a été mise à jour';
+            notificationTitle = 'TODO Succès !';
+            notificationMessage = 'TODO La catégorie a été mise à jour';
             displayPopup();
 
             closeUpdateModal();
@@ -2108,7 +2107,7 @@ async function handleUpdateCategory(updatedCategory) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur lors de la mise à jour de la catégorie';
+        notificationTitle = 'TODO Erreur lors de la mise à jour de la catégorie';
         notificationMessage = error.message;
         displayPopup();
 
@@ -2120,8 +2119,8 @@ async function handleCategoryDelete(categoryNameToDelete) {
     if (!categoryNameToDelete.trim()) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur lors de la suppression de la catégorie';
-        notificationMessage = 'Le nom de la catégorie ne peut pas être vide';
+        notificationTitle = 'TODO Erreur lors de la suppression de la catégorie';
+        notificationMessage = 'TODO Le nom de la catégorie ne peut pas être vide';
         displayPopup();
         return;
     }
@@ -2150,7 +2149,7 @@ async function handleCategoryDelete(categoryNameToDelete) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur lors de get_rules_linked';
+        notificationTitle = 'TODO Erreur récupération des règles associées';
         notificationMessage = error.message;
         displayPopup();
 
@@ -2177,8 +2176,8 @@ async function deleteCategory(categoryNameToDelete) {
         if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'Votre catégorie a été supprimée';
+            notificationTitle = 'TODO Succès !';
+            notificationMessage = 'TODO Votre catégorie a été supprimée';
             displayPopup();
 
             // Fetch the categories
@@ -2191,7 +2190,7 @@ async function deleteCategory(categoryNameToDelete) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur lors de la suppression de la catégorie';
+        notificationTitle = 'TODO Erreur lors de la suppression de la catégorie';
         notificationMessage = error.message;
         displayPopup();
     }

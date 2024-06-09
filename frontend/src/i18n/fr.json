@@ -71,11 +71,22 @@
         "fileSizeExceedsLimit": "La taille du fichier dépasse la limite de Gmail",
         "emailSendErrorNoSubject": "Aucun sujet n'a été saisi",
         "emailSendErrorNoObject": "Aucun objet n'a été saisi",
-        "emailSendErrorNoRecipient": "Aucun destinataire n'a été saisi"
+        "emailSendErrorNoRecipient": "Aucun destinataire n'a été saisi",
+        "deleteEmailFailure": "Échec de suppression d'email",
+        "addCategoryError": "Erreur lors de l'ajout de la catégorie",
+        "categoryAddedSuccess": "La catégorie a été ajoutée",
+        "updateCategoryError": "Erreur lors de la mise à jour de la catégorie",
+        "emptyCategoryNameError": "Le nom de la catégorie ne peut pas être vide",
+        "deleteCategoryError": "Erreur lors de la suppression de la catégorie",
+        "retrieveAssociatedRulesError": "Erreur récupération des règles associées",
+        "openReplyPageFailure": "Échec d'ouverture de la page de réponse",
+        "openTransferPageFailure": "Échec d'ouverture de la page de transfert"
       },
       "successMessages": {
         "success": "Succès !",
-        "emailSuccessfullySent": "Votre email a été envoyé avec succès."
+        "emailSuccessfullySent": "Votre email a été envoyé avec succès.",
+        "updateCategorySuccess": "La catégorie a été mise à jour",
+        "deleteCategorySuccess": "Votre catégorie a été supprimée"
       }
     },
     "redirectionInProgress": "Redirection en cours...",
@@ -142,6 +153,7 @@
     "informationOnDataConfidentiality": "Quelques informations sur la confidentialité des données"
   },
   "homePage": {
+    "otherCategory": "Autres",
     "noNewEmail": "Pas de nouvel e-mail",
     "youDidNotReceiveNewEmail": "Vous n'avez pas reçu de nouvel e-mail",
     "suppressionOf": "Suppression de",
@@ -167,6 +179,11 @@
     "warningForDeletingTheCategory": "La suppression de la catégorie entraînera également la suppression de toutes les règles associées",
     "email": " e-mail.",
     "emails": " e-mails.",
+    "markEmailUnreadFailure": "Échec de marquage de l'email comme non lu",
+    "markEmailReadFailure": "Échec de marquage de l'email comme lu",
+    "markEmailReplyLaterFailure": "Échec de marquage d'email pour répondre pour plus tard",
+    "transferEmailFailure": "Échec de transfert d'email",
+    "blockEmailAddressFailure": "Échec du bloquage de l'addresse email",
     "modals": {
       "pleaseFillAllFields": "Veuillez remplir tous les champs",
       "newCategoryModal": {
@@ -367,6 +384,7 @@
   },
   "replyLaterPage": {
     "noEmailsToReplyLater": "Pas d'e-mails à répondre plus tard",
-    "removeFromReplyLater": "Retirer de Répondre plus tard"
+    "removeFromReplyLater": "Retirer de Répondre plus tard",
+    "markEmailNotReplyLaterFailure": "Échec de marquage d'email à ne plus répondre plus tard"
   }
 }

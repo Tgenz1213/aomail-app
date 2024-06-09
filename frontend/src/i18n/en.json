@@ -71,11 +71,22 @@
         "fileSizeExceedsLimit": "File size exceeds Gmail limit",
         "emailSendErrorNoSubject": "No subject entered",
         "emailSendErrorNoObject": "No object entered",
-        "emailSendErrorNoRecipient": "No recipient entered"
+        "emailSendErrorNoRecipient": "No recipient entered",
+        "deleteEmailFailure": "Failed to delete email",
+        "addCategoryError": "Error adding category",
+        "categoryAddedSuccess": "Category has been added",
+        "updateCategoryError": "Error updating category",
+        "emptyCategoryNameError": "Category name cannot be empty",
+        "deleteCategoryError": "Error deleting category",
+        "retrieveAssociatedRulesError": "Error retrieving associated rules",
+        "openReplyPageFailure": "Failed to open reply page",
+        "openTransferPageFailure": "Failed to open transfer page"
       },
       "successMessages": {
         "success": "Success!",
-        "emailSuccessfullySent": "Your email has been successfully sent."
+        "emailSuccessfullySent": "Your email has been successfully sent.",
+        "updateCategorySuccess": "Category has been updated",
+        "deleteCategorySuccess": "Your category has been deleted"
       }
     },
     "redirectionInProgress": "Redirection in progress...",
@@ -141,6 +152,7 @@
     "informationOnDataConfidentiality": "Some information on data confidentiality"
   },
   "homePage": {
+    "otherCategory": "Others",
     "noNewEmail": "No new email",
     "youDidNotReceiveNewEmail": "You have not received any new e-mail",
     "suppressionOf": "Suppression of",
@@ -166,6 +178,11 @@
     "warningForDeletingTheCategory": "Deleting the category will also result in deleting all associated rules",
     "email": " email.",
     "emails": " emails.",
+    "markEmailUnreadFailure": "Failed to mark email as unread",
+    "markEmailReadFailure": "Failed to mark email as read",
+    "markEmailReplyLaterFailure": "Failed to mark email for reply later",
+    "transferEmailFailure": "Failed to transfer email",
+    "blockEmailAddressFailure": "Failed to block email address",
     "modals": {
       "pleaseFillAllFields": "Please fill in all fields",
       "newCategoryModal": {
@@ -365,6 +382,7 @@
   },
   "replyLaterPage": {
     "noEmailsToReplyLater": "No emails to reply later",
-    "removeFromReplyLater": "Remove from Reply Later"
+    "removeFromReplyLater": "Remove from Reply Later",
+    "markEmailNotReplyLaterFailure": "Failed to mark email as not reply later"
   }
 }

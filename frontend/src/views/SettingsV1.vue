@@ -31,7 +31,6 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
@@ -78,7 +77,6 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeUnlinkModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
@@ -125,7 +123,6 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeUserDescriptionModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
@@ -168,7 +165,6 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeAddUserDescriptionModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>

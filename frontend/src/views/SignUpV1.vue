@@ -18,27 +18,27 @@
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
             <p class="block leading-6 text-gray-900" style="font-family: 'Poppins', sans-serif; font-weight: 500;">
-              {{ $t('signUpPart1Page.modifyTheCategory') }}</p>
+              {{ $t('constants.categoryModalConstants.modifyTheCategory') }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorUpdateMessage">{{ errorUpdateMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('signUpPart1Page.categoryName') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <input id="updateCategoryName" v-model="updateCategoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-                placeholder="Administratifs">
+                :placeholder="$t('constants.categoryModalConstants.administrative')">
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('signUpPart1Page.categoryName') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <textarea id="updateCategoryDescription" v-model="updateCategoryDescription" rows="3"
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('signUpPart1Page.categoryDescriptionExplanation') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
@@ -75,27 +75,27 @@
         </div>
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
-            <p class="block font-semibold leading-6 text-gray-900">{{ $t('signUpPart1Page.addCategory') }}</p>
+            <p class="block font-semibold leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.addCategory') }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('signUpPart1Page.categoryName') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <input v-model="categoryName" name="email" id="categoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-                placeholder="Administratifs">
+                :placeholder="$t('constants.categoryModalConstants.administrative')">
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('signUpPart1Page.addCategory') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.addCategory') }}</label>
             <div class="mt-2">
               <textarea v-model="categoryDescription" id="categoryDescription" name="about" rows="3"
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('signUpPart1Page.categoryDescriptionExplanation') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
@@ -656,7 +656,7 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
                                 </svg>
-                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('signUpPart1Page.addCategory') }}</span>
+                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('constants.categoryModalConstants.addCategory') }}</span>
                               </button>
                             </div>
                             <div v-else class="max-h-64 overflow-y-auto flex flex-col gap-y-4">

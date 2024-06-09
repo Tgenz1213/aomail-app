@@ -20,7 +20,7 @@
                     </div>
                     <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                         <div class="ml-8 flex items-center space-x-1">
-                            <p class="block font-semibold leading-6 text-gray-900">{{ $t('New_vue.Options') }} {{
+                            <p class="block font-semibold leading-6 text-gray-900">{{ $t('homePage.modals.warningRulesLinkedModal.deleteCategory') }} {{
                                 categoryToUpdate.name }}</p>
                         </div>
                     </div>
@@ -243,7 +243,7 @@
                                                                                                 stroke-linejoin="round"
                                                                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                         </svg>
-                                                                                        <p>{{ $t('constants.userActions.userActions.clickToSeeTheSummary') }}</p>
+                                                                                        <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -270,7 +270,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                            {{ $t('homePage.open') }}
+                                                                                            {{ $t('constants.userActions.open') }}
                                                                                         </div>
                                                                                         <button @click="openSeeModal(item)"
                                                                                             type="button"
@@ -316,7 +316,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[90px] w-[185px]">
-                                                                                            {{ $t('homePage.additionalActions') }}
+                                                                                            {{ $t('constants.additionalActions') }}
                                                                                         </div>
                                                                                         <Menu as="div"
                                                                                             class="relative inline-block text-left">
@@ -381,7 +381,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span>{{ $t('homePage.createARule') }}</span>
+                                                                                                                    <span>{{ $t('constants.userActions.createARule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -410,7 +410,7 @@
                                                                                                                         d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('homePage.replyLater') }}</span>
+                                                                                                                <span>{{ $t('constants.userActions.replyLater') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -438,7 +438,7 @@
                                                                                                                         d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('homePage.transfer') }}</span>
+                                                                                                                <span>{{ $t('constants.userActions.transfer') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -521,7 +521,7 @@
                                                                                                 stroke-linejoin="round"
                                                                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                         </svg>
-                                                                                        <p>{{ $t('constants.userActions.userActions.clickToSeeTheSummary') }}</p>
+                                                                                        <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
@@ -548,7 +548,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                                                                            {{ $t('homePage.open') }}
+                                                                                            {{ $t('constants.userActions.open') }}
                                                                                         </div>
                                                                                         <button @click="openSeeModal(item)"
                                                                                             type="button"
@@ -593,7 +593,7 @@
                                                                                     <div class="relative group">
                                                                                         <div
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-center text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                            {{ $t('homePage.additionalActions') }}
+                                                                                            {{ $t('constants.additionalActions') }}
                                                                                         </div>
                                                                                         <Menu as="div"
                                                                                             class="relative inline-block text-left">
@@ -658,7 +658,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span>{{ $t('homePage.createARule') }}</span>
+                                                                                                                    <span>{{ $t('constants.userActions.createARule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -687,7 +687,7 @@
                                                                                                                         d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('homePage.replyLater') }}</span>
+                                                                                                                <span>{{ $t('constants.userActions.replyLater') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -715,7 +715,7 @@
                                                                                                                         d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                         style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                 </svg>
-                                                                                                                <span>{{ $t('homePage.transfer') }}</span>
+                                                                                                                <span>{{ $t('constants.userActions.transfer') }}</span>
                                                                                                             </span>
                                                                                                         </a>
                                                                                                         </MenuItem>
@@ -835,7 +835,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    {{ $t('homePage.open') }}
+                                                                                                    {{ $t('constants.userActions.open') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openSeeModal(item)"
@@ -897,8 +897,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    Actions
-                                                                                                    supplémentaires
+                                                                                                    {{ $t('constants.additionalActions') }}
                                                                                                 </div>
                                                                                                 <Menu as="div"
                                                                                                     class="relative inline-block text-left">
@@ -965,7 +964,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('homePage.createARule') }}</span>
+                                                                                                                            <span>{{ $t('constants.userActions.createARule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -995,7 +994,7 @@
                                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('homePage.replyLater') }}</span>
+                                                                                                                        <span>{{ $t('constants.userActions.replyLater') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1025,7 +1024,7 @@
                                                                                                                                 d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('homePage.transfer') }}</span>
+                                                                                                                        <span>{{ $t('constants.userActions.transfer') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1177,7 +1176,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    {{ $t('homePage.open') }}
+                                                                                                    {{ $t('constants.userActions.open') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click.stop="openSeeModal(item)"
@@ -1193,7 +1192,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
-                                                                                                    Non Lu
+                                                                                                    {{ $t('homePage.unread') }}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     @click="markEmailAsUnread(item.id)"
@@ -1209,7 +1208,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('homePage.delete') }}
+                                                                                                    {{ $t('constants.userActions.delete') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
@@ -1241,8 +1240,7 @@
                                                                                                 class="cursor-pointer relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    Actions
-                                                                                                    supplémentaires
+                                                                                                    {{ $t('constants.additionalActions') }}
                                                                                                 </div>
                                                                                                 <Menu as="div"
                                                                                                     class="relative inline-block text-left">
@@ -1309,7 +1307,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('homePage.createARule') }}</span>
+                                                                                                                            <span>{{ $t('constants.userActions.createARule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1339,7 +1337,7 @@
                                                                                                                                 d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('homePage.replyLater') }}</span>
+                                                                                                                        <span>{{ $t('constants.userActions.replyLater') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>
@@ -1368,7 +1366,7 @@
                                                                                                                                 d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                                                                                 style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                                                                                         </svg>
-                                                                                                                        <span>{{ $t('homePage.transfer') }}</span>
+                                                                                                                        <span>{{ $t('constants.userActions.transfer') }}</span>
                                                                                                                     </span>
                                                                                                                 </a>
                                                                                                                 </MenuItem>

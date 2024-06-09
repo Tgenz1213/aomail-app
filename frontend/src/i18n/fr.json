@@ -162,10 +162,16 @@
     "email": " e-mail.",
     "emails": " e-mails.",
     "modals": {
+      "pleaseFillAllFields": "Veuillez remplir tous les champs",
       "newCategoryModal": {
         "newCategory": "Créer une nouvelle catégorie",
         "categoryDescription": "Brève description de la catégorie",
-        "descriptionForTheAssistant": "Cette description permettra à Ao de comprendre la catégorie"
+        "descriptionForTheAssistant": "Cette description permettra à Ao de comprendre la catégorie",
+        "maxDescriptionCharacters": "Pas plus de 300 caractères pour la description",
+        "maxNameCharacters": "Pas plus de 50 caractères pour le nom",
+        "theCategoryExists": "La catégorie: ",
+        "alreadyExists": " existe déjà",
+        "errorCheckingExistingCategories": "Erreur vérification catégories existantes"
       },
       "updateCategoryModal": {
         "descriptionOfTheCategory": "Brève description de la catégorie",

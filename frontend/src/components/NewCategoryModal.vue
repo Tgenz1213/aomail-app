@@ -8,7 +8,6 @@
                     <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                         <button @click="closeModal" type="button"
                             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                            <span class="sr-only">Close</span>
                             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                         </button>
                     </div>
@@ -80,15 +79,12 @@ onMounted(() => {
 async function addCategory() {
     errorMessage.value = '';
 
-    // if (/[^a-zA-Z\s]/.test(categoryName.value)) {
-    //     errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
-    // } else 
     if (categoryDescription.value.length > 300) {
-        errorMessage.value = "Pas plus de 300 caractères pour la description";
+        errorMessage.value = "TODO Pas plus de 300 caractères pour la description";
     } else if (categoryName.value.length > 50) {
-        errorMessage.value = "Pas plus de 50 caractères pour le nom";
+        errorMessage.value = "TODO Pas plus de 50 caractères pour le nom";
     } else if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-        errorMessage.value = "Veuillez remplir tous les champs";
+        errorMessage.value = "TODO Veuillez remplir tous les champs";
     } else {
         try {
             const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`);
@@ -96,7 +92,7 @@ async function addCategory() {
             for (let i = 0; i < fetchedCategories.length; i++) {
                 if (fetchedCategories[i]['name'] == categoryName.value) {
                     console.log('La catégorie: ' + categoryName.value + ' existe déjà')
-                    errorMessage.value = 'La catégorie: ' + categoryName.value + ' existe déjà'
+                    errorMessage.value = 'TODO La catégorie: ' + categoryName.value + ' TODO existe déjà'
                     return;
                 }
             }
@@ -107,7 +103,7 @@ async function addCategory() {
             categoryName.value = '';
 
         } catch (error) {
-            emits('addCategory', { error: 'Erreur vérification catégories existantes', description: error });
+            emits('addCategory', { error: 'TODO Erreur vérification catégories existantes', description: error });
             categoryDescription.value = '';
             categoryName.value = '';
             return;

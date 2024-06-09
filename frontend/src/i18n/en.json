@@ -161,10 +161,16 @@
     "email": " email.",
     "emails": " emails.",
     "modals": {
+      "pleaseFillAllFields": "Please fill in all fields",
       "newCategoryModal": {
         "newCategory": "Create a new category",
         "categoryDescription": "Brief description of the category",
-        "descriptionForTheAssistant": "This description will help Ao to understand the category"
+        "descriptionForTheAssistant": "This description will help Ao to understand the category",
+        "maxDescriptionCharacters": "No more than 300 characters for the description",
+        "maxNameCharacters": "No more than 50 characters for the name",
+        "theCategoryExists": "The category: ",
+        "alreadyExists": " already exists",
+        "errorCheckingExistingCategories": "Error checking existing categories"
       },
       "updateCategoryModal": {
         "descriptionOfTheCategory": "Brief description of the category",

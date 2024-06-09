@@ -17,7 +17,8 @@
       "replyLater": "Reply later",
       "enterManually": "Enter manually",
       "modifyACategory": "Modify a category",
-      "login": "Log In"
+      "login": "Log In",
+      "see": "See"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "No category defined",
@@ -256,7 +257,33 @@
     "MaYbE": "LaTeR"
   },
   "searchPage": {
-    "noResults": "No results"
+    "anErrorOccuredDuringSmartSearch": "An error occurred while searching the response. Please try again",
+    "noResults": "No results",
+    "toAddressesSelectedPlaceholder": "To",
+    "toAddressesSelectedInfos": "Select the email addresses to which the email was sent",
+    "attachmentSelectedPlaceholder": "Attachment type",
+    "attachmentSelectedInfos": "Select the attachments contained in the email",
+    "fromAddressesSelectedPlaceholder": "From",
+    "fromAddressesSelectedInfos": "Select the email address from which you received the email",
+    "keywordsPlaceholder": "Keywords",
+    "keywordsInfos": "Type keywords contained in the email",
+    "dateFromPlaceholder": "Date from",
+    "dateFromInfos": "Date from which you want to search for the email",
+    "dateRangePlaceholder": "Date range",
+    "dateRangeInfos": "Select the time interval since receiving",
+    "searchInSelectedPlaceholder": "Search in",
+    "searchInSelectedInfos": "Select the folders to search within",
+    "searchButton": "Search",
+    "searchPlaceholder": "Email search",
+    "notEnoughDataToAnswer": "You do not have enough data to answer the question",
+    "emailsToCheckList": "Here are the emails for you to check by yourself: ",
+    "emailSearchPrompt": "Hello, what email are you looking for? Can you provide me with information about the email?",
+    "searchInfoPrompt": "Hello, what information would you like to search for?",
+    "popUpConstants": {
+      "successMessages": {
+        "smartSearchError": "Smart search error"
+      }
+    }
   },
   "newPage": {
     "options": "Open options",

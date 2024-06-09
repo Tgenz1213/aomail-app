@@ -17,7 +17,8 @@
       "replyLater": "Répondre plus tard",
       "enterManually": "Entrer manuellement",
       "modifyACategory": "Modifier une catégorie",
-      "login": "Connexion"
+      "login": "Connexion",
+      "see": "Voir"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "Aucune catégorie définie",
@@ -257,7 +258,33 @@
     "MaYbE": "LaTeR"
   },
   "searchPage": {
-    "noResults": "Aucun résultat"
+    "anErrorOccuredDuringSmartSearch": "Une erreur s'est produite lors de la recherche de la réponse. Veuillez réessayer",
+    "noResults": "Aucun résultat",
+    "toAddressesSelectedPlaceholder": "À",
+    "toAddressesSelectedInfos": "Sélectionnez les adresses e-mail auxquelles l'e-mail a été envoyé",
+    "attachmentSelectedPlaceholder": "Type de pièce jointe",
+    "attachmentSelectedInfos": "Sélectionnez les pièces jointes que l'e-mail contient",
+    "fromAddressesSelectedPlaceholder": "De",
+    "fromAddressesSelectedInfos": "Sélectionnez l'adresse e-mail qui vous a envoyé l'e-mail",
+    "keywordsPlaceholder": "Mots-clés",
+    "keywordsInfos": "Tapez des mots-clés que l'e-mail contient",
+    "dateFromPlaceholder": "Date depuis",
+    "dateFromInfos": "Date depuis laquelle vous souhaitez rechercher l'e-mail",
+    "dateRangePlaceholder": "Plage de dates",
+    "dateRangeInfos": "Sélectionnez l'intervalle de temps depuis la réception",
+    "searchInSelectedPlaceholder": "Rechercher dans",
+    "searchInSelectedInfos": "Sélectionnez les dossiers dans lesquels effectuer la recherche",
+    "searchButton": "Rechercher",
+    "searchPlaceholder": "Recherche d'email",
+    "notEnoughDataToAnswer": "Vous n'avez pas suffisamment de données pour répondre à la question",
+    "emailsToCheckList": "Voici les emails pour que vous vérifier par vous-même: ",
+    "emailSearchPrompt": "Bonjour, quel email recherchez-vous ? Pouvez-vous me donner des informations sur l'email ?",
+    "searchInfoPrompt": "Bonjour, quelle information souhaitez vous chercher ?",
+    "popUpConstants": {
+      "successMessages": {
+        "smartSearchError": "Erreur recherche intelligente"
+      }
+    }
   },
   "newPage": {
     "options": "Ouvrir les options",
@@ -278,7 +305,7 @@
     "mainRecipient": "Principal",
     "ccRecipient": "Copie",
     "bccRecipient": "Copie cachée",
-    "moveToNextStep":"Passez à la suite"
+    "moveToNextStep": "Passez à la suite"
   },
   "answerPage": {
     "MaYbE": "LaTeR"

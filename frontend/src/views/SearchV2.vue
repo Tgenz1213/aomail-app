@@ -288,7 +288,7 @@
                           ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                           @input="query = $event.target.value"
                           :display-value="(person) => person?.username"
-                          placeholder="body"/>
+                          placeholder="Keywords"/>
                         <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <ComboboxButton
                           class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -335,7 +335,7 @@
                           ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                           @input="query = $event.target.value"
                           :display-value="(person) => person?.username"
-                          placeholder="search_in"/>
+                          placeholder="search_in folders..."/>
                         <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <ComboboxButton
                           class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -345,6 +345,36 @@
                     </Combobox>
                   </div>
                 </div>
+
+                <div class="relative items-stretch mt-2">
+                    <Combobox as="div" v-model="selectedPerson">
+                      <div class="relative">
+                        <ComboboxInput
+                          class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
+                          ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                          @input="query = $event.target.value"
+                          :display-value="(person) => person?.username"
+                          placeholder="1month, 2 weeks, 90days"/>
+                          <!-- Date range TODO: custom list of choices:
+                           
+                          Gmail choices (you can add more or less if its relevant)
+                          1 day
+                          3 days
+                          1 week
+                          2 weeks
+                          1 month
+                          2 months
+                          6 months
+                          1 year
+                          -->
+                        <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <ComboboxButton
+                          class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                          <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </ComboboxButton>
+                      </div>
+                    </Combobox>
+                  </div>
 
 
              <!-- <div class="col-span-1">
@@ -704,7 +734,7 @@ async function fetchEmailLinked() {
     if ("error" in response) {
       // Show the pop-up
       backgroundColor = 'bg-red-300';
-      notificationTitle = 'Erreur récupération des emails liés';
+      notificationTitle = 'Erreur récupération de vos emails';
       notificationMessage = response.error;
       displayPopup();
     } else {
@@ -713,7 +743,7 @@ async function fetchEmailLinked() {
   } catch (error) {
     // Show the pop-up
     backgroundColor = 'bg-red-300';
-    notificationTitle = 'Erreur récupération des emails liés';
+    notificationTitle = 'Erreur récupération de vos emails';
     notificationMessage = error.message;
     displayPopup();
   }
@@ -783,24 +813,24 @@ async function handleAIClick() {
     if (result.error) {
       // Show the pop-up
       backgroundColor = 'bg-red-300';
-      notificationTitle = 'Erreur answer tree knowledge a trad en fr et fo faire court';
+      notificationTitle = 'TODO Erreur recherche intelligente';
       notificationMessage = result.error;
       displayPopup();
     } else if (result.message) {
-      message = "You do not have enough data to answer the question";
+      message = "TODO You do not have enough data to answer the question";
     } else {
       const { sure, answer, emails } = result.answer;
       message = answer;
 
       if (!sure) {
-        message += "\n\nVoici les emails pour que vous vérifier par vous-même: " + emails.join(', ');
+        message += "\n\nTODO Voici les emails pour que vous vérifier par vous-même: " + emails.join(', ');
       }
     }
 
     await displayMessage(message, aiIcon);
   } catch (error) {
     console.error('Error fetching AI response:', error);
-    await displayMessage('An error occurred while processing your request. Please try again later.', aiIcon);
+    await displayMessage('TODO An error occurred while searching the response. Please try again', aiIcon);
   } finally {
     hideLoading();
     isAIWriting.value = false;
@@ -915,9 +945,10 @@ async function animateText(text, target) {
 }
 
 async function askQueryUser() {
-  // const message = "Bonjour, quel email recherchez vous. Pouvez vous me donner un contexte ?";
-  // const ai_icon = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
-  // await displayMessage(message, ai_icon);
+  // const message = "Bonjour, quel email recherchez vous. Pouvez vous me donner des informations sur l'email ?"; THIS IS FOR AI SEARCH NOT TREE KNOWLEDGE
+  const message = "Bonjour, quelle information souhaitez vous chercher ?"; // THIS IS FOR TREE KNOWLEDGE
+  const ai_icon = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
+  await displayMessage(message, ai_icon);
 
   // Wait for isAIWriting to become false
   await waitForAIWriting();

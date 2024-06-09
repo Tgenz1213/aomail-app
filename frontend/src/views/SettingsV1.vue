@@ -880,7 +880,7 @@ async function fetchEmailLinked() {
         if ("error" in response) {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur récupération des emails liés';
+            notificationTitle = 'Erreur récupération de vos emails';
             notificationMessage = response.error;
             displayPopup();
         } else {
@@ -889,7 +889,7 @@ async function fetchEmailLinked() {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur récupération des emails liés';
+        notificationTitle = 'Erreur récupération de vos emails';
         notificationMessage = error.message;
         displayPopup();
     }

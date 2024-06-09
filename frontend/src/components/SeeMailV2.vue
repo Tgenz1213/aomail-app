@@ -76,7 +76,7 @@
                               <!-- Updated tooltip positioning -->
                               <div
                                   class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
-                                  Répondre
+                                  TODO: Répondre
                               </div>
                               <button @click="openRuleEditor"
                                   type="button"
@@ -134,7 +134,7 @@
                                                                     d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                             </svg>
-                                                            <span>Répondre
+                                                            <span>TODO: Répondre
                                                                 plus
                                                                 tard</span>
                                                         </span>
@@ -164,7 +164,7 @@
                                                                     d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                             </svg>
-                                                            <span>Transférer</span>
+                                                            <span>TODO: Transférer</span>
                                                         </span>
                                                     </a>
                                                     </MenuItem>

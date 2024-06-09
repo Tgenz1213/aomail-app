@@ -264,7 +264,7 @@ export default {
         }
       }
       else {
-        this.errorMessage = "Le format de l'email est incorrect";
+        this.errorMessage = "TODO: Le format de l'email est incorrect";
       }
     },
     setSelectedPerson() {
@@ -282,7 +282,7 @@ export default {
     async postSender() {
       if (!this.selectedPerson) {
         console.log("Aucune adresse email sélectionnée")
-        this.errorMessage = "Aucune adresse email sélectionnée";
+        this.errorMessage = "TODO: Aucune adresse email sélectionnée";
         return;
       }
 
@@ -327,7 +327,7 @@ export default {
     async checkSenderExists() {
       if (!this.selectedPerson) {
         console.log("Aucune adresse email sélectionnée")
-        this.errorMessage = "Aucune adresse email sélectionnée";
+        this.errorMessage = "TODO: Aucune adresse email sélectionnée";
         return;
       }
 

@@ -73,6 +73,12 @@
         "emailSuccessfullySent": "Votre email a été envoyé avec succès."
       }
     },
+    "homeNavbar": "Accueil",
+    "newEmailNavbar": "Nouveau Email",
+    "searchEmailNavbar": "Recherche Email",
+    "rulesNavbar": "Règles",
+    "replyLaterNavbar": "Répondre Plus Tard",
+    "settingsNavbar": "Paramètres",
     "instruction": "Instruction",
     "additionalActions": "Actions supplémentaires",
     "manualSearch": "Recherche manuelle",

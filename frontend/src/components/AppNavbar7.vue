@@ -97,6 +97,7 @@ import {
   BeakerIcon
 } from '@heroicons/vue/24/outline'
 
+// TODO: implement from cleaned JSON
 const navigation = [
   { name: i18n.global.t('Global.Home'), href: '/home', icon: EnvelopeIcon },
   { name: i18n.global.t('Global.NewMail'), href: '/new', icon: PencilSquareIcon },

@@ -7,7 +7,7 @@
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
-          <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
+          <img class="mx-auto h-10 w-auto" :src="logo" alt="Aomail">
           <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('signUpPart1Page.signUp')
             }}</h2>
         </div>
@@ -600,8 +600,8 @@ async function nextStep3(event) {
   } else {
     // Show the pop-up
     backgroundColor.value = 'bg-red-300';
-    notificationTitle.value = 'Erreur d\'autorisation';
-    notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
+    notificationTitle.value = 'TODO Erreur d\'autorisation';
+    notificationMessage.value = 'TODO Code d\'autorisation introuvable dans l\'URL';
     displayPopup();
   }
 }
@@ -613,8 +613,8 @@ async function submitSignupData(event) {
 
   // Show the pop-up
   backgroundColor.value = 'bg-green-300';
-  notificationTitle.value = 'Création de compte en cours...';
-  notificationMessage.value = 'Attente de réponse de la base de données';
+  notificationTitle.value = 'TODO Création de compte en cours...';
+  notificationMessage.value = 'TODO Attente de réponse de la base de données';
   displayPopup();
 
   try {
@@ -655,21 +655,21 @@ async function submitSignupData(event) {
     } else if (data.error == 'Email address already used') {
       // Show the pop-up      
       backgroundColor.value = 'bg-red-300';
-      notificationTitle.value = 'Erreur lors de la création du compte';
-      notificationMessage.value = 'Adresse e-mail déjà utilisée';
+      notificationTitle.value = 'TODO Erreur lors de la création du compte';
+      notificationMessage.value = 'TODO Adresse e-mail déjà utilisée';
       displayPopup();
 
     } else {
       // Show the pop-up      
       backgroundColor.value = 'bg-red-300';
-      notificationTitle.value = 'Erreur lors de la création du compte';
+      notificationTitle.value = 'TODO Erreur lors de la création du compte';
       notificationMessage.value = data.error;
       displayPopup();
     }
   } catch (error) {
     // Show the pop-up    
     backgroundColor.value = 'bg-red-300';
-    notificationTitle.value = 'Erreur lors de la création du compte';
+    notificationTitle.value = 'TODO Erreur lors de la création du compte';
     notificationMessage.value = error;
     displayPopup();
   }

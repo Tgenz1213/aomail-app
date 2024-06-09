@@ -80,7 +80,8 @@
         "deleteCategoryError": "Erreur lors de la suppression de la catégorie",
         "retrieveAssociatedRulesError": "Erreur récupération des règles associées",
         "openReplyPageFailure": "Échec d'ouverture de la page de réponse",
-        "openTransferPageFailure": "Échec d'ouverture de la page de transfert"
+        "openTransferPageFailure": "Échec d'ouverture de la page de transfert",
+        "emailAlreadyUsed": "Adresse e-mail déjà utilisée"
       },
       "successMessages": {
         "success": "Succès !",
@@ -143,6 +144,11 @@
     "youHaveAnAccount": "Vous avez un compte ?"
   },
   "signUpPart2Page": {
+    "authorizationError": "Erreur d'autorisation",
+    "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL",
+    "accountCreationInProgress": "Création de compte en cours...",
+    "waitingDatabaseResponse": "Attente de réponse de la base de données",
+    "accountCreationError": "Erreur lors de la création du compte",
     "registerToAomail": "Inscription à Aomail",
     "linkAGmailAccount": "Lier un compte Gmail",
     "linkAnOutlookAccount": "Lier un compte Outlook",

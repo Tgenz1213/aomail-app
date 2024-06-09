@@ -80,7 +80,8 @@
         "deleteCategoryError": "Error deleting category",
         "retrieveAssociatedRulesError": "Error retrieving associated rules",
         "openReplyPageFailure": "Failed to open reply page",
-        "openTransferPageFailure": "Failed to open transfer page"
+        "openTransferPageFailure": "Failed to open transfer page",
+        "emailAlreadyUsed": "Email address already in use"
       },
       "successMessages": {
         "success": "Success!",
@@ -142,6 +143,11 @@
     "youHaveAnAccount": "Do you have an account?"
   },
   "signUpPart2Page": {
+    "authorizationError": "Authorization error",
+    "authorizationCodeNotFound": "Authorization code not found in URL",
+    "accountCreationInProgress": "Account creation in progress...",
+    "waitingDatabaseResponse": "Waiting for database response",
+    "accountCreationError": "Error creating account",
     "registerToAomail": "Register to Aomail",
     "linkAGmailAccount": "Link a Gmail account",
     "linkAnOutlookAccount": "Link an Outlook account",

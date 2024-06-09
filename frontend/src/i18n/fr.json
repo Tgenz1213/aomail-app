@@ -338,7 +338,14 @@
     }
   },
   "transferPage": {
-    "MaYbE": "LaTeR"
+    "emailSummary": "Résumé de l'email:",
+    "messageDivider": "---------- Message transféré ---------",
+    "from": "De: ",
+    "date": "Date: ",
+    "subject": "Sujet: ",
+    "cc": "CC: ",
+    "transferPrompt": "Bonjour, à qui souhaitez-vous transférer cet e-mail ?",
+    "emailTransferred": "Email transféré !"
   },
   "searchPage": {
     "anErrorOccuredDuringSmartSearch": "Une erreur s'est produite lors de la recherche de la réponse. Veuillez réessayer",

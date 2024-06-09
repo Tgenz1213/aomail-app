@@ -81,7 +81,7 @@
                             </svg>
                             <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{
                                 $t('constants.userActions.enterManually')
-                                }}</h1>
+                            }}</h1>
                         </div>
                     </div>
                     <form class="flex flex-grow w-full px-10 py-4 2xl:px-14 2xl:py-6">
@@ -112,7 +112,7 @@
                                             class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2">
                                             <span class="font-semibold mr-1 2xl:mr-2">{{
                                                 $t('constants.sendEmailConstants.blindCarbonCopyInitialsTwoDots')
-                                                }}</span>
+                                            }}</span>
                                             {{ person.username || person.email }}
                                             <button @click="removePersonFromCCI(person)">×</button>
                                         </div>

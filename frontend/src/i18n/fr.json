@@ -132,6 +132,8 @@
     "beginFreeTrial": "Commencer votre essai gratuit"
   },
   "signUpPart1Page": {
+    "submitSignUpFormError": "Erreur lors de l'envoi des données",
+    "categoryAlreadyExists": "La catégorie existe déjà",
     "summaryUserPlaceholder": "Résumez-vous avec votre nom afin d'aider Ao",
     "signUp": "S'inscrire",
     "passwordConfirm": "Confirmer le mot de passe",

@@ -23,7 +23,8 @@
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorUpdateMessage">{{ errorUpdateMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryName') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <input id="updateCategoryName" v-model="updateCategoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
@@ -31,13 +32,15 @@
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryName') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <textarea id="updateCategoryDescription" v-model="updateCategoryDescription" rows="3"
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{
+              $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
@@ -73,13 +76,15 @@
         </div>
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
-            <p class="block font-semibold leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.addCategory') }}</p>
+            <p class="block font-semibold leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.addCategory')
+              }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.categoryName') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <input v-model="categoryName" name="email" id="categoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
@@ -87,13 +92,15 @@
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.addCategory') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.addCategory') }}</label>
             <div class="mt-2">
               <textarea v-model="categoryDescription" id="categoryDescription" name="about" rows="3"
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{
+              $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
@@ -110,14 +117,14 @@
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
           <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
-          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('signUpPart1Page.signUp') }}
+          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{
+            $t('signUpPart1Page.signUp') }}
           </h2>
         </div>
         <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
           <div class="flex flex-col rounded-lg ">
             <div class="">
-              <div
-                class="flex items-center justify-center h-[65px]">
+              <div class="flex items-center justify-center h-[65px]">
                 <nav aria-label="Progress">
                   <!--<div class="absolute right-4 left-4">-->
                   <ol role="list" class="flex items-center" v-if="step === 0">
@@ -252,7 +259,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a @click="goStep0"
-                      class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -318,8 +325,8 @@
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
-                      <a 
-                      class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
+                      <a
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -389,7 +396,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                      class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -471,7 +478,8 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('constants.username') }}</label>
+                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{
+                          $t('constants.username') }}</label>
                       </div>
                       <div class="mt-2">
                         <input v-model="login" id="login" type="login"
@@ -558,11 +566,10 @@
                         <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
                       </div>
                       <div class="mt-2">
-                        <input v-model="userDescription"
-      :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
-      id="userDescription"
-      class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
-  </div>
+                        <input v-model="userDescription" :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
+                          id="userDescription"
+                          class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
+                      </div>
                     </div>
                     <div>
                       <div class="pt-6">
@@ -574,7 +581,7 @@
                   </div>
                   <div v-if="step === 1">
                     <div class="flex flex-col">
-                      
+
                       <div class="relative">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                           <div class="w-full border-t border-gray-300"></div>
@@ -585,8 +592,8 @@
                       </div>
                       <div class="pt-6">
                         <div class="relative items-stretch mt-2">
-                        <language></language>
-                      </div>
+                          <language></language>
+                        </div>
                         <!-- <color @colorSelected="updateBgColor"></color> -->
                       </div>
 
@@ -600,12 +607,12 @@
                       </div>
                       <div class="pt-6 pb-10">
                         <div class="relative items-stretch mt-2">
-                        <TimeZone />
+                          <TimeZone />
                         </div>
                       </div>
 
 
-                      
+
 
                       <div class="relative">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -620,7 +627,7 @@
                           <theme></theme>
                         </div>
                       </div>
-                      
+
 
 
                     </div>
@@ -654,7 +661,8 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
                                 </svg>
-                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('constants.categoryModalConstants.addCategory') }}</span>
+                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{
+                                  $t('constants.categoryModalConstants.addCategory') }}</span>
                               </button>
                             </div>
                             <div v-else class="max-h-64 overflow-y-auto flex flex-col gap-y-4">
@@ -713,7 +721,8 @@
           </div>
           <p class="mt-6 text-center text-sm text-gray-600">
             {{ $t('signUpPart1Page.youHaveAnAccount') }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('constants.userActions.login')
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{
+              $t('constants.userActions.login')
               }}</a>
           </p>
         </div>
@@ -793,9 +802,7 @@ function deleteCategoryOnUpdate() {
 }
 function updateCategoryHandler() {
 
-  if (/[,;:/\\.]/.test(updateCategoryName.value)) {
-    errorUpdateMessage.value = 'Le nom de la catégorie contient un caractère interdit : , ; : / \\';
-  } else if (!updateCategoryName.value.trim() || !updateCategoryDescription.value.trim()) {
+  if (!updateCategoryName.value.trim() || !updateCategoryDescription.value.trim()) {
     errorUpdateMessage.value = "Veuillez remplir tous les champs";
   } else if (categories.value.some(cat => cat.name === updateCategoryName.value && cat.name != updateOldCategoryName.value)) {
     errorUpdateMessage.value = "Le nom de la catégorie existe déjà";
@@ -1006,15 +1013,13 @@ function closeModal() {
 function addCategory() {
 
   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-    errorMessage.value = "Veuillez remplir tous les champs";
+    errorMessage.value = t('homePage.modals.pleaseFillAllFields');
   } else if (categories.value.some(cat => cat.name === categoryName.value)) {
-    errorMessage.value = "Le nom de la catégorie existe déjà";
-  } else if (/[^a-zA-Z\s]/.test(categoryName.value)) {
-    errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
+    errorMessage.value = "TODO La catégorie existe déjà";
   } else if (categoryDescription.value.length > 300) {
-    errorMessage.value = "Pas plus de 300 caractères pour la description";
+    errorMessage.value = t('homePage.modals.newCategoryModal.maxDescriptionCharacters');
   } else if (categoryName.value.length > 50) {
-    errorMessage.value = "Pas plus de 50 caractères pour le nom";
+    errorMessage.value = t('homePage.modals.newCategoryModal.maxNameCharacters');
   }
   else {
     categories.value.push({
@@ -1038,7 +1043,7 @@ async function submitSignupData() {
   catch (error) {
     // Show the pop-up
     backgroundColor.value = 'bg-red-300';
-    notificationTitle.value = 'Erreur lors de l\'envoi des données';
+    notificationTitle.value = 'TODO Erreur lors de l\'envoi des données';
     notificationMessage.value = error;
     displayPopup();
   }

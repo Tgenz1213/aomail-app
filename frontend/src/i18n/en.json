@@ -132,6 +132,8 @@
     "beginFreeTrial": "Begin Your Free Trial"
   },
   "signUpPart1Page": {
+    "submitSignUpFormError": "Error while submitting the data",
+    "categoryAlreadyExists": "Category already exists",
     "summaryUserPlaceholder": "Summarize yourself with your name to help Ao",
     "signUp": "Sign Up",
     "passwordConfirm": "Confirm Password",

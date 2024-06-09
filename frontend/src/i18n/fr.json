@@ -35,6 +35,43 @@
       "addCategory": "Ajouter une catégorie",
       "administrative": "Administratifs"
     },
+    "sendEmailConstants": {
+      "noSuggestionsEnteredPleaseTryAgain": "Vous n'avez saisi aucune suggestion, veuillez réessayer.",
+      "betterEmailFeedbackRequest": "Est-ce que ce mail vous convient mieux ?",
+      "noRecipientsEntered": "Vous n'avez saisi aucun destinataire, veuillez réessayer.",
+      "noRecipientsFoundPleaseTryAgainOrEnterManually": "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement.",
+      "processingErrorTryAgain": "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?",
+      "noDraftsEnteredPleaseTryAgain": "Vous n'avez saisi aucun brouillon, veuillez réessayer.",
+      "emailFeedbackRequest": "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins.",
+      "emailRecipientRequest": "Bonjour, à qui souhaitez-vous envoyer cet e-mail ?",
+      "draftEmailRequest": "N'hésitez pas à fournir un brouillon de l'email que vous souhaitez rédiger.",
+      "emailCompositionAssistance": "Comment puis-je vous aider à rédiger votre e-mail ?",
+      "spellingCorrectionRequest": "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?",
+      "processingErrorApology": "Je m'excuse, j'ai fait une erreur de traitement.",
+      "copywritingCheckRequest": "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?"
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "emailSendError": "Erreur d'envoi d'email",
+        "contactFetchError": "Erreur récupération des contacts",
+        "primaryEmailFetchError": "Erreur récupération de votre email primaire",
+        "emailLinkedFetchError": "Erreur récupération de vos emails",
+        "invalidEmail": "Email invalide",
+        "emailFormatIncorrect": "Le format de l'email est incorrect",
+        "duplicateFile": "Fichier en double",
+        "fileAlreadyInserted": "Vous avez déjà inséré ce fichier",
+        "fileTooLarge": "Fichier trop volumineux",
+        "fileSizeExceedsLimit": "La taille du fichier dépasse la limite de Gmail",
+        "emailSendErrorNoSubject": "Aucun sujet n'a été saisi",
+        "emailSendErrorNoObject": "Aucun objet n'a été saisi",
+        "emailSendErrorNoRecipient": "Aucun destinataire n'a été saisi"
+      },
+      "successMessages": {
+        "success": "Succès !",
+        "emailSuccessfullySent": "Votre email a été envoyé avec succès."
+      }
+    },
+    "instruction": "Instruction",
     "additionalActions": "Actions supplémentaires",
     "manualSearch": "Recherche manuelle",
     "subject": "Objet",
@@ -133,7 +170,7 @@
         "emailResume": "Résumé de l'e-mail",
         "fullEmail": "E-mail complet"
       },
-      "warningRulesLinkedModal":{
+      "warningRulesLinkedModal": {
         "deleteCategory": "Suppression catégorie: "
       }
     }
@@ -202,7 +239,9 @@
     "noResults": "Aucun résultat"
   },
   "newPage": {
-    "options": "Ouvrir les options"
+    "options": "Ouvrir les options",
+    "carbonCopyInitials": "CC",
+    "blindCarbonCopyInitials": "CCI"
   },
   "answerPage": {
     "MaYbE": "LaTeR"

@@ -15,7 +15,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
                         </svg>
-                        <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{ $t('New_vue.AI_assistant') }}</h1>
+                        <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{ $t('constants.aiAssistant') }}</h1>
                     </div>
                 </div>
                 <div class="flex flex-1 flex-col divide-y">
@@ -31,7 +31,7 @@
                         <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight"
                             v-model="textareaValue"
                             class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
-                            placeholder="Instruction">
+                            :placeholder="$t('constants.instruction')">
                         </textarea>
                         <div v-if="stepcontainer == 1" class="flex justify-end m-3 2xl:m-5">
                             <div class="flex mt-4 space-x-4 items-center">
@@ -55,14 +55,14 @@
                                 <div class="flex items-center">
                                     <button @click="handleAIClick" type="button"
                                         class="2xl:w-[100px] w-[100px] rounded-md bg-gray-700 px-6 py-2.5 2xl:px-6 2xl:py-3 text-sm 2xl:text-base text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                                        Envoyer
+                                        {{ $t('constants.userActions.send') }}
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div v-else class="flex justify-end m-3 2xl:m-5">
                             <button @click="handleAIClick" type="button"
-                                class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
+                                class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('constants.userActions.send') }}</button>
                         </div>
                     </div>
                 </div>
@@ -77,7 +77,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
                             </svg>
-                            <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{ $t('New_vue.enter_manually')
+                            <h1 class="font-poppins font-medium text-base 2xl:text-lg">{{ $t('constants.userActions.enterManually')
                                 }}</h1>
                         </div>
                     </div>
@@ -122,7 +122,7 @@
                                                         class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
                                                     <label for="email"
                                                         class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">{{
-                                                            $t('New_vue.recipient') }}</label>
+                                                            $t('constants.recipient') }}</label>
                                                 </div>
                                                 <Combobox as="div" v-model="selectedPerson"
                                                     @update:model-value="personSelected">
@@ -170,12 +170,12 @@
                                         <button type="button" @click="toggleCC"
                                             :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
                                             class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 2xl:px-3 2xl:py-2 2xl:text-base">
-                                            CC
+                                            {{ $t('newPage.carbonCopyInitials') }}                                           
                                         </button>
                                         <button type="button" @click="toggleCCI"
                                             :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
                                             class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 2xl:px-3 2xl:py-2 2xl:text-base">
-                                            CCI
+                                            {{ $t('newPage.blindCarbonCopyInitials') }}
                                         </button>
                                     </div>
                                 </div>
@@ -198,7 +198,7 @@
                                                     <Bars2Icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
                                                     <label for="username"
                                                         class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">{{
-                                                            $t('New_vue.subject') }}</label>
+                                                            $t('constants.subject') }}</label>
                                                 </div>
                                                 <input id="objectInput" v-model="inputValue" type="text"
                                                     class="block h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:pl-4 2xl:text-base"
@@ -259,7 +259,7 @@
                                 <div class="inline-flex rounded-lg shadow-lg items-stretch">
                                     <button @click="sendEmail"
                                     class="bg-gray-700 rounded-l-lg px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg">
-                                    {{ $t('New_vue.send') }}
+                                    {{ $t('constants.userActions.send') }}
                                     <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
                                     </button>
                                     <Menu as="div" class="relative -ml-px block items-stretch">
@@ -335,6 +335,10 @@ import {
     ChevronUpDownIcon, 
     ComboboxOptions,
 } from '@headlessui/vue'
+import { useI18n } from 'vue-i18n';
+
+// Use i18n
+const { t } = useI18n();
 
 // Variable to prevent the user from starting a prompt if AI is writing
 let isAIWriting = ref(false);
@@ -373,8 +377,8 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     .catch(error => {
         console.error("Error fetching contacts:", error);
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur récupération des contacts';
+        backgroundColor = 'bg-red-300';       
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.contactFetchError');
         notificationMessage.value = error;
         displayPopup();
     });
@@ -438,7 +442,7 @@ if (!emailSelected.value) {
         })
         .catch(error => {
             backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Erreur récupération du 1er email';
+            notificationTitle.value = t('constants.popUpConstants.errorMessages.primaryEmailFetchError');
             notificationMessage.value = error;
             displayPopup();
         });
@@ -450,7 +454,7 @@ fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions)
     })
     .catch(error => {
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur récupération de vos emails';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailFetchError');
         notificationMessage.value = error;
         displayPopup();
     });
@@ -495,8 +499,8 @@ function handleBlur2(event) {
     } else if (!filteredPeople.value.length && inputValue) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Email invalide';
-        notificationMessage.value = 'Le format de l\'email est incorrect'
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.invalidEmail');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailFormatIncorrect');
         displayPopup();
     }
 }
@@ -560,8 +564,8 @@ const handleFileUpload = (event) => {
                 if (currentFile.name == file) {
                     // Show the pop-up
                     backgroundColor = 'bg-red-300';
-                    notificationTitle = 'Fichier en double';
-                    notificationMessage = 'Vous avez déjà inséré ce fichier';
+                    notificationTitle = t('constants.popUpConstants.errorMessages.duplicateFile');
+                    notificationMessage = t('constants.popUpConstants.errorMessages.fileAlreadyInserted');
                     displayPopup();
                     return;
                 }
@@ -571,8 +575,8 @@ const handleFileUpload = (event) => {
         } else {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Fichier trop volumineux';
-            notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
+            notificationTitle = t('constants.popUpConstants.errorMessages.fileTooLarge');
+            notificationMessage = t('constants.popUpConstants.errorMessages.fileSizeExceedsLimit');
             displayPopup();
             return;
         }
@@ -718,7 +722,7 @@ async function handleAIClick() {
     setTimeout(async () => {
         if (stepcontainer == 0) {
             if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucun destinataire, veuillez réessayer"
+                const message = t('constants.sendEmailConstants.noRecipientsEntered');
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
                 //const ai_icon = neutral_icon;
                 displayMessage(message, ai_icon);
@@ -878,8 +882,8 @@ async function handleAIClick() {
                         }
 
                         if (noUsersAdded) {
-                            console.log("DEBUG");
-                            const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
+                            console.log("DEBUG");                            
+                            const message = t('constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually');
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                             //const ai_icon = neutral_icon;
                             displayMessage(message, ai_icon);
@@ -888,13 +892,13 @@ async function handleAIClick() {
                             askContent();
                         }
                     } else {
-                        const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
+                        const message = t('constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually');
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                         //const ai_icon = neutral_icon;
                         displayMessage(message, ai_icon);
                     }
                 } catch (error) {
-                    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                    const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                     //const ai_icon = prompt_error_icon;
                     displayMessage(message, ai_icon);
@@ -904,7 +908,7 @@ async function handleAIClick() {
         } else if (stepcontainer == 1) {
             // if the user enter an empty value
             if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucun brouillon, veuillez réessayer";
+                const message = t('constants.sendEmailConstants.noDraftsEnteredPleaseTryAgain');
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
                 //const ai_icon = neutral_icon;
                 displayMessage(message, ai_icon);
@@ -963,13 +967,13 @@ async function handleAIClick() {
                         //quill.value.update();
 
                         // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-                        const message = "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins";
+                        const message = t('constants.sendEmailConstants.emailFeedbackRequest');
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
                         //const ai_icon = new_idea_icon;
                         displayMessage_old(message, ai_icon);
                     } else {
                         hideLoading();
-                        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                        const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                         //const ai_icon = prompt_error_icon;
                         displayMessage(message, ai_icon);
@@ -977,7 +981,7 @@ async function handleAIClick() {
                     }
                 } catch (error) {
                     hideLoading();
-                    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                    const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                     //const ai_icon = prompt_error_icon;
                     displayMessage(message, ai_icon);
@@ -987,7 +991,7 @@ async function handleAIClick() {
         } else if (stepcontainer == 2) {
             // if the user enter an empty value
             if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucune suggestion, veuillez réessayer.";
+                const message = t('constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain');
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
                 //const ai_icon = neutral_icon;
                 displayMessage(message, ai_icon);
@@ -1046,13 +1050,13 @@ async function handleAIClick() {
 
 
                         // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-                        const message = "Est-ce que ce mail vous convient mieux ?";
+                        const message = t('constants.sendEmailConstants.betterEmailFeedbackRequest');
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
                         //const ai_icon = new_idea_icon;
                         displayMessage_old(message, ai_icon);
                     } else {
                         hideLoading();
-                        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                        const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                         //const ai_icon = prompt_error_icon;
                         displayMessage(message, ai_icon);
@@ -1061,7 +1065,7 @@ async function handleAIClick() {
                 } catch (error) {
                     console.error('Error:', error);
                     hideLoading();
-                    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                    const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                     //const ai_icon = prompt_error_icon;
                     displayMessage(message, ai_icon);
@@ -1218,7 +1222,7 @@ onMounted(() => {
     // DOM-related code
     AIContainer.value = document.getElementById('AIContainer');
 
-    const message = "Bonjour, à qui souhaitez-vous envoyer cet e-mail ?";
+    const message = t('constants.sendEmailConstants.emailRecipientRequest');
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
     //const ai_icon = happy_icon;
     displayMessage(message, ai_icon);
@@ -1480,7 +1484,7 @@ onBeforeUnmount(() => {
 
 function askContent() {
     // Your previous code to display the message when the component is mounted
-    const message = "N'hésitez pas à fournir un brouillon de l'email que vous souhaitez rédiger"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?
+    const message = t('constants.sendEmailConstants.draftEmailRequest'); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?
     /*
     const messageHTML = `
       <div class="pb-12">
@@ -1607,7 +1611,7 @@ function askContent() {
 function askContentAdvice() {
     // TODO: check if subject has been entered => if no => answer please enter it
     // Your previous code to display the message when the component is mounted
-    const message = "Comment puis-je vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
+    const message = t('constants.sendEmailConstants.emailCompositionAssistance'); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
     /*
     const messageHTML = `
@@ -1888,13 +1892,13 @@ async function checkSpelling() {
             quillEditorContainer.innerHTML = result.corrected_body;
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-            const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
+            const message = t('constants.sendEmailConstants.spellingCorrectionRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
             //const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement."
+            const message = t('constants.sendEmailConstants.processingErrorApology')
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
             //const ai_icon = prompt_error_icon;
             displayMessage(message, ai_icon);
@@ -1904,7 +1908,7 @@ async function checkSpelling() {
     } catch (error) {
         console.error('Error:', error);
         hideLoading();
-        const message = "Je m'excuse, j'ai fait une erreur de traitement."
+        const message = t('constants.sendEmailConstants.processingErrorApology')
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
         //const ai_icon = prompt_error_icon;
         displayMessage(message, ai_icon);
@@ -1955,13 +1959,13 @@ async function checkCopyWriting() {
             AIContainer.value.innerHTML += messageHTML;
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-            const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
+            const message = t('constants.sendEmailConstants.copywritingCheckRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
             //const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement."
+            const message = t('constants.sendEmailConstants.processingErrorApology')
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
             //const ai_icon = prompt_error_icon;
             displayMessage(message, ai_icon);
@@ -1971,7 +1975,7 @@ async function checkCopyWriting() {
     } catch (error) {
         console.error('Error:', error);
         hideLoading();
-        const message = "Je m'excuse, j'ai fait une erreur de traitement."
+        const message = t('constants.sendEmailConstants.processingErrorApology')
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
         //const ai_icon = prompt_error_icon;
         displayMessage(message, ai_icon);
@@ -2027,13 +2031,13 @@ async function WriteBetter() {
             quillEditorContainer.innerHTML = result.email_body;
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-            const message = "Est-ce que ce mail vous convient mieux ?";
+            const message = t('constants.sendEmailConstants.betterEmailFeedbackRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
             //const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+            const message = t('constants.sendEmailConstants.processingErrorTryAgain')
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
             //const ai_icon = prompt_error_icon;
             displayMessage(message, ai_icon);
@@ -2043,7 +2047,7 @@ async function WriteBetter() {
         console.error('Error:', error);
         hideLoading();
         // Handling error => TO PUT IN A FUNCTION
-        const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+        const message = t('constants.sendEmailConstants.processingErrorTryAgain')
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
         //const ai_icon = prompt_error_icon;
         displayMessage(message, ai_icon);
@@ -2089,22 +2093,22 @@ async function sendEmail() {
     if (!emailSubject.trim()) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = 'Aucun sujet n\'a été saisi';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoSubject');
         displayPopup();
         return;
     } else if (emailBody == "<p><br></p>") {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = 'Aucun objet n\'a été saisi';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
         displayPopup();
         return;
     } else if (selectedPeople.value.length == 0) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
         displayPopup();
         return;
     }
@@ -2137,8 +2141,8 @@ async function sendEmail() {
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'Votre email a été envoyé avec succès.';
+            notificationTitle = t('constants.popUpConstants.successMessages.success');
+            notificationMessage = t('constants.popUpConstants.successMessages.emailSuccessfullySent');
             displayPopup();
 
             // Other logic
@@ -2155,7 +2159,7 @@ async function sendEmail() {
             uploadedFiles.value = [];
             fileObjects.value = [];
 
-            const message = "Bonjour, à qui souhaitez-vous envoyer cet e-mail ?";
+            const message = t('constants.sendEmailConstants.emailRecipientRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
             //const ai_icon = happy_icon;
             displayMessage(message, ai_icon);
@@ -2163,13 +2167,13 @@ async function sendEmail() {
             // Show the pop-up
             notificationMessage.value = response.error;
             backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Erreur d\'envoi d\'email';
+            notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
         notificationMessage.value = error.message;
         displayPopup();
     }

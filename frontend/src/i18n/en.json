@@ -35,6 +35,43 @@
       "addCategory": "Add a category",
       "administrative": "Administrative"
     },
+    "sendEmailConstants": {
+      "noSuggestionsEnteredPleaseTryAgain": "You haven't entered any suggestions, please try again.",
+      "betterEmailFeedbackRequest": "Does this email suit you better?",
+      "noRecipientsEntered": "You have not entered any recipients, please try again.",
+      "noRecipientsFoundPleaseTryAgainOrEnterManually": "No recipients found, please try again or enter manually.",
+      "processingErrorTryAgain": "I apologize, there was a processing error. Can you please try again?",
+      "noDraftsEnteredPleaseTryAgain": "You have not entered any drafts, please try again.",
+      "emailFeedbackRequest": "Does this email suit you? You can provide me with feedback so that I can adapt it to your needs.",
+      "emailRecipientRequest": "Hello, who would you like to send this email to?",
+      "draftEmailRequest": "Feel free to provide a draft of the email you wish to write.",
+      "emailCompositionAssistance": "How can I assist you in composing your email?",
+      "spellingCorrectionRequest": "I have corrected the spelling, would you like anything else?",
+      "processingErrorApology": "I apologize, there was a processing error.",
+      "copywritingCheckRequest": "I have checked the copywriting, would you like anything else?"
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "emailSendError": "Email send error",
+        "contactFetchError": "Contact fetch error",
+        "primaryEmailFetchError": "Primary email fetch error",
+        "emailLinkedFetchError": "Email fetch error",
+        "invalidEmail": "Invalid email",
+        "emailFormatIncorrect": "Email format incorrect",
+        "duplicateFile": "Duplicate file",
+        "fileAlreadyInserted": "File already inserted",
+        "fileTooLarge": "File too large",
+        "fileSizeExceedsLimit": "File size exceeds Gmail limit",
+        "emailSendErrorNoSubject": "No subject entered",
+        "emailSendErrorNoObject": "No object entered",
+        "emailSendErrorNoRecipient": "No recipient entered"
+      },
+      "successMessages": {
+        "success": "Success!",
+        "emailSuccessfullySent": "Your email has been successfully sent."
+      }
+    },
+    "instruction": "Instruction",
     "additionalActions": "Additional actions",
     "manualSearch": "Manual search",
     "subject": "Subject",
@@ -201,7 +238,9 @@
     "noResults": "No results"
   },
   "newPage": {
-    "options": "Open options"
+    "options": "Open options",
+    "carbonCopyInitials": "CC",
+    "blindCarbonCopyInitials": "BCC"
   },
   "answerPage": {
     "MaYbE": "LaTeR"

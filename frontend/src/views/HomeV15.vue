@@ -1449,10 +1449,10 @@
                                     <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
                                             @input="adjustHeight" v-model="textareaValue"
                                             class="overflow-y-hidden flex flex-1 pt-3 pl-5 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0"
-                                            placeholder="Instruction">
+                                            :placeholder="$t('constants.instruction')">
                                     </textarea>
                                     <div class="flex justify-end m-3">
-                                        <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
+                                        <button type="button" class="w-[80px] rounded bg-gray-700 px-2.5 py-1.5 text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{ $t('constants.userActions.send') }}</button>
                                     </div>
                                 </div>
                             </div>

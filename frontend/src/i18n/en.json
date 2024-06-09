@@ -194,11 +194,13 @@
       "popUpConstants": {
         "errorMessages": {
           "errorGettingLanguage": "Error getting language",
-          "errorUpdatingTheme": "Error updating theme"
+          "errorUpdatingTheme": "Error updating theme",
+          "errorUpdatingTimezone": "Error updating timezone"
         },
         "successMessages": {
           "languageUpdatedSuccessfully": "Language updated successfully",
-          "themeUpdatedSuccessfully": "Theme updated successfully"
+          "themeUpdatedSuccessfully": "Theme updated successfully",
+          "timezoneUpdatedSuccessfully":"Timezone updated successfully"
         }
       }
     },

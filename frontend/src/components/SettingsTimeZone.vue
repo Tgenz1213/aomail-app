@@ -41,6 +41,10 @@ import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
 import moment from 'moment-timezone';
+import { useI18n } from 'vue-i18n';
+
+// Use i18n
+const { t } = useI18n();
 
 // Timezone options
 const timezones = ref(moment.tz.names());
@@ -85,12 +89,12 @@ const updateTimezoneSelection = async (newTimeZone) => {
         });
 
         if (response.error) {
-            setTimezoneNotification('bg-red-300', 'Error updating timezone', response.error);
+            setTimezoneNotification('bg-red-300', t('settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTimezone'), response.error);
         } else if (response.message === "Timezone updated successfully") {
-            setTimezoneNotification('bg-green-300', 'Success!', 'Timezone updated successfully');
+            setTimezoneNotification('bg-green-300', t('constants.popUpConstants.successMessages.success'), t('settingsPage.preferencesPage.popUpConstants.successMessages.timezoneUpdatedSuccessfully'));
         }
     } catch (error) {
-        setTimezoneNotification('bg-red-300', 'Error updating timezone', error.message);
+        setTimezoneNotification('bg-red-300', t('settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTimezone'), error.message);
     }
 };
 

@@ -195,11 +195,13 @@
       "popUpConstants": {
         "errorMessages": {
           "errorGettingLanguage": "Erreur lors de l'obtention de la langue",
-          "errorUpdatingTheme": "Erreur lors de la mise à jour du thème"
+          "errorUpdatingTheme": "Erreur lors de la mise à jour du thème",
+          "errorUpdatingTimezone": "Erreur lors de la mise à jour du fuseau horaire"
         },
         "successMessages": {
           "languageUpdatedSuccessfully": "Langue mise à jour avec succès",
-          "themeUpdatedSuccessfully": "Thème mis à jour avec succès"
+          "themeUpdatedSuccessfully": "Thème mis à jour avec succès",
+          "timezoneUpdatedSuccessfully": "Fuseau horaire mis à jour avec succès"
         }
       }
     },

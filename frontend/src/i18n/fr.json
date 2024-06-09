@@ -126,6 +126,9 @@
     "timezone": "Fuseau horaire"
   },
   "userLoginPage": {
+    "loginError": "Erreur lors de la connexion",
+    "maxUsernameLength": "Longueur max nom d'utilisateur : 150 caractères",
+    "invalidCredentials": "Informations d'identification invalides",
     "connectAccount": "Se connecter",
     "forgottenPassword": "Mot de passe oublié ?",
     "doNotHaveAccount": "Vous n'avez pas de compte ?",

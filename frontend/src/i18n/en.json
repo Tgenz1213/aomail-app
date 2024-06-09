@@ -191,6 +191,7 @@
       "numberOfEmailAddresses": "Number of email addresses",
       "emailServiceProviders": "Providers",
       "emailServiceProvider": "Provider",
+      "prioritySupport": "Priority Support",
       "youAreUsingATestVersionOfAomail": "You are using a test version of Aomail",
       "aiModels": "AI models",
       "aiModel": "AI model",
@@ -199,6 +200,10 @@
       "mistalLlmProvider": "Mistral"
     },
     "accountPage": {
+      "securelyLinkGmailAccount": "Securely link my Gmail account with Oauth2.0",
+      "securelyLinkOutlookAccount": "Securely link my Outlook account with Oauth2.0",
+      "securelyLinkICloudMailAccount": "Securely link my iCloud Mail account with Oauth2.0",
+      "securelyLinkYahooMailAccount": "Securely link my Yahoo Mail account with Oauth2.0",
       "myAccountTitle": "My account",
       "changeMyUsernameOrMyPassword": "Change my username or my password",
       "newPassword": "New password",

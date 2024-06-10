@@ -71,7 +71,10 @@
             </div>
             <div id="secondMainColumn"
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
+                
                 <div class="flex flex-col h-full w-full">
+
+
                     <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
                         <div class="flex gap-x-3 items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
@@ -84,6 +87,7 @@
                             }}</h1>
                         </div>
                     </div>
+
                     <form class="flex flex-grow w-full px-10 py-4 2xl:px-14 2xl:py-6">
                         <div class="flex flex-col space-y-5 h-full w-full">
                             <div class="">

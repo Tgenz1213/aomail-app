@@ -590,7 +590,7 @@
                           <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.language') }}</span>
                         </div>
                       </div>
-                      <div class="pt-6">
+                      <div class="pt-6 pb-10">
                         <div class="relative items-stretch mt-2">
                           <language></language>
                         </div>

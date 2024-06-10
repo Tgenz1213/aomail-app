@@ -18,7 +18,8 @@
       "enterManually": "Enter manually",
       "modifyACategory": "Modify a category",
       "login": "Log In",
-      "see": "See"
+      "see": "See",
+      "archive": "Archive"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "No category defined",
@@ -396,7 +397,8 @@
     "forUser": "For user : ",
     "mainRecipient": "Main Recipient",
     "ccRecipient": "Copy",
-    "bccRecipient": "Blind Copy"
+    "bccRecipient": "Blind Copy",
+    "moveToNextStep": "Move to next step"
   },
   "answerPage": {
     "responseSentTitle": "Response sent!"

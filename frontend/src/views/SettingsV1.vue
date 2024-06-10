@@ -31,27 +31,26 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation.delete_account') }}
+                            $t('settingsPage.accountPage.deleteAccount') }}
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $t('settings_navigation.confirmer_delete_account') }}
+                            {{ $t('settingsPage.accountPage.confirmDeleteAccount') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="closeModal">{{ $t('Global action.cancel') }}</button>
+                            @click="closeModal">{{ $t('constants.userActions.cancel') }}</button>
                         <div class="flex-grow"></div> <!-- Flexible spacer -->
                         <button type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -61,7 +60,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            {{ $t('settings_navigation.delete_account') }}
+                            {{ $t('settingsPage.accountPage.deleteAccount') }}
                         </button>
                     </div>
                 </div>
@@ -78,27 +77,26 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeUnlinkModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation2.unlink_my_email') }}
+                            $t('settingsPage.accountPage.unlinkMyEmail') }}
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $t('settings_navigation2.this_feature_is_under_test') }}
+                            {{ $t('settingsPage.accountPage.thisFeatureIsUnderTest') }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
-                            @click="closeUnlinkModal">{{ $t('Global action.cancel') }}</button>
+                            @click="closeUnlinkModal">{{ $t('constants.userActions.cancel') }}</button>
                         <div class="flex-grow"></div>
                         <button type="button"
                             class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
@@ -108,7 +106,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
-                            {{ $t('settings_navigation2.unlink_my_email') }}
+                            {{ $t('settingsPage.accountPage.unlinkMyEmail') }}
                         </button>
                     </div>
                 </div>
@@ -125,14 +123,13 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeUserDescriptionModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation3.update_my_description')
+                            $t('settingsPage.accountPage.updateMyDescription')
                             }}</p>
                     </div>
                 </div>
@@ -151,7 +148,7 @@
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="updateUserDescription">{{ $t('Global action.update') }}</button>
+                            @click="updateUserDescription">{{ $t('constants.userActions.update') }}</button>
                     </div>
                 </div>
             </div>
@@ -168,14 +165,13 @@
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeAddUserDescriptionModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
                         <XMarkIcon class="h-6 w-6" aria-hidden="true" />
                     </button>
                 </div>
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">{{
-                            $t('settings_navigation3.Link_a_new_email_address')
+                            $t('settingsPage.accountPage.linkANewEmailAddress')
                             }}</p>
                     </div>
                 </div>
@@ -183,19 +179,19 @@
                     <div>
                         <div class="flex space-x-1 items-center">
                             <envelope-icon class="w-4 h-4" />
-                            <label class="block text-sm font-medium leading-6 text-gray-900">Description
+                            <label class="block text-sm font-medium leading-6 text-gray-900">TODO Description
                                 (optionnelle)</label>
                         </div>
                         <div class="relative items-stretch mt-2 pb-6">
                             <input v-model="userDescription" type="text"
-                                placeholder="Résumez-vous pour aider l'assistant"
+                                placeholder="TODO Summarize yourself with name to help Ao"
                                 class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                         </div>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row">
                         <button type="button"
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                            @click="linkNewEmail">{{ $t('settings_navigation3.link') }}</button>
+                            @click="linkNewEmail">{{ $t('settingsPage.accountPage.link') }}</button>
                     </div>
                 </div>
             </div>
@@ -232,7 +228,7 @@
                                                 @click="setActiveSection('account')">
                                                 <user-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'account', 'text-gray-600': activeSection !== 'account' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.my_account')
+                                                    class="text-sm font-medium">{{ $t('settingsPage.accountPage.myAccountTitle')
                                                     }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
@@ -241,7 +237,7 @@
                                                 <adjustments-vertical-icon class="w-4 h-4" />
                                                 <a
                                                     :class="{ 'text-gray-800': activeSection === 'preferences', 'text-gray-600': activeSection !== 'preferences' }">{{
-                                                        $t('settings_navigation.Preferences') }}</a>
+                                                        $t('settingsPage.preferencesPage.preferencesTitle') }}</a>
                                             </div>
                                             <div class="text-sm font-medium cursor-pointer"
                                                 :class="['flex space-x-2 items-center rounded-md py-2', { 'bg-gray-500 bg-opacity-10 hover:text-gray-800 px-12': activeSection === 'subscription', 'hover:bg-gray-500 hover:bg-opacity-10 hover:text-gray-800 px-8': activeSection !== 'subscription' }]"
@@ -249,7 +245,7 @@
                                                 <credit-card-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'subscription', 'text-gray-600': activeSection !== 'subscription' }"
                                                     class="text-sm font-medium">{{
-                                                        $t('settings_navigation.subscription')
+                                                        $t('settingsPage.subscriptionPage.subscriptionTitle')
                                                     }}</a>
                                             </div>
 
@@ -258,7 +254,7 @@
                                                 @click="setActiveSection('data')">
                                                 <circle-stack-icon class="w-4 h-4" />
                                                 <a :class="{ 'text-gray-800': activeSection === 'data', 'text-gray-600': activeSection !== 'data' }"
-                                                    class="text-sm font-medium">{{ $t('settings_navigation.my_data')
+                                                    class="text-sm font-medium">{{ $t('settingsPage.dataPage.myData')
                                                     }}</a>
                                             </div>
                                         </nav>
@@ -280,7 +276,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('settings_navigation.change_my_username_or_my_password')
+                                                    $t('settingsPage.accountPage.changeMyUsernameOrMyPassword')
                                                     }}</span>
                                             </div>
                                         </div>
@@ -288,7 +284,7 @@
                                             <div class="flex space-x-1 items-center">
                                                 <envelope-icon class="w-4 h-4" />
                                                 <label class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                    $t('settings_navigation.username') }}</label>
+                                                    $t('constants.userActions.username') }}</label>
                                             </div>
                                             <div class="relative items-stretch mt-2">
                                                 <input v-model="userData" type="text" name="username" id="username"
@@ -302,7 +298,7 @@
                                                             <key-icon class="w-4 h-4" />
                                                             <label
                                                                 class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                                $t('settings_navigation.new_password') }}</label>
+                                                                    $t('settingsPage.accountPage.newPassword') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showPassword" type="password"
@@ -342,7 +338,7 @@
                                                             <key-icon class="w-4 h-4" />
                                                             <label
                                                                 class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                                $t('settings_navigation.Confirm') }}</label>
+                                                                    $t('settingsPage.accountPage.confirmYourNewPassword') }}</label>
                                                         </div>
                                                         <div class="relative items-stretch mt-2 flex">
                                                             <input v-if="!showConfirmPassword" type="password"
@@ -376,7 +372,7 @@
                                             <div class="flex justify-end pt-4">
                                                 <button @click="handleSubmit"
                                                     class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{
-                                                    $t('settings_navigation.modify') }}</button>
+                                                        $t('settingsPage.accountPage.modify') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -387,7 +383,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('settings_navigation.delete') }}</span>
+                                                    $t('constants.userActions.delete') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-6">
@@ -398,7 +394,7 @@
                                                         name="choice">
                                                     <label for="push-everything"
                                                         class="block text-sm font-medium leading-6">
-                                                        {{ $t('settings_navigation.confirmer_delete_account') }}</label>
+                                                        {{ $t('settingsPage.accountPage.confirmDeleteAccount') }}</label>
                                                 </div>
                                                 <button @click="openModal" type="submit"
                                                     class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto">
@@ -409,7 +405,7 @@
                                                             d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                                                     </svg>
 
-                                                    {{ $t('settings_navigation.delete') }}</button>
+                                                    {{ $t('constants.userActions.delete') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -421,7 +417,7 @@
                                         </div>
                                         <div class="relative flex justify-center">
                                             <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                $t('settings_navigation3.Link_a_new_email_address') }}</span>
+                                                $t('settingsPage.accountPage.linkANewEmailAddress') }}</span>
                                         </div>
                                     </div>
                                     <div class="pt-[52px]">
@@ -430,7 +426,7 @@
                                                 <ul role="list" class="space-y-1 w-full">
                                                     <li v-for="email in emailsLinked" :key="email.email"
                                                         class="border border-black w-full overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
-                                                        <div class="flex gap-x-2 items-center justify-center w-full">
+                                                        <div class="flex items-center justify-center w-full">
                                                             <svg v-if="email.type_api === 'microsoft'"
                                                                 xmlns="http://www.w3.org/2000/svg" width="21"
                                                                 height="21" viewBox="0 0 21 21">
@@ -459,8 +455,10 @@
                                                                     d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
                                                                     id="Shape" fill="#EB4335"></path>
                                                             </svg>
+                                                            <div class="flex-grow"></div>
                                                             <span>{{ email.email }}</span>
-                                                            <div class="pl-12">
+                                                            <div class="flex-grow"></div>
+                                                            <div>
                                                                 <button type="button"
                                                                     class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
                                                                     @click.stop="openUserDescriptionModal(email.email)">
@@ -490,11 +488,21 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="relative py-4">
+                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                            <div class="w-full border-t border-gray-300"></div>
+                                        </div>
+                                        <div class="relative flex justify-center">
+                                            <span class="bg-white px-2 text-sm text-gray-500">
+                                                TODO Choose the email service provider
+                                            </span>
+                                        </div>
+                                    </div>
                                     <div class="flex gap-x-4 justify-center">
                                         <div class="pt-4">
                                             <div class="relative items-stretch mt-2 flex justify-center items-center">
                                                 <button type="button"
-                                                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                    class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                                     @click="authorize_microsoft">
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21"
                                                         viewBox="0 0 21 21">
@@ -503,14 +511,16 @@
                                                         <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
                                                         <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                                                     </svg>
-                                                    {{ $t('settings_navigation3.Outlook') }}
+                                                    <span
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Securely
+                                                        link my Outlook account with Oauth2.0</span>
                                                 </button>
                                             </div>
                                         </div>
                                         <div class="py-4">
                                             <div class="relative items-stretch mt-2 flex justify-center items-center">
                                                 <button type="button"
-                                                    class="inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                    class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                                     @click="authorize_google">
                                                     <svg class="-ml-0.5 h-5 w-5" aria-hidden="true" viewBox="0 0 24 24"
                                                         xmlns="http://www.w3.org/2000/svg" fill="currentColor">
@@ -527,7 +537,50 @@
                                                             d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
                                                             id="Shape" fill="#EB4335"></path>
                                                     </svg>
-                                                    {{ $t('settings_navigation3.Google') }}
+                                                    <span
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Securely
+                                                        link my Gmail account with Oauth2.0</span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- UNDER DEVELOPMENT -->
+                                        <div class="py-4">
+                                            <div class="relative items-stretch mt-2 flex justify-center items-center">
+                                                <button type="button"
+                                                    class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                    @click="authorize_apple">
+                                                    <svg class="css-10aieaf eu4oa1w0" width="16pt" height="16pt"
+                                                        viewBox="0 0 16 16" version="1.1">
+                                                        <path
+                                                            style="stroke: none; fill-rule: nonzero; fill: rgb(0, 0, 0); fill-opacity: 1;"
+                                                            d="M 14.152344 12.257812 C 13.921875 12.792969 13.648438 13.28125 13.332031 13.734375 C 12.902344 14.347656 12.546875 14.773438 12.277344 15.007812 C 11.855469 15.398438 11.402344 15.59375 10.917969 15.605469 C 10.570312 15.605469 10.152344 15.507812 9.664062 15.308594 C 9.175781 15.109375 8.726562 15.007812 8.316406 15.007812 C 7.886719 15.007812 7.421875 15.109375 6.929688 15.308594 C 6.433594 15.507812 6.035156 15.613281 5.730469 15.621094 C 5.265625 15.640625 4.804688 15.4375 4.339844 15.007812 C 4.046875 14.753906 3.679688 14.3125 3.238281 13.6875 C 2.761719 13.019531 2.375 12.25 2.070312 11.367188 C 1.742188 10.414062 1.578125 9.496094 1.578125 8.601562 C 1.578125 7.582031 1.800781 6.699219 2.242188 5.960938 C 2.589844 5.367188 3.050781 4.898438 3.628906 4.554688 C 4.207031 4.210938 4.835938 4.039062 5.507812 4.027344 C 5.875 4.027344 6.359375 4.140625 6.960938 4.363281 C 7.558594 4.589844 7.941406 4.703125 8.113281 4.703125 C 8.238281 4.703125 8.664062 4.570312 9.390625 4.304688 C 10.074219 4.058594 10.652344 3.957031 11.125 3.996094 C 12.40625 4.097656 13.371094 4.605469 14.011719 5.515625 C 12.863281 6.210938 12.296875 7.183594 12.308594 8.433594 C 12.320312 9.40625 12.671875 10.214844 13.367188 10.859375 C 13.679688 11.15625 14.03125 11.386719 14.421875 11.550781 C 14.335938 11.796875 14.246094 12.03125 14.152344 12.257812 Z M 11.210938 0.679688 C 11.210938 1.445312 10.933594 2.15625 10.375 2.816406 C 9.707031 3.597656 8.894531 4.050781 8.015625 3.980469 C 8.003906 3.886719 8 3.792969 8 3.691406 C 8 2.957031 8.316406 2.175781 8.882812 1.535156 C 9.167969 1.210938 9.527344 0.941406 9.960938 0.726562 C 10.394531 0.511719 10.808594 0.394531 11.195312 0.375 C 11.207031 0.476562 11.210938 0.582031 11.210938 0.679688 Z M 11.210938 0.679688 ">
+                                                        </path>
+                                                    </svg>
+                                                    <span
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Under Development</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- UNDER DEVELOPMENT -->
+                                        <div class="py-4">
+                                            <div class="relative items-stretch mt-2 flex justify-center items-center">
+                                                <button type="button"
+                                                    class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                                                    @click="authorize_yahoo">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" aria-label="Yahoo!"
+                                                        role="img" viewBox="0 0 512 512" fill="#ffffff" width="16pt"
+                                                        height="16pt">
+                                                        <rect width="512" height="512" rx="15%" fill="#5f01d1" />
+                                                        <g fill="#ffffff">
+                                                            <path
+                                                                d="M203 404h-62l25-59-69-165h63l37 95 37-95h62m58 76h-69l62-148h69" />
+                                                            <circle cx="303" cy="308" r="38" />
+                                                        </g>
+                                                    </svg>
+                                                    <span
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Under Development</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -562,8 +615,9 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
                                     </svg>
-                                    <span class="mt-2 block text-sm font-semibold text-gray-900">En cours de
-                                        construction</span>
+                                    <span class="mt-2 block text-sm font-semibold text-gray-900">
+                                        {{ $t('constants.userActions.underDevelopment') }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -580,7 +634,8 @@
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
                                             <div class="relative flex justify-center">
-                                                <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
+                                                <span class="bg-white px-2 text-sm text-gray-500">{{
+                                                    $t('constants.userActions.language') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
@@ -594,7 +649,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('settings_navigation.Theme') }}</span>
+                                                    $t('constants.userActions.theme') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
@@ -611,7 +666,9 @@
                                                 <div class="w-full border-t border-gray-300"></div>
                                             </div>
                                             <div class="relative flex justify-center">
-                                                <span class="bg-white px-2 text-sm text-gray-500">SettingsTimeZone</span>
+                                                <span
+                                                    class="bg-white px-2 text-sm text-gray-500">{{
+                                                    $t('constants.userActions.timezone') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
@@ -628,8 +685,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
                                         </svg>
-                                        <span class="mt-2 block text-sm font-semibold text-gray-900">En cours de
-                                            construction</span>
+                                        <span class="mt-2 block text-sm font-semibold text-gray-900">
+                                            {{ $t('constants.userActions.underDevelopment') }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -692,8 +750,8 @@ async function openUnLinkModal(email) {
     if (emailsLinked.value.length == 1) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Impossibilité de supprimer l\'email principal';
-        notificationMessage.value = 'Si vous souhaitez supprimer votre compte utilisez la section dédiée';
+        notificationTitle.value = 'TODO Impossibilité de supprimer l\'email principal';
+        notificationMessage.value = 'TODO Si vous souhaitez supprimer votre compte utilisez la section dédiée';
         displayPopup();
         closeUnlinkModal();
         return;
@@ -717,21 +775,21 @@ async function unLinkAccount() {
         if ("error" in response) {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle.value = 'Erreur lors de la désassociation de l\'adresse e-mail';
+            notificationTitle.value = 'TODO Erreur lors de la désassociation de l\'adresse e-mail';
             notificationMessage.value = response.error;
             displayPopup();
         } else if (response.message == "Email unlinked successfully!") {
             fetchEmailLinked();
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle.value = 'Succès !';
-            notificationMessage.value = 'Email désassocié de votre compte avec succès !';
+            notificationTitle.value = 'TODO Succès !';
+            notificationMessage.value = 'TODO Email désassocié de votre compte avec succès !';
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur lors de la désassociation de l\'adresse e-mail';
+        notificationTitle.value = 'TODO Erreur lors de la désassociation de l\'adresse e-mail';
         notificationMessage.value = error.message;
         displayPopup();
     }
@@ -786,13 +844,13 @@ async function linkEmail(authorizationCode) {
         fetchEmailLinked();
         // Show the pop-up
         backgroundColor.value = 'bg-green-300';
-        notificationTitle.value = 'Succès !';
-        notificationMessage.value = 'Votre email a été lié à votre compte';
+        notificationTitle.value = 'TODO Succès !';
+        notificationMessage.value = 'TODO Votre email a été lié à votre compte';
         displayPopup();
     } else {
         // Show the pop-up
         backgroundColor.value = 'bg-red-300';
-        notificationTitle.value = 'Échec de liaison d\'email';
+        notificationTitle.value = 'TODO Échec de liaison d\'email';
         notificationMessage.value = response.error;
         displayPopup();
     }
@@ -816,7 +874,7 @@ async function fetchEmailLinked() {
         if ("error" in response) {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur récupération des emails liés';
+            notificationTitle = 'TODO Erreur récupération de vos emails';
             notificationMessage = response.error;
             displayPopup();
         } else {
@@ -825,7 +883,7 @@ async function fetchEmailLinked() {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur récupération des emails liés';
+        notificationTitle = 'TODO Erreur récupération de vos emails';
         notificationMessage = error.message;
         displayPopup();
     }
@@ -838,8 +896,8 @@ function openModal() {
     } else {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Confirmation nécessaire';
-        notificationMessage = 'Cochez la case pour approuver la suppression';
+        notificationTitle = 'TODO Confirmation nécessaire';
+        notificationMessage = 'TODO Cochez la case pour approuver la suppression';
         displayPopup();
     }
 }
@@ -872,7 +930,7 @@ async function openUserDescriptionModal(email) {
         userDescription.value = response.data;
     } else {
         backgroundColor.value = 'bg-red-300';
-        notificationTitle.value = "Erreur récupération description";
+        notificationTitle.value = "TODO Erreur récupération de votre description";
         notificationMessage.value = response.error;
         displayPopup();
     }
@@ -893,12 +951,12 @@ async function updateUserDescription() {
 
     if (response.message == "User description updated") {
         backgroundColor = 'bg-green-300';
-        notificationTitle.value = "Succès !";
-        notificationMessage.value = "Description email mise à jour";
+        notificationTitle.value = "TODO Succès !";
+        notificationMessage.value = "TODO Description email mise à jour";
         displayPopup();
     } else {
         backgroundColor = 'bg-red-300';
-        notificationTitle.value = "Erreur mise à jour description";
+        notificationTitle.value = "TODO Erreur mise à jour description";
         notificationMessage.value = response.error;
         displayPopup();
     }
@@ -1007,7 +1065,7 @@ async function fetchUserData() {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur récupération de votre identifiant';
+        notificationTitle = 'TODO Erreur récupération de votre identifiant';
         notificationMessage = error;
         displayPopup();
     }
@@ -1029,7 +1087,7 @@ async function getUsername() {
         console.error(error);
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur récupération nom d\'utilisateur';
+        notificationTitle = 'TODO Erreur récupération de votre identifiant';
         notificationMessage = error;
         displayPopup();
         return;
@@ -1051,7 +1109,7 @@ async function handleSubmit() {
         console.log("An error occured while checking the username", error);
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur vérification nom d\'utilisateur';
+        notificationTitle = 'TODO Erreur vérification nom d\'utilisateur';
         notificationMessage = error;
         displayPopup();
         return;
@@ -1063,8 +1121,8 @@ async function handleSubmit() {
     if (response.available == false) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Nom d\'utilisateur déjà existant';
-        notificationMessage = 'Veuillez choisir un autre nom';
+        notificationTitle = 'TODO Nom d\'utilisateur déjà existant';
+        notificationMessage = 'TODO Veuillez choisir un autre nom';
         displayPopup();
         return;
     }
@@ -1079,7 +1137,7 @@ async function handleSubmit() {
             console.error("Error occurre while retrieving data about username", error);
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur lors d\'une vérification du nom d\'utilisateur';
+            notificationTitle = 'TODO Erreur vérification nom d\'utilisateur';
             notificationMessage = error;
             displayPopup();
         }
@@ -1098,8 +1156,8 @@ async function handleSubmit() {
         if (resultUpdateUsername == 'Username updated successfully' && resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'Votre identifiant et mot de passe ont été modifiés';
+            notificationTitle = 'TODO Succès !';
+            notificationMessage = 'TODO Votre identifiant et mot de passe ont été modifiés';
             displayPopup();
         }
         else if (!resultUpdatePwd) {
@@ -1107,14 +1165,14 @@ async function handleSubmit() {
             if (resultUpdateUsername == 'Username updated successfully') {
                 // Show the pop-up
                 backgroundColor = 'bg-green-300';
-                notificationTitle = 'Succès !';
-                notificationMessage = 'Votre identifiant a bien été mis à jour';
+                notificationTitle = 'TODO Succès !';
+                notificationMessage = 'TODO Votre identifiant a bien été mis à jour';
                 displayPopup();
             }
             else {
                 // Show the pop-up
                 backgroundColor = 'bg-green-300';
-                notificationTitle = 'Erreur mise à jour identifiant';
+                notificationTitle = 'TODO Erreur mise à jour identifiant';
                 notificationMessage = resultUpdateUsername;
                 displayPopup();
             }
@@ -1125,14 +1183,14 @@ async function handleSubmit() {
         if (resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle = 'Succès !';
-            notificationMessage = 'Votre mot de passe a bien été modifié';
+            notificationTitle = 'TODO Succès !';
+            notificationMessage = 'TODO Votre mot de passe a bien été modifié';
             displayPopup();
         }
         else {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur mise à jour mot de passe';
+            notificationTitle = 'TODO Erreur mise à jour mot de passe';
             notificationMessage = resultUpdatePwd;
             displayPopup();
         }
@@ -1195,8 +1253,8 @@ async function deleteAccount() {
             closeModal();
             // Show the pop-up
             backgroundColor = 'bg-green-300';
-            notificationTitle = 'Redirection en cours...';
-            notificationMessage = 'Votre compte a bien été supprimé';
+            notificationTitle = 'TODO Redirection en cours...';
+            notificationMessage = 'TODO Votre compte a bien été supprimé';
             displayPopup();
 
             setTimeout(() => {
@@ -1207,14 +1265,14 @@ async function deleteAccount() {
         } else {
             // Show the pop-up
             backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur suppresion de votre compte';
+            notificationTitle = 'TODO Erreur suppresion de votre compte';
             notificationMessage = responseData.error;
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur suppresion de votre compte';
+        notificationTitle ='TODO Erreur suppresion de votre compte';
         notificationMessage = error;
         displayPopup();
     }

@@ -28,10 +28,15 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
+import { useI18n } from 'vue-i18n';
 
+// Use i18n
+const { t } = useI18n();
+
+// Theme options with translated values
 const themes = ref([
-    { key: 'light', value: 'Thème Clair' },
-    { key: 'dark', value: 'Thème Foncé' },
+    { key: 'light', value: t('constants.themeList.lightTheme') },
+    { key: 'dark', value: t('constants.themeList.darkTheme') },
 ]);
 
 if (!localStorage.getItem("theme")) {

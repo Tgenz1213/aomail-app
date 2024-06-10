@@ -7,8 +7,8 @@
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
-          <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
-          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.sign_up')
+          <img class="mx-auto h-10 w-auto" :src="logo" alt="Aomail">
+          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('signUpPart1Page.signUp')
             }}</h2>
         </div>
         <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
@@ -364,7 +364,7 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.Gmail') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('signUpPart2Page.linkAGmailAccount') }}</span>
                         </div>
                       </div>
                       <div class="py-4">
@@ -387,7 +387,7 @@
                                 d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
                                 id="Shape" fill="#EB4335"></path>
                             </svg>
-                            {{ $t('SignUp_p2_vue.Google') }}
+                            {{ $t('signUpPart2Page.linkYourGmailAccount') }}
                           </button>
                         </div>
                       </div>
@@ -419,7 +419,7 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.Outlook') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('signUpPart2Page.linkAnOutlookAccount') }}</span>
                         </div>
                       </div>
                       <div class="pt-4">
@@ -434,7 +434,7 @@
                               <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
                               <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                             </svg>
-                            {{ $t('SignUp_p2_vue.link_Outlook_account') }}
+                            {{ $t('signUpPart2Page.linkYourOutlookAccount') }}
                           </button>
                         </div>
                       </div>
@@ -442,7 +442,7 @@
                         <div class="pt-10">
                           <button @click="nextStep3"
                             class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
-                            {{ $t('SignUp_p1_vue.continue') }}</button>
+                            {{ $t('signUpPart1Page.continue') }}</button>
                         </div>
                       </div>
                     </div>
@@ -454,12 +454,12 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.tools_presentation') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('signUpPart2Page.toolsPresentation') }}</span>
                         </div>
                       </div>
                       <div class="py-6">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('SignUp_p2_vue.work_in_progress') }}</p>
+                          <p class="font-semibold">{{ $t('constants.workInProgress') }}</p>
                           <!-- To add : A video that explain the tool -->
                         </div>
                       </div>
@@ -468,12 +468,12 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p2_vue.some_infos_on_data_confidentiality') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('signUpPart2Page.informationOnDataConfidentiality') }}</span>
                         </div>
                       </div>
                       <div class="pt-4">
                         <div class="relative items-stretch mt-2">
-                          <p class="font-semibold">{{ $t('SignUp_p2_vue.work_in_progress') }}</p>
+                          <p class="font-semibold">{{ $t('constants.workInProgress') }}</p>
                           <!-- To add : A video that explain how data is saved and used -->
                         </div>
                       </div>
@@ -481,7 +481,7 @@
                         <div class="pt-8">
                           <button @click="submitSignupData"
                             class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
-                            {{ $t('SignUp_p2_vue.finish_inscription') }}</button>
+                            {{ $t('signUpPart2Page.finalizeRegistration') }}</button>
                         </div>
                       </div>
                     </div>
@@ -521,9 +521,8 @@
             </div>
           </div>
           <p class="mt-6 text-center text-sm text-gray-500">
-            {{ $t('SignUp_p1_vue.you_have_an_account') }}
-            {{ ' ' }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.sign_up')
+            {{ $t('signUpPart1Page.youHaveAnAccount') }}
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('constants.userActions.login')
               }}</a>
           </p>
         </div>
@@ -601,8 +600,8 @@ async function nextStep3(event) {
   } else {
     // Show the pop-up
     backgroundColor.value = 'bg-red-300';
-    notificationTitle.value = 'Erreur d\'autorisation';
-    notificationMessage.value = 'Code d\'autorisation introuvable dans l\'URL';
+    notificationTitle.value = 'TODO Erreur d\'autorisation';
+    notificationMessage.value = 'TODO Code d\'autorisation introuvable dans l\'URL';
     displayPopup();
   }
 }
@@ -614,8 +613,8 @@ async function submitSignupData(event) {
 
   // Show the pop-up
   backgroundColor.value = 'bg-green-300';
-  notificationTitle.value = 'Création de compte en cours...';
-  notificationMessage.value = 'Attente de réponse de la base de données';
+  notificationTitle.value = 'TODO Création de compte en cours...';
+  notificationMessage.value = 'TODO Attente de réponse de la base de données';
   displayPopup();
 
   try {
@@ -656,21 +655,21 @@ async function submitSignupData(event) {
     } else if (data.error == 'Email address already used') {
       // Show the pop-up      
       backgroundColor.value = 'bg-red-300';
-      notificationTitle.value = 'Erreur lors de la création du compte';
-      notificationMessage.value = 'Adresse e-mail déjà utilisée';
+      notificationTitle.value = 'TODO Erreur lors de la création du compte';
+      notificationMessage.value = 'TODO Adresse e-mail déjà utilisée';
       displayPopup();
 
     } else {
       // Show the pop-up      
       backgroundColor.value = 'bg-red-300';
-      notificationTitle.value = 'Erreur lors de la création du compte';
+      notificationTitle.value = 'TODO Erreur lors de la création du compte';
       notificationMessage.value = data.error;
       displayPopup();
     }
   } catch (error) {
     // Show the pop-up    
     backgroundColor.value = 'bg-red-300';
-    notificationTitle.value = 'Erreur lors de la création du compte';
+    notificationTitle.value = 'TODO Erreur lors de la création du compte';
     notificationMessage.value = error;
     displayPopup();
   }

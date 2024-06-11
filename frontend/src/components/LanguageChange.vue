@@ -6,7 +6,7 @@
     <Listbox as="div" v-model="selectedLanguage">
       <ListboxButton
         class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6">
-        <span class="block truncate">{{ $t(selectedLanguage.i18nKey) }}</span>
+        <span class="block truncate">{{ $t(selectedLanguage.value) }}</span>
         <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
         </span>
@@ -20,7 +20,7 @@
             v-slot="{ active, selected }">
             <li
               :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-              <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ $t(language.i18nKey)
+              <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{ $t(language.value)
                 }}</span>
               <span v-if="selected"
                 :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
@@ -44,13 +44,13 @@ import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIco
 
 // Language options
 const languages = ref([
-  { key: 'french', i18nKey: 'languages.french' },
-  { key: 'american', i18nKey: 'languages.american' },
-  { key: 'german', i18nKey: 'languages.german' },
-  { key: 'russian', i18nKey: 'languages.russian' },
-  { key: 'spanish', i18nKey: 'languages.spanish' },
-  { key: 'chinese', i18nKey: 'languages.chinese' },
-  { key: 'indian', i18nKey: 'languages.indian' },
+  { key: 'french', value: 'constants.languagesList.french' },
+  { key: 'american', value: 'constants.languagesList.american' },
+  { key: 'german', value: 'constants.languagesList.german' },
+  { key: 'russian', value: 'constants.languagesList.russian' },
+  { key: 'spanish', value: 'constants.languagesList.spanish' },
+  { key: 'chinese', value: 'constants.languagesList.chinese' },
+  { key: 'indian', value: 'constants.languagesList.indian' },
 ]);
 
 // Selected language
@@ -93,13 +93,13 @@ const updateLanguageSelection = async (newLanguage) => {
     });
 
     if (response.error) {
-      setNotification('bg-red-300', 'Error getting language', response.error);
+      setNotification('bg-red-300', 'TODO Error getting language', response.error);
     } else if (response.message === "Language updated successfully") {
       i18n.global.locale = newLanguageKey;
-      setNotification('bg-green-300', 'Success!', 'Language updated successfully');
+      setNotification('bg-green-200/[.89] border border-green-400', 'TODO Success!', 'TODO Language updated successfully');
     }
   } catch (error) {
-    setNotification('bg-red-300', 'Error getting language', error.message);
+    setNotification('bg-red-200/[.89] border border-red-400', 'TODO Error getting language', error.message);
   }
 };
 

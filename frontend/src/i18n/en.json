@@ -1,229 +1,440 @@
 {
-  "Global action": {
-    "cancel": "Cancel",
-    "delete": "delete",
-    "create": "Create",
+  "constants": {
+    "userActions": {
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "create": "Create",
+      "update": "Update",
+      "open": "Open",
+      "send": "Send",
+      "changeTheRule": "Change the rule",
+      "createARule": "Create a rule",
+      "transfer": "Transfer",
+      "reply": "Reply",
+      "search": "Search",
+      "modify": "Modify",
+      "clickToSeeTheSummary": "Click to see the summary",
+      "replyLater": "Reply later",
+      "enterManually": "Enter manually",
+      "modifyACategory": "Modify a category",
+      "login": "Log In",
+      "see": "See",
+      "archive": "Archive"
+    },
+    "ruleModalConstants": {
+      "noCategoryDefined": "No category defined",
+      "noPriority": "No priority defined",
+      "important": "Important",
+      "informative": "Informative",
+      "useless": "Useless",
+      "blockTheEmails": "Block the emails"
+    },
+    "categoryModalConstants": {
+      "modifyTheCategory": "Modify the category",
+      "categoryDescription": "Brief description of the category",
+      "categoryDescriptionExplanation": "This description will help Ao understand the category.",
+      "categoryName": "Category Name",
+      "addCategory": "Add a category",
+      "administrative": "Administrative"
+    },
+    "sendEmailConstants": {
+      "improveEmailWriting": "Improve email writing",
+      "doesThisResponseSuitYou": "Does this response suit you?",
+      "howCanIAssistWritingEmailResponse": "How can I assist you in writing a response to this email?",
+      "carbonCopyInitialsTwoDots": "CC:",
+      "blindCarbonCopyInitialsTwoDots": "BCC:",
+      "noSuggestionsEnteredPleaseTryAgain": "You haven't entered any suggestions, please try again.",
+      "betterEmailFeedbackRequest": "Does this email suit you better?",
+      "noRecipientsEntered": "You have not entered any recipients, please try again.",
+      "noRecipientsFoundPleaseTryAgainOrEnterManually": "No recipients found, please try again or enter manually.",
+      "processingErrorTryAgain": "I apologize, there was a processing error. Can you please try again?",
+      "noDraftsEnteredPleaseTryAgain": "You have not entered any drafts, please try again.",
+      "emailFeedbackRequest": "Does this email suit you? You can provide me with feedback so that I can adapt it to your needs.",
+      "emailRecipientRequest": "Hello, who would you like to send this email to?",
+      "draftEmailRequest": "Feel free to provide a draft of the email you wish to write.",
+      "emailCompositionAssistance": "How can I assist you in composing your email?",
+      "spellingCorrectionRequest": "I have corrected the spelling, would you like anything else?",
+      "processingErrorApology": "I apologize, there was a processing error.",
+      "copywritingCheckRequest": "I have checked the copywriting, would you like anything else?",
+      "multipleEmailsFoundForSomeRecipients": "I found multiple emails for some recipients, select the emails that correspond."
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "emailSendError": "Email send error",
+        "contactFetchError": "Contact fetch error",
+        "primaryEmailFetchError": "Primary email fetch error",
+        "emailLinkedFetchError": "Email fetch error",
+        "invalidEmail": "Invalid email",
+        "emailFormatIncorrect": "Email format incorrect",
+        "duplicateFile": "Duplicate file",
+        "fileAlreadyInserted": "File already inserted",
+        "fileTooLarge": "File too large",
+        "fileSizeExceedsLimit": "File size exceeds Gmail limit",
+        "emailSendErrorNoSubject": "No subject entered",
+        "emailSendErrorNoObject": "No object entered",
+        "emailSendErrorNoRecipient": "No recipient entered",
+        "deleteEmailFailure": "Failed to delete email",
+        "addCategoryError": "Error adding category",
+        "categoryAddedSuccess": "Category has been added",
+        "updateCategoryError": "Error updating category",
+        "emptyCategoryNameError": "Category name cannot be empty",
+        "deleteCategoryError": "Error deleting category",
+        "retrieveAssociatedRulesError": "Error retrieving associated rules",
+        "openReplyPageFailure": "Failed to open reply page",
+        "openTransferPageFailure": "Failed to open transfer page",
+        "emailAlreadyUsed": "Email address already in use",
+        "errorMessageVerificationIdentifier": "Error verifying identifier",
+        "pleaseEnterPassword": "Please enter a password",
+        "pleaseConfirmPassword": "Please confirm your password",
+        "passwordLengthShouldBeBetween8And32Characters": "Password length should be between 8 and 32 characters",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "pleaseEnterAnIdentifier": "Please enter an identifier",
+        "identifierMustNotContainSpaces": "The identifier must not contain spaces",
+        "maxUsernameLength150Characters": "Maximum username length: 150 characters",
+        "identifierIsAlreadyInUse": "The identifier is already in use"
+      },
+      "successMessages": {
+        "success": "Success!",
+        "emailSuccessfullySent": "Your email has been successfully sent.",
+        "updateCategorySuccess": "Category has been updated",
+        "deleteCategorySuccess": "Your category has been deleted"
+      }
+    },
+    "redirectionInProgress": "Redirection in progress...",
+    "homeNavbar": "Home",
+    "newEmailNavbar": "New Email",
+    "searchEmailNavbar": "Search Email",
+    "rulesNavbar": "Rules",
+    "replyLaterNavbar": "Reply Later",
+    "settingsNavbar": "Settings",
+    "instruction": "Instruction",
+    "additionalActions": "Additional actions",
+    "manualSearch": "Manual search",
+    "subject": "Subject",
+    "aiAssistant": "AI assistant",
+    "recipient": "Recipient",
     "category": "Category",
-    "searchbar_search": "search",
-    "update": "update"
-  },
-  "UserLogin_vue": {
-    "connect_account": "Connect to your account",
-    "id_name": "Username",
-    "password": "password",
-    "forgotten_password": "password forgotten ?",
-    "login": "Login",
-    "do_not_have_account": "You don't have an account ?",
-    "free_trial": "Begin your free trial"
-  },
-  "SignUp_p1_vue": {
-    "sign_up": "Sign up",
     "username": "Username",
     "password": "Password",
-    "password_confirm": "Confirm password",
+    "workInProgress": "Work in progress",
+    "underDevelopment": "Under Development",
+    "language": "Language",
+    "languagesList": {
+      "french": "French 🇫🇷",
+      "american": "American 🇺🇸",
+      "german": "German 🇩🇪",
+      "russian": "Russian 🇷🇺",
+      "spanish": "Spanish 🇪🇸",
+      "chinese": "Chinese 🇨🇳",
+      "indian": "Hindi 🇮🇳"
+    },
+    "theme": "Theme",
+    "themeList": {
+      "darkTheme": "Dark theme",
+      "lightTheme": "Light theme"
+    },
+    "timezone": "Timezone"
+  },
+  "userLoginPage": {
+    "loginError": "Error during login",
+    "maxUsernameLength": "Max username length: 150 characters",
+    "invalidCredentials": "Invalid credentials",
+    "connectAccount": "Connect to Your Account",
+    "forgottenPassword": "Password forgotten?",
+    "doNotHaveAccount": "Don't have an account?",
+    "beginFreeTrial": "Begin Your Free Trial"
+  },
+  "signUpPart1Page": {
+    "submitSignUpFormError": "Error while submitting the data",
+    "categoryAlreadyExists": "Category already exists",
+    "summaryUserPlaceholder": "Summarize yourself with your name to help Ao",
+    "signUp": "Sign Up",
+    "passwordConfirm": "Confirm Password",
     "continue": "Continue",
-    "Theme": "Theme",
-    "Colors": "Colors",
-    "create_categorie": "Create your different categories in which you want the assistant to place automatically your emails.",
-    "categorie_description": "Brief description of the categorie",
-    "description": "This description will enable the assistant to understand the category",
-    "infos": "Whant to know more ?",
-    "add_categorie": "Add a categorie",
-    "add_another_categorie": "Add another categorie ?",
-    "modify_category": "Modify a category",
-    "category_name": "Category name",
-    "you_have_an_account": "You have an account ?",
-    "Login": "Log in"
+    "colors": "Colors",
+    "createCategory": "Create your different categories where you want Ao to automatically place your emails.",
+    "wantToKnowMore": "Want to know more?",
+    "addAnotherCategory": "Add another category",
+    "youHaveAnAccount": "Do you have an account?"
   },
-  "SignUp_p2_vue": {
-    "titre": "Register to MailAssistant",
-    "Gmail": "Link a Gmail account",
-    "Outlook": "Link a Outlook account",
-    "Google": "Link your Google account",
-    "link_Outlook_account": "Link your Outlook account",
-    "tools_presentation": "Tools presentation",
-    "work_in_progress": "Work in progress",
-    "finish_inscription": "Finalize your inscription",
-    "some_infos_on_data_confidentiality": "Some infos on data confidentiality"
+  "signUpPart2Page": {
+    "authorizationError": "Authorization error",
+    "authorizationCodeNotFound": "Authorization code not found in URL",
+    "accountCreationInProgress": "Account creation in progress...",
+    "waitingDatabaseResponse": "Waiting for database response",
+    "accountCreationError": "Error creating account",
+    "registerToAomail": "Register to Aomail",
+    "linkAGmailAccount": "Link a Gmail account",
+    "linkAnOutlookAccount": "Link an Outlook account",
+    "linkYourGmailAccount": "Link your Gmail account",
+    "linkYourOutlookAccount": "Link your Outlook account",
+    "toolsPresentation": "Tools presentation",
+    "finalizeRegistration": "Finalize your registration",
+    "informationOnDataConfidentiality": "Some information on data confidentiality"
   },
-  "Home_vue": {
-    "no_new_email": "No new email",
-    "click_to_see_the_summary": "Click to see the summary",
-    "open": "Open",
-    "suppof": "Suppression of",
+  "homePage": {
+    "otherCategory": "Others",
+    "noNewEmail": "No new email",
+    "youDidNotReceiveNewEmail": "You have not received any new e-mail",
+    "suppressionOf": "Suppression of",
     "answer": "Answer",
-    "Mes_données": "My data",
-    "additional_actions": "Additional actions",
-    "change_the_rule": "Change the rule",
-    "create_a_rule": "create a rule",
-    "reply_later": "Reply later",
-    "transfer": "Transfer",
     "read": "Read",
-    "notif3": "unread",
-    "you_received": "You received",
-    "useless_email": " useless email",
-    "useless_mails": " useless mails",
-    "click_to_see_the_mail": "Click to see the mail",
+    "unread": "Unread",
+    "youReceived": "You received",
+    "newEmail": "new email",
+    "newEmails": "new emails",
+    "uselessEmail": " useless email",
+    "uselessEmails": " useless emails",
+    "clickToSeeTheEmail": "Click to see the email",
     "block": "Block",
-    "You_read_recently": "You read recently",
-    "I_m": "I'm",
-    "going_to_clean_automatically": "going to clean automatically",
-    "the_mail_you_have_read": "the mail you have read",
-    "You_have": "You have",
-    "rules": "rule",
-    "link": "link",
-    "at_this_category": "at this category.",
-    "Warning_for_deleting_the_category": " Deleting the category will also result in deleting all associated rules",
-    "delete": "Delete"
+    "youReadRecently": "You read recently",
+    "iAm": "I'm",
+    "goingToCleanAutomatically": "going to clean automatically",
+    "theEmailsYouHaveRead": "the emails you have read",
+    "youHave": "You have",
+    "rule": "rule",
+    "rules": "rules",
+    "linked": "linked",
+    "toThisCategory": "to this category.",
+    "warningForDeletingTheCategory": "Deleting the category will also result in deleting all associated rules",
+    "email": " email.",
+    "emails": " emails.",
+    "markEmailUnreadFailure": "Failed to mark email as unread",
+    "markEmailReadFailure": "Failed to mark email as read",
+    "markEmailReplyLaterFailure": "Failed to mark email for reply later",
+    "transferEmailFailure": "Failed to transfer email",
+    "blockEmailAddressFailure": "Failed to block email address",
+    "modals": {
+      "pleaseFillAllFields": "Please fill in all fields",
+      "newCategoryModal": {
+        "newCategory": "Create a new category",
+        "categoryDescription": "Brief description of the category",
+        "descriptionForTheAssistant": "This description will help Ao to understand the category",
+        "maxDescriptionCharacters": "No more than 300 characters for the description",
+        "maxNameCharacters": "No more than 50 characters for the name",
+        "theCategoryExists": "The category: ",
+        "alreadyExists": " already exists",
+        "errorCheckingExistingCategories": "Error checking existing categories"
+      },
+      "updateCategoryModal": {
+        "descriptionOfTheCategory": "Brief description of the category",
+        "descriptionOfTheCategoryForTheAssistant": "This description will help Ao to understand the category"
+      },
+      "seeEmailModal": {
+        "moreActions": "More actions",
+        "read": "Read",
+        "selectTab": "Select a tab",
+        "emailResume": "Email summary",
+        "fullEmail": "Full email"
+      },
+      "warningRulesLinkedModal": {
+        "deleteCategory": "Delete category: "
+      }
+    }
   },
-  "settings_navigation": {
-    "Preferences": "Preferences",
-    "my_account": "My account",
-    "subscription": "Subscription",
-    "my_data": "My data",
-    "change_my_username_or_my_password": "Change my username or my password",
-    "username": "username",
-    "new_password": "new password",
-    "Confirm": "Confirm your new password",
-    "modify": "Modify",
-    "delete_account": "Delete your account",
-    "confirmer_delete_account": "Confirm the deletion of my account (non-reversible action)",
-    "delete": "Delete"
+  "settingsPage": {
+    "preferencesPage": {
+      "preferencesTitle": "Preferences",
+      "popUpConstants": {
+        "errorMessages": {
+          "errorGettingLanguage": "Error getting language",
+          "errorUpdatingTheme": "Error updating theme",
+          "errorUpdatingTimezone": "Error updating timezone"
+        },
+        "successMessages": {
+          "languageUpdatedSuccessfully": "Language updated successfully",
+          "themeUpdatedSuccessfully": "Theme updated successfully",
+          "timezoneUpdatedSuccessfully": "Timezone updated successfully"
+        }
+      }
+    },
+    "subscriptionPage": {
+      "subscriptionTitle": "Subscription",
+      "selectPlan": "Select",
+      "perMonth": "/month",
+      "perYear": "/year",
+      "yearly": "Yearly",
+      "monthly": "Monthly",
+      "numberOfEmailAddress": "Number of email address",
+      "numberOfEmailAddresses": "Number of email addresses",
+      "emailServiceProviders": "Providers",
+      "emailServiceProvider": "Provider",
+      "prioritySupport": "Priority Support",
+      "youAreUsingATestVersionOfAomail": "You are using a test version of Aomail",
+      "aiModels": "AI models",
+      "aiModel": "AI model",
+      "gptLlmProvider": "GPT",
+      "claudeLlmProvider": "Claude",
+      "mistalLlmProvider": "Mistral"
+    },
+    "accountPage": {
+      "unableToDeletePrimaryEmail": "Unable to delete primary email",
+      "deleteAccountInstruction": "If you wish to delete your account, please use the dedicated section",
+      "errorUnlinkingEmailAddress": "Error unlinking email address",
+      "emailUnlinkedSuccess": "Email successfully unlinked from your account",
+      "emailLinkedSuccess": "Your email has been linked to your account",
+      "emailLinkingFailure": "Failed to link email",
+      "confirmationRequired": "Confirmation required",
+      "checkBoxApprovalDeletion": "Check the box to approve deletion",
+      "errorRetrievingDescription": "Error retrieving your description",
+      "emailDescriptionUpdated": "Email description updated",
+      "errorUpdatingDescription": "Error updating description",
+      "errorRetrievingUsername": "Error retrieving your username",
+      "usernameCheckError": "Error checking username",
+      "usernameAlreadyExists": "Username already exists",
+      "pleaseChooseDifferentUsername": "Please choose a different username",
+      "credentialsUpdated": "Your credentials have been updated",
+      "usernameUpdatedSuccess": "Your username has been successfully updated",
+      "errorUpdatingUsername": "Error updating username",
+      "passwordUpdatedSuccess": "Your password has been successfully updated",
+      "errorUpdatingPassword": "Error updating password",
+      "accountDeletedSuccess": "Your account has been successfully deleted",
+      "errorDeletingAccount": "Error deleting your account",
+      "optionalDescription": "Description (optional)",
+      "securelyLinkGmailAccount": "Securely link my Gmail account with Oauth2.0",
+      "securelyLinkOutlookAccount": "Securely link my Outlook account with Oauth2.0",
+      "securelyLinkICloudMailAccount": "Securely link my iCloud Mail account with Oauth2.0",
+      "securelyLinkYahooMailAccount": "Securely link my Yahoo Mail account with Oauth2.0",
+      "myAccountTitle": "My account",
+      "changeMyUsernameOrMyPassword": "Change my username or my password",
+      "newPassword": "New password",
+      "confirmYourNewPassword": "Confirm your new password",
+      "deleteAccount": "Delete your account",
+      "confirmDeleteAccount": "Confirm the deletion of my account (non-reversible action)",
+      "chooseTheEmailServiceProvider": "Choose the email service provider",
+      "unlinkMyEmail": "Unlink my email",
+      "thisFeatureIsUnderTest": "This feature is under test. Avoid at all costs linking and unlinking an email address because Ao will have trouble receiving emails properly.",
+      "updateMyDescription": "Update my description",
+      "linkANewEmailAddress": "Link a new email address",
+      "link": "Link",
+      "connectOutlook": "Connect Outlook",
+      "connectGoogle": "Connect Gmail"
+    },
+    "dataPage": {
+      "myData": "My data"
+    }
   },
-  "settings_navigation2": {
-    "titre": "My Subscription",
-    "titre2": "My data",
-    "notif": "Work in progress",
-    "titre3": "My preferences",
-    "Theme": "Theme",
-    "Langue": "Language",
-    "Colors": "Colors",
-    "unlink_my_email": "unlink my email",
-    "this_feature_is_under_test": "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
+  "rulesPage": {
+    "search": "Search...",
+    "assistantRules": "Assistant rules",
+    "contactField": "Contact",
+    "categoryField": "Category",
+    "priorityField": "Priority",
+    "blockedEmail": "Blocked email",
+    "createRule": "Click to create a rule",
+    "modals": {
+      "createRule": {
+        "newRule": "New rule"
+      },
+      "updateRule": {
+        "modifyTheRule": "Modify the rule"
+      }
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "noSelectedEmailAddress": "No email address selected",
+        "emailFormatIncorrect": "The email format is incorrect",
+        "senderCreationError": "Error creating the sender",
+        "senderExistenceCheckError": "Error checking sender existence",
+        "ruleCreationError": "Error creating the rule",
+        "ruleAlreadyExistsForSender": "A rule already exists for this sender",
+        "ruleIdRequiredForUpdate": "Rule ID is required for updating",
+        "ruleUpdateError": "Error updating the rule",
+        "ruleDeletionError": "Error deleting the rule"
+      },
+      "successMessages": {
+        "ruleCreatedSuccessfully": "Your rule has been created",
+        "ruleDeletedSuccessfully": "Your rule has been successfully deleted",
+        "ruleUpdatedSuccessfully": "Your rule has been updated"
+      }
+    }
   },
-  "settings_navigation3": {
-    "update_my_description": "Update my description",
-    "Link_a_new_email_address": "Link a new email address",
-    "link": "Link",
-    "Outlook": "Link my Outlook account",
-    "Google": "Link my Google account",
-    "Langue": "Language",
-    "Colors": "Colors",
-    "unlink": "unlink my email",
-    "Test function": "This feature is under test. Avoid at all costs to link and untie an email address because Ao will have trouble receiving emails properly."
+  "transferPage": {
+    "emailSummary": "Email Summary:",
+    "messageDivider": "---------- Forwarded Message ---------",
+    "from": "From: ",
+    "date": "Date: ",
+    "subject": "Subject: ",
+    "cc": "CC: ",
+    "transferPrompt": "Hello, to whom do you want to forward this email?",
+    "emailTransferred": "Email transferred!"
   },
-  "Rules_vue": {
-    "assistant_rules": "Assistant rules",
-    "catégorie": "catégorie :",
-    "priotity": "priority : ",
-    "blocked_mail": "blocked email",
-    "create_rules": "click to create a rule"
+  "searchPage": {
+    "anErrorOccuredDuringSmartSearch": "An error occurred while searching the response. Please try again",
+    "noResults": "No results",
+    "toAddressesSelectedPlaceholder": "To",
+    "toAddressesSelectedInfos": "Select the email addresses to which the email was sent",
+    "attachmentSelectedPlaceholder": "Attachment type",
+    "attachmentSelectedInfos": "Select the attachments contained in the email",
+    "fromAddressesSelectedPlaceholder": "From",
+    "fromAddressesSelectedInfos": "Select the email address from which you received the email",
+    "keywordsPlaceholder": "Keywords",
+    "keywordsInfos": "Type keywords contained in the email",
+    "dateFromPlaceholder": "Date from",
+    "dateFromInfos": "Date from which you want to search for the email",
+    "dateRangePlaceholder": "Date range",
+    "dateRangeInfos": "Select the time interval since receiving",
+    "searchInSelectedPlaceholder": "Search in",
+    "searchInSelectedInfos": "Select the folders to search within",
+    "searchButton": "Search",
+    "searchPlaceholder": "Email search",
+    "notEnoughDataToAnswer": "You do not have enough data to answer the question",
+    "emailsToCheckList": "Here are the emails for you to check by yourself: ",
+    "emailSearchPrompt": "Hello, what email are you looking for? Can you provide me with information about the email?",
+    "searchInfoPrompt": "Hello, what information would you like to search for?",
+    "popUpConstants": {
+      "successMessages": {
+        "smartSearchError": "Smart search error"
+      }
+    }
   },
-  "Transfer_vue": {
-    "AI_assistant": "AI assistant",
-    "manual_search": "Manual Search",
-    "recipient": "Recipient",
-    "subject": "Subject",
-    "send": "dend"
+  "newPage": {
+    "openOptions": "Open options",
+    "carbonCopyInitials": "CC",
+    "blindCarbonCopyInitials": "BCC",
+    "veryBrief": "Very brief",
+    "brief": "Brief",
+    "long": "Long",
+    "informal": "Informal",
+    "formal": "Formal",
+    "veryFormal": "Very formal",
+    "subject": "Subject: ",
+    "emailContent": "Email: ",
+    "correctSpelling": "Correct the spelling",
+    "checkCopywriting": "Check the copywriting",
+    "improveWriting": "Improve the writing",
+    "forUser": "For user : ",
+    "mainRecipient": "Main Recipient",
+    "ccRecipient": "Copy",
+    "bccRecipient": "Blind Copy",
+    "moveToNextStep": "Move to next step"
   },
-  "Search_vue": {
-    "AI_assistant": "AI assistant",
-    "search_button": "Search",
-    "negative_results": "negative results",
-    "manual_Search": "Manual Search"
+  "answerPage": {
+    "responseSentTitle": "Response sent!"
   },
-  "New_vue": {
-    "AI_assistant": "AI assistant",
-    "enter_manually": "Enter manually",
-    "recipient": "Recipient",
-    "subject": "Subject",
-    "options": "Open options",
-    "send": "Send"
+  "errorWebPagesTemplates": {
+    "error401Page": {
+      "youAreNotConnected": "You are not connected",
+      "redirectionToLogin": "You will be redirected to the login page in"
+    },
+    "error404Page": {
+      "pageNotFound": "404 - Page not found",
+      "pageDoesNotExist": "The page you are looking for does not exist"
+    }
   },
-  "Answer_vue": {
-    "AI_assistant": "AI assistant",
-    "enter_manually": "Enter manually",
-    "recipient": "Recipient",
-    "send": "Send"
+  "stripePaymentSuccessPage": {
+    "paymentSuccessful": "Payment successful",
+    "product": "Product",
+    "thankYou": "Your payment was successful. Thank you for your purchase!"
   },
-  "401_vue": {
-    "you_are_not_connected": "You are not connected",
-    "redirection_to_login": "You will be redirected to the login page in"
+  "stripePaymentFailedPage": {
+    "paymentNotSuccessful": "The payment was not successful",
+    "product": "Product",
+    "paymentNotSuccessfulTryAgain": "Your payment was not successful. Please try again!"
   },
-  "404_vue": {
-    "page_not_found": "404 - Page Not Found",
-    "page_does_not_exist": "The page you are looking for does not exist"
-  },
-  "StripepaymentSuccess_vue": {
-    "payment_successful": "Payment Successful",
-    "product": "product",
-    "thank_you": "Your payment was successful. Thank you for your purchase!"
-  },
-  "StripepaymentFailed_vue": {
-    "payment_not_successful": "The payment was not successful",
-    "product": "product",
-    "payment_not_successful_try_again": "Your payment was not successful. Please try again !"
-  },
-  "ReplyLater_vue": {
-    "reply_later": "Reply later",
-    "no_emails_to_reply_later": "No emails to reply later",
-    "click_to_see_the_summary": "click to see the summary",
-    "open": "Open",
-    "answer": "Reply",
-    "Remove_from_reply_later": "Withdraw",
-    "additional_actions": "Additional actions",
-    "transfer": "transfer",
-    "change_the_rule": "Change the rule",
-    "create_a_rule": "create a rule"
-  },
-  "Newcategory_vue": {
-    "new_categorie": "Create a new category.",
-    "categorie_description": "Brief description of the categorie",
-    "description_for_tha_assistant": "This description will enable the assistant to understand the category",
-    "category_name": "Category name"
-  },
-  "UpdateCategoryModal_vue": {
-    "modify_a_category": "Modify a category",
-    "category_name": "Name of the category ",
-    "description_of_the_category": "Brief description of the categorie",
-    "description_of_the_category_for_the_assistant": "This description will enable the assistant to understand the category"
-  },
-  "Seerules_vue": {
-    "new_rules": "New rules",
-    "category": "Category",
-    "no_category_defined": "No category defined",
-    "no_priority_defined": "No priority defined",
-    "Important": "Important",
-    "Informative": "Informative",
-    "Useless": "Useless",
-    "blocked_mail": "Block the mails"
-  },
-  "SeeMail_vue": {
-    "more_actions": "More actions",
-    "answer": "Answer",
-    "read": "Read",
-    "select_tab": "Select a tab",
-    "mail_resume": "email resume",
-    "full_mail": "Full email"
-  },
-  "languages": {
-    "french": "French 🇫🇷",
-    "american": "American 🇺🇸",
-    "german": "German 🇩🇪",
-    "russian": "Russian 🇷🇺",
-    "spanish": "Spanish 🇪🇸",
-    "chinese": "Chinese 🇨🇳",
-    "indian": "Hindi 🇮🇳"
-  },
-  "UpdateRule_vue": {
-    "modify_the_rules": "Modify the rules",
-    "category": "Category",
-    "no_category_defined": "No category defined",
-    "no_priority": "No priority defined",
-    "important": "Important",
-    "informative": "Informative",
-    "useless": "Useless",
-    "block_the_mail": "Block the mails",
-    "modify": "Modify"
+  "replyLaterPage": {
+    "noEmailsToReplyLater": "No emails to reply later",
+    "removeFromReplyLater": "Remove from Reply Later",
+    "markEmailNotReplyLaterFailure": "Failed to mark email as not reply later"
   }
 }

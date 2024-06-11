@@ -322,10 +322,10 @@ def validate_signup_data(username, password, code):
     # Check passwords requirements
     if not (8 <= len(password) <= 32):
         return {"error": "Password length must be between 8 and 32 characters"}
-    if " " in password:
-        return {"error": "Password must not contain spaces"}
-    elif not re.match(r"^[a-zA-Z0-9!@#$%^&*()-=_+]+$", password):
-        return {"error": "Password contains invalid characters"}
+    # if " " in password:
+    #     return {"error": "Password must not contain spaces"}
+    # elif not re.match(r"^[a-zA-Z0-9!@#$%^&*()-=_+]+$", password):
+    #     return {"error": "Password contains invalid characters"}
 
     return {"status": 200}
 
@@ -1250,10 +1250,10 @@ def update_password(request):
         return Response(
             {"error": "Password length must be between 8 and 32 characters"}, status=400
         )
-    if " " in new_password:
-        return Response({"error": "Password must not contain spaces"}, status=400)
-    elif not re.match(r"^[a-zA-Z0-9!@#$%^&*()-=_+]+$", new_password):
-        return Response({"error": "Password contains invalid characters"}, status=400)
+    # if " " in new_password:
+    #     return Response({"error": "Password must not contain spaces"}, status=400)
+    # elif not re.match(r"^[a-zA-Z0-9!@#$%^&*()-=_+]+$", new_password):
+    #     return Response({"error": "Password contains invalid characters"}, status=400)
 
     user.set_password(new_password)
     user.save()

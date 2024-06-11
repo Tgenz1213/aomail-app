@@ -1,229 +1,440 @@
 {
-  "Global action": {
-    "cancel": "Annuler",
-    "delete": "Supprimer",
-    "create": "Créer",
+  "constants": {
+    "userActions": {
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "create": "Créer",
+      "update": "Mettre à jour",
+      "open": "Ouvrir",
+      "send": "Envoyer",
+      "changeTheRule": "Changer la règle",
+      "createARule": "Créer une règle",
+      "transfer": "Transférer",
+      "reply": "Répondre",
+      "search": "Recherche",
+      "modify": "Modifier",
+      "clickToSeeTheSummary": "Cliquez pour voir le résumé",
+      "replyLater": "Répondre plus tard",
+      "enterManually": "Entrer manuellement",
+      "modifyACategory": "Modifier une catégorie",
+      "login": "Connexion",
+      "see": "Voir",
+      "archive": "Archiver"
+    },
+    "ruleModalConstants": {
+      "noCategoryDefined": "Aucune catégorie définie",
+      "noPriority": "Aucune priorité définie",
+      "important": "Important",
+      "informative": "Informatif",
+      "useless": "Inutile",
+      "blockTheEmails": "Bloquer les e-mails"
+    },
+    "categoryModalConstants": {
+      "categoryDescription": "Brève description de la catégorie",
+      "modifyTheCategory": "Modifier la catégorie",
+      "categoryDescriptionExplanation": "Cette description permettra à Ao de comprendre la catégorie",
+      "categoryName": "Nom de la catégorie",
+      "addCategory": "Ajouter une catégorie",
+      "administrative": "Administratifs"
+    },
+    "sendEmailConstants": {
+      "improveEmailWriting": "Améliore l'écriture du mail",
+      "doesThisResponseSuitYou": "Est-ce que cette réponse vous convient ?",
+      "howCanIAssistWritingEmailResponse": "Comment puis-je vous aider à rédiger une réponse à cet email ?",
+      "carbonCopyInitialsTwoDots": "CC:",
+      "blindCarbonCopyInitialsTwoDots": "CCI:",
+      "noSuggestionsEnteredPleaseTryAgain": "Vous n'avez saisi aucune suggestion, veuillez réessayer.",
+      "betterEmailFeedbackRequest": "Est-ce que ce mail vous convient mieux ?",
+      "noRecipientsEntered": "Vous n'avez saisi aucun destinataire, veuillez réessayer.",
+      "noRecipientsFoundPleaseTryAgainOrEnterManually": "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement.",
+      "processingErrorTryAgain": "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?",
+      "noDraftsEnteredPleaseTryAgain": "Vous n'avez saisi aucun brouillon, veuillez réessayer.",
+      "emailFeedbackRequest": "Est-ce que ce mail vous convient ? Vous pouvez me fournir des indications pour que je l'adapte à vos besoins.",
+      "emailRecipientRequest": "Bonjour, à qui souhaitez-vous envoyer cet e-mail ?",
+      "draftEmailRequest": "N'hésitez pas à fournir un brouillon de l'email que vous souhaitez rédiger.",
+      "emailCompositionAssistance": "Comment puis-je vous aider à rédiger votre e-mail ?",
+      "spellingCorrectionRequest": "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?",
+      "processingErrorApology": "Je m'excuse, j'ai fait une erreur de traitement.",
+      "copywritingCheckRequest": "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?",
+      "multipleEmailsFoundForSomeRecipients": "J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent"
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "emailSendError": "Erreur d'envoi d'email",
+        "contactFetchError": "Erreur récupération des contacts",
+        "primaryEmailFetchError": "Erreur récupération de votre email primaire",
+        "emailLinkedFetchError": "Erreur récupération de vos emails",
+        "invalidEmail": "Email invalide",
+        "emailFormatIncorrect": "Le format de l'email est incorrect",
+        "duplicateFile": "Fichier en double",
+        "fileAlreadyInserted": "Vous avez déjà inséré ce fichier",
+        "fileTooLarge": "Fichier trop volumineux",
+        "fileSizeExceedsLimit": "La taille du fichier dépasse la limite de Gmail",
+        "emailSendErrorNoSubject": "Aucun sujet n'a été saisi",
+        "emailSendErrorNoObject": "Aucun objet n'a été saisi",
+        "emailSendErrorNoRecipient": "Aucun destinataire n'a été saisi",
+        "deleteEmailFailure": "Échec de suppression d'email",
+        "addCategoryError": "Erreur lors de l'ajout de la catégorie",
+        "categoryAddedSuccess": "La catégorie a été ajoutée",
+        "updateCategoryError": "Erreur lors de la mise à jour de la catégorie",
+        "emptyCategoryNameError": "Le nom de la catégorie ne peut pas être vide",
+        "deleteCategoryError": "Erreur lors de la suppression de la catégorie",
+        "retrieveAssociatedRulesError": "Erreur récupération des règles associées",
+        "openReplyPageFailure": "Échec d'ouverture de la page de réponse",
+        "openTransferPageFailure": "Échec d'ouverture de la page de transfert",
+        "emailAlreadyUsed": "Adresse e-mail déjà utilisée",
+        "errorMessageVerificationIdentifier": "Erreur vérification identifiant",
+        "pleaseEnterPassword": "Veuillez saisir un mot de passe",
+        "pleaseConfirmPassword": "Veuillez confirmer votre mot de passe",
+        "passwordLengthShouldBeBetween8And32Characters": "La longueur du mot de passe doit être entre 8 et 32 caractères",
+        "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+        "pleaseEnterAnIdentifier": "Veuillez saisir un identifiant",
+        "identifierMustNotContainSpaces": "L'identifiant ne doit pas contenir d'espaces",
+        "maxUsernameLength150Characters": "Longueur max nom d'utilisateur : 150 caractères",
+        "identifierIsAlreadyInUse": "L'identifiant est déjà utilisé"
+      },
+      "successMessages": {
+        "success": "Succès !",
+        "emailSuccessfullySent": "Votre email a été envoyé avec succès.",
+        "updateCategorySuccess": "La catégorie a été mise à jour",
+        "deleteCategorySuccess": "Votre catégorie a été supprimée"
+      }
+    },
+    "redirectionInProgress": "Redirection en cours...",
+    "homeNavbar": "Accueil",
+    "newEmailNavbar": "Nouveau Email",
+    "searchEmailNavbar": "Recherche Email",
+    "rulesNavbar": "Règles",
+    "replyLaterNavbar": "Répondre Plus Tard",
+    "settingsNavbar": "Paramètres",
+    "instruction": "Instruction",
+    "additionalActions": "Actions supplémentaires",
+    "manualSearch": "Recherche manuelle",
+    "subject": "Objet",
+    "aiAssistant": "Assistant IA",
+    "recipient": "Destinataire",
     "category": "Catégorie",
-    "searchbar_search": "Recherche",
-    "update": "Mettre à jour"
-  },
-  "UserLogin_vue": {
-    "connect_account": "Se connecter à votre compte",
-    "id_name": "Nom d'utilisateur",
-    "password": "Mot de passe",
-    "forgotten_password": "Mot de passe oublié ?",
-    "login": "Connexion",
-    "do_not_have_account": "Vous n'avez pas de compte ?",
-    "free_trial": "Commencez votre essai gratuit"
-  },
-  "SignUp_p1_vue": {
-    "sign_up": "S'inscrire",
     "username": "Nom d'utilisateur",
     "password": "Mot de passe",
-    "password_confirm": "Confirmez le mot de passe",
+    "workInProgress": "Travail en cours",
+    "underDevelopment": "En développement",
+    "language": "Langue",
+    "languagesList": {
+      "french": "Français 🇫🇷",
+      "american": "Américain 🇺🇸",
+      "german": "Allemand 🇩🇪",
+      "russian": "Russe 🇷🇺",
+      "spanish": "Espagnol 🇪🇸",
+      "chinese": "Chinois 🇨🇳",
+      "indian": "Hindi 🇮🇳"
+    },
+    "theme": "Thème",
+    "themeList": {
+      "darkTheme": "Thème sombre",
+      "lightTheme": "Thème clair"
+    },
+    "timezone": "Fuseau horaire"
+  },
+  "userLoginPage": {
+    "loginError": "Erreur lors de la connexion",
+    "maxUsernameLength": "Longueur max nom d'utilisateur : 150 caractères",
+    "invalidCredentials": "Informations d'identification invalides",
+    "connectAccount": "Se connecter",
+    "forgottenPassword": "Mot de passe oublié ?",
+    "doNotHaveAccount": "Vous n'avez pas de compte ?",
+    "beginFreeTrial": "Commencer votre essai gratuit"
+  },
+  "signUpPart1Page": {
+    "submitSignUpFormError": "Erreur lors de l'envoi des données",
+    "categoryAlreadyExists": "La catégorie existe déjà",
+    "summaryUserPlaceholder": "Résumez-vous avec votre nom afin d'aider Ao",
+    "signUp": "S'inscrire",
+    "passwordConfirm": "Confirmer le mot de passe",
     "continue": "Continuer",
-    "Theme": "Thème",
-    "Colors": "Couleurs",
-    "create_categorie": "Créez vos différentes catégories dans lesquelles vous souhaitez que l'assistant classe automatiquement vos e-mails.",
-    "categorie_description": "Brève description de la catégorie",
-    "description": "Cette description permettra à l'assistant de comprendre la catégorie",
-    "infos": "Vous voulez en savoir plus ?",
-    "add_categorie": "Ajouter une catégorie",
-    "add_another_categorie": "Ajouter une autre catégorie ?",
-    "modify_category": "Modifier une catégorie",
-    "category_name": "Nom de la catégorie",
-    "you_have_an_account": "Vous avez un compte ?",
-    "Login": "Se connecter"
+    "colors": "Couleurs",
+    "createCategory": "Créez vos différentes catégories dans lesquelles vous souhaitez que Ao classe automatiquement vos e-mails.",
+    "wantToKnowMore": "Vous voulez en savoir plus ?",
+    "addAnotherCategory": "Ajouter une autre catégorie",
+    "youHaveAnAccount": "Vous avez un compte ?"
   },
-  "SignUp_p2_vue": {
-    "titre": "Inscription à MailAssistant",
-    "Gmail": "Lier un compte Gmail",
-    "Outlook": "Lier un compte Outlook",
-    "Google": "Lier votre compte Google",
-    "link_Outlook_account": "Lier votre compte Outlook",
-    "tools_presentation": "Présentation des outils",
-    "work_in_progress": "Travail en cours",
-    "finish_inscription": "Finaliser votre inscription",
-    "some_infos_on_data_confidentiality": "Quelques informations sur la confidentialité des données"
+  "signUpPart2Page": {
+    "authorizationError": "Erreur d'autorisation",
+    "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL",
+    "accountCreationInProgress": "Création de compte en cours...",
+    "waitingDatabaseResponse": "Attente de réponse de la base de données",
+    "accountCreationError": "Erreur lors de la création du compte",
+    "registerToAomail": "Inscription à Aomail",
+    "linkAGmailAccount": "Lier un compte Gmail",
+    "linkAnOutlookAccount": "Lier un compte Outlook",
+    "linkYourGmailAccount": "Lier votre compte Google",
+    "linkYourOutlookAccount": "Lier votre compte Outlook",
+    "toolsPresentation": "Présentation des outils",
+    "finalizeRegistration": "Finaliser votre inscription",
+    "informationOnDataConfidentiality": "Quelques informations sur la confidentialité des données"
   },
-  "Home_vue": {
-    "no_new_email": "Pas de nouvel e-mail",
-    "click_to_see_the_summary": "Cliquez pour voir le résumé",
-    "open": "Ouvrir",
-    "suppof": "Suppression de",
+  "homePage": {
+    "otherCategory": "Autres",
+    "noNewEmail": "Pas de nouvel e-mail",
+    "youDidNotReceiveNewEmail": "Vous n'avez pas reçu de nouvel e-mail",
+    "suppressionOf": "Suppression de",
     "answer": "Répondre",
-    "Mes_données": "Mes données",
-    "additional_actions": "Actions supplémentaires",
-    "change_the_rule": "Changer la règle",
-    "create_a_rule": "Créer une règle",
-    "reply_later": "Répondre plus tard",
-    "transfer": "Transférer",
     "read": "Lire",
-    "notif3": "Non lu",
-    "you_received": "Vous avez reçu",
-    "useless_email": " E-mail inutile",
-    "useless_mails": " E-mails inutiles",
-    "click_to_see_the_mail": "Cliquez pour voir l'e-mail",
+    "unread": "Non lu",
+    "youReceived": "Vous avez reçu",
+    "newEmail": "nouvel e-mail",
+    "newEmails": "nouveaux e-mails",
+    "uselessEmail": " e-mail inutile",
+    "uselessEmails": " e-mails inutiles",
+    "clickToSeeTheEmail": "Cliquez pour voir l'e-mail",
     "block": "Bloquer",
-    "You_read_recently": "Vous avez lu récemment",
-    "I_m": "Je vais",
-    "going_to_clean_automatically": "nettoyer automatiquement",
-    "the_mail_you_have_read": "l'e-mail que vous avez lu",
-    "You_have": "Vous avez",
-    "rules": "règle",
-    "link": "lien",
-    "at_this_category": "dans cette catégorie.",
-    "Warning_for_deleting_the_category": "Supprimer la catégorie entraînera également la suppression de toutes les règles associées",
-    "delete": "Supprimer"
+    "youReadRecently": "Vous avez lu récemment",
+    "iAm": "Je suis",
+    "goingToCleanAutomatically": "en train de nettoyer automatiquement",
+    "theEmailsYouHaveRead": "les e-mails que vous avez lus",
+    "youHave": "Vous avez",
+    "rule": "règle",
+    "rules": "règles",
+    "linked": "liée",
+    "toThisCategory": "à cette catégorie.",
+    "warningForDeletingTheCategory": "La suppression de la catégorie entraînera également la suppression de toutes les règles associées",
+    "email": " e-mail.",
+    "emails": " e-mails.",
+    "markEmailUnreadFailure": "Échec de marquage de l'email comme non lu",
+    "markEmailReadFailure": "Échec de marquage de l'email comme lu",
+    "markEmailReplyLaterFailure": "Échec de marquage d'email pour répondre pour plus tard",
+    "transferEmailFailure": "Échec de transfert d'email",
+    "blockEmailAddressFailure": "Échec du bloquage de l'addresse email",
+    "modals": {
+      "pleaseFillAllFields": "Veuillez remplir tous les champs",
+      "newCategoryModal": {
+        "newCategory": "Créer une nouvelle catégorie",
+        "categoryDescription": "Brève description de la catégorie",
+        "descriptionForTheAssistant": "Cette description permettra à Ao de comprendre la catégorie",
+        "maxDescriptionCharacters": "Pas plus de 300 caractères pour la description",
+        "maxNameCharacters": "Pas plus de 50 caractères pour le nom",
+        "theCategoryExists": "La catégorie: ",
+        "alreadyExists": " existe déjà",
+        "errorCheckingExistingCategories": "Erreur vérification catégories existantes"
+      },
+      "updateCategoryModal": {
+        "descriptionOfTheCategory": "Brève description de la catégorie",
+        "descriptionOfTheCategoryForTheAssistant": "Cette description permettra à Ao de comprendre la catégorie"
+      },
+      "seeEmailModal": {
+        "moreActions": "Plus d'actions",
+        "read": "Lire",
+        "selectTab": "Sélectionner un onglet",
+        "emailResume": "Résumé de l'e-mail",
+        "fullEmail": "E-mail complet"
+      },
+      "warningRulesLinkedModal": {
+        "deleteCategory": "Suppression catégorie: "
+      }
+    }
   },
-  "settings_navigation": {
-    "Preferences": "Préférences",
-    "my_account": "Mon compte",
-    "subscription": "Abonnement",
-    "my_data": "Mes données",
-    "change_my_username_or_my_password": "Changer mon nom d'utilisateur ou mon mot de passe",
-    "username": "Nom d'utilisateur",
-    "new_password": "Nouveau mot de passe",
-    "Confirm": "Confirmez le nouveau mot de passe",
-    "modify": "Modifier",
-    "delete_account": "Supprimer votre compte",
-    "confirmer_delete_account": "Confirmer la suppression de mon compte (action irréversible)",
-    "delete": "Supprimer"
+  "settingsPage": {
+    "preferencesPage": {
+      "preferencesTitle": "Préférences",
+      "popUpConstants": {
+        "errorMessages": {
+          "errorGettingLanguage": "Erreur lors de l'obtention de la langue",
+          "errorUpdatingTheme": "Erreur lors de la mise à jour du thème",
+          "errorUpdatingTimezone": "Erreur lors de la mise à jour du fuseau horaire"
+        },
+        "successMessages": {
+          "languageUpdatedSuccessfully": "Langue mise à jour avec succès",
+          "themeUpdatedSuccessfully": "Thème mis à jour avec succès",
+          "timezoneUpdatedSuccessfully": "Fuseau horaire mis à jour avec succès"
+        }
+      }
+    },
+    "subscriptionPage": {
+      "subscriptionTitle": "Abonnement",
+      "selectPlan": "Sélectionner",
+      "perMonth": "/mois",
+      "perYear": "/an",
+      "yearly": "Annuel",
+      "monthly": "Mensuel",
+      "numberOfEmailAddress": "Nombre d'adresse e-mail",
+      "numberOfEmailAddresses": "Nombre d'adresses e-mail",
+      "emailServiceProviders": "Fournisseurs",
+      "emailServiceProvider": "Fournisseur",
+      "prioritySupport": "Support prioritaire",
+      "youAreUsingATestVersionOfAomail": "Vous utilisez une version de test d'Aomail",
+      "aiModels": "Modèles IA",
+      "aiModel": "Modèle IA",
+      "gptLlmProvider": "GPT",
+      "claudeLlmProvider": "Claude",
+      "mistalLlmProvider": "Mistral"
+    },
+    "accountPage": {
+      "unableToDeletePrimaryEmail": "Impossibilité de supprimer l'email principal",
+      "deleteAccountInstruction": "Si vous souhaitez supprimer votre compte utilisez la section dédiée",
+      "errorUnlinkingEmailAddress": "Erreur lors de la désassociation de l'adresse e-mail",
+      "emailUnlinkedSuccess": "Email désassocié de votre compte avec succès",
+      "emailLinkedSuccess": "Votre email a été lié à votre compte",
+      "emailLinkingFailure": "Échec de liaison d'email",
+      "confirmationRequired": "Confirmation nécessaire",
+      "checkBoxApprovalDeletion": "Cochez la case pour approuver la suppression",
+      "errorRetrievingDescription": "Erreur récupération de votre description",
+      "emailDescriptionUpdated": "Description email mise à jour",
+      "errorUpdatingDescription": "Erreur mise à jour description",
+      "errorRetrievingUsername": "Erreur récupération de votre identifiant",
+      "usernameCheckError": "Erreur vérification nom d'utilisateur",
+      "usernameAlreadyExists": "Nom d'utilisateur déjà existant",
+      "pleaseChooseDifferentUsername": "Veuillez choisir un autre nom",
+      "credentialsUpdated": "Vos identifiant et mot de passe ont été modifiés",
+      "usernameUpdatedSuccess": "Votre identifiant a bien été mis à jour",
+      "errorUpdatingUsername": "Erreur mise à jour identifiant",
+      "passwordUpdatedSuccess": "Votre mot de passe a bien été modifié",
+      "errorUpdatingPassword": "Erreur mise à jour mot de passe",
+      "accountDeletedSuccess": "Votre compte a bien été supprimé",
+      "errorDeletingAccount": "Erreur suppression de votre compte",
+      "optionalDescription": "Description (optionnelle)",
+      "securelyLinkGmailAccount": "Lier de manière sécurisée mon compte Gmail avec OAuth2.0",
+      "securelyLinkOutlookAccount": "Lier de manière sécurisée mon compte Outlook avec OAuth2.0",
+      "securelyLinkICloudMailAccount": "Lier de manière sécurisée mon compte iCloud Mail avec OAuth2.0",
+      "securelyLinkYahooMailAccount": "Lier de manière sécurisée mon compte Yahoo Mail avec OAuth2.0",
+      "myAccountTitle": "Mon compte",
+      "changeMyUsernameOrMyPassword": "Changer mon nom d'utilisateur ou mon mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "confirmYourNewPassword": "Confirmez le nouveau mot de passe",
+      "deleteAccount": "Supprimer votre compte",
+      "confirmDeleteAccount": "Confirmer la suppression de mon compte (action irréversible)",
+      "chooseTheEmailServiceProvider": "Choisissez le fournisseur de service e-mail",
+      "unlinkMyEmail": "Dissocier mon e-mail",
+      "thisFeatureIsUnderTest": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement.",
+      "updateMyDescription": "Mettre à jour ma description",
+      "linkANewEmailAddress": "Lier une nouvelle adresse e-mail",
+      "link": "Lier",
+      "connectOutlook": "Lier mon compte Outlook",
+      "connectGoogle": "Lier mon compte Google"
+    },
+    "dataPage": {
+      "myData": "Mes données"
+    }
   },
-  "settings_navigation2": {
-    "titre": "Mon Abonnement",
-    "titre2": "Mes données",
-    "notif": "Travail en cours",
-    "titre3": "Mes préférences",
-    "Theme": "Thème",
-    "Langue": "Langue",
-    "Colors": "Couleurs",
-    "unlink_my_email": "Dissocier mon e-mail",
-    "this_feature_is_under_test": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
+  "rulesPage": {
+    "search": "Recherche...",
+    "assistantRules": "Règles de Ao",
+    "contactField": "Contact",
+    "categoryField": "Catégorie",
+    "priorityField": "Priorité",
+    "blockedEmail": "E-mail bloqué",
+    "createRule": "Cliquez pour créer une règle",
+    "modals": {
+      "createRule": {
+        "newRule": "Nouvelle règle"
+      },
+      "updateRule": {
+        "modifyTheRule": "Modifier la règle"
+      }
+    },
+    "popUpConstants": {
+      "errorMessages": {
+        "noSelectedEmailAddress": "Aucune adresse email sélectionnée",
+        "emailFormatIncorrect": "Le format de l'email est incorrect",
+        "senderCreationError": "Erreur création de l'expéditeur",
+        "senderExistenceCheckError": "Erreur vérification expéditeur existe",
+        "ruleCreationError": "Erreur lors de la création de la règle",
+        "ruleAlreadyExistsForSender": "Une règle existe déjà pour cet expéditeur",
+        "ruleIdRequiredForUpdate": "L'identifiant de règle est requis pour la mise à jour.",
+        "ruleUpdateError": "Erreur lors de la mise à jour de la règle",
+        "ruleDeletionError": "Erreur lors de la suppression"
+      },
+      "successMessages": {
+        "ruleCreatedSuccessfully": "Votre règle a été créée",
+        "ruleDeletedSuccessfully": "Votre règle a bien été supprimée",
+        "ruleUpdatedSuccessfully": "Votre règle a été mise à jour"
+      }
+    }
   },
-  "settings_navigation3": {
-    "update_my_description": "Mettre à jour ma description",
-    "Link_a_new_email_address": "Lier une nouvelle adresse e-mail",
-    "link": "Lier",
-    "Outlook": "Lier mon compte Outlook",
-    "Google": "Lier mon compte Google",
-    "Langue": "Langue",
-    "Colors": "Couleurs",
-    "unlink": "Dissocier mon e-mail",
-    "Test function": "Cette fonctionnalité est en test. Évitez à tout prix de lier et délier une adresse e-mail car Ao aura des difficultés à recevoir les e-mails correctement."
+  "transferPage": {
+    "emailSummary": "Résumé de l'email:",
+    "messageDivider": "---------- Message transféré ---------",
+    "from": "De: ",
+    "date": "Date: ",
+    "subject": "Sujet: ",
+    "cc": "CC: ",
+    "transferPrompt": "Bonjour, à qui souhaitez-vous transférer cet e-mail ?",
+    "emailTransferred": "Email transféré !"
   },
-  "Rules_vue": {
-    "assistant_rules": "Règles de l'assistant",
-    "catégorie": "Catégorie :",
-    "priotity": "Priorité :",
-    "blocked_mail": "E-mail bloqué",
-    "create_rules": "Cliquez pour créer une règle"
+  "searchPage": {
+    "anErrorOccuredDuringSmartSearch": "Une erreur s'est produite lors de la recherche de la réponse. Veuillez réessayer",
+    "noResults": "Aucun résultat",
+    "toAddressesSelectedPlaceholder": "À",
+    "toAddressesSelectedInfos": "Sélectionnez les adresses e-mail auxquelles l'e-mail a été envoyé",
+    "attachmentSelectedPlaceholder": "Type de pièce jointe",
+    "attachmentSelectedInfos": "Sélectionnez les pièces jointes que l'e-mail contient",
+    "fromAddressesSelectedPlaceholder": "De",
+    "fromAddressesSelectedInfos": "Sélectionnez l'adresse e-mail qui vous a envoyé l'e-mail",
+    "keywordsPlaceholder": "Mots-clés",
+    "keywordsInfos": "Tapez des mots-clés que l'e-mail contient",
+    "dateFromPlaceholder": "Date depuis",
+    "dateFromInfos": "Date depuis laquelle vous souhaitez rechercher l'e-mail",
+    "dateRangePlaceholder": "Plage de dates",
+    "dateRangeInfos": "Sélectionnez l'intervalle de temps depuis la réception",
+    "searchInSelectedPlaceholder": "Rechercher dans",
+    "searchInSelectedInfos": "Sélectionnez les dossiers dans lesquels effectuer la recherche",
+    "searchButton": "Rechercher",
+    "searchPlaceholder": "Recherche d'email",
+    "notEnoughDataToAnswer": "Vous n'avez pas suffisamment de données pour répondre à la question",
+    "emailsToCheckList": "Voici les emails pour que vous vérifier par vous-même: ",
+    "emailSearchPrompt": "Bonjour, quel email recherchez-vous ? Pouvez-vous me donner des informations sur l'email ?",
+    "searchInfoPrompt": "Bonjour, quelle information souhaitez vous chercher ?",
+    "popUpConstants": {
+      "successMessages": {
+        "smartSearchError": "Erreur recherche intelligente"
+      }
+    }
   },
-  "Transfer_vue": {
-    "AI_assistant": "Assistant IA",
-    "manual_search": "Recherche manuelle",
-    "recipient": "Destinataire",
-    "subject": "Objet",
-    "send": "Envoyer"
+  "newPage": {
+    "openOptions": "Ouvrir les options",
+    "carbonCopyInitials": "CC",
+    "blindCarbonCopyInitials": "CCI",
+    "veryBrief": "Très bref",
+    "brief": "Bref",
+    "long": "Long",
+    "informal": "Informel",
+    "formal": "Formel",
+    "veryFormal": "Très formel",
+    "subject": "Sujet: ",
+    "emailContent": "Email: ",
+    "correctSpelling": "Corrige l'orthographe",
+    "checkCopywriting": "Vérifie le copywriting",
+    "improveWriting": "Améliore l'écriture",
+    "forUser": "Pour l'utilisateur : ",
+    "mainRecipient": "Principal",
+    "ccRecipient": "Copie",
+    "bccRecipient": "Copie cachée",
+    "moveToNextStep": "Passez à la suite"
   },
-  "Search_vue": {
-    "AI_assistant": "Assistant IA",
-    "search_button": "Rechercher",
-    "negative_results": "Résultats négatifs",
-    "manual_Search": "Recherche manuelle"
+  "answerPage": {
+    "responseSentTitle": "Réponse envoyée !"
   },
-  "New_vue": {
-    "AI_assistant": "Assistant IA",
-    "enter_manually": "Entrer manuellement",
-    "recipient": "Destinataire",
-    "subject": "Objet",
-    "options": "Ouvrir les options",
-    "send": "Envoyer"
+  "errorWebPagesTemplates": {
+    "error401Page": {
+      "youAreNotConnected": "Vous n'êtes pas connecté",
+      "redirectionToLogin": "Vous serez redirigé vers la page de connexion dans"
+    },
+    "error404Page": {
+      "pageNotFound": "404 - Page non trouvée",
+      "pageDoesNotExist": "La page que vous recherchez n'existe pas"
+    }
   },
-  "Answer_vue": {
-    "AI_assistant": "Assistant IA",
-    "enter_manually": "Entrer manuellement",
-    "recipient": "Destinataire",
-    "send": "Envoyer"
-  },
-  "401_vue": {
-    "you_are_not_connected": "Vous n'êtes pas connecté",
-    "redirection_to_login": "Vous serez redirigé vers la page de connexion dans"
-  },
-  "404_vue": {
-    "page_not_found": "404 - Page non trouvée",
-    "page_does_not_exist": "La page que vous recherchez n'existe pas"
-  },
-  "StripepaymentSuccess_vue": {
-    "payment_successful": "Paiement réussi",
+  "stripePaymentSuccessPage": {
+    "paymentSuccessful": "Paiement réussi",
     "product": "Produit",
-    "thank_you": "Votre paiement a été effectué avec succès. Merci pour votre achat !"
+    "thankYou": "Votre paiement a été effectué avec succès. Merci pour votre achat !"
   },
-  "StripepaymentFailed_vue": {
-    "payment_not_successful": "Le paiement n'a pas réussi",
+  "stripePaymentFailedPage": {
+    "paymentNotSuccessful": "Le paiement n'a pas réussi",
     "product": "Produit",
-    "payment_not_successful_try_again": "Votre paiement n'a pas été effectué. Veuillez réessayer !"
+    "paymentNotSuccessfulTryAgain": "Votre paiement n'a pas été effectué. Veuillez réessayer !"
   },
-  "ReplyLater_vue": {
-    "reply_later": "Répondre plus tard",
-    "no_emails_to_reply_later": "Pas d'e-mails à répondre plus tard",
-    "click_to_see_the_summary": "Cliquez pour voir le résumé",
-    "open": "Ouvrir",
-    "answer": "Répondre",
-    "Remove_from_reply_later": "Retirer",
-    "additional_actions": "Actions supplémentaires",
-    "transfer": "Transférer",
-    "change_the_rule": "Changer la règle",
-    "create_a_rule": "Créer une règle"
-  },
-  "Newcategory_vue": {
-    "new_categorie": "Créer une nouvelle catégorie.",
-    "categorie_description": "Brève description de la catégorie",
-    "description_for_tha_assistant": "Cette description permettra à l'assistant de comprendre la catégorie",
-    "category_name": "Nom de la catégorie"
-  },
-  "UpdateCategoryModal_vue": {
-    "modify_a_category": "Modifier une catégorie",
-    "category_name": "Nom de la catégorie",
-    "description_of_the_category": "Brève description de la catégorie",
-    "description_of_the_category_for_the_assistant": "Cette description permettra à l'assistant de comprendre la catégorie"
-  },
-  "Seerules_vue": {
-    "new_rules": "Nouvelles règles",
-    "category": "Catégorie",
-    "no_category_defined": "Aucune catégorie définie",
-    "no_priority_defined": "Aucune priorité définie",
-    "Important": "Important",
-    "Informative": "Informatif",
-    "Useless": "Inutile",
-    "blocked_mail": "Bloquer les e-mails"
-  },
-  "SeeMail_vue": {
-    "more_actions": "Plus d'actions",
-    "answer": "Répondre",
-    "read": "Lire",
-    "select_tab": "Sélectionner un onglet",
-    "mail_resume": "Résumé de l'e-mail",
-    "full_mail": "E-mail complet"
-  },
-  "languages": {
-    "french": "Français 🇫🇷",
-    "american": "Américain 🇺🇸",
-    "german": "Allemand 🇩🇪",
-    "russian": "Russe 🇷🇺",
-    "spanish": "Espagnol 🇪🇸",
-    "chinese": "Chinois 🇨🇳",
-    "indian": "Hindi 🇮🇳"
-  },
-  "UpdateRule_vue": {
-    "modify_the_rules": "Modifier les règles",
-    "category": "Catégorie",
-    "no_category_defined": "Aucune catégorie définie",
-    "no_priority": "Aucune priorité définie",
-    "important": "Important",
-    "informative": "Informatif",
-    "useless": "Inutile",
-    "block_the_mail": "Bloquer les e-mails",
-    "modify": "Modifier"
+  "replyLaterPage": {
+    "noEmailsToReplyLater": "Pas d'e-mails à répondre plus tard",
+    "removeFromReplyLater": "Retirer de Répondre plus tard",
+    "markEmailNotReplyLaterFailure": "Échec de marquage d'email à ne plus répondre plus tard"
   }
 }

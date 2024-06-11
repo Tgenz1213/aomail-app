@@ -20,7 +20,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
                                 </svg>
-                                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Transfer_vue.AI_assistant') }}</h1>
+                                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                                    $t('Transfer_vue.AI_assistant') }}</h1>
                             </div>
                         </div>
                         <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
@@ -66,7 +67,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
                                     </svg>
-                                    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Transfer_vue.manual_search') }}
+                                    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                                        $t('Transfer_vue.manual_search') }}
                                     </h1>
                                 </div>
                             </div>
@@ -109,7 +111,8 @@
                                                             class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2">
                                                             <UserGroupIcon class="w-4 h-4 pointer-events-none" />
                                                             <label for="email"
-                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{ $t('Transfer_vue.recipient') }}</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{
+                                                                    $t('Transfer_vue.recipient') }}</label>
                                                         </div>
                                                         <Combobox as="div" v-model="selectedPerson"
                                                             @update:model-value="personSelected">
@@ -161,14 +164,14 @@
                                                 <button type="button" @click="toggleCC"
                                                     :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
                                                     class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                                                    CC
+                                                    {{ $t('newPage.carbonCopyInitials') }}
                                                 </button>
 
                                                 <!-- CCI Button -->
                                                 <button type="button" @click="toggleCCI"
                                                     :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
                                                     class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                                                    CCI
+                                                    {{ $t('newPage.blindCarbonCopyInitials') }}
                                                 </button>
                                             </div>
                                         </div>
@@ -190,7 +193,8 @@
                                                             class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10">
                                                             <Bars2Icon class="w-4 h-4 pointer-events-none" />
                                                             <label for="username"
-                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{ $t('Transfer_vue.subject') }}</label>
+                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{
+                                                                    $t('Transfer_vue.subject') }}</label>
                                                         </div>
                                                         <input id="objectInput" v-model="inputValue" type="text"
                                                             class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
@@ -223,7 +227,7 @@
                                                 <button @click="sendEmail" :disabled="emailTransfered"
                                                     class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
                                                     {{ $t('Transfer_vue.send') }}</button>
-                                                    
+
                                                 <Menu as="div" class="relative -ml-px block">
                                                     <MenuButton
                                                         class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
@@ -315,14 +319,14 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     .catch(error => {
         console.error("Error fetching contacts:", error);
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur récupération des contacts';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = 'TODO Erreur récupération des contacts';
         notificationMessage = error;
         displayPopup();
     });
 
-    
-const emailReceiver =  sessionStorage.getItem("emailReceiver");
+
+const emailReceiver = sessionStorage.getItem("emailReceiver");
 // let emailSelected = ref('');
 // emailSelected.value = localStorage.getItem("email");
 
@@ -442,9 +446,9 @@ function handleBlur2(event) {
         }
     } else if (!filteredPeople.value.length && inputValue) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle = 'Email invalide';
-        notificationMessage = 'Le format de l\'email est incorrect'
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = 'TODO Email invalide';
+        notificationMessage = 'TODO Le format de l\'email est incorrect'
         displayPopup();
     }
 }
@@ -468,9 +472,9 @@ const handleFileUpload = (event) => {
             for (const currentFile of localStorageuploadedFiles) {
                 if (currentFile.name == file) {
                     // Show the pop-up
-                    backgroundColor = 'bg-red-300';
-                    notificationTitle = 'Fichier en double';
-                    notificationMessage = 'Vous avez déjà inséré ce fichier';
+                    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+                    notificationTitle = t('constants.popUpConstants.errorMessages.duplicateFile');
+                    notificationMessage = t('constants.popUpConstants.errorMessages.fileAlreadyInserted');
                     displayPopup();
                     return;
                 }
@@ -479,9 +483,9 @@ const handleFileUpload = (event) => {
             fileObjects.value.push(file);
         } else {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
-            notificationTitle = 'Fichier trop volumineux';
-            notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle = t('constants.popUpConstants.errorMessages.fileTooLarge');
+            notificationMessage = t('constants.popUpConstants.errorMessages.fileSizeExceedsLimit');
             displayPopup();
             console.error("File size exceeds Gmail's limit");
             return;
@@ -612,7 +616,7 @@ async function handleAIClick() {
     setTimeout(async () => {
         if (stepcontainer == 0) {
             if (textareaValueSave.value == '') {
-                const message = "Vous n'avez saisi aucun destinataire, veuillez réessayer"
+                const message = "TODO Vous n'avez saisi aucun destinataire, veuillez réessayer"
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
                 displayMessage(message, ai_icon);
             } else {
@@ -686,7 +690,7 @@ async function handleAIClick() {
                                         </span>   
                                     </div>
                                     <div>
-                                        <p>J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent</p>
+                                        <p>${t('constants.sendEmailConstants.multipleEmailsFoundForSomeRecipients')}</p>
                                     </div>
                                 </div>
                             `;
@@ -748,19 +752,19 @@ async function handleAIClick() {
 
                         if (noUsersAdded) {
                             console.log("DEBUG");
-                            const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
+                            const message = "TODO Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                             displayMessage(message, ai_icon);
                         } else if (!WaitforUserChoice) {
                             stepcontainer = 1;
                         }
                     } else {
-                        const message = "Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
+                        const message = "TODO Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                         displayMessage(message, ai_icon);
                     }
                 } catch (error) {
-                    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                    const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                     displayMessage(message, ai_icon);
                     console.error("Error finding user", error)
@@ -783,25 +787,28 @@ onMounted(() => {
 
     document.addEventListener("keydown", handleKeyDown);
 
-    
-  const subject = JSON.parse(sessionStorage.getItem("subject"));
-const cc = sessionStorage.getItem("cc");
-const bcc = sessionStorage.getItem("bcc");
-const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
-const email = JSON.parse(sessionStorage.getItem("email"));
-//const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
-const details = JSON.parse(sessionStorage.getItem("details"));
 
-const date = JSON.parse(sessionStorage.getItem("date"));
+    const subject = JSON.parse(sessionStorage.getItem("subject"));
+    const cc = sessionStorage.getItem("cc");
+    const bcc = sessionStorage.getItem("bcc");
+    const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
+    const email = JSON.parse(sessionStorage.getItem("email"));
+    //const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
+    const details = JSON.parse(sessionStorage.getItem("details"));
+
+    const date = JSON.parse(sessionStorage.getItem("date"));
 
     // Prepare the forwarded email
     inputValue.value = 'Tr : ' + subject;
     const formattedDateVar = new Date(date);
     const options = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+
+    // TODO: use the selected timezone of the user
     const formattedDate = formattedDateVar.toLocaleDateString('fr-FR', options);
 
     let forwardedMessage = '';
 
+    // TODO: use the var from JSON it's ready
     forwardedMessage += 'Résumé de l\'email:\n';
     details.forEach(detail => {
         forwardedMessage += `- ${detail.text}\n`;
@@ -842,7 +849,7 @@ const date = JSON.parse(sessionStorage.getItem("date"));
     // DOM-related code
     AIContainer.value = document.getElementById('AIContainer');
 
-    const message = "Bonjour, à qui souhaitez-vous transférer cet e-mail ?";
+    const message = "TODO Bonjour, à qui souhaitez-vous transférer cet e-mail ?";
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
     displayMessage(message, ai_icon);
     objectInput.value = document.getElementById('objectInput');
@@ -929,9 +936,9 @@ function askChoiceRecipier(list, type) {
 
     const firstUsername = Object.keys(list[0])[0];
     // Display the type of recipient
-    const userLabel = (type === 'main') ? 'Principal' : (type === 'cc') ? 'Copie' : 'Copie cachée';
+    const userLabel = (type === 'main') ? t('newPage.mainRecipient') : (type === 'cc') ? t('newPage.ccRecipient') : t('newPage.bccRecipient');
     // Display the username before the list of emails
-    const usernameHTML = `<div>Pour l'utilisateur : <strong>${firstUsername}</strong> [${userLabel}]</div>`;
+    const usernameHTML = `<div>${t('newPage.forUser')}<strong>${firstUsername}</strong> [${userLabel}]</div>`;
 
     list.forEach((item, index) => {
         // Extract the first (and presumably only) key in the dictionary, which is the username
@@ -1048,23 +1055,23 @@ async function sendEmail() {
 
     if (!emailSubject.trim()) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = 'Aucun sujet n\'a été saisi';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoSubject');
         displayPopup();
         return;
     } else if (emailBody == "<p><br></p>") {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = 'Aucun objet n\'a été saisi';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
         displayPopup();
         return;
     } else if (selectedPeople.value.length == 0) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle.value = 'Erreur d\'envoi d\'email';
-        notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
         displayPopup();
         return;
     }
@@ -1096,9 +1103,9 @@ async function sendEmail() {
 
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
-            notificationTitle = 'Email transféré !';
-            notificationMessage = 'Redirection en cours...';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
+            notificationTitle = 'TODO Email transféré !';
+            notificationMessage = 'TODO Redirection en cours...';
             displayPopup();
 
             // disable send button
@@ -1114,22 +1121,22 @@ async function sendEmail() {
             // Show the pop-up
             // Translate serializer errors for the user
             if (response.error == 'recipient is missing') {
-                notificationMessage = 'Aucun destinataire n\'a été saisi';
+                notificationMessage = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
             }
             else if (response.error == 'subject is missing') {
-                notificationMessage = 'Aucun objet n\'a été saisi';
+                notificationMessage = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
             }
             else {
                 notificationMessage = response.error;
             }
-            backgroundColor = 'bg-red-300';
-            notificationTitle = 'Erreur d\'envoi d\'email';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle = t('constants.popUpConstants.errorMessages.emailSendError');
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
-        notificationTitle = 'Erreur d\'envoi d\'email';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = t('constants.popUpConstants.errorMessages.emailSendError');
         notificationMessage = error;
         displayPopup();
     }

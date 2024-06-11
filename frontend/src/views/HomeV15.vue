@@ -255,6 +255,17 @@
                                                                                 :data-text="detail.text">
                                                                             </li>
                                                                         </ul>
+                                                                        <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
+                                                                            <div
+                                                                                v-for="attachment in item.attachments"
+                                                                                :key="attachment.attachmentId"
+                                                                                class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
+                                                                                @click.prevent="() => downloadAttachment(item.id, attachment.attachmentId, attachment.attachmentName)"
+                                                                            >
+                                                                                <component :is="getIconComponent(attachment.attachmentName)" class="w-5 h-5 text-gray-600 group-hover:text-white" />
+                                                                                <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="col-span-2">
                                                                         <div class="flex justify-center">
@@ -493,14 +504,14 @@
                                                     <div class="ml-6 flex-grow">
                                                         <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300" style="overflow: visible;">
                                                             <ul role="list" class="divide-y divide-gray-200">
-                                                                <li v-for="item in emailsByDate" :key="item.id" class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
+                                                                <li v-for="item in emailsByDate" :key="item.id" class="px-6 py-4 2xl:py-5 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                                                                     <!-- Your content -->
                                                                     <div class="col-span-8 cursor-pointer"
                                                                         @click="toggleHiddenParagraph(item.id)">
                                                                         <div class="flex-auto group">
                                                                             <div class="flex gap-x-4">
                                                                                 <div class="flex items-center">
-                                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.name }}</p>
+                                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.has_attachments}}</p>
                                                                                     <p class="text-sm leading-6 text-blue-800 dark:text-white">{{ item.time }}</p>   
                                                                                 </div> 
                                                                                 <div
@@ -533,6 +544,17 @@
                                                                                 :data-text="detail.text">
                                                                             </li>
                                                                         </ul>
+                                                                        <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
+                                                                            <div
+                                                                                v-for="attachment in item.attachments"
+                                                                                :key="attachment.attachmentId"
+                                                                                class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
+                                                                                @click.prevent="() => downloadAttachment(item.id, attachment.attachmentId, attachment.attachmentName)"
+                                                                            >
+                                                                                <component :is="getIconComponent(attachment.attachmentName)" class="w-5 h-5 text-gray-600 group-hover:text-white" />
+                                                                                <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="col-span-2">
                                                                         <div class="flex justify-center">
@@ -1474,6 +1496,7 @@ import { computed } from 'vue';
 
 // Variables to display a notification
 let showNotification = ref(false);
+let selectedEmailId = ref('');
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
@@ -1515,6 +1538,43 @@ let isHidden = ref(false);
 
 const toggleVisibility = () => {
     isHidden.value = !isHidden.value;
+};
+
+const downloadAttachment = async (emailId, attachmentId, attachmentName) => {
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/attachments/${attachmentId}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', attachmentName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error('Failed to download attachment:', error.message);
+        backgroundColor.value = 'bg-red-300';
+        notificationTitle.value = 'Échec de téléchargement de la pièce jointe';
+        notificationMessage.value = error.message;
+        displayPopup();
+    }
+};
+
+const getIconComponent = (fileName) => {
+  const extension = fileName.split('.').pop().toLowerCase();
+  if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+    return CameraIcon;
+  } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension)) {
+    return DocumentIcon;
+  } else {
+    return DocumentIcon; // Default icon for other file types
+  }
 };
 
 onMounted(async () => {
@@ -2352,12 +2412,14 @@ const groupedEmailsByCategoryAndDate = (category) => {
 
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-    //console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)
     if (lockEmailsAccess.value == false) {
         emails.value = emailData;
+        console.log("LOG DATA ---------------------------");
+        console.log(emailData);
     }
     updateNumberUnreadEmails();
 }
+
 async function fetchData() {
     try {
         // Fetch the categories
@@ -2405,7 +2467,10 @@ import {
     CheckIcon,
     EllipsisHorizontalIcon,
     HandRaisedIcon,
-    EyeIcon
+    EyeIcon,
+    DocumentIcon,
+    DocumentTextIcon,
+    CameraIcon,
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -2428,7 +2493,10 @@ export default {
         MenuItems,
         ModalSeeMail,
         NewCategoryModal,
-        UpdateCategoryModal
+        UpdateCategoryModal,
+        DocumentIcon,
+        DocumentTextIcon,
+        CameraIcon,
     }
 }
 </script>

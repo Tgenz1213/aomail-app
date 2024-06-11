@@ -1346,7 +1346,7 @@ async function sendEmail() {
     return;
   } else if (selectedPeople.value.length == 0) {
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
     notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
     notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
     displayPopup();

@@ -1729,14 +1729,14 @@ async function markEmailAsUnread(emailId) {
 
         if (response.read != false) {
             console.log("RESPONSE markEmailAsUnread", response);
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Échec de marquage de l\'email comme non lu';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsUnread:', error.message);
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Échec de marquage de l\'email comme non lu';
         notificationMessage = error.message;
         displayPopup();
@@ -1757,14 +1757,14 @@ async function markEmailAsRead(emailId) {
 
         if (response.read != true) {
             console.log("RESPONSE", response);
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Échec de marquage de l\'email comme lu';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsRead:', error.message);
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Échec de marquage de l\'email comme lu';
         notificationMessage = error.message;
         displayPopup();
@@ -1862,7 +1862,7 @@ async function transferEmail(email) {
 
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Échec de transfer d\'email';
         notificationMessage = error.message;
         displayPopup();
@@ -1886,14 +1886,14 @@ async function markEmailReplyLater(email) {
             console.log("Email marked for reply later successfully");
         } else {
             console.error('Failed to mark email for reply later', response);
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Échec de marquage d\'email pour répondre pour plus tard';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailReplyLater:', error.message);
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Échec de marquage d\'email pour répondre pour plus tard';
         notificationMessage = error.message;
         displayPopup();
@@ -1937,14 +1937,14 @@ async function setRuleBlockForSender(email) {
             deleteEmail(emailId);
         } else {
             console.error('Failed to set block rule for sender', response);
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Échec du bloquage de l\'addresse email';
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in setRuleBlockForSender:', error.message);
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Échec du bloquage de l\'addresse email';
         notificationMessage = error.message;
         displayPopup();
@@ -1965,14 +1965,14 @@ async function deleteEmail(emailId) {
         });
 
         if (!response.message) {
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Échec de suppression d\'email';
             notificationMessage = response.error;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in deleteEmail:', error.message);
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Échec de suppression d\'email';
         notificationMessage = error.message;
         displayPopup();
@@ -2014,7 +2014,7 @@ async function openAnswer(email) {
         });
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Échec d\'ouverture de la page de réponse';
         notificationMessage = error.message;
         displayPopup();
@@ -2059,7 +2059,7 @@ function closeWarningCategoryModal() {
 async function handleAddCategory(categoryData) {
 
     if (Object.hasOwnProperty.call(categoryData, 'error')) {
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = categoryData.error;
         notificationMessage = categoryData.description;
         displayPopup();

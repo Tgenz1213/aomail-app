@@ -307,7 +307,7 @@ export default {
         if (deleteResponse.message) {
           console.log('Rule deleted successfully');
           this.selectedPerson = null;
-          this.backgroundColor = 'bg-green-300';
+          this.backgroundColor = 'bg-green-200/[.89] border border-green-400';
           this.notificationTitle = this.t('constants.popUpConstants.successMessages.success');
           this.notificationMessage = this.t('rulesPage.popUpConstants.successMessages.ruleDeletedSuccessfully');
           this.displayPopup();
@@ -315,14 +315,14 @@ export default {
           this.$emit('fetch-rules');
         } else {
           console.error('Failed to delete the rule:', deleteResponse.error);
-          this.backgroundColor = 'bg-red-300';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
           this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleDeletionError');
           this.notificationMessage = deleteResponse.error;
           this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleting rule:', error);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleDeletionError');
         this.notificationMessage = error;
         this.displayPopup();
@@ -354,7 +354,7 @@ export default {
         return responseData.id;
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.senderCreationError');
         this.notificationMessage = error;
         this.displayPopup();
@@ -396,7 +396,7 @@ export default {
         }
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.senderExistenceCheckError');
         this.notificationMessage = error;
         this.displayPopup();
@@ -411,7 +411,7 @@ export default {
 
         // Assuming the ID of the rule is stored in this.formData
         if (!this.formData.id) {
-          this.backgroundColor = 'bg-red-300';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
           this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleUpdateError');
           this.notificationMessage = this.t('rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate');
           this.displayPopup();
@@ -477,13 +477,13 @@ export default {
           } else {
             this.notificationMessage = ruleResponseData.error;
           }
-          this.backgroundColor = 'bg-red-300';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
           this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
           this.displayPopup();
           this.closeModal();
         } else {
           this.selectedPerson = null;
-          this.backgroundColor = 'bg-green-300';
+          this.backgroundColor = 'bg-green-200/[.89] border border-green-400';
           this.notificationTitle = this.t('constants.popUpConstants.successMessages.success');
           this.notificationMessage = this.t('rulesPage.popUpConstants.successMessages.ruleUpdatedSuccessfully');
           this.displayPopup();
@@ -493,7 +493,7 @@ export default {
         }
       } catch (error) {
         console.error('Error in updating rule:', error);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
         this.notificationMessage = error;
         this.displayPopup();

@@ -315,7 +315,7 @@ export default {
         return responseData.id;
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = t('rulesPage.popUpConstants.errorMessages.senderCreationError');
         this.notificationMessage = error;
         this.displayPopup();
@@ -359,7 +359,7 @@ export default {
         }
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.senderExistenceCheckError');
         this.notificationMessage = error;
         this.displayPopup();
@@ -429,13 +429,13 @@ export default {
           } else {
             this.notificationMessage = ruleResponseData.error;
           }
-          this.backgroundColor = 'bg-red-300';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
           this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
           this.displayPopup();
           this.closeModal();
         } else {
           this.selectedPerson = null;
-          this.backgroundColor = 'bg-green-300';
+          this.backgroundColor = 'bg-green-200/[.89] border border-green-400';
           this.notificationTitle = this.t('constants.popUpConstants.successMessages.success');
           this.notificationMessage = this.t('rulesPage.popUpConstants.successMessages.ruleCreatedSuccessfully');
           this.displayPopup();
@@ -445,7 +445,7 @@ export default {
         }
       } catch (error) {
         console.error('Error in creating rule:', error);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
         this.notificationMessage = error;
         this.displayPopup();

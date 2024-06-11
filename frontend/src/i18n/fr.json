@@ -18,7 +18,8 @@
       "enterManually": "Entrer manuellement",
       "modifyACategory": "Modifier une catégorie",
       "login": "Connexion",
-      "see": "Voir"
+      "see": "Voir",
+      "archive": "Archiver"
     },
     "ruleModalConstants": {
       "noCategoryDefined": "Aucune catégorie définie",
@@ -145,7 +146,6 @@
     "createCategory": "Créez vos différentes catégories dans lesquelles vous souhaitez que Ao classe automatiquement vos e-mails.",
     "wantToKnowMore": "Vous voulez en savoir plus ?",
     "addAnotherCategory": "Ajouter une autre catégorie",
-    "categoryName": "Nom de la catégorie",
     "youHaveAnAccount": "Vous avez un compte ?"
   },
   "signUpPart2Page": {

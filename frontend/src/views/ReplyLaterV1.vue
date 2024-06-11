@@ -14,7 +14,7 @@
         <div class="flex flex-col h-full divide-y divide-gray-200">
           <div class="flex items-center justify-center h-[70px] 2xl:h-[80px] border-l bg-gray-50">
             <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('ReplyLater_vue.reply_later') }}
+            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('constants.userActions.replyLater') }}
             </h1>
           </div>
           <div class="flex-grow overflow-y-auto" style="margin-right: 2px;">
@@ -30,7 +30,7 @@
                         d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
                     </svg>
                     <span class="mt-2 block text-sm font-semibold text-gray-900">{{
-                      $t('ReplyLater_vue.no_emails_to_reply_later') }}</span>
+                      $t('replyLaterPage.noEmailsToReplyLater') }}</span>
                   </div>
                 </div>
               </div>
@@ -977,7 +977,7 @@ export default {
         });
         if (response.answer_later != false) {
           console.error('Failed to mark email for reply later', response);
-          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+          this.backgroundColor = 'bg-red-300';
           this.notificationTitle = 'TODO Échec de marquage d\'email à ne plus répondre plus tard';
           this.notificationMessage = response;
           displayPopup();

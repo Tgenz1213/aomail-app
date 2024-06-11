@@ -945,7 +945,7 @@ async function nextStep0() {
     }
   } catch (error) {
     // Show the pop-up
-    backgroundColor.value = 'bg-red-300';
+    backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
     notificationTitle.value = 'Erreur vérification identifiant';
     notificationMessage.value = error;
     displayPopup();
@@ -1042,7 +1042,7 @@ async function submitSignupData() {
   }
   catch (error) {
     // Show the pop-up
-    backgroundColor.value = 'bg-red-300';
+    backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
     notificationTitle.value = 'TODO Erreur lors de l\'envoi des données';
     notificationMessage.value = error;
     displayPopup();

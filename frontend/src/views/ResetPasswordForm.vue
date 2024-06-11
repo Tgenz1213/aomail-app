@@ -73,14 +73,14 @@ async function resetPassword() {
             }, 3000);
         } else {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'Erreur d\'envoi d\'email de réinitialisation de mdp';
             notificationMessage = response.error;
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'Erreur d\'envoi d\'email de réinitialisation de mdp';
         notificationMessage = error.message;
         displayPopup();

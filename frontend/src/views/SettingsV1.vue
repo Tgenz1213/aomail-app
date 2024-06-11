@@ -749,7 +749,7 @@ async function openUnLinkModal(email) {
 
     if (emailsLinked.value.length == 1) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = 'TODO Impossibilité de supprimer l\'email principal';
         notificationMessage.value = 'TODO Si vous souhaitez supprimer votre compte utilisez la section dédiée';
         displayPopup();
@@ -774,7 +774,7 @@ async function unLinkAccount() {
 
         if ("error" in response) {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle.value = 'TODO Erreur lors de la désassociation de l\'adresse e-mail';
             notificationMessage.value = response.error;
             displayPopup();
@@ -788,7 +788,7 @@ async function unLinkAccount() {
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = 'TODO Erreur lors de la désassociation de l\'adresse e-mail';
         notificationMessage.value = error.message;
         displayPopup();
@@ -849,7 +849,7 @@ async function linkEmail(authorizationCode) {
         displayPopup();
     } else {
         // Show the pop-up
-        backgroundColor.value = 'bg-red-300';
+        backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = 'TODO Échec de liaison d\'email';
         notificationMessage.value = response.error;
         displayPopup();
@@ -873,7 +873,7 @@ async function fetchEmailLinked() {
 
         if ("error" in response) {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Erreur récupération de vos emails';
             notificationMessage = response.error;
             displayPopup();
@@ -882,7 +882,7 @@ async function fetchEmailLinked() {
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur récupération de vos emails';
         notificationMessage = error.message;
         displayPopup();
@@ -895,7 +895,7 @@ function openModal() {
         isModalOpen.value = true;
     } else {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Confirmation nécessaire';
         notificationMessage = 'TODO Cochez la case pour approuver la suppression';
         displayPopup();
@@ -929,7 +929,7 @@ async function openUserDescriptionModal(email) {
         isModalUserDescriptionOpen.value = true;
         userDescription.value = response.data;
     } else {
-        backgroundColor.value = 'bg-red-300';
+        backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = "TODO Erreur récupération de votre description";
         notificationMessage.value = response.error;
         displayPopup();
@@ -955,7 +955,7 @@ async function updateUserDescription() {
         notificationMessage.value = "TODO Description email mise à jour";
         displayPopup();
     } else {
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = "TODO Erreur mise à jour description";
         notificationMessage.value = response.error;
         displayPopup();
@@ -1064,7 +1064,7 @@ async function fetchUserData() {
         userData.value = data.username;
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur récupération de votre identifiant';
         notificationMessage = error;
         displayPopup();
@@ -1086,7 +1086,7 @@ async function getUsername() {
     catch (error) {
         console.error(error);
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur récupération de votre identifiant';
         notificationMessage = error;
         displayPopup();
@@ -1108,7 +1108,7 @@ async function handleSubmit() {
     catch (error) {
         console.log("An error occured while checking the username", error);
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur vérification nom d\'utilisateur';
         notificationMessage = error;
         displayPopup();
@@ -1120,7 +1120,7 @@ async function handleSubmit() {
 
     if (response.available == false) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Nom d\'utilisateur déjà existant';
         notificationMessage = 'TODO Veuillez choisir un autre nom';
         displayPopup();
@@ -1136,7 +1136,7 @@ async function handleSubmit() {
         } catch (error) {
             console.error("Error occurre while retrieving data about username", error);
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Erreur vérification nom d\'utilisateur';
             notificationMessage = error;
             displayPopup();
@@ -1189,7 +1189,7 @@ async function handleSubmit() {
         }
         else {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Erreur mise à jour mot de passe';
             notificationMessage = resultUpdatePwd;
             displayPopup();
@@ -1264,14 +1264,14 @@ async function deleteAccount() {
 
         } else {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Erreur suppresion de votre compte';
             notificationMessage = responseData.error;
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle ='TODO Erreur suppresion de votre compte';
         notificationMessage = error;
         displayPopup();

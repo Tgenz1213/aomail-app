@@ -396,7 +396,7 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     .catch(error => {
         console.error("Error fetching contacts:", error);
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.contactFetchError');
         notificationMessage.value = error;
         displayPopup();
@@ -460,7 +460,7 @@ if (!emailSelected.value) {
             localStorage.setItem("email", emailSelected.value);
         })
         .catch(error => {
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle.value = t('constants.popUpConstants.errorMessages.primaryEmailFetchError');
             notificationMessage.value = error;
             displayPopup();
@@ -472,7 +472,7 @@ fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions)
         emailsLinked.value = response;
     })
     .catch(error => {
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.emailFetchError');
         notificationMessage.value = error;
         displayPopup();
@@ -517,7 +517,7 @@ function handleBlur2(event) {
         }
     } else if (!filteredPeople.value.length && inputValue) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.invalidEmail');
         notificationMessage.value = t('constants.popUpConstants.errorMessages.emailFormatIncorrect');
         displayPopup();
@@ -582,7 +582,7 @@ const handleFileUpload = (event) => {
             for (const currentFile of localStorageuploadedFiles) {
                 if (currentFile.name == file) {
                     // Show the pop-up
-                    backgroundColor = 'bg-red-300';
+                    backgroundColor = 'bg-red-200/[.89] border border-red-400';
                     notificationTitle = t('constants.popUpConstants.errorMessages.duplicateFile');
                     notificationMessage = t('constants.popUpConstants.errorMessages.fileAlreadyInserted');
                     displayPopup();
@@ -593,7 +593,7 @@ const handleFileUpload = (event) => {
             fileObjects.value.push(file);
         } else {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = t('constants.popUpConstants.errorMessages.fileTooLarge');
             notificationMessage = t('constants.popUpConstants.errorMessages.fileSizeExceedsLimit');
             displayPopup();
@@ -2111,21 +2111,21 @@ async function sendEmail() {
 
     if (!emailSubject.trim()) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
         notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoSubject');
         displayPopup();
         return;
     } else if (emailBody == "<p><br></p>") {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
         notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
         displayPopup();
         return;
     } else if (selectedPeople.value.length == 0) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
         notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
         displayPopup();
@@ -2159,7 +2159,7 @@ async function sendEmail() {
 
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = t('constants.popUpConstants.successMessages.success');
             notificationMessage = t('constants.popUpConstants.successMessages.emailSuccessfullySent');
             displayPopup();
@@ -2185,13 +2185,13 @@ async function sendEmail() {
         } else {
             // Show the pop-up
             notificationMessage.value = response.error;
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
         notificationMessage.value = error.message;
         displayPopup();

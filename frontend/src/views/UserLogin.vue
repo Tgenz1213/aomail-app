@@ -127,7 +127,7 @@ async function login() {
 
     if (username.value.length > 150) {
         // Show the pop-up
-        backgroundColor.value = 'bg-red-300';
+        backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = 'TODO Erreur lors de la connexion';
         notificationMessage.value = 'TODO Longueur max nom d\'utilisateur : 150 caractères';
         displayPopup();
@@ -157,7 +157,7 @@ async function login() {
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor.value = 'bg-red-300';
+        backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
         notificationTitle.value = 'TODO Erreur lors de la connexion';
         notificationMessage.value = 'TODO Informations d\'identification invalides';
         displayPopup();

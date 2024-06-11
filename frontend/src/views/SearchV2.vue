@@ -66,7 +66,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
             </svg>
-            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Search_vue.manual_Search') }}</h1> 
+            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('constants.userActions.enterManually') }}</h1> 
           </div>
         </div>
 
@@ -118,7 +118,7 @@
               </div>
 
               <!-- filtres -->
-            <div class=" flex space-x-2 bg-white hidden px-6 w-full" id="filtres">
+            <div class=" flex space-x-2 bg-white hidden pr-2 w-full" id="filtres">
               <div class="flex flex-col gap-4 w-full h-full">
 
 
@@ -526,7 +526,7 @@
             </div>
 
               <!-- Liste email -->
-              <div class="flex flex-col flex-1 overflow-hidden px-6 pt-2 mb-8" id="liste_email">
+              <div class="flex flex-col flex-1 overflow-hidden pr-2 pt-2 mb-8" id="liste_email">
                 <div class="flex flex-col overflow-auto h-full pr-4">
                   <!-- Élément de la liste -->
                   <div class="flex justify-between items-center py-4 email-item">
@@ -956,7 +956,7 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
     contacts.push(...response);
   })
   .catch(error => {
-    backgroundColor = 'bg-red-300';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
     notificationTitle.value = 'TODO Erreur récupération des contacts';
     notificationMessage.value = error;
     displayPopup();
@@ -990,7 +990,7 @@ async function fetchEmailLinked() {
 
     if ("error" in response) {
       // Show the pop-up
-      backgroundColor = 'bg-red-300';
+      backgroundColor = 'bg-red-200/[.89] border border-red-400';
       notificationTitle = 'TODO Erreur récupération de vos emails';
       notificationMessage = response.error;
       displayPopup();
@@ -999,7 +999,7 @@ async function fetchEmailLinked() {
     }
   } catch (error) {
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
     notificationTitle = 'TODO Erreur récupération de vos emails';
     notificationMessage = error.message;
     displayPopup();
@@ -1069,7 +1069,7 @@ async function handleAIClick() {
     let message = '';
     if (result.error) {
       // Show the pop-up
-      backgroundColor = 'bg-red-300';
+      backgroundColor = 'bg-red-200/[.89] border border-red-400';
       notificationTitle = 'TODO Erreur recherche intelligente';
       notificationMessage = result.error;
       displayPopup();

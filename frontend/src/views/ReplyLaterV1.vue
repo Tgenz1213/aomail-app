@@ -977,14 +977,14 @@ export default {
         });
         if (response.answer_later != false) {
           console.error('Failed to mark email for reply later', response);
-          this.backgroundColor = 'bg-red-300';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
           this.notificationTitle = 'TODO Échec de marquage d\'email à ne plus répondre plus tard';
           this.notificationMessage = response;
           displayPopup();
         }
       } catch (error) {
         console.error('Error in unmarkReplyLater:', error.message);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = 'TODO Échec de marquage d\'email à ne plus répondre plus tard';
         this.notificationMessage = error.message;
         displayPopup();
@@ -1025,7 +1025,7 @@ export default {
         });
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = 'TODO Échec d\'ouverture de la page de réponse';
         this.notificationMessage = error.message;
         this.displayPopup();
@@ -1065,7 +1065,7 @@ export default {
 
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = 'TODO Échec d\'ouverture de la page de transfert';
         this.notificationMessage = error.message;
         this.displayPopup();
@@ -1087,14 +1087,14 @@ export default {
           this.nbr_reply_answer -= 1;
         } else {
           console.error('Failed to delete email', response.error);
-          this.backgroundColor = 'bg-red-300';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
           this.notificationTitle = "TODO Échec de suppression d'email";
           this.notificationMessage = response.error;
           this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleteEmail:', error.message);
-        this.backgroundColor = 'bg-red-300';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
         this.notificationTitle = "TODO Échec de suppression d'email";
         this.notificationMessage = error.message;
         this.displayPopup();

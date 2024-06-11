@@ -4,6 +4,7 @@
     <div v-if="loading">
         <Loading class=""></Loading>
     </div>
+
     <div v-else>
         <!-- Modal for Warning Category (rules linked) -->
         <transition name="modal-fade">
@@ -59,18 +60,27 @@
         </transition>
 
         <div class="flex flex-col justify-center items-center h-screen"><!-- DO NOT DELETE : 'bg-gray-900'-->
+
             <div class="flex h-full w-full">
+
+                <!--NAVBAR verticale-->
                 <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                     <navbar></navbar>
                 </div>
+
+                 <!--Colonne 1-->
                 <div class="flex-1">
                     <!-- <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> WORKS FOR 1920*1200px screens-->
                     <div class="flex flex-col h-full w-full">
+
+                         <!--ligne 1 : navbar horizontale -->
                         <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
-                            <div class="w-full py-2 2xl:py-3 px-6 2xl:px-8">
+                            <div class="w-full py-2 2xl:py-3 px-4 2xl:px-8 lg:px-2">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
                                     <div class="pl-4 col-span-11 h-full flex items-center">
-                                        <div class="w-full flex items-center justify-center pb-5 pt-5">
+                                        <div class="w-full flex items-center justify-center">
+
+                                            <!--selection des tabs-->
                                             <div class="sm:hidden">
                                                 <label for="tabs" class="sr-only">Select a tab</label>
                                                 <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
@@ -82,12 +92,18 @@
                                                     </option>
                                                 </select>
                                             </div>
-                                            <div class="hidden sm:block w-full">
+                                            
+                                             <!--categories list-->
+                                            <div class="hidden sm:block w-full py-5">
                                                 <nav class="flex flex-wrap space-x-2 2xl:space-x-4 justify-center items-center w-full"
                                                     aria-label="Tabs">
+
                                                     <div class="flex space-x-4 2xl:space-x-6">
+                                                        <!--On parcours la liste decategories -->
                                                         <a v-for="category in categories" :key="category"
                                                             class="group items-center text-gray-600 text-sm font-medium"><!-- To FIX => put category.name and adapt the design -->
+                                                            
+                                                             <!--catégories que l'utilisateur a créer-->
                                                             <div v-if="category.name !== 'Others'"
                                                                 class="flex cursor-pointer"
                                                                 @click="selectCategory(category)">
@@ -118,6 +134,8 @@
                                                                     </svg>
                                                                 </span>
                                                             </div>
+
+                                                             <!--categories Autres,Others-->
                                                             <div v-else class="flex pr-7">
                                                                 <!-- TODO: var language and retrieve the good translation -->
                                                                 <span class="px-3 py-2 cursor-pointer"
@@ -139,6 +157,7 @@
                                                             </div>
                                                         </a>
                                                     </div>
+
                                                     <a class="flex text-gray-600 rounded-md px-8 py-2 text-sm font-medium hover:bg-gray-900 hover:text-white"
                                                         @click="openModal">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -148,17 +167,36 @@
                                                                 d="M12 4.5v15m7.5-7.5h-15" />
                                                         </svg>
                                                     </a>
+
                                                 </nav>
                                             </div>
+
+                                            <!--bouton pour l'onglet à droite-->
+                                            <div class="flex justify-end h-full">
+                                                <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
+                                                    <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                                                    </svg>
+                                                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                                                    </svg>
+                                                </button>
+                                            </div> 
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </main>
+
+
+
+                        
                         <!-- HIDE 
                         <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5">
                             <p>En cours de dev</p>
                         </div>--><!-- DO NOT DELETE bg-opacity-90 -->
+                        <!--L'utilisateur n'a pas de nouveau mail-->
                         <div v-if="isEmptyTopic()" class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                             <!-- Content goes here -->
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
@@ -174,12 +212,18 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!--L'utilisateur a des nouveaux mails-->
                         <div v-else
                             class="flex-1 bg-white bg-opacity-100 ring-1 shadow-sm ring-black ring-opacity-5 overflow-y-auto custom-scrollbar"
                             ref="scrollableDiv">
+
+                            <!--Liste emails-->
                             <ul role="list" class="flex mx-2 flex-col w-auto h-full rounded-xl">
                                 <!--DO NOT DELETE : old value reference : without mx-autout and w-[]-->
                                 <div class="pt-6">
+
+                                    <!--emails importants-->
                                     <!-- To check if there is one class allow the whitespace at the bottom -->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
                                         class="">
@@ -458,6 +502,8 @@
                                             </div>
                                         </div>
                                     </li>
+
+                                    <!--email informatif-->
                                     <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && countEmailsInCategoryAndPriority(selectedTopic, 'Information') > 0" class="">
                                         <div class="px-6 pb-6">
                                             <div class="bg-blue-100 bg-opacity-90 rounded-md">
@@ -735,6 +781,8 @@
                                             </div>
                                         </div>
                                     </li>
+
+                                    <!--email inutiles-->
                                     <!-- add @click="toggleEmailVisibility"-->
                                     <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'].filter(email => !email.answer_later) && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
                                         class="group/main">
@@ -1046,6 +1094,8 @@
                                             </div>
                                         </li>
                                     </div>
+
+                                    <!--Actions sur les mails open,read,answer,more -->
                                     <div v-if="readEmailsInSelectedTopic().length > 0" class="group/main">
                                         <li class="">
                                             <div class="px-6 pb-6"><!--bg-emerald-50 bg-opacity-60-->
@@ -1060,6 +1110,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
                                                 <!-- Your content -->
                                                 <div class="flex px-4 pt-4">
                                                     <div class="flex">
@@ -1074,6 +1125,7 @@
                                                         </span>
                                                         <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                                     </div>
+
                                                     <div class="ml-6 w-full">
                                                         <!-- To check : strange w-full not necessary in grey but it must be here to have the correct space for readEmailsInSelectedTopic -->
                                                         <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-stone-400 w-full"
@@ -1082,7 +1134,9 @@
                                                                 class="divide-y divide-gray-200 dark:divide-white w-full">
                                                                 <li
                                                                     class="px-6 py-5 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
+
                                                                     <div class="flex group gap-x-2">
+
                                                                         <p @click="toggleReadEmailVisibility"
                                                                             class="cursor-pointer">
                                                                             {{ $t('homePage.youReadRecently') }}
@@ -1097,6 +1151,7 @@
                                                                             <span v-else>{{ $t('homePage.emails') }}</span> {{ $t('homePage.iAm') }}
                                                                             <span class="font-medium">{{ $t('homePage.goingToCleanAutomatically') }}</span> {{ $t('homePage.theEmailsYouHaveRead') }}
                                                                         </p>
+
                                                                         <div
                                                                             class="hidden group-hover/main:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">
                                                                             <div class="flex gap-x-1 items-center">
@@ -1113,7 +1168,9 @@
                                                                                     class="cursor-pointer">{{ $t('homePage.clickToSeeTheEmail') }}</p>
                                                                             </div>
                                                                         </div>
+
                                                                     </div>
+                                                                    
                                                                     <ul v-if="showEmailReadDescriptions"
                                                                         class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-300 w-full">
                                                                         <li class="py-5 grid grid-cols-10 w-full"
@@ -1166,6 +1223,7 @@
                                                                                     </li>
                                                                                 </ul>
                                                                             </div>
+
                                                                             <div class="col-span-2 pt-2">
                                                                                 <div class="flex justify-center">
                                                                                     <span
@@ -1394,36 +1452,40 @@
                     </div>
                 </div>
                 
-<!-- UNCOMMENT TO SEPARATE BUTTON FROM DIV TO FOLD/UNFOLD -->
-                <!-- <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col relative"> -->
-    <!-- <div class="p-4 flex justify-end">
-      <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
-        <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
-        </svg>
-        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-        </svg>
-      </button>
-    </div> -->
-    <!-- </div> -->
+                <!-- UNCOMMENT TO SEPARATE BUTTON FROM DIV TO FOLD/UNFOLD -->
+               <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col relative"> 
+               <!--<div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col"> -->
+                        
+                            <!--Bouton de transition style 1 -->
+                    <!--    <div class="p-4 flex justify-end">
+                                <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
+                                    <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                            </div> -->
 
-                <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col">
-                    <div class="p-4 flex w-full">
-                        <button @click="toggleVisibility"
-                            class="bg-gray-200 text-gray-500 px-4 py-2 rounded w-full items-center inline-flex pr-10">
-                            <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
-                            </svg>
-                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-                            </svg>
-                        </button>
-                    </div>
+                        <!--Bouton de transition style 2 -->
+                        
+                        <!-- <div class="p-4 flex w-full">
+                                <button @click="toggleVisibility"
+                                    class="bg-gray-200 text-gray-500 px-4 py-2 rounded w-full items-center inline-flex pr-10">
+                                    <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
+                                    </svg>
+                                </button>
+                            </div> -->
+
                     <!--<transition name="slide">-->
                         <div v-show="!isHidden" class="w-[325px] 2xl:w-[525px] flex-grow">
                             <div class="flex flex-col h-full">
@@ -1458,8 +1520,10 @@
                         </div>
                     <!--</transition>-->
                 </div>
+
             </div>
         </div>
+
         <!-- Category Modal -->
         <NewCategoryModal :isOpen="isModalOpen" :errorMessage="modalErrorMessage" @closeModal="closeModal"
             @addCategory="handleAddCategory" />
@@ -2018,7 +2082,7 @@ async function handleAddCategory(categoryData) {
 
         if ('error' in response) {
             // Show the pop-up
-            backgroundColor = 'bg-red-300';
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'TODO Erreur lors de l\'ajout de la catégorie';
             notificationMessage = response.error;
             displayPopup();
@@ -2041,7 +2105,7 @@ async function handleAddCategory(categoryData) {
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur lors de l\'ajout de la catégorie';
         notificationMessage = error.message;
         displayPopup();
@@ -2053,7 +2117,7 @@ async function handleAddCategory(categoryData) {
 async function handleUpdateCategory(updatedCategory) {
 
     if (Object.hasOwnProperty.call(updatedCategory, 'error')) {
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = updatedCategory.error;
         notificationMessage = updatedCategory.description;
         displayPopup();
@@ -2064,7 +2128,7 @@ async function handleUpdateCategory(updatedCategory) {
 
     if (!updatedCategory.name.trim()) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur lors de la mise à jour de la catégorie';
         notificationMessage = 'TODO Le nom de la catégorie ne peut pas être vide';
         displayPopup();
@@ -2106,7 +2170,7 @@ async function handleUpdateCategory(updatedCategory) {
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur lors de la mise à jour de la catégorie';
         notificationMessage = error.message;
         displayPopup();
@@ -2118,7 +2182,7 @@ async function handleCategoryDelete(categoryNameToDelete) {
 
     if (!categoryNameToDelete.trim()) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur lors de la suppression de la catégorie';
         notificationMessage = 'TODO Le nom de la catégorie ne peut pas être vide';
         displayPopup();
@@ -2148,7 +2212,7 @@ async function handleCategoryDelete(categoryNameToDelete) {
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur récupération des règles associées';
         notificationMessage = error.message;
         displayPopup();
@@ -2189,7 +2253,7 @@ async function deleteCategory(categoryNameToDelete) {
         }
     } catch (error) {
         // Show the pop-up
-        backgroundColor = 'bg-red-300';
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
         notificationTitle = 'TODO Erreur lors de la suppression de la catégorie';
         notificationMessage = error.message;
         displayPopup();

@@ -11,39 +11,41 @@
         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
           <button @click="closeUpdateModal" type="button"
             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-            <span class="sr-only">Close</span>
             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
             <p class="block leading-6 text-gray-900" style="font-family: 'Poppins', sans-serif; font-weight: 500;">
-              {{ $t('SignUp_p1_vue.modify_category') }}</p>
+              {{ $t('constants.categoryModalConstants.modifyTheCategory') }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorUpdateMessage">{{ errorUpdateMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.category_name') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <input id="updateCategoryName" v-model="updateCategoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-                placeholder="Administratifs">
+                :placeholder="$t('constants.categoryModalConstants.administrative')">
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.category_name') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <textarea id="updateCategoryDescription" v-model="updateCategoryDescription" rows="3"
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('SignUp_p1_vue.description') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{
+              $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
               class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              @click="updateCategoryHandler">{{ $t('Global action.update') }}</button>
+              @click="updateCategoryHandler">{{ $t('constants.userActions.update') }}</button>
             <button type="button"
               class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
               @click="deleteCategoryOnUpdate">
@@ -52,7 +54,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
               </svg>
-              {{ $t('Global action.delete') }}
+              {{ $t('constants.userActions.delete') }}
             </button>
           </div>
         </div>
@@ -69,38 +71,41 @@
         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
           <button @click="closeModal" type="button"
             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-            <span class="sr-only">Close</span>
             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
-            <p class="block font-semibold leading-6 text-gray-900">{{ $t('SignUp_p1_vue.Add_categorie') }}</p>
+            <p class="block font-semibold leading-6 text-gray-900">{{ $t('constants.categoryModalConstants.addCategory')
+              }}</p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
           <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
           <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.category_name') }}</label>
+            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.categoryName') }}</label>
             <div class="mt-2">
               <input v-model="categoryName" name="email" id="categoryName"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
-                placeholder="Administratifs">
+                :placeholder="$t('constants.categoryModalConstants.administrative')">
             </div>
           </div>
           <div>
-            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.add_categorie') }}</label>
+            <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
+              $t('constants.categoryModalConstants.addCategory') }}</label>
             <div class="mt-2">
               <textarea v-model="categoryDescription" id="categoryDescription" name="about" rows="3"
                 style="min-height: 60px"
                 class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"></textarea>
             </div>
-            <p class="mt-3 text-sm leading-6 text-gray-600">{{ $t('SignUp_p1_vue.add_another_categorie') }}</p>
+            <p class="mt-3 text-sm leading-6 text-gray-600">{{
+              $t('constants.categoryModalConstants.categoryDescriptionExplanation') }}</p>
           </div>
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
               class="inline-flex w-full justify-center rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:ml-3 sm:w-auto"
-              @click="addCategory">{{ $t('Global action.create') }}</button>
+              @click="addCategory">{{ $t('constants.userActions.create') }}</button>
           </div>
         </div>
       </div>
@@ -112,14 +117,14 @@
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
           <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
-          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('SignUp_p1_vue.sign_up') }}
+          <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{
+            $t('signUpPart1Page.signUp') }}
           </h2>
         </div>
         <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
           <div class="flex flex-col rounded-lg ">
             <div class="">
-              <div
-                class="flex items-center justify-center h-[65px]">
+              <div class="flex items-center justify-center h-[65px]">
                 <nav aria-label="Progress">
                   <!--<div class="absolute right-4 left-4">-->
                   <ol role="list" class="flex items-center" v-if="step === 0">
@@ -187,10 +192,10 @@
                     <li class="relative pr-6 sm:pr-16">
                       <!-- Completed Step -->
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div class="h-0.5 w-full bg-gray-500"></div>
+                        <div class="h-0.5 w-full bg-gray-500 "></div>
                       </div>
                       <a @click="goStep0"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -254,7 +259,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a @click="goStep0"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -269,7 +274,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a @click="goStep1"
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -321,7 +326,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -336,7 +341,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -391,7 +396,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -406,7 +411,7 @@
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
                       <a
-                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200">
+                        class="relative flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-200 border-2 border-gray-700">
                         <svg class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                           <path fill-rule="evenodd"
                             d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -473,7 +478,8 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('SignUp_p1_vue.username') }}</label>
+                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{
+                          $t('constants.username') }}</label>
                       </div>
                       <div class="mt-2">
                         <input v-model="login" id="login" type="login"
@@ -488,7 +494,7 @@
                             d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
                         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{
-                          $t('SignUp_p1_vue.password') }}</label>
+                          $t('constants.password') }}</label>
                       </div>
                       <div class="relative items-stretch mt-2 flex">
                         <input id="password" v-if="!showPassword" type="password"
@@ -524,7 +530,7 @@
                             d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                         </svg>
                         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{
-                          $t('SignUp_p1_vue.password_confirm') }}</label>
+                          $t('signUpPart1Page.passwordConfirm') }}</label>
                       </div>
                       <div class="relative items-stretch mt-2 flex">
                         <input id="confirmPassword" v-if="!showConfirmPassword" type="password"
@@ -560,8 +566,7 @@
                         <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
                       </div>
                       <div class="mt-2">
-                        <input v-model="userDescription"
-                          placeholder="Résumez-vous en quelques mots afin d'aider l'assistant (impossible à trad)"
+                        <input v-model="userDescription" :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
                           id="userDescription"
                           class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6" />
                       </div>
@@ -570,25 +575,25 @@
                       <div class="pt-6">
                         <button @click.prevent="nextStep0"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">
-                          {{ $t('SignUp_p1_vue.continue') }}</button>
+                          {{ $t('signUpPart1Page.continue') }}</button>
                       </div>
                     </div>
                   </div>
                   <div v-if="step === 1">
                     <div class="flex flex-col">
-                      
+
                       <div class="relative">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">LANGUAGES</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.language') }}</span>
                         </div>
                       </div>
-                      <div class="pt-6">
+                      <div class="pt-6 pb-10">
                         <div class="relative items-stretch mt-2">
-                        <language></language>
-                      </div>
+                          <language></language>
+                        </div>
                         <!-- <color @colorSelected="updateBgColor"></color> -->
                       </div>
 
@@ -597,24 +602,24 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">TIMEZONES - UX: add search</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.timezone') }}</span>
                         </div>
                       </div>
                       <div class="pt-6 pb-10">
                         <div class="relative items-stretch mt-2">
-                        <TimeZone />
+                          <TimeZone />
                         </div>
                       </div>
 
 
-                      
+
 
                       <div class="relative">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('SignUp_p1_vue.Theme') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.theme') }}</span>
                         </div>
                       </div>
                       <div class="pt-6 pb-10">
@@ -622,7 +627,7 @@
                           <theme></theme>
                         </div>
                       </div>
-                      
+
 
 
                     </div>
@@ -630,7 +635,7 @@
                       <div class="pt-6">
                         <button @click.prevent="nextStep1"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
-                          {{ $t('SignUp_p1_vue.continue') }}</button>
+                          {{ $t('signUpPart1Page.continue') }}</button>
                       </div>
                     </div>
                   </div>
@@ -641,13 +646,13 @@
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center">
-                          <span class="bg-white px-2 text-sm text-gray-500"> {{ $t('Global action.category') }}</span>
+                          <span class="bg-white px-2 text-sm text-gray-500"> {{ $t('constants.category') }}</span>
                         </div>
                       </div>
                       <div class="pt-2">
                         <div class="relative items-stretch mt-2">
                           <div class="flex flex-col gap-y-4">
-                            <p>{{ $t('SignUp_p1_vue.create_categorie') }}</p>
+                            <p>{{ $t('signUpPart1Page.createCategory') }}</p>
                             <div v-if="categories.length === 0">
                               <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
@@ -656,7 +661,8 @@
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" />
                                 </svg>
-                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('SignUp_p1_vue.add_categorie') }}</span>
+                                <span class="mt-2 block text-sm font-semibold text-gray-900">{{
+                                  $t('constants.categoryModalConstants.addCategory') }}</span>
                               </button>
                             </div>
                             <div v-else class="max-h-64 overflow-y-auto flex flex-col gap-y-4">
@@ -688,7 +694,7 @@
                               </ul>
                               <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                                {{ $t('SignUp_p1_vue.categorie_description') }}</button>
+                                {{ $t('signUpPart1Page.addAnotherCategory') }}</button>
                               <!--<button @click="isModalOpen = !isModalOpen" type="button" class="h-[25px] w-full rounded-lg border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                                 <span class="text-sm font-semibold text-gray-900">Ajouter une autre catégorie</span>
                               </button>-->
@@ -703,7 +709,7 @@
                       <div class="pt-6">
                         <button @click.prevent="submitSignupData"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
-                          {{ $t('SignUp_p1_vue.continue') }}</button>
+                          {{ $t('signUpPart1Page.continue') }}</button>
                       </div>
                     </div>
                   </div>
@@ -714,9 +720,9 @@
             </div>
           </div>
           <p class="mt-6 text-center text-sm text-gray-600">
-            {{ $t('SignUp_p1_vue.you_have_an_account') }}
-            {{ ' ' }}
-            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{ $t('SignUp_p1_vue.Login')
+            {{ $t('signUpPart1Page.youHaveAnAccount') }}
+            <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{
+              $t('constants.userActions.login')
               }}</a>
           </p>
         </div>
@@ -796,9 +802,7 @@ function deleteCategoryOnUpdate() {
 }
 function updateCategoryHandler() {
 
-  if (/[,;:/\\.]/.test(updateCategoryName.value)) {
-    errorUpdateMessage.value = 'Le nom de la catégorie contient un caractère interdit : , ; : / \\';
-  } else if (!updateCategoryName.value.trim() || !updateCategoryDescription.value.trim()) {
+  if (!updateCategoryName.value.trim() || !updateCategoryDescription.value.trim()) {
     errorUpdateMessage.value = "Veuillez remplir tous les champs";
   } else if (categories.value.some(cat => cat.name === updateCategoryName.value && cat.name != updateOldCategoryName.value)) {
     errorUpdateMessage.value = "Le nom de la catégorie existe déjà";
@@ -941,7 +945,7 @@ async function nextStep0() {
     }
   } catch (error) {
     // Show the pop-up
-    backgroundColor.value = 'bg-red-300';
+    backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
     notificationTitle.value = 'Erreur vérification identifiant';
     notificationMessage.value = error;
     displayPopup();
@@ -1009,15 +1013,13 @@ function closeModal() {
 function addCategory() {
 
   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-    errorMessage.value = "Veuillez remplir tous les champs";
+    errorMessage.value = t('homePage.modals.pleaseFillAllFields');
   } else if (categories.value.some(cat => cat.name === categoryName.value)) {
-    errorMessage.value = "Le nom de la catégorie existe déjà";
-  } else if (/[^a-zA-Z\s]/.test(categoryName.value)) {
-    errorMessage.value = 'Le nom de la catégorie contient un caractère interdit : lettres et espaces uniquement';
+    errorMessage.value = "TODO La catégorie existe déjà";
   } else if (categoryDescription.value.length > 300) {
-    errorMessage.value = "Pas plus de 300 caractères pour la description";
+    errorMessage.value = t('homePage.modals.newCategoryModal.maxDescriptionCharacters');
   } else if (categoryName.value.length > 50) {
-    errorMessage.value = "Pas plus de 50 caractères pour le nom";
+    errorMessage.value = t('homePage.modals.newCategoryModal.maxNameCharacters');
   }
   else {
     categories.value.push({
@@ -1040,8 +1042,8 @@ async function submitSignupData() {
   }
   catch (error) {
     // Show the pop-up
-    backgroundColor.value = 'bg-red-300';
-    notificationTitle.value = 'Erreur lors de l\'envoi des données';
+    backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = 'TODO Erreur lors de l\'envoi des données';
     notificationMessage.value = error;
     displayPopup();
   }

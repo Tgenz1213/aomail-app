@@ -32,7 +32,8 @@
             <div
               class="flex items-center justify-center h-[70px] 2xl:h-[80px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
               <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Rules_vue.assistant_rules') }}</h1>
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('rulesPage.assistantRules') }}
+              </h1>
             </div>
             <SearchbarV2 @input="updateSearchQuery"></SearchbarV2>
           </div>
@@ -57,26 +58,27 @@
                       <div v-if="rule.category" class="flex gap-1">
                         <div class="flex space-x-1 items-center">
                           <ArchiveBoxIcon class="w-4 h-4" />
-                          <p class="font-semibold text-sm">{{ $t('Rules_vue.catégorie') }}</p>
+                          <p class="font-semibold text-sm">{{ $t('constants.category') }}</p>
                         </div>
                         <span
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/20">{{
-                          rule.category }}</span>
+                            rule.category }}</span>
                       </div>
                       <div v-if="rule.priority !== ''" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">
                           <ExclamationCircleIcon class="w-4 h-4" />
                           <p class="font-semibold text-sm">{{ $t('Rules_vue.priotity') }}</p>
                         </div>
+                        <!-- TODO: check where this has been set in French and fix into English (it's in the backend, probably in views.py) -->
                         <span v-if="rule.priority === 'Important'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{
-                          rule.priority }}</span>
+                            rule.priority }}</span>
                         <span v-if="rule.priority === 'Informatif'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{
-                          rule.priority }}</span>
+                            rule.priority }}</span>
                         <span v-if="rule.priority === 'Inutile'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">{{
-                          rule.priority }}</span>
+                            rule.priority }}</span>
                       </div>
                       <div v-if="rule.mail_stop === true" class="flex gap-1 mt-2">
                         <div class="flex space-x-1 items-center">
@@ -100,7 +102,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                 </svg>
-                <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('Rules_vue.rules') }}</span>
+                <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('Rules_vue.create_rules') }}</span>
               </div>
             </div>
           </div>
@@ -113,7 +115,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
               </svg>
-              <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('Rules_vue.assistant_rules') }}</span>
+              <span class="mt-2 block text-sm font-semibold text-gray-900">{{ $t('rulesPage.assistantRules') }}</span>
             </div>
           </div>
         </div>

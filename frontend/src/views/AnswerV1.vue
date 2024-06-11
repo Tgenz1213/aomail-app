@@ -2,297 +2,266 @@
   <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
-    <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
-      <div class="col-span-1 2xl:col-span-1">
+    <div class="flex h-full w-full">
+      <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
         <navbar></navbar>
       </div>
-      <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-        <div class="flex gap-4 w-full h-full">
-          <div id="firstMainColumn"
-            class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]">
-            <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
-            <div
-              class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10">
-              <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-              <div class="flex gap-x-2 items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                  stroke="currentColor" class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
-                </svg>
-                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('"Answer_vue.AI_assistant') }}</h1>
-              </div>
-            </div>
-            <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
-              <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[700px]" style="margin-right: 2px;" ref="scrollableDiv">
-                <div class="px-10 py-6">
-                  <div class="flex-grow">
-                    <div id="AIContainer">
-                    </div>
-                  </div>
+      <div id="firstMainColumn"
+        class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-screen xl:w-[43vw] 2xl:w-[700px]">
+        <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
+          <div class="flex gap-x-3 items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+              stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+            </svg>
+            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Answer_vue.AI_assistant') }}</h1>
+          </div>
+        </div>
+        <div class="flex-1 flex flex-col divide-y overflow-hidden">
+          <div class="flex flex-col flex-1 overflow-y-auto">
+            <div class="px-10 py-6 2xl:px-13.5 2xl:py-6">
+              <div class="flex-grow">
+                <div id="AIContainer">
                 </div>
               </div>
-              <div class="flex-grow">
-                <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full"><!-- Old value (26/12/2023) -->
-                  <div class="flex flex-grow items-stretch">
-                    <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight"
-                      v-model="textareaValue"
-                      class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                      placeholder="Instruction"></textarea>
-                  </div>
-                  <button type="button" @click="handleAIClick"
-                    class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" stroke-width="1.5"
-                      stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
-                      <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                    </svg>
+            </div>
+          </div>
+          <div class="flex flex-col h-[22vh] 2xl:h-[23vh]">
+            <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey" @input="adjustHeight" v-model="textareaValue"
+              class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
+              placeholder="Instruction">
+            </textarea>
+            <div v-if="stepcontainer == 1" class="flex justify-end m-3 2xl:m-5">
+              <div class="flex mt-4 space-x-4 items-center">
+                <div>
+                  <select id="lengthSelect"
+                    class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                    <option value="very short">{{ $t('newPage.veryBrief') }}</option>
+                    <option value="short" selected>{{ $t('newPage.brief') }}</option>
+                    <option value="long">{{ $t('newPage.long') }}</option>
+                  </select>
+                </div>
+                <div>
+                  <select id="formalitySelect"
+                    class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+                    <option value="very informal">{{ $t('newPage.informal') }}</option>
+                    <!--<option value="informal">Peu formel</option>-->
+                    <option value="formal" selected>{{ $t('newPage.formal') }}</option>
+                    <option value="very formal">{{ $t('newPage.veryFormal') }}</option>
+                  </select>
+                </div>
+                <div class="flex items-center">
+                  <button @click="handleAIClick" type="button"
+                    class="2xl:w-[100px] w-[100px] rounded-md bg-gray-700 px-6 py-2.5 2xl:px-6 2xl:py-3 text-sm 2xl:text-base text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                    {{ $t('constants.userActions.send') }}
                   </button>
                 </div>
               </div>
             </div>
-          </div>
-          <div id="secondMainColumn"
-            class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]">
-            <!--xl:h-[695px] xl:w-[560px]-->
-            <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
-              <div
-                class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
-                <div class="flex gap-x-2 items-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                    stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                  </svg>
-                  <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('"Answer_vue.enter_manually') }}</h1>
-                </div>
-              </div>
-              <form class="flex flex-grow w-full px-10">
-                <div class="flex flex-col space-y-6 h-full w-full">
-                  <div class="pt-8">
-                    <div class="flex flex-wrap">
-                      <!-- Main Recipients List -->
-                      <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
-                        <div v-for="person in selectedPeople" :key="person.email"
-                          class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                          {{ person.username || person.email }}
-                          <button @click="removePersonFromMain(person)">×</button>
-                        </div>
-                      </div>
-                      <!-- CC Recipients List -->
-                      <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
-                        <div v-for="person in selectedCC" :key="person.email"
-                          class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                          <span class="font-semibold mr-1">CC:</span>
-                          {{ person.username || person.email }}
-                          <button @click="removePersonFromCC(person)">×</button>
-                        </div>
-                      </div>
-                      <!-- CCI Recipients List -->
-                      <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
-                        <div v-for="person in selectedCCI" :key="person.email"
-                          class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                          <span class="font-semibold mr-1">CCI:</span>
-                          {{ person.username || person.email }}
-                          <button @click="removePersonFromCCI(person)">×</button>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex items-stretch gap-1">
-                      <div class="flex-grow">
-                        <div class="relative items-stretch">
-                          <div class="relative w-full">
-                            <div v-if="!isFocused2"
-                              class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2">
-                              <UserGroupIcon class="w-4 h-4 pointer-events-none" />
-                              <label for="email"
-                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{ $t('"Answer_vue.recipient') }}</label>
-                            </div>
-                            <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected"
-                              @blur="handleBlur2">
-                              <ComboboxInput id="recipients"
-                                class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                @change="query = $event.target.value" :display-value="(person) => person?.name"
-                                @focus="handleFocusDestinary" @blur="handleBlur2($event)"
-                                @keydown.enter="handleEnterKey" />
-                              <ComboboxButton
-                                class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                              </ComboboxButton>
-                              <!-- List possible email according to current input -->
-                              <!-- && filteredPeople.length <= 10" -->
-                              <ComboboxOptions v-if="filteredPeople.length > 0"
-                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                                style="z-index: 21">
-                                <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person"
-                                  as="template" v-slot="{ active, selected }">
-                                  <li
-                                    :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
-                                    <div class="flex">
-                                      <span :class="['truncate', selected && 'font-semibold']">
-                                        {{ person.username }}
-                                      </span>
-                                      <span
-                                        :class="['ml-2 truncate text-gray-800', active ? 'text-gray-200' : 'text-gray-800']">
-                                        {{ person.email }}
-                                      </span>
-                                    </div>
-                                    <span v-if="selected"
-                                      :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
-                                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                    </span>
-                                  </li>
-                                </ComboboxOption>
-                              </ComboboxOptions>
-                            </Combobox>
-                          </div>
-                        </div>
-                        <!--<div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full max-w-2xl">
-                                        <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
-                                    </div>-->
-                      </div>
-                      <div class="flex gap-1">
-                        <button type="button" @click="toggleCC"
-                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                          class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                          CC
-                        </button>
-
-                        <!-- CCI Button -->
-                        <button type="button" @click="toggleCCI"
-                          :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                          class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                          CCI
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="">
-                    <div class="flex flex-wrap">
-                      <div v-for="(file, index) in uploadedFiles" :key="index"
-                        class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
-                        {{ file.name }}
-                        <button @click="removeFile(index)">×</button>
-                      </div>
-                    </div>
-                    <div class="flex items-stretch gap-1">
-                      <div class="flex-grow">
-                        <div
-                          class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
-                          <div class="relative w-full">
-                            <div v-if="!isFocused && !inputValue"
-                              class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10">
-                              <Bars2Icon class="w-4 h-4 pointer-events-none" />
-                              <label for="username"
-                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">Objet</label>
-                            </div>
-                            <input id="objectInput" v-model="inputValue" type="text"
-                              class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
-                              @focus="handleFocusObject" @blur="handleBlur" @input="handleInputUpdateObject" />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="flex">
-                        <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
-                        <button @click="triggerFileInput" type="button"
-                          class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-transparent hover:bg-gray-600 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <!--
-                            <div class="col-span-full">
-                            <label for="cover-photo" class="block text-sm font-medium leading-6 text-gray-900">Pièce jointes</label>
-                                <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-2">
-                                <div class="text-center">
-                                    <svg class="mx-auto h-8 w-12 text-gray-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z" clip-rule="evenodd" />
-                                    </svg>
-                                    <div class="mt-1 flex text-sm leading-6 text-gray-600">
-                                    <label for="file-upload" class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
-                                        <span>Upload a file</span>
-                                        <input id="file-upload" name="file-upload" type="file" class="sr-only">
-                                    </label>
-                                    <p class="pl-1">or drag and drop</p>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>-->
-                  <div class="flex flex-col flex-grow">
-                    <!--<div class="flex space-x-1 items-center">
-                                <Bars3BottomLeftIcon class="w-4 h-4" />
-                                <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Message</label>
-                                </div>-->
-                    <div class="flex-grow mb-20 h-[200px]">
-                      <div id="editor" class="w-full"></div>
-                      <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
-                    </div>
-                    <div class="flex mb-4">
-                      <div class="inline-flex rounded-lg shadow-lg">
-                        <button @click.prevent="sendEmail" :disabled="emailAnswered"
-                          class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{ $t('"Answer_vue.send') }}</button>
-                        <Menu as="div" class="relative -ml-px block">
-                          <MenuButton
-                            class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
-                            <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
-                            <span class="sr-only">Open options</span>
-                            <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
-                          </MenuButton>
-                          <transition enter-active-class="transition ease-out duration-100"
-                            enter-from-class="transform opacity-0 scale-95"
-                            enter-to-class="transform opacity-100 scale-100"
-                            leave-active-class="transition ease-in duration-75"
-                            leave-from-class="transform opacity-100 scale-100"
-                            leave-to-class="transform opacity-0 scale-95">
-                            <MenuItems
-                              class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                              <div class="py-1">
-                                <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                                <a :href="item.href"
-                                  :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                    item.name }}</a>
-                                </MenuItem>
-                              </div>
-                            </MenuItems>
-                          </transition>
-                        </Menu>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
+            <div v-else class="flex justify-end m-3 2xl:m-5">
+              <button @click="handleAIClick" type="button"
+                class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">{{
+                  $t('constants.userActions.send') }}</button>
             </div>
           </div>
         </div>
       </div>
+      <div id="secondMainColumn"
+        class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
+        <!--xl:h-[695px] xl:w-[560px]-->
+        <div class="flex flex-col h-full w-full">
+          <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
+            <div class="flex gap-x-3 items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+              </svg>
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('Answer_vue.enter_manually') }}
+              </h1>
+            </div>
+          </div>
+          <form class="flex flex-grow w-full px-10 py-4 2xl:px-14 2xl:py-6">
+            <div class="flex flex-col space-y-5 h-full w-full">
+              <div class="">
+                <div class="flex flex-wrap">
+                  <!-- Main Recipients List -->
+                  <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
+                    <div v-for="person in selectedPeople" :key="person.email"
+                      class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2">
+                      {{ person.username || person.email }}
+                      <button @click="removePersonFromMain(person)">×</button>
+                    </div>
+                  </div>
+                  <!-- CC Recipients List -->
+                  <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
+                    <div v-for="person in selectedCC" :key="person.email"
+                      class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2">
+                      <span class="font-semibold mr-1 2xl:mr-2">{{
+                        $t('constants.sendEmailConstants.carbonCopyInitialsTwoDots') }}</span>
+                      {{ person.username || person.email }}
+                      <button @click="removePersonFromCC(person)">×</button>
+                    </div>
+                  </div>
+                  <!-- CCI Recipients List -->
+                  <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
+                    <div v-for="person in selectedCCI" :key="person.email"
+                      class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2">
+                      <span class="font-semibold mr-1 2xl:mr-2">{{
+                        $t('constants.sendEmailConstants.blindCarbonCopyInitialsTwoDots') }}</span>
+                      {{ person.username || person.email }}
+                      <button @click="removePersonFromCCI(person)">×</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-stretch gap-1 2xl:gap-2">
+                  <div class="flex-grow">
+                    <div class="relative items-stretch">
+                      <div class="relative w-full">
+                        <div v-if="!isFocused2"
+                          class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3">
+                          <UserGroupIcon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
+                          <label for="email"
+                            class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">{{
+                              $t('constants.recipient') }}</label>
+                        </div>
+                        <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected"
+                          @blur="handleBlur2">
+                          <ComboboxInput id="recipients"
+                            class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
+                            @change="query = $event.target.value" :display-value="(person) => person?.name"
+                            @focus="handleFocusDestinary" @blur="handleBlur2($event)" @keydown.enter="handleEnterKey" />
+                          <ComboboxButton
+                            class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none 2xl:px-3">
+                            <ChevronUpDownIcon class="h-5 w-5 text-gray-400 2xl:h-6 2xl:w-6" aria-hidden="true" />
+                          </ComboboxButton>
+                          <!-- List possible email according to current input -->
+                          <!-- && filteredPeople.length <= 10" -->
+                          <ComboboxOptions v-if="filteredPeople.length > 0"
+                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm 2xl:text-base"
+                            style="z-index: 21">
+                            <ComboboxOption v-for="person in filteredPeople" :key="person.username" :value="person"
+                              as="template" v-slot="{ active, selected }">
+                              <li
+                                :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
+                                <div class="flex">
+                                  <span :class="['truncate', selected && 'font-semibold']">
+                                    {{ person.username }}
+                                  </span>
+                                  <span
+                                    :class="['ml-2 truncate text-gray-800', active ? 'text-gray-200' : 'text-gray-800']">
+                                    {{ person.email }}
+                                  </span>
+                                </div>
+                                <span v-if="selected"
+                                  :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
+                                  <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                </span>
+                              </li>
+                            </ComboboxOption>
+                          </ComboboxOptions>
+                        </Combobox>
+                      </div>
+                    </div>
+                    <!--<div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full max-w-2xl">
+                                    <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
+                                </div>-->
+                  </div>
+                  <div class="flex gap-1 2xl:gap-2">
+                    <button type="button" @click="toggleCC"
+                      :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                      class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                      {{ $t('newPage.carbonCopyInitials') }}
+                    </button>
+
+                    <!-- CCI Button -->
+                    <button type="button" @click="toggleCCI"
+                      :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                      class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                      {{ $t('newPage.blindCarbonCopyInitials') }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="">
+                <div class="flex flex-wrap">
+                  <div v-for="(file, index) in uploadedFiles" :key="index"
+                    class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1 2xl:px-3 2xl:py-2 2xl:mr-2">
+                    {{ file.name }}
+                    <button @click="removeFile(index)">×</button>
+                  </div>
+                </div>
+                <div class="flex items-stretch gap-1 2xl:gap-2">
+                  <div class="flex-grow">
+                    <div
+                      class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
+                      <div class="relative w-full">
+                        <div v-if="!isFocused && !inputValue"
+                          class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3 z-10">
+                          <Bars2Icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
+                          <label for="username"
+                            class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">{{
+                              $t('constants.subject') }}</label>
+                        </div>
+                        <input id="objectInput" v-model="inputValue" type="text"
+                          class="block h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:pl-4 2xl:text-base"
+                          @focus="handleFocusObject" @blur="handleBlur" @input="handleInputUpdateObject" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex">
+                    <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
+                    <button @click="triggerFileInput" type="button"
+                      class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-transparent hover:bg-gray-600 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 2xl:px-3 2xl:py-2 2xl:text-base">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="flex-1 pb-[68px] 2xl:pb-[42px]">
+                <div id="editor" class="w-full h-full"></div>
+              </div>
+              <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6">
+                <div class="inline-flex rounded-lg shadow-lg">
+                  <button @click.prevent="sendEmail" :disabled="emailAnswered"
+                    class="bg-gray-700 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-2 2xl:text-lg">{{
+                      $t('constants.userActions.send') }}</button>
+                  <Menu as="div" class="relative -ml-px block">
+                    <MenuButton
+                      class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
+                      <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                      <span class="sr-only">{{ $t('newPage.openOptions') }}</span>
+                      <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
+                    </MenuButton>
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1">
+                          <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
+                          <a :href="item.href"
+                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
+                              item.name }}</a>
+                          </MenuItem>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-  <!--
-  <div class="pb-1 lg:pl-20 bg-gray-100">
-      <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
-          <div class="col-span-3 h-full bg-red-500">
-                  
-                  <div class="flex">
-                      <div class="flex-shrink-0 self-center">
-                          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-indigo-800">
-                              <span class="text-lg font-medium leading-none text-white">AO</span>
-                          </span>
-                      </div>
-                      <div>
-                          <p class="mt-1" id="animated-text" ref="animatedText"></p>
-                      </div>
-                  </div>
-              </div>
-          <div class="col-span-5 h-full bg-red-500">
-              <p>Test</p>
-          </div>
-      </div>
-  </div>-->
 </template>
 
 <script setup>
@@ -314,6 +283,10 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/vue'
+import { useI18n } from 'vue-i18n';
+
+// Use i18n
+const { t } = useI18n();
 
 // Variable to prevent the user from starting a prompt if AI is writing
 let isAIWriting = ref(false);
@@ -362,8 +335,8 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
   .catch(error => {
     console.error("Error fetching contacts:", error);
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
-    notificationTitle = 'Erreur récupération des contacts';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle = t('constants.popUpConstants.errorMessages.contactFetchError');
     notificationMessage = error;
     displayPopup();
   })
@@ -413,7 +386,7 @@ const hasValueEverBeenEntered = ref(false);
 const quill = ref(null);
 
 
-const emailReceiver =  sessionStorage.getItem("emailReceiver");
+const emailReceiver = sessionStorage.getItem("emailReceiver");
 
 // function linked to ENTER key listeners
 function handleBlur2(event) {
@@ -432,9 +405,9 @@ function handleBlur2(event) {
     }
   } else if (!filteredPeople.value.length && inputValue) {
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
-    notificationTitle = 'Email invalide';
-    notificationMessage = 'Le format de l\'email est incorrect'
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.invalidEmail');
+    notificationMessage.value = t('constants.popUpConstants.errorMessages.emailFormatIncorrect');
     displayPopup();
   }
 }
@@ -584,9 +557,9 @@ const handleFileUpload = (event) => {
       for (const currentFile of localStorageuploadedFiles) {
         if (currentFile.name == file) {
           // Show the pop-up
-          backgroundColor = 'bg-red-300';
-          notificationTitle = 'Fichier en double';
-          notificationMessage = 'Vous avez déjà inséré ce fichier';
+          backgroundColor = 'bg-red-200/[.89] border border-red-400';
+          notificationTitle = t('constants.popUpConstants.errorMessages.duplicateFile');
+          notificationMessage = t('constants.popUpConstants.errorMessages.fileAlreadyInserted');
           displayPopup();
           return;
         }
@@ -595,9 +568,9 @@ const handleFileUpload = (event) => {
       fileObjects.value.push(file);
     } else {
       // Show the pop-up
-      backgroundColor = 'bg-red-300';
-      notificationTitle = 'Fichier trop volumineux';
-      notificationMessage = 'La taille du fichier dépasse la limite de Gmail';
+      backgroundColor = 'bg-red-200/[.89] border border-red-400';
+      notificationTitle = t('constants.popUpConstants.errorMessages.fileTooLarge');
+      notificationMessage = t('constants.popUpConstants.errorMessages.fileSizeExceedsLimit');
       displayPopup();
       console.error("File size exceeds Gmail's limit");
       return;
@@ -748,7 +721,7 @@ async function handleAIClick() {
   setTimeout(async () => {
     if (stepcontainer == 0) {
       if (textareaValueSave.value == '') {
-        const message = "Vous n'avez saisi aucune suggestion, veuillez réessayer"
+        const message = t('constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain');
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
         displayMessage(message, ai_icon);
       } else {
@@ -765,7 +738,7 @@ async function handleAIClick() {
               body: quill.value.root.innerHTML,
               userInput: textareaValueSave.value,
               subject: inputValue.value,
-              importance: "Important", // todo: get the importance of the email
+              importance: "Important", // TODO: get the importance of the email
               history: history.value
             }),
           });
@@ -785,7 +758,7 @@ async function handleAIClick() {
                       </span>   
                   </div>
                   <div>
-                      <p><strong>Email: </strong>${formattedMail}</p>
+                      <p><strong>${t('answerPage.emailTwoDots')}</strong>${formattedMail}</p>
                   </div>
               </div>
           `;
@@ -793,13 +766,13 @@ async function handleAIClick() {
           const quillEditorContainer = quill.value.root;
           quillEditorContainer.innerHTML = result.email_body.replace(/(<ul>|<ol>|<\/li>)(?:[\s]+)(<li>|<\/ul>|<\/ol>)/g, '$1$2');
 
-          const message = "Est-ce que cette réponse vous convient ?";
+          const message = "TODO Est-ce que cette réponse vous convient ?";
           const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
           displayMessage(message, ai_icon);
         } catch (error) {
           console.log("ERROR", error);
           hideLoading();
-          const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+          const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
           const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
           displayMessage(message, ai_icon);
         }
@@ -807,7 +780,7 @@ async function handleAIClick() {
     } else if (stepcontainer == 1) {
       // if the user enter an empty value
       if (textareaValueSave.value == '') {
-        const message = "Vous n'avez saisi aucune suggestion, veuillez réessayer"
+        const message = "TODO Vous n'avez saisi aucune suggestion, veuillez réessayer"
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
         displayMessage(message, ai_icon);
       } else {
@@ -827,7 +800,7 @@ async function handleAIClick() {
               body: quill.value.root.innerHTML,
               userInput: textareaValueSave.value,
               subject: inputValue.value,
-              importance: "Important", // todo: get the importance of the email
+              importance: "Important", // TODO: get the importance of the email
               history: history.value
             }),
           });
@@ -850,7 +823,7 @@ async function handleAIClick() {
                             </span>   
                         </div>
                         <div>
-                            <p><strong>Email:</strong> ${formattedMail}</p>
+                            <p><strong>${t('answerPage.emailTwoDots')}</strong>${formattedMail}</p>
                         </div>
                     </div>
                 `;
@@ -859,19 +832,19 @@ async function handleAIClick() {
             quillEditorContainer.innerHTML = result.email_body;
 
             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-            const message = "Est-ce que ce mail vous convient mieux ?";
+            const message = "TODO Est-ce que ce mail vous convient mieux ?";
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
             displayMessage(message, ai_icon);
           } else {
             hideLoading();
-            const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+            const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
             displayMessage(message, ai_icon);
             console.log('body is missing in the response');
           }
         } catch (error) {
           hideLoading();
-          const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+          const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
           const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
           displayMessage(message, ai_icon);
           console.error('There was a problem with the fetch operation: ', error);
@@ -893,7 +866,7 @@ function askContentAdvice() {
 
   isAIWriting.value = true;
 
-  const message = "Comment puis-je vous aider à rédiger une réponse à cet email ?";
+  const message = "TODO Comment puis-je vous aider à rédiger une réponse à cet email ?";
 
   let buttonsHTML = '';
   /*
@@ -968,7 +941,7 @@ function askContentAdvice() {
   counter_display += 1;
   animateText(message, animatedParagraph);
 
-  // TODO: add buttons
+  // TODO: add buttons and remove this question
   const message2 = "Quelle longueur de mail et formalité souhaitez vous ?";
   const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
   displayMessage(message2, ai_icon);
@@ -1011,7 +984,7 @@ async function handleButtonClick(keyword) {
                 </span>   
             </div>
             <div>
-                <p><strong>Email: </strong>${formattedMail}</p>
+                <p><strong>${t('answerPage.emailTwoDots')}</strong>${formattedMail}</p>
             </div>
         </div>
     `;
@@ -1019,13 +992,13 @@ async function handleButtonClick(keyword) {
     const quillEditorContainer = quill.value.root;
     quillEditorContainer.innerHTML = result.email_answer;
 
-    const message = "Est-ce que cette réponse vous convient ?";
+    const message = "TODO Est-ce que cette réponse vous convient ?";
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     displayMessage(message, ai_icon);
   } catch (error) {
     console.log("ERROR", error);
     hideLoading();
-    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+    const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
     displayMessage(message, ai_icon);
   }
@@ -1075,7 +1048,7 @@ function handleInputUpdateMailContent(newMessage) {
 
 function askContentAdviceUser() {
   // Your previous code to display the message when the component is mounted
-  const message = "Est-ce que je peux vous aider à rédiger votre mail ?"; // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
+  const message = t('constants.sendEmailConstants.emailCompositionAssistance'); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
   const messageHTML = `
       <div class="pb-12">
@@ -1093,19 +1066,19 @@ function askContentAdviceUser() {
                   <div class="flex mt-4">
                     <div class="mr-4">
                       <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Corrige l'orthographe
+                        ${t('newPage.correctSpelling')}
                       </button>
                     </div>
                     <div>
                       <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Vérifie le copywriting
+                        ${t('newPage.checkCopywriting')}
                       </button>
                     </div>
                   </div>
                   <div class="flex mt-4">
                     <div class="mr-4">
                       <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Améliore l'écriture
+                        ${t('newPage.improveWriting')}
                       </button>
                     </div>
                   </div>
@@ -1177,8 +1150,8 @@ async function checkSpelling() {
                       </span>   
                   </div>
                   <div>
-                      <p><strong>Objet:</strong> ${result.corrected_subject}</p>
-                      <p><strong>Email:</strong> ${formattedMail}</p>
+                      <p><strong>${t('newPage.subject')}</strong>${result.corrected_subject}</p>
+                      <p><strong>${t('newPage.emailContent')}</strong>${formattedMail}</p>
                   </div>
               </div>
           `;
@@ -1188,12 +1161,12 @@ async function checkSpelling() {
       quillEditorContainer.innerHTML = result.corrected_body;
 
       // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-      const message = "J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
+      const message = "TODO J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
       displayMessage(message, ai_icon);
     } else {
       hideLoading();
-      const message = "Je m'excuse, j'ai fait une erreur de traitement."
+      const message = "TODO Je m'excuse, j'ai fait une erreur de traitement."
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
       displayMessage(message, ai_icon);
       console.log('Subject or Email is missing in the response');
@@ -1202,7 +1175,7 @@ async function checkSpelling() {
   } catch (error) {
     console.error('Error:', error);
     hideLoading();
-    const message = "Je m'excuse, j'ai fait une erreur de traitement."
+    const message = "TODO Je m'excuse, j'ai fait une erreur de traitement."
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
     displayMessage(message, ai_icon);
   }
@@ -1248,7 +1221,7 @@ async function checkCopyWriting() {
       AIContainer.value.innerHTML += messageHTML;
 
       // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-      const message = "J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
+      const message = "TODO J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
       const messageHTML2 = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
@@ -1271,7 +1244,7 @@ async function checkCopyWriting() {
       scrollToBottom();
     } else {
       hideLoading();
-      const message = "Je m'excuse, j'ai fait une erreur de traitement."
+      const message = "TODO Je m'excuse, j'ai fait une erreur de traitement."
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
       displayMessage(message, ai_icon);
       console.log('Subject or Email is missing in the response');
@@ -1280,7 +1253,7 @@ async function checkCopyWriting() {
   } catch (error) {
     console.error('Error:', error);
     hideLoading();
-    const message = "Je m'excuse, j'ai fait une erreur de traitement."
+    const message = "TODO Je m'excuse, j'ai fait une erreur de traitement."
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
     displayMessage(message, ai_icon);
   }
@@ -1297,7 +1270,7 @@ async function WriteBetter() {
       },
       body: JSON.stringify({
         mail_content: quill.value.root.innerHTML,
-        user_recommendation: "Améliore l'écriture du mail",
+        user_recommendation: t('constants.sendEmailConstants.improveEmailWriting'),
         email_subject: inputValue.value,
       }),
     });
@@ -1318,8 +1291,8 @@ async function WriteBetter() {
                     </span>   
                 </div>
                 <div>
-                    <p><strong>Objet:</strong> ${result.subject}</p>
-                    <p><strong>Email:</strong> ${formattedMail}</p>
+                  <p><strong>${t('newPage.subject')}</strong>${result.subject}</p>
+                  <p><strong>${t('newPage.emailContent')}</strong>${formattedMail}</p>
                 </div>
             </div>
         `;
@@ -1329,12 +1302,12 @@ async function WriteBetter() {
       quillEditorContainer.innerHTML = result.email_body;
 
       // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
-      const message = "Est-ce que ce mail vous convient mieux ?";
+      const message = "TODO Est-ce que ce mail vous convient mieux ?";
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
       displayMessage(message, ai_icon);
     } else {
       hideLoading();
-      const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+      const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
       displayMessage(message, ai_icon);
       console.log('Subject or Email is missing in the response');
@@ -1342,7 +1315,7 @@ async function WriteBetter() {
   } catch (error) {
     console.error('Error:', error);
     hideLoading();
-    const message = "Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+    const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
     displayMessage(message, ai_icon);
     console.error('There was a problem with the fetch operation: ', error);
@@ -1359,23 +1332,23 @@ async function sendEmail() {
 
   if (!emailSubject.trim()) {
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
-    notificationTitle.value = 'Erreur d\'envoi d\'email';
-    notificationMessage.value = 'Aucun sujet n\'a été saisi';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+    notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoSubject');
     displayPopup();
     return;
   } else if (emailBody == "<p><br></p>") {
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
-    notificationTitle.value = 'Erreur d\'envoi d\'email';
-    notificationMessage.value = 'Aucun objet n\'a été saisi';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+    notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
     displayPopup();
     return;
   } else if (selectedPeople.value.length == 0) {
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
-    notificationTitle.value = 'Erreur d\'envoi d\'email';
-    notificationMessage.value = 'Aucun destinataire n\'a été saisi';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+    notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
     displayPopup();
     return;
   }
@@ -1408,9 +1381,9 @@ async function sendEmail() {
     console.log("DEBUG===>", response.message)
     if (response.message === 'Email sent successfully!') {
       // Show the pop-up
-      backgroundColor = 'bg-green-300';
-      notificationTitle = 'Réponse envoyée !';
-      notificationMessage = 'Redirection en cours...';
+      backgroundColor = 'bg-green-200/[.89] border border-green-400';
+      notificationTitle = t('answerPage.responseSentTitle');
+      notificationMessage = t('constants.redirectionInProgress');
       displayPopup();
 
       // disable send button
@@ -1426,22 +1399,22 @@ async function sendEmail() {
       // Show the pop-up
       // Translate serializer errors for the user
       if (response.error == 'recipient is missing') {
-        notificationMessage = 'Aucun destinataire n\'a été saisi';
+        notificationMessage = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
       }
       else if (response.error == 'subject is missing') {
-        notificationMessage = 'Aucun objet n\'a été saisi';
+        notificationMessage = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
       }
       else {
         notificationMessage = response.error;
       }
-      backgroundColor = 'bg-red-300';
-      notificationTitle = 'Erreur d\'envoi d\'email';
+      backgroundColor = 'bg-red-200/[.89] border border-red-400';
+      notificationTitle = t('constants.popUpConstants.errorMessages.emailSendError');
       displayPopup();
     }
   } catch (error) {
     // Show the pop-up
-    backgroundColor = 'bg-red-300';
-    notificationTitle = 'Erreur d\'envoi d\'email';
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle = t('constants.popUpConstants.errorMessages.emailSendError');
     notificationMessage = error;
     displayPopup();
   }
@@ -1471,18 +1444,18 @@ onMounted(() => {
   loadFileMetadataFromLocalStorage(); // For uploaded file
 
   const subject = JSON.parse(sessionStorage.getItem("subject"));
-const cc = sessionStorage.getItem("cc");
-const bcc = sessionStorage.getItem("bcc");
-const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
-const email = JSON.parse(sessionStorage.getItem("email"));
-//const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
-const details = JSON.parse(sessionStorage.getItem("details"));
+  const cc = sessionStorage.getItem("cc");
+  const bcc = sessionStorage.getItem("bcc");
+  const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
+  const email = JSON.parse(sessionStorage.getItem("email"));
+  //const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
+  const details = JSON.parse(sessionStorage.getItem("details"));
 
-console.log("DEBUG CC------------------")
-console.log(cc)
+  console.log("DEBUG CC------------------")
+  console.log(cc)
 
-console.log("DEBUG BCC------------------")
-console.log(bcc)
+  console.log("DEBUG BCC------------------")
+  console.log(bcc)
   // Initialize Quill editor
   quill.value = new Quill('#editor', {
     theme: 'snow',

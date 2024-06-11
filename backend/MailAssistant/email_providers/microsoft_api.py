@@ -6,6 +6,7 @@ import base64
 import datetime
 import json
 import logging
+import re
 import threading
 import time
 import requests
@@ -1275,181 +1276,183 @@ def email_to_db(user, email, id_email):
         is_reply,
     ) = get_mail_to_db(access_token, None, id_email)
 
-    if not Email.objects.filter(provider_id=email_id).exists():
-        sender = Sender.objects.filter(email=from_name[1]).first()
+    if Email.objects.filter(provider_id=email_id).exists():
+        return True
+    
+    sender = Sender.objects.filter(email=from_name[1]).first()
 
-        if not decoded_data:
-            return False
+    if not decoded_data:
+        return False
 
-        category_dict = library.get_db_categories(user)
-        category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
-        rules = Rule.objects.filter(sender=sender)
-        rule_category = None
+    category_dict = library.get_db_categories(user)
+    category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
+    rules = Rule.objects.filter(sender=sender)
+    rule_category = None
 
-        if rules.exists():
-            for rule in rules:
-                if rule.block:
-                    return True
+    if rules.exists():
+        for rule in rules:
+            if rule.block:
+                return True
 
-                if rule.category:
-                    category = rule.category
-                    rule_category = True
+            if rule.category:
+                category = rule.category
+                rule_category = True
 
-        user_description = (
-            social_api.user_description if social_api.user_description != None else ""
+    user_description = (
+        social_api.user_description if social_api.user_description != None else ""
+    )
+    language = Preference.objects.get(user=user).language
+    if is_reply:
+        # summarize conversation with Search
+        email_content = library.preprocess_email(decoded_data)
+        user_id = user.id
+        search = Search(user_id)
+        conversation_summary = search.summarize_conversation(
+            subject, email_content, user_description, language
         )
-        language = Preference.objects.get(user=user).language
-        if is_reply:
-            # summarize conversation with Search
-            email_content = library.preprocess_email(decoded_data)
-            user_id = user.id
-            search = Search(user_id)
-            conversation_summary = search.summarize_conversation(
-                subject, email_content, user_description, language
-            )
-            # print(
-            #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
-            # )
-            # print(conversation_summary)
-            # print(
-            #     "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-            # )
-            # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
-        else:
-            # summarize single email with Search
-            email_content = library.preprocess_email(decoded_data)
-
-            user_id = user.id
-            search = Search(user_id)
-            email_summary = search.summarize_email(
-                subject, email_content, user_description, language
-            )
-            # print(
-            #     "=================== SINGLE EMAIL KEPINT ==================="
-            # )
-            # print(email_summary)
-
         # print(
-        #     "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
+        #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
         # )
-        # print(decoded_data)
+        # print(conversation_summary)
+        # print(
+        #     "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
+        # )
+        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
+    else:
+        # summarize single email with Search
+        email_content = library.preprocess_email(decoded_data)
 
-        (
-            topic,
-            importance_dict,
-            answer,
-            summary_list,
-            sentence,
-            relevance,
-        ) = claude.categorize_and_summarize_email(
-            subject, decoded_data, category_dict, user_description
+        user_id = user.id
+        search = Search(user_id)
+        email_summary = search.summarize_email(
+            subject, email_content, user_description, language
+        )
+        # print(
+        #     "=================== SINGLE EMAIL KEPINT ==================="
+        # )
+        # print(email_summary)
+
+    # print(
+    #     "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
+    # )
+    # print(decoded_data)
+
+    (
+        topic,
+        importance_dict,
+        answer,
+        summary_list,
+        sentence,
+        relevance,
+    ) = claude.categorize_and_summarize_email(
+        subject, decoded_data, category_dict, user_description
+    )
+
+    if (
+        importance_dict["UrgentWorkInformation"] >= 50
+    ):  # MAYBE TO UPDATE TO >50 =>  To test
+        importance = IMPORTANT
+    else:
+        max_percentage = 0
+        for key, value in importance_dict.items():
+            if value > max_percentage:
+                importance = key
+                if importance == "Promotional" or importance == "News":
+                    importance = USELESS
+                elif (
+                    importance == "RoutineWorkUpdates"
+                    or importance == "InternalCommunications"
+                ):
+                    importance = INFORMATION
+                elif importance == "UrgentWorkInformation":
+                    importance = IMPORTANT
+                max_percentage = importance_dict[key]
+        if max_percentage == 0:
+            importance = INFORMATION
+
+    if not rule_category:
+        if topic in category_dict:
+            category = Category.objects.get(name=topic, user=user)
+
+    if not sender:
+        sender_name, sender_email = from_name[0], from_name[1]
+        if not sender_name:
+            sender_name = sender_email
+
+        sender = Sender.objects.filter(email=sender_email).first()
+        if not sender:
+            sender = Sender.objects.create(email=sender_email, name=sender_name)
+
+    try:
+        email_entry = Email.objects.create(
+            social_api=social_api,
+            provider_id=email_id,
+            email_provider=MICROSOFT_PROVIDER,
+            email_short_summary=sentence,
+            content=decoded_data,
+            subject=subject,
+            priority=importance,
+            read=False,
+            answer_later=False,
+            sender=sender,
+            category=category,
+            user=user,
+            date=sent_date,
+            web_link=web_link,
+            has_attachments=has_attachments,
+            answer=answer,
+            relevance=relevance,
         )
 
-        if (
-            importance_dict["UrgentWorkInformation"] >= 50
-        ):  # MAYBE TO UPDATE TO >50 =>  To test
-            importance = IMPORTANT
-        else:
-            max_percentage = 0
-            for key, value in importance_dict.items():
-                if value > max_percentage:
-                    importance = key
-                    if importance == "Promotional" or importance == "News":
-                        importance = USELESS
-                    elif (
-                        importance == "RoutineWorkUpdates"
-                        or importance == "InternalCommunications"
-                    ):
-                        importance = INFORMATION
-                    elif importance == "UrgentWorkInformation":
-                        importance = IMPORTANT
-                    max_percentage = importance_dict[key]
-            if max_percentage == 0:
-                importance = INFORMATION
+        if is_reply:
+            conversation_summary_category = conversation_summary["category"]
+            conversation_summary_organization = conversation_summary["organization"]
+            conversation_summary_topic = conversation_summary["topic"]
+            keypoints: dict = conversation_summary["keypoints"]
 
-        if not rule_category:
-            if topic in category_dict:
-                category = Category.objects.get(name=topic, user=user)
-
-        if not sender:
-            sender_name, sender_email = from_name[0], from_name[1]
-            if not sender_name:
-                sender_name = sender_email
-
-            sender = Sender.objects.filter(email=sender_email).first()
-            if not sender:
-                sender = Sender.objects.create(email=sender_email, name=sender_name)
-
-        try:
-            email_entry = Email.objects.create(
-                social_api=social_api,
-                provider_id=email_id,
-                email_provider=MICROSOFT_PROVIDER,
-                email_short_summary=sentence,
-                content=decoded_data,
-                subject=subject,
-                priority=importance,
-                read=False,
-                answer_later=False,
-                sender=sender,
-                category=category,
-                user=user,
-                date=sent_date,
-                web_link=web_link,
-                has_attachments=has_attachments,
-                answer=answer,
-                relevance=relevance,
-            )
-
-            if is_reply:
-                conversation_summary_category = conversation_summary["category"]
-                conversation_summary_organization = conversation_summary["organization"]
-                conversation_summary_topic = conversation_summary["topic"]
-                keypoints: dict = conversation_summary["keypoints"]
-
-                for index, keypoints_list in keypoints.items():
-                    for keypoint in keypoints_list:
-                        KeyPoint.objects.create(
-                            is_reply=True,
-                            position=index,
-                            category=conversation_summary_category,
-                            organization=conversation_summary_organization,
-                            topic=conversation_summary_topic,
-                            content=keypoint,
-                            email=email_entry,
-                        )
-
-            else:
-                email_summary_category = email_summary["category"]
-                email_summary_organization = email_summary["organization"]
-                email_summary_topic = email_summary["topic"]
-
-                for keypoint in email_summary["keypoints"]:
+            for index, keypoints_list in keypoints.items():
+                for keypoint in keypoints_list:
                     KeyPoint.objects.create(
-                        is_reply=False,
-                        category=email_summary_category,
-                        organization=email_summary_organization,
-                        topic=email_summary_topic,
+                        is_reply=True,
+                        position=index,
+                        category=conversation_summary_category,
+                        organization=conversation_summary_organization,
+                        topic=conversation_summary_topic,
                         content=keypoint,
                         email=email_entry,
                     )
 
-            contact_name, contact_email = from_name[0], from_name[1]
-            Contact.objects.get_or_create(
-                user=user, email=contact_email, username=contact_name
-            )
+        else:
+            email_summary_category = email_summary["category"]
+            email_summary_organization = email_summary["organization"]
+            email_summary_topic = email_summary["topic"]
 
-            if summary_list:
-                for point in summary_list:
-                    BulletPoint.objects.create(content=point, email=email_entry)
+            for keypoint in email_summary["keypoints"]:
+                KeyPoint.objects.create(
+                    is_reply=False,
+                    category=email_summary_category,
+                    organization=email_summary_organization,
+                    topic=email_summary_topic,
+                    content=keypoint,
+                    email=email_entry,
+                )
 
-            return True
+        contact_name, contact_email = from_name[0], from_name[1]
+        Contact.objects.get_or_create(
+            user=user, email=contact_email, username=contact_name
+        )
 
-        except Exception as e:
-            LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
-            )
-            return str(e)
+        if summary_list:
+            for point in summary_list:
+                BulletPoint.objects.create(content=point, email=email_entry)
+
+        return True
+
+    except Exception as e:
+        LOGGER.error(
+            f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
+        )
+        return str(e)
 
 
 ####################################################################

@@ -105,58 +105,7 @@ def categorize_and_summarize_email(
 
 
 decoded_data = """
-Bonjour à toutes et à tous,
 
-Dans le cadre de la préparation de votre Séjour d'études LV1
-de l'année prochaine et afin de valoriser votre fidélité à
-l'ESAIP, nous vous transmettons dès maintenant le Powerpoint
-de présentation des destinations possibles pour votre séjour à
-l'étranger en troisième année. Il s'agit d'une présentation
-informative, mais contractuelle.
-
-Nous vous invitons à regarder les sites des écoles partenaires
-(indiquer le nom sur votre moteur de recherche) et notamment
-le programme Bachelor de votre filière (IR ou GRE).
-
-Si vous souhaitez « réserver » votre place pour l'une des
-écoles, vous avez
-jusqu'au
-21/06/24
-
-pour nous communiquer votre souhait par retour de mail.
-
-Dans ce cas, nous vous inscrirons dès maintenant (sous réserve
-d'un niveau d'anglais suffisant pour intégrer l'université
-partenaire, B1 ou B2 selon les écoles).
-
-Attention : toute inscription sera
-définitive et sans possibilité de changement en septembre.
-
-Nous vous offrons cette opportunité car chaque destination
-a un nombre limité de places.
-
-Si vous souhaitez attendre le mois de septembre pour faire vos
-choix, vous n'avez pas besoin de répondre à cet e-mail.
-
-Vous en souhaitant une bonne réception.
-
-Cordialement,
-
-Manon GUINEBRETIERE
-
-Assistante des relations
-internationales
-
-Campus Ouest
-
-02 41 96 65 13
-
-Campus
-Ouest
-
-18,
-rue du 8 mai 1945 - CS 80022 - 49180 St-Barthélemy
-d'Anjou Cedex
 """
 sender = "GUINEBRETIERE Manon <mguinebretiere@esaip.org>"
 subject = "Préparation Séjour d'études ING3"

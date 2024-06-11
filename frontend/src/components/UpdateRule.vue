@@ -11,13 +11,13 @@
         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
           <button @click="closeModal" @keydown="handleKeyDown" type="button"
             class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-            <span class="sr-only">Close</span>
             <XMarkIcon class="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
         <div class="flex items-center w-full h-16 bg-gr ay-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">
-            <p class="block font-semibold leading-6 text-gray-900">{{ $t('UpdateRule_vue.modify_the_rules') }}</p>
+            <p class="block font-semibold leading-6 text-gray-900">{{ $t('rulesPage.modals.updateRule.modifyTheRule') }}
+            </p>
           </div>
         </div>
         <div class="flex flex-col gap-4 px-8 py-6">
@@ -25,7 +25,8 @@
             <p class="text-red-500" v-if="errorMessage">{{ errorMessage }}</p>
             <div class="flex space-x-1 items-center">
               <UserIcon class="w-4 h-4" />
-              <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">Contact</ComboboxLabel>
+              <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">{{ $t('rulesPage.contactField')
+                }}</ComboboxLabel>
             </div>
             <div class="relative mt-2">
               <ComboboxInput id="inputField"
@@ -63,11 +64,11 @@
             <div class="flex space-x-1 items-center">
               <ArchiveBoxIcon class="w-4 h-4" />
               <label for="category" class="block text-sm font-medium leading-6 text-gray-900">{{
-                $t('UpdateRule_vue.category') }}</label>
+                $t('constants.category') }}</label>
             </div>
             <select id="category" name="category" v-model="formData.category"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('UpdateRule_vue.no_category_defined') }}</option>
+              <option value="">{{ $t('constants.ruleModalConstants.noCategoryDefined') }}</option>
               <option v-for="category in categories" :key="category.name" :value="category.name">{{ category.name }}
               </option>
             </select>
@@ -75,14 +76,15 @@
           <div>
             <div class="flex space-x-1 items-center">
               <ExclamationCircleIcon class="w-4 h-4" />
-              <label for="priority" class="block text-sm font-medium leading-6 text-gray-900">Priorité</label>
+              <label for="priority" class="block text-sm font-medium leading-6 text-gray-900">{{
+                $t('rulesPage.priorityField') }}</label>
             </div>
             <select id="priority" name="priority" v-model="formData.priority"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
-              <option value="">{{ $t('UpdateRule_vue.no_priority') }}</option>
-              <option value="Important">{{ $t('UpdateRule_vue.important') }}</option>
-              <option value="Informatif">{{ $t('UpdateRule_vue.informative') }}</option>
-              <option value="Inutile">{{ $t('UpdateRule_vue.useless') }}</option>
+              <option value="">{{ $t('constants.ruleModalConstants.noPriority') }}</option>
+              <option value="Important">{{ $t('constants.ruleModalConstants.important') }}</option>
+              <option value="Informatif">{{ $t('constants.ruleModalConstants.informative') }}</option>
+              <option value="Inutile">{{ $t('constants.ruleModalConstants.useless') }}</option>
             </select>
           </div>
           <SwitchGroup as="div" class="flex items-center pt-2">
@@ -92,7 +94,7 @@
                 :class="[formData.block ? 'translate-x-5' : 'translate-x-0', 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out']" />
             </Switch>
             <SwitchLabel as="span" class="ml-3 text-sm">
-              <span class="font-medium text-gray-900">{{ $t('UpdateRule_vue.block_the_mail') }}</span>
+              <span class="font-medium text-gray-900">{{ $t('constants.ruleModalConstants.blockTheEmails') }}</span>
               {{ ' ' }}
               <!--<span class="text-gray-500"></span>-->
             </SwitchLabel>
@@ -101,7 +103,7 @@
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button"
               class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-              @click="updateUserRule">{{ $t('UpdateRule_vue.modify') }}</button>
+              @click="updateUserRule">{{ $t('constants.userActions.modify') }}</button>
             <button type="button"
               class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
               @click="deleteRuleHandler">
@@ -110,7 +112,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
               </svg>
-              {{ $t('Global action.delete') }}
+              {{ $t('constants.userActions.delete') }}
             </button>
           </div>
         </div>
@@ -143,6 +145,7 @@ import {
   ShieldCheckIcon,
   ExclamationCircleIcon
 } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n';
 
 export default {
   components: {
@@ -166,10 +169,13 @@ export default {
     categories: Array,
   },
   data() {
+    const { t } = useI18n();
+
     return {
       query: '',
       selectedPerson: null,
       currentSelectedPersonUsername: '',
+      t: t,
       formData: {
         id: 0,
         info_AI: '',
@@ -283,7 +289,7 @@ export default {
         }
       }
       else {
-        this.errorMessage = "Le format de l'email est incorrect";
+        this.errorMessage = this.t('rulesPage.popUpConstants.errorMessages.emailFormatIncorrect');
       }
     },
     async deleteRuleHandler() {
@@ -301,30 +307,30 @@ export default {
         if (deleteResponse.message) {
           console.log('Rule deleted successfully');
           this.selectedPerson = null;
-          this.backgroundColor = 'bg-green-300';
-          this.notificationTitle = 'Succès !';
-          this.notificationMessage = 'Votre règle a bien été supprimée';
+          this.backgroundColor = 'bg-green-200/[.89] border border-green-400';
+          this.notificationTitle = this.t('constants.popUpConstants.successMessages.success');
+          this.notificationMessage = this.t('rulesPage.popUpConstants.successMessages.ruleDeletedSuccessfully');
           this.displayPopup();
           this.closeModal();
           this.$emit('fetch-rules');
         } else {
           console.error('Failed to delete the rule:', deleteResponse.error);
-          this.backgroundColor = 'bg-red-300';
-          this.notificationTitle = 'Erreur lors de la suppression';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+          this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleDeletionError');
           this.notificationMessage = deleteResponse.error;
           this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleting rule:', error);
-        this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur lors de la suppression';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleDeletionError');
         this.notificationMessage = error;
         this.displayPopup();
       }
     },
     async postSender() {
       if (!this.selectedPerson) {
-        this.errorMessage = "Aucune adresse email sélectionnée";
+        this.errorMessage = this.t('rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress');
         return;
       }
 
@@ -348,8 +354,8 @@ export default {
         return responseData.id;
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
-        this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur dans postSender';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.senderCreationError');
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();
@@ -357,10 +363,10 @@ export default {
     },
     async checkSenderExists() {
       if (!this.selectedPerson) {
-        this.errorMessage = "Aucune adresse email sélectionnée";
+        this.errorMessage = this.t('rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress');
         return;
       }
-
+      
       const senderData = {
         email: this.selectedPerson.email, // username is the email => TO FIX : rename
       };
@@ -390,8 +396,8 @@ export default {
         }
       } catch (error) {
         console.error(`Error in checkSenderExists: ${error}`);
-        this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur dans checkSenderExists';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.senderExistenceCheckError');
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();
@@ -405,9 +411,9 @@ export default {
 
         // Assuming the ID of the rule is stored in this.formData
         if (!this.formData.id) {
-          this.backgroundColor = 'bg-red-300';
-          this.notificationTitle = 'Erreur lors de la mise à jour de la règle';
-          this.notificationMessage = "L'identifiant de règle est requis pour la mise à jour.";
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+          this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleUpdateError');
+          this.notificationMessage = this.t('rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate');
           this.displayPopup();
           this.closeModal();
           return;
@@ -467,19 +473,19 @@ export default {
 
         if ('error' in ruleResponseData) {
           if (ruleResponseData.error === 'A rule already exists for that sender') {
-            this.notificationMessage = "Une règle existe déjà pour cet expéditeur";
+            this.notificationMessage = this.t('rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender');
           } else {
             this.notificationMessage = ruleResponseData.error;
           }
-          this.backgroundColor = 'bg-red-300';
-          this.notificationTitle = 'Erreur lors de la création de la règle';
+          this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+          this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
           this.displayPopup();
           this.closeModal();
         } else {
           this.selectedPerson = null;
-          this.backgroundColor = 'bg-green-300';
-          this.notificationTitle = 'Succès !';
-          this.notificationMessage = 'Votre règle a été mise à jour';
+          this.backgroundColor = 'bg-green-200/[.89] border border-green-400';
+          this.notificationTitle = this.t('constants.popUpConstants.successMessages.success');
+          this.notificationMessage = this.t('rulesPage.popUpConstants.successMessages.ruleUpdatedSuccessfully');
           this.displayPopup();
           this.closeModal();
           this.$emit('fetch-rules');
@@ -487,8 +493,8 @@ export default {
         }
       } catch (error) {
         console.error('Error in updating rule:', error);
-        this.backgroundColor = 'bg-red-300';
-        this.notificationTitle = 'Erreur lors de la création de la règle';
+        this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.ruleCreationError');
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();

@@ -612,7 +612,7 @@ async function submitSignupData(event) {
   console.log("The user has read and accepted our terms");
 
   // Show the pop-up
-  backgroundColor.value = 'bg-green-300';
+  backgroundColor.value = 'bg-green-200/[.89] border border-green-400';
   notificationTitle.value = 'TODO Création de compte en cours...';
   notificationMessage.value = 'TODO Attente de réponse de la base de données';
   displayPopup();

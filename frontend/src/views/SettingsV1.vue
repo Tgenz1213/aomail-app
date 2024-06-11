@@ -781,7 +781,7 @@ async function unLinkAccount() {
         } else if (response.message == "Email unlinked successfully!") {
             fetchEmailLinked();
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle.value = 'TODO Succès !';
             notificationMessage.value = 'TODO Email désassocié de votre compte avec succès !';
             displayPopup();
@@ -843,7 +843,7 @@ async function linkEmail(authorizationCode) {
     if (response.message == "Email linked to account successfully!") {
         fetchEmailLinked();
         // Show the pop-up
-        backgroundColor.value = 'bg-green-300';
+        backgroundColor.value = 'bg-green-200/[.89] border border-green-400';
         notificationTitle.value = 'TODO Succès !';
         notificationMessage.value = 'TODO Votre email a été lié à votre compte';
         displayPopup();
@@ -950,7 +950,7 @@ async function updateUserDescription() {
     const response = await fetchWithToken(`${API_BASE_URL}user/social_api/update_user_description/`, requestOptions)
 
     if (response.message == "User description updated") {
-        backgroundColor = 'bg-green-300';
+        backgroundColor = 'bg-green-200/[.89] border border-green-400';
         notificationTitle.value = "TODO Succès !";
         notificationMessage.value = "TODO Description email mise à jour";
         displayPopup();
@@ -1155,7 +1155,7 @@ async function handleSubmit() {
 
         if (resultUpdateUsername == 'Username updated successfully' && resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'TODO Succès !';
             notificationMessage = 'TODO Votre identifiant et mot de passe ont été modifiés';
             displayPopup();
@@ -1164,14 +1164,14 @@ async function handleSubmit() {
 
             if (resultUpdateUsername == 'Username updated successfully') {
                 // Show the pop-up
-                backgroundColor = 'bg-green-300';
+                backgroundColor = 'bg-green-200/[.89] border border-green-400';
                 notificationTitle = 'TODO Succès !';
                 notificationMessage = 'TODO Votre identifiant a bien été mis à jour';
                 displayPopup();
             }
             else {
                 // Show the pop-up
-                backgroundColor = 'bg-green-300';
+                backgroundColor = 'bg-green-200/[.89] border border-green-400';
                 notificationTitle = 'TODO Erreur mise à jour identifiant';
                 notificationMessage = resultUpdateUsername;
                 displayPopup();
@@ -1182,7 +1182,7 @@ async function handleSubmit() {
 
         if (resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'TODO Succès !';
             notificationMessage = 'TODO Votre mot de passe a bien été modifié';
             displayPopup();
@@ -1252,7 +1252,7 @@ async function deleteAccount() {
             localStorage.clear();
             closeModal();
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'TODO Redirection en cours...';
             notificationMessage = 'TODO Votre compte a bien été supprimé';
             displayPopup();

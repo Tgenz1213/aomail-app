@@ -1103,7 +1103,7 @@ async function sendEmail() {
 
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'TODO Email transféré !';
             notificationMessage = 'TODO Redirection en cours...';
             displayPopup();

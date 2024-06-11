@@ -2090,7 +2090,7 @@ async function handleAddCategory(categoryData) {
             closeModal();
         } else if (response) {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'TODO Succès !';
             notificationMessage = 'TODO La catégorie a été ajoutée';
             displayPopup();
@@ -2154,7 +2154,7 @@ async function handleUpdateCategory(updatedCategory) {
 
         if (response) {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'TODO Succès !';
             notificationMessage = 'TODO La catégorie a été mise à jour';
             displayPopup();
@@ -2239,7 +2239,7 @@ async function deleteCategory(categoryNameToDelete) {
 
         if (response) {
             // Show the pop-up
-            backgroundColor = 'bg-green-300';
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'TODO Succès !';
             notificationMessage = 'TODO Votre catégorie a été supprimée';
             displayPopup();

@@ -114,10 +114,16 @@ class Email(models.Model):
         SocialAPI, on_delete=models.CASCADE, related_name="social_api_emails", null=True
     )
     provider_id = models.CharField(max_length=200, unique=True)
+
+    # TO DELETE
     web_link = models.CharField(max_length=200, null=True)
+
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
+
+    # TO DELETE (duplicate with html_content)
     content = models.TextField()
+
     html_content = models.TextField(default="")  # quick fix
     subject = models.CharField(max_length=400)
     priority = models.CharField(max_length=50)
@@ -171,6 +177,7 @@ class Picture(models.Model):
     picture = models.TextField()
 
 
+# TO DELETE
 class BulletPoint(models.Model):
     """Model for storing bullet points."""
 

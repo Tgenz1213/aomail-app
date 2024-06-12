@@ -1,5 +1,14 @@
 """
 Handles prompt engineering requests for Claude 3 API.
+
+TODO:
+- Clean the code with doc + datatypes
+- Remove all unecessary functions
+- Clean imports
+- Write an list of all supported function in the banner of that file like
+    - search emails: ✅
+    - feature 2: ⚒️
+- Clean all utils linked (mostly in library) purely with ai and put everything in 'ai_providers/'
 """
 
 import ast
@@ -165,7 +174,9 @@ def improve_email_writing(body, subject):
     return email_body, subject_text
 
 
-""" OLD Ask Theo Before Delete (It's still used)""" 
+""" OLD Ask Theo Before Delete (It's still used)"""
+
+
 def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
@@ -315,11 +326,140 @@ def generate_email_response(
     return body
 
 
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
+# TODO: finish to implement by merging with the old function
+# categorize_and_summarize_email
+def new_function_(
+    subject: str,
+    decoded_data: str,
+    category_dict: dict,
+    user_description: str,
+    sender: str,
+    language: str,
+) -> tuple[str, str, str, dict[str:str, str:list], dict[str:int]]:
+    """Categorizes and summarizes an email"""
+
+    response_list = {
+        "Answer Required": "Message requires an answer.",
+        "Might Require Answer": "Message might require an answer.",
+        "No Answer Required": "No answer is required.",
+    }
+    relevance_list = {
+        "Highly Relevant": "Message is highly relevant to the recipient.",
+        "Possibly Relevant": "Message might be relevant to the recipient.",
+        "Not Relevant": "Message is not relevant to the recipient.",
+    }
+
+    template = f"""You are a smart email assistant acting as if you were a secretary, summarizing an email for the recipient orally.
+    
+    Given the following email:
+
+    Sender:
+    {sender}
+
+    Subject:
+    {subject}
+
+    Text:
+    {decoded_data}
+
+    User description:
+    {user_description}
+
+    Using the provided categories:
+
+    Topic Categories:
+    {category_dict}
+
+    Response Categories:
+    {response_list}
+
+    Relevance Categories:
+    {relevance_list}
+
+    Complete the following tasks in {language}:
+    - Categorize the email according to the user description (if provided) and given categories.
+    - Summarize the email without adding any greetings.
+    - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones.
+    - The summary should objectively reflect the most important information of the email without making subjective judgments.
+    - If the email is explicitely mentionning the name of the user (provided with user description), then use 'You' instead of the name of the user.
+    
+    ---
+    Answer must always be a Json format matching this template:
+    {{
+        "topic": Topic Title Category,
+        "response": Response Category,
+        "relevance": Relevance Category,
+        "summary": Summary of the email
+    }}"""
+    response = get_prompt_response(template)
+    clear_response = response.content[0].text.strip()
+
+    print("Claude categorize_and_summarize_email")
+    print(clear_response)
+
+    result_json = json.loads(clear_response)
+
+    topic_category = result_json["topic"]
+    response_category = result_json["response"]
+    relevance_category = result_json["relevance"]
+    summary = result_json["summary"]
+
+    return (
+        topic_category,
+        response_category,
+        summary,
+        relevance_category,
+    )
 
 
+def search_emails(query: str, language: str = "French") -> dict:
+    """Searches emails based on the user query and generates structured JSON response."""
+
+    today = datetime.now().strftime("%m-%d-%Y")
+
+    template = f"""As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
+    1. Analyse and create a filter to search emails content with the Gmail API and Graph API.
+    2. If nothing special is specified, 'from', 'to', 'subject', 'body' MUST have the same value as the most relevant keyword. By default, search in 'read', 'unread' emails
+    3. Regarding keywords, provide ONLY individual words. Sentences are not allowed unless explicitly mentioned. If you're unsure, list every relevant word separately.
+    4. If and only if a date is explicitely provided by the user; add it to the output using this format: MM/DD/YYYY. Otherwise leave it as an empty string if you hesitate.
+    
+    ---
+    Answer must ONLY be a Json format matching this template in {language} WITHOUT giving any explanation:
+    {{
+        closeness_percentage: int,
+        max_results: int - default 100,
+        from: [],
+        to: [],
+        subject: "",
+        body: "",
+        filenames: [filenames OR extensions following (a-z0-9)],
+        date_from: "",
+        keywords: [],
+        search_in: {{
+            "read": boolean,
+            "unread": boolean,
+            "drafts": boolean,
+            "sent_emails": boolean,
+            "deleted_emails": boolean,
+            "spams": boolean
+        }}
+    }}"""
+    response = get_prompt_response(template)
+    clear_response = response.content[0].text.strip()
+
+    # print(clear_response)
+
+    queries_dict = json.loads(clear_response)
+
+    return queries_dict
+
+
+###########################################################
+######################## TO DELETE ########################
+###########################################################
+
+
+# TO DELETE
 def categorize_and_summarize_email(
     subject: str,
     decoded_data: str,
@@ -439,50 +579,6 @@ def categorize_and_summarize_email(
     )
 
 
-def search_emails(query: str, language: str = "French") -> dict:
-    """Searches emails based on the user query and generates structured JSON response."""
-
-    today = datetime.now().strftime("%m-%d-%Y")
-
-    template = f"""{HUMAN}As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
-    1. Analyse and create a filter to search emails content with the Gmail API and Graph API.
-    2. If nothing special is specified, 'from', 'to', 'subject', 'body' MUST have the same value as the most relevant keyword. By default, search in 'read', 'unread' emails
-    3. Regarding keywords, provide ONLY individual words. Sentences are not allowed unless explicitly mentioned. If you're unsure, list every relevant word separately.
-    4. If and only if a date is explicitely provided by the user; add it to the output using this format: MM/DD/YYYY. Otherwise leave it as an empty string if you hesitate.
-    
-    ---
-    Answer must ONLY be a Json format matching this template in {language} WITHOUT giving any explanation:
-    {{
-        closeness_percentage: int,
-        max_results: int - default 100,
-        from: [],
-        to: [],
-        subject: "",
-        body: "",
-        filenames: [filenames OR extensions following (a-z0-9)],
-        date_from: "",
-        keywords: [],
-        search_in: {{
-            "read": boolean,
-            "unread": boolean,
-            "drafts": boolean,
-            "sent_emails": boolean,
-            "deleted_emails": boolean,
-            "spams": boolean
-        }}
-    }}
-    {ASSISTANT}"""
-    response = get_prompt_response(template)
-    clear_response = response.content[0].text.strip()
-
-    # print(clear_response)
-
-    queries_dict = json.loads(clear_response)
-
-    return queries_dict
-
-
-
 """ OLD v1 Ask Theo before DELETE
     importance_list = {
         "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
@@ -545,7 +641,6 @@ def new_mail_recommendation(
 
     return subject_text, email_body
 '''
-
 
 
 '''def generate_email_response(

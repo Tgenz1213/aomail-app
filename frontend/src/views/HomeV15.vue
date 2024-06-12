@@ -231,7 +231,7 @@
                                             <div class="bg-orange-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-3 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
-                                                        Travail - Urgent</p>
+                                                        TODO Urgent(c'est important ds les trads)</p>
                                                     <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                     <div class="ml-auto">
                                                         <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
@@ -509,7 +509,7 @@
                                             <div class="bg-blue-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-2 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
-                                                    Travail - Informatif
+                                                    TODO Informatif
                                                     </p>
                                                     <div class="ml-auto">
                                                     <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -791,7 +791,7 @@
                                                 <div class="bg-gray-200 bg-opacity-90 rounded-md">
                                                     <div class="flex px-2 py-2">
                                                         <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
-                                                            Inutile</p>
+                                                            TODO Inutile</p>
                                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                         <div class="ml-auto">
                                                             <trash-icon class="w-6 h-6 text-gray-500" />
@@ -913,7 +913,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('constants.userActions.delete') }}
+                                                                                                    {{ $t('constants.userActions.archive') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -1265,7 +1265,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('constants.userActions.delete') }}
+                                                                                                    {{ $t('constants.userActions.archive') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">

@@ -1379,11 +1379,6 @@ def email_to_db(user, services, social_api: SocialAPI):
                 subject, email_content, user_description, language
             )
 
-        # print(
-        #     "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
-        # )
-        # print(decoded_data)
-
         (
             topic,
             importance_dict,

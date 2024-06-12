@@ -1278,7 +1278,7 @@ def email_to_db(user, email, id_email):
 
     if Email.objects.filter(provider_id=email_id).exists():
         return True
-    
+
     sender = Sender.objects.filter(email=from_name[1]).first()
 
     if not decoded_data:
@@ -1302,6 +1302,7 @@ def email_to_db(user, email, id_email):
         social_api.user_description if social_api.user_description != None else ""
     )
     language = Preference.objects.get(user=user).language
+    
     if is_reply:
         # summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1310,14 +1311,6 @@ def email_to_db(user, email, id_email):
         conversation_summary = search.summarize_conversation(
             subject, email_content, user_description, language
         )
-        # print(
-        #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
-        # )
-        # print(conversation_summary)
-        # print(
-        #     "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        # )
-        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
     else:
         # summarize single email with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1327,15 +1320,6 @@ def email_to_db(user, email, id_email):
         email_summary = search.summarize_email(
             subject, email_content, user_description, language
         )
-        # print(
-        #     "=================== SINGLE EMAIL KEPINT ==================="
-        # )
-        # print(email_summary)
-
-    # print(
-    #     "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
-    # )
-    # print(decoded_data)
 
     (
         topic,

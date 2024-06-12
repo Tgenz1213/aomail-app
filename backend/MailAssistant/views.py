@@ -738,21 +738,47 @@ def set_user_timezone(request: HttpRequest) -> Response:
 
 
 ######################## ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS ########################
-# @api_view(["POST"])
-# # @permission_classes([IsAuthenticated])
-# @subscription([FREE_PLAN])
-# def archive_emails(request: HttpRequest):
-#     user = request.user
-#     parameters: dict = json.loads(request.body)
-#     importance = parameters.get("importance")
-#     if not importance:
-#         return Response({"error": "No importance provided"}, status=status.HTTP_400_BAD_REQUEST)
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def delete_emails(request: HttpRequest) -> Response:
+    """
+    Delete emails based on the priority or specific email IDs provided in the request body.
 
-#     USELESS = "useles"
-#     # todo create 3 cosntants and clean english
-#     "useless","important", "informative"
+    Args:
+        request (HttpRequest): The HTTP request object containing the user and body.
 
-#     Email.objects.filter(user=user, priority=importance)
+    Returns:
+        Response: A JSON response with a success or error message.
+    """
+    user = request.user
+    parameters: dict = json.loads(request.body)
+    priority: str = parameters.get("priority")
+    clean: bool = parameters.get("clean")
+
+    if not priority:
+        return Response(
+            {"error": "No priority provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if clean:
+        emails = Email.objects.filter(user=user, priority=priority)
+        for email in emails:
+            email.delete()
+
+    else:
+        email_ids: list[int] = parameters.get("emailIds", [])
+        for email_id in email_ids:
+            try:
+                email = Email.objects.get(user=user, id=email_id)
+                email.delete()
+            except Email.DoesNotExist:
+                pass
+
+    return Response(
+        {"message": "Emails deleted successfully"}, status=status.HTTP_200_OK
+    )
+
 
 ######################## CATEGORIES ########################
 @api_view(["GET"])
@@ -2157,8 +2183,11 @@ def get_user_emails(request):
                 "answer_later": email.answer_later,
                 "web_link": email.web_link,
                 "has_attachments": email.has_attachments,
-                "attachments" : [
-                    {"attachmentName": attachment.name, "attachmentId": attachment.id_api}
+                "attachments": [
+                    {
+                        "attachmentName": attachment.name,
+                        "attachmentId": attachment.id_api,
+                    }
                     for attachment in email.attachments.all()
                 ],
                 "date": email_date,
@@ -2188,24 +2217,28 @@ def get_user_emails(request):
 
     return Response(formatted_data, status=status.HTTP_200_OK)
 
+
 # ----------------------- EMAIL ATTACHMENT -----------------------#
 @api_view(["GET"])
-#@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def retrieve_attachment_data(request, email_id, attachment_id):
     """API endpoint to retrieve email attachment data"""
     user = request.user
-    email = get_object_or_404(Email, user=user, id=email_id)    
+    email = get_object_or_404(Email, user=user, id=email_id)
     social_api = email.social_api
 
     if social_api.type_api == "google":
         print("SOCIAL API :", social_api.email, "PROVIDER ID :", email.provider_id)
-        attachment_data = google_api.get_attachment_data(user, social_api.email, email.provider_id, attachment_id)
+        attachment_data = google_api.get_attachment_data(
+            user, social_api.email, email.provider_id, attachment_id
+        )
     elif social_api.type_api == "microsoft":
         # TO DO
         print("TO DO : ERROR")
-        
+
     return Response(attachment_data, status=200)
+
 
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################

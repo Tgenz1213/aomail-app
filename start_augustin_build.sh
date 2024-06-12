@@ -26,20 +26,20 @@ docker compose -p ${ENV}_project up --build -d
 # Wait for the backend container to be running
 container_name="${ENV}_project-backend-1"
 
-# Extract the ID of the Google renew subscription
-ID=""
-while [ -z "$ID" ]; do
-  ID=$(docker exec -i $container_name crontab -l | grep 'crontab run' | awk -F 'run ' '{print $2}' | awk '{print $1}')
-  if [ -z "$ID" ]; then
-    echo "No ID found. Retrying in 5 seconds..."
-    sleep 5
-  fi
-done
-echo "ID found: $ID"
+# # Extract the ID of the Google renew subscription
+# ID=""
+# while [ -z "$ID" ]; do
+#   ID=$(docker exec -i $container_name crontab -l | grep 'crontab run' | awk -F 'run ' '{print $2}' | awk '{print $1}')
+#   if [ -z "$ID" ]; then
+#     echo "No ID found. Retrying in 5 seconds..."
+#     sleep 5
+#   fi
+# done
+# echo "ID found: $ID"
 
-# Define the cron job and add it if it doesn't exist
-CRON_JOB="0 3 * * * docker exec -i ${ENV}_project-backend-1 /usr/local/bin/python /app/manage.py crontab run $ID"
-(crontab -l | grep -F "$CRON_JOB") && echo "Cron job already exists" || (crontab -l; echo "$CRON_JOB") | crontab -
+# # Define the cron job and add it if it doesn't exist
+# CRON_JOB="0 3 * * * docker exec -i ${ENV}_project-backend-1 /usr/local/bin/python /app/manage.py crontab run $ID"
+# (crontab -l | grep -F "$CRON_JOB") && echo "Cron job already exists" || (crontab -l; echo "$CRON_JOB") | crontab -
 
 
 # Run migrations

@@ -17,9 +17,7 @@ class Search:
     Class for searching through categorized email data within a knowledge tree.
     """
 
-    def __init__(
-        self, user_id: int, question: str = None
-    ) -> None:
+    def __init__(self, user_id: int, question: str = None) -> None:
         self.user_id = user_id
         self.question = question
         self.knowledge_tree = self.get_knowledge_tree()
@@ -32,28 +30,36 @@ class Search:
         Returns:
             dict: The knowledge tree of the user.
         """
-        knowledge_tree = {}
+        knowledge_tree: dict = {}
         key_points = KeyPoint.objects.filter(email__user_id=self.user_id)
 
         for key_point in key_points:
-            category_name = key_point.category
-            organization_name = key_point.organization
-            topic_name = key_point.topic
+            category_name: str = key_point.category
+            organization_name: str = key_point.organization
+            topic_name: str = key_point.topic
 
-            if category_name not in knowledge_tree:
-                knowledge_tree[category_name] = {"organizations": {}}
-            if organization_name not in knowledge_tree[category_name]["organizations"]:
-                knowledge_tree[category_name]["organizations"][organization_name] = {
-                    "topics": {}}
-            if topic_name not in knowledge_tree[category_name]["organizations"][organization_name]["topics"]:
-                knowledge_tree[category_name]["organizations"][organization_name]["topics"][topic_name] = {
-                    "keypoints": [], "emails": []}
+            category: dict = knowledge_tree.setdefault(
+                category_name, {"organizations": {}}
+            )
+            organizations: dict = category["organizations"]
+            organization: dict = organizations.setdefault(
+                organization_name, {"topics": {}}
+            )
+            category["organizations"] = organizations
 
-            knowledge_tree[category_name]["organizations"][
-                organization_name]["topics"][topic_name]["keypoints"].append(key_point.content)
-            knowledge_tree[category_name]["organizations"][
-                organization_name]["topics"][topic_name]["emails"].append(key_point.email.provider_id)
+            topics: dict = organization["topics"]
+            topic: dict = topics.setdefault(topic_name, {"keypoints": [], "emails": []})
+            organization["topics"] = topics
 
+            keypoints: list = topic["keypoints"]
+            keypoints.append(key_point.content)
+            topic["keypoints"] = keypoints
+
+            emails: list = topic["emails"]
+            emails.append(key_point.email.provider_id)
+            topic["emails"] = emails
+
+        print("knowledge_tree", knowledge_tree)
         return knowledge_tree
 
     def get_categories(self) -> dict:
@@ -67,45 +73,47 @@ class Search:
             return {}
 
         categories = {}
-        key_points = KeyPoint.objects.filter(
-            email__user_id=self.user_id).values('category', 'organization')
+        key_points = KeyPoint.objects.filter(email__user_id=self.user_id).values(
+            "category", "organization"
+        )
 
         for key_point in key_points:
-            category_name = key_point['category']
-            organization = key_point['organization']
+            category_name = key_point["category"]
+            organization = key_point["organization"]
             if category_name not in categories:
                 categories[category_name] = []
-            if organization not in categories[category_name]:
-                category_organizations: list = categories[category_name]
-                category_organizations.append(organization)
+            list_category_name: list = categories[category_name]
+            list_category_name.append(organization)
+            categories[category_name] = list_category_name
 
+        print("debug", categories)
         return categories
 
-    def get_keypoints(self, selected_categories: dict[str, list[str]]) -> dict:
+    def get_keypoints(
+        self, selected_categories: dict[str, list[str]]
+    ) -> dict[str, dict[str, dict[str, dict[str, list[str]]]]]:
         """
         Retrieves keypoints for the selected categories and organizations.
 
         Args:
-            selected_categories (dict[str, List[str]]): A dictionary where keys are category names and values are lists of organization names.
+            selected_categories (dict): A dictionary where keys are category names and values are lists of organization names.
 
         Returns:
-            dict[str, dict[str, dict[str, dict[str, List[str]]]]]: A nested dictionary containing keypoints for each category, organization, and topic.
+            dict: A nested dictionary containing keypoints for each category, organization, and topic.
         """
         keypoints = {}
-        for category in selected_categories:
+
+        for category, organizations in selected_categories.items():
             keypoints[category] = {}
-            for organization in selected_categories[category]:
+            for organization in organizations:
                 keypoints[category][organization] = {}
-                for topic in self.knowledge_tree[category]["organizations"][
+                topics: dict = self.knowledge_tree[category]["organizations"][
                     organization
-                ]["topics"]:
-                    keypoints[category][organization][topic] = {}
-                    keypoints[category][organization][topic]["keypoints"] = [
-                        keypoint
-                        for keypoint in self.knowledge_tree[category]["organizations"][
-                            organization
-                        ]["topics"][topic]["keypoints"]
-                    ]
+                ]["topics"]
+                for topic, topic_data in topics.items():
+                    keypoints[category][organization][topic] = {
+                        "keypoints": topic_data["keypoints"]
+                    }
 
         return keypoints
 
@@ -114,12 +122,12 @@ class Search:
         Checks if Ao can potentially answer a question.
 
         Returns:
-            bool: True if Ao has data to search through and may answer a question, 
+            bool: True if Ao has data to search through and may answer a question,
                 False otherwise.
         """
         return self.categories != {}
 
-    def get_selected_categories(self) -> dict[str: list[str]]:
+    def get_selected_categories(self) -> dict[str : list[str]]:
         """
         Returns the highly relevant categories and organizations to answer the user's question.
 
@@ -202,11 +210,7 @@ class Search:
         return result_json
 
     def summarize_conversation(
-        self,
-        subject: str,
-        body: str,
-        user_description: str | None,
-        language: str
+        self, subject: str, body: str, user_description: str | None, language: str
     ) -> dict:
         """
         Summarizes an email conversation in the specified language with keypoints.
@@ -265,11 +269,7 @@ class Search:
         return result_json
 
     def summarize_email(
-        self,
-        subject: str,
-        body: str,
-        user_description: str | None,
-        language: str
+        self, subject: str, body: str, user_description: str | None, language: str
     ) -> dict:
         """
         Summarizes an email conversation in the specified language with keypoints.

@@ -6,7 +6,6 @@ import json
 from django.contrib.auth.models import User
 from langchain_community.chat_message_histories import ChatMessageHistory
 from MailAssistant.ai_providers import claude
-from MailAssistant.constants import HUMAN, ASSISTANT
 
 
 class EmailReplyConversation:

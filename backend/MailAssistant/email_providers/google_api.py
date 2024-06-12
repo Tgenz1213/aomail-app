@@ -510,12 +510,8 @@ def get_mail_to_db(services):
             )
             image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
             image_files.append(image_filename)
-            email_html += (
-                f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
-            )
-            email_txt_html += (
-                f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
-            )
+            email_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
+            email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
                 for subpart in part["parts"]:
@@ -524,10 +520,9 @@ def get_mail_to_db(services):
             has_attachments = True
             attachment_id = part["body"]["attachmentId"]
             # Add metadata to attachments list
-            attachments.append({
-                "attachmentId": attachment_id,
-                "attachmentName": part["filename"]
-            })
+            attachments.append(
+                {"attachmentId": attachment_id, "attachmentName": part["filename"]}
+            )
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -563,9 +558,9 @@ def get_mail_to_db(services):
         cc_info,
         bcc_info,
         image_files,
-        attachments, 
+        attachments,
     )
-    
+
 
 def get_mail_id(services, int_mail: int) -> str:
     """
@@ -850,32 +845,45 @@ def search_emails_manually(
         return []'''
 
 
-def get_attachment_data(user: User, email: str, email_id: str, attachment_id: str) -> dict:
+def get_attachment_data(
+    user: User, email: str, email_id: str, attachment_id: str
+) -> dict:
     try:
         services = authenticate_service(user, email)
-        if not services or 'gmail' not in services:
-            LOGGER.error(f"Failed to authenticate Gmail service for user with ID {user.id} and email: {email}")
-            LOOGER.error(f"SERVICES : ", services)
+        if not services or "gmail" not in services:
+            LOGGER.error(
+                f"Failed to authenticate Gmail service for user with ID {user.id} and email: {email}"
+            )
+            LOGGER.error(f"SERVICES : ", services)
             return {}
 
-        gmail_service = services['gmail']
-        message = gmail_service.users().messages().get(userId='me', id=email_id).execute()
-        
-        if 'payload' in message:
-            parts = message['payload'].get('parts', [])
+        gmail_service = services["gmail"]
+        message = (
+            gmail_service.users().messages().get(userId="me", id=email_id).execute()
+        )
+
+        if "payload" in message:
+            parts = message["payload"].get("parts", [])
             for part in parts:
-                if 'body' in part and part['body'].get('attachmentId') == attachment_id:
-                    attachment = gmail_service.users().messages().attachments().get(
-                        userId='me', messageId=email_id, id=attachment_id).execute()
-                    
-                    data = attachment['data']
-                    attachment_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
-                    return {"attachmentName": part['filename'], "data": attachment_data}
+                if "body" in part and part["body"].get("attachmentId") == attachment_id:
+                    attachment = (
+                        gmail_service.users()
+                        .messages()
+                        .attachments()
+                        .get(userId="me", messageId=email_id, id=attachment_id)
+                        .execute()
+                    )
+
+                    data = attachment["data"]
+                    attachment_data = base64.urlsafe_b64decode(data.encode("UTF-8"))
+                    return {"attachmentName": part["filename"], "data": attachment_data}
 
         return {}
 
     except Exception as e:
-        LOGGER.error(f"Failed to get attachment data for email ID {email_id} and attachment ID {attachment_id}: {str(e)}")
+        LOGGER.error(
+            f"Failed to get attachment data for email ID {email_id} and attachment ID {attachment_id}: {str(e)}"
+        )
         return {}
 
 
@@ -1326,52 +1334,12 @@ def email_to_db(user, services, social_api: SocialAPI):
         social_api.user_description if social_api.user_description != None else ""
     )
     language = Preference.objects.get(user=user).language
-    if is_reply:
-        email_content = library.preprocess_email(decoded_data)
-
-        # summarize conversation with Search
-        user_id = user.id
-        search = Search(user_id)
-        email_id = get_mail_id(services, 0)
-        conversation_summary = search.summarize_conversation(
-            subject, email_content, user_description, language
-        )
-        # print(
-        #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
-        # )
-        # print(conversation_summary)
-        # print(
-        #     "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        # )
-        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
-    else:
-        # summarize single email with Search
-        email_content = library.preprocess_email(decoded_data)
-
-        user_id = user.id
-        search = Search(user_id)
-        email_id = get_mail_id(services, 0)
-        email_summary = search.summarize_email(
-            subject, email_content, user_description, language
-        )
-        # print(
-        #     "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        # )
-        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
-
-    # print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
-    # print(safe_html)
-
-    # print("----------------------------------> decoded_data", decoded_data)
-    # print("----------------------------------> PICTURES", image_files)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
             return "No decoded data"
-
-        # print("THIS AREA --------------------------------------------------------|")
 
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
@@ -1390,17 +1358,26 @@ def email_to_db(user, services, social_api: SocialAPI):
                     category = rule.category
                     rule_category = True
 
-        # print(
-        #     "-------------------------> 5",
-        #     "SUBJECT : ",
-        #     subject,
-        #     "DATA : ",
-        #     decoded_data,
-        #     "CATEGORY : ",
-        #     category_dict,
-        #     "USER DESCRIPTION : ",
-        #     user_description,
-        # )
+        if is_reply:
+            email_content = library.preprocess_email(decoded_data)
+
+            # summarize conversation with Search
+            user_id = user.id
+            search = Search(user_id)
+            email_id = get_mail_id(services, 0)
+            conversation_summary = search.summarize_conversation(
+                subject, email_content, user_description, language
+            )
+        else:
+            # summarize single email with Search
+            email_content = library.preprocess_email(decoded_data)
+
+            user_id = user.id
+            search = Search(user_id)
+            email_id = get_mail_id(services, 0)
+            email_summary = search.summarize_email(
+                subject, email_content, user_description, language
+            )
 
         # print(
         #     "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
@@ -1539,7 +1516,11 @@ def email_to_db(user, services, social_api: SocialAPI):
 
             if attachments:
                 for attachment in attachments:
-                    Attachment.objects.create(mail_id=email_entry, name=attachment["attachmentName"], id_api=attachment["attachmentId"])
+                    Attachment.objects.create(
+                        mail_id=email_entry,
+                        name=attachment["attachmentName"],
+                        id_api=attachment["attachmentId"],
+                    )
             return True
 
         except Exception as e:

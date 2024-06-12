@@ -2,7 +2,8 @@
 Handles frontend requests and redirects them to the appropriate API.
 
 TODO:
-- Define all constants that are only used in views.py directly in views.py
+- Split all the code inside files and put it all inside 'controllers' folder
+- Define all constants locally and globally (according to the scope)
 - Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.
 - Improve documentation to be concise.
@@ -735,6 +736,23 @@ def set_user_timezone(request: HttpRequest) -> Response:
         LOGGER.error(f"Error in set_user_timezone: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+######################## ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS ########################
+# @api_view(["POST"])
+# # @permission_classes([IsAuthenticated])
+# @subscription([FREE_PLAN])
+# def archive_emails(request: HttpRequest):
+#     user = request.user
+#     parameters: dict = json.loads(request.body)
+#     importance = parameters.get("importance")
+#     if not importance:
+#         return Response({"error": "No importance provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+#     USELESS = "useles"
+#     # todo create 3 cosntants and clean english
+#     "useless","important", "informative"
+
+#     Email.objects.filter(user=user, priority=importance)
 
 ######################## CATEGORIES ########################
 @api_view(["GET"])

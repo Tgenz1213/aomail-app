@@ -133,12 +133,14 @@ class Email(models.Model):
     answer = models.CharField(max_length=50, default="")
     relevance = models.CharField(max_length=50, default="")
 
+
 class Attachment(models.Model):
     mail_id = models.ForeignKey(
         Email, on_delete=models.CASCADE, related_name="attachments"
     )
-    name  = models.CharField(max_length=200)
+    name = models.CharField(max_length=200)
     id_api = models.CharField(max_length=500)
+
 
 class CC_sender(models.Model):
     """Model for storing CC sender information."""

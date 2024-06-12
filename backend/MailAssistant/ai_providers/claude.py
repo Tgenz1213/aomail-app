@@ -48,11 +48,11 @@ def count_tokens(text: str) -> int:
 def get_language(input_body, input_subject) -> str:
     """Returns the primary language used in the email"""
 
-    formatted_prompt = f"""{HUMAN}Given an email with subject: '{input_subject}' and body: '{input_body}',
+    formatted_prompt = f"""Given an email with subject: '{input_subject}' and body: '{input_body}',
     IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
     
     Provide ONLY the answer in JSON format with the key 'language' (STRING).    
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     language = json.loads(response.content[0].text)["language"]
 
@@ -93,7 +93,7 @@ def count_corrections(
 
 
 def extract_contacts_recipients(query) -> dict[str:list]:
-    formatted_prompt = f"""{HUMAN}As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
+    formatted_prompt = f"""As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
 
     Guidelines for classification:
     - Main recipients are those directly mentioned or implied to be the primary audience, without specific indicators for copying.
@@ -108,7 +108,7 @@ def extract_contacts_recipients(query) -> dict[str:list]:
     main_recipients: [Python list],
     cc_recipients: [Python list],
     bcc_recipients: [Python list]    
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     recipients: dict = json.loads(response.content[0].text)
 
@@ -128,7 +128,7 @@ def extract_contacts_recipients(query) -> dict[str:list]:
 def generate_response_keywords(input_email, input_subject, language) -> list:
     """Generate a list of keywords for responding to a given email."""
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
+    formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
 
     IDENTIFY up to 4 different ways to respond to this email. Only identify relevant way to respond if you can't find 4 different ways only give 2 or 3 ways to respond.
     USE few words in {language} while keeping a relevant meaning ONLY if you are sure that keyword is relevant, if you HESITATE do not add it.
@@ -136,7 +136,7 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 
     ---
     As an answer ONLY give a Python List format: ["...", "..."] dont use any other caracters otherwise it will create errors. Do not give ANY explanations, RETURN only the list.
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     keywords = response.content[0].text.strip()
 
@@ -154,13 +154,13 @@ def improve_email_writing(body, subject):
 
     language = get_language(body, subject).upper()
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
+    formatted_prompt = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {subject},
     body: {body}
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     result_json = json.loads(response.content[0].text.strip())
 
@@ -216,11 +216,11 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     word_count = int(input_word_count * word_count_factor)
     word_count_range = f"{word_count - 20}-{word_count + 20} words"
 
-    template = f"""{HUMAN}As an email assistant, write a {formality} email in {language} with a length of {word_count_range}.
+    template = f"""As an email assistant, write a {formality} email in {language} with a length of {word_count_range}.
     Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
 
     Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
@@ -241,13 +241,13 @@ def correct_mail_language_mistakes(body, subject):
 
     language = get_language(body, subject).upper()
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    formatted_prompt = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {subject},
     body: {body}
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     clear_text = response.content[0].text.strip()
     result_json = json.loads(clear_text)
@@ -271,7 +271,7 @@ def improve_email_copywriting(email_subject, email_body):
 
     language = get_language(email_body, email_subject)
 
-    template = f"""{HUMAN}Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
+    template = f"""Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
 
     Email Subject:
     "{email_subject}"
@@ -292,7 +292,7 @@ def improve_email_copywriting(email_subject, email_body):
 
     <strong>Suggestions for the Email Body</strong>:
     [Your suggestions for the email body]
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     feedback_ai = response.content[0].text.strip()
 
@@ -307,7 +307,7 @@ def generate_email_response(
 ) -> str:
     """Generates an email response based on the given response type"""
 
-    template = f"""{HUMAN}As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
+    template = f"""As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
     Craft a response strictly in {language} following the user instruction: '{user_instruction}'.
     0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
     1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
@@ -317,7 +317,7 @@ def generate_email_response(
 
     ---
     Answer must be above HTML without spaces
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     body = response.content[0].text.strip()
 
@@ -620,13 +620,13 @@ def new_mail_recommendation(
 ):
     """Enhance email subject and body based on user guideline"""
 
-    template = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
+    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {email_subject},
     body: {mail_content}
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
@@ -650,22 +650,22 @@ def new_mail_recommendation(
 
     # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{user_instruction}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
     # OLD prompt
-    """template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{user_instruction}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
+    """template = f"""As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{user_instruction}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
     <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
 
     ----
 
     Answer must be above HTML without spaces
-    {ASSISTANT}
+    
     """"""
-    template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
+    template = f"""As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
     1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
     2. Here is a template to follow, with placeholders for the dynamic content:
     <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
 
     ---
     Answer must be above HTML without spaces
-    {ASSISTANT}
+    
     """
     response = get_prompt_response(template)
     body = response.content[0].text.strip()

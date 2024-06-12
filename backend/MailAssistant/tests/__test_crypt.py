@@ -53,3 +53,7 @@ for i in range(5):
 
 
 
+
+
+# AUGUSTIN
+# email_encrypted = library.encrypt_text(ENCRYPTION_KEYS["SocialAPI"]["email"], email)

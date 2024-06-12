@@ -73,6 +73,7 @@ from ..models import (
     CC_sender,
     BCC_sender,
     Picture,
+    Attachment,
 )
 from base64 import urlsafe_b64encode
 from bs4 import BeautifulSoup
@@ -466,9 +467,10 @@ def get_mail_to_db(services):
     email_txt_html = ""
     email_detect_html = False
     image_files = []
+    attachments = []  # List to store attachment metadata
 
     def process_part(part):
-        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files
+        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments
 
         if part["mimeType"] == "text/plain":
             if "data" in part["body"]:
@@ -491,63 +493,41 @@ def get_mail_to_db(services):
                     r'<img[^>]+src="data:image/([^;]+);base64,([^"]+)"', decoded_data
                 )
                 for img_type, img_data in img_tags:
-                    has_attachments = True
                     timestamp = int(time.time())
                     random_str = "".join(
                         random.choices(string.ascii_letters + string.digits, k=8)
                     )
                     image_filename = f"image_{timestamp}_{random_str}.{img_type}"
-                    image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
-
-                    img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
-                    os.makedirs(os.path.dirname(image_path), exist_ok=True)
-                    with open(image_path, "wb") as img_file:
-                        img_file.write(img_data_bytes)
-                    image_files.append(image_path)
-
+                    image_files.append(image_filename)
                     email_html = email_html.replace(
                         f"data:image/{img_type};base64,{img_data}",
                         f"{MEDIA_URL}pictures/{image_filename}",
                     )
         elif part["mimeType"].startswith("image/"):
-            has_attachments = True
             timestamp = int(time.time())
             random_str = "".join(
                 random.choices(string.ascii_letters + string.digits, k=8)
             )
             image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
-            image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
-
-            if "attachmentId" in part["body"]:
-                attachment_id = part["body"]["attachmentId"]
-                attachment = (
-                    service.users()
-                    .messages()
-                    .attachments()
-                    .get(userId="me", messageId=email_id, id=attachment_id)
-                    .execute()
-                )
-                file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
-            elif "data" in part["body"]:
-                file_data = base64.urlsafe_b64decode(
-                    part["body"]["data"].encode("UTF-8")
-                )
-            else:
-                return
-
-            with open(image_path, "wb") as img_file:
-                img_file.write(file_data)
-            image_files.append(image_path)
+            image_files.append(image_filename)
             email_html += (
-                f'<img src="{BASE_URL_MA}pictures/{image_path}" alt="Embedded Image" />'
+                f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
             )
             email_txt_html += (
-                f'<img src="{BASE_URL_MA}pictures/{image_path}" alt="Embedded Image" />'
+                f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
             )
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
                 for subpart in part["parts"]:
                     process_part(subpart)
+        elif "filename" in part:
+            has_attachments = True
+            attachment_id = part["body"]["attachmentId"]
+            # Add metadata to attachments list
+            attachments.append({
+                "attachmentId": attachment_id,
+                "attachmentName": part["filename"]
+            })
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -555,7 +535,6 @@ def get_mail_to_db(services):
     else:
         process_part(msg["payload"])
 
-    # If there is txt/HTML in the mail we do not integrate the plain/txt to avoid displaying error
     if email_detect_html is False:
         email_html = email_txt_html
 
@@ -584,8 +563,9 @@ def get_mail_to_db(services):
         cc_info,
         bcc_info,
         image_files,
+        attachments, 
     )
-
+    
 
 def get_mail_id(services, int_mail: int) -> str:
     """
@@ -840,6 +820,63 @@ def search_emails_manually(
     except Exception as e:
         LOGGER.error(f"Failed to search emails: {str(e)}")
         return []
+
+
+# ----------------------- EMAIL ATTACHMENT -----------------------#
+''' TO DELETE : def get_attachment_metadata(user: User, email: str, email_id: int) -> dict:
+    """
+    Retrieve metadata of all attachments from a specific email using the Gmail API.
+    """
+    try:
+        services = authenticate_service(user, email)
+
+        message = services['gmail'].users().messages().get(userId='me', id=email_id).execute()
+        
+        attachments_metadata = []
+
+        if 'payload' in message:
+            parts = message['payload'].get('parts', [])
+            for part in parts:
+                if 'filename' in part and part['filename']:
+                    attachment_id = part['body']['attachmentId']
+                    attachments_metadata.append(
+                        {"attachmentName": part['filename'], "attachmentId": attachment_id}
+                    )
+
+        return attachments_metadata
+
+    except Exception as e:
+        LOGGER.error(f"Failed to get attachments metadata for email ID {email_id}: {str(e)}")
+        return []'''
+
+
+def get_attachment_data(user: User, email: str, email_id: str, attachment_id: str) -> dict:
+    try:
+        services = authenticate_service(user, email)
+        if not services or 'gmail' not in services:
+            LOGGER.error(f"Failed to authenticate Gmail service for user with ID {user.id} and email: {email}")
+            LOOGER.error(f"SERVICES : ", services)
+            return {}
+
+        gmail_service = services['gmail']
+        message = gmail_service.users().messages().get(userId='me', id=email_id).execute()
+        
+        if 'payload' in message:
+            parts = message['payload'].get('parts', [])
+            for part in parts:
+                if 'body' in part and part['body'].get('attachmentId') == attachment_id:
+                    attachment = gmail_service.users().messages().attachments().get(
+                        userId='me', messageId=email_id, id=attachment_id).execute()
+                    
+                    data = attachment['data']
+                    attachment_data = base64.urlsafe_b64decode(data.encode('UTF-8'))
+                    return {"attachmentName": part['filename'], "data": attachment_data}
+
+        return {}
+
+    except Exception as e:
+        LOGGER.error(f"Failed to get attachment data for email ID {email_id} and attachment ID {attachment_id}: {str(e)}")
+        return {}
 
 
 # ----------------------- READ EMAIL -----------------------#
@@ -1279,6 +1316,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         cc_info,
         bcc_info,
         image_files,
+        attachments,
     ) = get_mail_to_db(services)
 
     if Email.objects.filter(provider_id=email_id).exists():
@@ -1499,6 +1537,9 @@ def email_to_db(user, services, social_api: SocialAPI):
                 for point in summary_list:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
+            if attachments:
+                for attachment in attachments:
+                    Attachment.objects.create(mail_id=email_entry, name=attachment["attachmentName"], id_api=attachment["attachmentId"])
             return True
 
         except Exception as e:

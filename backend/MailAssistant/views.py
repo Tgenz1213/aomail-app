@@ -2080,7 +2080,7 @@ def get_user_emails(request):
     """Retrieves and formats user emails grouped by category and priority"""
     user = request.user
     emails = Email.objects.filter(user=user).prefetch_related(
-        "category", "bulletpoint_set", "cc_senders", "bcc_senders"
+        "category", "bulletpoint_set", "cc_senders", "bcc_senders", "attachments"
     )
     emails = emails.annotate(
         has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
@@ -2139,6 +2139,10 @@ def get_user_emails(request):
                 "answer_later": email.answer_later,
                 "web_link": email.web_link,
                 "has_attachments": email.has_attachments,
+                "attachments" : [
+                    {"attachmentName": attachment.name, "attachmentId": attachment.id_api}
+                    for attachment in email.attachments.all()
+                ],
                 "date": email_date,
                 "time": email_time,
             }
@@ -2166,6 +2170,24 @@ def get_user_emails(request):
 
     return Response(formatted_data, status=status.HTTP_200_OK)
 
+# ----------------------- EMAIL ATTACHMENT -----------------------#
+@api_view(["GET"])
+#@permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def retrieve_attachment_data(request, email_id, attachment_id):
+    """API endpoint to retrieve email attachment data"""
+    user = request.user
+    email = get_object_or_404(Email, user=user, id=email_id)    
+    social_api = email.social_api
+
+    if social_api.type_api == "google":
+        print("SOCIAL API :", social_api.email, "PROVIDER ID :", email.provider_id)
+        attachment_data = google_api.get_attachment_data(user, social_api.email, email.provider_id, attachment_id)
+    elif social_api.type_api == "microsoft":
+        # TO DO
+        print("TO DO : ERROR")
+        
+    return Response(attachment_data, status=200)
 
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################

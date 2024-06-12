@@ -107,6 +107,7 @@ from .serializers import (
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 FREE_PLAN = "free_plan"
+READ_EMAILS_MARKER = "read"
 
 
 ######################## REGISTRATION ########################
@@ -759,6 +760,15 @@ def delete_emails(request: HttpRequest) -> Response:
     if not priority:
         return Response(
             {"error": "No priority provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if priority == READ_EMAILS_MARKER:
+        emails = Email.objects.filter(user=user, read=True)
+        for email in emails:
+            email.delete()
+
+        return Response(
+            {"message": "Read emails deleted successfully"}, status=status.HTTP_200_OK
         )
 
     if clean:

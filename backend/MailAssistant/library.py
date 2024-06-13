@@ -2,7 +2,8 @@
 Utility Functions for Email Processing
 
 TODO: 
-- rename this file into utils.py
+- put this file into utils.py
+- split into separate files per use case
 - Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.
 - Improve documentation to be concise.
@@ -60,13 +61,14 @@ def subscription(allowed_plans):
 # ----------------------- NO REPLY CHECKING -----------------------#
 def is_no_reply_email(sender_email: str):
     """Returns True if the email is a no-reply address."""
-    no_reply_patterns = ["no-reply", "donotreply", "noreply", "do-not-reply"]
 
+    no_reply_patterns = ["no-reply", "donotreply", "noreply", "do-not-reply"]
     return any(pattern in sender_email.lower() for pattern in no_reply_patterns)
 
 
 def save_email_sender(user, sender_name, sender_email, sender_id):
     """Saves the sender if the mail is relevant"""
+
     if not is_no_reply_email(sender_email):
         existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
 
@@ -104,15 +106,16 @@ def save_contacts(user, email, all_recipients):
 ######################## EMAIL DATA PROCESSING ########################
 def get_db_categories(current_user) -> dict[str, str]:
     """Retrieves categories specific to the given user from the database."""
+
     categories = Category.objects.filter(user=current_user)
     category_list = {category.name: category.description for category in categories}
     category_list.pop(DEFAULT_CATEGORY)
-
     return category_list
 
 
 def html_clear(text: str) -> str:
     """Uses BeautifulSoup to clear HTML tags from the given text."""
+
     soup = BeautifulSoup(text, "html.parser")
     text = soup.get_text("\n")
     return text
@@ -120,6 +123,7 @@ def html_clear(text: str) -> str:
 
 def get_text_from_mail(mime_type: str, part: dict, decoded_data_temp: bytes) -> bytes:
     """If the MIME type is correct, extracts text from the email body."""
+
     data: str = part["body"]["data"]
     data = data.replace("-", "+").replace("_", "/")
     decoded_data_temp = base64.b64decode(data)
@@ -130,6 +134,7 @@ def get_text_from_mail(mime_type: str, part: dict, decoded_data_temp: bytes) -> 
 
 def contains_html(text: str | bytes) -> bool:
     """Returns True if the given text contains HTML, False otherwise."""
+
     if isinstance(text, bytes):
         text = text.decode("utf-8", "ignore")
     html_patterns = [r"<[a-z]+>", r"</[a-z]+>", r"&[a-z]+;", r"<!DOCTYPE html>"]
@@ -142,6 +147,7 @@ def contains_html(text: str | bytes) -> bool:
 
 def concat_text(text_final: str | None, text: str | bytes) -> str:
     """Checks the type of new text added and adjusts it if necessary before concatenating it to the final text."""
+
     if text_final:
         if type(text) == bytes:
             text_str = text.decode("utf-8")
@@ -159,6 +165,7 @@ def concat_text(text_final: str | None, text: str | bytes) -> str:
 
 def process_part(part: dict, plaintext_var: list) -> str | None:
     """Processes each part of an email, extracts the email body, and handles multipart emails."""
+
     mime_type = part["mimeType"]
     decoded_data = None
 
@@ -230,6 +237,7 @@ def count_corrections(
 
 def preprocess_email(email_content: str) -> str:
     """Removes links from the email content and strips text of unnecessary spacings"""
+
     # Remove links enclosed in <http...> or http... followed by a space
     email_content = re.sub(r"<http(.*?)>", "", email_content)
     email_content = re.sub(r"http(.*?)\ ", "", email_content)

@@ -1,17 +1,19 @@
 {
+    "SocialAPI": {
+        "refresh_token": "RUKj-u_yrJYz1oWOgqh7wkVS_RkTL7AacBdYCC3693g=",
+        "email": "P+aoSvyT8YYjuKdCj2EhMdOj/lihoiJ9uGuzDPkqbUo="
+    },
     "Email": {
         "subject": "DgMaEbG60uSlMHTIdUC3NCh3ZEeiBQ_MwwPIT6DAGEs=",
-        "email_short_summary": "MkVt-TM0UWV2G_YavUr0lnSZ72PzKXsVnHvSdqEiA2E=",
-        "content": "0psMXaChXZFK0O3Atai4Mz-rrTyeQ1yhsQBHjGPqpgg="
+        "one_line": "",
+        "short_summary": "MkVt-TM0UWV2G_YavUr0lnSZ72PzKXsVnHvSdqEiA2E=",
+        "html_content": "0psMXaChXZFK0O3Atai4Mz-rrTyeQ1yhsQBHjGPqpgg="
     },
     "Category": {
         "name": "nnWzkSgeacdAQt9swplGNtj8GfVbqhznP99-C18_m0g=",
         "description": "BZlqn2NoguB3-EOFYoh6qCSJRbej0MIo4OvDWPtz2mg="
     },
-    "BulletPoint": {
-        "content": "RUKj-u_yrJYz1oWOgqh7wkVS_RkTL7AacBdYCC3693g="
-    },
     "Rule": {
-        "info_AI": "hyNViSNN5ZzjCiRBheJbP-8dtFKls8S7ELCF__ZbVhY="
+        "infoAI": "hyNViSNN5ZzjCiRBheJbP-8dtFKls8S7ELCF__ZbVhY="
     }
 }

@@ -71,6 +71,7 @@ from MailAssistant.constants import (
 )
 from MailAssistant.library import subscription
 from MailAssistant.controllers.tree_knowledge import Search
+from MailAssistant.utils import security
 from .models import (
     Category,
     GoogleListener,
@@ -150,7 +151,8 @@ def signup(request):
 
     # Check email requirements
     if email:
-        if SocialAPI.objects.filter(email=email).exists():
+        email_encrypted = security.encrypt_text(ENCRYPTION_KEYS["SocialAPI"]["email"], email)
+        if SocialAPI.objects.filter(email=email_encrypted).exists():
             return Response(
                 {"error": "Email address already used by another account"}, status=400
             )

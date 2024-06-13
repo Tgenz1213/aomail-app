@@ -59,7 +59,6 @@ class Search:
             emails.append(key_point.email.provider_id)
             topic["emails"] = emails
 
-        print("knowledge_tree", knowledge_tree)
         return knowledge_tree
 
     def get_categories(self) -> dict:
@@ -86,7 +85,6 @@ class Search:
             list_category_name.append(organization)
             categories[category_name] = list_category_name
 
-        print("debug", categories)
         return categories
 
     def get_keypoints(

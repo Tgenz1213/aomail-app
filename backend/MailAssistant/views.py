@@ -39,6 +39,7 @@ from django.contrib.auth.models import User
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import HttpRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -582,7 +583,7 @@ def receive_payment_notifications(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def unread_mails(request):
+def unread_mails(request: Request):
     """Returns the number of unread emails"""
     return forward_request(request._request, "unread_mails")
 
@@ -590,7 +591,7 @@ def unread_mails(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_profile_image(request):
+def get_profile_image(request: Request):
     """Returns the profile image of the user"""
     return forward_request(request._request, "get_profile_image")
 
@@ -599,7 +600,7 @@ def get_profile_image(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def send_email(request):
+def send_email(request: Request):
     return forward_request(request._request, "send_email")
 
 

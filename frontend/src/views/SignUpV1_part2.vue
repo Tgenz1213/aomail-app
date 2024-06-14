@@ -6,11 +6,13 @@
   <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
+
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
           <img class="mx-auto h-10 w-auto" :src="logo" alt="Aomail">
           <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{ $t('signUpPart1Page.signUp')
             }}</h2>
         </div>
+
         <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
           <div class="flex flex-col">
             <div class="">
@@ -479,11 +481,26 @@
                       </div>
                       <div>
                         <div class="pt-8">
-                          <button @click="submitSignupData"
+                          <button id="submit-button" @click="submitSignupData"
                             class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
                             {{ $t('signUpPart2Page.finalizeRegistration') }}</button>
                         </div>
                       </div>
+                      
+                      <!-- CGU -->
+                    
+                        <div class="space-y-5 pt-3">
+                          <div class="relative flex items-start">
+                            <div class="flex h-6 items-center">
+                              <input id="comments" aria-describedby="comments-description" name="comments" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black">
+                            </div>
+                            <div class="ml-3 text-sm leading-6 w-full">
+                              <label for="comments" class="text-gray-500 font-normal">J'accepte les <a href="URL_DES_CONDITIONS" class="font-medium text-black hover:underline" target="_blank">conditions et la politique de confidentialité</a> d'Aomail</label>
+                            </div>
+                          </div>
+                        </div>
+                    
+
                     </div>
                   </div>
                 </form>
@@ -606,16 +623,44 @@ async function nextStep3(event) {
   }
 }
 
+
 async function submitSignupData(event) {
   event.preventDefault();
-  // TODO: checkbox I read all the infos and accept the terms
-  console.log("The user has read and accepted our terms");
+
+  const checkbox = document.getElementById('comments');
+  const label = document.querySelector('label[for="comments"]');
+  const link = document.querySelector('label[for="comments"] a');
+
+  // Vérifier si la checkbox est cochée
+  if (!checkbox.checked) {
+    console.log("The user has not accepted our terms");
+    label.classList.add('text-red-500');
+    label.classList.remove('text-gray-500');
+    link.classList.add('text-red-500');
+    link.classList.remove('text-black');
+   
+    
+    // Show the pop-up    
+    backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = 'Vous devez accepter les termes de Aomail';
+    displayPopup();
+
+    return;  
+
+  } else {
+    console.log("The user has accepted our terms");
+    label.classList.remove('text-red-500');
+    label.classList.add('text-gray-500');
+    link.classList.remove('text-red-500');
+    link.classList.add('text-black');
+  }
 
   // Show the pop-up
   backgroundColor.value = 'bg-green-200/[.89] border border-green-400';
-  notificationTitle.value = 'TODO Création de compte en cours...';
-  notificationMessage.value = 'TODO Attente de réponse de la base de données';
+  notificationTitle.value = 'Création de compte en cours...';
+  notificationMessage.value = 'Attente de réponse de la base de données';
   displayPopup();
+
 
   try {
     // Prepare the data for registration

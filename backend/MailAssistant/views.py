@@ -114,65 +114,79 @@ READ_EMAILS_MARKER = "read"
 ######################## REGISTRATION ########################
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def signup(request):
-    """Register user in mailassistandb and handles the callback of the API with Oauth2.0
+def signup(request: HttpRequest) -> JsonResponse:
+    """
+    Register user in database and handle the callback of the API with OAuth2.0.
 
     APIs supported:
         - Gmail API (Google)
         - Graph API (Microsoft)
-    """
-    # TODO: remove all LOGGER error messages in functions and only log in signup
-    # Extract user data from the request
-    type_api = request.data.get("type_api")
-    code = request.data.get("code")
-    username = request.data.get("login")
-    password = request.data.get("password")
-    timezone = request.data.get("timezone")
-    language = request.data.get("language")
-    theme = request.data.get("theme")
-    color = request.data.get("color")
-    categories = request.data.get("categories")
-    user_description = request.data.get("userDescription")
 
-    # Validate user data
-    validation_result = validate_signup_data(username, password, code)
+    Args:
+        request (HttpRequest): The HTTP request object containing user data in the body.
+
+    Returns:
+        JsonResponse: JSON response with user ID, access token, and email on success,
+                      or error message on failure.
+    """
+    LOGGER.info("Signup request received")  # TODO add ip
+
+    parameters: dict = json.loads(request.body)
+    type_api: str = parameters.get("type_api", "")
+    code: str = parameters.get("code", "")
+    username: str = parameters.get("login", "")
+    password: str = parameters.get("password", "")
+    timezone: str = parameters.get("timezone", "")
+    language: str = parameters.get("language", "")
+    theme: str = parameters.get("theme", "")
+    color: str = parameters.get("color", "")
+    categories: list = parameters.get("categories", [])
+    user_description: str = parameters.get("userDescription", "")
+
+    validation_result: dict = validate_signup_data(username, password, code)
     if "error" in validation_result:
+        LOGGER.error(f"Validation failed for signup data: {validation_result['error']}")
         return Response(validation_result, status=400)
 
-    # Checks if the authorization code is valid
-    authorization_result = validate_authorization_code(type_api, code)
+    LOGGER.info("User signup data validated successfully")
 
+    authorization_result: dict = validate_authorization_code(type_api, code)
     if "error" in authorization_result:
+        LOGGER.error(f"Authorization failed: {authorization_result['error']}")
         return Response({"error": authorization_result["error"]}, status=400)
 
-    # Extract tokens and email from the authorization result
-    access_token = authorization_result["access_token"]
-    refresh_token = authorization_result["refresh_token"]
-    email = authorization_result["email"]
+    LOGGER.info(f"Successfully validated authorization code for {type_api} API")
 
-    # Check email requirements
+    access_token = authorization_result.get("access_token", "")
+    refresh_token = authorization_result.get("refresh_token", "")
+    email = authorization_result.get("email", "")
+
     if email:
-        email_encrypted = security.encrypt_text(
-            ENCRYPTION_KEYS["SocialAPI"]["email"], email
-        )
         if SocialAPI.objects.filter(email=email).exists():
+            LOGGER.error("Email address already used by another account")
             return Response(
                 {"error": "Email address already used by another account"}, status=400
             )
         elif " " in email:
+            LOGGER.error("Email address must not contain spaces")
             return Response(
                 {"error": "Email address must not contain spaces"}, status=400
             )
     else:
+        LOGGER.error("No email received")
         return Response({"error": "No email received"}, status=400)
 
-    # Create and save user
     user = User.objects.create_user(username, "", password)
-    user_id = user.id
-    refresh = RefreshToken.for_user(user)
-    django_access_token = str(refresh.access_token)
+    LOGGER.info(f"User {username} created successfully")
 
-    # Save user data
+    try:
+        refresh_token: RefreshToken = RefreshToken.for_user(user)
+        django_access_token = str(refresh_token.access_token)
+    except Exception as e:
+        LOGGER.error(f"Failed to generate access token: {str(e)}")
+        user.delete()
+        return Response({"error": str(e)}, status=400)
+
     result = save_user_data(
         user,
         type_api,
@@ -187,10 +201,12 @@ def signup(request):
         timezone,
     )
     if "error" in result:
+        LOGGER.error(f"Failed to save user data: {result['error']}")
         user.delete()
         return Response(result, status=400)
 
-    # Asynchronous function to store all contacts
+    LOGGER.info(f"User data saved successfully for {username}")
+
     try:
         if type_api == "google":
             threading.Thread(
@@ -203,59 +219,53 @@ def signup(request):
                 ).start()
             else:
                 user.delete()
+                LOGGER.error("No license associated with the account")
                 return Response(
                     {"error": "No license associated with the account"}, status=400
                 )
 
     except Exception as e:
+        LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
         return Response({"error": str(e)}, status=400)
 
-    end_date = datetime.datetime.now() + datetime.timedelta(days=30)
+    end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
     end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
     Subscription.objects.create(
         user=user,
-        plan="free_plan",
+        plan=FREE_PLAN,
         stripe_subscription_id=None,
         end_date=end_date_utc,
         billing_interval=None,
         amount=0.0,
     )
+    LOGGER.info(f"User {username} subscribed to free plan")
 
-    # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
-        # TODO: validate if we keep the email (may be useless)
-        # context = {
-        #     "title": "Votre compte Aomail a été créé avec succès",
-        # }
-        # email_html = render_to_string("account_created.html", context)
-        # send_mail(
-        #     subject="[Aomail] Votre compte a été créé avec succès",
-        #     message="",
-        #     recipient_list=[email],
-        #     from_email=EMAIL_NO_REPLY,
-        #     html_message=email_html,
-        #     fail_silently=False,
-        # )
-
+        LOGGER.info(f"User {username} subscribed to listeners successfully")
         return Response(
-            {
-                "user_id": user_id,
-                "access_token": django_access_token,
-                "email": email,
-            },
+            {"access_token": django_access_token},
             status=201,
         )
     else:
+        LOGGER.error(f"Failed to subscribe user {username} to listeners")
         user.delete()
+        return Response({"error": "Could not subscribe to listener"}, status=400)
 
-    return Response({"error": "Could not subscribe to listener"}, status=400)
 
+def subscribe_listeners(type_api: str, user: str, email: str) -> bool:
+    """
+    Subscribes the user to listeners based on the type of API provided.
 
-def subscribe_listeners(type_api, user, email) -> bool:
-    """Subscribe the user to listeners"""
+    Args:
+        type_api (str): The type of API.
+        user (str): User identifier.
+        email (str): User's email address.
 
+    Returns:
+        bool: True if subscription was successful, False otherwise.
+    """
     if type_api == "google":
         subscribed = google_api.subscribe_to_email_notifications(user, email)
         if subscribed:
@@ -297,9 +307,11 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
                     "error": "Failed to obtain access or refresh token from Google API"
                 }
 
-            email = google_api.get_email(access_token, refresh_token)
-            if not email:
-                return {"error": "Failed to obtain email from Google API"}
+            result_get_email = google_api.get_email(access_token, refresh_token)
+            if "error" in result_get_email:
+                return {"error": result_get_email["error"]}
+            else:
+                email = result_get_email["email"]
 
         elif type_api == "microsoft":
             access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
@@ -308,14 +320,15 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
                     "error": "Failed to obtain access or refresh token from Microsoft API"
                 }
 
-            email = microsoft_api.get_email(access_token)
-            if not email:
-                return {"error": "Failed to obtain email from Microsoft API"}
+            result_get_email = microsoft_api.get_email(access_token)
+            if "error" in result_get_email:
+                return {"error": result_get_email["error"]}
+            else:
+                email = result_get_email["email"]
 
         else:
             return {"error": f"Unsupported API type: {type_api}"}
 
-        LOGGER.info(f"Successfully validated authorization code for {type_api} API")
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -323,7 +336,6 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
         }
 
     except Exception as e:
-        LOGGER.error(f"Unexpected error during validation for {type_api} API: {str(e)}")
         return {"error": "An unexpected error occurred during validation"}
 
 
@@ -387,16 +399,15 @@ def validate_signup_data(username: str, password: str, code: str) -> dict:
 
     Returns:
         dict: {'error': <error_message>} if validation fails,
-              {"message": "User signup data validated successfully"} with appropriate success message if validation passes.
+              {'message': 'User signup data validated successfully'} with appropriate success message if validation passes.
     """
     if not code:
         return {"error": "No authorization code provided"}
-
-    if User.objects.filter(username=username).exists():
+    elif User.objects.filter(username=username).exists():
         return {"error": "Username already exists"}
     elif " " in username:
         return {"error": "Username must not contain spaces"}
-    if not (8 <= len(password) <= 32):
+    elif not (8 <= len(password) <= 32):
         return {"error": "Password length must be between 8 and 32 characters"}
 
     return {"message": "User signup data validated successfully"}
@@ -1705,6 +1716,7 @@ def link_email(request):
     authorization_result = validate_code_link_email(type_api, code)
 
     if "error" in authorization_result:
+        # TODO: add clean LOGGER with given error message
         return Response({"error": authorization_result["error"]}, status=400)
 
     # Extract tokens and email from the authorization result

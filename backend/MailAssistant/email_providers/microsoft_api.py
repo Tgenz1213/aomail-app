@@ -324,29 +324,35 @@ def get_profile_image(request: HttpRequest):
         )
 
 
-def get_email(access_token):
-    """Returns the primary email of the user from Microsoft Graph API"""
+def get_email(access_token: str) -> dict:
+    """
+    Retrieves the primary email of the user from Microsoft Graph API.
+
+    Args:
+        access_token (str): Access token required for authentication.
+
+    Returns:
+        dict: {'email': <user_email>} if successful,
+              {'error': <error_message>} if any error occurs.
+    """
     if not access_token:
-        return Response({"error": "Access token is missing"}, status=400)
+        return {"error": "Access token is missing"}
 
     try:
         graph_api_endpoint = f"{GRAPH_URL}me"
         headers = get_headers(access_token)
         response = requests.get(graph_api_endpoint, headers=headers)
+        json_data: dict = response.json()
 
         if response.status_code == 200:
-            email_data = response.json()
-            email = email_data.get("mail")
-            return email
+            email = json_data["mail"]
+            return {"email": email}
         else:
-            LOGGER.error(
-                f"Failed to get email: {response.json().get('error_description', response.reason)}"
-            )
-            return None
+            error = json_data.get("error_description", response.reason)
+            return {"error": f"Failed to get email from Microsoft API: {error}"}
 
     except Exception as e:
-        LOGGER.error(f"Failed to get email: {str(e)}")
-        return None
+        return {"error": f"Failed to get email from Microsoft API: {str(e)}"}
 
 
 ######################## EMAIL REQUESTS ########################

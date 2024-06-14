@@ -1157,16 +1157,17 @@ def get_profile_image(request: HttpRequest):
         )
 
 
-def get_email(access_token: str, refresh_token: str) -> str | None:
+def get_email(access_token: str, refresh_token: str) -> dict:
     """
-    Returns the primary email of the user.
+    Returns the primary email of the user from Google People API.
 
     Args:
         access_token (str): The access token for Google API authentication.
         refresh_token (str): The refresh token for Google API authentication.
 
     Returns:
-        str or None: The primary email address of the user, or None if an error occurs.
+        dict: {'email': <user_email>} if successful,
+              {'error': <error_message>} if any error occurs.
     """
     creds_data = {
         "token": access_token,
@@ -1179,18 +1180,20 @@ def get_email(access_token: str, refresh_token: str) -> str | None:
     creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
     try:
-        service = build('people', 'v1', credentials=creds)
+        service = build("people", "v1", credentials=creds)
         user_info: dict[str, list[dict]] = (
             service.people()
             .get(resourceName="people/me", personFields="emailAddresses")
             .execute()
         )
         email = user_info.get("emailAddresses", [{}])[0].get("value", "")
-        return email
+        if email:
+            return {"email": email}
+        else:
+            return {"error": "No email found from Microsoft API"}
 
     except Exception as e:
-        LOGGER.error(f"Could not get email: {str(e)}")
-        return None
+        return {"error": f"Failed to get email from Microsoft API: {str(e)}"}
 
 
 ######################## GOOGLE LISTENER ########################

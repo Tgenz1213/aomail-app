@@ -121,6 +121,7 @@ def signup(request):
         - Gmail API (Google)
         - Graph API (Microsoft)
     """
+    # TODO: remove all LOGGER error messages in functions and only log in signup
     # Extract user data from the request
     type_api = request.data.get("type_api")
     code = request.data.get("code")
@@ -151,8 +152,10 @@ def signup(request):
 
     # Check email requirements
     if email:
-        email_encrypted = security.encrypt_text(ENCRYPTION_KEYS["SocialAPI"]["email"], email)
-        if SocialAPI.objects.filter(email=email_encrypted).exists():
+        email_encrypted = security.encrypt_text(
+            ENCRYPTION_KEYS["SocialAPI"]["email"], email
+        )
+        if SocialAPI.objects.filter(email=email).exists():
             return Response(
                 {"error": "Email address already used by another account"}, status=400
             )
@@ -273,101 +276,186 @@ def subscribe_listeners(type_api, user, email) -> bool:
     return False
 
 
-def validate_authorization_code(type_api, code):
-    """Validates the authorization code for a given API type"""
+def validate_authorization_code(type_api: str, code: str) -> dict:
+    """
+    Validates the authorization code for a given API type and returns the access token,
+    refresh token, and associated email.
+
+    Args:
+        type_api (str): The type of API.
+        code (str): The authorization code.
+
+    Returns:
+        dict: A dictionary containing access_token, refresh_token, and email,
+              or an error message if validation fails.
+    """
     try:
         if type_api == "google":
             access_token, refresh_token = google_api.exchange_code_for_tokens(code)
+            if not access_token or not refresh_token:
+                return {
+                    "error": "Failed to obtain access or refresh token from Google API"
+                }
+
             email = google_api.get_email(access_token, refresh_token)
+            if not email:
+                return {"error": "Failed to obtain email from Google API"}
+
         elif type_api == "microsoft":
             access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
+            if not access_token or not refresh_token:
+                return {
+                    "error": "Failed to obtain access or refresh token from Microsoft API"
+                }
+
             email = microsoft_api.get_email(access_token)
+            if not email:
+                return {"error": "Failed to obtain email from Microsoft API"}
+
+        else:
+            return {"error": f"Unsupported API type: {type_api}"}
+
+        LOGGER.info(f"Successfully validated authorization code for {type_api} API")
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
             "email": email,
         }
+
     except Exception as e:
-        LOGGER.error(f"Error in validate_authorization_code: {str(e)}")
-        return {"error": str(e)}
+        LOGGER.error(f"Unexpected error during validation for {type_api} API: {str(e)}")
+        return {"error": "An unexpected error occurred during validation"}
 
 
-def validate_code_link_email(type_api, code):
-    """Validates the authorization code for a given API type"""
+def validate_code_link_email(type_api: str, code: str) -> dict:
+    """
+    Validates the authorization code for a given API type and returns the access token,
+    refresh token, and associated email.
 
+    Args:
+        type_api (str): The type of API.
+        code (str): The authorization code.
+
+    Returns:
+        dict: A dictionary containing access_token, refresh_token, and email,
+              or an error message if validation fails.
+    """
     try:
         if type_api == "google":
             access_token, refresh_token = google_api.link_email_tokens(code)
+            if not access_token or not refresh_token:
+                return {
+                    "error": "Failed to obtain access or refresh token from Google API"
+                }
+
             email = google_api.get_email(access_token, refresh_token)
+            if not email:
+                return {"error": "Failed to obtain email from Google API"}
+
         elif type_api == "microsoft":
             access_token, refresh_token = microsoft_api.link_email_tokens(code)
+            if not access_token:
+                return {"error": "Failed to obtain access token from Microsoft API"}
+
             email = microsoft_api.get_email(access_token)
+            if not email:
+                return {"error": "Failed to obtain email from Microsoft API"}
+
+        else:
+            return {"error": f"Unsupported API type: {type_api}"}
+
+        LOGGER.info(f"Successfully validated code for {type_api} API")
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
             "email": email,
         }
+
     except Exception as e:
-        LOGGER.error(f"Error in validate_code_link_email: {str(e)}")
-        return {"error": str(e)}
+        LOGGER.error(f"Unexpected error during validation for {type_api} API: {str(e)}")
+        return {"error": "An unexpected error occurred during validation"}
 
 
-def validate_signup_data(username, password, code):
-    """Validates user signup data to ensure all requirements are met"""
+def validate_signup_data(username: str, password: str, code: str) -> dict:
+    """
+    Validates user signup data to ensure all requirements are met.
+
+    Args:
+        username (str): Username provided by the user.
+        password (str): Password provided by the user.
+        code (str): Authorization code provided by the user.
+
+    Returns:
+        dict: {'error': <error_message>} if validation fails,
+              {"message": "User signup data validated successfully"} with appropriate success message if validation passes.
+    """
     if not code:
         return {"error": "No authorization code provided"}
 
-    # Check if user requirements
     if User.objects.filter(username=username).exists():
         return {"error": "Username already exists"}
     elif " " in username:
         return {"error": "Username must not contain spaces"}
-
-    # Check passwords requirements
     if not (8 <= len(password) <= 32):
         return {"error": "Password length must be between 8 and 32 characters"}
-    # if " " in password:
-    #     return {"error": "Password must not contain spaces"}
-    # elif not re.match(r"^[a-zA-Z0-9!@#$%^&*()-=_+]+$", password):
-    #     return {"error": "Password contains invalid characters"}
 
-    return {"status": 200}
+    return {"message": "User signup data validated successfully"}
 
 
 def save_user_data(
-    user,
-    type_api,
-    user_description,
-    email,
-    access_token,
-    refresh_token,
-    theme,
-    color,
-    categories,
-    language,
-    timezone,
-):
-    """Store user creds and settings in DB"""
+    user: User,
+    type_api: str,
+    user_description: str,
+    email: str,
+    access_token: str,
+    refresh_token: str,
+    theme: str,
+    color: str,
+    categories: dict,
+    language: str,
+    timezone: str,
+) -> dict:
+    """
+    Store user credentials and settings in the database.
+
+    Args:
+        user (User): Django User model instance representing the user.
+        type_api (str): Type of API associated with the user.
+        user_description (str): Description of the user.
+        email (str): User's email address.
+        access_token (str): Access token for API authentication.
+        refresh_token (str): Refresh token for API authentication.
+        theme (str): Preferred theme for the user interface.
+        color (str): Background color preference.
+        categories (dict): Dictionary containing categories data.
+                           Expected format: {'name': str, 'description': str}
+        language (str): Preferred language setting.
+        timezone (str): Preferred timezone.
+
+    Returns:
+        dict: {'message': 'User data saved successfully'} on success,
+              {'error': <error_message>} on failure.
+    """
     try:
+        refresh_token_encrypted = security.encrypt_text(
+            ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token
+        )
         SocialAPI.objects.create(
             user=user,
             user_description=user_description,
             type_api=type_api,
             email=email,
             access_token=access_token,
-            refresh_token=refresh_token,
+            refresh_token=refresh_token_encrypted,
         )
-
-        # Save user preferences
         Preference.objects.create(
             theme=theme, bg_color=color, language=language, timezone=timezone, user=user
         )
 
-        # Save user categories
         if categories:
             try:
-                categories_j = json.loads(categories)
-                for category_data in categories_j:
+                categories_json = json.loads(json.dumps(categories))
+                for category_data in categories_json:
                     category_name = category_data.get("name")
                     category_description = category_data.get("description")
 
@@ -386,7 +474,6 @@ def save_user_data(
         return {"message": "User data saved successfully"}
 
     except Exception as e:
-        LOGGER.error(f"Error in save_user_data: {str(e)}")
         return {"error": str(e)}
 
 
@@ -1624,6 +1711,9 @@ def link_email(request):
     access_token = authorization_result["access_token"]
     refresh_token = authorization_result["refresh_token"]
     email = authorization_result["email"]
+    refresh_token_encrypted = security.encrypt_text(
+        ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token
+    )
 
     # Check email requirements
     if email:
@@ -1638,7 +1728,7 @@ def link_email(request):
                 type_api=type_api,
                 user_description=user_description,
                 access_token=access_token,
-                refresh_token=refresh_token,
+                refresh_token=refresh_token_encrypted,
             )
         except IntegrityError:
             return Response(

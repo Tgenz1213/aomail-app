@@ -8,7 +8,7 @@ import os
 
 
 # USED TO GENERATE KEYS (always the same for the same input)
-def generate_encryption_key():
+def generate_encryption_key_unsalted():
     # Generate a random AES key
     aes_key = os.urandom(32)  # 32 bytes for AES-256
     # Encode the key as base64 string
@@ -61,3 +61,13 @@ def decrypt_text(encryption_key: str, encrypted_text: str) -> str:
     fernet = Fernet(encryption_key)
     decrypted_text = fernet.decrypt(encrypted_text.encode())
     return decrypted_text.decode()
+
+
+key = generate_encryption_key().decode('utf-8')
+
+print(key)
+token = ""
+print(len(token))
+enc = encrypt_text(key, token)
+print(enc)
+print(len(enc))

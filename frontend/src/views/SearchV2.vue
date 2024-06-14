@@ -53,14 +53,14 @@
 
       <!--Secondes Colonnes -->
       <div id="secondMainColumn"
-       class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px] overflow-hidden">
+       class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-hidden">
 
         <!--xl:h-[695px] xl:w-[560px]-->
 
         <!--titre -->
-        <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
+        <div class="flex items-center justify-center lg:py-3 h-[65px] 2xl:h-[80px]">
           <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-          <div class="flex gap-x-3 items-center">
+          <div class="flex gap-x-3 items-center ">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                 stroke-width="1" stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -70,7 +70,7 @@
           </div>
         </div>
 
-        <div class="flex flex-col flex-1 h-full w-full pt-4 2xl:pt-6">
+        <div class="flex flex-col flex-1 h-full w-full">
 
           <div class="flex flex-col flex-1 h-full w-full px-6 pt-2 mb-4"> <!--ligne 2 : searchbar,bouton search et bouton filtres -->
             
@@ -118,7 +118,7 @@
               </div>
 
               <!-- filtres -->
-            <div class=" flex space-x-2 bg-white hidden pr-2 w-full" id="filtres">
+            <div class=" flex flex-col space-x-2 bg-white hidden pr-2 w-full" id="filtres">
               <div class="flex flex-col gap-4 w-full h-full">
 
 
@@ -526,7 +526,7 @@
             </div>
 
               <!-- Liste email -->
-              <div class="flex flex-col flex-1 overflow-hidden pr-2 pt-2 mb-8" id="liste_email">
+              <div class="flex flex-col flex-1 overflow-hidden pr-2 pt-4 mb-8" id="liste_email">
                 <div class="flex flex-col overflow-auto h-full pr-4">
                   <!-- Élément de la liste -->
                   <div class="flex justify-between items-center py-4 email-item">

@@ -69,13 +69,12 @@
                     </div>
                 </div>
             </div>
-            <div id="secondMainColumn"
-                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
-                
-                <div class="flex flex-col h-full w-full">
 
-
-                    <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
+           <!-- Seconde Colonne -->
+           <div id="secondMainColumn" class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
+                    <div class="flex flex-col h-full w-full">
+                         <!--Titre-->
+                         <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
                         <div class="flex gap-x-3 items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                                 stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
@@ -88,9 +87,11 @@
                         </div>
                     </div>
 
-                    <form class="flex flex-grow w-full px-10 py-4 2xl:px-14 2xl:py-6">
+                    <form class="flex flex-col flex-grow w-full px-10 py-4 2xl:px-14 2xl:py-6 overflow-hidden">
                         <div class="flex flex-col space-y-5 h-full w-full">
                             <div class="">
+
+                                <!--Recipie List and CC List-->
                                 <div class="flex flex-wrap">
                                     <!-- Main Recipients List -->
                                     <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
@@ -122,6 +123,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!--Option de texte du mail-->
                                 <div class="flex items-stretch gap-1 2xl:gap-2">
                                     <div class="flex-grow">
                                         <div class="relative items-stretch">
@@ -176,6 +178,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="flex gap-1 2xl:gap-2">
                                         <button type="button" @click="toggleCC"
                                             :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
@@ -190,6 +193,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="">
                                 <div class="flex flex-wrap">
                                     <div v-for="(file, index) in uploadedFiles" :key="index"
@@ -232,8 +236,13 @@
                                 </div>
                             </div>
 
-                            <div class="flex-1 pb-[68px] 2xl:pb-[42px]">
-                                <div id="editor" class="w-full h-full"></div>
+                           <!-- Quill editor -->
+                            <div class="flex-1 pb-[68px] 2xl:pb-[42px] overflow-hidden">
+                            <div id="editor-container" class="w-full h-[calc(100vh-200px)] md:h-[calc(100vh-250px)] lg:h-[calc(100vh-300px)] xl:h-[calc(100vh-350px)] 2xl:h-[calc(100vh-400px)] flex flex-col border-b">
+                                <div id="editor" class="flex-1 overflow-auto">
+                                <!-- Quill editor will be initialized here -->
+                                </div>
+                            </div>
                             </div>
 
                             <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6 lg:pt-6 items-stretch">

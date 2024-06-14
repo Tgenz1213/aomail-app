@@ -129,7 +129,8 @@ def signup(request: HttpRequest) -> JsonResponse:
         JsonResponse: JSON response with user ID, access token, and email on success,
                       or error message on failure.
     """
-    LOGGER.info("Signup request received")  # TODO add ip
+    ip = security.get_ip_with_port(request)
+    LOGGER.info(f"Signup request received from IP: {ip}")
 
     parameters: dict = json.loads(request.body)
     type_api: str = parameters.get("type_api", "")
@@ -180,11 +181,12 @@ def signup(request: HttpRequest) -> JsonResponse:
     LOGGER.info(f"User {username} created successfully")
 
     try:
-        refresh_token: RefreshToken = RefreshToken.for_user(user)
-        django_access_token = str(refresh_token.access_token)
+        django_refresh_token: RefreshToken = RefreshToken.for_user(user)
+        django_access_token = str(django_refresh_token.access_token)
     except Exception as e:
         LOGGER.error(f"Failed to generate access token: {str(e)}")
         user.delete()
+        LOGGER.info(f"User {username} deleted successfully")
         return Response({"error": str(e)}, status=400)
 
     result = save_user_data(
@@ -203,6 +205,7 @@ def signup(request: HttpRequest) -> JsonResponse:
     if "error" in result:
         LOGGER.error(f"Failed to save user data: {result['error']}")
         user.delete()
+        LOGGER.info(f"User {username} deleted successfully")
         return Response(result, status=400)
 
     LOGGER.info(f"User data saved successfully for {username}")
@@ -218,8 +221,9 @@ def signup(request: HttpRequest) -> JsonResponse:
                     target=microsoft_api.set_all_contacts, args=(access_token, user)
                 ).start()
             else:
-                user.delete()
                 LOGGER.error("No license associated with the account")
+                user.delete()
+                LOGGER.info(f"User {username} deleted successfully")
                 return Response(
                     {"error": "No license associated with the account"}, status=400
                 )
@@ -227,6 +231,7 @@ def signup(request: HttpRequest) -> JsonResponse:
     except Exception as e:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
+        LOGGER.info(f"User {username} deleted successfully")
         return Response({"error": str(e)}, status=400)
 
     end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
@@ -251,6 +256,7 @@ def signup(request: HttpRequest) -> JsonResponse:
     else:
         LOGGER.error(f"Failed to subscribe user {username} to listeners")
         user.delete()
+        LOGGER.info(f"User {username} deleted successfully")
         return Response({"error": "Could not subscribe to listener"}, status=400)
 
 
@@ -465,7 +471,7 @@ def save_user_data(
 
         if categories:
             try:
-                categories_json = json.loads(json.dumps(categories))
+                categories_json: list[dict] = json.loads(categories)
                 for category_data in categories_json:
                     category_name = category_data.get("name")
                     category_description = category_data.get("description")
@@ -1398,16 +1404,10 @@ def update_password(request):
 
     if not new_password:
         return Response({"error": "No new password provided."}, status=400)
-
-    # Checks passwords requirements
-    if not (8 <= len(new_password) <= 32):
+    elif not (8 <= len(new_password) <= 32):
         return Response(
             {"error": "Password length must be between 8 and 32 characters"}, status=400
         )
-    # if " " in new_password:
-    #     return Response({"error": "Password must not contain spaces"}, status=400)
-    # elif not re.match(r"^[a-zA-Z0-9!@#$%^&*()-=_+]+$", new_password):
-    #     return Response({"error": "Password contains invalid characters"}, status=400)
 
     user.set_password(new_password)
     user.save()

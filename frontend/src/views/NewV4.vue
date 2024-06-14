@@ -236,16 +236,15 @@
                                 </div>
                             </div>
 
-                           <!-- Quill editor -->
-                            <div class="flex-1 pb-[68px] 2xl:pb-[42px] overflow-hidden">
-                            <div id="editor-container" class="w-full h-[calc(100vh-200px)] md:h-[calc(100vh-250px)] lg:h-[calc(100vh-300px)] xl:h-[calc(100vh-350px)] 2xl:h-[calc(100vh-400px)] flex flex-col border-b">
+                            <div class="flex-1 pb-[25px] 2xl:pb-[42px] overflow-hidden">
+                            <div id="editor-container" class="w-full h-[calc(100vh-150px)] md:h-[calc(100vh-200px)] lg:h-[calc(100vh-250px)] xl:h-[calc(100vh-300px)] 2xl:h-[calc(100vh-350px)] flex flex-col">
                                 <div id="editor" class="flex-1 overflow-auto">
                                 <!-- Quill editor will be initialized here -->
                                 </div>
                             </div>
                             </div>
 
-                            <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6 lg:pt-6 items-stretch">
+                            <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6 lg:pt-4 items-stretch">
                                 <!-- EMAIL LIST -->
                                 <div class="relative flex-grow flex items-stretch">
                                     <Listbox as="div" v-model="emailSelected" class="w-full flex flex-col">

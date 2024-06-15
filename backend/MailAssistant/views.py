@@ -2374,14 +2374,23 @@ def search_emails(request: HttpRequest) -> JsonResponse:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def search_tree_knowledge(requestrequest: HttpRequest) -> JsonResponse:
+def search_tree_knowledge(request: HttpRequest) -> JsonResponse:
     """
     Searches emails using AI interpretation of user query.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the search parameters in the request body.
+            Expects JSON body with:
+                question (str): The user query for the search.
+
+    Returns:
+        JsonResponse: A JSON response with the search results, including the answer and related emails,
+                      or {"error": "Details of the specific error."} if there's an issue with the search process.
     """
     try:
+        parameters: dict = json.loads(request.body)
         user = request.user
         user_id = user.id
-        parameters: dict = json.loads(request.body)
         question = parameters.get("question")
 
         if not question:
@@ -2393,17 +2402,16 @@ def search_tree_knowledge(requestrequest: HttpRequest) -> JsonResponse:
         search = Search(user_id, question)
         if not search.can_answer():
             return JsonResponse(
-                {"message": "Not have enough data"},
+                {"message": "Not enough data"},
                 status=status.HTTP_200_OK,
             )
 
-        # TODO: debug if Ao fails with little data - if so: improve prompt engineering
         selected_categories = search.get_selected_categories()
         keypoints = search.get_keypoints(selected_categories)
 
         if not selected_categories or not keypoints:
             return JsonResponse(
-                {"message": "Not have enough data"},
+                {"message": "Not enough data"},
                 status=status.HTTP_200_OK,
             )
 
@@ -2424,15 +2432,12 @@ def search_tree_knowledge(requestrequest: HttpRequest) -> JsonResponse:
 
         return JsonResponse({"answer": answer}, status=status.HTTP_200_OK)
 
-    except json.JSONDecodeError:
-        return JsonResponse(
-            {"error": "Invalid JSON format"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
     except Exception as e:
-        print(f"Error: {e}")
+        LOGGER.error(
+            f"An error occurred while searching email with search tree knowledge feature: {str(e)}"
+        )
         return JsonResponse(
-            {"error": "An error occurred while processing your request"},
+            {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -2440,20 +2445,36 @@ def search_tree_knowledge(requestrequest: HttpRequest) -> JsonResponse:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_user_description(request):
-    """Updates the user desctiption of the given email."""
-    data = request.data
+def update_user_description(request: HttpRequest) -> JsonResponse:
+    """
+    Updates the user description of the given email.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email and new user description.
+            Expects JSON body with:
+                email (str): The email associated with the user.
+                user_description (str, optional): The new user description to update. Defaults to an empty string.
+
+    Returns:
+        JsonResponse: A JSON response indicating success or failure of the update operation.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
     email = data.get("email")
-    user_description = data["user_description"]
+    user_description = data.get("user_description", "")
 
     if email:
-        social_api = SocialAPI.objects.get(user=user, email=email)
-        social_api.user_description = user_description
-        social_api.save()
-        return JsonResponse(
-            {"message": "User description updated"}, status=status.HTTP_200_OK
-        )
+        try:
+            social_api = SocialAPI.objects.get(user=user, email=email)
+            social_api.user_description = user_description
+            social_api.save()
+            return JsonResponse(
+                {"message": "User description updated"}, status=status.HTTP_200_OK
+            )
+        except SocialAPI.DoesNotExist:
+            return JsonResponse(
+                {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+            )
     else:
         return JsonResponse(
             {"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST
@@ -2463,17 +2484,33 @@ def update_user_description(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_description(request):
-    """Retrieves user description of the given email."""
-    data = request.data
+def get_user_description(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves user description of the given email.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email.
+            Expects JSON body with:
+                email (str): The email associated with the user.
+
+    Returns:
+        JsonResponse: A JSON response containing the user description if found,
+                      or an error message if no email is provided or if the email is not found.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
     email = data.get("email")
 
     if email:
-        social_api = SocialAPI.objects.get(user=user, email=email)
-        return JsonResponse(
-            {"data": social_api.user_description}, status=status.HTTP_200_OK
-        )
+        try:
+            social_api = SocialAPI.objects.get(user=user, email=email)
+            return JsonResponse(
+                {"data": social_api.user_description}, status=status.HTTP_200_OK
+            )
+        except SocialAPI.DoesNotExist:
+            return JsonResponse(
+                {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+            )
     else:
         return JsonResponse(
             {"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST
@@ -2483,26 +2520,48 @@ def get_user_description(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def create_sender(request):
-    """Create a new sender associated with the authenticated user"""
-    serializer = SenderSerializer(data=request.data)
-    data = request.data
+def create_sender(request: HttpRequest) -> JsonResponse:
+    """
+    Create a new sender associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the sender data.
+            Expects JSON body with:
+                email (str): The email of the sender.
+                name (str): The name of the sender.
+
+    Returns:
+        JsonResponse: Either {"id": <sender_id>} if the sender is successfully created,
+                      or serializer errors with status HTTP 400 Bad Request if validation fails.
+    """
+    data: dict = json.loads(request.body)
+    serializer = SenderSerializer(data=data)
 
     if serializer.is_valid():
         sender = Sender.objects.create(email=data["email"], name=data["name"])
         return JsonResponse({"id": sender.id}, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors in create_sender: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["DELETE"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_email(request, email_id):
+def delete_email(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Deletes an email associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to delete.
+
+    Returns:
+        JsonResponse: {"message": "Email deleted successfully"} if the email is deleted successfully,
+                      or {"error": <error_message>} with status HTTP 500 Internal Server Error if there's an issue.
+    """
     try:
         user = request.user
-        email = get_object_or_404(Email, user=user, id=email_id)
+        email = Email.objects.get(user=user, id=email_id)
         social_api = email.social_api
         type_api = social_api.type_api
         provider_id = email.provider_id
@@ -2519,12 +2578,51 @@ def delete_email(request, email_id):
             )
         else:
             return JsonResponse(
-                {"error": result.get("error")}, status=status.HTTP_400_BAD_REQUEST
+                {"error": result.get("error")},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
+    except Email.DoesNotExist:
+        return JsonResponse(
+            {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(["DELETE"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def archive_email(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Archives an email associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to archive.
+
+    Returns:
+        JsonResponse: {"message": "Email archived successfully"} if the email is archived successfully,
+                      or {"error": <error_message>} with appropriate status code otherwise.
+    """
+    try:
+        user = request.user
+        email = Email.objects.get(user=user, id=email_id)
+        email.delete()
+        return JsonResponse(
+            {"message": "Email archived successfully"}, status=status.HTTP_200_OK
+        )
+    except Email.DoesNotExist:
+        return JsonResponse(
+            {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        LOGGER.error(f"Error when archiving email: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 # ----------------------- CREDENTIALS AVAILABILITY -----------------------#

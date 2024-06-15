@@ -50,7 +50,7 @@ urlpatterns = [
     path('user/emails/delete_emails', views.delete_emails, name='delete_emails'), # dev
 
     path('user/emails/<int:email_id>/mark-read/', views.set_email_read, name='email-mark-read'), # ok
-    path('user/emails/<int:email_id>/mark-unread/', views.set_email_undread, name='email-mark-unread'), # ok
+    path('user/emails/<int:email_id>/mark-unread/', views.set_email_unread, name='email-mark-unread'), # ok
     path('user/emails/<int:email_id>/mark-reply-later/', views.set_email_reply_later, name='email-mark-reply-later'), # ok
     path('user/emails/<int:email_id>/unmark-reply-later/', views.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
     path('user/emails/<int:email_id>/block-sender/', views.set_rule_block_for_sender, name='block-sender-via-email'), # ok

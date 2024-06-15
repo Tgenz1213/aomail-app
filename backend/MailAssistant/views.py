@@ -2628,8 +2628,17 @@ def archive_email(request: HttpRequest, email_id: int) -> JsonResponse:
 # ----------------------- CREDENTIALS AVAILABILITY -----------------------#
 @api_view(["GET"])
 @permission_classes([AllowAny])
-def check_username(request):
-    """Verify if the username is available"""
+def check_username(request: HttpRequest) -> JsonResponse:
+    """
+    Verify if the username is available.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the username in the headers.
+
+    Returns:
+        JsonResponse: {"available": False} if the username is taken,
+                      {"available": True} if the username is available.
+    """
     username = request.headers.get("username")
 
     if User.objects.filter(username=username).exists():
@@ -2642,19 +2651,37 @@ def check_username(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_first_email(request: HttpRequest):
-    """Returns the first email associated with the user in database."""
-    user = request.user
-    social_apis = SocialAPI.objects.filter(user=user)
-    email = social_apis.first().email
+def get_first_email(request: HttpRequest) -> JsonResponse:
+    """
+    Returns the first email associated with the user in the database.
 
-    return Response({"email": email}, status=200)
+    Args:
+        request (HttpRequest): HTTP request object.
+
+    Returns:
+        JsonResponse: {"email": "<email_address>"} if an email is found.
+    """
+    user = request.user
+    social_api = SocialAPI.objects.filter(user=user).first()
+
+    return JsonResponse({"email": social_api.email}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_mail_by_id(request):
+def get_mail_by_id(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves details of an email by its ID associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email_id parameter in GET.
+
+    Returns:
+        JsonResponse:
+            {"message": "Authentication successful", "email": {...}} if the email is retrieved successfully.
+            {"error": "No email ID provided"} if no email_id parameter is provided in the request.
+    """
     user = request.user
     mail_id = request.GET.get("email_id")
 
@@ -2663,7 +2690,7 @@ def get_mail_by_id(request):
     email_user = social_api.email
     type_api = social_api.type_api
 
-    if mail_id is not None:
+    if mail_id:
         if type_api == "google":
             services = google_api.authenticate_service(user, email_user)
             subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
@@ -2700,7 +2727,7 @@ def get_mail_by_id(request):
         )
     else:
         return JsonResponse(
-            {"error": "Failed to authenticate"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "No email ID provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -2729,8 +2756,18 @@ def set_email_read(request, email_id):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_email_undread(request, email_id):
-    """Mark a specific email as read for the authenticated user"""
+def set_email_unread(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Marks a specific email as unread for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to mark as unread.
+
+    Returns:
+        JsonResponse: JSON response with the serialized data of the updated email,
+                      status=status.HTTP_200_OK if successful.
+    """
     user = request.user
 
     email = get_object_or_404(Email, user=user, id=email_id)
@@ -2751,8 +2788,18 @@ def set_email_undread(request, email_id):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_email_reply_later(request, email_id):
-    """Mark a specific email for later reply for the authenticated user"""
+def set_email_reply_later(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Marks a specific email for later reply for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to mark for later reply.
+
+    Returns:
+        JsonResponse: JSON response with the serialized data of the updated email,
+                      status=status.HTTP_200_OK if successful.
+    """
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
     email.answer_later = True
@@ -2765,8 +2812,18 @@ def set_email_reply_later(request, email_id):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_email_not_reply_later(request, email_id):
-    """Unmark a specific email for later reply."""
+def set_email_not_reply_later(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Unmarks a specific email for later reply for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to unmark for later reply.
+
+    Returns:
+        JsonResponse: JSON response with the serialized data of the updated email,
+                      status=status.HTTP_200_OK if successful.
+    """
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
     email.answer_later = False
@@ -2774,6 +2831,7 @@ def set_email_not_reply_later(request, email_id):
 
     serializer = EmailReplyLaterUpdateSerializer(email)
     return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
 
 
 @api_view(["GET"])

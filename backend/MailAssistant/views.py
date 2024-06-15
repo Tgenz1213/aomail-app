@@ -9,7 +9,7 @@ TODO:
 - Improve documentation to be concise.
 - STOP using differents libs to do the same thing => only use 1
     EXAMPLE:
-    status=200 | status=status.HTTP_200_OK => choose 1 and stick to it
+    status=200 | status=status.HTTP_200_OK => choose 1 (STRICTLY USE status.HTTP_CODE_DESC and stick to it
     JsonResponse | Response => choose 1 and stick to it
 - Ensure Pylance can recognize variable types and methods.
     EXAMPLE:
@@ -148,14 +148,14 @@ def signup(request: HttpRequest) -> JsonResponse:
     validation_result: dict = validate_signup_data(username, password, code)
     if "error" in validation_result:
         LOGGER.error(f"Validation failed for signup data: {validation_result['error']}")
-        return JsonResponse(validation_result, status=400)
+        return JsonResponse(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
     LOGGER.info("User signup data validated successfully")
 
     authorization_result: dict = validate_authorization_code(type_api, code)
     if "error" in authorization_result:
         LOGGER.error(f"Authorization failed: {authorization_result['error']}")
-        return JsonResponse({"error": authorization_result["error"]}, status=400)
+        return JsonResponse({"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST)
 
     LOGGER.info(f"Successfully validated authorization code for {type_api} API")
 
@@ -167,16 +167,16 @@ def signup(request: HttpRequest) -> JsonResponse:
         if SocialAPI.objects.filter(email=email).exists():
             LOGGER.error("Email address already used by another account")
             return JsonResponse(
-                {"error": "Email address already used by another account"}, status=400
+                {"error": "Email address already used by another account"}, status=status.HTTP_400_BAD_REQUEST
             )
         elif " " in email:
             LOGGER.error("Email address must not contain spaces")
             return JsonResponse(
-                {"error": "Email address must not contain spaces"}, status=400
+                {"error": "Email address must not contain spaces"}, status=status.HTTP_400_BAD_REQUEST
             )
     else:
         LOGGER.error("No email received")
-        return JsonResponse({"error": "No email received"}, status=400)
+        return JsonResponse({"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST)
 
     user = User.objects.create_user(username, "", password)
     LOGGER.info(f"User {username} created successfully")
@@ -188,7 +188,7 @@ def signup(request: HttpRequest) -> JsonResponse:
         LOGGER.error(f"Failed to generate access token: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     result = save_user_data(
         user,
@@ -207,7 +207,7 @@ def signup(request: HttpRequest) -> JsonResponse:
         LOGGER.error(f"Failed to save user data: {result['error']}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return JsonResponse(result, status=400)
+        return JsonResponse(result, status=status.HTTP_400_BAD_REQUEST)
 
     LOGGER.info(f"User data saved successfully for {username}")
 
@@ -226,14 +226,14 @@ def signup(request: HttpRequest) -> JsonResponse:
                 user.delete()
                 LOGGER.info(f"User {username} deleted successfully")
                 return JsonResponse(
-                    {"error": "No license associated with the account"}, status=400
+                    {"error": "No license associated with the account"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
     except Exception as e:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
     end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
@@ -252,13 +252,13 @@ def signup(request: HttpRequest) -> JsonResponse:
         LOGGER.info(f"User {username} subscribed to listeners successfully")
         return JsonResponse(
             {"access_token": django_access_token},
-            status=201,
+            status=status.HTTP_201_CREATED,
         )
     else:
         LOGGER.error(f"Failed to subscribe user {username} to listeners")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return JsonResponse({"error": "Could not subscribe to listener"}, status=400)
+        return JsonResponse({"error": "Could not subscribe to listener"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def subscribe_listeners(type_api: str, user: str, email: str) -> bool:
@@ -500,7 +500,7 @@ def save_user_data(
 @subscription([FREE_PLAN])
 def is_authenticated(request):
     """Used in index.js by the router to check if the user can access enpoints"""
-    return JsonResponse({"isAuthenticated": True}, status=200)
+    return JsonResponse({"isAuthenticated": True}, status=status.HTTP_200_OK)
 
 
 # ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
@@ -513,7 +513,7 @@ def generate_reset_token(request):
     social_api = SocialAPI.objects.filter(email=email)
     if social_api.exists() == False:
         return JsonResponse(
-            {"error": "Email address is not linked with an account"}, status=400
+            {"error": "Email address is not linked with an account"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     token = PasswordResetTokenGenerator().make_token(social_api.first().user)
@@ -530,10 +530,10 @@ def generate_reset_token(request):
             html_message=email_html,
             fail_silently=False,
         )
-        return JsonResponse({"message": "Email sent successfully!"}, status=200)
+        return JsonResponse({"message": "Email sent successfully!"}, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])
@@ -557,9 +557,9 @@ def receive_payment_notifications(request):
                 payload, sig_header, STRIPE_SECRET_KEY
             )
         except ValueError as e:
-            return JsonResponse({"error": str(e)}, status=400)
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except stripe.WebhookSignature as e:
-            return JsonResponse({"error": str(e)}, status=400)
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         if event["type"] == "invoice.payment_succeeded":
             # TODO: Handle successful + informations for customer
@@ -571,11 +571,11 @@ def receive_payment_notifications(request):
             # TODO: Handle failed payment + add error message
             redirect(STRIPE_PAYMENT_FAILED_URL)
         else:
-            return JsonResponse({"error": "Unhandled event type"}, status=400)
+            return JsonResponse({"error": "Unhandled event type"}, status=status.HTTP_400_BAD_REQUEST)
 
-        return JsonResponse({"message": "Received"}, status=200)
+        return JsonResponse({"message": "Received"}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
+        return JsonResponse({"error": "Invalid request method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
@@ -619,7 +619,7 @@ def forward_request(request: HttpRequest, api_method):
             f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
         )
         return JsonResponse(
-            {"error": "SocialAPI entry not found for the user and email"}, status=404
+            {"error": "SocialAPI entry not found for the user and email"}, status=status.HTTP_404_NOT_FOUND
         )
 
     api_module = None
@@ -632,7 +632,7 @@ def forward_request(request: HttpRequest, api_method):
         api_function = getattr(api_module, api_method)
         return api_function(request)
     else:
-        return JsonResponse({"error": "Unsupported API type or method"}, status=400)
+        return JsonResponse({"error": "Unsupported API type or method"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 ######################## AUTHENTICATION API ########################
@@ -648,9 +648,9 @@ def login(request):
         refresh = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
 
-        return JsonResponse({"access_token": access_token}, status=200)
+        return JsonResponse({"access_token": access_token}, status=status.HTTP_200_OK)
 
-    return JsonResponse(status=400)
+    return JsonResponse(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -659,7 +659,7 @@ def refresh_token(request):
     """Refreshes the JWT access token"""
     raw_token = request.data.get("access_token")
     if not raw_token:
-        return JsonResponse({"error": "Access token is missing"}, status=400)
+        return JsonResponse({"error": "Access token is missing"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         # Decode the token without checking for expiration
@@ -678,7 +678,7 @@ def refresh_token(request):
 
     except Exception as e:
         LOGGER.error(f"Error in refresh_token: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 ######################## LANGUAGES ########################
@@ -911,11 +911,11 @@ def get_user_categories(request):
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     except User.DoesNotExist:
-        return JsonResponse({"error": "User not found"}, status=400)
+        return JsonResponse({"error": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
         LOGGER.error(f"Error in get_user_categories: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["PUT"])
@@ -924,7 +924,7 @@ def get_user_categories(request):
 def update_category(request):
     current_name = request.data.get("categoryName")
     if not current_name:
-        return JsonResponse({"error": "No category name provided"}, status=400)
+        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
     if current_name == DEFAULT_CATEGORY:
         return JsonResponse(
             {"error": f"Can not modify: {DEFAULT_CATEGORY}"},
@@ -963,7 +963,7 @@ def update_category(request):
 def delete_category(request):
     current_name = request.data.get("categoryName")
     if not current_name:
-        return JsonResponse({"error": "No category name provided"}, status=400)
+        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
     if current_name == DEFAULT_CATEGORY:
         return JsonResponse(
             {"error": f"Can not delete: {DEFAULT_CATEGORY}"},
@@ -990,12 +990,12 @@ def get_rules_linked(request):
     """Returns the rules associated with the category."""
     current_name = request.data.get("categoryName")
     if not current_name:
-        return JsonResponse({"error": "No category name provided"}, status=400)
+        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
     user = request.user
     category = Category.objects.get(name=current_name, user=user)
     rules = Rule.objects.filter(category=category, user=user)
 
-    return JsonResponse({"nb_rules": len(rules)}, status=200)
+    return JsonResponse({"nb_rules": len(rules)}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -1048,9 +1048,9 @@ def get_category_id(request):
     category_name = request.data.get("categoryName")
     if category_name:
         category = get_object_or_404(Category, name=category_name, user=user)
-        return JsonResponse({"id": category.id}, status=200)
+        return JsonResponse({"id": category.id}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({"error": "No category name provided"}, status=400)
+        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 ############################# CONTACT ##############################
@@ -1084,7 +1084,7 @@ def find_user_view_ai(request):
         if not main_list:
             return JsonResponse(
                 {"error": "Invalid input or query not about email recipients"},
-                status=400,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
@@ -1153,12 +1153,12 @@ def find_user_view_ai(request):
                 "cc_recipients": cc_recipients_with_emails,
                 "bcc_recipients": bcc_recipients_with_emails,
             },
-            status=200,
+            status=status.HTTP_200_OK,
         )
     else:
         LOGGER.error("Failed to authenticate or no search query provided")
         return JsonResponse(
-            {"error": "Failed to authenticate or no search query provided"}, status=400
+            {"error": "Failed to authenticate or no search query provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -1179,7 +1179,7 @@ def new_email_ai(request):
         return JsonResponse({"subject": subject_text, "mail": mail_text})
     else:
         LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -1200,7 +1200,7 @@ def improve_email_writing(request):
         return JsonResponse({"subject": subject_text, "email_body": email_body})
     else:
         LOGGER.error(f"Serializer errors in improve_email_writing: {serializer.errors}")
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -1229,7 +1229,7 @@ def correct_email_language(request):
         LOGGER.error(
             f"Serializer errors in correct_email_language: {serializer.errors}"
         )
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -1251,7 +1251,7 @@ def check_email_copywriting(request):
         LOGGER.error(
             f"Serializer errors in check_email_copywriting: {serializer.errors}"
         )
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ----------------------- ANSWER -----------------------#
@@ -1273,7 +1273,7 @@ def generate_email_response_keywords(request):
         LOGGER.error(
             f"Serializer errors in generate_email_response_keywords: {serializer.errors}"
         )
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -1293,7 +1293,7 @@ def generate_email_answer(request):
         return JsonResponse({"email_answer": email_answer})
     else:
         LOGGER.error(f"Serializer errors in generate_email_answer: {serializer.errors}")
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ----------------------- REPLY LATER -----------------------#
@@ -1352,7 +1352,7 @@ def get_user_bg_color(request):
         return JsonResponse(serializer.data)
 
     except Preference.DoesNotExist:
-        return JsonResponse({"error": "Preferences not found for the user."}, status=404)
+        return JsonResponse({"error": "Preferences not found for the user."}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["POST"])
@@ -1367,10 +1367,10 @@ def set_user_bg_color(request):
     serializer = PreferencesSerializer(preferences, data=request.data)
     if serializer.is_valid():
         serializer.save()
-        return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
     else:
         LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
-        return JsonResponse(serializer.errors, status=400)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ----------------------- CREDENTIALS UPDATE-----------------------#
@@ -1382,13 +1382,13 @@ def update_username(request):
     new_username = request.data.get("username")
 
     if not new_username:
-        return JsonResponse({"error": "No new username provided."}, status=400)
+        return JsonResponse({"error": "No new username provided."}, status=status.HTTP_400_BAD_REQUEST)
 
     # Check if user requirements
     if User.objects.filter(username=new_username).exists():
-        return JsonResponse({"error": "Username already exists"}, status=400)
+        return JsonResponse({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
     elif " " in new_username:
-        return JsonResponse({"error": "Username must not contain spaces"}, status=400)
+        return JsonResponse({"error": "Username must not contain spaces"}, status=status.HTTP_400_BAD_REQUEST)
 
     user.username = new_username
     user.save()
@@ -1404,10 +1404,10 @@ def update_password(request):
     new_password = request.data.get("password")
 
     if not new_password:
-        return JsonResponse({"error": "No new password provided."}, status=400)
+        return JsonResponse({"error": "No new password provided."}, status=status.HTTP_400_BAD_REQUEST)
     elif not (8 <= len(new_password) <= 32):
         return JsonResponse(
-            {"error": "Password length must be between 8 and 32 characters"}, status=400
+            {"error": "Password length must be between 8 and 32 characters"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     user.set_password(new_password)
@@ -1427,11 +1427,11 @@ def delete_account(request):
     try:
         unsubscribe_listeners(user)
         user.delete()
-        return JsonResponse({"message": "User successfully deleted"}, status=200)
+        return JsonResponse({"message": "User successfully deleted"}, status=status.HTTP_200_OK)
 
     except Exception as e:
         LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def unsubscribe_listeners(user, email=None):
@@ -1583,7 +1583,7 @@ def delete_user_rule_by_id(request, id_rule):
         user_rule = Rule.objects.get(id=id_rule, user=request.user)
 
     except Rule.DoesNotExist:
-        return JsonResponse({"error": "Rule not found"}, status=404)
+        return JsonResponse({"error": "Rule not found"}, status=status.HTTP_404_NOT_FOUND)
 
     user_rule.delete()
 
@@ -1599,12 +1599,12 @@ def create_user_rule(request):
 
     rule = Rule.objects.filter(sender_id=data["sender"], user=user)
     if rule.exists():
-        return JsonResponse({"error": "A rule already exists for that sender"}, status=400)
+        return JsonResponse({"error": "A rule already exists for that sender"}, status=status.HTTP_400_BAD_REQUEST)
 
     serializer = RuleSerializer(data=request.data, context={"user": user})
     if serializer.is_valid():
         serializer.save()
-        return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
     else:
         LOGGER.error(f"Serializer errors in create_user_rule: {serializer.errors}")
         return JsonResponse(
@@ -1620,14 +1620,14 @@ def update_user_rule(request):
     try:
         rule = Rule.objects.get(id=request.data.get("id"), user=request.user)
     except Rule.DoesNotExist:
-        return JsonResponse({"error": "Rule not found."}, status=404)
+        return JsonResponse({"error": "Rule not found."}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = RuleSerializer(
         rule, data=request.data, partial=True, context={"user": request.user}
     )
     if serializer.is_valid():
         serializer.save()
-        return JsonResponse(serializer.data, status=200)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     else:
         LOGGER.error(f"Serializer errors in update_user_rule: {serializer.errors}")
         return JsonResponse(
@@ -1677,10 +1677,10 @@ def get_emails_linked(request):
                 {"email": social_api.email, "type_api": social_api.type_api}
             )
 
-        return JsonResponse(emails_inked, status=200)
+        return JsonResponse(emails_inked, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -1695,11 +1695,11 @@ def unlink_email(request):
         social_api = SocialAPI.objects.get(user=user, email=email)
         unsubscribe_listeners(user, email)
         social_api.delete()
-        return JsonResponse({"message": "Email unlinked successfully!"}, status=202)
+        return JsonResponse({"message": "Email unlinked successfully!"}, status=status.HTTP_202_ACCEPTED)
     except SocialAPI.DoesNotExist:
-        return JsonResponse({"error": "SocialAPI entry not found"}, status=400)
+        return JsonResponse({"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -1718,7 +1718,7 @@ def link_email(request):
 
     if "error" in authorization_result:
         # TODO: add clean LOGGER with given error message
-        return JsonResponse({"error": authorization_result["error"]}, status=400)
+        return JsonResponse({"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST)
 
     # Extract tokens and email from the authorization result
     access_token = authorization_result["access_token"]
@@ -1732,7 +1732,7 @@ def link_email(request):
     if email:
         if " " in email:
             return JsonResponse(
-                {"error": "Email address must not contain spaces"}, status=400
+                {"error": "Email address must not contain spaces"}, status=status.HTTP_400_BAD_REQUEST
             )
         try:
             social_api = SocialAPI.objects.create(
@@ -1745,10 +1745,10 @@ def link_email(request):
             )
         except IntegrityError:
             return JsonResponse(
-                {"error": "Email address already used by another account"}, status=400
+                {"error": "Email address already used by another account"}, status=status.HTTP_400_BAD_REQUEST
             )
     else:
-        return JsonResponse({"error": "No email received"}, status=400)
+        return JsonResponse({"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST)
 
     # Asynchronous function to store all contacts
     try:
@@ -1761,19 +1761,19 @@ def link_email(request):
                 target=microsoft_api.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
         return JsonResponse(
             {"message": "Email linked to account successfully!"},
-            status=201,
+            status=status.HTTP_201_CREATED,
         )
     else:
         social_api.delete()
 
-    return JsonResponse({"error": "Could not subscribe to listener"}, status=400)
+    return JsonResponse({"error": "Could not subscribe to listener"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -1863,7 +1863,7 @@ def search_emails_ai(request):
         search_result.start()
         search_result.join()
 
-    return JsonResponse(result, status=200)
+    return JsonResponse(result, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -1944,7 +1944,7 @@ def search_emails(request):
         search_result.start()
         search_result.join()
 
-    return JsonResponse(result, status=200)
+    return JsonResponse(result, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -2027,9 +2027,9 @@ def update_user_description(request):
         social_api = SocialAPI.objects.get(user=user, email=email)
         social_api.user_description = user_description
         social_api.save()
-        return JsonResponse({"message": "User description updated"}, status=200)
+        return JsonResponse({"message": "User description updated"}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({"error": "No email provided"}, status=400)
+        return JsonResponse({"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -2043,9 +2043,9 @@ def get_user_description(request):
 
     if email:
         social_api = SocialAPI.objects.get(user=user, email=email)
-        return JsonResponse({"data": social_api.user_description}, status=200)
+        return JsonResponse({"data": social_api.user_description}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({"error": "No email provided"}, status=400)
+        return JsonResponse({"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -2103,9 +2103,9 @@ def check_username(request):
     username = request.headers.get("username")
 
     if User.objects.filter(username=username).exists():
-        return JsonResponse({"available": False}, status=200)
+        return JsonResponse({"available": False}, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({"available": True}, status=200)
+        return JsonResponse({"available": True}, status=status.HTTP_200_OK)
 
 
 # ----------------------- EMAIL -----------------------#
@@ -2154,10 +2154,10 @@ def get_mail_by_id(request):
                     "email_receiver": email_user,
                 },
             },
-            status=200,
+            status=status.HTTP_200_OK,
         )
     else:
-        return JsonResponse({"error": "Failed to authenticate"}, status=400)
+        return JsonResponse({"error": "Failed to authenticate"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
@@ -2352,7 +2352,7 @@ def retrieve_attachment_data(request, email_id, attachment_id):
         # TO DO
         print("TO DO : ERROR")
 
-    return JsonResponse(attachment_data, status=200)
+    return JsonResponse(attachment_data, status=status.HTTP_200_OK)
 
 
 ####################################################################

@@ -12,6 +12,7 @@ import time
 import random
 import json
 import os
+from rest_framework import status
 from django.http import HttpRequest
 from django.contrib.auth.models import User
 import httplib2
@@ -339,21 +340,21 @@ def send_email(request: HttpRequest):
                 target=library.save_contacts, args=(user, email, all_recipients)
             ).start()
 
-            return Response({"message": "Email sent successfully!"}, status=200)
+            return Response({"message": "Email sent successfully!"}, status=status.HTTP_200_OK)
 
         else:
             keys = serializer.errors.keys()
 
             if "to" in keys:
-                return Response({"error": "recipient is missing"}, status=400)
+                return Response({"error": "recipient is missing"}, status=status.HTTP_400_BAD_REQUEST)
             elif "subject" in keys:
-                return Response({"error": "subject is missing"}, status=400)
+                return Response({"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({"error": serializer.errors}, status=400)
+                return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def delete_email(user, email, email_id) -> dict:
@@ -1148,12 +1149,12 @@ def get_profile_image(request: HttpRequest):
                 return Response({"profile_image_url": photo_url})
 
         return Response(
-            {"profile_image_url": "Profile image URL not found in response"}, status=404
+            {"profile_image_url": "Profile image URL not found in response"}, status=status.HTTP_404_NOT_FOUND
         )
 
     except Exception as e:
         return Response(
-            {"error": f"Error retrieving profile image: {str(e)}"}, status=505
+            {"error": f"Error retrieving profile image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -1316,15 +1317,15 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
 
     except IntegrityError:
         LOGGER.error(f"Email already exists in database")
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def email_to_db(user, services, social_api: SocialAPI):

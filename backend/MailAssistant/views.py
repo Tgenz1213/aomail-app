@@ -1677,24 +1677,48 @@ def update_password(request: HttpRequest) -> JsonResponse:
 @api_view(["DELETE"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_account(request):
-    """Removes the user from the database"""
+def delete_account(request: HttpRequest) -> JsonResponse:
+    """
+    Removes the authenticated user account from the database.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+
+    Returns:
+        JsonResponse: {"message": "User successfully deleted"} if the user account is deleted successfully,
+                      or {"error": "Details of the specific error."} if there's an issue with the deletion.
+    """
     user = request.user
 
     try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Deletion request received from IP: {ip} for user ID: {user.id}")
+
         unsubscribe_listeners(user)
         user.delete()
+
+        LOGGER.info(f"User with ID: {user.id} deleted successfully")
         return JsonResponse(
             {"message": "User successfully deleted"}, status=status.HTTP_200_OK
         )
-
     except Exception as e:
         LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
-def unsubscribe_listeners(user, email=None):
+def unsubscribe_listeners(user: User, email: str = None):
+    """
+    Unsubscribes the authenticated user from social and Microsoft listeners.
+
+    Args:
+        user (User): The authenticated user object.
+        email (str, optional): Specific email to unsubscribe from Microsoft listeners.
+    """
     social_apis = SocialAPI.objects.filter(user=user)
+
+    # Unsubscribe from Google APIs
     if social_apis.exists():
         for social_api in social_apis:
             if social_api.type_api == "google":
@@ -1705,25 +1729,28 @@ def unsubscribe_listeners(user, email=None):
                         break
                     else:
                         LOGGER.critical(
-                            f"[Attempt n°{i+1}] Failed to unsubscribe from Google: {social_api.email}"
+                            f"[Attempt {i+1}] Failed to unsubscribe from Google: {social_api.email}"
                         )
-                    context = {
-                        "title": "Critical Alert: Google Unsubscription Failure",
-                        "attempt_number": i + 1,
-                        "subscription_id": social_api.email,
-                        "email_provider": GOOGLE_PROVIDER,
-                        "user": user,
-                    }
-                    email_html = render_to_string("unsubscribe_failure.html", context)
-                    send_mail(
-                        subject="Critical Alert: Google Unsubscription Failure",
-                        message="",
-                        recipient_list=ADMIN_EMAIL_LIST,
-                        from_email=EMAIL_NO_REPLY,
-                        html_message=email_html,
-                        fail_silently=False,
-                    )
+                        context = {
+                            "title": "Critical Alert: Google Unsubscription Failure",
+                            "attempt_number": i + 1,
+                            "subscription_id": social_api.email,
+                            "email_provider": GOOGLE_PROVIDER,
+                            "user": user,
+                        }
+                        email_html = render_to_string(
+                            "unsubscribe_failure.html", context
+                        )
+                        send_mail(
+                            subject="Critical Alert: Google Unsubscription Failure",
+                            message="",
+                            recipient_list=ADMIN_EMAIL_LIST,
+                            from_email=EMAIL_NO_REPLY,
+                            html_message=email_html,
+                            fail_silently=False,
+                        )
 
+    # Unsubscribe from Microsoft listeners
     if email:
         microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
     else:
@@ -1738,7 +1765,7 @@ def unsubscribe_listeners(user, email=None):
                     break
                 else:
                     LOGGER.critical(
-                        f"[Attempt n°{i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
+                        f"[Attempt {i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
                     )
                     context = {
                         "title": "Critical Alert: Microsoft Unsubscription Failure",

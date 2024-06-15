@@ -1,26 +1,19 @@
 {
-    "BillingInfo": {
-        "billing_address": "reQ4WM0yoBphQMvhe0vMuvQ8N6bn5gVzDFeQ-MsIqSg=",
-        "billing_email": "FbTY5zZAIxN0mKHPOrqLmyOoZEC4Qspy03pNnf2qnGo=",
-        "name": "0ogs3EGL3fNV8S9bqifY4Egy1Ys3vm7RnFdr_olW0WM=",
-        "first_name": "Zmy0_MC1sIUX_cJEJENCVeQWEjTfl-hlDb42eeOnVQg=",
-        "country": "TuRFVj-eiLmafLVL_WkznqNDKcxzhVgq60ZNP9CBtf8=",
-        "postal_code": "D3imKeASje29RHO8_rRcdQYQy5kE5Yhvnw7d8pBBEbE=",
-        "city": "FOUC6yMBnpYtirBYok2HoZQLnGWD5L2evN2CO1i4ULs="
+    "SocialAPI": {
+        "refresh_token": "L9jboeHUFIOmockOsL3h708L3UMRQFsPrhaYHigfWnU=",
+        "email": "P+aoSvyT8YYjuKdCj2EhMdOj/lihoiJ9uGuzDPkqbUo="
     },
     "Email": {
         "subject": "DgMaEbG60uSlMHTIdUC3NCh3ZEeiBQ_MwwPIT6DAGEs=",
-        "email_short_summary": "MkVt-TM0UWV2G_YavUr0lnSZ72PzKXsVnHvSdqEiA2E=",
-        "content": "0psMXaChXZFK0O3Atai4Mz-rrTyeQ1yhsQBHjGPqpgg="
+        "one_line": "NG_yor-wYi9OWWIUUipZLl1pFYpYjlr5PO50RNZyHGs=",
+        "short_summary": "MkVt-TM0UWV2G_YavUr0lnSZ72PzKXsVnHvSdqEiA2E=",
+        "html_content": "0psMXaChXZFK0O3Atai4Mz-rrTyeQ1yhsQBHjGPqpgg="
     },
     "Category": {
         "name": "nnWzkSgeacdAQt9swplGNtj8GfVbqhznP99-C18_m0g=",
         "description": "BZlqn2NoguB3-EOFYoh6qCSJRbej0MIo4OvDWPtz2mg="
     },
-    "BulletPoint": {
-        "content": "RUKj-u_yrJYz1oWOgqh7wkVS_RkTL7AacBdYCC3693g="
-    },
     "Rule": {
-        "info_AI": "hyNViSNN5ZzjCiRBheJbP-8dtFKls8S7ELCF__ZbVhY="
+        "infoAI": "hyNViSNN5ZzjCiRBheJbP-8dtFKls8S7ELCF__ZbVhY="
     }
 }

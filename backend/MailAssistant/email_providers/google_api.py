@@ -12,6 +12,7 @@ import time
 import random
 import json
 import os
+from rest_framework import status
 from django.http import HttpRequest
 from django.contrib.auth.models import User
 import httplib2
@@ -38,10 +39,12 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from asgiref.sync import async_to_sync
 from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
+from MailAssistant.utils import security
 from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
+    ENCRYPTION_KEYS,
     GOOGLE_CONFIG,
     GOOGLE_CREDS,
     GOOGLE_PROJECT_ID,
@@ -73,6 +76,7 @@ from ..models import (
     CC_sender,
     BCC_sender,
     Picture,
+    Attachment,
 )
 from base64 import urlsafe_b64encode
 from bs4 import BeautifulSoup
@@ -110,7 +114,7 @@ def exchange_code_for_tokens(authorization_code):
 
         return access_token, refresh_token
     else:
-        return Response({"error": "tokens not found"}, status=400)
+        return None, None
 
 
 def auth_url_link_email(request):
@@ -140,7 +144,7 @@ def link_email_tokens(authorization_code):
 
         return access_token, refresh_token
     else:
-        return Response({"error": "tokens not found"}, status=400)
+        return None, None
 
 
 ######################## CREDENTIALS ########################
@@ -157,18 +161,23 @@ def get_credentials(user: User, email: str) -> credentials.Credentials | None:
     """
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
+        refresh_token_encrypted = social_api.refresh_token
+        refresh_token = security.decrypt_text(
+            ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token_encrypted
+        )
         creds_data = {
             "token": social_api.access_token,
-            "refresh_token": social_api.refresh_token,
+            "refresh_token": refresh_token,
             "token_uri": GOOGLE_CONFIG["token_uri"],
             "client_id": GOOGLE_CONFIG["client_id"],
             "client_secret": GOOGLE_CONFIG["client_secret"],
             "scopes": GOOGLE_SCOPES,
         }
         creds = credentials.Credentials.from_authorized_user_info(creds_data)
-    except ObjectDoesNotExist:
+    except SocialAPI.DoesNotExist:
         LOGGER.error(f"No credentials for user with ID {user.id} and email: {email}")
         creds = None
+
     return creds
 
 
@@ -331,21 +340,30 @@ def send_email(request: HttpRequest):
                 target=library.save_contacts, args=(user, email, all_recipients)
             ).start()
 
-            return Response({"message": "Email sent successfully!"}, status=200)
+            return Response(
+                {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
+            )
 
         else:
             keys = serializer.errors.keys()
 
             if "to" in keys:
-                return Response({"error": "recipient is missing"}, status=400)
+                return Response(
+                    {"error": "recipient is missing"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             elif "subject" in keys:
-                return Response({"error": "subject is missing"}, status=400)
+                return Response(
+                    {"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST
+                )
             else:
-                return Response({"error": serializer.errors}, status=400)
+                return Response(
+                    {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+                )
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def delete_email(user, email, email_id) -> dict:
@@ -466,9 +484,10 @@ def get_mail_to_db(services):
     email_txt_html = ""
     email_detect_html = False
     image_files = []
+    attachments = []  # List to store attachment metadata
 
     def process_part(part):
-        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files
+        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments
 
         if part["mimeType"] == "text/plain":
             if "data" in part["body"]:
@@ -491,63 +510,36 @@ def get_mail_to_db(services):
                     r'<img[^>]+src="data:image/([^;]+);base64,([^"]+)"', decoded_data
                 )
                 for img_type, img_data in img_tags:
-                    has_attachments = True
                     timestamp = int(time.time())
                     random_str = "".join(
                         random.choices(string.ascii_letters + string.digits, k=8)
                     )
                     image_filename = f"image_{timestamp}_{random_str}.{img_type}"
-                    image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
-
-                    img_data_bytes = base64.b64decode(img_data.encode("UTF-8"))
-                    os.makedirs(os.path.dirname(image_path), exist_ok=True)
-                    with open(image_path, "wb") as img_file:
-                        img_file.write(img_data_bytes)
-                    image_files.append(image_path)
-
+                    image_files.append(image_filename)
                     email_html = email_html.replace(
                         f"data:image/{img_type};base64,{img_data}",
                         f"{MEDIA_URL}pictures/{image_filename}",
                     )
         elif part["mimeType"].startswith("image/"):
-            has_attachments = True
             timestamp = int(time.time())
             random_str = "".join(
                 random.choices(string.ascii_letters + string.digits, k=8)
             )
             image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
-            image_path = os.path.join(MEDIA_ROOT, "pictures", image_filename)
-
-            if "attachmentId" in part["body"]:
-                attachment_id = part["body"]["attachmentId"]
-                attachment = (
-                    service.users()
-                    .messages()
-                    .attachments()
-                    .get(userId="me", messageId=email_id, id=attachment_id)
-                    .execute()
-                )
-                file_data = base64.urlsafe_b64decode(attachment["data"].encode("UTF-8"))
-            elif "data" in part["body"]:
-                file_data = base64.urlsafe_b64decode(
-                    part["body"]["data"].encode("UTF-8")
-                )
-            else:
-                return
-
-            with open(image_path, "wb") as img_file:
-                img_file.write(file_data)
-            image_files.append(image_path)
-            email_html += (
-                f'<img src="{BASE_URL_MA}pictures/{image_path}" alt="Embedded Image" />'
-            )
-            email_txt_html += (
-                f'<img src="{BASE_URL_MA}pictures/{image_path}" alt="Embedded Image" />'
-            )
+            image_files.append(image_filename)
+            email_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
+            email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
         elif part["mimeType"].startswith("multipart/"):
             if "parts" in part:
                 for subpart in part["parts"]:
                     process_part(subpart)
+        elif "filename" in part:
+            has_attachments = True
+            attachment_id = part["body"]["attachmentId"]
+            # Add metadata to attachments list
+            attachments.append(
+                {"attachmentId": attachment_id, "attachmentName": part["filename"]}
+            )
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
@@ -555,7 +547,6 @@ def get_mail_to_db(services):
     else:
         process_part(msg["payload"])
 
-    # If there is txt/HTML in the mail we do not integrate the plain/txt to avoid displaying error
     if email_detect_html is False:
         email_html = email_txt_html
 
@@ -584,6 +575,7 @@ def get_mail_to_db(services):
         cc_info,
         bcc_info,
         image_files,
+        attachments,
     )
 
 
@@ -842,6 +834,76 @@ def search_emails_manually(
         return []
 
 
+# ----------------------- EMAIL ATTACHMENT -----------------------#
+''' TO DELETE : def get_attachment_metadata(user: User, email: str, email_id: int) -> dict:
+    """
+    Retrieve metadata of all attachments from a specific email using the Gmail API.
+    """
+    try:
+        services = authenticate_service(user, email)
+
+        message = services['gmail'].users().messages().get(userId='me', id=email_id).execute()
+        
+        attachments_metadata = []
+
+        if 'payload' in message:
+            parts = message['payload'].get('parts', [])
+            for part in parts:
+                if 'filename' in part and part['filename']:
+                    attachment_id = part['body']['attachmentId']
+                    attachments_metadata.append(
+                        {"attachmentName": part['filename'], "attachmentId": attachment_id}
+                    )
+
+        return attachments_metadata
+
+    except Exception as e:
+        LOGGER.error(f"Failed to get attachments metadata for email ID {email_id}: {str(e)}")
+        return []'''
+
+
+def get_attachment_data(
+    user: User, email: str, email_id: str, attachment_id: str
+) -> dict:
+    try:
+        services = authenticate_service(user, email)
+        if not services or "gmail" not in services:
+            LOGGER.error(
+                f"Failed to authenticate Gmail service for user with ID {user.id} and email: {email}"
+            )
+            LOGGER.error(f"SERVICES : ", services)
+            return {}
+
+        gmail_service = services["gmail"]
+        message = (
+            gmail_service.users().messages().get(userId="me", id=email_id).execute()
+        )
+
+        if "payload" in message:
+            parts = message["payload"].get("parts", [])
+            for part in parts:
+                if "body" in part and part["body"].get("attachmentId") == attachment_id:
+                    attachment = (
+                        gmail_service.users()
+                        .messages()
+                        .attachments()
+                        .get(userId="me", messageId=email_id, id=attachment_id)
+                        .execute()
+                    )
+
+                    data = attachment["data"]
+                    attachment_data = base64.urlsafe_b64decode(data.encode("UTF-8"))
+                    return {"attachmentName": part["filename"], "data": attachment_data}
+
+        return {}
+
+    except Exception as e:
+        LOGGER.error(
+            f"Failed to get attachment data for email ID {email_id} and attachment ID {attachment_id}: {str(e)}"
+        )
+        return {}
+
+
 # ----------------------- READ EMAIL -----------------------#
 def find_user_in_emails(services, search_query):
     """Search for user in emails based on a query"""
@@ -1096,17 +1158,29 @@ def get_profile_image(request: HttpRequest):
                 return Response({"profile_image_url": photo_url})
 
         return Response(
-            {"profile_image_url": "Profile image URL not found in response"}, status=404
+            {"profile_image_url": "Profile image URL not found in response"},
+            status=status.HTTP_404_NOT_FOUND,
         )
 
     except Exception as e:
         return Response(
-            {"error": f"Error retrieving profile image: {str(e)}"}, status=505
+            {"error": f"Error retrieving profile image: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
-def get_email(access_token, refresh_token):
-    """Returns the primary email of the user"""
+def get_email(access_token: str, refresh_token: str) -> dict:
+    """
+    Returns the primary email of the user from Google People API.
+
+    Args:
+        access_token (str): The access token for Google API authentication.
+        refresh_token (str): The refresh token for Google API authentication.
+
+    Returns:
+        dict: {'email': <user_email>} if successful,
+              {'error': <error_message>} if any error occurs.
+    """
     creds_data = {
         "token": access_token,
         "refresh_token": refresh_token,
@@ -1118,18 +1192,20 @@ def get_email(access_token, refresh_token):
     creds = credentials.Credentials.from_authorized_user_info(creds_data)
 
     try:
-        service = build_services(creds)["people"]
-        user_info = (
+        service = build("people", "v1", credentials=creds)
+        user_info: dict[str, list[dict]] = (
             service.people()
             .get(resourceName="people/me", personFields="emailAddresses")
             .execute()
         )
         email = user_info.get("emailAddresses", [{}])[0].get("value", "")
-        return email
+        if email:
+            return {"email": email}
+        else:
+            return {"error": "No email found from Microsoft API"}
 
     except Exception as e:
-        LOGGER.error(f"Could not get email: {str(e)}")
-        return None
+        return {"error": f"Failed to get email from Microsoft API: {str(e)}"}
 
 
 ######################## GOOGLE LISTENER ########################
@@ -1252,15 +1328,15 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
 
     except IntegrityError:
         LOGGER.error(f"Email already exists in database")
-        return Response(status=200)
+        return Response(status=status.HTTP_200_OK)
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": str(e)}, status=500)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def email_to_db(user, services, social_api: SocialAPI):
@@ -1279,6 +1355,7 @@ def email_to_db(user, services, social_api: SocialAPI):
         cc_info,
         bcc_info,
         image_files,
+        attachments,
     ) = get_mail_to_db(services)
 
     if Email.objects.filter(provider_id=email_id).exists():
@@ -1288,52 +1365,12 @@ def email_to_db(user, services, social_api: SocialAPI):
         social_api.user_description if social_api.user_description != None else ""
     )
     language = Preference.objects.get(user=user).language
-    if is_reply:
-        email_content = library.preprocess_email(decoded_data)
-
-        # summarize conversation with Search
-        user_id = user.id
-        search = Search(user_id)
-        email_id = get_mail_id(services, 0)
-        conversation_summary = search.summarize_conversation(
-            subject, email_content, user_description, language
-        )
-        # print(
-        #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
-        # )
-        # print(conversation_summary)
-        # print(
-        #     "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        # )
-        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
-    else:
-        # summarize single email with Search
-        email_content = library.preprocess_email(decoded_data)
-
-        user_id = user.id
-        search = Search(user_id)
-        email_id = get_mail_id(services, 0)
-        email_summary = search.summarize_email(
-            subject, email_content, user_description, language
-        )
-        # print(
-        #     "=================== AFTER TREATING THE EMAIL THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        # )
-        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
-
-    # print("--------------------------HELLA IMPORTANT : safe_html-------------------------------------")
-    # print(safe_html)
-
-    # print("----------------------------------> decoded_data", decoded_data)
-    # print("----------------------------------> PICTURES", image_files)
 
     if not Email.objects.filter(provider_id=email_id).exists():
         sender = Sender.objects.filter(email=from_name[1]).first()
 
         if not decoded_data:
             return "No decoded data"
-
-        # print("THIS AREA --------------------------------------------------------|")
 
         category_dict = library.get_db_categories(user)
         category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
@@ -1352,22 +1389,26 @@ def email_to_db(user, services, social_api: SocialAPI):
                     category = rule.category
                     rule_category = True
 
-        # print(
-        #     "-------------------------> 5",
-        #     "SUBJECT : ",
-        #     subject,
-        #     "DATA : ",
-        #     decoded_data,
-        #     "CATEGORY : ",
-        #     category_dict,
-        #     "USER DESCRIPTION : ",
-        #     user_description,
-        # )
+        if is_reply:
+            email_content = library.preprocess_email(decoded_data)
 
-        # print(
-        #     "--------------------------GOOGLE DECODED DATA BEFORE AI CALL------------------------------------"
-        # )
-        # print(decoded_data)
+            # summarize conversation with Search
+            user_id = user.id
+            search = Search(user_id)
+            email_id = get_mail_id(services, 0)
+            conversation_summary = search.summarize_conversation(
+                subject, email_content, user_description, language
+            )
+        else:
+            # summarize single email with Search
+            email_content = library.preprocess_email(decoded_data)
+
+            user_id = user.id
+            search = Search(user_id)
+            email_id = get_mail_id(services, 0)
+            email_summary = search.summarize_email(
+                subject, email_content, user_description, language
+            )
 
         (
             topic,
@@ -1499,6 +1540,13 @@ def email_to_db(user, services, social_api: SocialAPI):
                 for point in summary_list:
                     BulletPoint.objects.create(content=point, email=email_entry)
 
+            if attachments:
+                for attachment in attachments:
+                    Attachment.objects.create(
+                        mail_id=email_entry,
+                        name=attachment["attachmentName"],
+                        id_api=attachment["attachmentId"],
+                    )
             return True
 
         except Exception as e:
@@ -1506,741 +1554,3 @@ def email_to_db(user, services, social_api: SocialAPI):
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
             return str(e)
-
-
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
-"""
-# TODO: handle all email providers
-# TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
-# TODO: add possibility to modify user_desription in settings
-def processed_email_to_db(request, services):
-    subject, from_name, decoded_data, _, _, email_id, date = get_mail(services, 0, None)
-
-    if not Email.objects.filter(provider_id=email_id).exists():
-        if decoded_data:
-            decoded_data = library.format_mail(decoded_data)
-
-        # Get user categories
-        category_dict = library.get_db_categories(request.user)
-
-        # Process the email data with AI/NLP
-        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-        user_description = ""
-        (
-            topic,
-            importance_dict,
-            answer,
-            summary,
-            sentence,
-            relevance,
-        ) = (
-            # gpt_3_5_turbo
-            # claude
-            mistral.categorize_and_summarize_email(
-                subject, decoded_data, category_dict, user_description
-            )
-        )
-
-        # Extract the importance of the email
-        if importance_dict[IMPORTANT] == 50:
-            importance = IMPORTANT
-        else:
-            for key, value in importance_dict.items():
-                if value >= 51:
-                    importance = key
-
-        sender_name, sender_email = from_name[0], from_name[1]
-        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
-
-        # Get the relevant category based
-        # TODO: if not exist put in other
-        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
-
-        try:
-            email_entry = Email.objects.create(
-                provider_id=email_id,
-                email_provider=GOOGLE_PROVIDER,
-                email_short_summary=sentence,
-                content=decoded_data,
-                subject=subject,
-                priority=importance,
-                read=False,
-                answer_later=False,
-                sender=sender,
-                category=category,
-                user=request.user,
-                date=date,
-            )
-
-            # If the email has a summary, save it in the BulletPoint table
-            if summary:
-                for point in summary:
-                    BulletPoint.objects.create(content=point, email=email_entry)
-
-        except Exception as e:
-            LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
-            )
-
-        # Debug prints
-        LOGGER.info(f"topic: {topic}")
-        LOGGER.info(f"importance: {importance}")
-        LOGGER.info(f"answer: {answer}")
-        LOGGER.info(f"summary: {summary}")
-        LOGGER.info(f"sentence:  {sentence}")
-        LOGGER.info(f"relevance: {relevance}")
-        LOGGER.info(f"importance_dict:  {importance_dict}")"""
-
-
-'''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def unread_mails(request):
-    """Returns the number of unread emails"""
-    try:
-        user = request.user
-        email = request.headers.get("email")
-        unread_count = 0
-        service = authenticate_service(user, email)
-
-        if service is not None:
-            try:
-                response = (
-                    service["gmail.readonly"]
-                    .users()
-                    .messages()
-                    .list(userId="me", q="is:unread")
-                    .execute()
-                )
-                unread_count = len(response.get("messages", []))
-                return JsonResponse({"unreadCount": unread_count}, status=200)
-            except Exception as e:
-                logging.error(f"Error getting unread emails: {e}")
-                return JsonResponse(
-                    {"error": "Failed to retrieve unread count"}, status=500
-                )
-
-        logging.error("Failed to authenticate")
-        return JsonResponse({"unreadCount": unread_count}, status=400)
-
-    except Exception as e:
-        logging.error("An error occurred: {e}")
-        return JsonResponse({"unreadCount": 0}, status=400)'''
-
-
-'''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_parsed_contacts(request) -> list:
-    """Returns a list of parsed unique contacts e.g: [{name: example, email: example@test.com}]"""
-    start = time.time()
-
-    user = request.user
-    email = request.headers.get("email")
-    # Authenticate the user and build the service
-    credentials = get_credentials(user, email)
-    services = build_services(credentials)
-    contacts_service = services["people"]
-
-    try:
-        # Get contacts
-        contacts = (
-            contacts_service.people()
-            .connections()
-            .list(resourceName="people/me", personFields="names,emailAddresses")
-            .execute()
-        )
-
-        # Get other contacts
-        other_contacts = (
-            contacts_service.otherContacts()
-            .list(pageSize=1000, readMask="names,emailAddresses")
-            .execute()
-        )
-
-        # Get unique sender information from Gmail
-        unique_senders = get_unique_senders(services)
-
-        # Combine all contacts into a dictionary to ensure uniqueness
-        all_contacts = defaultdict(set)
-
-        # Parse contacts and other contacts
-        contact_types = {
-            "connections": contacts.get("connections", []),
-            "otherContacts": other_contacts.get("otherContacts", []),
-        }
-
-        # Parse contacts and other contacts
-        for _, contact_list in contact_types.items():
-            for contact in contact_list:
-                names = contact.get("names", [])
-                emails = contact.get("emailAddresses", [])
-                if names and emails:
-                    name = names[0].get("displayName", "")
-                    email = emails[0].get("value", "")
-                    all_contacts[email].add(name)
-
-        # Add unique sender information
-        for email, name in unique_senders.items():
-            all_contacts[email].add(name)
-
-        # Format the parsed contacts
-        parsed_contacts = [
-            {"name": ", ".join(names), "email": email}
-            for email, names in all_contacts.items()
-        ]
-
-        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        print(f"{Fore.BLUE}{parsed_contacts}")
-        logging.info(
-            f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts in {formatted_time}"
-        )
-
-        return Response(parsed_contacts)
-    except Exception as e:
-        logging.exception("Error fetching contacts:")
-        return Response({"error": str(e)}, status=500)'''
-
-
-'''
-def set_all_contacts(user, email):
-    """Stores all unique contacts of an email account in DB"""
-    start = time.time()
-
-    # Authenticate the user and build the service
-    credentials = get_credentials(user, email)
-    services = build_services(credentials)
-    contacts_service = services["people"]
-
-    try:
-        # Get all contacts without specifying a page size
-        all_contacts = defaultdict(set)
-        next_page_token = None
-
-        while True:
-            connections = (
-                contacts_service.people()
-                .connections()
-                .list(
-                    resourceName="people/me",
-                    personFields="names,emailAddresses",
-                    pageSize=1000,
-                    pageToken=next_page_token,
-                )
-                .execute()
-                .get("connections", [])
-            )
-
-            # Parse and add connections
-            for contact in connections:
-                name = contact.get("names", [{}])[0].get("displayName", "")
-                email_address = contact.get("emailAddresses", [{}])[0].get("value", "")
-                all_contacts[name].add(email_address)
-
-            # Update next_page_token directly from the list
-            next_page_token = connections[-1].get("nextPageToken")
-
-            if not next_page_token:
-                break
-
-        # Add contacts to the database
-        for name, emails in all_contacts.items():
-            for email in emails:
-                try:
-                    Contact.objects.create(email=email, username=name, user=user)
-                except IntegrityError:
-                    # TODO: Handle duplicates gracefully (e.g., update existing records)
-                    pass
-
-        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        logging.info(
-            f"{Fore.GREEN}Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
-        )
-
-    except Exception as e:
-        logging.exception(f"Error fetching contacts: {str(e)}")'''
-
-
-"""def get_unique_email_senders(request):
-    user = request.user
-    email = request.headers.get("email")
-    services = authenticate_service(user, email)
-
-    if services:
-        senders_info = get_unique_senders(services)
-        contacts_info = get_info_contacts(services)
-    else:
-        return Response(
-            {"error": "Failed to authenticate or access services"}, status=400
-        )
-
-    # Convert contacts_info to a dictionary format
-    contacts_dict = {
-        email: contact["name"]
-        for contact in contacts_info
-        for email in contact["emails"]
-    }
-
-    # Merge the two dictionaries and remove duplicates
-    merged_info = {
-        **contacts_dict,
-        **senders_info,
-    }  # In case of duplicates, senders_info will overwrite contacts_dict
-
-    return Response(merged_info, status=200)"""
-
-
-"""# TODO: handle all email providers
-# TODO: remove hardcoded user_desription and ask user to input its own description on signu-up
-# TODO: add possibility to modify user_desription in settings
-def processed_email_to_db(request, services):
-    subject, from_name, decoded_data, cc, bcc, email_id, date = get_mail(
-        services, 0, None
-    )
-
-    if not Email.objects.filter(provider_id=email_id).exists():
-
-        # Check if data is decoded, then format it
-        if decoded_data:
-            decoded_data = library.format_mail(decoded_data)
-
-        # Get user categories
-        category_dict = library.get_db_categories(request.user)
-
-        # print("DEBUG -------------> category", category_dict)
-
-        # Process the email data with AI/NLP
-        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-        user_description = ""
-        (
-            topic,
-            importance_dict,
-            answer,
-            summary,
-            sentence,
-            relevance,
-            importance_dict,
-        ) = (
-            # gpt_3_5_turbo
-            # claude
-            mistral.categorize_and_summarize_email(
-                subject, decoded_data, category_dict, user_description
-            )
-        )
-
-        # Extract the importance of the email
-        if importance_dict[IMPORTANT] == 50:
-            importance = IMPORTANT
-        else:
-            for key, value in importance_dict.items():
-                if value >= 51:
-                    importance = key
-
-        # print("TEST -------------->", from_name, "TYPE ------------>", type(from_name))
-        # sender_name, sender_email = separate_name_email(from_name) => OLD USELESS
-        sender_name, sender_email = from_name[0], from_name[1]
-
-        # Fetch or create the sender
-        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
-
-        LOGGER.info(f"[processed_email_to_db] topic: {topic}")
-        # Get the relevant category based on topic or create a new one (for simplicity, I'm getting an existing category)
-        category = Category.objects.get_or_create(name=topic, user=request.user)[0]
-
-        provider = "Gmail"
-
-        try:
-            # Create a new email record
-            email_entry = Email.objects.create(
-                provider_id=email_id,
-                email_provider=provider,
-                email_short_summary=sentence,
-                content=decoded_data,
-                subject=subject,
-                priority=importance,
-                read=False,
-                answer_later=False,
-                sender=sender,
-                category=category,
-                user=request.user,
-                date=date,
-            )
-
-            # If the email has a summary, save it in the BulletPoint table
-            if summary:
-                for point in summary:
-                    BulletPoint.objects.create(content=point, email=email_entry)
-
-                # # Split summary by line breaks
-                # lines = summary.split("\n")
-
-                # # Filter lines that start with '- ' which indicates a bullet point
-                # bullet_points = [
-                #     line[2:].strip() for line in lines if line.strip().startswith("- ")
-                # ]
-
-                # for point in bullet_points:
-                #     BulletPoint.objects.create(content=point, email=email_entry)
-
-        except Exception as e:
-            LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
-            )
-
-        # Debug prints
-        LOGGER.info("topic:", topic)
-        LOGGER.info("importance:", importance)
-        LOGGER.info("answer:", answer)
-        LOGGER.info("summary:", summary)
-        LOGGER.info("sentence:", sentence)
-        LOGGER.info("relevance:", relevance)
-        LOGGER.info("importance_dict:", importance_dict)
-
-    else:
-        LOGGER.error(f"The email with ID {email_id} already exists.")"""
-
-'''def set_all_contacts(user, email):
-    """Stores all unique contacts of an email account in DB"""
-    start = time.time()
-
-    credentials = get_credentials(user, email)
-    services = build_services(credentials)
-    contacts_service = services["people"]
-    gmail = services["gmail"]
-
-    try:
-        all_contacts = defaultdict(set)
-
-        # Part 1 : Retreive from Google Contact
-        next_page_token = None
-        while True:
-            response = (
-                contacts_service.people()
-                .connections()
-                .list(
-                    resourceName="people/me",
-                    personFields="names,emailAddresses",
-                    pageSize=1000,
-                    pageToken=next_page_token,
-                )
-                .execute()
-            )
-
-            connections = response.get("connections", [])
-            next_page_token = response.get("nextPageToken")
-
-            for contact in connections:
-                names = contact.get("names", [{}])
-                email_addresses = contact.get("emailAddresses", [])
-                name = names[0].get("displayName", "") if names else ""
-
-                for email_info in email_addresses:
-                    email_address = email_info.get("value", "")
-                    if email_address:
-                        all_contacts[name].add(email_address)
-
-            if not next_page_token:
-                break
-
-        # Part 2 : Retreiving from Gmail
-        response = gmail.users().messages().list(userId="me", q="").execute()
-        messages = response.get("messages", [])
-
-        for msg in messages[:500]:  # Limit to the first 500 messages
-            message = (
-                gmail.users()
-                .messages()
-                .get(
-                    userId="me",
-                    id=msg["id"],
-                    format="metadata",
-                    metadataHeaders=["From"],
-                )
-                .execute()
-            )
-            headers = message.get("payload", {}).get("headers", [])
-            from_header = next(
-                (item for item in headers if item["name"] == "From"), None
-            )
-            if from_header:
-                from_value = from_header["value"]
-                if "reply" in from_value.lower():
-                    continue
-
-                email_match = re.search(r"[\w\.-]+@[\w\.-]+", from_value)
-                name_match = re.search(r'(?:"?([^"]*)"?\s)?', from_value)
-
-                email = email_match.group(0) if email_match else None
-                name = (
-                    name_match.group(1) if name_match and name_match.group(1) else email
-                )
-
-                if not email:
-                    continue
-
-                if name in all_contacts:
-                    continue
-                else:
-                    all_contacts[name].add(email)
-
-        # Part 3 : Add the contact to the database
-        for name, emails in all_contacts.items():
-            for email in emails:
-                if name and email:
-                    library.save_email_sender(user, name, email)
-
-        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        LOGGER.info(
-            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
-        )
-
-    except Exception as e:
-        LOGGER.error(f"Error fetching contacts: {str(e)}")'''
-
-
-'''def get_mail(services, int_mail=None, id_mail=None):
-    """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
-    service = services["gmail"]
-    plaintext_var = [0]
-    plaintext_var[0] = 0
-
-    if int_mail is not None:
-        results = (
-            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
-        )
-        messages = results.get("messages", [])
-        if not messages:
-            LOGGER.info("No new messages.")
-            return None
-        message = messages[int_mail]
-        email_id = message["id"]
-    elif id_mail is not None:
-        email_id = id_mail
-    else:
-        LOGGER.info("Either int_mail or id_mail must be provided")
-        return None
-
-    msg = service.users().messages().get(userId="me", id=email_id).execute()
-    subject = from_info = cc_info = bcc_info = decoded_data = attachments_data = None
-    headers = msg["payload"]["headers"]
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
-
-    for values in headers:
-        name = values["name"].lower()
-        if name == "subject":
-            subject = values["value"]
-        elif name == "from":
-            from_info = parse_name_and_email(values["value"])
-        elif name == "cc":
-            cc_info = parse_name_and_email(values["value"])
-        elif name == "bcc":
-            bcc_info = parse_name_and_email(values["value"])
-        elif name == "date":
-            sent_date = parsedate_to_datetime(values["value"])
-
-    if "parts" in msg["payload"]:
-        attachments_data = []
-        for part in msg["payload"]["parts"]:
-            if part.get("filename"):
-                attachment_name = part["filename"]
-                if "body" in part:
-                    if "attachmentId" in part["body"]:
-                        attachment_id = part["body"]["attachmentId"]
-                        attachment_data = (
-                            service.users()
-                            .messages()
-                            .attachments()
-                            .get(userId="me", messageId=email_id, id=attachment_id)
-                            .execute()
-                        )
-                        data = attachment_data["data"]
-                        attachment_data_decoded = base64.urlsafe_b64decode(
-                            data.encode("UTF-8")
-                        )
-                        attachment_data_encoded = base64.b64encode(
-                            attachment_data_decoded
-                        ).decode("utf-8")
-                        attachments_data.append(
-                            {
-                                "attachment_name": attachment_name,
-                                "data": attachment_data_encoded,
-                            }
-                        )
-                    elif "attachment" in part["body"]:
-                        attachment_data = part["body"]["attachment"]["data"]
-                        attachment_data_decoded = base64.urlsafe_b64decode(
-                            attachment_data.encode("UTF-8")
-                        )
-                        attachment_data_encoded = base64.b64encode(
-                            attachment_data_decoded
-                        ).decode("utf-8")
-                        attachments_data.append(
-                            {
-                                "attachment_name": attachment_name,
-                                "data": attachment_data_encoded,
-                            }
-                        )
-
-            decoded_data_temp = library.process_part(part, plaintext_var)
-            if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
-
-    elif "body" in msg["payload"]:
-        data = msg["payload"]["body"]["data"]
-        data = data.replace("-", "+").replace("_", "/")
-        decoded_data_temp = base64.b64decode(data).decode("utf-8")
-        decoded_data = library.html_clear(decoded_data_temp)
-
-    preprocessed_data = library.preprocess_email(decoded_data)
-
-    return (
-        subject,
-        from_info,
-        preprocessed_data,
-        cc_info,
-        bcc_info,
-        email_id,
-        sent_date,
-        web_link,
-        attachments_data,
-    )'''
-
-
-'''
-def search_emails_manually(
-    services: dict,
-    search_query: str,
-    max_results: int,
-    file_extensions: list = None,
-    search_in: dict = None,
-    from_addresses: list = None,
-    to_addresses: list = None,
-    subject: str = None,
-    body: str = None,
-    keywords: list = None,
-    date_from: str = None,
-):
-    """Searches for emails matching the query."""
-
-    query_parts = [
-        f"(from:{search_query})",
-        f"(to:{search_query})",
-        f"(subject:{search_query})",
-        f"(body:{search_query})",
-        f"(filename:{search_query})",
-    ]
-    query = " OR ".join(query_parts)
-
-    if file_extensions:
-        file_query = " OR ".join([f"filename:{ext}" for ext in file_extensions])
-        query += f" AND ({file_query})"
-
-    print(query)
-
-    try:
-        service = services["gmail"]
-        results = (
-            service.users()
-            .messages()
-            .list(userId="me", q=query, maxResults=max_results)
-            .execute()
-        )
-        messages = results.get("messages", [])
-
-        return [message["id"] for message in messages]
-
-    except Exception as e:
-        LOGGER.error(f"Failed to search emails: {str(e)}")
-        return []'''
-
-
-'''@api_view(["POST"])
-@permission_classes([AllowAny])
-def receive_mail_notifications(request):
-    """Process email notifications from Google listener"""
-
-    try:
-        print("!!! [GOOGLE] EMAIL RECEIVED !!!")
-        envelope = json.loads(request.body.decode("utf-8"))
-        message_data = envelope["message"]
-
-        decoded_data = base64.b64decode(message_data["data"]).decode("utf-8")
-        decoded_json = json.loads(decoded_data)
-        attributes = message_data.get("attributes", {})
-        email_id = attributes.get("emailId")
-        email = decoded_json.get("emailAddress")
-
-        try:
-            social_api = SocialAPI.objects.get(email=email)
-            services = authenticate_service(social_api.user, email)
-
-            def process_email():
-                for i in range(MAX_RETRIES):
-                    result = email_to_db(
-                        social_api.user, services, social_api, email_id
-                    )
-                    if result:
-                        break
-                    else:
-                        LOGGER.critical(
-                            f"[Attempt n°{i+1}] Failed to process email with AI for email: {email_id}"
-                        )
-                        context = {
-                            "error": result,
-                            "attempt_number": i + 1,
-                            "email_id": email_id,
-                            "email_provider": GOOGLE_PROVIDER,
-                            "user": social_api.user,
-                        }
-                        email_html = render_to_string("ai_failed_email.html", context)
-                        # send_mail(
-                        #     subject="Critical Alert: Email Processing Failure",
-                        #     message="",
-                        #     recipient_list=ADMIN_EMAIL_LIST,
-                        #     from_email=EMAIL_NO_REPLY,
-                        #     html_message=email_html,
-                        #     fail_silently=False,
-                        # )
-
-            threading.Thread(target=process_email).start()
-
-        except SocialAPI.DoesNotExist:
-            LOGGER.error(f"SocialAPI entry not found for the email: {email}")
-
-        # TODO: add API key to avoid error 403
-        # ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge?key={GOOGLE_LISTENER_API_KEY}"
-        # authenticate_service(social_api.user, email)
-        # social_api = SocialAPI.objects.get(email=email)
-        # headers = {"Authorization": f"Bearer {social_api.access_token}"}
-        # print(f"\n\n\ncreds: {social_api.access_token}\n\n\n")
-        # response = requests.post(ack_url, json=ack_payload, headers=headers)
-
-        # Sending the reception message to Google to confirm the email reception
-        subscription_path = envelope["subscription"]
-        ack_id = message_data["messageId"]
-        ack_url = f"https://pubsub.googleapis.com/v1/{subscription_path}:acknowledge"
-        ack_payload = {"ackIds": [ack_id]}
-
-        response = requests.post(ack_url, json=ack_payload)
-
-        if response.status_code == 200:
-            LOGGER.info("Acknowledgement sent successfully")
-
-        elif response.status_code == 403:
-            LOGGER.info(
-                "Acknowledgement sent successfully, You just do not have the right KEY to do it properly"
-            )
-        else:
-            LOGGER.info("DEBUG RESPONSE====================>", response.json())
-            LOGGER.error(
-                f"Failed to send acknowledgement for gmail with id {email_id}: {response.reason}"
-            )
-
-        return Response(status=200)
-
-    except IntegrityError:
-        return Response(status=200)
-
-    except Exception as e:
-        LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": str(e)}, status=500)'''

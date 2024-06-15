@@ -201,7 +201,7 @@
                             <!-- Content goes here -->
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div
-                                    class="flex flex-col justify-center items-center h-full mx-4 my-4 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1" stroke="currentColor" class="mx-auto h-14 w-14 text-gray-400">
                                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -231,7 +231,7 @@
                                             <div class="bg-orange-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-3 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
-                                                        Travail - Urgent</p>
+                                                        TODO Urgent(c'est important ds les trads)</p>
                                                     <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                     <div class="ml-auto">
                                                         <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
@@ -304,6 +304,17 @@
                                                                                 :data-text="detail.text">
                                                                             </li>
                                                                         </ul>
+                                                                        <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
+                                                                            <div
+                                                                                v-for="attachment in item.attachments"
+                                                                                :key="attachment.attachmentId"
+                                                                                class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
+                                                                                @click.prevent="() => downloadAttachment(item.id, attachment.attachmentId, attachment.attachmentName)"
+                                                                            >
+                                                                                <component :is="getIconComponent(attachment.attachmentName)" class="w-5 h-5 text-gray-600 group-hover:text-white" />
+                                                                                <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="col-span-2">
                                                                         <div class="flex justify-center">
@@ -509,7 +520,7 @@
                                             <div class="bg-blue-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-2 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
-                                                    Travail - Informatif
+                                                    TODO Informatif
                                                     </p>
                                                     <div class="ml-auto">
                                                     <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -544,14 +555,14 @@
                                                     <div class="ml-6 flex-grow">
                                                         <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300" style="overflow: visible;">
                                                             <ul role="list" class="divide-y divide-gray-200">
-                                                                <li v-for="item in emailsByDate" :key="item.id" class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
+                                                                <li v-for="item in emailsByDate" :key="item.id" class="px-6 py-4 2xl:py-5 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                                                                     <!-- Your content -->
                                                                     <div class="col-span-8 cursor-pointer"
                                                                         @click="toggleHiddenParagraph(item.id)">
                                                                         <div class="flex-auto group">
                                                                             <div class="flex gap-x-4">
                                                                                 <div class="flex items-center">
-                                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.name }}</p>
+                                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.has_attachments}}</p>
                                                                                     <p class="text-sm leading-6 text-blue-800 dark:text-white">{{ item.time }}</p>   
                                                                                 </div> 
                                                                                 <div
@@ -584,6 +595,17 @@
                                                                                 :data-text="detail.text">
                                                                             </li>
                                                                         </ul>
+                                                                        <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
+                                                                            <div
+                                                                                v-for="attachment in item.attachments"
+                                                                                :key="attachment.attachmentId"
+                                                                                class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
+                                                                                @click.prevent="() => downloadAttachment(item.id, attachment.attachmentId, attachment.attachmentName)"
+                                                                            >
+                                                                                <component :is="getIconComponent(attachment.attachmentName)" class="w-5 h-5 text-gray-600 group-hover:text-white" />
+                                                                                <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="col-span-2">
                                                                         <div class="flex justify-center">
@@ -791,7 +813,7 @@
                                                 <div class="bg-gray-200 bg-opacity-90 rounded-md">
                                                     <div class="flex px-2 py-2">
                                                         <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
-                                                            Inutile</p>
+                                                            TODO Inutile</p>
                                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                         <div class="ml-auto">
                                                             <trash-icon class="w-6 h-6 text-gray-500" />
@@ -913,7 +935,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('constants.userActions.delete') }}
+                                                                                                    {{ $t('constants.userActions.archive') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -1265,7 +1287,7 @@
                                                                                             <div class="relative group">
                                                                                                 <div
                                                                                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('constants.userActions.delete') }}
+                                                                                                    {{ $t('constants.userActions.archive') }}
                                                                                                 </div>
                                                                                                 <button type="button"
                                                                                                     class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
@@ -1546,6 +1568,7 @@ const { t } = useI18n();
 
 // Variables to display a notification
 let showNotification = ref(false);
+let selectedEmailId = ref('');
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
@@ -1587,6 +1610,43 @@ let isHidden = ref(false);
 
 const toggleVisibility = () => {
     isHidden.value = !isHidden.value;
+};
+
+const downloadAttachment = async (emailId, attachmentId, attachmentName) => {
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/attachments/${attachmentId}/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', attachmentName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (error) {
+        console.error('Failed to download attachment:', error.message);
+        backgroundColor.value = 'bg-red-300';
+        notificationTitle.value = 'Échec de téléchargement de la pièce jointe';
+        notificationMessage.value = error.message;
+        displayPopup();
+    }
+};
+
+const getIconComponent = (fileName) => {
+  const extension = fileName.split('.').pop().toLowerCase();
+  if (['png', 'jpg', 'jpeg', 'gif'].includes(extension)) {
+    return CameraIcon;
+  } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension)) {
+    return DocumentIcon;
+  } else {
+    return DocumentIcon; // Default icon for other file types
+  }
 };
 
 onMounted(async () => {
@@ -2425,12 +2485,14 @@ const groupedEmailsByCategoryAndDate = (category) => {
 
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
-    //console.log("ALL DATA WITH ATTACHEMENTS!!!", emailData)
     if (lockEmailsAccess.value == false) {
         emails.value = emailData;
+        console.log("LOG DATA ---------------------------");
+        console.log(emailData);
     }
     updateNumberUnreadEmails();
 }
+
 async function fetchData() {
     try {
         // Fetch the categories
@@ -2478,7 +2540,10 @@ import {
     CheckIcon,
     EllipsisHorizontalIcon,
     HandRaisedIcon,
-    EyeIcon
+    EyeIcon,
+    DocumentIcon,
+    DocumentTextIcon,
+    CameraIcon,
 } from '@heroicons/vue/24/outline'
 
 export default {
@@ -2501,7 +2566,10 @@ export default {
         MenuItems,
         ModalSeeMail,
         NewCategoryModal,
-        UpdateCategoryModal
+        UpdateCategoryModal,
+        DocumentIcon,
+        DocumentTextIcon,
+        CameraIcon,
     }
 }
 </script>

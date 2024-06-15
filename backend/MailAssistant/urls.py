@@ -43,14 +43,17 @@ urlpatterns = [
     path('user/preferences/theme/', views.get_user_theme, name='get_user_theme'), # ok
     path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok
     path('user/preferences/timezone/', views.get_user_timezone, name='get_user_timezone'), # ok
-    path('user/preferences/set_timezone/', views.set_user_timezone, name='set_user_timezone'), # ok   
+    path('user/preferences/set_timezone/', views.set_user_timezone, name='set_user_timezone'), # ok
+    path('user/emails/', views.get_user_emails, name='user-emails'), # ok  
 
-    path('user/emails/', views.get_user_emails, name='user-emails'), # ok
+    path('user/emails/delete_emails', views.delete_emails, name='delete_emails'), # dev
+
     path('user/emails/<int:email_id>/mark-read/', views.set_email_read, name='email-mark-read'), # ok
     path('user/emails/<int:email_id>/mark-unread/', views.set_email_undread, name='email-mark-unread'), # ok
     path('user/emails/<int:email_id>/mark-reply-later/', views.set_email_reply_later, name='email-mark-reply-later'), # ok
     path('user/emails/<int:email_id>/unmark-reply-later/', views.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
     path('user/emails/<int:email_id>/block-sender/', views.set_rule_block_for_sender, name='block-sender-via-email'), # ok
+    path('user/emails/<int:email_id>/attachments/<str:attachment_id>/', views.retrieve_attachment_data, name='retrieve_attachment_data'), 
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/rules/', views.get_user_rules, name='get_user_rules'), # ok
     path('user/rules/<int:id_rule>/', views.get_user_rule_by_id, name='get_user_rule_by_id'), # ok

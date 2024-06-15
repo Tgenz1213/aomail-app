@@ -563,7 +563,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">Description</label>
+                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">TODO Description (optionelle)</label>
                       </div>
                       <div class="mt-2">
                         <input v-model="userDescription" :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
@@ -803,13 +803,13 @@ function deleteCategoryOnUpdate() {
 function updateCategoryHandler() {
 
   if (!updateCategoryName.value.trim() || !updateCategoryDescription.value.trim()) {
-    errorUpdateMessage.value = "Veuillez remplir tous les champs";
+    errorUpdateMessage.value = "TODO Veuillez remplir tous les champs";
   } else if (categories.value.some(cat => cat.name === updateCategoryName.value && cat.name != updateOldCategoryName.value)) {
-    errorUpdateMessage.value = "Le nom de la catégorie existe déjà";
+    errorUpdateMessage.value = "TODO La catégorie existe déjà";
   } else if (updateCategoryDescription.value.length > 300) {
-    errorUpdateMessage.value = "Pas plus de 300 caractères pour la description";
+    errorUpdateMessage.value = "TODO Pas plus de 300 caractères pour la description";
   } else if (updateCategoryName.value.length > 50) {
-    errorUpdateMessage.value = "Pas plus de 50 caractères pour le nom";
+    errorUpdateMessage.value = "TODO Pas plus de 50 caractères pour le nom";
   } else {
     categoryOpened.value.name = updateCategoryName.value;
     categoryOpened.value.description = updateCategoryDescription.value;
@@ -914,15 +914,15 @@ async function nextStep0() {
 
   // Checks username requirements
   if (!login.value) {
-    credentialError.value = 'Veuillez saisir un identifiant';
+    credentialError.value = 'TODO Veuillez saisir un identifiant';
     return false;
   }
   if (login.value.includes(" ")) {
-    credentialError.value = 'L\'identifiant ne doit pas contenir d\'espaces';
+    credentialError.value = 'TODO L\'identifiant ne doit pas contenir d\'espaces';
     return false;
   }
   if (login.value.length > 150) {
-    credentialError.value = 'Longueur max nom d\'utilisateur : 150 caractères';
+    credentialError.value = 'TODO Longueur max nom d\'utilisateur : 150 caractères';
     return false;
   }
 
@@ -940,47 +940,48 @@ async function nextStep0() {
     const responseData = await response.json();
 
     if (responseData.available === false) {
-      credentialError.value = 'L\'identifiant est déjà utilisé';
+      credentialError.value = 'TODO L\'identifiant est déjà utilisé';
       return false;
     }
   } catch (error) {
     // Show the pop-up
     backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle.value = 'Erreur vérification identifiant';
+    notificationTitle.value = 'TODO Erreur vérification identifiant';
     notificationMessage.value = error;
     displayPopup();
     return false;
   }
 
   // Checks passwords requirements
-  const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
+  // const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
   const minLength = 8;
   const maxLength = 32;
 
   if (!password.value.trim()) {
-    credentialError.value = 'Veuillez saisir un mot de passe';
+    credentialError.value = 'TODO Veuillez saisir un mot de passe';
     return false;
   }
   else if (!confirmPassword.value.trim()) {
-    credentialError.value = 'Veuillez confirmer votre mot de passe';
+    credentialError.value = 'TODO Veuillez confirmer votre mot de passe';
     return false;
   }
   else if (password.value.length < minLength || password.value.length > maxLength) {
-    credentialError.value = 'La longueur du mot de passe doit être entre 8 et 32 caractères';
-    return false;
-  }
-  else if (password.value.includes(" ")) {
-    credentialError.value = 'Le mot de passe ne doit pas contenir d\'espaces';
-    return false;
-  }
-  else if (!passwordRegex.test(password.value)) {
-    credentialError.value = 'Le mot de passe contient des caractères invalides';
+    credentialError.value = 'TODO La longueur du mot de passe doit être entre 8 et 32 caractères';
     return false;
   }
   else if (password.value !== confirmPassword.value) {
-    credentialError.value = 'Les mots de passe ne correspondent pas';
+    credentialError.value = 'TODO Les mots de passe ne correspondent pas';
     return false;
   }
+  // else if (password.value.includes(" ")) {
+  //   credentialError.value = 'Le mot de passe ne doit pas contenir d\'espaces';
+  //   return false;
+  // }
+  // else if (!passwordRegex.test(password.value)) {
+  //   credentialError.value = 'Le mot de passe contient des caractères invalides';
+  //   return false;
+  // }
+  
 
   sessionStorage.setItem('login', login.value);
   sessionStorage.setItem('userDescription', userDescription.value);

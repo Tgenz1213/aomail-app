@@ -10,6 +10,7 @@ import re
 import threading
 import time
 import requests
+from rest_framework import status
 from collections import defaultdict
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlencode
@@ -22,11 +23,13 @@ from msal import ConfidentialClientApplication
 import urllib.parse
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from MailAssistant.utils import security
 from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
     BASE_URL,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
+    ENCRYPTION_KEYS,
     GRAPH_URL,
     IMPORTANT,
     INFORMATION,
@@ -85,9 +88,9 @@ def exchange_code_for_tokens(authorization_code):
         authorization_code, scopes=MICROSOFT_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     if result:
-        return result["access_token"], result["refresh_token"]
+        return result.get("access_token"), result.get("refresh_token")
     else:
-        return Response({"error": "tokens not found"}, status=400)
+        return None, None
 
 
 def auth_url_link_email(request):
@@ -123,9 +126,9 @@ def link_email_tokens(authorization_code):
         redirect_uri=REDIRECT_URI_LINK_EMAIL,
     )
     if result:
-        return result["access_token"], result["refresh_token"]
+        return result.get("access_token"), result.get("refresh_token")
     else:
-        return Response({"error": "tokens not found"}, status=400)
+        return None, None
 
 
 ######################## CREDENTIALS ########################
@@ -166,22 +169,26 @@ def refresh_access_token(social_api: SocialAPI):
         return access_token
 
     refresh_url = f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/token"
+    refresh_token_encrypted = social_api.refresh_token
+    refresh_token = security.decrypt_text(
+        ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token_encrypted
+    )
     data = {
         "grant_type": "refresh_token",
-        "refresh_token": social_api.refresh_token,
+        "refresh_token": refresh_token,
         "client_id": MICROSOFT_CONFIG["client_id"],
         "client_secret": MICROSOFT_CONFIG["client_secret"],
         "scope": " ".join(MICROSOFT_SCOPES),
     }
 
     response = requests.post(refresh_url, data=data)
-    response_data = response.json()
+    response_data: defaultdict = response.json()
 
-    # Check if the refresh was successful
     if "access_token" in response_data:
-        social_api.access_token = response_data["access_token"]
+        access_token = response_data["access_token"]
+        social_api.access_token = access_token
         social_api.save()
-        return response_data["access_token"]
+        return access_token
     else:
         LOGGER.error(
             f"Failed to refresh access token for email {social_api.email}: {response_data.get('error_description', response.reason)}"
@@ -292,55 +299,68 @@ def get_profile_image(request: HttpRequest):
                 # convert image to url
                 photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
                 photo_url = f"data:image/png;base64,{photo_data_base64}"
-                return Response({"profile_image_url": photo_url}, status=200)
+                return Response(
+                    {"profile_image_url": photo_url}, status=status.HTTP_200_OK
+                )
             else:
                 return Response(
-                    {"error": "Profile image not found in response"}, status=404
+                    {"error": "Profile image not found in response"},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         elif response.status_code == 404:
             LOGGER.error(
                 f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
             )
-            return Response({"error": "Failed to retrieve profile image"}, status=404)
+            return Response(
+                {"error": "Failed to retrieve profile image"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         else:
             LOGGER.error(
                 f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
             )
             return Response(
                 {"error": "Failed to retrieve profile image"},
-                status=404,
+                status=response.status_code,
             )
 
     except Exception as e:
         LOGGER.error(f"Failed to retrieve profile image: {str(e)}")
         return Response(
-            {"error": f"Failed to retrieve profile image: {str(e)}"}, status=500
+            {"error": f"Failed to retrieve profile image: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
-def get_email(access_token):
-    """Returns the primary email of the user from Microsoft Graph API"""
+def get_email(access_token: str) -> dict:
+    """
+    Retrieves the primary email of the user from Microsoft Graph API.
+
+    Args:
+        access_token (str): Access token required for authentication.
+
+    Returns:
+        dict: {'email': <user_email>} if successful,
+              {'error': <error_message>} if any error occurs.
+    """
     if not access_token:
-        return Response({"error": "Access token is missing"}, status=400)
+        return {"error": "Access token is missing"}
 
     try:
         graph_api_endpoint = f"{GRAPH_URL}me"
         headers = get_headers(access_token)
         response = requests.get(graph_api_endpoint, headers=headers)
+        json_data: dict = response.json()
 
         if response.status_code == 200:
-            email_data = response.json()
-            email = email_data.get("mail")
-            return email
+            email = json_data["mail"]
+            return {"email": email}
         else:
-            LOGGER.error(
-                f"Failed to get email: {response.json().get('error_description', response.reason)}"
-            )
-            return None
+            error = json_data.get("error_description", response.reason)
+            return {"error": f"Failed to get email from Microsoft API: {error}"}
 
     except Exception as e:
-        LOGGER.error(f"Failed to get email: {str(e)}")
-        return None
+        return {"error": f"Failed to get email from Microsoft API: {str(e)}"}
 
 
 ######################## EMAIL REQUESTS ########################
@@ -417,7 +437,8 @@ def send_email(request: HttpRequest):
                     ).start()
 
                     return JsonResponse(
-                        {"message": "Email sent successfully!"}, status=202
+                        {"message": "Email sent successfully!"},
+                        status=status.HTTP_202_ACCEPTED,
                     )
                 else:
                     LOGGER.error(
@@ -429,14 +450,18 @@ def send_email(request: HttpRequest):
                     )
             except Exception as e:
                 LOGGER.error(f"Failed to send email: {str(e)}")
-                return JsonResponse({"error": str(e)}, status=500)
+                return JsonResponse(
+                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
         except Exception as e:
             LOGGER.error(f"Error preparing email data: {str(e)}")
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     LOGGER.error(f"Serializer errors preparing email data: {serializer.errors}")
-    return JsonResponse(serializer.errors, status=400)
+    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def delete_email(email_id, social_api) -> dict:
@@ -1120,13 +1145,17 @@ class MicrosoftSubscriptionNotification(View):
                         f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}"
                     )
 
-            return JsonResponse({"status": "Notification received"}, status=202)
+            return JsonResponse(
+                {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
+            )
 
         except Exception as e:
             print(
                 f"AN error occured in /MailAssistant/microsoft/receive_subscription_notifications/: {str(e)}"
             )
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -1189,12 +1218,19 @@ class MicrosoftEmailNotification(View):
 
                     threading.Thread(target=process_email).start()
 
-                return JsonResponse({"status": "Notification received"}, status=202)
+                return JsonResponse(
+                    {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
+                )
             else:
-                return JsonResponse({"error": "Internal Server Error"}, status=500)
+                return JsonResponse(
+                    {"error": "Internal Server Error"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -1252,12 +1288,19 @@ class MicrosoftContactNotification(View):
                         contact.email = email
                         contact.save()
 
-                return JsonResponse({"status": "Notification received"}, status=202)
+                return JsonResponse(
+                    {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
+                )
             else:
-                return JsonResponse({"error": "Internal Server Error"}, status=500)
+                return JsonResponse(
+                    {"error": "Internal Server Error"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 def email_to_db(user, email, id_email):
@@ -1278,7 +1321,7 @@ def email_to_db(user, email, id_email):
 
     if Email.objects.filter(provider_id=email_id).exists():
         return True
-    
+
     sender = Sender.objects.filter(email=from_name[1]).first()
 
     if not decoded_data:
@@ -1302,6 +1345,7 @@ def email_to_db(user, email, id_email):
         social_api.user_description if social_api.user_description != None else ""
     )
     language = Preference.objects.get(user=user).language
+
     if is_reply:
         # summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1310,14 +1354,6 @@ def email_to_db(user, email, id_email):
         conversation_summary = search.summarize_conversation(
             subject, email_content, user_description, language
         )
-        # print(
-        #     "=================== FOR THEO - HELP KEYPOINTS FROM CONVERSATION -> Maybe display with the email? ==================="
-        # )
-        # print(conversation_summary)
-        # print(
-        #     "=================== AFTER TREATING THE CONVERSATION THE TREE KNOWLEDGE OF THE USER LOOKS LIKE ==================="
-        # )
-        # print(json.dumps(search.knowledge_tree, indent=4, ensure_ascii=False))
     else:
         # summarize single email with Search
         email_content = library.preprocess_email(decoded_data)
@@ -1327,15 +1363,6 @@ def email_to_db(user, email, id_email):
         email_summary = search.summarize_email(
             subject, email_content, user_description, language
         )
-        # print(
-        #     "=================== SINGLE EMAIL KEPINT ==================="
-        # )
-        # print(email_summary)
-
-    # print(
-    #     "-------------------MICROSOFT decoded data BEFORE AI CALL--------------------------"
-    # )
-    # print(decoded_data)
 
     (
         topic,
@@ -1453,297 +1480,3 @@ def email_to_db(user, email, id_email):
             f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
         )
         return str(e)
-
-
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
-"""
-
-def processed_email_to_db(user, email):
-    access_token = refresh_access_token(get_social_api(user, email))
-    subject, from_name, decoded_data, _, _, email_id, date, web_link = get_mail(
-        access_token, 0, None
-    )
-
-    if not Email.objects.filter(provider_id=email_id).exists():
-        if decoded_data:
-            decoded_data = library.format_mail(decoded_data)
-
-        # Get user categories
-        category_dict = library.get_db_categories(user)
-
-        # Process the email data with AI/NLP
-        # user_description = "Enseignant chercheur au sein d'une école d'ingénieur ESAIP."
-        user_description = ""
-        (
-            topic,
-            importance_dict,
-            answer,
-            summary,
-            sentence,
-            relevance,
-        ) = mistral.categorize_and_summarize_email(
-            subject, decoded_data, category_dict, user_description
-        )
-
-        # Extract the importance of the email
-        if importance_dict[IMPORTANT] == 50:
-            importance = IMPORTANT
-        else:
-            for key, value in importance_dict.items():
-                if value >= 51:
-                    importance = key
-
-        sender_name, sender_email = from_name[0], from_name[1]
-        sender, _ = Sender.objects.get_or_create(name=sender_name, email=sender_email)
-
-        # Get the relevant category based
-        category = Category.objects.get_or_create(name=topic, user=user)[0]
-
-        try:
-            email_entry = Email.objects.create(
-                provider_id=email_id,
-                email_provider=MICROSOFT_PROVIDER,
-                email_short_summary=sentence,
-                content=decoded_data,
-                subject=subject,
-                priority=importance,
-                read=False,
-                answer_later=False,
-                sender=sender,
-                category=category,
-                user=user,
-                date=date,
-                web_link=web_link,
-            )
-
-            if summary:
-                for point in summary:
-                    BulletPoint.objects.create(content=point, email=email_entry)
-
-        except Exception as e:
-            LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
-            )
-"""
-
-'''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_parsed_contacts(request) -> list:
-    """Returns a list of parsed unique contacts with email types"""
-    user = request.user
-    email = request.headers.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
-
-    try:
-        if access_token:
-            headers = get_headers(access_token)
-
-            # Get contacts using Microsoft Graph API
-            graph_endpoint = (
-                f"{GRAPH_URL}me/contacts?$select=displayName,emailAddresses"
-            )
-            response = requests.get(graph_endpoint, headers=headers)
-
-            parsed_contacts = []
-            if response.status_code == 200:
-                contacts = response.json().get("value", [])
-                for contact in contacts:
-                    names = contact.get("displayName", "")
-                    emails = contact.get("emailAddresses", [])
-                    if names and emails:
-                        for email_info in emails:
-                            email = email_info.get("address", "")
-                            email_type = email_info.get(
-                                "type", ""
-                            )  # Get the email type if available
-                            if email_type:
-                                name_with_type = f"[{email_type}] {names}"
-                                parsed_contacts.append(
-                                    {"name": name_with_type, "email": email}
-                                )
-                            else:
-                                parsed_contacts.append({"name": names, "email": email})
-
-                # Get unique sender information from Outlook
-                unique_senders = get_unique_senders(access_token)
-                for email, name in unique_senders.items():
-                    parsed_contacts.append({"name": name, "email": email})
-
-                logging.info(
-                    f"{Fore.YELLOW}Retrieved {len(parsed_contacts)} unique contacts"
-                )
-                return JsonResponse(parsed_contacts)
-
-            else:
-                error_message = (
-                    response.json()
-                    .get("error", {})
-                    .get("message", "Failed to fetch contacts")
-                )
-                return JsonResponse(
-                    {"error": error_message}, status=response.status_code
-                )
-
-        else:
-            return JsonResponse({"error": "Access token not found"}, status=400)
-
-    except Exception as e:
-        logging.exception(f"{Fore.YELLOW}Error fetching contacts: {e}")
-        return JsonResponse({"error": e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)'''
-
-'''@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def unread_mails(request):
-    """Returns the number of unread emails"""
-    user = request.user
-    email = request.headers.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
-
-    try:
-        if access_token:
-            headers = get_headers(access_token)
-            unread_count = 0
-
-            # Get unread messages using Microsoft Graph API
-            graph_endpoint = (
-                f"{GRAPH_URL}me/messages"  # ?$count=true&$filter=isRead eq false'
-            )
-            response = requests.get(graph_endpoint, headers=headers)
-
-            response_json = response.json()
-
-            if response.status_code == 200:
-                unread_count = response_json.get("@odata.count", 0)
-                return JsonResponse({"unreadCount": unread_count}, status=200)
-            else:
-                error_message = response_json.get("error", {}).get(
-                    "message", "No error message"
-                )
-                error_code = response_json.get("error", {}).get("code")
-
-                if error_code == "MailboxNotEnabledForRESTAPI": 
-                    # TODO: display a pop-up                   
-                    LOGGER.error(
-                        "The account you are using does not have a proper license to access the required endpoints"
-                    )
-
-                LOGGER.error(f"Failed to retrieve unread count: {error_message}")
-                return JsonResponse({"unreadCount": 0}, status=response.status_code)
-
-        return JsonResponse({"unreadCount": 0}, status=400)
-
-    except Exception as e:
-        LOGGER.error(f"An error occurred: {str(e)}")
-        return JsonResponse({"unreadCount": 0}, status=400)'''
-"""def get_unique_email_senders(request):
-    user = request.user
-    email = request.headers.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
-
-    senders_info = get_unique_senders(access_token)
-    contacts_info = get_info_contacts(access_token)
-    # Convert contacts_info to a dictionary format
-    contacts_dict = {
-        email: contact["name"]
-        for contact in contacts_info
-        for email in contact["emails"]
-    }
-
-    # Merge the two dictionaries and remove duplicates
-    merged_info = {
-        **contacts_dict,
-        **senders_info,
-    }  # In case of duplicates, senders_info will overwrite contacts_dict
-
-    return Response(merged_info, status=200)"""
-
-
-'''def get_mail(access_token, int_mail=None, id_mail=None):
-    """Retrieve email information including subject, sender, content, CC, BCC, attachments, and ID"""
-
-    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
-    headers = get_headers(access_token)
-
-    if int_mail is not None:
-        response = requests.get(url, headers=headers)
-        messages = response.json().get("value", [])
-
-        if not messages:
-            LOGGER.error("No new messages.")
-            return None
-
-        email_id = messages[int_mail]["id"]
-    elif id_mail is not None:
-        email_id = id_mail
-    else:
-        LOGGER.error("Either int_mail or id_mail must be provided")
-        return None
-
-    message_url = f"{url}/{email_id}"
-    response = requests.get(message_url, headers=headers)
-    message_data = response.json()
-
-    conversation_id = message_data.get("conversationId")
-    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
-
-    subject = message_data.get("subject")
-    sender = message_data.get("from")
-    from_info = parse_name_and_email(sender)
-    cc_info = parse_recipients(message_data.get("ccRecipients"))
-    bcc_info = parse_recipients(message_data.get("bccRecipients"))
-    sent_date = None
-
-    attachments_data = []
-
-    if message_data["hasAttachments"]:
-        attachments_data = get_attachments(access_token, email_id)
-
-    decoded_data = parse_message_body(message_data)
-    preprocessed_data = library.preprocess_email(decoded_data)
-
-    return (
-        subject,
-        from_info,
-        preprocessed_data,
-        cc_info,
-        bcc_info,
-        email_id,
-        sent_date,
-        web_link,
-        attachments_data,
-    )'''
-
-
-'''def get_attachments(access_token, email_id) -> list:
-    """Returns all attachments data encoded in base 64"""
-    attachments_url = f"{GRAPH_URL}me/messages/{email_id}/attachments"
-    headers = get_headers(access_token)
-    response = requests.get(attachments_url, headers=headers)
-    attachments_data = []
-
-    if response.status_code == 200:
-        attachments = response.json().get("value", [])
-        for attachment in attachments:
-            attachment_name = attachment.get("name")
-            attachment_data = download_attachment(
-                access_token, email_id, attachment["id"]
-            )
-            attachments_data.append(
-                {"attachmentName": attachment_name, "data": attachment_data}
-            )
-
-    return attachments_data
-
-
-
-def download_attachment(access_token, email_id, attachment_id):
-    """Returns the data of the attachment in base 64"""
-    attachment_url = (
-        f"{GRAPH_URL}me/messages/{email_id}/attachments/{attachment_id}/$value"
-    )
-    headers = get_headers(access_token)
-    response = requests.get(attachment_url, headers=headers)
-    attachment_data = response.content
-    return base64.b64encode(attachment_data).decode("utf-8")'''

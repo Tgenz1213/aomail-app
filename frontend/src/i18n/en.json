@@ -82,7 +82,16 @@
         "retrieveAssociatedRulesError": "Error retrieving associated rules",
         "openReplyPageFailure": "Failed to open reply page",
         "openTransferPageFailure": "Failed to open transfer page",
-        "emailAlreadyUsed": "Email address already in use"
+        "emailAlreadyUsed": "Email address already in use",
+        "errorMessageVerificationIdentifier": "Error verifying identifier",
+        "pleaseEnterPassword": "Please enter a password",
+        "pleaseConfirmPassword": "Please confirm your password",
+        "passwordLengthShouldBeBetween8And32Characters": "Password length should be between 8 and 32 characters",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "pleaseEnterAnIdentifier": "Please enter an identifier",
+        "identifierMustNotContainSpaces": "The identifier must not contain spaces",
+        "maxUsernameLength150Characters": "Maximum username length: 150 characters",
+        "identifierIsAlreadyInUse": "The identifier is already in use"
       },
       "successMessages": {
         "success": "Success!",

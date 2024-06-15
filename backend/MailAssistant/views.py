@@ -19,6 +19,7 @@ TODO:
         parameters: dict = json.loads(request.body)
 - Refactor FE and backend requests: get_user_<data> by returning a dict and NOT a string (safe=False must be removed)
   CHECK everywhere a serializer is used as it is going to create issues
+- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
 """
 
 import datetime
@@ -1215,7 +1216,16 @@ def get_category_id(request: HttpRequest) -> JsonResponse:
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_contacts(request):
+def get_user_contacts(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieve contacts associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response containing user's contacts or an error message if no contacts are found.
+    """
     try:
         user_contacts = Contact.objects.filter(user=request.user)
     except Contact.DoesNotExist:
@@ -1231,7 +1241,7 @@ def get_user_contacts(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def find_user_view_ai(request):
+def find_user_view_ai(request: HttpRequest) -> JsonResponse:
     """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
     search_query = request.GET.get("query")
 
@@ -1313,7 +1323,6 @@ def find_user_view_ai(request):
             status=status.HTTP_200_OK,
         )
     else:
-        LOGGER.error("Failed to authenticate or no search query provided")
         return JsonResponse(
             {"error": "Failed to authenticate or no search query provided"},
             status=status.HTTP_400_BAD_REQUEST,
@@ -2311,6 +2320,18 @@ def check_username(request):
 
 
 # ----------------------- EMAIL -----------------------#
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def get_first_email(request: HttpRequest):
+    """Returns the first email associated with the user in database."""
+    user = request.user
+    social_apis = SocialAPI.objects.filter(user=user)
+    email = social_apis.first().email
+
+    return Response({"email": email}, status=200)
+
+
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])

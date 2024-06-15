@@ -44,7 +44,8 @@ urlpatterns = [
     path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok
     path('user/preferences/timezone/', views.get_user_timezone, name='get_user_timezone'), # ok
     path('user/preferences/set_timezone/', views.set_user_timezone, name='set_user_timezone'), # ok
-    path('user/emails/', views.get_user_emails, name='user-emails'), # ok  
+    path('user/emails/', views.get_user_emails, name='user-emails'), # ok
+    path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
 
     path('user/emails/delete_emails', views.delete_emails, name='delete_emails'), # dev
 
@@ -118,5 +119,4 @@ urlpatterns = [
     # path('api/find-user/', views.find_user_view, name='find-user'),
     # path('api/unread_mails/', views.unread_mails, name='unread_mails'),    
     # path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
-    # path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
 ]

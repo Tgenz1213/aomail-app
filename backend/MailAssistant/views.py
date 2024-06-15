@@ -1786,21 +1786,17 @@ def unsubscribe_listeners(user: User, email: str = None):
 
 
 # ----------------------- RULES -----------------------#
+# TODO: https://github.com/Teh45/MailAssistant/issues/33
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_rule_block_for_sender(request, email_id):
+def set_rule_block_for_sender(request: HttpRequest, email_id):
     user = request.user
-
-    # Check if the email belongs to the authenticated user
     email = get_object_or_404(Email, user=user, id=email_id)
 
-    # Check if there's a rule for this sender and user, create with block=True if it doesn't exist
     rule, created = Rule.objects.get_or_create(
         sender=email.sender, user=user, defaults={"block": True}, priority=""
     )
-
-    # If the rule already existed, update the block field
     if not created:
         rule.block = True
         rule.save()
@@ -1812,7 +1808,16 @@ def set_rule_block_for_sender(request, email_id):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_rules(request):
+def get_user_rules(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves rules associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+
+    Returns:
+        JsonResponse: A JSON response containing a list of rules owned by the user.
+    """
     user_rules = Rule.objects.filter(user=request.user)
     rules_data = []
 
@@ -1820,7 +1825,6 @@ def get_user_rules(request):
         rule_serializer = RuleSerializer(rule)
         rule_data = rule_serializer.data
 
-        # Manually add category name and sender details
         category_name = rule.category.name if rule.category else None
         sender_name = rule.sender.name if rule.sender else None
         sender_email = rule.sender.email if rule.sender else None
@@ -1837,20 +1841,28 @@ def get_user_rules(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_rule_by_id(request, id_rule):
-    try:
-        # Retrieve the rule with the given id that belongs to the user
-        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> JsonResponse:
+    """
+    Retrieves details of a specific rule owned by the authenticated user.
 
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+        id_rule (int): ID of the rule to retrieve.
+
+    Returns:
+        JsonResponse: A JSON response containing details of the rule.
+                      If the rule is not found, returns {"error": "Rule not found"} with status 400.
+    """
+    try:
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
     except Rule.DoesNotExist:
         return JsonResponse(
-            {"error": "Rule not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     rule_serializer = RuleSerializer(user_rule)
     rule_data = rule_serializer.data
 
-    # Manually add category name and sender details if they exist
     category_name = user_rule.category.name if user_rule.category else None
     sender_name = user_rule.sender.name if user_rule.sender else None
     sender_email = user_rule.sender.email if user_rule.sender else None
@@ -1865,14 +1877,23 @@ def get_user_rule_by_id(request, id_rule):
 @api_view(["DELETE"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_user_rule_by_id(request, id_rule):
-    try:
-        # Retrieve the rule with the given id that belongs to the user
-        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+def delete_user_rule_by_id(request: HttpRequest, id_rule: int) -> JsonResponse:
+    """
+    Deletes a specific rule owned by the authenticated user.
 
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+        id_rule (int): ID of the rule to delete.
+
+    Returns:
+        JsonResponse: {"message": "Rule deleted successfully"} if the rule is deleted.
+                      {"error": "Rule not found"} with status 400 if the rule doesn't exist for the user.
+    """
+    try:
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
     except Rule.DoesNotExist:
         return JsonResponse(
-            {"error": "Rule not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     user_rule.delete()
@@ -1883,23 +1904,39 @@ def delete_user_rule_by_id(request, id_rule):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def create_user_rule(request):
-    data = request.data
+def create_user_rule(request: HttpRequest) -> JsonResponse:
+    """
+    Creates a new rule for the authenticated user based on the request data.
+
+    Args:
+        request (HttpRequest): HTTP request object containing rule data in the request body.
+
+    Returns:
+        JsonResponse: JSON response with the created rule data if successful.
+                      {"error": "Details of the specific error."} if there's an issue with the creation.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
 
-    rule = Rule.objects.filter(sender_id=data["sender"], user=user)
-    if rule.exists():
+    sender_id = data.get("sender")
+    if not sender_id:
+        return JsonResponse(
+            {"error": "Sender ID must be provided"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    existing_rule = Rule.objects.filter(sender_id=sender_id, user=user)
+    if existing_rule.exists():
         return JsonResponse(
             {"error": "A rule already exists for that sender"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    serializer = RuleSerializer(data=request.data, context={"user": user})
+    serializer = RuleSerializer(data=data, context={"user": user})
     if serializer.is_valid():
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors in create_user_rule: {serializer.errors}")
         return JsonResponse(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
@@ -1909,22 +1946,34 @@ def create_user_rule(request):
 @api_view(["PUT"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_user_rule(request):
+def update_user_rule(request: HttpRequest) -> JsonResponse:
+    """
+    Updates an existing rule for the authenticated user based on the request data.
+
+    Args:
+        request (HttpRequest): HTTP request object containing rule data in the request body.
+
+    Returns:
+        JsonResponse: JSON response with the updated rule data if successful.
+                      {"error": "Details of the specific error."} if there's an issue with the update.
+    """
+    data: dict = json.loads(request.body)
+    rule_id = data.get("id")
+
     try:
-        rule = Rule.objects.get(id=request.data.get("id"), user=request.user)
+        rule = Rule.objects.get(id=rule_id, user=request.user)
     except Rule.DoesNotExist:
         return JsonResponse(
-            {"error": "Rule not found."}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Rule not found."}, status=status.HTTP_400_BAD_REQUEST
         )
 
     serializer = RuleSerializer(
-        rule, data=request.data, partial=True, context={"user": request.user}
+        rule, data=data, partial=True, context={"user": request.user}
     )
     if serializer.is_valid():
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     else:
-        LOGGER.error(f"Serializer errors in update_user_rule: {serializer.errors}")
         return JsonResponse(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,

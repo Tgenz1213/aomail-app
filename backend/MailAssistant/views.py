@@ -2,6 +2,7 @@
 Handles frontend requests and redirects them to the appropriate API.
 
 TODO:
+- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 - Split all the code inside files and put it all inside 'controllers' folder
 - Define all constants locally and globally (according to the scope)
 - Log important messages/errors using IP, user id, clear error name when possible
@@ -1471,21 +1472,19 @@ def check_email_copywriting(request: HttpRequest) -> JsonResponse:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def generate_email_response_keywords(request):
-    serializer = EmailProposalAnswerSerializer(data=request.data)
+def generate_email_response_keywords(request: HttpRequest) -> JsonResponse:
+    data: dict = json.loads(request.body)
+    serializer = EmailProposalAnswerSerializer(data=data)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
 
         response_keywords = claude.generate_response_keywords(
-            email_subject, email_content, "French"
+            email_subject, email_content
         )
         return JsonResponse({"response_keywords": response_keywords})
     else:
-        LOGGER.error(
-            f"Serializer errors in generate_email_response_keywords: {serializer.errors}"
-        )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

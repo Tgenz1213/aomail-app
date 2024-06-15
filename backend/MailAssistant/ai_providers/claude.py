@@ -112,8 +112,10 @@ def extract_contacts_recipients(query) -> dict[str:list]:
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email, input_subject, language) -> list:
+def generate_response_keywords(input_email, input_subject) -> list:
     """Generate a list of keywords for responding to a given email."""
+
+    language = get_language(input_email, input_subject)
 
     formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
 
@@ -157,6 +159,7 @@ def improve_email_writing(body, subject):
 """ OLD Ask Theo Before Delete (It's still used)"""
 
 
+# TODO: remove HARD CODED language
 def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
@@ -352,6 +355,7 @@ def new_function_(
     )
 
 
+# TODO: remove HARD CODED language
 def search_emails(query: str, language: str = "French") -> dict:
     """Searches emails based on the user query and generates structured JSON response."""
 

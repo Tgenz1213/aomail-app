@@ -1,5 +1,8 @@
 """
 Handles authentication and HTTP requests for the Gmail API.
+
+TODO:
+- add @subscription decorator
 """
 
 import base64
@@ -13,7 +16,7 @@ import random
 import json
 import os
 from rest_framework import status
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.models import User
 from collections import defaultdict
 from django.db import IntegrityError
@@ -337,9 +340,16 @@ def authenticate_service(user: User, email: str) -> dict | None:
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def send_email(request: HttpRequest):
-    """Sends an email using the Gmail API."""
+def send_email(request: HttpRequest) -> JsonResponse:
+    """
+    Sends an email using the Gmail API.
 
+    Args:
+        request (HttpRequest): HTTP request object containing POST data with email details.
+
+    Returns:
+        JsonResponse: Response indicating success or error.
+    """
     try:
         user = request.user
         email = request.POST.get("email")
@@ -390,7 +400,7 @@ def send_email(request: HttpRequest):
                 target=library.save_contacts, args=(user, email, all_recipients)
             ).start()
 
-            return Response(
+            return JsonResponse(
                 {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
             )
 
@@ -398,26 +408,38 @@ def send_email(request: HttpRequest):
             keys = serializer.errors.keys()
 
             if "to" in keys:
-                return Response(
+                return JsonResponse(
                     {"error": "recipient is missing"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             elif "subject" in keys:
-                return Response(
+                return JsonResponse(
                     {"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                return Response(
+                return JsonResponse(
                     {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
                 )
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
-def delete_email(user, email, email_id) -> dict:
-    """Moves the email to the bin of the user"""
+def delete_email(user: User, email: str, email_id: str) -> dict:
+    """
+    Moves the email with the specified ID to the bin of the user's Gmail account.
+
+    Args:
+        user (User): The authenticated user object.
+        email (str): The email address associated with the Gmail service.
+        email_id (str): The ID of the email to be moved to trash.
+
+    Returns:
+        dict: A dictionary containing either a success message or an error message.
+    """
     gmail = authenticate_service(user, email)["gmail"]
 
     if not gmail:
@@ -430,44 +452,84 @@ def delete_email(user, email, email_id) -> dict:
             return {"message": "Email moved to trash successfully!"}
         else:
             LOGGER.error(f"Failed to move email with ID: {email_id} to trash")
-            return {"error": f"Failed to move email to trash"}
+            return {"error": "Failed to move email to trash"}
     except HTTPError as e:
         if "Requested entity was not found" in str(e):
             return {"message": "Email moved to trash successfully!"}
         else:
-            LOGGER.error(f"Error when deleting email: {str(e)}")
+            LOGGER.error(
+                f"Error when deleting email for user ID: {user.id}. Error: {str(e)}"
+            )
             return {"error": str(e)}
 
 
-def set_email_read(user, email, mail_id):
-    """Set the status of the email to read on Gmail."""
+def set_email_read(user: User, email: str, mail_id: str) -> dict:
+    """
+    Sets the status of the email with the specified ID to 'read' on Gmail.
 
+    Args:
+        user (User): The authenticated user object.
+        email (str): The email address associated with the Gmail service.
+        mail_id (str): The ID of the email to mark as read.
+
+    Returns:
+        dict: A dictionary indicating the result of the operation
+    """
     services = authenticate_service(user, email)
-    services["gmail"].users().messages().modify(
-        userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
-    ).execute()
+    try:
+        services["gmail"].users().messages().modify(
+            userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
+        ).execute()
+        return {"message": "Email marked as read successfully!"}
+    except Exception as e:
+        LOGGER.error(f"Failed to mark email ID {mail_id} as read: {str(e)}")
+        return {"error": str(e)}
 
 
-def set_email_unread(user, email, mail_id):
-    """Set the status of the email to unread on Gmail."""
+def set_email_unread(user: User, email: str, mail_id: str) -> dict:
+    """
+    Sets the status of the email with the specified ID to 'unread' on Gmail.
 
+    Args:
+        user (User): The authenticated user object.
+        email (str): The email address associated with the Gmail service.
+        mail_id (str): The ID of the email to mark as unread.
+
+    Returns:
+        dict: A dictionary indicating the result of the operation
+    """
     services = authenticate_service(user, email)
-    services["gmail"].users().messages().modify(
-        userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
-    ).execute()
+    try:
+        services["gmail"].users().messages().modify(
+            userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
+        ).execute()
+        return {"message": "Email marked as unread successfully!"}
+    except Exception as e:
+        LOGGER.error(f"Failed to mark email ID {mail_id} as unread: {str(e)}")
+        return {"error": str(e)}
 
 
-def get_info_contacts(services):
-    """Fetch the name and the email of the contacts of the user"""
+def get_info_contacts(services: dict) -> list[dict]:
+    """
+    Fetches the names and email addresses of the contacts of the user.
+
+    Args:
+        services (dict): A dictionary containing various authenticated services,
+                         including the 'people' service for fetching contacts.
+
+    Returns:
+        list: A list of dictionaries, where each dictionary contains 'name' and 'emails'
+              keys. 'name' represents the contact's display name, and 'emails' is a list
+              of email addresses associated with the contact.
+    """
     service = services["people"]
 
-    # Request a list of all the user's connections (contacts)
     results = (
         service.people()
         .connections()
         .list(
             resourceName="people/me",
-            pageSize=1000,  # Adjust the page size as needed
+            pageSize=1000,
             personFields="names,emailAddresses",
         )
         .execute()
@@ -477,12 +539,10 @@ def get_info_contacts(services):
 
     names_emails = []
     for contact in contacts:
-        # Extract the name and email address of each contact
         name = contact.get("names", [{}])[0].get("displayName")
         email_addresses = [
             email["value"] for email in contact.get("emailAddresses", [])
         ]
-
         names_emails.append({"name": name, "emails": email_addresses})
 
     return names_emails
@@ -1205,15 +1265,15 @@ def get_profile_image(request: HttpRequest):
             photos = profile["photos"]
             if photos:
                 photo_url = photos[0]["url"]
-                return Response({"profile_image_url": photo_url})
+                return JsonResponse({"profile_image_url": photo_url})
 
-        return Response(
+        return JsonResponse(
             {"profile_image_url": "Profile image URL not found in response"},
             status=status.HTTP_404_NOT_FOUND,
         )
 
     except Exception as e:
-        return Response(
+        return JsonResponse(
             {"error": f"Error retrieving profile image: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
@@ -1378,15 +1438,17 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        return Response(status=status.HTTP_200_OK)
+        return JsonResponse(status=status.HTTP_200_OK)
 
     except IntegrityError:
         LOGGER.error(f"Email already exists in database")
-        return Response(status=status.HTTP_200_OK)
+        return JsonResponse(status=status.HTTP_200_OK)
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 def email_to_db(user, services, social_api: SocialAPI):

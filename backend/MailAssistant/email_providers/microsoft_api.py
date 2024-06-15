@@ -1,5 +1,8 @@
 """
 Handles authentication and HTTP requests for the Microsoft Graph API.
+
+TODO:
+- add @subscription decorator
 """
 
 import base64

@@ -248,12 +248,13 @@ def signup(request: HttpRequest) -> JsonResponse:
                     {"error": "No license associated with the account"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-
     except Exception as e:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
     end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
     end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
@@ -280,7 +281,7 @@ def signup(request: HttpRequest) -> JsonResponse:
         LOGGER.info(f"User {username} deleted successfully")
         return JsonResponse(
             {"error": "Could not subscribe to listener"},
-            status=status.HTTP_400_BAD_REQUEST,
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
@@ -1984,15 +1985,27 @@ def update_user_rule(request: HttpRequest) -> JsonResponse:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def check_sender_for_user(request):
-    email = request.data.get("email")
+def check_sender_for_user(request: HttpRequest) -> JsonResponse:
+    """
+    Check if a sender with the specified email exists.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email to check in the request body.
+            Expects JSON body with:
+                email (str): The email address of the sender to check.
+
+    Returns:
+        JsonResponse: Either {"exists": True, "sender_id": sender.id} if the sender exists,
+                      or {"exists": False} if the sender does not exist.
+    """
+    parameters: dict = json.loads(request.body)
+    email = parameters.get("email")
 
     try:
         sender = Sender.objects.get(email=email)
         return JsonResponse(
             {"exists": True, "sender_id": sender.id}, status=status.HTTP_200_OK
         )
-
     except ObjectDoesNotExist:
         return JsonResponse({"exists": False}, status=status.HTTP_200_OK)
 
@@ -2000,40 +2013,58 @@ def check_sender_for_user(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_details(request):
-    """Returns the username"""
+def get_user_details(request: HttpRequest) -> JsonResponse:
+    """Returns the username of authenticated user."""
     return JsonResponse({"username": request.user.username})
 
 
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_emails_linked(request):
-    """Returns the list of linked emails with the user account."""
+def get_emails_linked(request: HttpRequest) -> JsonResponse:
+    """
+    Returns the list of emails linked to the authenticated user's account.
 
-    user = request.user
+    Args:
+        request (HttpRequest): HTTP request object from the authenticated user.
 
+    Returns:
+        JsonResponse: A list of linked emails with their type of API if the request is successful,
+                      or {"error": "Details of the specific error."} if there's an issue with the retrieval.
+    """
     try:
-        social_apis = SocialAPI.objects.filter(user=user)
-        emails_inked = []
+        social_apis = SocialAPI.objects.filter(user=request.user)
+        emails_linked = []
         for social_api in social_apis:
-            emails_inked.append(
+            emails_linked.append(
                 {"email": social_api.email, "type_api": social_api.type_api}
             )
-
-        return JsonResponse(emails_inked, safe=False, status=status.HTTP_200_OK)
-
+        return JsonResponse(emails_linked, safe=False, status=status.HTTP_200_OK)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def unlink_email(request):
-    """Unlinks the email and deletes all stored emails associated with the user account."""
+def unlink_email(request: HttpRequest) -> JsonResponse:
+    """
+    Unlinks the specified email and deletes all stored emails associated with the user's account.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email to unlink in the request body.
+            Expects JSON body with:
+                email (str): The email address to unlink from the user's account.
+
+    Returns:
+        JsonResponse: {"message": "Email unlinked successfully!"} if the unlinking is successful,
+                      or {"error": "Details of the specific error."} if there's an issue with the unlinking.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    email = request.data.get("email")
+    email = parameters.get("email")
 
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
@@ -2047,64 +2078,67 @@ def unlink_email(request):
             {"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def link_email(request):
-    """Links the email with the user account."""
+def link_email(request: HttpRequest) -> JsonResponse:
+    """
+    Links the specified email with the authenticated user's account.
 
+    Args:
+        request (HttpRequest): HTTP request object containing the email details to link in the request body.
+            Expects JSON body with:
+                type_api (str): The type of API.
+                code (str): The authorization code for linking the email.
+                user_description (str): A description provided by the user.
+
+    Returns:
+        JsonResponse: {"message": "Email linked to account successfully!"} if the linking is successful,
+                      or {"error": "Details of the specific error."} if there's an issue with the linking process.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    type_api = request.data.get("type_api")
-    code = request.data.get("code")
-    user_description = request.data.get("user_description")
+    type_api = parameters.get("type_api")
+    code = parameters.get("code")
+    user_description = parameters.get("user_description")
 
-    # Checks if the authorization code is valid
+    ip = security.get_ip_with_port(request)
+    LOGGER.info(f"Link email request received from IP: {ip} and user ID: {user.id}")
+
     authorization_result = validate_code_link_email(type_api, code)
-
     if "error" in authorization_result:
-        # TODO: add clean LOGGER with given error message
+        LOGGER.error(f"Authorization failed: {authorization_result['error']}")
         return JsonResponse(
             {"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Extract tokens and email from the authorization result
     access_token = authorization_result["access_token"]
     refresh_token = authorization_result["refresh_token"]
     email = authorization_result["email"]
     refresh_token_encrypted = security.encrypt_text(
         ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token
     )
-
-    # Check email requirements
-    if email:
-        if " " in email:
-            return JsonResponse(
-                {"error": "Email address must not contain spaces"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        try:
-            social_api = SocialAPI.objects.create(
-                user=user,
-                email=email,
-                type_api=type_api,
-                user_description=user_description,
-                access_token=access_token,
-                refresh_token=refresh_token_encrypted,
-            )
-        except IntegrityError:
-            return JsonResponse(
-                {"error": "Email address already used by another account"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-    else:
+    try:
+        social_api = SocialAPI.objects.create(
+            user=user,
+            email=email,
+            type_api=type_api,
+            user_description=user_description,
+            access_token=access_token,
+            refresh_token=refresh_token_encrypted,
+        )
+        LOGGER.info(f"Social API for user ID: {user.id} created successfully")
+    except IntegrityError:
         return JsonResponse(
-            {"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Email address already used by another account"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Asynchronous function to store all contacts
     try:
         if type_api == "google":
             threading.Thread(
@@ -2115,21 +2149,27 @@ def link_email(request):
                 target=microsoft_api.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
-    # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
+        LOGGER.info(f"Email account linked successfully for user ID: {user.id}")
         return JsonResponse(
             {"message": "Email linked to account successfully!"},
             status=status.HTTP_201_CREATED,
         )
     else:
+        LOGGER.error(
+            f"Failed to subscribe to listener for Social API: {social_api.email}. Error: {str(e)}"
+        )
         social_api.delete()
-
-    return JsonResponse(
-        {"error": "Could not subscribe to listener"}, status=status.HTTP_400_BAD_REQUEST
-    )
+        LOGGER.info(f"Social API: {social_api.email} deleted successfully")
+        return JsonResponse(
+            {"error": "Could not subscribe to listener"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])

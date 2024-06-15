@@ -2833,12 +2833,22 @@ def set_email_not_reply_later(request: HttpRequest, email_id: int) -> JsonRespon
     return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
 
-
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_emails(request):
-    """Retrieves and formats user emails grouped by category and priority"""
+def get_user_emails(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves and formats user emails grouped by category and priority.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: A JSON response containing formatted user emails grouped by category and priority.
+                      Each email entry includes details such as ID, provider ID, sender information,
+                      subject, content, attachments, date, time, read status, rules applied, and other metadata.
+                      Returns status=status.HTTP_200_OK on success.
+    """
     user = request.user
     emails = Email.objects.filter(user=user).prefetch_related(
         "category", "bulletpoint_set", "cc_senders", "bcc_senders", "attachments"
@@ -2935,31 +2945,45 @@ def get_user_emails(request):
     return JsonResponse(formatted_data, status=status.HTTP_200_OK)
 
 
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
 # ----------------------- EMAIL ATTACHMENT -----------------------#
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def retrieve_attachment_data(request, email_id, attachment_id):
-    """API endpoint to retrieve email attachment data"""
+def retrieve_attachment_data(
+    request: HttpRequest, email_id: str, attachment_id: str
+) -> JsonResponse:
+    """
+    Retrieves email attachment data for a specific email and attachment ID.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        email_id (str): The ID of the email containing the attachment.
+        attachment_id (str): The ID of the attachment to retrieve.
+
+    Returns:
+        JsonResponse: JSON response containing the attachment data.
+                      Returns status=status.HTTP_200_OK on success.
+    """
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
     social_api = email.social_api
 
     if social_api.type_api == "google":
-        print("SOCIAL API :", social_api.email, "PROVIDER ID :", email.provider_id)
         attachment_data = google_api.get_attachment_data(
             user, social_api.email, email.provider_id, attachment_id
         )
     elif social_api.type_api == "microsoft":
-        # TO DO
-        print("TO DO : ERROR")
+        # TODO: Implement handling for Microsoft API attachments
+        attachment_data = {
+            "error": "Microsoft API attachment handling not implemented yet"
+        }
 
     return JsonResponse(attachment_data, status=status.HTTP_200_OK)
 
 
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
 def create_subscription(user, stripe_plan_id, email="nothingForNow"):
     stripe_customer = stripe.Customer.create(email=email)
     stripe_customer_id = stripe_customer.id
@@ -3068,8 +3092,10 @@ def receive_payment_notifications(request):
         )
 
 
+###########################################################
+######################## TO DELETE ########################
+###########################################################
 # ----------------------- BACKGROUND COLOR-----------------------#
-# TODO: DELETE
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
@@ -3086,7 +3112,6 @@ def get_user_bg_color(request):
         )
 
 
-# TODO: DELETE
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])

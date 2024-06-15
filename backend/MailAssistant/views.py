@@ -1542,7 +1542,17 @@ def generate_email_answer(request: HttpRequest) -> JsonResponse:
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_answer_later_emails(request):
+def get_answer_later_emails(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieve emails flagged for answering later by the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the user information.
+
+    Returns:
+        JsonResponse: JSON response containing the list of emails flagged for answering later,
+                      grouped by priority, or an error message if retrieval fails.
+    """
     try:
         user = request.user
         emails = Email.objects.filter(user=user, answer_later=True).prefetch_related(
@@ -1578,61 +1588,40 @@ def get_answer_later_emails(request):
         return JsonResponse(formatted_data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        LOGGER.error(f"Error fetching emails: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-
-######################## DATABASE OPERATIONS ########################
-# ----------------------- BACKGROUND COLOR-----------------------#
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-@subscription([FREE_PLAN])
-def get_user_bg_color(request):
-    try:
-        preferences = Preference.objects.get(user=request.user)
-        serializer = PreferencesSerializer(preferences)
-        return JsonResponse(serializer.data)
-
-    except Preference.DoesNotExist:
+        LOGGER.error(f"Error fetching answer-later emails: {str(e)}")
         return JsonResponse(
-            {"error": "Preferences not found for the user."},
-            status=status.HTTP_404_NOT_FOUND,
+            {"error": "Failed to retrieve answer-later emails."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
-@api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-@subscription([FREE_PLAN])
-def set_user_bg_color(request):
-    try:
-        preferences = Preference.objects.get(user=request.user)
-    except Preference.DoesNotExist:
-        preferences = Preference(user=request.user)
-
-    serializer = PreferencesSerializer(preferences, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+######################## DATABASE OPERATIONS ########################
 # ----------------------- CREDENTIALS UPDATE-----------------------#
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_username(request):
+def update_username(request: HttpRequest) -> JsonResponse:
+    """
+    Update the username for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the new username in the request body.
+            Expects JSON body with:
+                username (str): The new username to update for the authenticated user.
+
+    Returns:
+        JsonResponse: Either {"success": "Username updated successfully."} if the update is successful,
+                    or {"error": "Details of the specific error."} if there's an issue with the update.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    new_username = request.data.get("username")
+    new_username = parameters.get("username")
 
     if not new_username:
         return JsonResponse(
             {"error": "No new username provided."}, status=status.HTTP_400_BAD_REQUEST
         )
-
-    # Check if user requirements
-    if User.objects.filter(username=new_username).exists():
+    elif User.objects.filter(username=new_username).exists():
         return JsonResponse(
             {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -1651,9 +1640,22 @@ def update_username(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_password(request):
+def update_password(request: HttpRequest) -> JsonResponse:
+    """
+    Update the password for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the new password in the request body.
+            Expects JSON body with:
+                password (str): The new password to update for the authenticated user.
+
+    Returns:
+        JsonResponse: Either {"success": "Password updated successfully."} if the update is successful,
+                    or {"error": "Details of the specific error."} if there's an issue with the update.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    new_password = request.data.get("password")
+    new_password = parameters.get("password")
 
     if not new_password:
         return JsonResponse(
@@ -2764,3 +2766,40 @@ def receive_payment_notifications(request):
             {"error": "Invalid request method"},
             status=status.HTTP_405_METHOD_NOT_ALLOWED,
         )
+
+
+# ----------------------- BACKGROUND COLOR-----------------------#
+# TODO: DELETE
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def get_user_bg_color(request):
+    try:
+        preferences = Preference.objects.get(user=request.user)
+        serializer = PreferencesSerializer(preferences)
+        return JsonResponse(serializer.data)
+
+    except Preference.DoesNotExist:
+        return JsonResponse(
+            {"error": "Preferences not found for the user."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+
+# TODO: DELETE
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def set_user_bg_color(request):
+    try:
+        preferences = Preference.objects.get(user=request.user)
+    except Preference.DoesNotExist:
+        preferences = Preference(user=request.user)
+
+    serializer = PreferencesSerializer(preferences, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -18,7 +18,7 @@ from collections import defaultdict
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlencode
 from rest_framework.response import Response
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from rest_framework.views import View
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
@@ -61,26 +61,55 @@ LOGGER = logging.getLogger(__name__)
 
 
 ######################## AUTHENTIFICATION ########################
-def generate_auth_url(request):
-    """Generate a connection URL to obtain the authorization code"""
-    params = {
-        "client_id": MICROSOFT_CONFIG["client_id"],
-        "response_type": "code",
-        "redirect_uri": REDIRECT_URI_SIGNUP,
-        "response_mode": "query",
-        "scope": " ".join(MICROSOFT_SCOPES),
-        "state": "0a590ac7-6a23-44b1-9237-287743818d32",
-        "prompt": "consent",
-    }
-    authorization_url = (
-        f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
-    )
+def generate_auth_url(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generate a connection URL to obtain the authorization code for Microsoft.
 
-    return redirect(authorization_url)
+    Args:
+        request (HttpRequest): HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the Microsoft authorization URL.
+    """
+    try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Initiating Microsoft OAuth flow from IP: {ip}")
+
+        params = {
+            "client_id": MICROSOFT_CONFIG["client_id"],
+            "response_type": "code",
+            "redirect_uri": REDIRECT_URI_SIGNUP,
+            "response_mode": "query",
+            "scope": " ".join(MICROSOFT_SCOPES),
+            "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+            "prompt": "consent",
+        }
+        authorization_url = (
+            f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
+        )
+
+        LOGGER.info(
+            f"Successfully redirected to Microsoft authorization URL from IP: {ip}"
+        )
+        return redirect(authorization_url)
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Microsoft OAuth URL: {str(e)}")
 
 
-def exchange_code_for_tokens(authorization_code):
-    """Returns the access token and the refresh token"""
+def exchange_code_for_tokens(
+    authorization_code: str,
+) -> tuple[str, str] | tuple[None, None]:
+    """
+    Exchange authorization code for access and refresh tokens.
+
+    Args:
+        authorization_code (str): Authorization code obtained from the OAuth2 flow.
+
+    Returns:
+        tuple: A tuple containing the access token and refresh token if successful,
+               otherwise (None, None) if credentials are not obtained.
+    """
     app = ConfidentialClientApplication(
         client_id=MICROSOFT_CONFIG["client_id"],
         client_credential=MICROSOFT_CONFIG["client_secret"],
@@ -90,33 +119,59 @@ def exchange_code_for_tokens(authorization_code):
     result = app.acquire_token_by_authorization_code(
         authorization_code, scopes=MICROSOFT_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
+
     if result:
         return result.get("access_token"), result.get("refresh_token")
     else:
         return None, None
 
 
-def auth_url_link_email(request):
-    """Generate a connection URL to obtain the authorization code"""
-    params = {
-        "client_id": MICROSOFT_CONFIG["client_id"],
-        "response_type": "code",
-        "redirect_uri": REDIRECT_URI_LINK_EMAIL,
-        "response_mode": "query",
-        "scope": " ".join(MICROSOFT_SCOPES),
-        "state": "0a590ac7-6a23-44b1-9237-287743818d32",
-        "prompt": "consent",
-    }
-    authorization_url = (
-        f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
-    )
+def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generates a connection URL to obtain the authorization code for linking an email account with Microsoft.
 
-    return redirect(authorization_url)
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: Redirects the user to the generated authorization URL.
+    """
+    try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Initiating Microsoft OAuth flow from IP: {ip}")
+
+        params = {
+            "client_id": MICROSOFT_CONFIG["client_id"],
+            "response_type": "code",
+            "redirect_uri": REDIRECT_URI_LINK_EMAIL,
+            "response_mode": "query",
+            "scope": " ".join(MICROSOFT_SCOPES),
+            "state": "0a590ac7-6a23-44b1-9237-287743818d32",
+            "prompt": "consent",
+        }
+        authorization_url = (
+            f"{MICROSOFT_AUTHORITY}/oauth2/v2.0/authorize?{urlencode(params)}"
+        )
+        LOGGER.info(
+            f"Successfully redirected to Microsoft authorization URL from IP: {ip}"
+        )
+        return redirect(authorization_url)
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Microsoft OAuth URL: {str(e)}")
 
 
-def link_email_tokens(authorization_code):
-    """Returns the access token and the refresh token"""
+def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, None]:
+    """
+    Exchange authorization code for access and refresh tokens with Microsoft.
 
+    Args:
+        authorization_code (str): Authorization code obtained from the OAuth2 flow.
+
+    Returns:
+        tuple: A tuple containing the access token and refresh token if successful,
+               otherwise (None, None) if credentials are not obtained.
+    """
     app = ConfidentialClientApplication(
         client_id=MICROSOFT_CONFIG["client_id"],
         client_credential=MICROSOFT_CONFIG["client_secret"],

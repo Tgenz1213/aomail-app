@@ -22,6 +22,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonRes
 from rest_framework.views import View
 from django.utils.decorators import method_decorator
 from django.shortcuts import redirect
+from django.contrib.auth.models import User
 from msal import ConfidentialClientApplication
 import urllib.parse
 from django.core.mail import send_mail
@@ -190,8 +191,17 @@ def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, 
 
 
 ######################## CREDENTIALS ########################
-def get_headers(access_token) -> dict:
-    """Returns the default access headers"""
+def get_headers(access_token: str) -> dict:
+    """
+    Returns the default headers for making authenticated API requests.
+
+    Args:
+        access_token (str): The access token obtained from OAuth2 authentication.
+
+    Returns:
+        dict: A dictionary containing the HTTP headers with 'Content-Type' set to 'application/json'
+              and 'Authorization' set to the provided access token using the Bearer scheme.
+    """
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {access_token}",
@@ -199,8 +209,17 @@ def get_headers(access_token) -> dict:
     return headers
 
 
-def get_social_api(user, email):
-    """Returns the SocialAPI instance"""
+def get_social_api(user: User, email: str) -> SocialAPI | None:
+    """
+    Retrieves the SocialAPI instance associated with the specified user and email.
+
+    Args:
+        user: The user object for whom the SocialAPI instance is retrieved.
+        email (str): The email address associated with the SocialAPI instance.
+
+    Returns:
+        SocialAPI or None: The SocialAPI instance if found, otherwise None.
+    """
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
         return social_api
@@ -211,16 +230,32 @@ def get_social_api(user, email):
         return None
 
 
-def is_token_valid(access_token):
-    """Check if the access token is still valid by making a sample request"""
+def is_token_valid(access_token: str) -> bool:
+    """
+    Checks if the access token is still valid by making a sample request to a sample URL.
+
+    Args:
+        access_token (str): The access token to be validated.
+
+    Returns:
+        bool: True if the access token is valid (status code 200), False otherwise.
+    """
     sample_url = f"{GRAPH_URL}me"
     headers = get_headers(access_token)
     response = requests.get(sample_url, headers=headers)
     return response.status_code == 200
 
 
-def refresh_access_token(social_api: SocialAPI):
-    """Returns a valid access token"""
+def refresh_access_token(social_api: SocialAPI) -> str | None:
+    """
+    Returns a valid access token for the provided SocialAPI instance.
+
+    Args:
+        social_api (SocialAPI): The SocialAPI instance containing the access and refresh tokens.
+
+    Returns:
+        str | None: A valid access token if successfully refreshed, otherwise None.
+    """
     access_token = social_api.access_token
 
     if is_token_valid(access_token):
@@ -248,8 +283,9 @@ def refresh_access_token(social_api: SocialAPI):
         social_api.save()
         return access_token
     else:
+        error = response_data.get("error_description", response.reason)
         LOGGER.error(
-            f"Failed to refresh access token for email {social_api.email}: {response_data.get('error_description', response.reason)}"
+            f"Failed to refresh access token for email {social_api.email}: {error}"
         )
         return None
 

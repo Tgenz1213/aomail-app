@@ -2175,26 +2175,32 @@ def link_email(request: HttpRequest) -> JsonResponse:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def search_emails_ai(request):
-    """Searches emails using AI interpretation of user query."""
+def search_emails_ai(request: HttpRequest) -> JsonResponse:
+    """
+    Searches emails using AI interpretation of user query.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the search parameters in the request body.
+            Expects JSON body with:
+                emails (list of str): List of email addresses to search.
+                query (str): The user query for the search.
+
+    Returns:
+        JsonResponse: A JSON response with the search results categorized by email provider and email address,
+                      or {"error": "Details of the specific error."} if there's an issue with the search process.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
-    data = request.data
     emails = data["emails"]
     query = data["query"]
     search_params: dict = claude.search_emails(query)
     result = {}
 
-    def append_to_result(
-        provider: str,
-        email: str,
-        data: list,
-    ):
+    def append_to_result(provider: str, email: str, data: list):
         if len(data) > 0:
             if provider not in result:
                 result[provider] = {}
             result[provider][email] = data
-
-    # TODO: check if max_results correspond to subscription !!!
 
     max_results: int = search_params["max_results"]
     from_addresses: list = search_params["from"]
@@ -2231,7 +2237,6 @@ def search_emails_ai(request):
                     ),
                 ),
             )
-
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
@@ -2265,9 +2270,31 @@ def search_emails_ai(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def search_emails(request):
+def search_emails(request: HttpRequest) -> JsonResponse:
+    """
+    Searches emails based on user-specified parameters.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the search parameters in the request body.
+            Expects JSON body with:
+                emails (list of str): List of email addresses to search.
+                max_results (int): Maximum number of results to return.
+                query (str): The user query for the search.
+                file_extensions (list of str): List of file extensions to filter attachments.
+                advanced (bool): Flag to indicate if advanced search is enabled.
+                from_addresses (list of str): List of sender email addresses to filter.
+                to_addresses (list of str): List of recipient email addresses to filter.
+                subject (str): Subject of the emails to filter.
+                body (str): Body content of the emails to filter.
+                date_from (str): Start date to filter emails.
+                search_in (dict): Additional search parameters.
+
+    Returns:
+        JsonResponse: A JSON response with the search results categorized by email provider and email address,
+                      or {"error": "Details of the specific error."} if there's an issue with the search process.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
-    data: dict = request.data
     emails: list = data["emails"]
     max_results: int = data["max_results"]
     query: str = data["query"]
@@ -2279,8 +2306,6 @@ def search_emails(request):
     body: str = data["body"]
     date_from: str = data["date_from"]
     search_in: dict = data["search_in"]
-
-    # TODO: check if max_results correspond to subscription !!!
 
     def append_to_result(provider: str, email: str, data: list):
         if len(data) > 0:
@@ -2296,10 +2321,11 @@ def search_emails(request):
         if type_api == "google":
             services = google_api.authenticate_service(user, email)
             search_result = threading.Thread(
-                target=append_to_result(
+                target=append_to_result,
+                args=(
                     GOOGLE_PROVIDER,
                     email,
-                    google_api.search_emails_manually(
+                    google_api.search_emails(
                         services,
                         query,
                         max_results,
@@ -2312,17 +2338,18 @@ def search_emails(request):
                         body,
                         date_from,
                     ),
-                )
+                ),
             )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
             )
             search_result = threading.Thread(
-                target=append_to_result(
+                target=append_to_result,
+                args=(
                     MICROSOFT_PROVIDER,
                     email,
-                    microsoft_api.search_emails_manually(
+                    microsoft_api.search_emails(
                         access_token,
                         query,
                         max_results,
@@ -2335,8 +2362,9 @@ def search_emails(request):
                         body,
                         date_from,
                     ),
-                )
+                ),
             )
+
         search_result.start()
         search_result.join()
 
@@ -2346,7 +2374,7 @@ def search_emails(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def search_tree_knowledge(request: HttpRequest):
+def search_tree_knowledge(requestrequest: HttpRequest) -> JsonResponse:
     """
     Searches emails using AI interpretation of user query.
     """

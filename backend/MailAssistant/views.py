@@ -20,6 +20,9 @@ TODO:
 - Refactor FE and backend requests: get_user_<data> by returning a dict and NOT a string (safe=False must be removed)
   CHECK everywhere a serializer is used as it is going to create issues
 - Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
+
+REMAINING functions to opti and clean:
+- def find_user_view_ai(request: HttpRequest) -> JsonResponse:
 """
 
 import datetime
@@ -1333,8 +1336,19 @@ def find_user_view_ai(request: HttpRequest) -> JsonResponse:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def new_email_ai(request):
-    serializer = NewEmailAISerializer(data=request.data)
+def new_email_ai(request: HttpRequest) -> JsonResponse:
+    """
+    Return an AI-generated email subject and content based on input data.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing input data in the body.
+
+    Returns:
+        JsonResponse: JSON response with generated email subject and content on success,
+                      or error messages on failure.
+    """
+    data: dict = json.loads(request.body)
+    serializer = NewEmailAISerializer(data=data)
 
     if serializer.is_valid():
         input_data = serializer.validated_data["input_data"]
@@ -1345,17 +1359,30 @@ def new_email_ai(request):
 
         return JsonResponse({"subject": subject_text, "mail": mail_text})
     else:
-        LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def improve_email_writing(request):
-    """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
+def improve_email_writing(request: HttpRequest) -> JsonResponse:
+    """
+    Enhance the subject and body of an email in French, focusing on both quantity and quality improvements,
+    while retaining key details from the original version.
 
-    serializer = EmailCorrectionSerializer(data=request.data)
+    Args:
+        request (HttpRequest): The HTTP request object containing data to correct the email.
+            Expects a JSON body with fields:
+                email_body (str): The current body of the email.
+                email_subject (str): The current subject of the email.
+
+    Returns:
+        JsonResponse: JSON response containing the improved email subject and body,
+            or errors if the input data is invalid.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailCorrectionSerializer(data=data)
+
     if serializer.is_valid():
         email_body = serializer.validated_data["email_body"]
         email_subject = serializer.validated_data["email_subject"]
@@ -1363,20 +1390,32 @@ def improve_email_writing(request):
         email_body, subject_text = claude.improve_email_writing(
             email_body, email_subject
         )
-
         return JsonResponse({"subject": subject_text, "email_body": email_body})
     else:
-        LOGGER.error(f"Serializer errors in improve_email_writing: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def correct_email_language(request):
-    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
+def correct_email_language(request: HttpRequest) -> JsonResponse:
+    """
+    Corrects spelling and grammar mistakes in the email subject and body based on user's request.
 
-    serializer = EmailCorrectionSerializer(data=request.data)
+    Args:
+        request (HttpRequest): HTTP request object containing data to correct the email.
+            Expects JSON body with:
+                email_subject (str): The subject of the email to be corrected.
+                email_body (str): The body of the email to be corrected.
+
+    Returns:
+        JsonResponse: JSON response containing corrected email subject, body, and the number of corrections made.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailCorrectionSerializer(data=data)
+
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
@@ -1384,7 +1423,6 @@ def correct_email_language(request):
         corrected_subject, corrected_body, num_corrections = (
             claude.correct_mail_language_mistakes(email_body, email_subject)
         )
-
         return JsonResponse(
             {
                 "corrected_subject": corrected_subject,
@@ -1393,17 +1431,29 @@ def correct_email_language(request):
             }
         )
     else:
-        LOGGER.error(
-            f"Serializer errors in correct_email_language: {serializer.errors}"
-        )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def check_email_copywriting(request):
-    serializer = EmailCopyWritingSerializer(data=request.data)
+def check_email_copywriting(request: HttpRequest) -> JsonResponse:
+    """
+    Checks and provides feedback on the email copywriting based on the user's request.
+
+    Args:
+        request (HttpRequest): HTTP request object containing data to check the email copywriting.
+            Expects JSON body with:
+                email_subject (str): The subject of the email to be checked.
+                email_body (str): The body of the email to be checked.
+
+    Returns:
+        JsonResponse: JSON response containing feedback on the email copywriting.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailCopyWritingSerializer(data=data)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
@@ -1412,12 +1462,8 @@ def check_email_copywriting(request):
         feedback_copywriting = claude.improve_email_copywriting(
             email_body, email_subject
         )
-
         return JsonResponse({"feedback_copywriting": feedback_copywriting})
     else:
-        LOGGER.error(
-            f"Serializer errors in check_email_copywriting: {serializer.errors}"
-        )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -1497,9 +1497,9 @@ def generate_email_answer(request):
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
-        response_type = serializer.validated_data["response_type"]
+        user_instruction = serializer.validated_data["response_type"]
         email_answer = claude.generate_email_response(
-            email_subject, email_content, response_type, "French"
+            email_subject, email_content, user_instruction
         )
 
         return JsonResponse({"email_answer": email_answer})

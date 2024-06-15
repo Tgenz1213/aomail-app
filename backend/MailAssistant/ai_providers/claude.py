@@ -241,12 +241,12 @@ def improve_email_copywriting(email_subject, email_body):
 
 
 def generate_email_response(
-    input_subject: str, input_body: str, user_instruction: str, language: str
+    input_subject: str, input_body: str, user_instruction: str
 ) -> str:
     """Generates an email response based on the given response type"""
 
     template = f"""As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
-    Craft a response strictly in {language} following the user instruction: '{user_instruction}'.
+    Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
     0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
     1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
     2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.

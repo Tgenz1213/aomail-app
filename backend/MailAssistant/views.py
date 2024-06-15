@@ -1473,6 +1473,20 @@ def check_email_copywriting(request: HttpRequest) -> JsonResponse:
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def generate_email_response_keywords(request: HttpRequest) -> JsonResponse:
+    """
+    Generates response keywords based on the provided email subject and content.
+
+    Args:
+        request (HttpRequest): HTTP request object containing data to generate response keywords.
+            Expects JSON body with:
+                email_subject (str): The subject of the email for which response keywords are to be generated.
+                email_content (str): The content/body of the email for which response keywords are to be generated.
+
+    Returns:
+        JsonResponse: JSON response containing response keywords generated from the email subject and content.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
     data: dict = json.loads(request.body)
     serializer = EmailProposalAnswerSerializer(data=data)
 
@@ -1491,20 +1505,36 @@ def generate_email_response_keywords(request: HttpRequest) -> JsonResponse:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def generate_email_answer(request):
-    serializer = EmailGenerateAnswer(data=request.data)
+def generate_email_answer(request: HttpRequest) -> JsonResponse:
+    """
+    Generates an automated response to an email based on its subject, content, and user instructions.
+
+    Args:
+        request (HttpRequest): HTTP request object containing data to generate an email response.
+            Expects JSON body with:
+                email_subject (str): The subject of the email for which the response is generated.
+                email_content (str): The content/body of the email for which the response is generated.
+                response_type (str): User instruction indicating how the response should be generated.
+
+    Returns:
+        JsonResponse: JSON response containing the generated email response.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailGenerateAnswer(data=data)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
         user_instruction = serializer.validated_data["response_type"]
+
         email_answer = claude.generate_email_response(
             email_subject, email_content, user_instruction
         )
 
         return JsonResponse({"email_answer": email_answer})
     else:
-        LOGGER.error(f"Serializer errors in generate_email_answer: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

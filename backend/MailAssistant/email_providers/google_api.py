@@ -340,17 +340,26 @@ def send_email(request: HttpRequest):
                 target=library.save_contacts, args=(user, email, all_recipients)
             ).start()
 
-            return Response({"message": "Email sent successfully!"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
+            )
 
         else:
             keys = serializer.errors.keys()
 
             if "to" in keys:
-                return Response({"error": "recipient is missing"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "recipient is missing"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             elif "subject" in keys:
-                return Response({"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST
+                )
             else:
-                return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+                )
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
@@ -1149,12 +1158,14 @@ def get_profile_image(request: HttpRequest):
                 return Response({"profile_image_url": photo_url})
 
         return Response(
-            {"profile_image_url": "Profile image URL not found in response"}, status=status.HTTP_404_NOT_FOUND
+            {"profile_image_url": "Profile image URL not found in response"},
+            status=status.HTTP_404_NOT_FOUND,
         )
 
     except Exception as e:
         return Response(
-            {"error": f"Error retrieving profile image: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            {"error": f"Error retrieving profile image: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 

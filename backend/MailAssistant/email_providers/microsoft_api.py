@@ -10,6 +10,7 @@ import re
 import threading
 import time
 import requests
+from rest_framework import status
 from collections import defaultdict
 from django.views.decorators.csrf import csrf_exempt
 from urllib.parse import urlencode
@@ -298,29 +299,36 @@ def get_profile_image(request: HttpRequest):
                 # convert image to url
                 photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
                 photo_url = f"data:image/png;base64,{photo_data_base64}"
-                return Response({"profile_image_url": photo_url}, status=200)
+                return Response(
+                    {"profile_image_url": photo_url}, status=status.HTTP_200_OK
+                )
             else:
                 return Response(
-                    {"error": "Profile image not found in response"}, status=404
+                    {"error": "Profile image not found in response"},
+                    status=status.HTTP_404_NOT_FOUND,
                 )
         elif response.status_code == 404:
             LOGGER.error(
                 f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
             )
-            return Response({"error": "Failed to retrieve profile image"}, status=404)
+            return Response(
+                {"error": "Failed to retrieve profile image"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         else:
             LOGGER.error(
                 f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
             )
             return Response(
                 {"error": "Failed to retrieve profile image"},
-                status=404,
+                status=response.status_code,
             )
 
     except Exception as e:
         LOGGER.error(f"Failed to retrieve profile image: {str(e)}")
         return Response(
-            {"error": f"Failed to retrieve profile image: {str(e)}"}, status=500
+            {"error": f"Failed to retrieve profile image: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
@@ -429,7 +437,8 @@ def send_email(request: HttpRequest):
                     ).start()
 
                     return JsonResponse(
-                        {"message": "Email sent successfully!"}, status=202
+                        {"message": "Email sent successfully!"},
+                        status=status.HTTP_202_ACCEPTED,
                     )
                 else:
                     LOGGER.error(
@@ -441,14 +450,18 @@ def send_email(request: HttpRequest):
                     )
             except Exception as e:
                 LOGGER.error(f"Failed to send email: {str(e)}")
-                return JsonResponse({"error": str(e)}, status=500)
+                return JsonResponse(
+                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
         except Exception as e:
             LOGGER.error(f"Error preparing email data: {str(e)}")
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     LOGGER.error(f"Serializer errors preparing email data: {serializer.errors}")
-    return JsonResponse(serializer.errors, status=400)
+    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def delete_email(email_id, social_api) -> dict:
@@ -1132,13 +1145,17 @@ class MicrosoftSubscriptionNotification(View):
                         f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}"
                     )
 
-            return JsonResponse({"status": "Notification received"}, status=202)
+            return JsonResponse(
+                {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
+            )
 
         except Exception as e:
             print(
                 f"AN error occured in /MailAssistant/microsoft/receive_subscription_notifications/: {str(e)}"
             )
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -1201,12 +1218,19 @@ class MicrosoftEmailNotification(View):
 
                     threading.Thread(target=process_email).start()
 
-                return JsonResponse({"status": "Notification received"}, status=202)
+                return JsonResponse(
+                    {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
+                )
             else:
-                return JsonResponse({"error": "Internal Server Error"}, status=500)
+                return JsonResponse(
+                    {"error": "Internal Server Error"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -1264,12 +1288,19 @@ class MicrosoftContactNotification(View):
                         contact.email = email
                         contact.save()
 
-                return JsonResponse({"status": "Notification received"}, status=202)
+                return JsonResponse(
+                    {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
+                )
             else:
-                return JsonResponse({"error": "Internal Server Error"}, status=500)
+                return JsonResponse(
+                    {"error": "Internal Server Error"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            return JsonResponse(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 def email_to_db(user, email, id_email):

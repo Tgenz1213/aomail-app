@@ -44,7 +44,7 @@ from MailAssistant.constants import (
     USELESS,
 )
 from MailAssistant.controllers.tree_knowledge import Search
-from ..serializers import EmailDataSerializer
+from MailAssistant.utils.serializers import EmailDataSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from ..models import Contact, KeyPoint, MicrosoftListener, Preference, Rule, SocialAPI

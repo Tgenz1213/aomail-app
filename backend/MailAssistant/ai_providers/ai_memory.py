@@ -18,14 +18,14 @@ class EmailReplyConversation:
         subject: str,
         body: str,
         history: ChatMessageHistory,
-    ) -> None:
+    ):
         self.user = user
         self.subject = subject
         self.importance = importance.lower()
         self.body = body
         self.history = history
 
-    def update_history(self, user_input: str, new_body: str) -> None:
+    def update_history(self, user_input: str, new_body: str):
         """Updates the conversation history and the current email body response."""
 
         self.history.add_user_message(user_input)
@@ -71,7 +71,7 @@ class GenerateEmailConversation:
         subject: str,
         body: str,
         history: ChatMessageHistory,
-    ) -> None:
+    ):
         self.user = user
         self.subject = subject
         self.body = body
@@ -79,7 +79,7 @@ class GenerateEmailConversation:
         self.formality = formality
         self.history = history
 
-    def update_history(self, user_input: str, new_subject: str, new_body: str) -> None:
+    def update_history(self, user_input: str, new_subject: str, new_body: str):
         """Updates the conversation history and the current email subject and body."""
 
         self.history.add_user_message(user_input)

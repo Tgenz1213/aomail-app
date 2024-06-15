@@ -27,39 +27,35 @@ REMAINING functions to opti and clean:
 """
 
 import datetime
-from functools import wraps
 import json
 import logging
-import re
-import threading
 import os
-import time
-from django.db import IntegrityError
+import threading
 import jwt
 import stripe
-from django.http import FileResponse, Http404
-from django.utils import timezone
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, JsonResponse, FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
-from rest_framework.request import Request
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-from collections import defaultdict
-from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
-from MailAssistant.email_providers import google_api, microsoft_api
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
+from MailAssistant.utils import security
+from MailAssistant.utils.security import subscription
+from MailAssistant.ai_providers import claude
 from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
     BASE_URL_MA,
@@ -78,9 +74,8 @@ from MailAssistant.constants import (
     MEDIA_ROOT,
 )
 from MailAssistant.controllers.tree_knowledge import Search
-from MailAssistant.utils import security
-from MailAssistant.utils.security import subscription
-from .models import (
+from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.models import (
     Category,
     GoogleListener,
     MicrosoftListener,
@@ -91,10 +86,8 @@ from .models import (
     Sender,
     Contact,
     Subscription,
-    CC_sender,
-    BCC_sender,
 )
-from .serializers import (
+from MailAssistant.utils.serializers import (
     CategoryNameSerializer,
     EmailReadUpdateSerializer,
     EmailReplyLaterUpdateSerializer,

@@ -2,7 +2,7 @@
 Utility Functions for Email Processing
 
 TODO: 
-- put this file into utils.py
+- put this file into utils folder (probably rename email_processing.py)
 - split into separate files per use case
 - Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.

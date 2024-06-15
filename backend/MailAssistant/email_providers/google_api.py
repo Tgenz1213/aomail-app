@@ -13,12 +13,9 @@ import random
 import json
 import os
 from rest_framework import status
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
 from django.contrib.auth.models import User
-import httplib2
-import requests
 from collections import defaultdict
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.shortcuts import redirect
 from email.mime.application import MIMEApplication
@@ -34,11 +31,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from email.utils import parsedate_to_datetime
-from MailAssistant.serializers import EmailDataSerializer
+from MailAssistant.utils.serializers import EmailDataSerializer
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from asgiref.sync import async_to_sync
-from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
+from MailAssistant.ai_providers import claude
 from MailAssistant.utils import security
 from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
@@ -87,20 +83,48 @@ LOGGER = logging.getLogger(__name__)
 
 
 ######################## AUTHENTIFICATION ########################
-def generate_auth_url(request):
-    """Generate a connection URL to obtain the authorization code"""
-    flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
-    )
-    authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true", prompt="consent"
-    )
+def generate_auth_url(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generate a connection URL to obtain the authorization code.
 
-    return redirect(authorization_url)
+    Args:
+        request (HttpRequest): HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the Google authorization URL.
+    """
+    try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
+
+        flow = Flow.from_client_secrets_file(
+            GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+        )
+        authorization_url, _ = flow.authorization_url(
+            access_type="offline", include_granted_scopes="true", prompt="consent"
+        )
+        LOGGER.info(
+            f"Successfully redirected to Google authorization URL from IP: {ip}"
+        )
+        return redirect(authorization_url)
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Google OAuth URL: {str(e)}")
 
 
-def exchange_code_for_tokens(authorization_code):
-    """Return tokens Exchanged with authorization code"""
+def exchange_code_for_tokens(
+    authorization_code: str,
+) -> tuple[str, str] | tuple[None, None]:
+    """
+    Exchange authorization code for access and refresh tokens.
+
+    Args:
+        authorization_code (str): Authorization code obtained from the OAuth2 flow.
+
+    Returns:
+        tuple: A tuple containing the access token and refresh token if successful,
+               otherwise (None, None) if credentials are not obtained.
+    """
     flow = Flow.from_client_secrets_file(
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
@@ -117,22 +141,48 @@ def exchange_code_for_tokens(authorization_code):
         return None, None
 
 
-def auth_url_link_email(request):
-    """Generate a connection URL to obtain the authorization code"""
+def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generates a connection URL to obtain the authorization code for linking an email account.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: Redirects the user to the generated authorization URL.
+    """
+    try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
+
+        flow = Flow.from_client_secrets_file(
+            GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
+        )
+        authorization_url, _ = flow.authorization_url(
+            access_type="offline", include_granted_scopes="true", prompt="consent"
+        )
+        LOGGER.info(
+            f"Successfully redirected to Google authorization URL from IP: {ip}"
+        )
+        return redirect(authorization_url)
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Google OAuth URL: {str(e)}")
+
+
+def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, None]:
+    """
+    Exchange authorization code for access and refresh tokens.
+
+    Args:
+        authorization_code (str): Authorization code obtained from the OAuth2 flow.
+
+    Returns:
+        tuple: A tuple containing the access token and refresh token if successful,
+               otherwise (None, None) if credentials are not obtained.
+    """
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
-    )
-    authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true", prompt="consent"
-    )
-
-    return redirect(authorization_url)
-
-
-def link_email_tokens(authorization_code):
-    """Return tokens Exchanged with authorization code"""
-    flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     flow.fetch_token(code=authorization_code)
 

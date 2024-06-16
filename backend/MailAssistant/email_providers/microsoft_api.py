@@ -1343,7 +1343,21 @@ def subscribe_to_contact_notifications(user: User, email: str) -> bool:
         return False
 
 
-def delete_subscription(user, email, subscription_id) -> bool:
+def delete_subscription(user: User, email: str, subscription_id: str) -> bool:
+    """
+    Delete a subscription via Microsoft Graph API.
+
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+        subscription_id (str): The ID of the subscription to delete.
+
+    Returns:
+        bool: True if subscription deletion was successful, False otherwise.
+    """
+    LOGGER.info(
+        f"Initiating Microsoft unsubscription for user ID: {user.id} and subscription ID: {subscription_id}"
+    )
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
@@ -1353,21 +1367,32 @@ def delete_subscription(user, email, subscription_id) -> bool:
 
         if response.status_code != 204:
             LOGGER.error(
-                f"Failed to deleted the subscription {subscription_id}: {response.content}"
+                f"Failed to delete the subscription {subscription_id} for user ID: {user.id}: {response.content}"
             )
             return False
         else:
-            print("\nSuccessfully deleted the subscription\n")
+            LOGGER.info(f"Successfully deleted the subscription for user ID: {user.id}")
             return True
 
     except Exception as e:
-        LOGGER.error("Failed to deleted the subscription", str(e))
+        LOGGER.error(
+            f"Failed to delete the subscription {subscription_id} for user ID: {user.id}: {str(e)}"
+        )
         return False
 
 
-def renew_subscription(user, email, subscription_id):
-    """Renew a Microsoft subscription"""
+def renew_subscription(user: User, email: str, subscription_id: str):
+    """
+    Renew a Microsoft subscription.
 
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+        subscription_id (str): The ID of the subscription to renew.
+    """
+    LOGGER.info(
+        f"Initiating renewal of Microsoft subscription for user ID: {user.id} and subscription ID: {subscription_id}"
+    )
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}subscriptions/{subscription_id}"
@@ -1377,20 +1402,33 @@ def renew_subscription(user, email, subscription_id):
         payload = {"expirationDateTime": new_expiration_date}
         response = requests.patch(url, headers=headers, json=payload)
 
-        if response.status_code != 200:
-            LOGGER.error(
-                f"Failed to renew the subscription {subscription_id}: {response.content}"
+        if response.status_code == 200:
+            LOGGER.info(
+                f"Successfully renewed the subscription for user ID: {user.id} and subscription ID: {subscription_id}"
             )
         else:
-            print("\nSuccessfully increased the expiration time\n")
+            LOGGER.error(
+                f"Failed to renew the subscription {subscription_id} for user ID: {user.id}: {response.content}"
+            )
 
     except Exception as e:
-        LOGGER.error("CAN NOT RENEW", str(e))
+        LOGGER.error(
+            f"Failed to renew the subscription {subscription_id} for user ID: {user.id}: {str(e)}"
+        )
 
 
-def reauthorize_subscription(user, email, subscription_id):
-    """Reauthorize a Microsoft subscription"""
+def reauthorize_subscription(user: User, email: str, subscription_id: str):
+    """
+    Reauthorize a Microsoft subscription.
 
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+        subscription_id (str): The ID of the subscription to reauthorize.
+    """
+    LOGGER.info(
+        f"Initiating reauthorization of Microsoft subscription for user ID: {user.id} and subscription ID: {subscription_id}"
+    )
     access_token = refresh_access_token(get_social_api(user, email))
     headers = get_headers(access_token)
 
@@ -1398,16 +1436,18 @@ def reauthorize_subscription(user, email, subscription_id):
         url = f"{GRAPH_URL}subscriptions/{subscription_id}/reauthorize"
         response = requests.post(url, headers=headers)
 
-        if response.status_code != 200:
-            LOGGER.error(
-                f"Could not reauthorize the subscription {subscription_id}: {response.reason}"
+        if response.status_code == 200:
+            LOGGER.info(
+                f"Successfully reauthorized the subscription for user ID: {user.id} and subscription ID: {subscription_id}"
             )
         else:
-            print("successfully reauthotirezs")
+            LOGGER.error(
+                f"Failed to reauthorize the subscription {subscription_id} for user ID: {user.id}: {response.reason}"
+            )
 
     except Exception as e:
         LOGGER.error(
-            f"Could not reauthorize the subscription {subscription_id}: {str(e)}"
+            f"Failed to reauthorize the subscription {subscription_id} for user ID: {user.id}: {str(e)}"
         )
 
 

@@ -1,5 +1,8 @@
 """
 Handles authentication and HTTP requests for the Microsoft Graph API.
+
+TODO:
+- [SUBSCRIPTION] handle "subscriptionRemoved or missed"
 """
 
 import base64
@@ -1453,9 +1456,27 @@ def reauthorize_subscription(user: User, email: str, subscription_id: str):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftSubscriptionNotification(View):
-    """Handles subscription expiration notifications"""
+    """
+    Handles subscription expiration notifications from Microsoft Graph API.
 
-    def post(self, request):
+    This view processes incoming subscription notifications,
+    including renewing or reauthorizing subscriptions and handling lifecycle events.
+
+    Methods:
+        post(request: HttpRequest): Handles HTTP POST requests containing subscription notifications.
+    """
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        """
+        Handles POST requests containing subscription notifications from Microsoft Graph API.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            JsonResponse: JSON response indicating the status of the notification processing.
+                Returns a validation token if present or an error response for any issues encountered.
+        """
         validation_token = request.GET.get("validationToken")
         if validation_token:
             return HttpResponse(validation_token, content_type="text/plain")
@@ -1508,25 +1529,47 @@ class MicrosoftSubscriptionNotification(View):
             )
 
         except Exception as e:
-            print(
-                f"AN error occured in /MailAssistant/microsoft/receive_subscription_notifications/: {str(e)}"
+            LOGGER.error(
+                f"An error occurred in handling subscription notifications: {str(e)}"
             )
             return JsonResponse(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": "Internal Server Error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftEmailNotification(View):
-    """Handles subscriptions and receives emails from Microsoft's email notification listener"""
+    """
+    Handles email notifications from Microsoft Graph API subscriptions.
 
-    def post(self, request):
+    This view processes incoming email notifications, including storing emails in the database
+    and handling errors related to email processing.
+
+    Methods:
+        post(request: HttpRequest) -> JsonResponse: Handles HTTP POST requests containing email notifications.
+    """
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        """
+        Handles POST requests containing email notifications from Microsoft Graph API.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            JsonResponse: JSON response indicating the status of the notification processing.
+                Returns a validation token if present, or an error response for any issues encountered.
+        """
         validation_token = request.GET.get("validationToken")
         if validation_token:
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
-            print("!!! [OUTLOOK] EMAIL RECEIVED !!!")
+            print(
+                "!!! [OUTLOOK] EMAIL RECEIVED !!!"
+            )  # This print statement indicates an email was received
+
             email_data = json.loads(request.body.decode("utf-8"))
 
             if email_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
@@ -1543,6 +1586,11 @@ class MicrosoftEmailNotification(View):
                 elif subscription.exists():
 
                     def process_email():
+                        """Processes the email asynchronously.
+
+                        Attempts to store the email in the database using AI processing for a limited number of retries.
+                        Logs critical failures and sends an email alert to administrators on failure.
+                        """
                         for i in range(MAX_RETRIES):
                             result = email_to_db(
                                 subscription.first().user,
@@ -1580,14 +1628,17 @@ class MicrosoftEmailNotification(View):
                     {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
                 )
             else:
+                LOGGER.error("Invalid client state in email notification")
                 return JsonResponse(
                     {"error": "Internal Server Error"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 )
 
         except Exception as e:
+            LOGGER.error(f"An error occurred in handling email notifications: {str(e)}")
             return JsonResponse(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": "Internal Server Error"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 

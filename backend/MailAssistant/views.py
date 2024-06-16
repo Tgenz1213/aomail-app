@@ -57,6 +57,7 @@ from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
 from MailAssistant.ai_providers import claude
 from MailAssistant.constants import (
+    FREE_PLAN,
     ADMIN_EMAIL_LIST,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
@@ -108,7 +109,6 @@ from MailAssistant.utils.serializers import (
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
-FREE_PLAN = "free_plan"
 READ_EMAILS_MARKER = "read"
 
 

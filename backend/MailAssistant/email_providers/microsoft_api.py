@@ -1,34 +1,37 @@
 """
 Handles authentication and HTTP requests for the Microsoft Graph API.
-
-TODO:
-- add @subscription decorator
 """
 
 import base64
 import datetime
 import json
 import logging
-import re
 import threading
 import time
-import requests
-from rest_framework import status
-from collections import defaultdict
-from django.views.decorators.csrf import csrf_exempt
-from urllib.parse import urlencode
-from rest_framework.response import Response
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from rest_framework.views import View
-from django.utils.decorators import method_decorator
-from django.shortcuts import redirect
-from django.contrib.auth.models import User
-from msal import ConfidentialClientApplication
 import urllib.parse
+import requests
+from collections import defaultdict
+from urllib.parse import urlencode
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from msal import ConfidentialClientApplication
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import View
+from MailAssistant.ai_providers import claude
+from MailAssistant.controllers.tree_knowledge import Search
 from MailAssistant.utils import security
+from MailAssistant.utils.security import subscription
+from MailAssistant.utils.serializers import EmailDataSerializer
+from .. import library
 from MailAssistant.constants import (
+    FREE_PLAN,
     ADMIN_EMAIL_LIST,
     BASE_URL,
     DEFAULT_CATEGORY,
@@ -47,14 +50,18 @@ from MailAssistant.constants import (
     REDIRECT_URI_SIGNUP,
     USELESS,
 )
-from MailAssistant.controllers.tree_knowledge import Search
-from MailAssistant.utils.serializers import EmailDataSerializer
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from ..models import Contact, KeyPoint, MicrosoftListener, Preference, Rule, SocialAPI
-from ..models import SocialAPI, Contact, BulletPoint, Category, Email, Sender
-from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
-from .. import library
+from ..models import (
+    BulletPoint,
+    Category,
+    Contact,
+    Email,
+    KeyPoint,
+    MicrosoftListener,
+    Preference,
+    Rule,
+    Sender,
+    SocialAPI,
+)
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -291,9 +298,16 @@ def refresh_access_token(social_api: SocialAPI) -> str | None:
 
 
 ######################## PROFILE REQUESTS ########################
-def verify_license(access_token) -> bool:
-    """Verifies if there is a license associated with the account."""
+def verify_license(access_token: str) -> bool:
+    """
+    Verifies if there is a license associated with the account.
 
+    Args:
+        access_token (str): The access token used to authenticate the request.
+
+    Returns:
+        bool: True if a license is associated with the account, False otherwise.
+    """
     graph_endpoint = f"{GRAPH_URL}me/licenseDetails"
     headers = get_headers(access_token)
     response = requests.get(graph_endpoint, headers=headers)
@@ -307,63 +321,79 @@ def verify_license(access_token) -> bool:
     return False
 
 
-def get_info_contacts(access_token):
-    """Fetch the name and the email of the contacts of the user"""
+def get_info_contacts(access_token: str) -> list:
+    """
+    Fetch the name and the email of the contacts of the user.
+
+    Args:
+        access_token (str): The access token used to authenticate the request.
+
+    Returns:
+        list: A list of dictionaries containing contact names and their email addresses.
+    """
     graph_endpoint = f"{GRAPH_URL}me/contacts"
 
     try:
         headers = get_headers(access_token)
-
         params = {"$top": 1000}
 
         response = requests.get(graph_endpoint, headers=headers, params=params)
         response.raise_for_status()
-        response_data = response.json()
+        response_data: dict = response.json()
 
-        contacts = response_data.get("value", [])
-
+        contacts: list[dict] = response_data.get("value", [])
         names_emails = []
+
         for contact in contacts:
-            # Extract the name and email address of each contact
             name = contact.get("displayName")
             email_addresses = [
                 email["address"] for email in contact.get("emailAddresses", [])
             ]
-
             names_emails.append({"name": name, "emails": email_addresses})
 
         return names_emails
 
-    except:
+    except Exception as e:
+        error = (
+            response_data.get("error_description", response.reason)
+            if response
+            else str(e)
+        )
         LOGGER.error(
-            f"Failed to retrieve contacts: {response_data.get('error_description', response.reason)}"
+            f"Failed to retrieve contacts. Error: {str(e)}. Response details: {error}"
         )
         return []
 
 
-def get_unique_senders(access_token) -> dict:
-    """Fetches unique sender information from Microsoft Graph API messages"""
+def get_unique_senders(access_token: str) -> dict:
+    """
+    Fetches unique sender information from Microsoft Graph API messages.
+
+    Args:
+        access_token (str): The access token used to authenticate the request.
+
+    Returns:
+        dict: A dictionary where keys are email addresses of senders and values are their corresponding names.
+    """
     senders_info = {}
 
     try:
         headers = get_headers(access_token)
-
         limit = 50
         graph_endpoint = f"{GRAPH_URL}me/messages?$select=sender&$top={limit}"
         response = requests.get(graph_endpoint, headers=headers)
-        response_data = response.json()
+        response_data: dict = response.json()
 
         if response.status_code == 200:
-            messages = response_data.get("value", [])
+            messages: list[dict] = response_data.get("value", [])
             for message in messages:
-                sender = message.get("sender", {})
+                sender: dict[str, dict] = message.get("sender", {})
                 email_address = sender.get("emailAddress", {}).get("address", "")
                 name = sender.get("emailAddress", {}).get("name", "")
                 senders_info[email_address] = name
         else:
-            LOGGER.error(
-                f"Failed to fetch messages: {response_data.get('error_description', response.reason)}"
-            )
+            error = response_data.get("error_description", response.reason)
+            LOGGER.error(f"Failed to fetch messages: {error}")
 
         return senders_info
 
@@ -373,7 +403,8 @@ def get_unique_senders(access_token) -> dict:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_profile_image(request: HttpRequest):
     """Returns the profile image URL of the user"""
     user = request.user
@@ -385,6 +416,7 @@ def get_profile_image(request: HttpRequest):
 
         graph_endpoint = f"{GRAPH_URL}me/photo/$value"
         response = requests.get(graph_endpoint, headers=headers)
+        response_data: dict = response.json()
 
         if response.status_code == 200:
             photo_data = response.content
@@ -393,34 +425,32 @@ def get_profile_image(request: HttpRequest):
                 # convert image to url
                 photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
                 photo_url = f"data:image/png;base64,{photo_data_base64}"
-                return Response(
+                return JsonResponse(
                     {"profile_image_url": photo_url}, status=status.HTTP_200_OK
                 )
             else:
-                return Response(
+                return JsonResponse(
                     {"error": "Profile image not found in response"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
         elif response.status_code == 404:
-            LOGGER.error(
-                f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
-            )
-            return Response(
+            error = response_data.get("error_description", response.reason)
+            LOGGER.error(f"Failed to retrieve profile image: {error}")
+            return JsonResponse(
                 {"error": "Failed to retrieve profile image"},
                 status=status.HTTP_404_NOT_FOUND,
             )
         else:
-            LOGGER.error(
-                f"Failed to retrieve profile image: {response.json().get('error_description', response.reason)}"
-            )
-            return Response(
+            error = response_data.get("error_description", response.reason)
+            LOGGER.error(f"Failed to retrieve profile image: {error}")
+            return JsonResponse(
                 {"error": "Failed to retrieve profile image"},
                 status=response.status_code,
             )
 
     except Exception as e:
         LOGGER.error(f"Failed to retrieve profile image: {str(e)}")
-        return Response(
+        return JsonResponse(
             {"error": f"Failed to retrieve profile image: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
@@ -459,7 +489,8 @@ def get_email(access_token: str) -> dict:
 
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def send_email(request: HttpRequest):
     """Sends an email using the Microsoft Graph API."""
 

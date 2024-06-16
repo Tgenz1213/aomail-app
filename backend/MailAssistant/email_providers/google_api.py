@@ -1092,6 +1092,9 @@ def search_emails(services, search_query, max_results=2):
 ######################## PROFILE REQUESTS ########################
 def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
+    LOGGER.info(
+            f"Starting to save all contacts from from user ID: {user.id} with Google API"
+        )
     start = time.time()
 
     services = authenticate_service(user, email)
@@ -1185,11 +1188,11 @@ def set_all_contacts(user, email):
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
-            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time} from Google API for user ID: {user.id}"
         )
 
     except Exception as e:
-        LOGGER.error(f"Error fetching contacts: {str(e)}")
+        LOGGER.error(f"Error fetching contacts from Google API for user ID {user.id}: {str(e)}")
 
 
 def get_unique_senders(services) -> dict:

@@ -19,6 +19,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.core.files.uploadedfile import UploadedFile
 from msal import ConfidentialClientApplication
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -405,24 +406,38 @@ def get_unique_senders(access_token: str) -> dict:
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_profile_image(request: HttpRequest):
-    """Returns the profile image URL of the user"""
+def get_profile_image(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves the profile image URL of the user from Microsoft Graph API.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the user and email headers.
+
+    Returns:
+        JsonResponse: A JSON response containing the profile image URL or an error message.
+    """
     user = request.user
     email = request.headers.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
+    social_api = get_social_api(user, email)
+
+    if not social_api:
+        return JsonResponse(
+            {"error": "Social API credentials not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+    access_token = refresh_access_token(social_api)
 
     try:
         headers = get_headers(access_token)
-
         graph_endpoint = f"{GRAPH_URL}me/photo/$value"
         response = requests.get(graph_endpoint, headers=headers)
-        response_data: dict = response.json()
 
         if response.status_code == 200:
             photo_data = response.content
 
             if photo_data:
-                # convert image to url
+                # Convert image to URL
                 photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
                 photo_url = f"data:image/png;base64,{photo_data_base64}"
                 return JsonResponse(
@@ -430,21 +445,15 @@ def get_profile_image(request: HttpRequest):
                 )
             else:
                 return JsonResponse(
-                    {"error": "Profile image not found in response"},
+                    {"error": "Profile image not found"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
-        elif response.status_code == 404:
-            error = response_data.get("error_description", response.reason)
-            LOGGER.error(f"Failed to retrieve profile image: {error}")
-            return JsonResponse(
-                {"error": "Failed to retrieve profile image"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+
         else:
-            error = response_data.get("error_description", response.reason)
+            error = response.json().get("error_description", response.reason)
             LOGGER.error(f"Failed to retrieve profile image: {error}")
             return JsonResponse(
-                {"error": "Failed to retrieve profile image"},
+                {"error": f"Failed to retrieve profile image: {error}"},
                 status=response.status_code,
             )
 
@@ -491,12 +500,27 @@ def get_email(access_token: str) -> dict:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def send_email(request: HttpRequest):
-    """Sends an email using the Microsoft Graph API."""
+def send_email(request: HttpRequest) -> JsonResponse:
+    """
+    Sends an email using the Microsoft Graph API.
 
+    Args:
+        request (HttpRequest): HTTP request object containing POST data with email details.
+
+    Returns:
+        JsonResponse: Response indicating success or error.
+    """
     user = request.user
     email = request.POST.get("email")
-    access_token = refresh_access_token(get_social_api(user, email))
+    social_api = get_social_api(user, email)
+
+    if not social_api:
+        return JsonResponse(
+            {"error": "Social API credentials not found"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    access_token = refresh_access_token(social_api)
     serializer = EmailDataSerializer(data=request.POST)
 
     if serializer.is_valid():
@@ -507,8 +531,8 @@ def send_email(request: HttpRequest):
             to = data["to"]
             cc = data.get("cc")
             bcc = data.get("bcc")
-            attachments = data.get("attachments")
-            all_recipients = to
+            attachments: list[UploadedFile] = data.get("attachments", [])
+            all_recipients = to + (cc if cc else []) + (bcc if bcc else [])
 
             graph_endpoint = f"{GRAPH_URL}me/sendMail"
             headers = get_headers(access_token)
@@ -527,13 +551,11 @@ def send_email(request: HttpRequest):
                 email_content["message"]["ccRecipients"] = [
                     {"emailAddress": {"address": email}} for email in cc
                 ]
-                all_recipients += cc
 
             if bcc:
                 email_content["message"]["bccRecipients"] = [
                     {"emailAddress": {"address": email}} for email in bcc
                 ]
-                all_recipients += bcc
 
             if attachments:
                 email_content["message"]["attachments"] = []
@@ -541,7 +563,6 @@ def send_email(request: HttpRequest):
                 for file_data in attachments:
                     file_name = file_data.name
                     file_content = file_data.read()
-
                     attachment = base64.b64encode(file_content).decode("utf-8")
                     email_content["message"]["attachments"].append(
                         {
@@ -550,29 +571,26 @@ def send_email(request: HttpRequest):
                             "contentBytes": attachment,
                         }
                     )
+
             try:
                 response = requests.post(
                     graph_endpoint, headers=headers, json=email_content
                 )
 
                 if response.status_code == 202:
-
                     threading.Thread(
                         target=library.save_contacts, args=(user, email, all_recipients)
                     ).start()
-
                     return JsonResponse(
                         {"message": "Email sent successfully!"},
                         status=status.HTTP_202_ACCEPTED,
                     )
                 else:
-                    LOGGER.error(
-                        f"Failed to send email: {response.json().get('error', response.reason)}"
-                    )
-                    return JsonResponse(
-                        {"error": response.json().get("error", response.reason)},
-                        status=response.status_code,
-                    )
+                    response_data: dict = response.json()
+                    error = response_data.get("error", response.reason)
+                    LOGGER.error(f"Failed to send email: {error}")
+                    return JsonResponse({"error": error}, status=response.status_code)
+
             except Exception as e:
                 LOGGER.error(f"Failed to send email: {str(e)}")
                 return JsonResponse(
@@ -585,12 +603,21 @@ def send_email(request: HttpRequest):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    LOGGER.error(f"Serializer errors preparing email data: {serializer.errors}")
     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def delete_email(email_id, social_api) -> dict:
-    """Moves the email to the bin of the user"""
+def delete_email(email_id: int, social_api: SocialAPI) -> dict:
+    """
+    Moves the email to the bin of the user using the Microsoft Graph API.
+
+    Args:
+        email_id (int): The ID of the email to be moved to the bin.
+        social_api (SocialAPI): The SocialAPI instance containing the user's access and refresh tokens.
+
+    Returns:
+        dict: A dictionary containing a success message if the email is moved to the trash successfully,
+              or an error message if the operation fails.
+    """
     access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
     url = f"{GRAPH_URL}/me/messages/{email_id}/move"
@@ -603,26 +630,38 @@ def delete_email(email_id, social_api) -> dict:
     elif "error" in response.text:
         return {"message": "Email moved to trash successfully!"}
     else:
-        LOGGER.error(f"Failed to move email to trash: {response.text}")
+        LOGGER.error(
+            f"Failed to move email to trash for Social API email: {social_api.email}: {response.text}"
+        )
         return {"error": f"Failed to move email to trash: {response.text}"}
 
 
-def set_email_read(social_api, mail_id):
-    """Set the status of the email to read on Outlook."""
+def set_email_read(social_api: SocialAPI, email_id: int):
+    """
+    Sets the status of the email to 'read' on Outlook.
 
+    Args:
+        social_api (SocialAPI): The SocialAPI instance containing the user's access and refresh tokens.
+        email_id (int): The ID of the email to be marked as read.
+    """
     access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
-    data = {"IsRead": True}
-    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
+    data = {"isRead": True}
+    requests.patch(f"{GRAPH_URL}/me/messages/{email_id}/", headers=headers, json=data)
 
 
-def set_email_unread(social_api, mail_id):
-    """Set the status of the email to unread on Outlook."""
+def set_email_unread(social_api: SocialAPI, email_id: int):
+    """
+    Sets the status of the email to 'unread' on Outlook.
 
+    Args:
+        social_api (SocialAPI): The SocialAPI instance containing the user's access and refresh tokens.
+        email_id (int): The ID of the email to be marked as unread.
+    """
     access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
-    data = {"IsRead": False}
-    requests.patch(f"{GRAPH_URL}/me/messages/{mail_id}/", headers=headers, json=data)
+    data = {"isRead": False}
+    requests.patch(f"{GRAPH_URL}/me/messages/{email_id}/", headers=headers, json=data)
 
 
 def search_emails_ai(
@@ -636,9 +675,29 @@ def search_emails_ai(
     keywords: list = None,
     date_from: str = None,
     search_in: dict = None,
-):
-    """Searches for emails matching the query."""
+) -> list:
+    """
+    Searches for emails matching the specified query parameters using Microsoft Graph API.
 
+    Args:
+        access_token (str): The access token for authenticating with Microsoft Graph API.
+        max_results (int): The maximum number of email results to retrieve. Default is 100.
+        filenames (list): A list of filenames to search for in the attachments. (TODO: Implement this)
+        from_addresses (list): A list of sender email addresses to filter emails.
+        to_addresses (list): A list of recipient email addresses to filter emails.
+        subject (str): A subject string to filter emails.
+        body (str): A body string to filter emails.
+        keywords (list): A list of keywords to search for in the email body.
+        date_from (str): A date string in the format 'YYYY-MM-DD' to filter emails received after this date.
+        search_in (dict): A dictionary specifying the folders to search in. Possible keys are:
+            spams: Search in spam/junk folder.
+            deleted_emails: Search in deleted items folder.
+            drafts: Search in drafts folder.
+            sent_emails: Search in sent items folder.
+
+    Returns:
+        list: A list of email IDs that match the search criteria.
+    """
     folder_url = f"{GRAPH_URL}me/mailFolders/"
     message_ids = []
     params = {"$top": max_results, "$select": "id", "$count": "true"}
@@ -670,9 +729,7 @@ def search_emails_ai(
         # TODO: first retrieve emails + filenames and then check with a for loop
         pass
 
-    print("DEBUG:", params)
-
-    def run_request(graph_endpoint):
+    def run_request(graph_endpoint: str):
         try:
             headers = {"Authorization": f"Bearer {access_token}"}
             response = requests.get(graph_endpoint, headers=headers, params=params)
@@ -680,11 +737,8 @@ def search_emails_ai(
             data: dict = response.json()
             messages = data.get("value", [])
             message_ids.extend([message["id"] for message in messages])
-
         except Exception as e:
-            LOGGER.error(
-                f"Failed to search_emails_ai for url: {graph_endpoint}: {str(e)}"
-            )
+            LOGGER.error(f"Failed to search emails with AI filled parameters: {str(e)}")
 
     endpoints = {
         "spams": "junkemail/messages",
@@ -704,7 +758,7 @@ def search_emails_ai(
 
 
 def search_emails_manually(
-    access_token,
+    access_token: str,
     search_query: str,
     max_results: int,
     file_extensions: list,
@@ -715,9 +769,30 @@ def search_emails_manually(
     subject: str = None,
     body: str = None,
     date_from: str = None,
-):
-    """Searches for emails matching the query."""
+) -> list:
+    """
+    Searches for emails matching the specified query parameters using Microsoft Graph API.
 
+    Args:
+        access_token (str): The access token for authenticating with Microsoft Graph API.
+        search_query (str): The search query string to search for in emails.
+        max_results (int): The maximum number of email results to retrieve.
+        file_extensions (list): A list of file extensions to filter attachments by. (TODO: Implement this)
+        advanced (bool, optional): Flag indicating whether to use advanced search options. Defaults to False.
+        search_in (dict, optional): A dictionary specifying the folders to search in. Possible keys are:
+            spams: Search in spam/junk folder.
+            deleted_emails: Search in deleted items folder.
+            drafts: Search in drafts folder.
+            sent_emails: Search in sent items folder.
+        from_addresses (list, optional): A list of sender email addresses to filter emails.
+        to_addresses (list, optional): A list of recipient email addresses to filter emails.
+        subject (str, optional): A subject string to filter emails.
+        body (str, optional): A body string to filter emails.
+        date_from (str, optional): A date string in the format 'YYYY-MM-DD' to filter emails received after this date.
+
+    Returns:
+        list: A list of email IDs that match the search criteria.
+    """
     headers = {"Authorization": f"Bearer {access_token}"}
     folder_url = f"{GRAPH_URL}me/mailFolders/"
     graph_endpoint = f"{folder_url}inbox/messages"
@@ -779,12 +854,10 @@ def search_emails_manually(
             """
             params["$filter"] = filter_expression
 
-        print("DEBUG:", params)
-
         response = requests.get(graph_endpoint, headers=headers, params=params)
         response.raise_for_status()
-
-        messages = response.json().get("value", [])
+        response_data: dict = response.json()
+        messages = response_data.get("value", [])
 
         return [message["id"] for message in messages]
 
@@ -793,7 +866,18 @@ def search_emails_manually(
         return []
 
 
-def find_user_in_emails(access_token, search_query):
+def find_user_in_emails(access_token: str, search_query: str) -> dict:
+    """
+    Searches for a user's email address in the mailbox based on the provided search query in both the subject and body of emails.
+
+    Args:
+        access_token (str): Access token for authenticating with Microsoft Graph API.
+        search_query (str): The search query string to search for in email subjects and bodies.
+
+    Returns:
+        dict: A dictionary mapping found email addresses (keys) to corresponding sender names (values).
+             Returns "No matching emails found." if no emails match the search criteria.
+    """
     messages = search_emails(access_token, search_query)
 
     if not messages:
@@ -802,9 +886,19 @@ def find_user_in_emails(access_token, search_query):
     return messages
 
 
-def search_emails(access_token: str, search_query: str, max_results: int = 2):
-    """Searches for emails addresses in the user's mailbox based on the provided search query in both the subject and body."""
+def search_emails(access_token: str, search_query: str, max_results: int = 2) -> dict:
+    """
+    Searches for emails in the user's mailbox based on the provided search query in both the subject and body.
 
+    Args:
+        access_token (str): Access token for authenticating with Microsoft Graph API.
+        search_query (str): The search query string to search for in email subjects and bodies.
+        max_results (int, optional): Maximum number of email results to retrieve. Defaults to 2.
+
+    Returns:
+        dict: A dictionary mapping found email addresses (keys) to corresponding sender names (values).
+              Each key-value pair represents an email address and its associated sender name found in the search results.
+    """
     graph_endpoint = f"{GRAPH_URL}me/messages"
 
     try:
@@ -813,9 +907,8 @@ def search_emails(access_token: str, search_query: str, max_results: int = 2):
         params = {"$filter": filter_expression, "$top": max_results}
 
         response = requests.get(graph_endpoint, headers=headers, params=params)
-        response.raise_for_status()
         data: dict = response.json()
-        messages = data.get("value", [])
+        messages: list[dict[str, dict[str, dict]]] = data.get("value", [])
 
         found_emails = {}
 
@@ -840,8 +933,17 @@ def search_emails(access_token: str, search_query: str, max_results: int = 2):
         return {}
 
 
-def set_all_contacts(access_token, user):
-    """Stores all unique contacts of an email account in DB"""
+def set_all_contacts(access_token: str, user: User):
+    """
+    Retrieves all unique contacts from an email account using Microsoft Graph API and stores them in the database.
+
+    Args:
+        access_token (str): Access token for authenticating with Microsoft Graph API.
+        user (User): User object representing the owner of the email account.
+    """
+    LOGGER.info(
+        f"Starting to save all contacts from user ID: {user.id} with Microsoft Graph API"
+    )
     start = time.time()
 
     graph_api_contacts_endpoint = f"{GRAPH_URL}me/contacts"
@@ -854,7 +956,8 @@ def set_all_contacts(access_token, user):
         # Part 1: Retrieve contacts from Microsoft Contacts
         response = requests.get(graph_api_contacts_endpoint, headers=headers)
         response.raise_for_status()
-        contacts: dict[dict] = response.json().get("value", [])
+        response_data: dict = response.json()
+        contacts: list[dict[str, dict]] = response_data.get("value", [])
 
         for contact in contacts:
             name = contact.get("displayName", "")
@@ -862,11 +965,11 @@ def set_all_contacts(access_token, user):
             provider_id = contact.get("id", "")
             all_contacts[(user, name, email_address, provider_id)].add(email_address)
 
-        # Part 2: Retrieving from Outlook
+        # Part 2: Retrieve contacts from Outlook messages
         response = requests.get(graph_api_messages_endpoint, headers=headers)
         response.raise_for_status()
         data: dict = response.json()
-        messages: dict[dict] = data.get("value", [])
+        messages: list[dict[str, dict[str, dict]]] = data.get("value", [])
 
         for message in messages:
             sender: str = (
@@ -879,7 +982,7 @@ def set_all_contacts(access_token, user):
                 else:
                     all_contacts[(user, name, sender, "")].add(sender)
 
-        # Part 3: Add the contacts to the database
+        # Part 3: Save the contacts to the database
         for contact_info, emails in all_contacts.items():
             _, name, email_address, provider_id = contact_info
             for _ in emails:
@@ -887,14 +990,29 @@ def set_all_contacts(access_token, user):
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
-            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time} from Microsoft Graph API for user ID: {user.id}"
         )
 
     except Exception as e:
-        LOGGER.error(f"Error fetching contacts: {str(e)}")
+        LOGGER.error(
+            f"Error fetching contacts from Microsoft Graph API for user ID {user.id}: {str(e)}"
+        )
 
 
-def parse_name_and_email(sender):
+def parse_name_and_email(
+    sender: dict[str, dict]
+) -> tuple[str, str] | tuple[None, None]:
+    """
+    Parses the name and email address from a sender dictionary.
+
+    Args:
+        sender (dict): Dictionary containing sender information.
+
+    Returns:
+        tuple[str, str] | tuple[None, None]: Tuple containing name and email address,
+                                             or (None, None) if sender information is empty.
+
+    """
     if not sender:
         return None, None
 
@@ -904,7 +1022,17 @@ def parse_name_and_email(sender):
     return name, email
 
 
-def parse_recipients(recipients):
+def parse_recipients(recipients: list[dict[str, dict]]) -> list[tuple[str, str]]:
+    """
+    Parses names and email addresses from a list of recipient dictionaries.
+
+    Args:
+        recipients (list): List of dictionaries containing recipient information.
+
+    Returns:
+        list[tuple[str, str]]: List of tuples containing names and email addresses of recipients.
+
+    """
     if not recipients:
         return []
 
@@ -916,15 +1044,22 @@ def parse_recipients(recipients):
     return parsed_recipients
 
 
-def parse_message_body(message_data):
+def parse_message_body(message_data: dict) -> str | None:
+    """
+    Parses the message body content from a message data dictionary.
+
+    Args:
+        message_data (dict): Dictionary containing message data.
+
+    Returns:
+        str | None: Message body content as string, or None if no valid content type found.
+
+    """
     if "body" in message_data:
         body = message_data["body"]
-        if body["contentType"] == "text":
+        if body["contentType"] in ["text", "html", "multipart"]:
             return body["content"]
-        elif body["contentType"] == "html":
-            return body["content"]
-        elif body["contentType"] == "multipart":
-            return body["content"]
+
     return None
 
 

@@ -46,7 +46,7 @@ STRIPE_PRICES = {
     "start_plan_id": {"name": "start_plan", "price": 0.0},
     "pro_plan_id": {"name": "pro_plan", "price": 0.0},
 }
-
+FREE_PLAN = "free_plan"
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))

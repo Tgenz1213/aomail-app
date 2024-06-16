@@ -2,6 +2,7 @@
 Handles frontend requests and redirects them to the appropriate API.
 
 TODO:
+- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 - Split all the code inside files and put it all inside 'controllers' folder
 - Define all constants locally and globally (according to the scope)
 - Log important messages/errors using IP, user id, clear error name when possible
@@ -17,43 +18,46 @@ TODO:
         user = request.user
         # USE THIS instead of 'data'
         parameters: dict = json.loads(request.body)
+- Refactor FE and backend requests: get_user_<data> by returning a dict and NOT a string (safe=False must be removed)
+  CHECK everywhere a serializer is used as it is going to create issues
+- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
+
+REMAINING functions to opti and clean:
+- def find_user_view_ai(request: HttpRequest) -> JsonResponse:
 """
 
 import datetime
-from functools import wraps
 import json
 import logging
-import re
-import threading
 import os
-import time
-from django.db import IntegrityError
+import threading
 import jwt
 import stripe
-from django.http import FileResponse, Http404
-from django.utils import timezone
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, JsonResponse, FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
-from rest_framework.request import Request
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
-from collections import defaultdict
-from MailAssistant.ai_providers import gpt_3_5_turbo, mistral, claude
-from MailAssistant.email_providers import google_api, microsoft_api
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
+from MailAssistant.utils import security
+from MailAssistant.utils.security import subscription
+from MailAssistant.ai_providers import claude
 from MailAssistant.constants import (
+    FREE_PLAN,
     ADMIN_EMAIL_LIST,
     BASE_URL_MA,
     DEFAULT_CATEGORY,
@@ -70,10 +74,9 @@ from MailAssistant.constants import (
     THEMES,
     MEDIA_ROOT,
 )
-from MailAssistant.library import subscription
 from MailAssistant.controllers.tree_knowledge import Search
-from MailAssistant.utils import security
-from .models import (
+from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.models import (
     Category,
     GoogleListener,
     MicrosoftListener,
@@ -84,10 +87,8 @@ from .models import (
     Sender,
     Contact,
     Subscription,
-    CC_sender,
-    BCC_sender,
 )
-from .serializers import (
+from MailAssistant.utils.serializers import (
     CategoryNameSerializer,
     EmailReadUpdateSerializer,
     EmailReplyLaterUpdateSerializer,
@@ -108,7 +109,6 @@ from .serializers import (
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
-FREE_PLAN = "free_plan"
 READ_EMAILS_MARKER = "read"
 
 
@@ -119,12 +119,18 @@ def signup(request: HttpRequest) -> JsonResponse:
     """
     Register user in database and handle the callback of the API with OAuth2.0.
 
-    APIs supported:
-        - Gmail API (Google)
-        - Graph API (Microsoft)
-
     Args:
-        request (HttpRequest): The HTTP request object containing user data in the body.
+        request (HttpRequest): The HTTP request object containing the following user data in the body:
+            type_api (str): Type of API (e.g., 'google' or 'microsoft').
+            code (str): OAuth2.0 authorization code.
+            login (str): User's login or username.
+            password (str): User's password.
+            timezone (str): User's preferred timezone.
+            language (str): User's preferred language.
+            theme (str): User's preferred theme.
+            color (str): User's preferred color.
+            categories (list): List of categories associated with the user.
+            userDescription (str): Description or bio of the user.
 
     Returns:
         JsonResponse: JSON response with user ID, access token, and email on success,
@@ -155,7 +161,9 @@ def signup(request: HttpRequest) -> JsonResponse:
     authorization_result: dict = validate_authorization_code(type_api, code)
     if "error" in authorization_result:
         LOGGER.error(f"Authorization failed: {authorization_result['error']}")
-        return JsonResponse({"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     LOGGER.info(f"Successfully validated authorization code for {type_api} API")
 
@@ -167,16 +175,20 @@ def signup(request: HttpRequest) -> JsonResponse:
         if SocialAPI.objects.filter(email=email).exists():
             LOGGER.error("Email address already used by another account")
             return JsonResponse(
-                {"error": "Email address already used by another account"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Email address already used by another account"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
         elif " " in email:
             LOGGER.error("Email address must not contain spaces")
             return JsonResponse(
-                {"error": "Email address must not contain spaces"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Email address must not contain spaces"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
     else:
         LOGGER.error("No email received")
-        return JsonResponse({"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     user = User.objects.create_user(username, "", password)
     LOGGER.info(f"User {username} created successfully")
@@ -226,14 +238,16 @@ def signup(request: HttpRequest) -> JsonResponse:
                 user.delete()
                 LOGGER.info(f"User {username} deleted successfully")
                 return JsonResponse(
-                    {"error": "No license associated with the account"}, status=status.HTTP_400_BAD_REQUEST
+                    {"error": "No license associated with the account"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-
     except Exception as e:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
     end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
     end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
@@ -258,7 +272,10 @@ def signup(request: HttpRequest) -> JsonResponse:
         LOGGER.error(f"Failed to subscribe user {username} to listeners")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return JsonResponse({"error": "Could not subscribe to listener"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "Could not subscribe to listener"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 def subscribe_listeners(type_api: str, user: str, email: str) -> bool:
@@ -503,88 +520,12 @@ def is_authenticated(request):
     return JsonResponse({"isAuthenticated": True}, status=status.HTTP_200_OK)
 
 
-# ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def generate_reset_token(request):
-    """Sends an email with the reset password link."""
-
-    email = request.data.get("email")
-    social_api = SocialAPI.objects.filter(email=email)
-    if social_api.exists() == False:
-        return JsonResponse(
-            {"error": "Email address is not linked with an account"}, status=status.HTTP_400_BAD_REQUEST
-        )
-
-    token = PasswordResetTokenGenerator().make_token(social_api.first().user)
-    reset_link = f"{BASE_URL_MA}reset_password/?token={token}"
-    context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
-    email_html = render_to_string("password_reset_email.html", context)
-
-    try:
-        send_mail(
-            subject="Password Reset for MailAssistant",
-            message="",
-            recipient_list=[email],
-            from_email=EMAIL_NO_REPLY,
-            html_message=email_html,
-            fail_silently=False,
-        )
-        return JsonResponse({"message": "Email sent successfully!"}, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def reset_password(request):
-    """Checks if the token is valid and reset the password of user"""
-    ...
-
-
-######################## STRIPE ########################
-@csrf_exempt
-def receive_payment_notifications(request):
-    """Handles Stripe notifications"""
-
-    if request.method == "POST":
-        payload = request.body
-        sig_header = request.headers["Stripe-Signature"]
-
-        try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, STRIPE_SECRET_KEY
-            )
-        except ValueError as e:
-            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except stripe.WebhookSignature as e:
-            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-        if event["type"] == "invoice.payment_succeeded":
-            # TODO: Handle successful + informations for customer
-            # use create_subscription
-            ...  # data base operations
-            # Subscription.objects.get(...)
-            redirect(STRIPE_PAYMENT_SUCCESS_URL)
-        elif event["type"] == "invoice.payment_failed":
-            # TODO: Handle failed payment + add error message
-            redirect(STRIPE_PAYMENT_FAILED_URL)
-        else:
-            return JsonResponse({"error": "Unhandled event type"}, status=status.HTTP_400_BAD_REQUEST)
-
-        return JsonResponse({"message": "Received"}, status=status.HTTP_200_OK)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
 # ----------------------- GET REQUESTS -----------------------#
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def unread_mails(request: Request):
-    """Returns the number of unread emails"""
     return forward_request(request._request, "unread_mails")
 
 
@@ -592,7 +533,6 @@ def unread_mails(request: Request):
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def get_profile_image(request: Request):
-    """Returns the profile image of the user"""
     return forward_request(request._request, "get_profile_image")
 
 
@@ -604,22 +544,35 @@ def send_email(request: Request):
     return forward_request(request._request, "send_email")
 
 
-def forward_request(request: HttpRequest, api_method):
-    """Forwards the request to the appropriate API method based on type_api"""
+def forward_request(request: HttpRequest, api_method: str) -> JsonResponse:
+    """
+    Forwards the request to the appropriate API method based on type_api.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameters in the body:
+            email (str, optional): User's email address.
+        api_method (str): The API method to be called.
+
+    Returns:
+        JsonResponse: The response from the API method or an error response if
+                      the API type or method is unsupported, or if the SocialAPI
+                      entry is not found for the user and email.
+    """
     user = request.user
     email = request.POST.get("email")
     if email is None:
         email = request.headers.get("email")
 
     try:
-        social_api = get_object_or_404(SocialAPI, user=user, email=email)
+        social_api = SocialAPI.objects.get(user=user, email=email)
         type_api = social_api.type_api
     except SocialAPI.DoesNotExist:
         LOGGER.error(
             f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
         )
         return JsonResponse(
-            {"error": "SocialAPI entry not found for the user and email"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "SocialAPI entry not found for the user and email"},
+            status=status.HTTP_404_NOT_FOUND,
         )
 
     api_module = None
@@ -632,83 +585,141 @@ def forward_request(request: HttpRequest, api_method):
         api_function = getattr(api_module, api_method)
         return api_function(request)
     else:
-        return JsonResponse({"error": "Unsupported API type or method"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "Unsupported API or method"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 ######################## AUTHENTICATION API ########################
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def login(request):
-    """Authentication Django Rest API"""
-    username = request.data.get("username")
-    password = request.data.get("password")
+def login(request: HttpRequest) -> JsonResponse:
+    """
+    Authenticates a user using the provided username and password and returns an access token.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameters in the body:
+            username (str): User's username for authentication.
+            password (str): User's password for authentication.
+
+    Returns:
+        JsonResponse: JSON response with an access token on successful authentication,
+                      or an error message on failure.
+    """
+    parameters: dict = json.loads(request.body)
+    username = parameters.get("username")
+    password = parameters.get("password")
+
+    if not username or not password:
+        return JsonResponse(
+            {"error": "Username and password are required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     user = authenticate(username=username, password=password)
 
     if user:
-        refresh = RefreshToken.for_user(user)
+        refresh: RefreshToken = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
-
         return JsonResponse({"access_token": access_token}, status=status.HTTP_200_OK)
-
-    return JsonResponse(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return JsonResponse(
+            {"error": "Invalid username or password."},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def refresh_token(request):
-    """Refreshes the JWT access token"""
-    raw_token = request.data.get("access_token")
-    if not raw_token:
-        return JsonResponse({"error": "Access token is missing"}, status=status.HTTP_400_BAD_REQUEST)
+def refresh_token(request: HttpRequest) -> JsonResponse:
+    """
+    Refreshes the JWT access token for a user and returns a new access token.
 
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameter in the body:
+            access_token (str): JWT access token to be refreshed.
+
+    Returns:
+        JsonResponse: JSON response with a new access token on success,
+                      or an error message on failure.
+    """
+    parameters: dict = json.loads(request.body)
+    access_token: str = parameters.get("access_token")
+
+    if not access_token:
+        return JsonResponse(
+            {"error": "Access token is missing"}, status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         # Decode the token without checking for expiration
-        decoded_data = jwt.decode(
-            raw_token,
+        decoded_data: dict = jwt.decode(
+            access_token,
             api_settings.SIGNING_KEY,
             algorithms=[api_settings.ALGORITHM],
             options={"verify_exp": False},
         )
         user = User.objects.get(id=decoded_data["user_id"])
+        refresh_token: RefreshToken = RefreshToken.for_user(user)
+        new_access_token = str(refresh_token.access_token)
 
-        # Issue a new access token
-        new_access_token = str(RefreshToken.for_user(user).access_token)
-
-        return JsonResponse({"access_token": new_access_token})
-
+        return JsonResponse(
+            {"access_token": new_access_token}, status=status.HTTP_200_OK
+        )
     except Exception as e:
-        LOGGER.error(f"Error in refresh_token: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        LOGGER.error(
+            f"Unexpected error occured when refreshing Django access token: {str(e)}"
+        )
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 ######################## LANGUAGES ########################
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_language(request: HttpRequest) -> Response:
+def get_user_language(request: HttpRequest) -> JsonResponse:
     """
     Retrieve the language setting for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response with the user's language setting on success,
+                      or an error message on failure.
     """
     user = request.user
 
     try:
         language = Preference.objects.get(user=user).language
         return JsonResponse({"language": language}, status=status.HTTP_200_OK)
-
     except Exception as e:
-        LOGGER.error(f"Unexpected error in get_user_language: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(
+            f"Unexpected error occurred when retrieving user language: {str(e)}"
+        )
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_user_language(request: HttpRequest) -> Response:
+def set_user_language(request: HttpRequest) -> JsonResponse:
     """
     Set the language for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameter in the body:
+            language (str): The language code to set for the user.
+
+    Returns:
+        JsonResponse: JSON response indicating success or failure of setting the user's language.
     """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    language: str = request.data.get("language")
+    language: str = parameters.get("language")
 
     if not language:
         return JsonResponse(
@@ -726,10 +737,11 @@ def set_user_language(request: HttpRequest) -> Response:
         return JsonResponse(
             {"message": "Language updated successfully"}, status=status.HTTP_200_OK
         )
-
     except Exception as e:
-        LOGGER.error(f"Error in set_language: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Unexpected error occurred when changing user language: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 ######################## PICTURES ########################
@@ -751,33 +763,48 @@ def serve_image(request, image_name):
 
 
 ######################## THEMES ########################
-
-
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_theme(request: HttpRequest) -> Response:
+def get_user_theme(request: HttpRequest) -> JsonResponse:
     """
     Retrieve the theme setting for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response with the user's theme setting on success,
+                      or an error message on failure.
     """
     user = request.user
     try:
         theme = Preference.objects.get(user=user).theme
         return JsonResponse({"theme": theme}, status=status.HTTP_200_OK)
     except Exception as e:
-        LOGGER.error(f"Unexpected error in get_user_theme: {e}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Failed to retrieve user theme: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_user_theme(request: HttpRequest) -> Response:
+def set_user_theme(request: HttpRequest) -> JsonResponse:
     """
     Set the theme for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameter in the body:
+            theme (str): The theme to set for the user.
+
+    Returns:
+        JsonResponse: JSON response indicating success or failure of setting the user's theme.
     """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    theme = request.data.get("theme")
+    theme = parameters.get("theme")
 
     if not theme:
         return JsonResponse(
@@ -797,36 +824,55 @@ def set_user_theme(request: HttpRequest) -> Response:
             {"message": "Theme updated successfully"}, status=status.HTTP_200_OK
         )
     except Exception as e:
-        LOGGER.error(f"Error in set_user_theme: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Failed to update user theme: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 ######################## TIMEZONES ########################
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_timezone(request: HttpRequest) -> Response:
+def get_user_timezone(request: HttpRequest) -> JsonResponse:
     """
     Retrieve the timezone setting for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response with the user's timezone setting on success,
+                      or an error message on failure.
     """
     user = request.user
     try:
         timezone = Preference.objects.get(user=user).timezone
         return JsonResponse({"timezone": timezone}, status=status.HTTP_200_OK)
     except Exception as e:
-        LOGGER.error(f"Unexpected error in get_user_timezone: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Failed to retrieve user timezone: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_user_timezone(request: HttpRequest) -> Response:
+def set_user_timezone(request: HttpRequest) -> JsonResponse:
     """
     Set the timezone for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameter in the body:
+            timezone (str): The timezone to set for the user.
+
+    Returns:
+        JsonResponse: JSON response indicating success or failure of setting the user's timezone.
     """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    timezone = request.data.get("timezone")
+    timezone = parameters.get("timezone")
 
     if not timezone:
         return JsonResponse(
@@ -841,26 +887,31 @@ def set_user_timezone(request: HttpRequest) -> Response:
             {"message": "Timezone updated successfully"}, status=status.HTTP_200_OK
         )
     except Exception as e:
-        LOGGER.error(f"Error in set_user_timezone: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Failed to update timezone: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 ######################## ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS ########################
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_emails(request: HttpRequest) -> Response:
+def delete_emails(request: HttpRequest) -> JsonResponse:
     """
     Delete emails based on the priority or specific email IDs provided in the request body.
 
     Args:
-        request (HttpRequest): The HTTP request object containing the user and body.
+        request (HttpRequest): The HTTP request object containing user and body parameters:
+            priority (str): Priority level of emails to delete.
+            clean (bool): Flag indicating whether to perform a clean deletion.
+            emailIds (list[int]): List of specific email IDs to delete.
 
     Returns:
-        Response: A JSON response with a success or error message.
+        JsonResponse: JSON response indicating success or failure of email deletion.
     """
-    user = request.user
     parameters: dict = json.loads(request.body)
+    user = request.user
     priority: str = parameters.get("priority")
     clean: bool = parameters.get("clean")
 
@@ -901,98 +952,162 @@ def delete_emails(request: HttpRequest) -> Response:
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_categories(request):
-    user = request.user
+def get_user_categories(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieve categories associated with the authenticated user.
 
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response containing user's categories or an error message.
+    """
+    user = request.user
     try:
         categories = Category.objects.filter(user=user)
         serializer = CategoryNameSerializer(categories, many=True)
-
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-    except User.DoesNotExist:
-        return JsonResponse({"error": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
-
+        return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
     except Exception as e:
-        LOGGER.error(f"Error in get_user_categories: {str(e)}")
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Failed to retrieve user categories: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["PUT"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_category(request):
-    current_name = request.data.get("categoryName")
+def update_category(request: HttpRequest) -> JsonResponse:
+    """
+    Update an existing category for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameters in the body:
+            categoryName (str): The current name of the category to update.
+            description (str): The updated description for the category.
+
+    Returns:
+        JsonResponse: JSON response containing the updated category data or error messages.
+    """
+    parameters: dict = json.loads(request.body)
+    current_name = parameters.get("categoryName")
+    description = parameters.get("description")
+
     if not current_name:
-        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    if not description:
+        return JsonResponse(
+            {"error": "No category description provided"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     if current_name == DEFAULT_CATEGORY:
         return JsonResponse(
-            {"error": f"Can not modify: {DEFAULT_CATEGORY}"},
+            {"error": f"Cannot modify default category: {DEFAULT_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     if len(current_name) > 50:
         return JsonResponse(
-            {"error": "Name length greater than 50"},
+            {"error": "Category name length exceeds 50 characters"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if len(request.data["description"]) > 300:
+    if len(description) > 300:
         return JsonResponse(
-            {"error": "Description length greater than 300"},
+            {"error": "Description length exceeds 300 characters"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return JsonResponse(
-            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Category not found"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    serializer = CategoryNameSerializer(category, data=request.data)
+    serializer = CategoryNameSerializer(category, data=parameters)
     if serializer.is_valid():
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     else:
-        LOGGER.error(f"Serializer errors in update_category: {serializer.errors}")
+        LOGGER.error(
+            f"Failed to update category '{current_name}' for user ID: {request.user.id}. Errors: {serializer.errors}"
+        )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["DELETE"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_category(request):
-    current_name = request.data.get("categoryName")
+def delete_category(request: HttpRequest) -> JsonResponse:
+    """
+    Delete a category associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameter in the body:
+            categoryName (str): The name of the category to be deleted.
+
+    Returns:
+        JsonResponse: JSON response indicating success or failure of deleting the category.
+                      Returns an error if the category name is not provided, if attempting to delete the default category,
+                      or if the category is not found.
+    """
+    parameters: dict = json.loads(request.body)
+    current_name = parameters.get("categoryName")
+
     if not current_name:
-        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
     if current_name == DEFAULT_CATEGORY:
         return JsonResponse(
-            {"error": f"Can not delete: {DEFAULT_CATEGORY}"},
+            {"error": f"Cannot delete: {DEFAULT_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return JsonResponse(
-            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Category not found"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     category.delete()
 
     return JsonResponse(
-        {"error": "Category deleted successfully"}, status=status.HTTP_200_OK
+        {"message": "Category deleted successfully"}, status=status.HTTP_200_OK
     )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_rules_linked(request):
-    """Returns the rules associated with the category."""
-    current_name = request.data.get("categoryName")
-    if not current_name:
-        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
+def get_rules_linked(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves the number of rules linked to a specified category for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following parameter in the body:
+            categoryName (str): The name of the category to retrieve linked rules for.
+
+    Returns:
+        JsonResponse: JSON response indicating the number of rules linked to the category.
+                      Returns an error if the category name is not provided or if the category is not found.
+    """
+    parameters: dict = json.loads(request.body)
+    current_name = parameters.get("categoryName")
     user = request.user
-    category = Category.objects.get(name=current_name, user=user)
+
+    if not current_name:
+        return JsonResponse(
+            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        category = Category.objects.get(name=current_name, user=user)
+    except Category.DoesNotExist:
+        return JsonResponse(
+            {"error": "Category not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
     rules = Rule.objects.filter(category=category, user=user)
 
     return JsonResponse({"nb_rules": len(rules)}, status=status.HTTP_200_OK)
@@ -1001,24 +1116,47 @@ def get_rules_linked(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def create_category(request):
-    data = request.data.copy()
+def create_category(request: HttpRequest) -> JsonResponse:
+    """
+    Create a new category for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following JSON data:
+            name (str): The name of the category to create.
+            description (str): The description of the category (up to 300 characters).
+
+    Returns:
+        JsonResponse: JSON response with the created category data on success,
+                      or error messages on failure (e.g., invalid input, existing category).
+    """
+    data: dict = json.loads(request.body)
     data["user"] = request.user.id
-    name = data["name"]
+    name = data.get("name")
+    description = data.get("description")
+
+    if not name:
+        return JsonResponse(
+            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    if not description:
+        return JsonResponse(
+            {"error": "No category description provided"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     if name == DEFAULT_CATEGORY:
         return JsonResponse(
-            {"error": f"Can not create: {DEFAULT_CATEGORY}"},
+            {"error": f"Cannot create category with name: {DEFAULT_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     if len(name) > 50:
         return JsonResponse(
-            {"error": f"Name length greater than 50"},
+            {"error": "Category name length must be 50 characters or fewer"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if len(data["description"]) > 300:
+    if len(description) > 300:
         return JsonResponse(
-            {"error": f"Description length greater than 300"},
+            {"error": "Description length must be 300 characters or fewer"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -1026,7 +1164,7 @@ def create_category(request):
 
     if existing_category:
         return JsonResponse(
-            {"error": "Category already exists"},
+            {"error": "Category with this name already exists"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -1036,28 +1174,56 @@ def create_category(request):
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors create_category: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_category_id(request):
+def get_category_id(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieve the ID of a category based on its name for the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the following JSON data:
+            categoryName (str): The name of the category whose ID is to be retrieved.
+
+    Returns:
+        JsonResponse: JSON response with the ID of the category on success,
+                      or an error message if the category name is not provided or not found.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    category_name = request.data.get("categoryName")
+    category_name = parameters.get("categoryName")
+
     if category_name:
-        category = get_object_or_404(Category, name=category_name, user=user)
-        return JsonResponse({"id": category.id}, status=status.HTTP_200_OK)
+        try:
+            category = Category.objects.get(name=category_name, user=user)
+            return JsonResponse({"id": category.id}, status=status.HTTP_200_OK)
+        except Category.DoesNotExist:
+            return JsonResponse(
+                {"error": "Category does not exist"}, status=status.HTTP_400_BAD_REQUEST
+            )
     else:
-        return JsonResponse({"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 ############################# CONTACT ##############################
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_contacts(request):
+def get_user_contacts(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieve contacts associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: JSON response containing user's contacts or an error message if no contacts are found.
+    """
     try:
         user_contacts = Contact.objects.filter(user=request.user)
     except Contact.DoesNotExist:
@@ -1066,15 +1232,14 @@ def get_user_contacts(request):
         )
 
     contacts_serializer = ContactSerializer(user_contacts, many=True)
-
-    return JsonResponse(contacts_serializer.data)
+    return JsonResponse(contacts_serializer.data, safe=False, status=status.HTTP_200_OK)
 
 
 ######################## PROMPT ENGINEERING ########################
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def find_user_view_ai(request):
+def find_user_view_ai(request: HttpRequest) -> JsonResponse:
     """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
     search_query = request.GET.get("query")
 
@@ -1156,9 +1321,9 @@ def find_user_view_ai(request):
             status=status.HTTP_200_OK,
         )
     else:
-        LOGGER.error("Failed to authenticate or no search query provided")
         return JsonResponse(
-            {"error": "Failed to authenticate or no search query provided"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Failed to authenticate or no search query provided"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -1166,8 +1331,19 @@ def find_user_view_ai(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def new_email_ai(request):
-    serializer = NewEmailAISerializer(data=request.data)
+def new_email_ai(request: HttpRequest) -> JsonResponse:
+    """
+    Return an AI-generated email subject and content based on input data.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing input data in the body.
+
+    Returns:
+        JsonResponse: JSON response with generated email subject and content on success,
+                      or error messages on failure.
+    """
+    data: dict = json.loads(request.body)
+    serializer = NewEmailAISerializer(data=data)
 
     if serializer.is_valid():
         input_data = serializer.validated_data["input_data"]
@@ -1178,17 +1354,30 @@ def new_email_ai(request):
 
         return JsonResponse({"subject": subject_text, "mail": mail_text})
     else:
-        LOGGER.error(f"Serializer errors in new_email_ai: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def improve_email_writing(request):
-    """Enhance the subject and body of an email in both quantity and quality in French, while preserving key details from the original version."""
+def improve_email_writing(request: HttpRequest) -> JsonResponse:
+    """
+    Enhance the subject and body of an email in French, focusing on both quantity and quality improvements,
+    while retaining key details from the original version.
 
-    serializer = EmailCorrectionSerializer(data=request.data)
+    Args:
+        request (HttpRequest): The HTTP request object containing data to correct the email.
+            Expects a JSON body with fields:
+                email_body (str): The current body of the email.
+                email_subject (str): The current subject of the email.
+
+    Returns:
+        JsonResponse: JSON response containing the improved email subject and body,
+            or errors if the input data is invalid.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailCorrectionSerializer(data=data)
+
     if serializer.is_valid():
         email_body = serializer.validated_data["email_body"]
         email_subject = serializer.validated_data["email_subject"]
@@ -1196,20 +1385,32 @@ def improve_email_writing(request):
         email_body, subject_text = claude.improve_email_writing(
             email_body, email_subject
         )
-
         return JsonResponse({"subject": subject_text, "email_body": email_body})
     else:
-        LOGGER.error(f"Serializer errors in improve_email_writing: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def correct_email_language(request):
-    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
+def correct_email_language(request: HttpRequest) -> JsonResponse:
+    """
+    Corrects spelling and grammar mistakes in the email subject and body based on user's request.
 
-    serializer = EmailCorrectionSerializer(data=request.data)
+    Args:
+        request (HttpRequest): HTTP request object containing data to correct the email.
+            Expects JSON body with:
+                email_subject (str): The subject of the email to be corrected.
+                email_body (str): The body of the email to be corrected.
+
+    Returns:
+        JsonResponse: JSON response containing corrected email subject, body, and the number of corrections made.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailCorrectionSerializer(data=data)
+
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
@@ -1217,7 +1418,6 @@ def correct_email_language(request):
         corrected_subject, corrected_body, num_corrections = (
             claude.correct_mail_language_mistakes(email_body, email_subject)
         )
-
         return JsonResponse(
             {
                 "corrected_subject": corrected_subject,
@@ -1226,17 +1426,29 @@ def correct_email_language(request):
             }
         )
     else:
-        LOGGER.error(
-            f"Serializer errors in correct_email_language: {serializer.errors}"
-        )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def check_email_copywriting(request):
-    serializer = EmailCopyWritingSerializer(data=request.data)
+def check_email_copywriting(request: HttpRequest) -> JsonResponse:
+    """
+    Checks and provides feedback on the email copywriting based on the user's request.
+
+    Args:
+        request (HttpRequest): HTTP request object containing data to check the email copywriting.
+            Expects JSON body with:
+                email_subject (str): The subject of the email to be checked.
+                email_body (str): The body of the email to be checked.
+
+    Returns:
+        JsonResponse: JSON response containing feedback on the email copywriting.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailCopyWritingSerializer(data=data)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
@@ -1245,12 +1457,8 @@ def check_email_copywriting(request):
         feedback_copywriting = claude.improve_email_copywriting(
             email_body, email_subject
         )
-
         return JsonResponse({"feedback_copywriting": feedback_copywriting})
     else:
-        LOGGER.error(
-            f"Serializer errors in check_email_copywriting: {serializer.errors}"
-        )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1258,41 +1466,69 @@ def check_email_copywriting(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def generate_email_response_keywords(request):
-    serializer = EmailProposalAnswerSerializer(data=request.data)
+def generate_email_response_keywords(request: HttpRequest) -> JsonResponse:
+    """
+    Generates response keywords based on the provided email subject and content.
+
+    Args:
+        request (HttpRequest): HTTP request object containing data to generate response keywords.
+            Expects JSON body with:
+                email_subject (str): The subject of the email for which response keywords are to be generated.
+                email_content (str): The content/body of the email for which response keywords are to be generated.
+
+    Returns:
+        JsonResponse: JSON response containing response keywords generated from the email subject and content.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailProposalAnswerSerializer(data=data)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
 
         response_keywords = claude.generate_response_keywords(
-            email_subject, email_content, "French"
+            email_subject, email_content
         )
         return JsonResponse({"response_keywords": response_keywords})
     else:
-        LOGGER.error(
-            f"Serializer errors in generate_email_response_keywords: {serializer.errors}"
-        )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def generate_email_answer(request):
-    serializer = EmailGenerateAnswer(data=request.data)
+def generate_email_answer(request: HttpRequest) -> JsonResponse:
+    """
+    Generates an automated response to an email based on its subject, content, and user instructions.
+
+    Args:
+        request (HttpRequest): HTTP request object containing data to generate an email response.
+            Expects JSON body with:
+                email_subject (str): The subject of the email for which the response is generated.
+                email_content (str): The content/body of the email for which the response is generated.
+                response_type (str): User instruction indicating how the response should be generated.
+
+    Returns:
+        JsonResponse: JSON response containing the generated email response.
+                      If there are validation errors in the serializer, returns a JSON response with the errors
+                      and status HTTP 400 Bad Request.
+    """
+    data: dict = json.loads(request.body)
+    serializer = EmailGenerateAnswer(data=data)
 
     if serializer.is_valid():
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
-        response_type = serializer.validated_data["response_type"]
+        user_instruction = serializer.validated_data["response_type"]
+
         email_answer = claude.generate_email_response(
-            email_subject, email_content, response_type, "French"
+            email_subject, email_content, user_instruction
         )
 
         return JsonResponse({"email_answer": email_answer})
     else:
-        LOGGER.error(f"Serializer errors in generate_email_answer: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1300,7 +1536,17 @@ def generate_email_answer(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_answer_later_emails(request):
+def get_answer_later_emails(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieve emails flagged for answering later by the authenticated user.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the user information.
+
+    Returns:
+        JsonResponse: JSON response containing the list of emails flagged for answering later,
+                      grouped by priority, or an error message if retrieval fails.
+    """
     try:
         user = request.user
         emails = Email.objects.filter(user=user, answer_later=True).prefetch_related(
@@ -1336,59 +1582,48 @@ def get_answer_later_emails(request):
         return JsonResponse(formatted_data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        LOGGER.error(f"Error fetching emails: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        LOGGER.error(f"Error fetching answer-later emails: {str(e)}")
+        return JsonResponse(
+            {"error": "Failed to retrieve answer-later emails."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 ######################## DATABASE OPERATIONS ########################
-# ----------------------- BACKGROUND COLOR-----------------------#
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-@subscription([FREE_PLAN])
-def get_user_bg_color(request):
-    try:
-        preferences = Preference.objects.get(user=request.user)
-        serializer = PreferencesSerializer(preferences)
-        return JsonResponse(serializer.data)
-
-    except Preference.DoesNotExist:
-        return JsonResponse({"error": "Preferences not found for the user."}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-@subscription([FREE_PLAN])
-def set_user_bg_color(request):
-    try:
-        preferences = Preference.objects.get(user=request.user)
-    except Preference.DoesNotExist:
-        preferences = Preference(user=request.user)
-
-    serializer = PreferencesSerializer(preferences, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 # ----------------------- CREDENTIALS UPDATE-----------------------#
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_username(request):
+def update_username(request: HttpRequest) -> JsonResponse:
+    """
+    Update the username for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the new username in the request body.
+            Expects JSON body with:
+                username (str): The new username to update for the authenticated user.
+
+    Returns:
+        JsonResponse: Either {"success": "Username updated successfully."} if the update is successful,
+                    or {"error": "Details of the specific error."} if there's an issue with the update.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    new_username = request.data.get("username")
+    new_username = parameters.get("username")
 
     if not new_username:
-        return JsonResponse({"error": "No new username provided."}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Check if user requirements
-    if User.objects.filter(username=new_username).exists():
-        return JsonResponse({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No new username provided."}, status=status.HTTP_400_BAD_REQUEST
+        )
+    elif User.objects.filter(username=new_username).exists():
+        return JsonResponse(
+            {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
     elif " " in new_username:
-        return JsonResponse({"error": "Username must not contain spaces"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "Username must not contain spaces"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     user.username = new_username
     user.save()
@@ -1399,15 +1634,31 @@ def update_username(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_password(request):
+def update_password(request: HttpRequest) -> JsonResponse:
+    """
+    Update the password for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the new password in the request body.
+            Expects JSON body with:
+                password (str): The new password to update for the authenticated user.
+
+    Returns:
+        JsonResponse: Either {"success": "Password updated successfully."} if the update is successful,
+                    or {"error": "Details of the specific error."} if there's an issue with the update.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    new_password = request.data.get("password")
+    new_password = parameters.get("password")
 
     if not new_password:
-        return JsonResponse({"error": "No new password provided."}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No new password provided."}, status=status.HTTP_400_BAD_REQUEST
+        )
     elif not (8 <= len(new_password) <= 32):
         return JsonResponse(
-            {"error": "Password length must be between 8 and 32 characters"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Password length must be between 8 and 32 characters"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     user.set_password(new_password)
@@ -1420,22 +1671,48 @@ def update_password(request):
 @api_view(["DELETE"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_account(request):
-    """Removes the user from the database"""
+def delete_account(request: HttpRequest) -> JsonResponse:
+    """
+    Removes the authenticated user account from the database.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+
+    Returns:
+        JsonResponse: {"message": "User successfully deleted"} if the user account is deleted successfully,
+                      or {"error": "Details of the specific error."} if there's an issue with the deletion.
+    """
     user = request.user
 
     try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Deletion request received from IP: {ip} for user ID: {user.id}")
+
         unsubscribe_listeners(user)
         user.delete()
-        return JsonResponse({"message": "User successfully deleted"}, status=status.HTTP_200_OK)
 
+        LOGGER.info(f"User with ID: {user.id} deleted successfully")
+        return JsonResponse(
+            {"message": "User successfully deleted"}, status=status.HTTP_200_OK
+        )
     except Exception as e:
         LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
-def unsubscribe_listeners(user, email=None):
+def unsubscribe_listeners(user: User, email: str = None):
+    """
+    Unsubscribes the authenticated user from social and Microsoft listeners.
+
+    Args:
+        user (User): The authenticated user object.
+        email (str, optional): Specific email to unsubscribe from Microsoft listeners.
+    """
     social_apis = SocialAPI.objects.filter(user=user)
+
+    # Unsubscribe from Google APIs
     if social_apis.exists():
         for social_api in social_apis:
             if social_api.type_api == "google":
@@ -1446,25 +1723,28 @@ def unsubscribe_listeners(user, email=None):
                         break
                     else:
                         LOGGER.critical(
-                            f"[Attempt n°{i+1}] Failed to unsubscribe from Google: {social_api.email}"
+                            f"[Attempt {i+1}] Failed to unsubscribe from Google: {social_api.email}"
                         )
-                    context = {
-                        "title": "Critical Alert: Google Unsubscription Failure",
-                        "attempt_number": i + 1,
-                        "subscription_id": social_api.email,
-                        "email_provider": GOOGLE_PROVIDER,
-                        "user": user,
-                    }
-                    email_html = render_to_string("unsubscribe_failure.html", context)
-                    send_mail(
-                        subject="Critical Alert: Google Unsubscription Failure",
-                        message="",
-                        recipient_list=ADMIN_EMAIL_LIST,
-                        from_email=EMAIL_NO_REPLY,
-                        html_message=email_html,
-                        fail_silently=False,
-                    )
+                        context = {
+                            "title": "Critical Alert: Google Unsubscription Failure",
+                            "attempt_number": i + 1,
+                            "subscription_id": social_api.email,
+                            "email_provider": GOOGLE_PROVIDER,
+                            "user": user,
+                        }
+                        email_html = render_to_string(
+                            "unsubscribe_failure.html", context
+                        )
+                        send_mail(
+                            subject="Critical Alert: Google Unsubscription Failure",
+                            message="",
+                            recipient_list=ADMIN_EMAIL_LIST,
+                            from_email=EMAIL_NO_REPLY,
+                            html_message=email_html,
+                            fail_silently=False,
+                        )
 
+    # Unsubscribe from Microsoft listeners
     if email:
         microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
     else:
@@ -1479,7 +1759,7 @@ def unsubscribe_listeners(user, email=None):
                     break
                 else:
                     LOGGER.critical(
-                        f"[Attempt n°{i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
+                        f"[Attempt {i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
                     )
                     context = {
                         "title": "Critical Alert: Microsoft Unsubscription Failure",
@@ -1500,21 +1780,17 @@ def unsubscribe_listeners(user, email=None):
 
 
 # ----------------------- RULES -----------------------#
+# TODO: https://github.com/Teh45/MailAssistant/issues/33
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_rule_block_for_sender(request, email_id):
+def set_rule_block_for_sender(request: HttpRequest, email_id):
     user = request.user
-
-    # Check if the email belongs to the authenticated user
     email = get_object_or_404(Email, user=user, id=email_id)
 
-    # Check if there's a rule for this sender and user, create with block=True if it doesn't exist
     rule, created = Rule.objects.get_or_create(
         sender=email.sender, user=user, defaults={"block": True}, priority=""
     )
-
-    # If the rule already existed, update the block field
     if not created:
         rule.block = True
         rule.save()
@@ -1526,7 +1802,16 @@ def set_rule_block_for_sender(request, email_id):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_rules(request):
+def get_user_rules(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves rules associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+
+    Returns:
+        JsonResponse: A JSON response containing a list of rules owned by the user.
+    """
     user_rules = Rule.objects.filter(user=request.user)
     rules_data = []
 
@@ -1534,7 +1819,6 @@ def get_user_rules(request):
         rule_serializer = RuleSerializer(rule)
         rule_data = rule_serializer.data
 
-        # Manually add category name and sender details
         category_name = rule.category.name if rule.category else None
         sender_name = rule.sender.name if rule.sender else None
         sender_email = rule.sender.email if rule.sender else None
@@ -1545,24 +1829,34 @@ def get_user_rules(request):
 
         rules_data.append(rule_data)
 
-    return JsonResponse(rules_data)
+    return JsonResponse(rules_data, safe=False, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_rule_by_id(request, id_rule):
-    try:
-        # Retrieve the rule with the given id that belongs to the user
-        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> JsonResponse:
+    """
+    Retrieves details of a specific rule owned by the authenticated user.
 
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+        id_rule (int): ID of the rule to retrieve.
+
+    Returns:
+        JsonResponse: A JSON response containing details of the rule.
+                      If the rule is not found, returns {"error": "Rule not found"} with status 400.
+    """
+    try:
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
     except Rule.DoesNotExist:
-        return JsonResponse({"error": "Rule not found"}, status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse(
+            {"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     rule_serializer = RuleSerializer(user_rule)
     rule_data = rule_serializer.data
 
-    # Manually add category name and sender details if they exist
     category_name = user_rule.category.name if user_rule.category else None
     sender_name = user_rule.sender.name if user_rule.sender else None
     sender_email = user_rule.sender.email if user_rule.sender else None
@@ -1577,13 +1871,24 @@ def get_user_rule_by_id(request, id_rule):
 @api_view(["DELETE"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_user_rule_by_id(request, id_rule):
-    try:
-        # Retrieve the rule with the given id that belongs to the user
-        user_rule = Rule.objects.get(id=id_rule, user=request.user)
+def delete_user_rule_by_id(request: HttpRequest, id_rule: int) -> JsonResponse:
+    """
+    Deletes a specific rule owned by the authenticated user.
 
+    Args:
+        request (HttpRequest): HTTP request object containing the authenticated user.
+        id_rule (int): ID of the rule to delete.
+
+    Returns:
+        JsonResponse: {"message": "Rule deleted successfully"} if the rule is deleted.
+                      {"error": "Rule not found"} with status 400 if the rule doesn't exist for the user.
+    """
+    try:
+        user_rule = Rule.objects.get(id=id_rule, user=request.user)
     except Rule.DoesNotExist:
-        return JsonResponse({"error": "Rule not found"}, status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse(
+            {"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     user_rule.delete()
 
@@ -1593,20 +1898,39 @@ def delete_user_rule_by_id(request, id_rule):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def create_user_rule(request):
-    data = request.data
+def create_user_rule(request: HttpRequest) -> JsonResponse:
+    """
+    Creates a new rule for the authenticated user based on the request data.
+
+    Args:
+        request (HttpRequest): HTTP request object containing rule data in the request body.
+
+    Returns:
+        JsonResponse: JSON response with the created rule data if successful.
+                      {"error": "Details of the specific error."} if there's an issue with the creation.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
 
-    rule = Rule.objects.filter(sender_id=data["sender"], user=user)
-    if rule.exists():
-        return JsonResponse({"error": "A rule already exists for that sender"}, status=status.HTTP_400_BAD_REQUEST)
+    sender_id = data.get("sender")
+    if not sender_id:
+        return JsonResponse(
+            {"error": "Sender ID must be provided"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-    serializer = RuleSerializer(data=request.data, context={"user": user})
+    existing_rule = Rule.objects.filter(sender_id=sender_id, user=user)
+    if existing_rule.exists():
+        return JsonResponse(
+            {"error": "A rule already exists for that sender"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    serializer = RuleSerializer(data=data, context={"user": user})
     if serializer.is_valid():
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors in create_user_rule: {serializer.errors}")
         return JsonResponse(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
@@ -1616,20 +1940,34 @@ def create_user_rule(request):
 @api_view(["PUT"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_user_rule(request):
+def update_user_rule(request: HttpRequest) -> JsonResponse:
+    """
+    Updates an existing rule for the authenticated user based on the request data.
+
+    Args:
+        request (HttpRequest): HTTP request object containing rule data in the request body.
+
+    Returns:
+        JsonResponse: JSON response with the updated rule data if successful.
+                      {"error": "Details of the specific error."} if there's an issue with the update.
+    """
+    data: dict = json.loads(request.body)
+    rule_id = data.get("id")
+
     try:
-        rule = Rule.objects.get(id=request.data.get("id"), user=request.user)
+        rule = Rule.objects.get(id=rule_id, user=request.user)
     except Rule.DoesNotExist:
-        return JsonResponse({"error": "Rule not found."}, status=status.HTTP_404_NOT_FOUND)
+        return JsonResponse(
+            {"error": "Rule not found."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     serializer = RuleSerializer(
-        rule, data=request.data, partial=True, context={"user": request.user}
+        rule, data=data, partial=True, context={"user": request.user}
     )
     if serializer.is_valid():
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
     else:
-        LOGGER.error(f"Serializer errors in update_user_rule: {serializer.errors}")
         return JsonResponse(
             {"error": serializer.errors},
             status=status.HTTP_400_BAD_REQUEST,
@@ -1640,15 +1978,27 @@ def update_user_rule(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def check_sender_for_user(request):
-    email = request.data.get("email")
+def check_sender_for_user(request: HttpRequest) -> JsonResponse:
+    """
+    Check if a sender with the specified email exists.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email to check in the request body.
+            Expects JSON body with:
+                email (str): The email address of the sender to check.
+
+    Returns:
+        JsonResponse: Either {"exists": True, "sender_id": sender.id} if the sender exists,
+                      or {"exists": False} if the sender does not exist.
+    """
+    parameters: dict = json.loads(request.body)
+    email = parameters.get("email")
 
     try:
         sender = Sender.objects.get(email=email)
         return JsonResponse(
             {"exists": True, "sender_id": sender.id}, status=status.HTTP_200_OK
         )
-
     except ObjectDoesNotExist:
         return JsonResponse({"exists": False}, status=status.HTTP_200_OK)
 
@@ -1656,101 +2006,132 @@ def check_sender_for_user(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_details(request):
-    """Returns the username"""
+def get_user_details(request: HttpRequest) -> JsonResponse:
+    """Returns the username of authenticated user."""
     return JsonResponse({"username": request.user.username})
 
 
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_emails_linked(request):
-    """Returns the list of linked emails with the user account."""
+def get_emails_linked(request: HttpRequest) -> JsonResponse:
+    """
+    Returns the list of emails linked to the authenticated user's account.
 
-    user = request.user
+    Args:
+        request (HttpRequest): HTTP request object from the authenticated user.
 
+    Returns:
+        JsonResponse: A list of linked emails with their type of API if the request is successful,
+                      or {"error": "Details of the specific error."} if there's an issue with the retrieval.
+    """
     try:
-        social_apis = SocialAPI.objects.filter(user=user)
-        emails_inked = []
+        social_apis = SocialAPI.objects.filter(user=request.user)
+        emails_linked = []
         for social_api in social_apis:
-            emails_inked.append(
+            emails_linked.append(
                 {"email": social_api.email, "type_api": social_api.type_api}
             )
-
-        return JsonResponse(emails_inked, status=status.HTTP_200_OK)
-
+        return JsonResponse(emails_linked, safe=False, status=status.HTTP_200_OK)
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def unlink_email(request):
-    """Unlinks the email and deletes all stored emails associated with the user account."""
+def unlink_email(request: HttpRequest) -> JsonResponse:
+    """
+    Unlinks the specified email and deletes all stored emails associated with the user's account.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email to unlink in the request body.
+            Expects JSON body with:
+                email (str): The email address to unlink from the user's account.
+
+    Returns:
+        JsonResponse: {"message": "Email unlinked successfully!"} if the unlinking is successful,
+                      or {"error": "Details of the specific error."} if there's an issue with the unlinking.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    email = request.data.get("email")
+    email = parameters.get("email")
 
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
         unsubscribe_listeners(user, email)
         social_api.delete()
-        return JsonResponse({"message": "Email unlinked successfully!"}, status=status.HTTP_202_ACCEPTED)
+        return JsonResponse(
+            {"message": "Email unlinked successfully!"}, status=status.HTTP_202_ACCEPTED
+        )
     except SocialAPI.DoesNotExist:
-        return JsonResponse({"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def link_email(request):
-    """Links the email with the user account."""
+def link_email(request: HttpRequest) -> JsonResponse:
+    """
+    Links the specified email with the authenticated user's account.
 
+    Args:
+        request (HttpRequest): HTTP request object containing the email details to link in the request body.
+            Expects JSON body with:
+                type_api (str): The type of API.
+                code (str): The authorization code for linking the email.
+                user_description (str): A description provided by the user.
+
+    Returns:
+        JsonResponse: {"message": "Email linked to account successfully!"} if the linking is successful,
+                      or {"error": "Details of the specific error."} if there's an issue with the linking process.
+    """
+    parameters: dict = json.loads(request.body)
     user = request.user
-    type_api = request.data.get("type_api")
-    code = request.data.get("code")
-    user_description = request.data.get("user_description")
+    type_api = parameters.get("type_api")
+    code = parameters.get("code")
+    user_description = parameters.get("user_description")
 
-    # Checks if the authorization code is valid
+    ip = security.get_ip_with_port(request)
+    LOGGER.info(f"Link email request received from IP: {ip} and user ID: {user.id}")
+
     authorization_result = validate_code_link_email(type_api, code)
-
     if "error" in authorization_result:
-        # TODO: add clean LOGGER with given error message
-        return JsonResponse({"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST)
+        LOGGER.error(f"Authorization failed: {authorization_result['error']}")
+        return JsonResponse(
+            {"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-    # Extract tokens and email from the authorization result
     access_token = authorization_result["access_token"]
     refresh_token = authorization_result["refresh_token"]
     email = authorization_result["email"]
     refresh_token_encrypted = security.encrypt_text(
         ENCRYPTION_KEYS["SocialAPI"]["refresh_token"], refresh_token
     )
+    try:
+        social_api = SocialAPI.objects.create(
+            user=user,
+            email=email,
+            type_api=type_api,
+            user_description=user_description,
+            access_token=access_token,
+            refresh_token=refresh_token_encrypted,
+        )
+        LOGGER.info(f"Social API for user ID: {user.id} created successfully")
+    except IntegrityError:
+        return JsonResponse(
+            {"error": "Email address already used by another account"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
-    # Check email requirements
-    if email:
-        if " " in email:
-            return JsonResponse(
-                {"error": "Email address must not contain spaces"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        try:
-            social_api = SocialAPI.objects.create(
-                user=user,
-                email=email,
-                type_api=type_api,
-                user_description=user_description,
-                access_token=access_token,
-                refresh_token=refresh_token_encrypted,
-            )
-        except IntegrityError:
-            return JsonResponse(
-                {"error": "Email address already used by another account"}, status=status.HTTP_400_BAD_REQUEST
-            )
-    else:
-        return JsonResponse({"error": "No email received"}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Asynchronous function to store all contacts
     try:
         if type_api == "google":
             threading.Thread(
@@ -1761,44 +2142,58 @@ def link_email(request):
                 target=microsoft_api.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
-    # Subscribe to listeners
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
+        LOGGER.info(f"Email account linked successfully for user ID: {user.id}")
         return JsonResponse(
             {"message": "Email linked to account successfully!"},
             status=status.HTTP_201_CREATED,
         )
     else:
+        LOGGER.error(
+            f"Failed to subscribe to listener for Social API: {social_api.email}. Error: {str(e)}"
+        )
         social_api.delete()
-
-    return JsonResponse({"error": "Could not subscribe to listener"}, status=status.HTTP_400_BAD_REQUEST)
+        LOGGER.info(f"Social API: {social_api.email} deleted successfully")
+        return JsonResponse(
+            {"error": "Could not subscribe to listener"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def search_emails_ai(request):
-    """Searches emails using AI interpretation of user query."""
+def search_emails_ai(request: HttpRequest) -> JsonResponse:
+    """
+    Searches emails using AI interpretation of user query.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the search parameters in the request body.
+            Expects JSON body with:
+                emails (list of str): List of email addresses to search.
+                query (str): The user query for the search.
+
+    Returns:
+        JsonResponse: A JSON response with the search results categorized by email provider and email address,
+                      or {"error": "Details of the specific error."} if there's an issue with the search process.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
-    data = request.data
     emails = data["emails"]
     query = data["query"]
     search_params: dict = claude.search_emails(query)
     result = {}
 
-    def append_to_result(
-        provider: str,
-        email: str,
-        data: list,
-    ):
+    def append_to_result(provider: str, email: str, data: list):
         if len(data) > 0:
             if provider not in result:
                 result[provider] = {}
             result[provider][email] = data
-
-    # TODO: check if max_results correspond to subscription !!!
 
     max_results: int = search_params["max_results"]
     from_addresses: list = search_params["from"]
@@ -1835,7 +2230,6 @@ def search_emails_ai(request):
                     ),
                 ),
             )
-
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
@@ -1869,9 +2263,31 @@ def search_emails_ai(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def search_emails(request):
+def search_emails(request: HttpRequest) -> JsonResponse:
+    """
+    Searches emails based on user-specified parameters.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the search parameters in the request body.
+            Expects JSON body with:
+                emails (list of str): List of email addresses to search.
+                max_results (int): Maximum number of results to return.
+                query (str): The user query for the search.
+                file_extensions (list of str): List of file extensions to filter attachments.
+                advanced (bool): Flag to indicate if advanced search is enabled.
+                from_addresses (list of str): List of sender email addresses to filter.
+                to_addresses (list of str): List of recipient email addresses to filter.
+                subject (str): Subject of the emails to filter.
+                body (str): Body content of the emails to filter.
+                date_from (str): Start date to filter emails.
+                search_in (dict): Additional search parameters.
+
+    Returns:
+        JsonResponse: A JSON response with the search results categorized by email provider and email address,
+                      or {"error": "Details of the specific error."} if there's an issue with the search process.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
-    data: dict = request.data
     emails: list = data["emails"]
     max_results: int = data["max_results"]
     query: str = data["query"]
@@ -1883,8 +2299,6 @@ def search_emails(request):
     body: str = data["body"]
     date_from: str = data["date_from"]
     search_in: dict = data["search_in"]
-
-    # TODO: check if max_results correspond to subscription !!!
 
     def append_to_result(provider: str, email: str, data: list):
         if len(data) > 0:
@@ -1900,10 +2314,11 @@ def search_emails(request):
         if type_api == "google":
             services = google_api.authenticate_service(user, email)
             search_result = threading.Thread(
-                target=append_to_result(
+                target=append_to_result,
+                args=(
                     GOOGLE_PROVIDER,
                     email,
-                    google_api.search_emails_manually(
+                    google_api.search_emails(
                         services,
                         query,
                         max_results,
@@ -1916,17 +2331,18 @@ def search_emails(request):
                         body,
                         date_from,
                     ),
-                )
+                ),
             )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
                 microsoft_api.get_social_api(user, email)
             )
             search_result = threading.Thread(
-                target=append_to_result(
+                target=append_to_result,
+                args=(
                     MICROSOFT_PROVIDER,
                     email,
-                    microsoft_api.search_emails_manually(
+                    microsoft_api.search_emails(
                         access_token,
                         query,
                         max_results,
@@ -1939,8 +2355,9 @@ def search_emails(request):
                         body,
                         date_from,
                     ),
-                )
+                ),
             )
+
         search_result.start()
         search_result.join()
 
@@ -1950,14 +2367,23 @@ def search_emails(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def search_tree_knowledge(request: HttpRequest):
+def search_tree_knowledge(request: HttpRequest) -> JsonResponse:
     """
     Searches emails using AI interpretation of user query.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the search parameters in the request body.
+            Expects JSON body with:
+                question (str): The user query for the search.
+
+    Returns:
+        JsonResponse: A JSON response with the search results, including the answer and related emails,
+                      or {"error": "Details of the specific error."} if there's an issue with the search process.
     """
     try:
+        parameters: dict = json.loads(request.body)
         user = request.user
         user_id = user.id
-        parameters: dict = json.loads(request.body)
         question = parameters.get("question")
 
         if not question:
@@ -1969,17 +2395,16 @@ def search_tree_knowledge(request: HttpRequest):
         search = Search(user_id, question)
         if not search.can_answer():
             return JsonResponse(
-                {"message": "Not have enough data"},
+                {"message": "Not enough data"},
                 status=status.HTTP_200_OK,
             )
 
-        # TODO: debug if Ao fails with little data - if so: improve prompt engineering
         selected_categories = search.get_selected_categories()
         keypoints = search.get_keypoints(selected_categories)
 
         if not selected_categories or not keypoints:
             return JsonResponse(
-                {"message": "Not have enough data"},
+                {"message": "Not enough data"},
                 status=status.HTTP_200_OK,
             )
 
@@ -2000,15 +2425,12 @@ def search_tree_knowledge(request: HttpRequest):
 
         return JsonResponse({"answer": answer}, status=status.HTTP_200_OK)
 
-    except json.JSONDecodeError:
-        return JsonResponse(
-            {"error": "Invalid JSON format"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
     except Exception as e:
-        print(f"Error: {e}")
+        LOGGER.error(
+            f"An error occurred while searching email with search tree knowledge feature: {str(e)}"
+        )
         return JsonResponse(
-            {"error": "An error occurred while processing your request"},
+            {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -2016,61 +2438,123 @@ def search_tree_knowledge(request: HttpRequest):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def update_user_description(request):
-    """Updates the user desctiption of the given email."""
-    data = request.data
+def update_user_description(request: HttpRequest) -> JsonResponse:
+    """
+    Updates the user description of the given email.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email and new user description.
+            Expects JSON body with:
+                email (str): The email associated with the user.
+                user_description (str, optional): The new user description to update. Defaults to an empty string.
+
+    Returns:
+        JsonResponse: A JSON response indicating success or failure of the update operation.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
     email = data.get("email")
-    user_description = data["user_description"]
+    user_description = data.get("user_description", "")
 
     if email:
-        social_api = SocialAPI.objects.get(user=user, email=email)
-        social_api.user_description = user_description
-        social_api.save()
-        return JsonResponse({"message": "User description updated"}, status=status.HTTP_200_OK)
+        try:
+            social_api = SocialAPI.objects.get(user=user, email=email)
+            social_api.user_description = user_description
+            social_api.save()
+            return JsonResponse(
+                {"message": "User description updated"}, status=status.HTTP_200_OK
+            )
+        except SocialAPI.DoesNotExist:
+            return JsonResponse(
+                {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+            )
     else:
-        return JsonResponse({"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_description(request):
-    """Retrieves user description of the given email."""
-    data = request.data
+def get_user_description(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves user description of the given email.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email.
+            Expects JSON body with:
+                email (str): The email associated with the user.
+
+    Returns:
+        JsonResponse: A JSON response containing the user description if found,
+                      or an error message if no email is provided or if the email is not found.
+    """
+    data: dict = json.loads(request.body)
     user = request.user
     email = data.get("email")
 
     if email:
-        social_api = SocialAPI.objects.get(user=user, email=email)
-        return JsonResponse({"data": social_api.user_description}, status=status.HTTP_200_OK)
+        try:
+            social_api = SocialAPI.objects.get(user=user, email=email)
+            return JsonResponse(
+                {"data": social_api.user_description}, status=status.HTTP_200_OK
+            )
+        except SocialAPI.DoesNotExist:
+            return JsonResponse(
+                {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+            )
     else:
-        return JsonResponse({"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No email provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def create_sender(request):
-    """Create a new sender associated with the authenticated user"""
-    serializer = SenderSerializer(data=request.data)
-    data = request.data
+def create_sender(request: HttpRequest) -> JsonResponse:
+    """
+    Create a new sender associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the sender data.
+            Expects JSON body with:
+                email (str): The email of the sender.
+                name (str): The name of the sender.
+
+    Returns:
+        JsonResponse: Either {"id": <sender_id>} if the sender is successfully created,
+                      or serializer errors with status HTTP 400 Bad Request if validation fails.
+    """
+    data: dict = json.loads(request.body)
+    serializer = SenderSerializer(data=data)
 
     if serializer.is_valid():
         sender = Sender.objects.create(email=data["email"], name=data["name"])
         return JsonResponse({"id": sender.id}, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors in create_sender: {serializer.errors}")
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["DELETE"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def delete_email(request, email_id):
+def delete_email(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Deletes an email associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to delete.
+
+    Returns:
+        JsonResponse: {"message": "Email deleted successfully"} if the email is deleted successfully,
+                      or {"error": <error_message>} with status HTTP 500 Internal Server Error if there's an issue.
+    """
     try:
         user = request.user
-        email = get_object_or_404(Email, user=user, id=email_id)
+        email = Email.objects.get(user=user, id=email_id)
         social_api = email.social_api
         type_api = social_api.type_api
         provider_id = email.provider_id
@@ -2087,19 +2571,67 @@ def delete_email(request, email_id):
             )
         else:
             return JsonResponse(
-                {"error": result.get("error")}, status=status.HTTP_400_BAD_REQUEST
+                {"error": result.get("error")},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
+    except Email.DoesNotExist:
+        return JsonResponse(
+            {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")
-        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(["DELETE"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def archive_email(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Archives an email associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to archive.
+
+    Returns:
+        JsonResponse: {"message": "Email archived successfully"} if the email is archived successfully,
+                      or {"error": <error_message>} with appropriate status code otherwise.
+    """
+    try:
+        user = request.user
+        email = Email.objects.get(user=user, id=email_id)
+        email.delete()
+        return JsonResponse(
+            {"message": "Email archived successfully"}, status=status.HTTP_200_OK
+        )
+    except Email.DoesNotExist:
+        return JsonResponse(
+            {"error": "Email not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        LOGGER.error(f"Error when archiving email: {str(e)}")
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 # ----------------------- CREDENTIALS AVAILABILITY -----------------------#
 @api_view(["GET"])
 @permission_classes([AllowAny])
-def check_username(request):
-    """Verify if the username is available"""
+def check_username(request: HttpRequest) -> JsonResponse:
+    """
+    Verify if the username is available.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the username in the headers.
+
+    Returns:
+        JsonResponse: {"available": False} if the username is taken,
+                      {"available": True} if the username is available.
+    """
     username = request.headers.get("username")
 
     if User.objects.filter(username=username).exists():
@@ -2112,7 +2644,37 @@ def check_username(request):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_mail_by_id(request):
+def get_first_email(request: HttpRequest) -> JsonResponse:
+    """
+    Returns the first email associated with the user in the database.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+
+    Returns:
+        JsonResponse: {"email": "<email_address>"} if an email is found.
+    """
+    user = request.user
+    social_api = SocialAPI.objects.filter(user=user).first()
+
+    return JsonResponse({"email": social_api.email}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def get_mail_by_id(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves details of an email by its ID associated with the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email_id parameter in GET.
+
+    Returns:
+        JsonResponse:
+            {"message": "Authentication successful", "email": {...}} if the email is retrieved successfully.
+            {"error": "No email ID provided"} if no email_id parameter is provided in the request.
+    """
     user = request.user
     mail_id = request.GET.get("email_id")
 
@@ -2121,7 +2683,7 @@ def get_mail_by_id(request):
     email_user = social_api.email
     type_api = social_api.type_api
 
-    if mail_id is not None:
+    if mail_id:
         if type_api == "google":
             services = google_api.authenticate_service(user, email_user)
             subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
@@ -2157,7 +2719,9 @@ def get_mail_by_id(request):
             status=status.HTTP_200_OK,
         )
     else:
-        return JsonResponse({"error": "Failed to authenticate"}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(
+            {"error": "No email ID provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -2185,8 +2749,18 @@ def set_email_read(request, email_id):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_email_undread(request, email_id):
-    """Mark a specific email as read for the authenticated user"""
+def set_email_unread(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Marks a specific email as unread for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to mark as unread.
+
+    Returns:
+        JsonResponse: JSON response with the serialized data of the updated email,
+                      status=status.HTTP_200_OK if successful.
+    """
     user = request.user
 
     email = get_object_or_404(Email, user=user, id=email_id)
@@ -2207,8 +2781,18 @@ def set_email_undread(request, email_id):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_email_reply_later(request, email_id):
-    """Mark a specific email for later reply for the authenticated user"""
+def set_email_reply_later(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Marks a specific email for later reply for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to mark for later reply.
+
+    Returns:
+        JsonResponse: JSON response with the serialized data of the updated email,
+                      status=status.HTTP_200_OK if successful.
+    """
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
     email.answer_later = True
@@ -2221,8 +2805,18 @@ def set_email_reply_later(request, email_id):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def set_email_not_reply_later(request, email_id):
-    """Unmark a specific email for later reply."""
+def set_email_not_reply_later(request: HttpRequest, email_id: int) -> JsonResponse:
+    """
+    Unmarks a specific email for later reply for the authenticated user.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        email_id (int): The ID of the email to unmark for later reply.
+
+    Returns:
+        JsonResponse: JSON response with the serialized data of the updated email,
+                      status=status.HTTP_200_OK if successful.
+    """
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
     email.answer_later = False
@@ -2235,8 +2829,19 @@ def set_email_not_reply_later(request, email_id):
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_user_emails(request):
-    """Retrieves and formats user emails grouped by category and priority"""
+def get_user_emails(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves and formats user emails grouped by category and priority.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        JsonResponse: A JSON response containing formatted user emails grouped by category and priority.
+                      Each email entry includes details such as ID, provider ID, sender information,
+                      subject, content, attachments, date, time, read status, rules applied, and other metadata.
+                      Returns status=status.HTTP_200_OK on success.
+    """
     user = request.user
     emails = Email.objects.filter(user=user).prefetch_related(
         "category", "bulletpoint_set", "cc_senders", "bcc_senders", "attachments"
@@ -2333,31 +2938,45 @@ def get_user_emails(request):
     return JsonResponse(formatted_data, status=status.HTTP_200_OK)
 
 
+####################################################################
+######################## UNDER CONSTRUCTION ########################
+####################################################################
 # ----------------------- EMAIL ATTACHMENT -----------------------#
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def retrieve_attachment_data(request, email_id, attachment_id):
-    """API endpoint to retrieve email attachment data"""
+def retrieve_attachment_data(
+    request: HttpRequest, email_id: str, attachment_id: str
+) -> JsonResponse:
+    """
+    Retrieves email attachment data for a specific email and attachment ID.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        email_id (str): The ID of the email containing the attachment.
+        attachment_id (str): The ID of the attachment to retrieve.
+
+    Returns:
+        JsonResponse: JSON response containing the attachment data.
+                      Returns status=status.HTTP_200_OK on success.
+    """
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
     social_api = email.social_api
 
     if social_api.type_api == "google":
-        print("SOCIAL API :", social_api.email, "PROVIDER ID :", email.provider_id)
         attachment_data = google_api.get_attachment_data(
             user, social_api.email, email.provider_id, attachment_id
         )
     elif social_api.type_api == "microsoft":
-        # TO DO
-        print("TO DO : ERROR")
+        # TODO: Implement handling for Microsoft API attachments
+        attachment_data = {
+            "error": "Microsoft API attachment handling not implemented yet"
+        }
 
     return JsonResponse(attachment_data, status=status.HTTP_200_OK)
 
 
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
 def create_subscription(user, stripe_plan_id, email="nothingForNow"):
     stripe_customer = stripe.Customer.create(email=email)
     stripe_customer_id = stripe_customer.id
@@ -2381,3 +3000,124 @@ def create_subscription(user, stripe_plan_id, email="nothingForNow"):
         billing_interval=None,
         amount=STRIPE_PRICES[stripe_plan_id],
     )
+
+
+# ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def generate_reset_token(request):
+    """Sends an email with the reset password link."""
+
+    email = request.data.get("email")
+    social_api = SocialAPI.objects.filter(email=email)
+    if social_api.exists() == False:
+        return JsonResponse(
+            {"error": "Email address is not linked with an account"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    token = PasswordResetTokenGenerator().make_token(social_api.first().user)
+    reset_link = f"{BASE_URL_MA}reset_password/?token={token}"
+    context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
+    email_html = render_to_string("password_reset_email.html", context)
+
+    try:
+        send_mail(
+            subject="Password Reset for MailAssistant",
+            message="",
+            recipient_list=[email],
+            from_email=EMAIL_NO_REPLY,
+            html_message=email_html,
+            fail_silently=False,
+        )
+        return JsonResponse(
+            {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def reset_password(request):
+    """Checks if the token is valid and reset the password of user"""
+    ...
+
+
+######################## STRIPE ########################
+@csrf_exempt
+def receive_payment_notifications(request):
+    """Handles Stripe notifications"""
+
+    if request.method == "POST":
+        payload = request.body
+        sig_header = request.headers["Stripe-Signature"]
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, STRIPE_SECRET_KEY
+            )
+        except ValueError as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except stripe.WebhookSignature as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        if event["type"] == "invoice.payment_succeeded":
+            # TODO: Handle successful + informations for customer
+            # use create_subscription
+            ...  # data base operations
+            # Subscription.objects.get(...)
+            redirect(STRIPE_PAYMENT_SUCCESS_URL)
+        elif event["type"] == "invoice.payment_failed":
+            # TODO: Handle failed payment + add error message
+            redirect(STRIPE_PAYMENT_FAILED_URL)
+        else:
+            return JsonResponse(
+                {"error": "Unhandled event type"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return JsonResponse({"message": "Received"}, status=status.HTTP_200_OK)
+    else:
+        return JsonResponse(
+            {"error": "Invalid request method"},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+
+###########################################################
+######################## TO DELETE ########################
+###########################################################
+# ----------------------- BACKGROUND COLOR-----------------------#
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def get_user_bg_color(request):
+    try:
+        preferences = Preference.objects.get(user=request.user)
+        serializer = PreferencesSerializer(preferences)
+        return JsonResponse(serializer.data)
+
+    except Preference.DoesNotExist:
+        return JsonResponse(
+            {"error": "Preferences not found for the user."},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+
+
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def set_user_bg_color(request):
+    try:
+        preferences = Preference.objects.get(user=request.user)
+    except Preference.DoesNotExist:
+        preferences = Preference(user=request.user)
+
+    serializer = PreferencesSerializer(preferences, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

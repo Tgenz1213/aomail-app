@@ -112,8 +112,10 @@ def extract_contacts_recipients(query) -> dict[str:list]:
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email, input_subject, language) -> list:
+def generate_response_keywords(input_email, input_subject) -> list:
     """Generate a list of keywords for responding to a given email."""
+
+    language = get_language(input_email, input_subject)
 
     formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
 
@@ -157,6 +159,7 @@ def improve_email_writing(body, subject):
 """ OLD Ask Theo Before Delete (It's still used)"""
 
 
+# TODO: remove HARD CODED language
 def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
@@ -238,12 +241,12 @@ def improve_email_copywriting(email_subject, email_body):
 
 
 def generate_email_response(
-    input_subject: str, input_body: str, user_instruction: str, language: str
+    input_subject: str, input_body: str, user_instruction: str
 ) -> str:
     """Generates an email response based on the given response type"""
 
     template = f"""As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
-    Craft a response strictly in {language} following the user instruction: '{user_instruction}'.
+    Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
     0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
     1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
     2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
@@ -352,6 +355,7 @@ def new_function_(
     )
 
 
+# TODO: remove HARD CODED language
 def search_emails(query: str, language: str = "French") -> dict:
     """Searches emails based on the user query and generates structured JSON response."""
 

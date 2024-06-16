@@ -1,5 +1,8 @@
 """
 Handles authentication and HTTP requests for the Gmail API.
+
+TODO:
+- add @subscription decorator
 """
 
 import base64
@@ -13,12 +16,9 @@ import random
 import json
 import os
 from rest_framework import status
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.models import User
-import httplib2
-import requests
 from collections import defaultdict
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.shortcuts import redirect
 from email.mime.application import MIMEApplication
@@ -34,11 +34,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from email.utils import parsedate_to_datetime
-from MailAssistant.serializers import EmailDataSerializer
+from MailAssistant.utils.serializers import EmailDataSerializer
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-from asgiref.sync import async_to_sync
-from MailAssistant.ai_providers import gpt_3_5_turbo, claude, mistral, gpt_4
+from MailAssistant.ai_providers import claude
 from MailAssistant.utils import security
 from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
@@ -87,20 +86,48 @@ LOGGER = logging.getLogger(__name__)
 
 
 ######################## AUTHENTIFICATION ########################
-def generate_auth_url(request):
-    """Generate a connection URL to obtain the authorization code"""
-    flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
-    )
-    authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true", prompt="consent"
-    )
+def generate_auth_url(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generate a connection URL to obtain the authorization code.
 
-    return redirect(authorization_url)
+    Args:
+        request (HttpRequest): HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: Redirects to the Google authorization URL.
+    """
+    try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
+
+        flow = Flow.from_client_secrets_file(
+            GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+        )
+        authorization_url, _ = flow.authorization_url(
+            access_type="offline", include_granted_scopes="true", prompt="consent"
+        )
+        LOGGER.info(
+            f"Successfully redirected to Google authorization URL from IP: {ip}"
+        )
+        return redirect(authorization_url)
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Google OAuth URL: {str(e)}")
 
 
-def exchange_code_for_tokens(authorization_code):
-    """Return tokens Exchanged with authorization code"""
+def exchange_code_for_tokens(
+    authorization_code: str,
+) -> tuple[str, str] | tuple[None, None]:
+    """
+    Exchange authorization code for access and refresh tokens.
+
+    Args:
+        authorization_code (str): Authorization code obtained from the OAuth2 flow.
+
+    Returns:
+        tuple: A tuple containing the access token and refresh token if successful,
+               otherwise (None, None) if credentials are not obtained.
+    """
     flow = Flow.from_client_secrets_file(
         GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
@@ -117,22 +144,48 @@ def exchange_code_for_tokens(authorization_code):
         return None, None
 
 
-def auth_url_link_email(request):
-    """Generate a connection URL to obtain the authorization code"""
+def auth_url_link_email(request: HttpRequest) -> HttpResponseRedirect:
+    """
+    Generates a connection URL to obtain the authorization code for linking an email account.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: Redirects the user to the generated authorization URL.
+    """
+    try:
+        ip = security.get_ip_with_port(request)
+        LOGGER.info(f"Initiating Google OAuth flow from IP: {ip}")
+
+        flow = Flow.from_client_secrets_file(
+            GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
+        )
+        authorization_url, _ = flow.authorization_url(
+            access_type="offline", include_granted_scopes="true", prompt="consent"
+        )
+        LOGGER.info(
+            f"Successfully redirected to Google authorization URL from IP: {ip}"
+        )
+        return redirect(authorization_url)
+
+    except Exception as e:
+        LOGGER.error(f"Error generating Google OAuth URL: {str(e)}")
+
+
+def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, None]:
+    """
+    Exchange authorization code for access and refresh tokens.
+
+    Args:
+        authorization_code (str): Authorization code obtained from the OAuth2 flow.
+
+    Returns:
+        tuple: A tuple containing the access token and refresh token if successful,
+               otherwise (None, None) if credentials are not obtained.
+    """
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
-    )
-    authorization_url, _ = flow.authorization_url(
-        access_type="offline", include_granted_scopes="true", prompt="consent"
-    )
-
-    return redirect(authorization_url)
-
-
-def link_email_tokens(authorization_code):
-    """Return tokens Exchanged with authorization code"""
-    flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
     )
     flow.fetch_token(code=authorization_code)
 
@@ -287,9 +340,16 @@ def authenticate_service(user: User, email: str) -> dict | None:
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def send_email(request: HttpRequest):
-    """Sends an email using the Gmail API."""
+def send_email(request: HttpRequest) -> JsonResponse:
+    """
+    Sends an email using the Gmail API.
 
+    Args:
+        request (HttpRequest): HTTP request object containing POST data with email details.
+
+    Returns:
+        JsonResponse: Response indicating success or error.
+    """
     try:
         user = request.user
         email = request.POST.get("email")
@@ -340,7 +400,7 @@ def send_email(request: HttpRequest):
                 target=library.save_contacts, args=(user, email, all_recipients)
             ).start()
 
-            return Response(
+            return JsonResponse(
                 {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
             )
 
@@ -348,26 +408,38 @@ def send_email(request: HttpRequest):
             keys = serializer.errors.keys()
 
             if "to" in keys:
-                return Response(
+                return JsonResponse(
                     {"error": "recipient is missing"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             elif "subject" in keys:
-                return Response(
+                return JsonResponse(
                     {"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                return Response(
+                return JsonResponse(
                     {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
                 )
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
-def delete_email(user, email, email_id) -> dict:
-    """Moves the email to the bin of the user"""
+def delete_email(user: User, email: str, email_id: str) -> dict:
+    """
+    Moves the email with the specified ID to the bin of the user's Gmail account.
+
+    Args:
+        user (User): The authenticated user object.
+        email (str): The email address associated with the Gmail service.
+        email_id (str): The ID of the email to be moved to trash.
+
+    Returns:
+        dict: A dictionary containing either a success message or an error message.
+    """
     gmail = authenticate_service(user, email)["gmail"]
 
     if not gmail:
@@ -380,44 +452,84 @@ def delete_email(user, email, email_id) -> dict:
             return {"message": "Email moved to trash successfully!"}
         else:
             LOGGER.error(f"Failed to move email with ID: {email_id} to trash")
-            return {"error": f"Failed to move email to trash"}
+            return {"error": "Failed to move email to trash"}
     except HTTPError as e:
         if "Requested entity was not found" in str(e):
             return {"message": "Email moved to trash successfully!"}
         else:
-            LOGGER.error(f"Error when deleting email: {str(e)}")
+            LOGGER.error(
+                f"Error when deleting email for user ID: {user.id}. Error: {str(e)}"
+            )
             return {"error": str(e)}
 
 
-def set_email_read(user, email, mail_id):
-    """Set the status of the email to read on Gmail."""
+def set_email_read(user: User, email: str, mail_id: str) -> dict:
+    """
+    Sets the status of the email with the specified ID to 'read' on Gmail.
 
+    Args:
+        user (User): The authenticated user object.
+        email (str): The email address associated with the Gmail service.
+        mail_id (str): The ID of the email to mark as read.
+
+    Returns:
+        dict: A dictionary indicating the result of the operation
+    """
     services = authenticate_service(user, email)
-    services["gmail"].users().messages().modify(
-        userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
-    ).execute()
+    try:
+        services["gmail"].users().messages().modify(
+            userId="me", id=mail_id, body={"removeLabelIds": ["UNREAD"]}
+        ).execute()
+        return {"message": "Email marked as read successfully!"}
+    except Exception as e:
+        LOGGER.error(f"Failed to mark email ID {mail_id} as read: {str(e)}")
+        return {"error": str(e)}
 
 
-def set_email_unread(user, email, mail_id):
-    """Set the status of the email to unread on Gmail."""
+def set_email_unread(user: User, email: str, mail_id: str) -> dict:
+    """
+    Sets the status of the email with the specified ID to 'unread' on Gmail.
 
+    Args:
+        user (User): The authenticated user object.
+        email (str): The email address associated with the Gmail service.
+        mail_id (str): The ID of the email to mark as unread.
+
+    Returns:
+        dict: A dictionary indicating the result of the operation
+    """
     services = authenticate_service(user, email)
-    services["gmail"].users().messages().modify(
-        userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
-    ).execute()
+    try:
+        services["gmail"].users().messages().modify(
+            userId="me", id=mail_id, body={"addLabelIds": ["UNREAD"]}
+        ).execute()
+        return {"message": "Email marked as unread successfully!"}
+    except Exception as e:
+        LOGGER.error(f"Failed to mark email ID {mail_id} as unread: {str(e)}")
+        return {"error": str(e)}
 
 
-def get_info_contacts(services):
-    """Fetch the name and the email of the contacts of the user"""
+def get_info_contacts(services: dict) -> list[dict]:
+    """
+    Fetches the names and email addresses of the contacts of the user.
+
+    Args:
+        services (dict): A dictionary containing various authenticated services,
+                         including the 'people' service for fetching contacts.
+
+    Returns:
+        list: A list of dictionaries, where each dictionary contains 'name' and 'emails'
+              keys. 'name' represents the contact's display name, and 'emails' is a list
+              of email addresses associated with the contact.
+    """
     service = services["people"]
 
-    # Request a list of all the user's connections (contacts)
     results = (
         service.people()
         .connections()
         .list(
             resourceName="people/me",
-            pageSize=1000,  # Adjust the page size as needed
+            pageSize=1000,
             personFields="names,emailAddresses",
         )
         .execute()
@@ -427,12 +539,10 @@ def get_info_contacts(services):
 
     names_emails = []
     for contact in contacts:
-        # Extract the name and email address of each contact
         name = contact.get("names", [{}])[0].get("displayName")
         email_addresses = [
             email["value"] for email in contact.get("emailAddresses", [])
         ]
-
         names_emails.append({"name": name, "emails": email_addresses})
 
     return names_emails
@@ -617,14 +727,12 @@ def get_mail(services, int_mail=None, id_mail=None):
         )
         messages = results.get("messages", [])
         if not messages:
-            LOGGER.info("No new messages.")
             return None
         message = messages[int_mail]
         email_id = message["id"]
     elif id_mail is not None:
         email_id = id_mail
-    else:
-        LOGGER.info("Either int_mail or id_mail must be provided")
+    else:        
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
@@ -982,6 +1090,9 @@ def search_emails(services, search_query, max_results=2):
 ######################## PROFILE REQUESTS ########################
 def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
+    LOGGER.info(
+            f"Starting to save all contacts from from user ID: {user.id} with Google API"
+        )
     start = time.time()
 
     services = authenticate_service(user, email)
@@ -1075,11 +1186,11 @@ def set_all_contacts(user, email):
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
-            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time}"
+            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time} from Google API for user ID: {user.id}"
         )
 
     except Exception as e:
-        LOGGER.error(f"Error fetching contacts: {str(e)}")
+        LOGGER.error(f"Error fetching contacts from Google API for user ID {user.id}: {str(e)}")
 
 
 def get_unique_senders(services) -> dict:
@@ -1155,15 +1266,15 @@ def get_profile_image(request: HttpRequest):
             photos = profile["photos"]
             if photos:
                 photo_url = photos[0]["url"]
-                return Response({"profile_image_url": photo_url})
+                return JsonResponse({"profile_image_url": photo_url})
 
-        return Response(
+        return JsonResponse(
             {"profile_image_url": "Profile image URL not found in response"},
             status=status.HTTP_404_NOT_FOUND,
         )
 
     except Exception as e:
-        return Response(
+        return JsonResponse(
             {"error": f"Error retrieving profile image: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
@@ -1284,7 +1395,7 @@ def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
 
     try:
-        print("!!! [GOOGLE] EMAIL RECEIVED !!!")
+        LOGGER.info("Email notification received from Google API. Starting email processing")
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
 
@@ -1328,15 +1439,17 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        return Response(status=status.HTTP_200_OK)
+        return JsonResponse(status=status.HTTP_200_OK)
 
     except IntegrityError:
         LOGGER.error(f"Email already exists in database")
-        return Response(status=status.HTTP_200_OK)
+        return JsonResponse(status=status.HTTP_200_OK)
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 def email_to_db(user, services, social_api: SocialAPI):

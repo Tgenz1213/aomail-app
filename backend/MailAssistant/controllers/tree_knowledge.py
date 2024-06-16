@@ -17,7 +17,7 @@ class Search:
     Class for searching through categorized email data within a knowledge tree.
     """
 
-    def __init__(self, user_id: int, question: str = None) -> None:
+    def __init__(self, user_id: int, question: str = None):
         self.user_id = user_id
         self.question = question
         self.knowledge_tree = self.get_knowledge_tree()

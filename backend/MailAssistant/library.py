@@ -2,7 +2,7 @@
 Utility Functions for Email Processing
 
 TODO: 
-- put this file into utils.py
+- put this file into utils folder (probably rename email_processing.py)
 - split into separate files per use case
 - Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.
@@ -13,49 +13,13 @@ import logging
 import re
 import base64
 from django.db import IntegrityError
-from django.http import HttpRequest
-from django.shortcuts import redirect
-from MailAssistant.constants import BASE_URL, DEFAULT_CATEGORY
+from MailAssistant.constants import DEFAULT_CATEGORY
 from .models import Category, Contact
 from bs4 import BeautifulSoup
-from django.utils import timezone
-from rest_framework.decorators import permission_classes
-from functools import wraps
-from rest_framework.permissions import IsAuthenticated
-from MailAssistant.models import Subscription
+
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
-
-
-# ----------------------- DECORATOR -----------------------#
-# THIS IS USED TO CHECK IF THE USER SUBSCRIPTION IS STILL VALID
-def subscription(allowed_plans):
-    def decorator(view_func):
-        @wraps(view_func)
-        @permission_classes([IsAuthenticated])
-        def _wrapped_view(request: HttpRequest, *args, **kwargs):
-            user = request.user
-            now = timezone.now()
-            active_subscription = Subscription.objects.filter(
-                user=user, end_date__gt=now, plan__in=allowed_plans
-            ).exists()
-
-            if not active_subscription:
-                # TODO: Redirect to a subscription expired page with expiration date
-                # explain on this page what the user can still acces (ONLY settings page)
-                # explain that we will stop receiving its email in X days => according to google and microsoft (make a request to know)
-
-                print("User does not have an active subscription.")
-
-                #  (NOT 401 page) => TODO: change (it does not work anyway => TO debug)
-                return redirect(f"{BASE_URL}not-authorized")
-
-            return view_func(request, *args, **kwargs)
-
-        return _wrapped_view
-
-    return decorator
 
 
 # ----------------------- NO REPLY CHECKING -----------------------#

@@ -1395,7 +1395,7 @@ def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
 
     try:
-        print("!!! [GOOGLE] EMAIL RECEIVED !!!")
+        LOGGER.info("Email notification received from Google API. Starting email processing")
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
 

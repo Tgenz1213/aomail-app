@@ -1530,7 +1530,7 @@ class MicrosoftSubscriptionNotification(View):
 
         except Exception as e:
             LOGGER.error(
-                f"An error occurred in handling subscription notifications: {str(e)}"
+                f"An error occurred in handling subscription notification: {str(e)}"
             )
             return JsonResponse(
                 {"error": "Internal Server Error"},
@@ -1566,9 +1566,9 @@ class MicrosoftEmailNotification(View):
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
-            print(
-                "!!! [OUTLOOK] EMAIL RECEIVED !!!"
-            )  # This print statement indicates an email was received
+            LOGGER.info(
+                "Email notification received from Microsoft Graph API. Starting email processing"
+            )
 
             email_data = json.loads(request.body.decode("utf-8"))
 
@@ -1630,12 +1630,12 @@ class MicrosoftEmailNotification(View):
             else:
                 LOGGER.error("Invalid client state in email notification")
                 return JsonResponse(
-                    {"error": "Internal Server Error"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    {"error": "Invalid client state in email notification"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
         except Exception as e:
-            LOGGER.error(f"An error occurred in handling email notifications: {str(e)}")
+            LOGGER.error(f"An error occurred in handling email notification: {str(e)}")
             return JsonResponse(
                 {"error": "Internal Server Error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1644,14 +1644,37 @@ class MicrosoftEmailNotification(View):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class MicrosoftContactNotification(View):
-    """Handles subscription and Microsoft contact changes notifications listener"""
+    """
+    Handles notifications for Microsoft contact changes from Microsoft Graph API subscriptions.
 
-    def post(self, request):
+    This view processes incoming contact notifications, including storing contacts in the database,
+    updating existing contacts, or deleting contacts based on the notification type.
+
+    Methods:
+        post(request: HttpRequest) -> JsonResponse:
+            Handles HTTP POST requests containing contact notifications.
+    """
+
+    def post(self, request: HttpRequest) -> JsonResponse:
+        """
+        Handles POST requests containing contact notifications from Microsoft Graph API.
+
+        Args:
+            request (HttpRequest): The HTTP request object.
+
+        Returns:
+            JsonResponse: JSON response indicating the status of the notification processing.
+                Returns a validation token if present, or an error response for any issues encountered.
+        """
         validation_token = request.GET.get("validationToken")
         if validation_token:
             return HttpResponse(validation_token, content_type="text/plain")
 
         try:
+            LOGGER.info(
+                "Contact notification received from Microsoft Graph API. Starting contact processing..."
+            )
+
             contact_data = json.loads(request.body.decode("utf-8"))
 
             if contact_data["value"][0]["clientState"] == MICROSOFT_CLIENT_STATE:
@@ -1668,7 +1691,6 @@ class MicrosoftContactNotification(View):
                 if change_type == "deleted":
                     contact = Contact.objects.get(provider_id=id_contact)
                     contact.delete()
-
                 else:
                     url = f"https://graph.microsoft.com/v1.0/me/contacts/{id_contact}"
                     headers = get_headers(access_token)
@@ -1677,38 +1699,63 @@ class MicrosoftContactNotification(View):
                         response = requests.get(url, headers=headers)
 
                         if response.status_code == 200:
-                            contact_data = response.json()
+                            contact_data: dict[str, dict[str, dict]] = response.json()
                             name = contact_data.get("displayName")
                             email = contact_data.get("emailAddresses")[0].get("address")
+
+                            if change_type == "created":
+                                library.save_email_sender(
+                                    subscription.user, name, email, id_contact
+                                )
+
+                            if change_type == "updated":
+                                contact = Contact.objects.get(provider_id=id_contact)
+                                contact.username = name
+                                contact.email = email
+                                contact.save()
+
                         else:
-                            print("Error get contact inof fail:", response.reason)
+                            LOGGER.error(
+                                f"Failed to retrieve contact data: {response.reason}"
+                            )
+                            return JsonResponse(
+                                {
+                                    "error": f"Failed to retrieve contact data: {response.reason}"
+                                },
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            )
 
                     except Exception as e:
-                        print("DEBUG>>>> get contact inof fail", str(e))
-
-                    if change_type == "created":
-                        library.save_email_sender(
-                            subscription.user, name, email, id_contact
+                        LOGGER.error(
+                            f"An error occurred in handling contact notification: {str(e)}"
+                        )
+                        return JsonResponse(
+                            {
+                                "error": f"An error occurred in handling contact notification: {str(e)}"
+                            },
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         )
 
-                    if change_type == "updated":
-                        contact = Contact.objects.get(provider_id=id_contact)
-                        contact.username = name
-                        contact.email = email
-                        contact.save()
-
                 return JsonResponse(
-                    {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
+                    {"status": "Notification received"},
+                    status=status.HTTP_202_ACCEPTED,
                 )
             else:
+                LOGGER.error("Invalid client state in contact notification")
                 return JsonResponse(
-                    {"error": "Internal Server Error"},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    {"error": "Invalid client state in contact notification"},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
         except Exception as e:
+            LOGGER.error(
+                f"An error occurred in handling contact notification: {str(e)}"
+            )
             return JsonResponse(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {
+                    "error": f"An error occurred in handling contact notification: {str(e)}"
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
 

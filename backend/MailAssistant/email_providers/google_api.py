@@ -727,14 +727,12 @@ def get_mail(services, int_mail=None, id_mail=None):
         )
         messages = results.get("messages", [])
         if not messages:
-            LOGGER.info("No new messages.")
             return None
         message = messages[int_mail]
         email_id = message["id"]
     elif id_mail is not None:
         email_id = id_mail
-    else:
-        LOGGER.info("Either int_mail or id_mail must be provided")
+    else:        
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()

@@ -20,6 +20,7 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.uploadedfile import UploadedFile
+from django.utils.timezone import make_aware
 from msal import ConfidentialClientApplication
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -1063,25 +1064,44 @@ def parse_message_body(message_data: dict) -> str | None:
     return None
 
 
-def get_mail_to_db(access_token, int_mail=None, id_mail=None):
-    """Retrieve email information for processing email to database."""
+def get_mail_to_db(
+    access_token: str, int_mail: int = None, id_mail: str = None
+) -> tuple:
+    """
+    Retrieve email information for processing email to database.
 
+    Args:
+        access_token (str): Access token for authentication.
+        int_mail (int, optional): Index of the email in the inbox to retrieve. Defaults to None.
+        id_mail (str, optional): ID of the specific email message to retrieve. Defaults to None.
+
+    Returns:
+        tuple: Tuple containing email information for processing:
+            str: Subject of the email.
+            tuple[str, str]: Tuple containing sender name and email address.
+            str: Preprocessed email content.
+            str: ID of the email message.
+            datetime.datetime: Sent date and time of the email.
+            str: Web link to view the email in Outlook. (TODO: delete and update doc)
+            bool: Flag indicating whether the email has attachments.
+            bool: Flag indicating whether the email is a reply ('RE:' in subject).
+
+    """
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
     headers = get_headers(access_token)
 
     if int_mail is not None:
         response = requests.get(url, headers=headers)
-        messages = response.json().get("value", [])
+        response_data: dict = response.json()
+        messages: list[dict] = response_data.get("value", [])
 
         if not messages:
-            LOGGER.error("No new messages.")
             return None
 
         email_id = messages[int_mail]["id"]
     elif id_mail is not None:
         email_id = id_mail
     else:
-        LOGGER.error("Either int_mail or id_mail must be provided")
         return None
 
     message_url = f"{url}/{email_id}"
@@ -1097,7 +1117,11 @@ def get_mail_to_db(access_token, int_mail=None, id_mail=None):
     is_reply: bool = subject.lower().startswith("re:")
     sender = message_data.get("from")
     from_info = parse_name_and_email(sender)
+    sent_date_str = message_data.get("sentDateTime")
     sent_date = None
+    if sent_date_str:
+        sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
+        sent_date = make_aware(sent_date)
     decoded_data = parse_message_body(message_data)
     decoded_data_temp = library.html_clear(decoded_data)
     preprocessed_data = library.preprocess_email(decoded_data_temp)

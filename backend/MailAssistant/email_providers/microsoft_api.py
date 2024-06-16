@@ -17,7 +17,7 @@ from collections import defaultdict
 from urllib.parse import urlencode
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -29,6 +29,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import View
+from rest_framework.response import Response
 from MailAssistant.ai_providers import claude
 from MailAssistant.controllers.tree_knowledge import Search
 from MailAssistant.utils import security
@@ -410,7 +411,7 @@ def get_unique_senders(access_token: str) -> dict:
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def get_profile_image(request: HttpRequest) -> JsonResponse:
+def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Microsoft Graph API.
 
@@ -418,14 +419,14 @@ def get_profile_image(request: HttpRequest) -> JsonResponse:
         request (HttpRequest): The HTTP request object containing the user and email headers.
 
     Returns:
-        JsonResponse: A JSON response containing the profile image URL or an error message.
+        Response: A JSON response containing the profile image URL or an error message.
     """
     user = request.user
     email = request.headers.get("email")
     social_api = get_social_api(user, email)
 
     if not social_api:
-        return JsonResponse(
+        return Response(
             {"error": "Social API credentials not found"},
             status=status.HTTP_404_NOT_FOUND,
         )
@@ -444,11 +445,11 @@ def get_profile_image(request: HttpRequest) -> JsonResponse:
                 # Convert image to URL
                 photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
                 photo_url = f"data:image/png;base64,{photo_data_base64}"
-                return JsonResponse(
+                return Response(
                     {"profile_image_url": photo_url}, status=status.HTTP_200_OK
                 )
             else:
-                return JsonResponse(
+                return Response(
                     {"error": "Profile image not found"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
@@ -456,14 +457,14 @@ def get_profile_image(request: HttpRequest) -> JsonResponse:
         else:
             error = response.json().get("error_description", response.reason)
             LOGGER.error(f"Failed to retrieve profile image: {error}")
-            return JsonResponse(
+            return Response(
                 {"error": f"Failed to retrieve profile image: {error}"},
                 status=response.status_code,
             )
 
     except Exception as e:
         LOGGER.error(f"Failed to retrieve profile image: {str(e)}")
-        return JsonResponse(
+        return Response(
             {"error": f"Failed to retrieve profile image: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
@@ -504,7 +505,7 @@ def get_email(access_token: str) -> dict:
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def send_email(request: HttpRequest) -> JsonResponse:
+def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Microsoft Graph API.
 
@@ -512,14 +513,14 @@ def send_email(request: HttpRequest) -> JsonResponse:
         request (HttpRequest): HTTP request object containing POST data with email details.
 
     Returns:
-        JsonResponse: Response indicating success or error.
+        Response: Response indicating success or error.
     """
     user = request.user
     email = request.POST.get("email")
     social_api = get_social_api(user, email)
 
     if not social_api:
-        return JsonResponse(
+        return Response(
             {"error": "Social API credentials not found"},
             status=status.HTTP_400_BAD_REQUEST,
         )
@@ -585,7 +586,7 @@ def send_email(request: HttpRequest) -> JsonResponse:
                     threading.Thread(
                         target=library.save_contacts, args=(user, email, all_recipients)
                     ).start()
-                    return JsonResponse(
+                    return Response(
                         {"message": "Email sent successfully!"},
                         status=status.HTTP_202_ACCEPTED,
                     )
@@ -593,21 +594,21 @@ def send_email(request: HttpRequest) -> JsonResponse:
                     response_data: dict = response.json()
                     error = response_data.get("error", response.reason)
                     LOGGER.error(f"Failed to send email: {error}")
-                    return JsonResponse({"error": error}, status=response.status_code)
+                    return Response({"error": error}, status=response.status_code)
 
             except Exception as e:
                 LOGGER.error(f"Failed to send email: {str(e)}")
-                return JsonResponse(
+                return Response(
                     {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
         except Exception as e:
             LOGGER.error(f"Error preparing email data: {str(e)}")
-            return JsonResponse(
+            return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def delete_email(email_id: int, social_api: SocialAPI) -> dict:
@@ -1466,7 +1467,7 @@ class MicrosoftSubscriptionNotification(View):
         post(request: HttpRequest): Handles HTTP POST requests containing subscription notifications.
     """
 
-    def post(self, request: HttpRequest) -> JsonResponse:
+    def post(self, request: HttpRequest) -> Response:
         """
         Handles POST requests containing subscription notifications from Microsoft Graph API.
 
@@ -1474,7 +1475,7 @@ class MicrosoftSubscriptionNotification(View):
             request (HttpRequest): The HTTP request object.
 
         Returns:
-            JsonResponse: JSON response indicating the status of the notification processing.
+            Response: JSON response indicating the status of the notification processing.
                 Returns a validation token if present or an error response for any issues encountered.
         """
         validation_token = request.GET.get("validationToken")
@@ -1524,7 +1525,7 @@ class MicrosoftSubscriptionNotification(View):
                         f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}"
                     )
 
-            return JsonResponse(
+            return Response(
                 {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
             )
 
@@ -1532,7 +1533,7 @@ class MicrosoftSubscriptionNotification(View):
             LOGGER.error(
                 f"An error occurred in handling subscription notification: {str(e)}"
             )
-            return JsonResponse(
+            return Response(
                 {"error": "Internal Server Error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
@@ -1547,10 +1548,10 @@ class MicrosoftEmailNotification(View):
     and handling errors related to email processing.
 
     Methods:
-        post(request: HttpRequest) -> JsonResponse: Handles HTTP POST requests containing email notifications.
+        post(request: HttpRequest) -> Response: Handles HTTP POST requests containing email notifications.
     """
 
-    def post(self, request: HttpRequest) -> JsonResponse:
+    def post(self, request: HttpRequest) -> Response:
         """
         Handles POST requests containing email notifications from Microsoft Graph API.
 
@@ -1558,7 +1559,7 @@ class MicrosoftEmailNotification(View):
             request (HttpRequest): The HTTP request object.
 
         Returns:
-            JsonResponse: JSON response indicating the status of the notification processing.
+            Response: JSON response indicating the status of the notification processing.
                 Returns a validation token if present, or an error response for any issues encountered.
         """
         validation_token = request.GET.get("validationToken")
@@ -1624,19 +1625,19 @@ class MicrosoftEmailNotification(View):
 
                     threading.Thread(target=process_email).start()
 
-                return JsonResponse(
+                return Response(
                     {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
                 )
             else:
                 LOGGER.error("Invalid client state in email notification")
-                return JsonResponse(
+                return Response(
                     {"error": "Invalid client state in email notification"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
         except Exception as e:
             LOGGER.error(f"An error occurred in handling email notification: {str(e)}")
-            return JsonResponse(
+            return Response(
                 {"error": "Internal Server Error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
@@ -1651,11 +1652,11 @@ class MicrosoftContactNotification(View):
     updating existing contacts, or deleting contacts based on the notification type.
 
     Methods:
-        post(request: HttpRequest) -> JsonResponse:
+        post(request: HttpRequest) -> Response:
             Handles HTTP POST requests containing contact notifications.
     """
 
-    def post(self, request: HttpRequest) -> JsonResponse:
+    def post(self, request: HttpRequest) -> Response:
         """
         Handles POST requests containing contact notifications from Microsoft Graph API.
 
@@ -1663,7 +1664,7 @@ class MicrosoftContactNotification(View):
             request (HttpRequest): The HTTP request object.
 
         Returns:
-            JsonResponse: JSON response indicating the status of the notification processing.
+            Response: JSON response indicating the status of the notification processing.
                 Returns a validation token if present, or an error response for any issues encountered.
         """
         validation_token = request.GET.get("validationToken")
@@ -1718,7 +1719,7 @@ class MicrosoftContactNotification(View):
                             LOGGER.error(
                                 f"Failed to retrieve contact data: {response.reason}"
                             )
-                            return JsonResponse(
+                            return Response(
                                 {
                                     "error": f"Failed to retrieve contact data: {response.reason}"
                                 },
@@ -1729,20 +1730,20 @@ class MicrosoftContactNotification(View):
                         LOGGER.error(
                             f"An error occurred in handling contact notification: {str(e)}"
                         )
-                        return JsonResponse(
+                        return Response(
                             {
                                 "error": f"An error occurred in handling contact notification: {str(e)}"
                             },
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         )
 
-                return JsonResponse(
+                return Response(
                     {"status": "Notification received"},
                     status=status.HTTP_202_ACCEPTED,
                 )
             else:
                 LOGGER.error("Invalid client state in contact notification")
-                return JsonResponse(
+                return Response(
                     {"error": "Invalid client state in contact notification"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -1751,7 +1752,7 @@ class MicrosoftContactNotification(View):
             LOGGER.error(
                 f"An error occurred in handling contact notification: {str(e)}"
             )
-            return JsonResponse(
+            return Response(
                 {
                     "error": f"An error occurred in handling contact notification: {str(e)}"
                 },

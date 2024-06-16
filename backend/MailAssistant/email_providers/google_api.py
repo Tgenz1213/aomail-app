@@ -16,7 +16,7 @@ import random
 import json
 import os
 from rest_framework import status
-from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponseRedirect
 from django.contrib.auth.models import User
 from collections import defaultdict
 from django.db import IntegrityError
@@ -340,7 +340,7 @@ def authenticate_service(user: User, email: str) -> dict | None:
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def send_email(request: HttpRequest) -> JsonResponse:
+def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Gmail API.
 
@@ -348,7 +348,7 @@ def send_email(request: HttpRequest) -> JsonResponse:
         request (HttpRequest): HTTP request object containing POST data with email details.
 
     Returns:
-        JsonResponse: Response indicating success or error.
+        Response: Response indicating success or error.
     """
     try:
         user = request.user
@@ -400,7 +400,7 @@ def send_email(request: HttpRequest) -> JsonResponse:
                 target=library.save_contacts, args=(user, email, all_recipients)
             ).start()
 
-            return JsonResponse(
+            return Response(
                 {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
             )
 
@@ -408,22 +408,22 @@ def send_email(request: HttpRequest) -> JsonResponse:
             keys = serializer.errors.keys()
 
             if "to" in keys:
-                return JsonResponse(
+                return Response(
                     {"error": "recipient is missing"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             elif "subject" in keys:
-                return JsonResponse(
+                return Response(
                     {"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST
                 )
             else:
-                return JsonResponse(
+                return Response(
                     {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
                 )
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return JsonResponse(
+        return Response(
             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -1268,15 +1268,15 @@ def get_profile_image(request: HttpRequest):
             photos = profile["photos"]
             if photos:
                 photo_url = photos[0]["url"]
-                return JsonResponse({"profile_image_url": photo_url})
+                return Response({"profile_image_url": photo_url})
 
-        return JsonResponse(
+        return Response(
             {"profile_image_url": "Profile image URL not found in response"},
             status=status.HTTP_404_NOT_FOUND,
         )
 
     except Exception as e:
-        return JsonResponse(
+        return Response(
             {"error": f"Error retrieving profile image: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
@@ -1443,19 +1443,19 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        return JsonResponse(
+        return Response(
             {"status": "Notification received"}, status=status.HTTP_200_OK
         )
 
     except IntegrityError:
         LOGGER.error(f"Email already exists in database")
-        return JsonResponse(
+        return Response(
             {"status": "Email already exists in database"}, status=status.HTTP_200_OK
         )
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return JsonResponse(
+        return Response(
             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 

@@ -1107,9 +1107,9 @@ def get_mail_to_db(
     message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
     message_data: dict = response.json()
-    conversation_id = message_data.get("conversationId")
 
     # TODO: delete => and in models too
+    conversation_id = message_data.get("conversationId")
     web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
 
     has_attachments = message_data["hasAttachments"]
@@ -1138,7 +1138,8 @@ def get_mail_to_db(
     )
 
 
-def get_mail(access_token, int_mail=None, id_mail=None):
+# TO DELETE IN THE FUTURE ?
+def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
     """Retrieve email information for processing."""
 
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
@@ -1146,23 +1147,23 @@ def get_mail(access_token, int_mail=None, id_mail=None):
 
     if int_mail is not None:
         response = requests.get(url, headers=headers)
-        messages = response.json().get("value", [])
+        response_data: dict = response.json()
+        messages = response_data.get("value", [])
 
         if not messages:
-            LOGGER.error("No new messages.")
             return None
 
         email_id = messages[int_mail]["id"]
     elif id_mail is not None:
         email_id = id_mail
     else:
-        LOGGER.error("Either int_mail or id_mail must be provided")
         return None
 
     message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
-    message_data = response.json()
+    message_data: dict = response.json()
 
+    # TODO: delete => and in models too
     conversation_id = message_data.get("conversationId")
     web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
 
@@ -1171,7 +1172,11 @@ def get_mail(access_token, int_mail=None, id_mail=None):
     from_info = parse_name_and_email(sender)
     cc_info = parse_recipients(message_data.get("ccRecipients"))
     bcc_info = parse_recipients(message_data.get("bccRecipients"))
+    sent_date_str = message_data.get("sentDateTime")
     sent_date = None
+    if sent_date_str:
+        sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
+        sent_date = make_aware(sent_date)
 
     for header in message_data.get("internetMessageHeaders", []):
         if header["name"] == "Date":
@@ -1196,8 +1201,17 @@ def get_mail(access_token, int_mail=None, id_mail=None):
 
 ######################## MICROSOFT LISTENER ########################
 def calculate_expiration_date(days=0, hours=0, minutes=0) -> str:
-    """Returns the expiration date according to a delta time"""
+    """
+    Returns the expiration date as a string formatted in UTC.
 
+    Args:
+        days (int, optional): Number of days to add.
+        hours (int, optional): Number of hours to add.
+        minutes (int, optional): Number of minutes to add.
+
+    Returns:
+        str: Formatted expiration date string in UTC.
+    """
     expiration_date = datetime.datetime.now() + datetime.timedelta(
         days=days, hours=hours, minutes=minutes
     )
@@ -1205,21 +1219,31 @@ def calculate_expiration_date(days=0, hours=0, minutes=0) -> str:
     return expiration_date_str
 
 
-def subscribe_to_email_notifications(user, email) -> bool:
-    """Subscribe the user to a webhook for email notifications"""
+def subscribe_to_email_notifications(user: User, email: str) -> bool:
+    """
+    Subscribe the user to email notifications via Microsoft Graph API.
 
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+
+    Returns:
+        bool: True if subscription was successful, False otherwise.
+    """
+    LOGGER.info(
+        f"Initiating subscription to Microsoft email notifications for user ID: {user.id} with email: {email}"
+    )
     access_token = refresh_access_token(get_social_api(user, email))
     notification_url = f"{BASE_URL}MailAssistant/microsoft/receive_mail_notifications/"
     lifecycle_notification_url = (
         f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
     )
-
     subscription_body = {
         "changeType": "created,deleted",
         "notificationUrl": notification_url,
         "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/mailFolders('inbox')/messages",
-        "expirationDateTime": calculate_expiration_date(minutes=4_230),
+        "expirationDateTime": calculate_expiration_date(minutes=4230),
         "clientState": MICROSOFT_CLIENT_STATE,
     }
     url = f"{GRAPH_URL}subscriptions"
@@ -1228,8 +1252,6 @@ def subscribe_to_email_notifications(user, email) -> bool:
     try:
         response = requests.post(url, json=subscription_body, headers=headers)
         response_data = response.json()
-
-        print("DEBUG response data MSFFT", response_data)
 
         social_api = SocialAPI.objects.get(user=user, email=email)
         subscription_id = response_data["id"]
@@ -1241,25 +1263,37 @@ def subscribe_to_email_notifications(user, email) -> bool:
         )
 
         if response.status_code == 201:
-            print("Subscription created successfully.")
+            LOGGER.info(
+                f"Successfully subscribed user ID: {user.id} to Microsoft email notifications"
+            )
             return True
         else:
             LOGGER.error(
-                f"Failed to subscribe to email notifications for user with ID: {user.id} and email {email}: {response.reason}"
+                f"Failed to subscribe to Microsoft email notifications for user with ID: {user.id} and email {email}: {response.reason}"
             )
-            print(f"Debug error: {response.json()}")
             return False
 
     except Exception as e:
         LOGGER.error(
-            f"An error occurred while subscribing to email notifications: {str(e)}"
+            f"An error occurred while subscribing to Microsoft email notifications for user ID: {user.id}: {str(e)}"
         )
         return False
 
 
-def subscribe_to_contact_notifications(user, email) -> bool:
-    """Subscribe the user to a webhook for email notifications"""
+def subscribe_to_contact_notifications(user: User, email: str) -> bool:
+    """
+    Subscribe the user to contact notifications via Microsoft Graph API.
 
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+
+    Returns:
+        bool: True if subscription was successful, False otherwise.
+    """
+    LOGGER.info(
+        f"Initiating subscription to Microsoft contact notifications for user ID: {user.id} with email: {email}"
+    )
     access_token = refresh_access_token(get_social_api(user, email))
     notification_url = (
         f"{BASE_URL}MailAssistant/microsoft/receive_contact_notifications/"
@@ -1267,13 +1301,12 @@ def subscribe_to_contact_notifications(user, email) -> bool:
     lifecycle_notification_url = (
         f"{BASE_URL}MailAssistant/microsoft/receive_subscription_notifications/"
     )
-
     subscription_body = {
         "changeType": "created,updated,deleted",
         "notificationUrl": notification_url,
         "lifecycleNotificationUrl": lifecycle_notification_url,
         "resource": "me/contacts",
-        "expirationDateTime": calculate_expiration_date(minutes=4_230),
+        "expirationDateTime": calculate_expiration_date(minutes=4230),
         "clientState": MICROSOFT_CLIENT_STATE,
     }
     url = f"{GRAPH_URL}subscriptions"
@@ -1293,18 +1326,19 @@ def subscribe_to_contact_notifications(user, email) -> bool:
         )
 
         if response.status_code == 201:
-            print("Subscription contact created successfully.")
+            LOGGER.info(
+                f"Successfully subscribed user ID: {user.id} to Microsoft contact notifications"
+            )
             return True
         else:
             LOGGER.error(
-                f"Failed to subscribe to contact notifications for user with ID: {user.id} and email {email}: {response.reason}"
+                f"Failed to subscribe to Microsoft contact notifications for user with ID: {user.id} and email {email}: {response.reason}"
             )
-            print(f"Debug error: {response.json()}")
             return False
 
     except Exception as e:
         LOGGER.error(
-            f"An error occurred while subscribing to contact notifications: {str(e)}"
+            f"An error occurred while subscribing to Microsoft contact notifications for user ID: {user.id}: {str(e)}"
         )
         return False
 

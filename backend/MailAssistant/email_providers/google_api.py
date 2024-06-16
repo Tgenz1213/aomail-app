@@ -732,7 +732,7 @@ def get_mail(services, int_mail=None, id_mail=None):
         email_id = message["id"]
     elif id_mail is not None:
         email_id = id_mail
-    else:        
+    else:
         return None
 
     msg = service.users().messages().get(userId="me", id=email_id).execute()
@@ -1091,8 +1091,8 @@ def search_emails(services, search_query, max_results=2):
 def set_all_contacts(user, email):
     """Stores all unique contacts of an email account in DB"""
     LOGGER.info(
-            f"Starting to save all contacts from from user ID: {user.id} with Google API"
-        )
+        f"Starting to save all contacts from from user ID: {user.id} with Google API"
+    )
     start = time.time()
 
     services = authenticate_service(user, email)
@@ -1190,7 +1190,9 @@ def set_all_contacts(user, email):
         )
 
     except Exception as e:
-        LOGGER.error(f"Error fetching contacts from Google API for user ID {user.id}: {str(e)}")
+        LOGGER.error(
+            f"Error fetching contacts from Google API for user ID {user.id}: {str(e)}"
+        )
 
 
 def get_unique_senders(services) -> dict:
@@ -1395,7 +1397,9 @@ def receive_mail_notifications(request):
     """Process email notifications from Google listener"""
 
     try:
-        LOGGER.info("Email notification received from Google API. Starting email processing")
+        LOGGER.info(
+            "Email notification received from Google API. Starting email processing"
+        )
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
 
@@ -1439,11 +1443,15 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        return JsonResponse(status=status.HTTP_200_OK)
+        return JsonResponse(
+            {"status": "Notification received"}, status=status.HTTP_200_OK
+        )
 
     except IntegrityError:
         LOGGER.error(f"Email already exists in database")
-        return JsonResponse(status=status.HTTP_200_OK)
+        return JsonResponse(
+            {"status": "Email already exists in database"}, status=status.HTTP_200_OK
+        )
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")

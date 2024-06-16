@@ -53,6 +53,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
 from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
 from MailAssistant.ai_providers import claude
@@ -2032,7 +2033,7 @@ def get_emails_linked(request: HttpRequest) -> JsonResponse:
             emails_linked.append(
                 {"email": social_api.email, "type_api": social_api.type_api}
             )
-        return JsonResponse(emails_linked, safe=False, status=status.HTTP_200_OK)
+        return Response(emails_linked, status=status.HTTP_200_OK)
     except Exception as e:
         return JsonResponse(
             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -2935,7 +2936,7 @@ def get_user_emails(request: HttpRequest) -> JsonResponse:
         for priority in all_priorities:
             formatted_data[category].setdefault(priority, [])
 
-    return JsonResponse(formatted_data, status=status.HTTP_200_OK)
+    return Response(formatted_data, status=status.HTTP_200_OK)
 
 
 ####################################################################

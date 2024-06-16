@@ -58,7 +58,6 @@ USELESS = "Useless"
 DEFAULT_CATEGORY = "Others"
 MAX_RETRIES = 3
 
-
 ######################## GOOGLE API ########################
 GOOGLE_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
 GOOGLE_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
@@ -88,7 +87,6 @@ GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE_PROVIDER = "Gmail"
 # TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
-
 
 ######################## MICROSOFT API ########################
 MICROSOFT_READ_SCOPE = "Mail.Read"

@@ -1759,11 +1759,26 @@ class MicrosoftContactNotification(View):
             )
 
 
-def email_to_db(user, email, id_email):
-    """Saves email notifications from Microsoft listener to database"""
+def email_to_db(user: User, email: str, id_email: str) -> bool | str:
+    """
+    Saves email notifications from Microsoft Graph API listener to the database.
+
+    Args:
+        user (User): The user object for whom the email is being saved.
+        email (str): The email address associated with the notification.
+        id_email (str): The ID of the email notification from Microsoft Graph API.
+
+    Returns:
+        bool | str: True if the email was successfully saved, False if there was an issue saving the email,
+                    or an error message if an exception occurred.
+    """
+    LOGGER.info(
+        f"Starting the process of saving email from Microsoft Graph API to database for user ID: {user.id} and email ID: {id_email}"
+    )
 
     social_api = get_social_api(user, email)
     access_token = refresh_access_token(social_api)
+
     (
         subject,
         from_name,
@@ -1781,6 +1796,9 @@ def email_to_db(user, email, id_email):
     sender = Sender.objects.filter(email=from_name[1]).first()
 
     if not decoded_data:
+        LOGGER.info(
+            f"No decoded data retrieved from Microsoft Graph API for user ID: {user.id} and email ID: {id_email}"
+        )
         return False
 
     category_dict = library.get_db_categories(user)
@@ -1798,12 +1816,12 @@ def email_to_db(user, email, id_email):
                 rule_category = True
 
     user_description = (
-        social_api.user_description if social_api.user_description != None else ""
+        social_api.user_description if social_api.user_description is not None else ""
     )
     language = Preference.objects.get(user=user).language
 
     if is_reply:
-        # summarize conversation with Search
+        # Summarize conversation with Search
         email_content = library.preprocess_email(decoded_data)
         user_id = user.id
         search = Search(user_id)
@@ -1811,9 +1829,8 @@ def email_to_db(user, email, id_email):
             subject, email_content, user_description, language
         )
     else:
-        # summarize single email with Search
+        # Summarize single email with Search
         email_content = library.preprocess_email(decoded_data)
-
         user_id = user.id
         search = Search(user_id)
         email_summary = search.summarize_email(
@@ -1831,9 +1848,9 @@ def email_to_db(user, email, id_email):
         subject, decoded_data, category_dict, user_description
     )
 
-    if (
-        importance_dict["UrgentWorkInformation"] >= 50
-    ):  # MAYBE TO UPDATE TO >50 =>  To test
+    importance = None
+
+    if importance_dict["UrgentWorkInformation"] >= 50:
         importance = IMPORTANT
     else:
         max_percentage = 0
@@ -1929,10 +1946,13 @@ def email_to_db(user, email, id_email):
             for point in summary_list:
                 BulletPoint.objects.create(content=point, email=email_entry)
 
+        LOGGER.info(
+            f"Email ID: {id_email} saved to database successfully for user ID: {user.id} using Microsoft Graph API"
+        )
         return True
 
     except Exception as e:
         LOGGER.error(
-            f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
+            f"An error occurred when trying to create an email with ID {email_id} for user ID: {user.id}: {str(e)}"
         )
         return str(e)

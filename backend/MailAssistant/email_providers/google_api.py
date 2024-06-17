@@ -423,9 +423,7 @@ def send_email(request: HttpRequest) -> Response:
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def delete_email(user: User, email: str, email_id: str) -> dict:
@@ -553,7 +551,7 @@ def get_mail_to_db(services):
 
     service = services["gmail"]
 
-    results = (
+    results: dict = (
         service.users()
         .messages()
         .list(userId="me", labelIds=["INBOX"], maxResults=1)
@@ -561,12 +559,14 @@ def get_mail_to_db(services):
     )
     messages = results.get("messages", [])
     if not messages:
-        print("No new messages.")
         return None
+
     message = messages[0]
     email_id = message["id"]
 
-    msg = service.users().messages().get(userId="me", id=email_id).execute()
+    msg: dict[str, dict[str, dict[str]]] = (
+        service.users().messages().get(userId="me", id=email_id).execute()
+    )
     email_data = msg["payload"]["headers"]
 
     subject = from_info = cc_info = bcc_info = sent_date = None
@@ -594,9 +594,175 @@ def get_mail_to_db(services):
     email_txt_html = ""
     email_detect_html = False
     image_files = []
-    attachments = []  # List to store attachment metadata
+    attachments = []
 
-    def process_part(part):
+    def process_part(part: dict[str, str]):
+        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments
+
+        if part["mimeType"] == "text/plain":
+            if "data" in part["body"]:
+                data: str = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
+                    "utf-8"
+                )
+                email_txt_html += f"<pre>{decoded_data}</pre>"
+        elif part["mimeType"] == "text/html":
+            if "data" in part["body"]:
+                email_detect_html = True
+                data: str = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
+                    "utf-8"
+                )
+                email_html += decoded_data
+
+                # Find and replace base64 encoded images in the HTML
+                img_tags = re.findall(
+                    r'<img[^>]+src="data:image/([^;]+);base64,([^"]+)"', decoded_data
+                )
+                for img_type, img_data in img_tags:
+                    timestamp = int(time.time())
+                    random_str = "".join(
+                        random.choices(string.ascii_letters + string.digits, k=8)
+                    )
+                    image_filename = f"image_{timestamp}_{random_str}.{img_type}"
+                    image_files.append(image_filename)
+                    email_html = email_html.replace(
+                        f"data:image/{img_type};base64,{img_data}",
+                        f"{MEDIA_URL}pictures/{image_filename}",
+                    )
+        elif part["mimeType"].startswith("image/"):
+            timestamp = int(time.time())
+            random_str = "".join(
+                random.choices(string.ascii_letters + string.digits, k=8)
+            )
+            image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
+            image_files.append(image_filename)
+            email_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
+            email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
+        elif part["mimeType"].startswith("multipart/"):
+            if "parts" in part:
+                for subpart in part["parts"]:
+                    process_part(subpart)
+        elif "filename" in part:
+            has_attachments = True
+            attachment_id = part["body"]["attachmentId"]
+            attachments.append(
+                {"attachmentId": attachment_id, "attachmentName": part["filename"]}
+            )
+
+    if "parts" in msg["payload"]:
+        for part in msg["payload"]["parts"]:
+            process_part(part)
+    else:
+        process_part(msg["payload"])
+
+    if email_detect_html is False:
+        email_html = email_txt_html
+
+    # Replace CID references in HTML with local paths
+    soup = BeautifulSoup(email_html, "html.parser")
+    for img in soup.find_all("img"):
+        cid_ref = img["src"].lstrip("cid:")
+        for image_file in image_files:
+            if cid_ref in image_file:
+                img["src"] = f"{BASE_URL_MA}pictures/{os.path.basename(image_file)}"
+
+    cleaned_html = library.html_clear(email_html)
+    preprocessed_data = library.preprocess_email(cleaned_html)
+    safe_html = soup.prettify()
+
+    return (
+        subject,
+        from_info,
+        preprocessed_data,
+        safe_html,
+        email_id,
+        sent_date,
+        web_link,
+        has_attachments,
+        is_reply,
+        cc_info,
+        bcc_info,
+        image_files,
+        attachments,
+    )
+
+
+def get_mail_to_db(services: dict) -> tuple:
+    """
+    Retrieve email information from the Gmail API for processing and storing in the database.
+
+    Args:
+        services (dict): A dictionary containing authenticated service instances for various email providers,
+                         including the Gmail service instance under the key "gmail".
+
+    Returns:
+        tuple: A tuple containing email information required for further processing and database storage:
+            str: Subject of the email.
+            tuple[str, str]: Tuple containing the sender's name and email address.
+            str: Preprocessed email content (cleaned and summarized).
+            str: Safe HTML version of the email content.
+            str: ID of the email message.
+            datetime.datetime: Sent date and time of the email.
+            str: Web link to view the email in Gmail. (TODO: delete and update doc)
+            bool: Flag indicating whether the email has attachments.
+            bool: Flag indicating whether the email is a reply.
+    """
+    service = services["gmail"]
+
+    results: dict = (
+        service.users()
+        .messages()
+        .list(userId="me", labelIds=["INBOX"], maxResults=1)
+        .execute()
+    )
+    messages = results.get("messages", [])
+    if not messages:
+        return None
+
+    message = messages[0]
+    email_id = message["id"]
+
+    # Retrieve the detailed message content
+    msg: dict[str, dict[str, dict[str]]] = (
+        service.users().messages().get(userId="me", id=email_id).execute()
+    )
+    email_data = msg["payload"]["headers"]
+
+    subject = from_info = cc_info = bcc_info = sent_date = None
+    for values in email_data:
+        name = values["name"]
+        if name == "Subject":
+            subject = values["value"]
+        elif name == "From":
+            from_info = parse_name_and_email(values["value"])
+        elif name == "Cc":
+            cc_info = parse_name_and_email(values["value"])
+        elif name == "Bcc":
+            bcc_info = parse_name_and_email(values["value"])
+        elif name == "Date":
+            sent_date = parsedate_to_datetime(values["value"])
+
+    # TODO: delete => and in models too
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
+
+    has_attachments = False
+    is_reply = "in-reply-to" in {
+        header["name"].lower() for header in msg["payload"]["headers"]
+    }
+    email_html = ""
+    email_txt_html = ""
+    email_detect_html = False
+    image_files = []
+    attachments = []
+
+    def process_part(part: dict[str, str]):
+        """
+        Processes a part of the email to extract and decode its content, handling various MIME types.
+
+        Args:
+            part (dict[str, str]): A dictionary containing information about the email part, including its MIME type and body.
+        """
         nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments
 
         if part["mimeType"] == "text/plain":
@@ -646,17 +812,18 @@ def get_mail_to_db(services):
         elif "filename" in part:
             has_attachments = True
             attachment_id = part["body"]["attachmentId"]
-            # Add metadata to attachments list
             attachments.append(
                 {"attachmentId": attachment_id, "attachmentName": part["filename"]}
             )
 
+    # Process all parts of the email
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
             process_part(part)
     else:
         process_part(msg["payload"])
 
+    # Use plain text version if no HTML version is detected
     if email_detect_html is False:
         email_html = email_txt_html
 
@@ -1443,9 +1610,7 @@ def receive_mail_notifications(request):
         except SocialAPI.DoesNotExist:
             LOGGER.error(f"SocialAPI entry not found for the email: {email}")
 
-        return Response(
-            {"status": "Notification received"}, status=status.HTTP_200_OK
-        )
+        return Response({"status": "Notification received"}, status=status.HTTP_200_OK)
 
     except IntegrityError:
         LOGGER.error(f"Email already exists in database")
@@ -1455,9 +1620,7 @@ def receive_mail_notifications(request):
 
     except Exception as e:
         LOGGER.error(f"Error processing the notification: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def email_to_db(user, services, social_api: SocialAPI):

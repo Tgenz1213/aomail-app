@@ -5,7 +5,7 @@ TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 - Split all the code inside files and put it all inside 'controllers' folder
 - Define all constants locally and globally (according to the scope)
-- Log important messages/errors using IP, user id, clear error name when possible
+- Log important messages/errors with user id, clear error name when possible
 - Clean the code by adding data types.
 - Improve documentation to be concise.
 - STOP using differents libs to do the same thing => only use 1

@@ -1142,67 +1142,6 @@ def get_mail_to_db(
     )
 
 
-# TO DELETE IN THE FUTURE ?
-def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
-    """Retrieve email information for processing."""
-
-    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
-    headers = get_headers(access_token)
-
-    if int_mail is not None:
-        response = requests.get(url, headers=headers)
-        response_data: dict = response.json()
-        messages = response_data.get("value", [])
-
-        if not messages:
-            return None
-
-        email_id = messages[int_mail]["id"]
-    elif id_mail is not None:
-        email_id = id_mail
-    else:
-        return None
-
-    message_url = f"{url}/{email_id}"
-    response = requests.get(message_url, headers=headers)
-    message_data: dict = response.json()
-
-    # TODO: delete => and in models too
-    conversation_id = message_data.get("conversationId")
-    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
-
-    subject = message_data.get("subject")
-    sender = message_data.get("from")
-    from_info = parse_name_and_email(sender)
-    cc_info = parse_recipients(message_data.get("ccRecipients"))
-    bcc_info = parse_recipients(message_data.get("bccRecipients"))
-    sent_date_str = message_data.get("sentDateTime")
-    sent_date = None
-    if sent_date_str:
-        sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
-        sent_date = make_aware(sent_date)
-
-    for header in message_data.get("internetMessageHeaders", []):
-        if header["name"] == "Date":
-            sent_date = datetime.datetime.strptime(
-                header["value"], "%a, %d %b %Y %H:%M:%S %z"
-            )
-            break
-
-    decoded_data = parse_message_body(message_data)
-
-    return (
-        subject,
-        from_info,
-        decoded_data,
-        cc_info,
-        bcc_info,
-        email_id,
-        sent_date,
-        web_link,
-    )
-
-
 ######################## MICROSOFT LISTENER ########################
 def calculate_expiration_date(days=0, hours=0, minutes=0) -> str:
     """
@@ -1957,3 +1896,67 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             f"An error occurred when trying to create an email with ID {email_id} for user ID: {user.id}: {str(e)}"
         )
         return str(e)
+
+
+###########################################################################
+######################## TO DELETE IN THE FUTURE ? ########################
+###########################################################################
+# TO DELETE IN THE FUTURE ?
+def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
+    """Retrieve email information for processing."""
+
+    url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    headers = get_headers(access_token)
+
+    if int_mail is not None:
+        response = requests.get(url, headers=headers)
+        response_data: dict = response.json()
+        messages = response_data.get("value", [])
+
+        if not messages:
+            return None
+
+        email_id = messages[int_mail]["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        return None
+
+    message_url = f"{url}/{email_id}"
+    response = requests.get(message_url, headers=headers)
+    message_data: dict = response.json()
+
+    # TODO: delete => and in models too
+    conversation_id = message_data.get("conversationId")
+    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
+
+    subject = message_data.get("subject")
+    sender = message_data.get("from")
+    from_info = parse_name_and_email(sender)
+    cc_info = parse_recipients(message_data.get("ccRecipients"))
+    bcc_info = parse_recipients(message_data.get("bccRecipients"))
+    sent_date_str = message_data.get("sentDateTime")
+    sent_date = None
+    if sent_date_str:
+        sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
+        sent_date = make_aware(sent_date)
+
+    for header in message_data.get("internetMessageHeaders", []):
+        if header["name"] == "Date":
+            sent_date = datetime.datetime.strptime(
+                header["value"], "%a, %d %b %Y %H:%M:%S %z"
+            )
+            break
+
+    decoded_data = parse_message_body(message_data)
+
+    return (
+        subject,
+        from_info,
+        decoded_data,
+        cc_info,
+        bcc_info,
+        email_id,
+        sent_date,
+        web_link,
+    )

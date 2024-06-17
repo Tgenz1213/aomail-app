@@ -30,7 +30,7 @@ import time
 from django.db import IntegrityError
 import jwt
 import stripe
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.utils import timezone
 from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
@@ -2230,9 +2230,8 @@ def get_user_emails(request):
 
 # ----------------------- EMAIL ATTACHMENT -----------------------#
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
-def retrieve_attachment_data(request, email_id, attachment_id):
+def retrieve_attachment_data(request, email_id, attachment_name):
     """API endpoint to retrieve email attachment data"""
     user = request.user
     email = get_object_or_404(Email, user=user, id=email_id)
@@ -2241,13 +2240,22 @@ def retrieve_attachment_data(request, email_id, attachment_id):
     if social_api.type_api == "google":
         print("SOCIAL API :", social_api.email, "PROVIDER ID :", email.provider_id)
         attachment_data = google_api.get_attachment_data(
-            user, social_api.email, email.provider_id, attachment_id
+            user, social_api.email, email.provider_id, attachment_name
         )
+        if attachment_data:
+            response = HttpResponse(
+                attachment_data["data"],
+                content_type='application/octet-stream'
+            )
+            response['Content-Disposition'] = f'attachment; filename="{attachment_name}"'
+            return response
+        else:
+            return Response({"error": "Attachment not found"}, status=404)
     elif social_api.type_api == "microsoft":
         # TO DO
-        print("TO DO : ERROR")
+        return Response({"error": "Microsoft API not implemented"}, status=501)
 
-    return Response(attachment_data, status=200)
+    return Response({"error": "Invalid social API type"}, status=400)
 
 
 ####################################################################

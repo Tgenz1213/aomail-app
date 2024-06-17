@@ -518,7 +518,9 @@ def get_mail_to_db(services):
                     process_part(subpart)
         elif "filename" in part:
             has_attachments = True
+            print("---------------------------->", part)
             attachment_id = part["body"]["attachmentId"]
+            print("oooooooooooooooooooooooooooo>", attachment_id)
             # Add metadata to attachments list
             attachments.append(
                 {"attachmentId": attachment_id, "attachmentName": part["filename"]}
@@ -845,47 +847,40 @@ def search_emails_manually(
         return []'''
 
 
-def get_attachment_data(
-    user: User, email: str, email_id: str, attachment_id: str
-) -> dict:
+def get_attachment_data(user, email, email_id, attachment_name):
     try:
         services = authenticate_service(user, email)
         if not services or "gmail" not in services:
             LOGGER.error(
                 f"Failed to authenticate Gmail service for user with ID {user.id} and email: {email}"
             )
-            LOGGER.error(f"SERVICES : ", services)
             return {}
 
         gmail_service = services["gmail"]
-        message = (
-            gmail_service.users().messages().get(userId="me", id=email_id).execute()
-        )
+        message = gmail_service.users().messages().get(userId="me", id=email_id).execute()
 
         if "payload" in message:
             parts = message["payload"].get("parts", [])
             for part in parts:
-                if "body" in part and part["body"].get("attachmentId") == attachment_id:
-                    attachment = (
-                        gmail_service.users()
-                        .messages()
-                        .attachments()
-                        .get(userId="me", messageId=email_id, id=attachment_id)
-                        .execute()
-                    )
+                part_filename = part.get("filename", "")
+                if part_filename == attachment_name:
+                    attachment_id = part.get("body", {}).get("attachmentId", "")
+                    if attachment_id:
+                        attachment = gmail_service.users().messages().attachments().get(
+                            userId="me", messageId=email_id, id=attachment_id
+                        ).execute()
 
-                    data = attachment["data"]
-                    attachment_data = base64.urlsafe_b64decode(data.encode("UTF-8"))
-                    return {"attachmentName": part["filename"], "data": attachment_data}
+                        data = attachment["data"]
+                        attachment_data = base64.urlsafe_b64decode(data.encode("UTF-8"))
+                        return {"attachmentName": part["filename"], "data": attachment_data}
 
         return {}
 
     except Exception as e:
         LOGGER.error(
-            f"Failed to get attachment data for email ID {email_id} and attachment ID {attachment_id}: {str(e)}"
+            f"Failed to get attachment data for email ID {email_id} and attachment name {attachment_name}: {str(e)}"
         )
         return {}
-
 
 # ----------------------- READ EMAIL -----------------------#
 def find_user_in_emails(services, search_query):

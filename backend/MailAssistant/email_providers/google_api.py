@@ -1072,52 +1072,33 @@ def search_emails_manually(
 
 
 # ----------------------- EMAIL ATTACHMENT -----------------------#
-''' TO DELETE : def get_attachment_metadata(user: User, email: str, email_id: int) -> dict:
-    """
-    Retrieve metadata of all attachments from a specific email using the Gmail API.
-    """
-    try:
-        services = authenticate_service(user, email)
-
-        message = services['gmail'].users().messages().get(userId='me', id=email_id).execute()
-        
-        attachments_metadata = []
-
-        if 'payload' in message:
-            parts = message['payload'].get('parts', [])
-            for part in parts:
-                if 'filename' in part and part['filename']:
-                    attachment_id = part['body']['attachmentId']
-                    attachments_metadata.append(
-                        {"attachmentName": part['filename'], "attachmentId": attachment_id}
-                    )
-
-        return attachments_metadata
-
-    except Exception as e:
-        LOGGER.error(f"Failed to get attachments metadata for email ID {email_id}: {str(e)}")
-        return []'''
-
-
 def get_attachment_data(
     user: User, email: str, email_id: str, attachment_id: str
 ) -> dict:
+    """
+    Retrieves the data for a specific attachment from an email using the Gmail API.
+
+    Args:
+        user (User): The user object containing authentication details.
+        email (str): The email address of the user.
+        email_id (str): The ID of the email containing the attachment.
+        attachment_id (str): The ID of the attachment to retrieve.
+
+    Returns:
+        dict: A dictionary containing the attachment name and data, or an empty dictionary if not found.
+    """
     try:
         services = authenticate_service(user, email)
         if not services or "gmail" not in services:
-            LOGGER.error(
-                f"Failed to authenticate Gmail service for user with ID {user.id} and email: {email}"
-            )
-            LOGGER.error(f"SERVICES : ", services)
             return {}
 
         gmail_service = services["gmail"]
-        message = (
+        message: dict[str, dict] = (
             gmail_service.users().messages().get(userId="me", id=email_id).execute()
         )
 
         if "payload" in message:
-            parts = message["payload"].get("parts", [])
+            parts: list[dict[str, dict]] = message["payload"].get("parts", [])
             for part in parts:
                 if "body" in part and part["body"].get("attachmentId") == attachment_id:
                     attachment = (
@@ -1128,7 +1109,7 @@ def get_attachment_data(
                         .execute()
                     )
 
-                    data = attachment["data"]
+                    data: str = attachment["data"]
                     attachment_data = base64.urlsafe_b64decode(data.encode("UTF-8"))
                     return {"attachmentName": part["filename"], "data": attachment_data}
 
@@ -1136,44 +1117,52 @@ def get_attachment_data(
 
     except Exception as e:
         LOGGER.error(
-            f"Failed to get attachment data for email ID {email_id} and attachment ID {attachment_id}: {str(e)}"
+            f"Failed to get attachment data for email ID {email_id} and attachment ID {attachment_id} from Google API: {str(e)}"
         )
         return {}
 
 
 # ----------------------- READ EMAIL -----------------------#
-def find_user_in_emails(services, search_query):
-    """Search for user in emails based on a query"""
-    emails = search_emails(services, search_query)
+def parse_name_and_email(header_value: str) -> tuple[str | None, str]:
+    """
+    Parses the name and email address from a given email header value.
 
-    if not emails:
-        return "No matching emails found."
+    Args:
+        header_value (str): The header value containing either just an email address or both a name and an email address.
 
-    return emails
-
-
-def parse_name_and_email(header_value):
+    Returns:
+        tuple: A tuple containing the parsed name and email address:
+            str or None: The parsed name, if available, otherwise None.
+            str: The parsed email address, or the original header value if no name was found.
+    """
     if not header_value:
         return None, None
 
-    # Regex to extract name and email
     match = re.match(r"(.*)\s*<(.+)>", header_value)
     if match:
         name, email = match.groups()
         return name.strip(), email.strip()
     else:
-        # If the format doesn't match, assume the entire value is the email
         return None, header_value.strip()
 
 
-# V2 : better to check the mail structure (comparing with the input)
-def search_emails(services, search_query, max_results=2):
-    """Searches for emails addresses in the user's mailbox based on the provided search query in both the subject and body."""
+def search_emails(services: dict, search_query: str, max_results=2):
+    """
+    Searches for email addresses in the user's mailbox based on the provided search query in both the subject and body.
+
+    Args:
+        services (dict): A dictionary containing authenticated service instances for various email providers,
+                         including the Gmail service instance under the key "gmail".
+        search_query (str): The search query string to search for in email subjects and bodies.
+        max_results (int, optional): Maximum number of email results to retrieve. Defaults to 2.
+
+    Returns:
+        dict: A dictionary mapping found email addresses (keys) to corresponding sender names (values).
+    """
     service = services["gmail"]
 
-    # Fetch the list of emails based on the query
     try:
-        results = (
+        results: dict = (
             service.users()
             .messages()
             .list(userId="me", q=search_query, maxResults=max_results)
@@ -1183,7 +1172,7 @@ def search_emails(services, search_query, max_results=2):
         found_emails = {}
 
         for message in messages:
-            msg = (
+            msg: dict = (
                 service.users()
                 .messages()
                 .get(
@@ -1195,7 +1184,7 @@ def search_emails(services, search_query, max_results=2):
                 .execute()
             )
             headers = msg.get("payload", {}).get("headers", [])
-            sender = next(
+            sender: str = next(
                 (header["value"] for header in headers if header["name"] == "From"),
                 None,
             )
@@ -1212,13 +1201,21 @@ def search_emails(services, search_query, max_results=2):
         return found_emails
 
     except Exception as e:
-        LOGGER.error(f"Failed to search emails: {str(e)}")
+        LOGGER.error(
+            f"Failed to search emails from Google API. Query: {search_query}. Error: {str(e)}"
+        )
         return {}
 
 
 ######################## PROFILE REQUESTS ########################
-def set_all_contacts(user, email):
-    """Stores all unique contacts of an email account in DB"""
+def set_all_contacts(user: User, email: str):
+    """
+    Stores all unique contacts of an email account in the database using Google People API and Gmail API.
+
+    Args:
+        user (User): User object representing the owner of the email account.
+        email (str): Email address of the user.
+    """
     LOGGER.info(
         f"Starting to save all contacts from from user ID: {user.id} with Google API"
     )
@@ -1234,7 +1231,7 @@ def set_all_contacts(user, email):
         # Part 1: Retrieve from Google Contacts
         next_page_token = None
         while True:
-            response = (
+            response: dict = (
                 contacts_service.people()
                 .connections()
                 .list(
@@ -1246,13 +1243,13 @@ def set_all_contacts(user, email):
                 .execute()
             )
 
-            connections = response.get("connections", [])
+            connections: list[dict] = response.get("connections", [])
             next_page_token = response.get("nextPageToken")
 
             for contact in connections:
-                names = contact.get("names", [{}])
-                email_addresses = contact.get("emailAddresses", [])
-                metadata = contact.get("metadata", {})
+                names: list[dict] = contact.get("names", [{}])
+                email_addresses: list[dict] = contact.get("emailAddresses", [])
+                metadata: dict[str, dict] = contact.get("metadata", {})
                 contact_id = metadata.get("sources", [{}])[0].get("id", "")
                 name = names[0].get("displayName", "") if names else ""
 
@@ -1271,7 +1268,7 @@ def set_all_contacts(user, email):
         messages = response.get("messages", [])
 
         for msg in messages[:500]:  # Limit to the first 500 messages
-            message = (
+            message: dict[str, dict] = (
                 gmail.users()
                 .messages()
                 .get(
@@ -1287,7 +1284,7 @@ def set_all_contacts(user, email):
                 (item for item in headers if item["name"] == "From"), None
             )
             if from_header:
-                from_value = from_header["value"]
+                from_value: str = from_header["value"]
                 if "reply" in from_value.lower():
                     continue
 
@@ -1324,11 +1321,19 @@ def set_all_contacts(user, email):
         )
 
 
-def get_unique_senders(services) -> dict:
-    """Fetches unique sender information from Gmail messages"""
+def get_unique_senders(services: dict) -> dict:
+    """
+    Fetches unique sender information from Gmail messages using Gmail API.
+
+    Args:
+        services (dict): A dictionary containing the necessary services, with 'gmail' key for Gmail service.
+
+    Returns:
+        dict: A dictionary where keys are email addresses of senders and values are their corresponding names.
+    """
     service = services["gmail"]
     limit = 50
-    results = (
+    results: dict = (
         service.users()
         .messages()
         .list(userId="me", labelIds=["INBOX"], maxResults=limit)
@@ -1338,9 +1343,7 @@ def get_unique_senders(services) -> dict:
 
     senders_info = {}
 
-    if not messages:
-        LOGGER.info("No messages found")
-    else:
+    if messages:
         for message in messages:
             try:
                 msg = (
@@ -1355,11 +1358,10 @@ def get_unique_senders(services) -> dict:
                     .execute()
                 )
                 headers = msg["payload"]["headers"]
-                sender_header = next(
+                sender_header: str = next(
                     header["value"] for header in headers if header["name"] == "From"
                 )
 
-                # Extracting the email address and name
                 sender_parts = sender_header.split("<")
                 sender_name = sender_parts[0].strip().strip('"')
                 sender_email = (
@@ -1368,12 +1370,12 @@ def get_unique_senders(services) -> dict:
                     else sender_name
                 )
 
-                # Store the sender's name with the email address as the key
                 senders_info[sender_email] = sender_name
             except Exception as e:
                 LOGGER.error(
-                    f"Error processing message with ID {message['id']}: {str(e)}"
+                    f"Error fetching or processing sender: {str(e)}. Message ID: {message['id']}"
                 )
+                return senders_info
 
     return senders_info
 

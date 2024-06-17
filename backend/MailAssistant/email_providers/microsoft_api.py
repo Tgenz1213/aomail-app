@@ -871,27 +871,7 @@ def search_emails_manually(
         return []
 
 
-def find_user_in_emails(access_token: str, search_query: str) -> dict:
-    """
-    Searches for a user's email address in the mailbox based on the provided search query in both the subject and body of emails.
-
-    Args:
-        access_token (str): Access token for authenticating with Microsoft Graph API.
-        search_query (str): The search query string to search for in email subjects and bodies.
-
-    Returns:
-        dict: A dictionary mapping found email addresses (keys) to corresponding sender names (values).
-             Returns "No matching emails found." if no emails match the search criteria.
-    """
-    messages = search_emails(access_token, search_query)
-
-    if not messages:
-        return "No matching emails found."
-
-    return messages
-
-
-def search_emails(access_token: str, search_query: str, max_results: int = 2) -> dict:
+def search_emails(access_token: str, search_query: str, max_results=2) -> dict:
     """
     Searches for emails in the user's mailbox based on the provided search query in both the subject and body.
 
@@ -934,7 +914,9 @@ def search_emails(access_token: str, search_query: str, max_results: int = 2) ->
         return found_emails
 
     except Exception as e:
-        LOGGER.error(f"Failed to search emails: {str(e)}")
+        LOGGER.error(
+            f"Failed to search emails from Microsoft Graph API. Query: {search_query}. Error: {str(e)}"
+        )
         return {}
 
 

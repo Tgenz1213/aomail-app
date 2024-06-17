@@ -133,7 +133,7 @@
               </div>
 
               <!-- filtres -->
-            <div class=" flex space-x-2 bg-white hidden pr-2 w-full" id="filtres">
+            <div class=" flex space-x-2  hidden pr-2 w-full" id="filtres">
               <div class="flex flex-col gap-4 w-full h-full">
 
 
@@ -540,21 +540,21 @@
               </div>
             </div>
 
-              <!-- Liste email -->
+              <!-- email List -->
               <div class="flex flex-col flex-1 overflow-hidden pr-2 pt-4 pb-4" id="liste_email">
                 <div class="flex flex-col overflow-auto h-full pr-4">
-                  <!-- Élément de la liste -->
+                  <!-- List element -->
                   
                   <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Gauche : Détails de l'email -->
+                    <!-- Details -->
                     <div class="flex flex-col justify-center">
                       <span class="font-bold text-sm">Expéditeur</span>
                       <span class="text-sm">Objet du mail - Début du mail...</span>
                     </div>
 
-                    <!-- Droite : Actions (visuellement statique) -->
+                    <!-- Actions -->
                     <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Icône Oeil (Voir) avec texte -->
+                      <!-- Eyeicon -->
                       <div class="relative group">
                         <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                           <EyeIcon class="w-5 h-5" />

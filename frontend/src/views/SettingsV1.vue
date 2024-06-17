@@ -635,7 +635,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('constants.userActions.language') }}</span>
+                                                    $t('constants.language') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">

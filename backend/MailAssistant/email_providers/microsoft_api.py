@@ -867,7 +867,7 @@ def search_emails_manually(
         return [message["id"] for message in messages]
 
     except Exception as e:
-        LOGGER.error(f"Failed to search emails: {str(e)}")
+        LOGGER.error(f"Failed to search emails from Microsoft API: {str(e)}")
         return []
 
 

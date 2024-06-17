@@ -856,13 +856,13 @@ def get_mail_to_db(services: dict) -> tuple:
     )
 
 
-def get_mail_id(services, int_mail: int) -> str:
+def get_mail_id(services: dict, int_mail: int) -> str:
     """
     Retrieve the email ID of a specific email from the user's Gmail inbox.
 
     Args:
-        services (dict): A dictionary containing service objects for various APIs.
-                         It should include a "gmail" service object.
+        services (dict): A dictionary containing service objects for various APIs,
+                         including a "gmail" service object.
         int_mail (int): The index of the email in the inbox to retrieve the ID for.
 
     Returns:
@@ -870,96 +870,14 @@ def get_mail_id(services, int_mail: int) -> str:
     """
     service = services["gmail"]
 
-    results = service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+    results: dict = (
+        service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+    )
     messages = results.get("messages", [])
     if not messages:
-        LOGGER.info("No new messages.")
-        return None
-    message = messages[int_mail]
-    email_id = message["id"]
-
-    return email_id
-
-
-# TO DELETE IN THE FUTURE ?
-def get_mail(services, int_mail=None, id_mail=None):
-    """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
-    service = services["gmail"]
-    plaintext_var = [0]
-    plaintext_var[0] = 0
-
-    if int_mail is not None:
-        results = (
-            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
-        )
-        messages = results.get("messages", [])
-        if not messages:
-            return None
-        message = messages[int_mail]
-        email_id = message["id"]
-    elif id_mail is not None:
-        email_id = id_mail
-    else:
         return None
 
-    msg = service.users().messages().get(userId="me", id=email_id).execute()
-
-    subject = from_info = decoded_data = None
-    cc_info = bcc_info = []
-    email_data = msg["payload"]["headers"]
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
-
-    for values in email_data:
-        name = values["name"]
-        if name == "Subject":
-            subject = values["value"]
-        elif name == "From":
-            from_info = parse_name_and_email(values["value"])
-        elif name == "Cc":
-            cc_info = parse_name_and_email(values["value"])
-        elif name == "Bcc":
-            bcc_info = parse_name_and_email(values["value"])
-        elif name == "Date":
-            sent_date = parsedate_to_datetime(values["value"])
-
-    if "parts" in msg["payload"]:
-        for part in msg["payload"]["parts"]:
-            decoded_data_temp = library.process_part(part, plaintext_var)
-
-            print(
-                "______________________DATA decoded_data_temp (PARTS) looks like that ______________________________"
-            )
-            print(decoded_data_temp)
-            print(
-                "___________________________________________________________________________________"
-            )
-            if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
-    elif "body" in msg["payload"]:
-        data = msg["payload"]["body"]["data"]
-
-        print(
-            "______________________DATA RAW BODY looks like that ______________________________"
-        )
-        print(data)
-        print(
-            "___________________________________________________________________________________"
-        )
-
-        data = data.replace("-", "+").replace("_", "/")
-        decoded_data_temp = base64.b64decode(data).decode("utf-8")
-        decoded_data = library.html_clear(decoded_data_temp)
-
-    return (
-        subject,
-        from_info,
-        decoded_data,
-        cc_info,
-        bcc_info,
-        email_id,
-        sent_date,
-        web_link,
-    )
+    return messages[int_mail]["id"]
 
 
 def search_emails_ai(
@@ -974,8 +892,29 @@ def search_emails_ai(
     date_from: str = None,
     search_in: dict = None,
 ):
-    """Searches for emails matching the query."""
+    """
+    Searches for emails matching the specified query parameters using the Gmail API.
 
+    Args:
+        services (dict[str, build]): A dictionary containing authenticated service instances for various email providers,
+                                     including the Gmail service instance under the key "gmail".
+        max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
+        filenames (list[str], optional): A list of filenames to search for in the attachments.
+        from_addresses (list[str], optional): A list of sender email addresses to filter emails.
+        to_addresses (list[str], optional): A list of recipient email addresses to filter emails.
+        subject (str, optional): A subject string to filter emails.
+        body (str, optional): A body string to filter emails.
+        keywords (list[str], optional): A list of keywords to search for in the email body.
+        date_from (str, optional): A date string in the format 'YYYY-MM-DD' to filter emails received after this date.
+        search_in (dict[str, bool], optional): A dictionary specifying the folders to search in. Possible keys are:
+            spams: Search in spam/junk folder.
+            deleted_emails: Search in deleted items folder.
+            drafts: Search in drafts folder.
+            sent_emails: Search in sent items folder.
+
+    Returns:
+        list[str]: A list of email IDs that match the search criteria.
+    """
     query_parts = []
 
     if from_addresses:
@@ -1009,11 +948,9 @@ def search_emails_ai(
     if query_parts:
         query += " AND " + " AND ".join(query_parts)
 
-    # print("\n\nDEBUG query: ", query, "\n\n")
-
     try:
         service = services["gmail"]
-        results = (
+        results: dict = (
             service.users()
             .messages()
             .list(userId="me", q=query, maxResults=max_results)
@@ -1024,26 +961,49 @@ def search_emails_ai(
         return [message["id"] for message in messages]
 
     except Exception as e:
-        LOGGER.error(f"Failed to search_emails_ai: {str(e)}")
+        LOGGER.error(f"Failed to search emails from Google API with Ao help: {str(e)}")
         return []
 
 
 def search_emails_manually(
-    services: dict,
+    services: dict[str, build],
     search_query: str,
-    max_results: int,
-    file_extensions: list,
+    max_results: int = 100,
+    file_extensions: list[str] = None,
     advanced: bool = False,
-    search_in: dict = None,
-    from_addresses: list = None,
-    to_addresses: list = None,
+    search_in: dict[str, bool] = None,
+    from_addresses: list[str] = None,
+    to_addresses: list[str] = None,
     subject: str = None,
     body: str = None,
     date_from: str = None,
-) -> list:
-    """Searches for emails matching the query."""
+) -> list[str]:
+    """
+    Searches for emails matching the specified query parameters using the Gmail API.
 
-    def search(query: str):
+    Args:
+        services (dict[str, build]): A dictionary containing authenticated service instances for various email providers,
+                                     including the Gmail service instance under the key "gmail".
+        search_query (str): The basic search query string to use for simple searches.
+        max_results (int, optional): The maximum number of email results to retrieve. Default is 100.
+        file_extensions (list[str], optional): A list of file extensions to search for in the attachments.
+        advanced (bool, optional): Flag indicating whether to use advanced search parameters. Default is False.
+        search_in (dict[str, bool], optional): A dictionary specifying the folders to search in. Possible keys are:
+            spams: Search in spam/junk folder.
+            deleted_emails: Search in deleted items folder.
+            drafts: Search in drafts folder.
+            sent_emails: Search in sent items folder.
+        from_addresses (list[str], optional): A list of sender email addresses to filter emails.
+        to_addresses (list[str], optional): A list of recipient email addresses to filter emails.
+        subject (str, optional): A subject string to filter emails.
+        body (str, optional): A body string to filter emails.
+        date_from (str, optional): A date string in the format 'YYYY-MM-DD' to filter emails received after this date.
+
+    Returns:
+        list[str]: A list of email IDs that match the search criteria.
+    """
+
+    def search(query: str) -> list:
         try:
             results: dict = (
                 service.users()
@@ -1056,7 +1016,9 @@ def search_emails_manually(
                 return []
             return results.get("messages", [])
         except Exception as e:
-            LOGGER.error(f"Failed to search emails: {str(e)}")
+            LOGGER.error(
+                f"Failed to execute the search emails query from Google API: {str(e)}"
+            )
             return []
 
     try:
@@ -1080,7 +1042,7 @@ def search_emails_manually(
                 query_parts.append(f"(after:{date_from})")
             if search_in:
                 search_in_query = " OR ".join(
-                    [f"in:{folder}" for folder in search_in if search_in[folder]]
+                    [f"in:{folder}" for folder, include in search_in.items() if include]
                 )
                 query_parts.append(f"({search_in_query})")
             if file_extensions:
@@ -1105,7 +1067,7 @@ def search_emails_manually(
         return [message["id"] for message in messages]
 
     except Exception as e:
-        LOGGER.error(f"Failed to search emails: {str(e)}")
+        LOGGER.error(f"Failed to search emails from Google API: {str(e)}")
         return []
 
 
@@ -1838,3 +1800,87 @@ def email_to_db(user, services, social_api: SocialAPI):
                 f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
             )
             return str(e)
+
+
+###########################################################################
+######################## TO DELETE IN THE FUTURE ? ########################
+###########################################################################
+# TO DELETE IN THE FUTURE ?
+def get_mail(services, int_mail=None, id_mail=None):
+    """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
+    service = services["gmail"]
+    plaintext_var = [0]
+    plaintext_var[0] = 0
+
+    if int_mail is not None:
+        results = (
+            service.users().messages().list(userId="me", labelIds=["INBOX"]).execute()
+        )
+        messages = results.get("messages", [])
+        if not messages:
+            return None
+        message = messages[int_mail]
+        email_id = message["id"]
+    elif id_mail is not None:
+        email_id = id_mail
+    else:
+        return None
+
+    msg = service.users().messages().get(userId="me", id=email_id).execute()
+
+    subject = from_info = decoded_data = None
+    cc_info = bcc_info = []
+    email_data = msg["payload"]["headers"]
+    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
+
+    for values in email_data:
+        name = values["name"]
+        if name == "Subject":
+            subject = values["value"]
+        elif name == "From":
+            from_info = parse_name_and_email(values["value"])
+        elif name == "Cc":
+            cc_info = parse_name_and_email(values["value"])
+        elif name == "Bcc":
+            bcc_info = parse_name_and_email(values["value"])
+        elif name == "Date":
+            sent_date = parsedate_to_datetime(values["value"])
+
+    if "parts" in msg["payload"]:
+        for part in msg["payload"]["parts"]:
+            decoded_data_temp = library.process_part(part, plaintext_var)
+
+            print(
+                "______________________DATA decoded_data_temp (PARTS) looks like that ______________________________"
+            )
+            print(decoded_data_temp)
+            print(
+                "___________________________________________________________________________________"
+            )
+            if decoded_data_temp:
+                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+    elif "body" in msg["payload"]:
+        data = msg["payload"]["body"]["data"]
+
+        print(
+            "______________________DATA RAW BODY looks like that ______________________________"
+        )
+        print(data)
+        print(
+            "___________________________________________________________________________________"
+        )
+
+        data = data.replace("-", "+").replace("_", "/")
+        decoded_data_temp = base64.b64decode(data).decode("utf-8")
+        decoded_data = library.html_clear(decoded_data_temp)
+
+    return (
+        subject,
+        from_info,
+        decoded_data,
+        cc_info,
+        bcc_info,
+        email_id,
+        sent_date,
+        web_link,
+    )

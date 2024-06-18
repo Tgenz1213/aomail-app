@@ -1382,8 +1382,16 @@ def get_unique_senders(services: dict) -> dict:
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def get_profile_image(request: HttpRequest):
-    """Returns the profile image of the user"""
+def get_profile_image(request: HttpRequest) -> Response:
+    """
+    Retrieves the profile image URL of the user from Google People API.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing the user and email headers.
+
+    Returns:
+        Response: A JSON response containing the profile image URL or an error message.
+    """
     user = request.user
     email = request.headers.get("email")
     service = authenticate_service(user, email)["people"]
@@ -1399,16 +1407,19 @@ def get_profile_image(request: HttpRequest):
             photos = profile["photos"]
             if photos:
                 photo_url = photos[0]["url"]
-                return Response({"profile_image_url": photo_url})
+                return Response(
+                    {"profile_image_url": photo_url}, status=status.HTTP_200_OK
+                )
 
         return Response(
-            {"profile_image_url": "Profile image URL not found in response"},
+            {"error": "Profile image URL not found in response"},
             status=status.HTTP_404_NOT_FOUND,
         )
 
     except Exception as e:
+        LOGGER.error(f"Error retrieving profile image for user ID {user.id}: {str(e)}")
         return Response(
-            {"error": f"Error retrieving profile image: {str(e)}"},
+            {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -1453,12 +1464,20 @@ def get_email(access_token: str, refresh_token: str) -> dict:
 
 
 ######################## GOOGLE LISTENER ########################
-def subscribe_to_email_notifications(user, email) -> bool:
-    """Subscribe the user to email notifications for a specific topic in Google."""
+def subscribe_to_email_notifications(user: User, email: str) -> bool:
+    """
+    Subscribe the user to email notifications via Google Gmail API.
 
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+
+    Returns:
+        bool: True if subscription was successful, False otherwise.
+    """
     try:
         LOGGER.info(
-            f"Initiating the subscription to Google listener for: {user} with email: {email}"
+            f"Initiating subscription to Google email notifications for user ID: {user.id} with email: {email}"
         )
         services = authenticate_service(user, email)
         if services is None:
@@ -1475,7 +1494,7 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
         if "historyId" in response:
             LOGGER.info(
-                f"Successfully subscribed to email notifications for user {user.username} and email {email}"
+                f"Successfully subscribed to email notifications for user ID {user.id} and email {email}"
             )
             return True
         else:
@@ -1486,50 +1505,64 @@ def subscribe_to_email_notifications(user, email) -> bool:
 
     except Exception as e:
         LOGGER.error(
-            f"An error occurred while subscribing to email notifications: {str(e)}"
+            f"An error occurred while subscribing to Google email notifications for user ID: {user.id}: {str(e)}"
         )
         return False
 
 
-def unsubscribe_from_email_notifications(user, email) -> bool:
-    """Unsubscribe the user from all Gmail notifications."""
+def unsubscribe_from_email_notifications(user: User, email: str) -> bool:
+    """
+    Unsubscribe the user from all Gmail notifications.
 
+    Args:
+        user (User): The Django User object.
+        email (str): The email address of the user.
+
+    Returns:
+        bool: True if unsubscription was successful, False otherwise.
+    """
     try:
         services = authenticate_service(user, email)
         if services is None:
-            LOGGER.error(
-                f"Failed to get service to unsubscribe {user} with email: {email}"
-            )
             return False
 
         service = services["gmail"]
 
-        response = service.users().stop(userId=email).execute()
+        response = service.users().stop(userId="me").execute()
 
         if not response:
             LOGGER.info(
-                f"Successfully unsubscribed {user} ({email}) from all notifications."
+                f"Successfully unsubscribed user ID {user.id} ({email}) from all notifications."
             )
             return True
         else:
             LOGGER.error(
-                f"Failed to unsubscribe {user} ({email}). Response: {response}"
+                f"Failed to unsubscribe user ID {user.id} with email: {email}. Response: {response}"
             )
             return False
 
     except Exception as e:
-        LOGGER.error(f"An error occurred while unsubscribing: {str(e)}")
+        LOGGER.error(
+            f"An error occurred while unsubscribing user ID {user.id} with email: {email}: {str(e)}"
+        )
         return False
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def receive_mail_notifications(request):
-    """Process email notifications from Google listener"""
+def receive_mail_notifications(request: HttpRequest) -> Response:
+    """
+    Process email notifications from Google listener.
 
+    Args:
+        request (HttpRequest): The HTTP request object containing the email notification data.
+
+    Returns:
+        Response: A JSON response indicating the status of the notification processing.
+    """
     try:
         LOGGER.info(
-            "Email notification received from Google API. Starting email processing"
+            "Email notification received from Google API. Starting email processing."
         )
         envelope = json.loads(request.body.decode("utf-8"))
         message_data = envelope["message"]
@@ -1550,7 +1583,7 @@ def receive_mail_notifications(request):
                         break
                     else:
                         LOGGER.critical(
-                            f"[Attempt n°{i+1}] Failed to process email with AI for email: {email}"
+                            f"[Attempt {i+1}] Failed to process email with AI for email: {email}"
                         )
                         context = {
                             "error": result,
@@ -1577,7 +1610,6 @@ def receive_mail_notifications(request):
         return Response({"status": "Notification received"}, status=status.HTTP_200_OK)
 
     except IntegrityError:
-        LOGGER.error(f"Email already exists in database")
         return Response(
             {"status": "Email already exists in database"}, status=status.HTTP_200_OK
         )
@@ -1587,8 +1619,22 @@ def receive_mail_notifications(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def email_to_db(user, services, social_api: SocialAPI):
-    """Saves email notifications from Google listener to database"""
+def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
+    """
+    Saves email notifications from Google listener to the database.
+
+    Args:
+        user (User): The user object for whom the email is being saved.
+        services: The authenticated Google API services.
+        social_api (SocialAPI): The SocialAPI instance associated with the user.
+
+    Returns:
+        bool | str: True if the email was successfully saved, False if there was an issue saving the email,
+                    or an error message if an exception occurred.
+    """
+    LOGGER.info(
+        f"Starting the process of saving email from Google API to database for user ID: {user.id}"
+    )
 
     (
         subject,
@@ -1610,198 +1656,192 @@ def email_to_db(user, services, social_api: SocialAPI):
         return True
 
     user_description = (
-        social_api.user_description if social_api.user_description != None else ""
+        social_api.user_description if social_api.user_description else ""
     )
     language = Preference.objects.get(user=user).language
 
-    if not Email.objects.filter(provider_id=email_id).exists():
-        sender = Sender.objects.filter(email=from_name[1]).first()
+    if not decoded_data:
+        LOGGER.info(
+            f"No decoded data retrieved from Google API for user ID: {user.id} and email ID: {email_id}"
+        )
+        return "No decoded data"
 
-        if not decoded_data:
-            return "No decoded data"
+    sender = Sender.objects.filter(email=from_name[1]).first()
+    category_dict = library.get_db_categories(user)
+    category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
+    rules = Rule.objects.filter(sender=sender)
+    rule_category = None
 
-        category_dict = library.get_db_categories(user)
-        category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
-        rules = Rule.objects.filter(sender=sender)
-        rule_category = None
+    if rules.exists():
+        LOGGER.info(f"Found rules for email ID: {email_id} and user ID: {user.id}")
+        for rule in rules:
+            if rule.block:
+                LOGGER.info(
+                    f"Email ID: {email_id} has been blocked by user ID: {user.id}"
+                )
+                return True
 
-        if rules.exists():
-            print("---------- FOUND SOME RULES FOR THIS EMAIL ---------")
-            for rule in rules:
-                if rule.block:
-                    print("---------- THIS EMAIL ADDRESS HAS BEEN BLOCKED ---------")
-                    return True
+            if rule.category:
+                category = rule.category
+                rule_category = True
 
-                if rule.category:
-                    print("---------- SETTING RULE CATEGORY... ---------")
-                    category = rule.category
-                    rule_category = True
+    email_content = library.preprocess_email(decoded_data)
+    search = Search(user.id)
 
-        if is_reply:
-            email_content = library.preprocess_email(decoded_data)
-
-            # summarize conversation with Search
-            user_id = user.id
-            search = Search(user_id)
-            email_id = get_mail_id(services, 0)
-            conversation_summary = search.summarize_conversation(
-                subject, email_content, user_description, language
-            )
-        else:
-            # summarize single email with Search
-            email_content = library.preprocess_email(decoded_data)
-
-            user_id = user.id
-            search = Search(user_id)
-            email_id = get_mail_id(services, 0)
-            email_summary = search.summarize_email(
-                subject, email_content, user_description, language
-            )
-
-        (
-            topic,
-            importance_dict,
-            answer,
-            summary_list,
-            sentence,
-            relevance,
-        ) = claude.categorize_and_summarize_email(
-            subject, decoded_data, category_dict, user_description
+    if is_reply:
+        conversation_summary = search.summarize_conversation(
+            subject, email_content, user_description, language
+        )
+    else:
+        email_summary = search.summarize_email(
+            subject, email_content, user_description, language
         )
 
-        if (
-            importance_dict["UrgentWorkInformation"] >= 50
-        ):  # MAYBE TO UPDATE TO >50 =>  To test
-            importance = IMPORTANT
-        elif (
-            importance_dict["Promotional"] <= 50
-            and importance_dict["RoutineWorkUpdates"] > 10
-        ):  # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
+    (
+        topic,
+        importance_dict,
+        answer,
+        summary_list,
+        sentence,
+        relevance,
+    ) = claude.categorize_and_summarize_email(
+        subject, decoded_data, category_dict, user_description
+    )
+
+    importance = None
+
+    if (
+        importance_dict["UrgentWorkInformation"] >= 50
+    ):  # MAYBE TO UPDATE TO >50 =>  To test
+        importance = IMPORTANT
+    elif (
+        importance_dict["Promotional"] <= 50
+        and importance_dict["RoutineWorkUpdates"] > 10
+    ):  # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
+        importance = INFORMATION
+    else:
+        max_percentage = 0
+        for key, value in importance_dict.items():
+            if value > max_percentage:
+                importance = key
+                if importance == "Promotional" or importance == "News":
+                    importance = USELESS
+                elif (
+                    importance == "RoutineWorkUpdates"
+                    or importance == "InternalCommunications"
+                ):
+                    importance = INFORMATION
+                elif importance == "UrgentWorkInformation":
+                    importance = IMPORTANT
+                max_percentage = importance_dict[key]
+        if max_percentage == 0:
             importance = INFORMATION
-        else:
-            max_percentage = 0
-            for key, value in importance_dict.items():
-                if value > max_percentage:
-                    importance = key
-                    if importance == "Promotional" or importance == "News":
-                        importance = USELESS
-                    elif (
-                        importance == "RoutineWorkUpdates"
-                        or importance == "InternalCommunications"
-                    ):
-                        importance = INFORMATION
-                    elif importance == "UrgentWorkInformation":
-                        importance = IMPORTANT
-                    max_percentage = importance_dict[key]
-            if max_percentage == 0:
-                importance = INFORMATION
 
-        if not rule_category:
-            if topic in category_dict:
-                category = Category.objects.get(name=topic, user=user)
+    if not rule_category and topic in category_dict:
+        category = Category.objects.get(name=topic, user=user)
 
+    if not sender:
+        sender_name, sender_email = from_name[0], from_name[1]
+        if not sender_name:
+            sender_name = sender_email
+
+        sender = Sender.objects.filter(email=sender_email).first()
         if not sender:
-            sender_name, sender_email = from_name[0], from_name[1]
-            if not sender_name:
-                sender_name = sender_email
+            sender = Sender.objects.create(email=sender_email, name=sender_name)
 
-            sender = Sender.objects.filter(email=sender_email).first()
-            if not sender:
-                sender = Sender.objects.create(email=sender_email, name=sender_name)
+    try:
+        email_entry = Email.objects.create(
+            social_api=social_api,
+            provider_id=email_id,
+            email_provider=GOOGLE_PROVIDER,
+            email_short_summary=sentence,
+            content=decoded_data,
+            html_content=safe_html,
+            subject=subject,
+            priority=importance,
+            read=False,
+            answer_later=False,
+            sender=sender,
+            category=category,
+            user=user,
+            date=sent_date,
+            web_link=web_link,
+            has_attachments=has_attachments,
+            answer=answer,
+            relevance=relevance,
+        )
 
-        try:
-            email_entry = Email.objects.create(
-                social_api=social_api,
-                provider_id=email_id,
-                email_provider=GOOGLE_PROVIDER,
-                email_short_summary=sentence,
-                content=decoded_data,
-                html_content=safe_html,
-                subject=subject,
-                priority=importance,
-                read=False,
-                answer_later=False,
-                sender=sender,
-                category=category,
-                user=user,
-                date=sent_date,
-                web_link=web_link,
-                has_attachments=has_attachments,
-                answer=answer,
-                relevance=relevance,
-            )
+        if is_reply:
+            conversation_summary_category = conversation_summary["category"]
+            conversation_summary_organization = conversation_summary["organization"]
+            conversation_summary_topic = conversation_summary["topic"]
+            keypoints: dict = conversation_summary["keypoints"]
 
-            if is_reply:
-                conversation_summary_category = conversation_summary["category"]
-                conversation_summary_organization = conversation_summary["organization"]
-                conversation_summary_topic = conversation_summary["topic"]
-                keypoints: dict = conversation_summary["keypoints"]
-
-                for index, keypoints_list in keypoints.items():
-                    for keypoint in keypoints_list:
-                        KeyPoint.objects.create(
-                            is_reply=True,
-                            position=index,
-                            category=conversation_summary_category,
-                            organization=conversation_summary_organization,
-                            topic=conversation_summary_topic,
-                            content=keypoint,
-                            email=email_entry,
-                        )
-            else:
-                email_summary_category = email_summary["category"]
-                email_summary_organization = email_summary["organization"]
-                email_summary_topic = email_summary["topic"]
-
-                for keypoint in email_summary["keypoints"]:
+            for index, keypoints_list in keypoints.items():
+                for keypoint in keypoints_list:
                     KeyPoint.objects.create(
-                        is_reply=False,
-                        category=email_summary_category,
-                        organization=email_summary_organization,
-                        topic=email_summary_topic,
+                        is_reply=True,
+                        position=index,
+                        category=conversation_summary_category,
+                        organization=conversation_summary_organization,
+                        topic=conversation_summary_topic,
                         content=keypoint,
                         email=email_entry,
                     )
+        else:
+            email_summary_category = email_summary["category"]
+            email_summary_organization = email_summary["organization"]
+            email_summary_topic = email_summary["topic"]
 
-            contact_name, contact_email = from_name[0], from_name[1]
-            Contact.objects.get_or_create(
-                user=user, email=contact_email, username=contact_name
-            )
+            for keypoint in email_summary["keypoints"]:
+                KeyPoint.objects.create(
+                    is_reply=False,
+                    category=email_summary_category,
+                    organization=email_summary_organization,
+                    topic=email_summary_topic,
+                    content=keypoint,
+                    email=email_entry,
+                )
 
-            if cc_info:
-                for email, name in cc_info:
-                    CC_sender.objects.create(
-                        mail_id=email_entry, email=email, name=name
-                    )
+        contact_name, contact_email = from_name[0], from_name[1]
+        Contact.objects.get_or_create(
+            user=user, email=contact_email, username=contact_name
+        )
 
-            if bcc_info:
-                for email, name in bcc_info:
-                    BCC_sender.objects.create(
-                        mail_id=email_entry, email=email, name=name
-                    )
+        if cc_info:
+            for email, name in cc_info:
+                CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
 
-            if image_files:
-                for image_path in image_files:
-                    Picture.objects.create(mail_id=email_entry, picture=image_path)
+        if bcc_info:
+            for email, name in bcc_info:
+                BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
 
-            if summary_list:
-                for point in summary_list:
-                    BulletPoint.objects.create(content=point, email=email_entry)
+        if image_files:
+            for image_path in image_files:
+                Picture.objects.create(mail_id=email_entry, picture=image_path)
 
-            if attachments:
-                for attachment in attachments:
-                    Attachment.objects.create(
-                        mail_id=email_entry,
-                        name=attachment["attachmentName"],
-                        id_api=attachment["attachmentId"],
-                    )
-            return True
+        if summary_list:
+            for point in summary_list:
+                BulletPoint.objects.create(content=point, email=email_entry)
 
-        except Exception as e:
-            LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id}: {str(e)}"
-            )
-            return str(e)
+        if attachments:
+            for attachment in attachments:
+                Attachment.objects.create(
+                    mail_id=email_entry,
+                    name=attachment["attachmentName"],
+                    id_api=attachment["attachmentId"],
+                )
+
+        LOGGER.info(
+            f"Email ID: {email_id} saved to database successfully for user ID: {user.id} using Google API"
+        )
+        return True
+
+    except Exception as e:
+        LOGGER.error(
+            f"An error occurred when trying to create an email with ID {email_id} for user ID: {user.id}: {str(e)}"
+        )
+        return str(e)
 
 
 ###########################################################################

@@ -455,17 +455,22 @@ def get_profile_image(request: HttpRequest) -> Response:
                 )
 
         else:
-            error = response.json().get("error_description", response.reason)
-            LOGGER.error(f"Failed to retrieve profile image: {error}")
+            response_data: dict = response.json()
+            error = response_data.get("error_description", response.reason)
+            LOGGER.error(
+                f"Failed to retrieve profile image for user ID {user.id}: {error}"
+            )
             return Response(
                 {"error": f"Failed to retrieve profile image: {error}"},
                 status=response.status_code,
             )
 
     except Exception as e:
-        LOGGER.error(f"Failed to retrieve profile image: {str(e)}")
+        LOGGER.error(
+            f"Failed to retrieve profile image for user ID {user.id}: {str(e)}"
+        )
         return Response(
-            {"error": f"Failed to retrieve profile image: {str(e)}"},
+            {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

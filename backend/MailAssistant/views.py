@@ -243,9 +243,7 @@ def signup(request: HttpRequest) -> Response:
         LOGGER.error(f"Failed to set contacts: {str(e)}")
         user.delete()
         LOGGER.info(f"User {username} deleted successfully")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     end_date: datetime.datetime = datetime.datetime.now() + datetime.timedelta(days=30)
     end_date_utc = end_date.replace(tzinfo=datetime.timezone.utc)
@@ -660,16 +658,12 @@ def refresh_token(request: HttpRequest) -> Response:
         refresh_token: RefreshToken = RefreshToken.for_user(user)
         new_access_token = str(refresh_token.access_token)
 
-        return Response(
-            {"access_token": new_access_token}, status=status.HTTP_200_OK
-        )
+        return Response({"access_token": new_access_token}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(
             f"Unexpected error occured when refreshing Django access token: {str(e)}"
         )
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ######################## LANGUAGES ########################
@@ -696,9 +690,7 @@ def get_user_language(request: HttpRequest) -> Response:
         LOGGER.error(
             f"Unexpected error occurred when retrieving user language: {str(e)}"
         )
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -737,9 +729,7 @@ def set_user_language(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Unexpected error occurred when changing user language: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ######################## PICTURES ########################
@@ -781,9 +771,7 @@ def get_user_theme(request: HttpRequest) -> Response:
         return Response({"theme": theme}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Failed to retrieve user theme: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -823,9 +811,7 @@ def set_user_theme(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Failed to update user theme: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ######################## TIMEZONES ########################
@@ -849,9 +835,7 @@ def get_user_timezone(request: HttpRequest) -> Response:
         return Response({"timezone": timezone}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(f"Failed to retrieve user timezone: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -886,9 +870,7 @@ def set_user_timezone(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Failed to update timezone: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ######################## ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS ########################
@@ -1695,9 +1677,7 @@ def delete_account(request: HttpRequest) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error when deleting account {user.id}: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def unsubscribe_listeners(user: User, email: str = None):
@@ -1848,9 +1828,7 @@ def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     try:
         user_rule = Rule.objects.get(id=id_rule, user=request.user)
     except Rule.DoesNotExist:
-        return Response(
-            {"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST)
 
     rule_serializer = RuleSerializer(user_rule)
     rule_data = rule_serializer.data
@@ -1884,9 +1862,7 @@ def delete_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     try:
         user_rule = Rule.objects.get(id=id_rule, user=request.user)
     except Rule.DoesNotExist:
-        return Response(
-            {"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST)
 
     user_rule.delete()
 
@@ -2032,9 +2008,7 @@ def get_emails_linked(request: HttpRequest) -> Response:
             )
         return Response(emails_linked, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -2069,9 +2043,7 @@ def unlink_email(request: HttpRequest) -> Response:
             {"error": "SocialAPI entry not found"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -2140,9 +2112,7 @@ def link_email(request: HttpRequest) -> Response:
                 target=microsoft_api.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
@@ -2578,9 +2548,7 @@ def delete_email(request: HttpRequest, email_id: int) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error when deleting email: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["DELETE"])
@@ -2611,9 +2579,7 @@ def archive_email(request: HttpRequest, email_id: int) -> Response:
         )
     except Exception as e:
         LOGGER.error(f"Error when archiving email: {str(e)}")
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ----------------------- CREDENTIALS AVAILABILITY -----------------------#

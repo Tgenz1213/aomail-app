@@ -1673,12 +1673,8 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
     rule_category = None
 
     if rules.exists():
-        LOGGER.info(f"Found rules for email ID: {email_id} and user ID: {user.id}")
         for rule in rules:
             if rule.block:
-                LOGGER.info(
-                    f"Email ID: {email_id} has been blocked by user ID: {user.id}"
-                )
                 return True
 
             if rule.category:

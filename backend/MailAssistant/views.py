@@ -380,18 +380,22 @@ def validate_code_link_email(type_api: str, code: str) -> dict:
                     "error": "Failed to obtain access or refresh token from Google API"
                 }
 
-            email = google_api.get_email(access_token, refresh_token)
-            if not email:
-                return {"error": "Failed to obtain email from Google API"}
+            result_get_email = google_api.get_email(access_token, refresh_token)
+            if "error" in result_get_email:
+                return {"error": result_get_email["error"]}
+            else:
+                email = result_get_email["email"]
 
         elif type_api == "microsoft":
             access_token, refresh_token = microsoft_api.link_email_tokens(code)
             if not access_token:
                 return {"error": "Failed to obtain access token from Microsoft API"}
 
-            email = microsoft_api.get_email(access_token)
-            if not email:
-                return {"error": "Failed to obtain email from Microsoft API"}
+            result_get_email = microsoft_api.get_email(access_token)
+            if "error" in result_get_email:
+                return {"error": result_get_email["error"]}
+            else:
+                email = result_get_email["email"]
 
         else:
             return {"error": f"Unsupported API type: {type_api}"}
@@ -405,7 +409,7 @@ def validate_code_link_email(type_api: str, code: str) -> dict:
 
     except Exception as e:
         LOGGER.error(f"Unexpected error during validation for {type_api} API: {str(e)}")
-        return {"error": "An unexpected error occurred during validation"}
+        return {"error": str(e)}
 
 
 def validate_signup_data(username: str, password: str, code: str) -> dict:

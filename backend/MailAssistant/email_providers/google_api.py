@@ -185,7 +185,7 @@ def link_email_tokens(authorization_code: str) -> tuple[str, str] | tuple[None, 
                otherwise (None, None) if credentials are not obtained.
     """
     flow = Flow.from_client_secrets_file(
-        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_SIGNUP
+        GOOGLE_CREDS, scopes=GOOGLE_SCOPES, redirect_uri=REDIRECT_URI_LINK_EMAIL
     )
     flow.fetch_token(code=authorization_code)
 

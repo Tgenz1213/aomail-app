@@ -1260,6 +1260,8 @@ async function checkCopyWriting() {
 }
 
 async function WriteBetter() {
+  // THIS FUNCTION IS NOT WORKING: must implement api/improve_draft/  
+  // check NewV4.vue (must implement a system of memory)
   try {
     loading();
     scrollToBottom();

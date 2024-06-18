@@ -17,7 +17,7 @@ from collections import defaultdict
 from urllib.parse import urlencode
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
@@ -1451,7 +1451,7 @@ class MicrosoftSubscriptionNotification(View):
                         f"missed: current time: {current_datetime}, expiration time: {expiration_date_str}"
                     )
 
-            return Response(
+            return JsonResponse(
                 {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
             )
 
@@ -1459,7 +1459,7 @@ class MicrosoftSubscriptionNotification(View):
             LOGGER.error(
                 f"An error occurred in handling subscription notification: {str(e)}"
             )
-            return Response(
+            return JsonResponse(
                 {"error": "Internal Server Error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
@@ -1551,19 +1551,19 @@ class MicrosoftEmailNotification(View):
 
                     threading.Thread(target=process_email).start()
 
-                return Response(
+                return JsonResponse(
                     {"status": "Notification received"}, status=status.HTTP_202_ACCEPTED
                 )
             else:
                 LOGGER.error("Invalid client state in email notification")
-                return Response(
+                return JsonResponse(
                     {"error": "Invalid client state in email notification"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
         except Exception as e:
             LOGGER.error(f"An error occurred in handling email notification: {str(e)}")
-            return Response(
+            return JsonResponse(
                 {"error": "Internal Server Error"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
@@ -1656,20 +1656,20 @@ class MicrosoftContactNotification(View):
                         LOGGER.error(
                             f"An error occurred in handling contact notification: {str(e)}"
                         )
-                        return Response(
+                        return JsonResponse(
                             {
                                 "error": f"An error occurred in handling contact notification: {str(e)}"
                             },
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                         )
 
-                return Response(
+                return JsonResponse(
                     {"status": "Notification received"},
                     status=status.HTTP_202_ACCEPTED,
                 )
             else:
                 LOGGER.error("Invalid client state in contact notification")
-                return Response(
+                return JsonResponse(
                     {"error": "Invalid client state in contact notification"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
@@ -1678,7 +1678,7 @@ class MicrosoftContactNotification(View):
             LOGGER.error(
                 f"An error occurred in handling contact notification: {str(e)}"
             )
-            return Response(
+            return JsonResponse(
                 {
                     "error": f"An error occurred in handling contact notification: {str(e)}"
                 },

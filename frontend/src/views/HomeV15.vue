@@ -309,7 +309,7 @@
                                                                                 v-for="attachment in item.attachments"
                                                                                 :key="attachment.attachmentId"
                                                                                 class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
-                                                                                @click.prevent="() => downloadAttachment(item.id, attachment.attachmentId, attachment.attachmentName)"
+                                                                                @click.prevent="() => downloadAttachment(item.id, attachment.attachmentName)"
                                                                             >
                                                                                 <component :is="getIconComponent(attachment.attachmentName)" class="w-5 h-5 text-gray-600 group-hover:text-white" />
                                                                                 <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
@@ -562,7 +562,7 @@
                                                                         <div class="flex-auto group">
                                                                             <div class="flex gap-x-4">
                                                                                 <div class="flex items-center">
-                                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.has_attachments}}</p>
+                                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.name }}</p>
                                                                                     <p class="text-sm leading-6 text-blue-800 dark:text-white">{{ item.time }}</p>   
                                                                                 </div> 
                                                                                 <div
@@ -1612,17 +1612,17 @@ const toggleVisibility = () => {
     isHidden.value = !isHidden.value;
 };
 
-const downloadAttachment = async (emailId, attachmentId, attachmentName) => {
+const downloadAttachment = async (emailId, attachmentName) => {
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/attachments/${attachmentId}/`, {
+        const response = await fetchWithTokenv2(`${API_BASE_URL}user/emails/${emailId}/attachments/${attachmentName}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             }
         });
 
-        const blob = new Blob([response.data], { type: 'application/octet-stream' });
-        const url = window.URL.createObjectURL(blob);
+        const attachmentData = await response.blob(); // Use response.blob() for binary data
+        const url = window.URL.createObjectURL(attachmentData);
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', attachmentName);
@@ -2529,7 +2529,7 @@ import ModalSeeMail from '../components/SeeMailV2.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
 import { ref, nextTick, onMounted } from 'vue';
-import { fetchWithToken, getBackgroundColor } from '../router/index.js';
+import { fetchWithToken, fetchWithTokenv2, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
     //ChatBubbleOvalLeftEllipsisIcon,

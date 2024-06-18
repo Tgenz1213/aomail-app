@@ -82,6 +82,69 @@ async function fetchWithToken(url, options = {}) {
   }
 }
 
+// TO REMOVE OR CHANGE ?
+async function fetchWithTokenv2(url, options = {}) {
+  const accessToken = localStorage.getItem('access_token');
+
+  if (!options.headers) {
+    options.headers = {};
+  }
+  if (accessToken) {
+    options.headers['Authorization'] = `Bearer ${accessToken}`;
+  } else {
+    console.log("No access token provided");
+    return;
+  }
+
+  try {
+    let response = await fetch(url, options);
+
+    //console.log("------------> DEBUG RESPONSE", response); // To delete after test (only Theo can delete)
+
+    if (response.status == 401) {
+      const refreshResponse = await fetch(`${API_BASE_URL}api/token/refresh/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ access_token: accessToken })
+      });
+
+      //console.log("----------------> DEBUG", refreshResponse); // To delete after test (only Theo can delete)
+
+      if (refreshResponse.ok) {
+        const refreshData = await refreshResponse.json();
+        const newAccessToken = refreshData.access_token;
+        localStorage.setItem('access_token', newAccessToken);
+        options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        response = await fetch(url, options);
+      } else {
+        try {
+          router.push({ name: 'not-authorized' });
+        } catch (error) {
+          console.error(error)
+        }
+
+      }
+    }
+    // Access token is still valid
+    // Handles other errors
+    else {
+      return response;
+    }
+
+    // Failed to refresh the token
+    if (!response.ok) {
+      console.error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Error in fetchWithToken:', error.message);
+    throw error;
+  }
+}
+
 // TODO: remove + in all vue files
 async function getBackgroundColor() {
   const response = await fetchWithToken(`${API_BASE_URL}user/preferences/bg_color/`);
@@ -205,4 +268,4 @@ router.beforeEach(async (to, _, next) => {
 });
 
 export default router;
-export { fetchWithToken, getBackgroundColor };
+export { fetchWithToken, fetchWithTokenv2, getBackgroundColor };

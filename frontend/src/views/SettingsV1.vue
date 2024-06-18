@@ -25,9 +25,9 @@
     <!-- Modal for Account Deletion -->
     <transition name="modal-fade">
         <div @click.self="closeModal"
-            class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+            class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center "
             v-if="isModalOpen">
-            <div class="bg-white rounded-lg relative w-[450px]">
+            <div class="bg-white rounded-lg relative w-[450px] ">
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button @click="closeModal" type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
@@ -198,7 +198,7 @@
         </div>
     </transition>
 
-    <div class="flex flex-col justify-center items-center h-screen">
+    <div class="flex flex-col justify-center items-center h-screen ">
         <div class="flex h-full w-full">
             <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                 <navbar></navbar>
@@ -653,7 +653,7 @@
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
-                                            <div class="relative items-stretch">
+                                            <div class="relative items-stretch dark:bg-gray-800">
                                                 <theme></theme>
                                             </div>
                                         </div>

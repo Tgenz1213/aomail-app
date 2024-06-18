@@ -121,6 +121,7 @@
             $t('signUpPart1Page.signUp') }}
           </h2>
         </div>
+
         <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
           <div class="flex flex-col rounded-lg ">
             <div class="">
@@ -572,7 +573,7 @@
                       </div>
                     </div>
                     <div>
-                      <div class="pt-6">
+                      <div class="pt-2">
                         <button @click.prevent="nextStep0"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">
                           {{ $t('signUpPart1Page.continue') }}</button>
@@ -590,7 +591,7 @@
                           <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.language') }}</span>
                         </div>
                       </div>
-                      <div class="pt-6 pb-10">
+                      <div class="pt-2 pb-10">
                         <div class="relative items-stretch mt-2">
                           <language></language>
                         </div>
@@ -605,7 +606,7 @@
                           <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.timezone') }}</span>
                         </div>
                       </div>
-                      <div class="pt-6 pb-10">
+                      <div class="pt-2 pb-10">
                         <div class="relative items-stretch mt-2">
                           <TimeZone />
                         </div>
@@ -622,7 +623,7 @@
                           <span class="bg-white px-2 text-sm text-gray-500">{{ $t('constants.theme') }}</span>
                         </div>
                       </div>
-                      <div class="pt-6 pb-10">
+                      <div class="pt-2 pb-10">
                         <div class="relative items-stretch mt-2">
                           <theme></theme>
                         </div>
@@ -632,7 +633,7 @@
 
                     </div>
                     <div>
-                      <div class="pt-6">
+                      <div class="pt-2">
                         <button @click.prevent="nextStep1"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
                           {{ $t('signUpPart1Page.continue') }}</button>
@@ -706,7 +707,7 @@
                       </div>
                     </div>
                     <div>
-                      <div class="pt-6">
+                      <div class="pt-2">
                         <button @click.prevent="submitSignupData"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
                           {{ $t('signUpPart1Page.continue') }}</button>
@@ -719,13 +720,15 @@
               </div>
             </div>
           </div>
-          <p class="mt-6 text-center text-sm text-gray-600">
+          <p class="mt-2 text-center text-sm text-gray-600">
             {{ $t('signUpPart1Page.youHaveAnAccount') }}
             <a href="/" class="font-semibold leading-6 text-gray-900 hover:text-black">{{
               $t('constants.userActions.login')
               }}</a>
           </p>
         </div>
+
+
       </div>
     </div>
   </div>

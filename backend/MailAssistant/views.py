@@ -39,7 +39,7 @@ from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.db.models import Subquery, Exists, OuterRef
-from django.http import HttpRequest, FileResponse, Http404
+from django.http import HttpRequest, FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -2907,10 +2907,9 @@ def get_user_emails(request: HttpRequest) -> Response:
 ####################################################################
 # ----------------------- EMAIL ATTACHMENT -----------------------#
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def retrieve_attachment_data(
-    request: HttpRequest, email_id: str, attachment_id: str
+    request: HttpRequest, email_id: str, attachment_name: str
 ) -> Response:
     """
     Retrieves email attachment data for a specific email and attachment ID.
@@ -2930,40 +2929,24 @@ def retrieve_attachment_data(
 
     if social_api.type_api == "google":
         attachment_data = google_api.get_attachment_data(
-            user, social_api.email, email.provider_id, attachment_id
+            user, social_api.email, email.provider_id, attachment_name
         )
+        if attachment_data:
+            response = HttpResponse(
+                attachment_data["data"], content_type="application/octet-stream"
+            )
+            response["Content-Disposition"] = (
+                f'attachment; filename="{attachment_name}"'
+            )
+            return response
+        else:
+            return Response({"error": "Attachment not found"}, status=404)
     elif social_api.type_api == "microsoft":
         # TODO: Implement handling for Microsoft API attachments
-        attachment_data = {
-            "error": "Microsoft API attachment handling not implemented yet"
-        }
-
-    return Response(attachment_data, status=status.HTTP_200_OK)
-
-
-def create_subscription(user, stripe_plan_id, email="nothingForNow"):
-    stripe_customer = stripe.Customer.create(email=email)
-    stripe_customer_id = stripe_customer.id
-
-    stripe_subscription = stripe.Subscription.create(
-        customer=stripe_customer_id,
-        items=[
-            {
-                "plan": stripe_plan_id,
-            },
-        ],
-        trial_period_days=30,
-    )
-
-    # Creation of default subscription plan
-    Subscription.objects.create(
-        user=user,
-        plan="start_plan",
-        stripe_subscription_id=stripe_subscription.id,
-        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
-        billing_interval=None,
-        amount=STRIPE_PRICES[stripe_plan_id],
-    )
+        return Response(
+            {"error": "Microsoft API attachment handling not implemented yet"},
+            status=status.HTTP_501_NOT_IMPLEMENTED,
+        )
 
 
 # ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
@@ -3047,6 +3030,31 @@ def receive_payment_notifications(request):
             {"error": "Invalid request method"},
             status=status.HTTP_405_METHOD_NOT_ALLOWED,
         )
+
+
+def create_subscription(user, stripe_plan_id, email="nothingForNow"):
+    stripe_customer = stripe.Customer.create(email=email)
+    stripe_customer_id = stripe_customer.id
+
+    stripe_subscription = stripe.Subscription.create(
+        customer=stripe_customer_id,
+        items=[
+            {
+                "plan": stripe_plan_id,
+            },
+        ],
+        trial_period_days=30,
+    )
+
+    # Creation of default subscription plan
+    Subscription.objects.create(
+        user=user,
+        plan="start_plan",
+        stripe_subscription_id=stripe_subscription.id,
+        end_date=datetime.datetime.now() + datetime.timedelta(days=30),
+        billing_interval=None,
+        amount=STRIPE_PRICES[stripe_plan_id],
+    )
 
 
 ###########################################################

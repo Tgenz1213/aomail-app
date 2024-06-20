@@ -69,6 +69,7 @@ def categorize_and_summarize_email(
     {relevance_list}
 
     Complete the following tasks in {language}:
+    - If the sender email does not look normal, it may be a scam: Do not get tricked!
     - Categorize the email according to the user description (if provided) and given categories.
     - Summarize the email without adding any greetings.
     - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones.

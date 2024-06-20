@@ -44,16 +44,17 @@ urlpatterns = [
     path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok
     path('user/preferences/timezone/', views.get_user_timezone, name='get_user_timezone'), # ok
     path('user/preferences/set_timezone/', views.set_user_timezone, name='set_user_timezone'), # ok
-    path('user/emails/', views.get_user_emails, name='user-emails'), # ok  
+    path('user/emails/', views.get_user_emails, name='user-emails'), # ok
+    path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
 
     path('user/emails/delete_emails', views.delete_emails, name='delete_emails'), # dev
 
     path('user/emails/<int:email_id>/mark-read/', views.set_email_read, name='email-mark-read'), # ok
-    path('user/emails/<int:email_id>/mark-unread/', views.set_email_undread, name='email-mark-unread'), # ok
+    path('user/emails/<int:email_id>/mark-unread/', views.set_email_unread, name='email-mark-unread'), # ok
     path('user/emails/<int:email_id>/mark-reply-later/', views.set_email_reply_later, name='email-mark-reply-later'), # ok
     path('user/emails/<int:email_id>/unmark-reply-later/', views.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
     path('user/emails/<int:email_id>/block-sender/', views.set_rule_block_for_sender, name='block-sender-via-email'), # ok
-    path('user/emails/<int:email_id>/attachments/<str:attachment_id>/', views.retrieve_attachment_data, name='retrieve_attachment_data'), 
+    path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', views.retrieve_attachment_data, name='retrieve_attachment_data'), 
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/rules/', views.get_user_rules, name='get_user_rules'), # ok
     path('user/rules/<int:id_rule>/', views.get_user_rule_by_id, name='get_user_rule_by_id'), # ok
@@ -96,27 +97,4 @@ urlpatterns = [
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
     path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
-
-
-
-
-
-
-
-
-
-    #----------------------- TESTING URLs -----------------------#
-    # path('api/save_last_mail', views.save_last_mail_view, name='save_last_mail'), # testing
-    # path('api/save_last_mail_outlook', views.save_last_mail_outlook, name='save_last_mail_outlook'), # testing
-    #----------------------- UNUSED URLs -----------------------#
-    # path('api/get_mail', views.get_mail_view, name='get_mail'), # testing just to get the first email
-    # path('api/authenticate-service', views.authenticate_service_view, name='authenticate_service'), # testing
-    # path('api/get_parsed_contacts/', views.get_parsed_contacts, name='get_parsed_contacts'),
-    # path('api/get_unique_email_senders', views.è, name='get_unique_email_senders_view'),
-    # path('user/emails/<int:email_id>/bullet-points/', views.get_email_bullet_points, name='email-bullet-points'),
-    # path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'),
-    # path('api/find-user/', views.find_user_view, name='find-user'),
-    # path('api/unread_mails/', views.unread_mails, name='unread_mails'),    
-    # path('api/new_email_recommendations/', views.new_email_recommendations, name='new_email_recommendations'), # ok
-    # path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
 ]

@@ -2,6 +2,7 @@
 Provides views for generating new email responses based on user input and chat history.
 """
 
+import json
 import logging
 from django.http import HttpRequest
 from rest_framework.decorators import api_view, permission_classes
@@ -71,11 +72,12 @@ def get_new_email_response(request: HttpRequest) -> Response:
         Response: A response object containing the new email body response or an error message.
     """
     user = request.user
-    user_input: str = request.data["userInput"]
-    importance: str = request.data["importance"]
-    subject: str = request.data["subject"]
-    body: str = request.data["body"]
-    history: dict = request.data["history"]
+    parameters: dict = json.loads(request.body)
+    user_input: str = parameters["userInput"]
+    importance: str = parameters["importance"]
+    subject: str = parameters["subject"]
+    body: str = parameters["body"]
+    history: dict = parameters["history"]
 
     chat_history = dict_to_chat_history(history)
     email_reply_conv = EmailReplyConversation(
@@ -139,12 +141,13 @@ def improve_draft(request: HttpRequest) -> Response:
         Response: A response object containing the updated subject, email body, and chat history, or an error message if the draft generation fails.
     """
     user = request.user
-    user_input: str = request.data["userInput"]
-    length: str = request.data["length"]
-    formality: str = request.data["formality"]
-    subject: str = request.data["subject"]
-    body: str = request.data["body"]
-    history: dict = request.data["history"]
+    parameters: dict = json.loads(request.body)
+    user_input: str = parameters["userInput"]
+    length: str = parameters["length"]
+    formality: str = parameters["formality"]
+    subject: str = parameters["subject"]
+    body: str = parameters["body"]
+    history: dict = parameters["history"]
 
     chat_history = dict_to_chat_history(history)
     gen_email_conv = GenerateEmailConversation(

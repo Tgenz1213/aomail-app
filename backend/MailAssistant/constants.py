@@ -46,20 +46,17 @@ STRIPE_PRICES = {
     "start_plan_id": {"name": "start_plan", "price": 0.0},
     "pro_plan_id": {"name": "pro_plan", "price": 0.0},
 }
-
+FREE_PLAN = "free_plan"
 
 ######################## ARTIFICIAL INTELLIGENCE ########################
 OPENAI_CREDS = json.load(open(f"{CREDS_PATH}openai_creds.json"))
 MISTRAL_CREDS = json.load(open(f"{CREDS_PATH}mistral_creds.json"))
 CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json"))
-HUMAN = "Human: "
-ASSISTANT = "Assistant:"
 IMPORTANT = "Important"
 INFORMATION = "Information"
 USELESS = "Useless"
 DEFAULT_CATEGORY = "Others"
 MAX_RETRIES = 3
-
 
 ######################## GOOGLE API ########################
 GOOGLE_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
@@ -90,7 +87,6 @@ GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE_PROVIDER = "Gmail"
 # TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
-
 
 ######################## MICROSOFT API ########################
 MICROSOFT_READ_SCOPE = "Mail.Read"

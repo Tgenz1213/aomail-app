@@ -6,8 +6,6 @@ QUICK-START DEVELOPMENT SETTINGS - UNSUITABLE FOR PRODUCTION
 
 import json
 from datetime import timedelta
-
-# from pathlib import Path
 from MailAssistant.constants import (
     BACKEND_DIR,
     EMAIL_NO_REPLY,
@@ -39,8 +37,6 @@ from MailAssistant.constants import (
 
 
 ######################## CREDENTIALS ########################
-# root of linux => dangerous
-# BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG = json.load(open("creds/django_creds.json"))
 SECRET_KEY = CONFIG["secret_key"]
 BACKEND_LOG_PATH = "backend.log"
@@ -217,7 +213,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ----------------------- SCHEDULED TASKS -----------------------#
 CRONJOBS = [
     (
-        "0 3 * * *",  # At 03:00 am every day
+        "0 3 * * *",
         "MailAssistant.schedule_tasks.renew_gmail_subscriptions",
     ),
 ]

@@ -2,134 +2,37 @@
 Utility Functions for Email Processing
 
 TODO: 
-- rename this file into utils.py
+- put this file into utils folder (probably rename email_processing.py)
+- split into separate files per use case
 - Log important messages/errors using IP, user id, clear error name when possible
 - Clean the code by adding data types.
 - Improve documentation to be concise.
 """
 
-import datetime
 import logging
 import re
 import base64
 from django.db import IntegrityError
-from django.http import HttpRequest
-from django.shortcuts import redirect
-from MailAssistant.constants import BASE_URL, DEFAULT_CATEGORY
+from MailAssistant.constants import DEFAULT_CATEGORY
 from .models import Category, Contact
 from bs4 import BeautifulSoup
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.fernet import Fernet
 
-from django.utils import timezone
-from rest_framework.decorators import api_view, permission_classes
-from functools import wraps
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from MailAssistant.models import Subscription
 
 ######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
 
 
-# ----------------------- DECORATOR -----------------------#
-# THIS IS USED TO CHECK IF THE USER SUBSCRIPTION IS STILL VALID
-def subscription(allowed_plans):
-    def decorator(view_func):
-        @wraps(view_func)
-        @permission_classes([IsAuthenticated])
-        def _wrapped_view(request: HttpRequest, *args, **kwargs):
-            user = request.user
-            now = timezone.now()
-            active_subscription = Subscription.objects.filter(
-                user=user, end_date__gt=now, plan__in=allowed_plans
-            ).exists()
-
-            if not active_subscription:
-                # TODO: Redirect to a subscription expired page with expiration date
-                # explain on this page what the user can still acces (ONLY settings page)
-                # explain that we will stop receiving its email in X days => according to google and microsoft (make a request to know)
-
-                print("User does not have an active subscription.")
-
-                #  (NOT 401 page) => TODO: change (it does not work anyway => TO debug)
-                return redirect(f"{BASE_URL}not-authorized")
-
-            return view_func(request, *args, **kwargs)
-
-        return _wrapped_view
-
-    return decorator
-
-
-# ----------------------- LOGGING -----------------------#
-def get_ip_with_port(request: HttpRequest):
-    """Returns the ip with the connection port"""
-    try:
-        source_port = request.META.get("SERVER_PORT", None)
-        x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR")
-
-        ip_with_port = f"{ip}:{source_port}"
-        return ip_with_port
-
-    except Exception as e:
-        LOGGER.error(f"An error occurred while generating IP with port: {str(e)}")
-
-
-# ----------------------- CRYPTOGRAPHY -----------------------#
-def encrypt_unsalted(encryption_key, plaintext):
-    """Encrypts input plaintext"""
-    aes_key = base64.b64decode(encryption_key.encode("utf-8"))
-    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(), backend=default_backend())
-    encryptor = cipher.encryptor()
-    padded_plaintext = plaintext + " " * (16 - len(plaintext) % 16)
-    ciphertext = (
-        encryptor.update(padded_plaintext.encode("utf-8")) + encryptor.finalize()
-    )
-    ciphertext_base64 = base64.b64encode(ciphertext).decode("utf-8")
-    return ciphertext_base64
-
-
-def decrypt_unsalted(encryption_key, ciphertext_base64):
-    """Decrypts input encrypted ciphertext"""
-    aes_key = base64.b64decode(encryption_key.encode("utf-8"))
-    ciphertext = base64.b64decode(ciphertext_base64.encode("utf-8"))
-    cipher = Cipher(algorithms.AES(aes_key), modes.ECB(), backend=default_backend())
-    decryptor = cipher.decryptor()
-    decrypted_text = decryptor.update(ciphertext) + decryptor.finalize()
-    unpadded_text = decrypted_text.rstrip()
-    return unpadded_text.decode("utf-8")
-
-
-def encrypt_text(plaintext: str, encryption_key: str) -> str:
-    """Encrypts input plaintext with salt"""
-    fernet = Fernet(encryption_key)
-    encrypted_text = fernet.encrypt(plaintext.encode())
-    return encrypted_text.decode()
-
-
-def decrypt_text(encrypted_text: str, encryption_key: str) -> str:
-    """Decrypts input encrypted with salt"""
-    fernet = Fernet(encryption_key)
-    decrypted_text = fernet.decrypt(encrypted_text.encode())
-    return decrypted_text.decode()
-
-
 # ----------------------- NO REPLY CHECKING -----------------------#
-def is_no_reply_email(sender_email):
+def is_no_reply_email(sender_email: str):
     """Returns True if the email is a no-reply address."""
-    no_reply_patterns = ["no-reply", "donotreply", "noreply", "do-not-reply"]
 
+    no_reply_patterns = ["no-reply", "donotreply", "noreply", "do-not-reply"]
     return any(pattern in sender_email.lower() for pattern in no_reply_patterns)
 
 
 def save_email_sender(user, sender_name, sender_email, sender_id):
     """Saves the sender if the mail is relevant"""
+
     if not is_no_reply_email(sender_email):
         existing_contact = Contact.objects.filter(user=user, email=sender_email).first()
 
@@ -167,15 +70,16 @@ def save_contacts(user, email, all_recipients):
 ######################## EMAIL DATA PROCESSING ########################
 def get_db_categories(current_user) -> dict[str, str]:
     """Retrieves categories specific to the given user from the database."""
+
     categories = Category.objects.filter(user=current_user)
     category_list = {category.name: category.description for category in categories}
     category_list.pop(DEFAULT_CATEGORY)
-
     return category_list
 
 
 def html_clear(text: str) -> str:
     """Uses BeautifulSoup to clear HTML tags from the given text."""
+
     soup = BeautifulSoup(text, "html.parser")
     text = soup.get_text("\n")
     return text
@@ -183,6 +87,7 @@ def html_clear(text: str) -> str:
 
 def get_text_from_mail(mime_type: str, part: dict, decoded_data_temp: bytes) -> bytes:
     """If the MIME type is correct, extracts text from the email body."""
+
     data: str = part["body"]["data"]
     data = data.replace("-", "+").replace("_", "/")
     decoded_data_temp = base64.b64decode(data)
@@ -193,6 +98,7 @@ def get_text_from_mail(mime_type: str, part: dict, decoded_data_temp: bytes) -> 
 
 def contains_html(text: str | bytes) -> bool:
     """Returns True if the given text contains HTML, False otherwise."""
+
     if isinstance(text, bytes):
         text = text.decode("utf-8", "ignore")
     html_patterns = [r"<[a-z]+>", r"</[a-z]+>", r"&[a-z]+;", r"<!DOCTYPE html>"]
@@ -205,6 +111,7 @@ def contains_html(text: str | bytes) -> bool:
 
 def concat_text(text_final: str | None, text: str | bytes) -> str:
     """Checks the type of new text added and adjusts it if necessary before concatenating it to the final text."""
+
     if text_final:
         if type(text) == bytes:
             text_str = text.decode("utf-8")
@@ -222,6 +129,7 @@ def concat_text(text_final: str | None, text: str | bytes) -> str:
 
 def process_part(part: dict, plaintext_var: list) -> str | None:
     """Processes each part of an email, extracts the email body, and handles multipart emails."""
+
     mime_type = part["mimeType"]
     decoded_data = None
 
@@ -293,6 +201,7 @@ def count_corrections(
 
 def preprocess_email(email_content: str) -> str:
     """Removes links from the email content and strips text of unnecessary spacings"""
+
     # Remove links enclosed in <http...> or http... followed by a space
     email_content = re.sub(r"<http(.*?)>", "", email_content)
     email_content = re.sub(r"http(.*?)\ ", "", email_content)
@@ -321,47 +230,3 @@ def preprocess_email(email_content: str) -> str:
     email_content = re.sub(r"\n{3,}", "\n\n", email_content)
 
     return email_content.strip()
-
-
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
-
-"""
-def fill_lists(categories, percentages):
-    base_categories = ["Important", "Information", "Useless"]
-
-    # Determine which category is in the list
-    first_category = categories[0]
-
-    # Remove the category found from the base list
-    base_categories.remove(first_category)
-
-    # Construct the new categories list based on the first category
-    for i in range(1, 3):
-        if not categories[i]:
-            categories[i] = base_categories.pop(0)
-            percentages[i] = "0%"
-
-    return categories, percentages
-"""
-
-
-'''def separate_name_email(s):
-    """
-    Separate "Name <email>" or "<email>" into name and email.
-
-    Args:
-    - s (str): Input string of format "Name <email>" or "<email>"
-
-    Returns:
-    - (str, str): (name, email). If name is not present, it returns (None, email)
-    """
-
-    # Regex pattern to capture Name and Email separately
-    match = re.match(r"(?:(.*)\s)?<(.+@.+)>", s)
-    if match:
-        name, email = match.groups()
-        return name.strip() if name else None, email
-    else:
-        return None, None'''

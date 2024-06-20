@@ -66,7 +66,7 @@ class SocialAPI(models.Model):
     """Table that contains email credentials."""
 
     type_api = models.CharField(max_length=50)
-    email = models.CharField(max_length=320, unique=True)
+    email = models.CharField(max_length=524, unique=True)
     access_token = models.CharField(max_length=3000)
     refresh_token = models.CharField(max_length=2000)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -115,12 +115,13 @@ class Email(models.Model):
     )
     provider_id = models.CharField(max_length=200, unique=True)
 
-    # TO DELETE
-    web_link = models.CharField(max_length=200, null=True)
-
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
+    # TO ADD
+    # one_line_summary = models.CharField(max_length=500)
 
+    # TO DELETE
+    web_link = models.CharField(max_length=200, null=True)
     # TO DELETE (duplicate with html_content)
     content = models.TextField()
 

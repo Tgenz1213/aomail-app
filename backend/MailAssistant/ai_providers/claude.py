@@ -14,15 +14,9 @@ TODO:
 import ast
 import json
 import anthropic
-from colorama import Fore, init
 from datetime import datetime
-
 import tiktoken
-from MailAssistant.constants import CLAUDE_CREDS, DEFAULT_CATEGORY, HUMAN, ASSISTANT
-
-
-######################## Claude 3 API SETTINGS ########################
-init(autoreset=True)
+from MailAssistant.constants import CLAUDE_CREDS
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
@@ -48,15 +42,13 @@ def count_tokens(text: str) -> int:
 def get_language(input_body, input_subject) -> str:
     """Returns the primary language used in the email"""
 
-    formatted_prompt = f"""{HUMAN}Given an email with subject: '{input_subject}' and body: '{input_body}',
+    formatted_prompt = f"""Given an email with subject: '{input_subject}' and body: '{input_body}',
     IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
     
     Provide ONLY the answer in JSON format with the key 'language' (STRING).    
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     language = json.loads(response.content[0].text)["language"]
-
-    # print(f"{Fore.LIGHTBLUE_EX}The language used is: {language}")
 
     return language
 
@@ -93,7 +85,7 @@ def count_corrections(
 
 
 def extract_contacts_recipients(query) -> dict[str:list]:
-    formatted_prompt = f"""{HUMAN}As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
+    formatted_prompt = f"""As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
 
     Guidelines for classification:
     - Main recipients are those directly mentioned or implied to be the primary audience, without specific indicators for copying.
@@ -108,27 +100,24 @@ def extract_contacts_recipients(query) -> dict[str:list]:
     main_recipients: [Python list],
     cc_recipients: [Python list],
     bcc_recipients: [Python list]    
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     recipients: dict = json.loads(response.content[0].text)
 
-    # Extract information based on markers
     main_recipients = recipients.get("main_recipients", [])
     cc_recipients = recipients.get("cc_recipients", [])
     bcc_recipients = recipients.get("bcc_recipients", [])
-
-    # print(f"{Fore.CYAN}Main Recipients: {main_recipients}")
-    # print(f"{Fore.BLUE}Carbon Copy: {cc_recipients}")
-    # print(f"{Fore.GREEN}Blind Carbon Copy: {bcc_recipients}")
 
     return main_recipients, cc_recipients, bcc_recipients
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email, input_subject, language) -> list:
+def generate_response_keywords(input_email, input_subject) -> list:
     """Generate a list of keywords for responding to a given email."""
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
+    language = get_language(input_email, input_subject)
+
+    formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
 
     IDENTIFY up to 4 different ways to respond to this email. Only identify relevant way to respond if you can't find 4 different ways only give 2 or 3 ways to respond.
     USE few words in {language} while keeping a relevant meaning ONLY if you are sure that keyword is relevant, if you HESITATE do not add it.
@@ -136,12 +125,9 @@ def generate_response_keywords(input_email, input_subject, language) -> list:
 
     ---
     As an answer ONLY give a Python List format: ["...", "..."] dont use any other caracters otherwise it will create errors. Do not give ANY explanations, RETURN only the list.
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     keywords = response.content[0].text.strip()
-
-    # print(f"{Fore.YELLOW}{keywords}")
-
     keywords_list = ast.literal_eval(keywords)
 
     return keywords_list
@@ -154,22 +140,18 @@ def improve_email_writing(body, subject):
 
     language = get_language(body, subject).upper()
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
+    formatted_prompt = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {subject},
     body: {body}
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     result_json = json.loads(response.content[0].text.strip())
 
     subject_text = result_json["subject"]
     email_body = result_json["body"]
-
-    # print(f"{Fore.CYAN}EMAIL DRAFT IMPROVED:")
-    # print(f"{Fore.GREEN}Subject: {subject_text}")
-    # print(f"{Fore.CYAN}Email Body: {email_body}")
 
     return email_body, subject_text
 
@@ -177,6 +159,7 @@ def improve_email_writing(body, subject):
 """ OLD Ask Theo Before Delete (It's still used)"""
 
 
+# TODO: remove HARD CODED language
 def generate_email(input_data, length, formality, language="FRENCH"):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
@@ -191,8 +174,6 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
-    # print(clear_text)
-
     result_json: dict = json.loads(clear_text)
     subject_text = result_json.get("subject")
     email_body = result_json.get("body")
@@ -200,64 +181,24 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     return subject_text, email_body
 
 
-''' IN DEV => DO NOT DELETE OR IMPLEMENT => Reserved for Theo => Ask Theo if you want to delete
-def generate_email(input_data, length, formality, language="FRENCH"):
-    """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
-
-    input_word_count = len(input_data.split())
-
-    if length == "very short":
-        word_count_factor = 1.0
-    elif length == "short":
-        word_count_factor = 1.5
-    else:  # "long"
-        word_count_factor = 3.0
-
-    word_count = int(input_word_count * word_count_factor)
-    word_count_range = f"{word_count - 20}-{word_count + 20} words"
-
-    template = f"""{HUMAN}As an email assistant, write a {formality} email in {language} with a length of {word_count_range}.
-    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
-
-    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
-    {ASSISTANT}"""
-    response = get_prompt_response(template)
-    clear_text = response.content[0].text.strip()
-
-    result_json = json.loads(clear_text)
-
-    subject_text = result_json.get("subject")
-    email_body = result_json.get("body")
-
-    print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
-    print(f"{Fore.GREEN}Subject: {subject_text}")
-    print(f"{Fore.CYAN}Email Body: {email_body}")
-
-    return subject_text, email_body'''
-
-
 def correct_mail_language_mistakes(body, subject):
     """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
 
     language = get_language(body, subject).upper()
 
-    formatted_prompt = f"""{HUMAN}As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
+    formatted_prompt = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
     
     Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
 
     subject: {subject},
     body: {body}
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(formatted_prompt)
     clear_text = response.content[0].text.strip()
     result_json = json.loads(clear_text)
 
     corrected_subject = result_json["subject"]
     corrected_body = result_json["body"]
-
-    # print(f"{Fore.CYAN}EMAIL CORRECTED:")
-    # print(f"{Fore.GREEN}Subject: {corrected_subject}")
-    # print(f"{Fore.CYAN}Email Body: {corrected_body}")
 
     num_corrections = count_corrections(
         subject, body, corrected_subject, corrected_body
@@ -271,7 +212,7 @@ def improve_email_copywriting(email_subject, email_body):
 
     language = get_language(email_body, email_subject)
 
-    template = f"""{HUMAN}Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
+    template = f"""Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
 
     Email Subject:
     "{email_subject}"
@@ -292,23 +233,20 @@ def improve_email_copywriting(email_subject, email_body):
 
     <strong>Suggestions for the Email Body</strong>:
     [Your suggestions for the email body]
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     feedback_ai = response.content[0].text.strip()
-
-    # print(f"{Fore.CYAN}EMAIL COPYWRITING:")
-    # print(f"{Fore.GREEN}{feedback_ai}")
 
     return feedback_ai
 
 
 def generate_email_response(
-    input_subject: str, input_body: str, user_instruction: str, language: str
+    input_subject: str, input_body: str, user_instruction: str
 ) -> str:
     """Generates an email response based on the given response type"""
 
-    template = f"""{HUMAN}As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
-    Craft a response strictly in {language} following the user instruction: '{user_instruction}'.
+    template = f"""As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
+    Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
     0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
     1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point unless a contradictory guideline is explicitly mentioned by the user.
     2. Respect the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
@@ -317,11 +255,9 @@ def generate_email_response(
 
     ---
     Answer must be above HTML without spaces
-    {ASSISTANT}"""
+    """
     response = get_prompt_response(template)
     body = response.content[0].text.strip()
-
-    # print(f"{Fore.GREEN}[REPLY] body: {body}")
 
     return body
 
@@ -392,7 +328,14 @@ def new_function_(
         "summary": Summary of the email
     }}"""
     response = get_prompt_response(template)
+
+    print("=====================NUMBER OF TOKENS INPUT=========================")
+    print(count_tokens(template))
+
     clear_response = response.content[0].text.strip()
+
+    print("=====================NUMBER OF TOKENS OUTPUT =========================")
+    print(count_tokens(clear_response))
 
     print("Claude categorize_and_summarize_email")
     print(clear_response)
@@ -412,6 +355,7 @@ def new_function_(
     )
 
 
+# TODO: remove HARD CODED language
 def search_emails(query: str, language: str = "French") -> dict:
     """Searches emails based on the user query and generates structured JSON response."""
 
@@ -446,9 +390,6 @@ def search_emails(query: str, language: str = "French") -> dict:
     }}"""
     response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
-
-    # print(clear_response)
-
     queries_dict = json.loads(clear_response)
 
     return queries_dict
@@ -579,98 +520,37 @@ def categorize_and_summarize_email(
     )
 
 
-""" OLD v1 Ask Theo before DELETE
-    importance_list = {
-        "Important": 'Items or messages that are of high priority, do not contain offers to "unsubscribe", and require immediate attention or action.',
-        "Information": 'Details that are relevant and informative but may not require immediate action. Does not contain offers to "unsubscribe".',
-        "Useless": 'Items or messages that contain offers to "unsubscribe", might not be relevant to all recipients, are redundant, or do not provide any significant value.',
-    }"""
-""" OLD v2 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
-        "Information": "Details that are relevant and informative to the user but may not necessarily require immediate action.",
-        "Useless": "Messages that are not relevant to the user, are redundant, do not provide significant value, or are newsletters or commercial offers. If uncertain, it's preferable to categorize the message as 'Useless' because the user can correct the classification later.",
-    }"""
-""" OLD v3 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority, require immediate attention or action, and are relevant to the user.",
-        "Information": "Details relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
-        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
-        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }"""
-""" OLD v4 Ask Theo before DELETE
-    importance_list = {
-        "Important": "Messages that are high priority and require immediate attention or action (truly relevant to the user).",
-        "WorkInformation": "Messages relevant to the user's work interests or needs, such as professional updates, professional news, or professional content.",
-        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
-        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }"""
-"""OLd prompt engineering
-1. Please categorize the email by topic, importance, response, and relevance corresponding to the user description. (regarding the topic category, you need to be sure of the choice made, if you hesitate put it in the Others category)
-    2. In {language}: Summarize the following email using description nouns or infinitive verbs structures according to the information for each bullet point.
-    3. In {language}: Provide up to 5 (according to email length) short bullet points WITHOUT making any judgment or interpretation, they should be clear and as short as possible. Do NOT add any redundant information and SPEAK ONLY about the content NOT about the name of the sender or greetings or unecessary details.
-    4. In {language}: Provide a VERY SHORT sentence summarizing the core content of the email without giving ANY details.
-    5. If the email appears to be a response or a conversation. Always summarize only the last email and IGNORE the previous ones.
-    Remember, regardless of the email's perceived relevance or importance, a summary is always required. This summary should objectively reflect the content of the email without making subjective judgments about its relevance.
-"""
+''' IN DEV => DO NOT DELETE OR IMPLEMENT => Reserved for Theo => Ask Theo if you want to delete
+def generate_email(input_data, length, formality, language="FRENCH"):
+    """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
-'''# TODO: OLD - delete after implementing new solution
-def new_mail_recommendation(
-    mail_content, email_subject, user_recommendation, language="FRENCH"
-):
-    """Enhance email subject and body based on user guideline"""
+    input_word_count = len(input_data.split())
 
-    template = f"""{HUMAN}As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language} according to the user guideline: '{user_recommendation}', while preserving key details from the original version.
-    
-    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
+    if length == "very short":
+        word_count_factor = 1.0
+    elif length == "short":
+        word_count_factor = 1.5
+    else:  # "long"
+        word_count_factor = 3.0
 
-    subject: {email_subject},
-    body: {mail_content}
-    {ASSISTANT}"""
+    word_count = int(input_word_count * word_count_factor)
+    word_count_range = f"{word_count - 20}-{word_count + 20} words"
+
+    template = f"""As an email assistant, write a {formality} email in {language} with a length of {word_count_range}.
+    Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}', it should strictly contain only the information present in the input.
+
+    Answer must be ONLY a Json format with two keys: subject (STRING) AND body IN HTML FORMAT (HTML)
+    """
     response = get_prompt_response(template)
     clear_text = response.content[0].text.strip()
 
-    # TODO: handle when the response is not a json format with an algorithm
     result_json = json.loads(clear_text)
-    subject_text = result_json["subject"]
-    email_body = result_json["body"]
 
-    print(f"{Fore.CYAN}NEW EMAIL RECOMMENDATION:")
+    subject_text = result_json.get("subject")
+    email_body = result_json.get("body")
+
+    print(f"{Fore.CYAN}{length} and {formality} email suggestion:")
     print(f"{Fore.GREEN}Subject: {subject_text}")
-    print(f"{Fore.LIGHTGREEN_EX}Email Body: {email_body}")
+    print(f"{Fore.CYAN}Email Body: {email_body}")
 
-    return subject_text, email_body
-'''
-
-
-'''def generate_email_response(
-    input_subject: str, input_body: str, user_instruction: str, language: str
-) -> str:
-    """Generates an email response based on the given response type"""
-
-    # DO NOT DELETE : possible upgrade TO TEST (something like this in the template) : craft a response in {language} following the '{user_instruction}' instruction, do not invent new demands that the user didn't ask, ONLY IF NECESSARY you can leave blank space after ':' if you want the user to manually complete the answer
-    # OLD prompt
-    """template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response in {language} following the '{user_instruction}' instruction. Ensure the response is structured as an HTML email. Here is a template to follow, with placeholders for the dynamic content:
-    <p>[Insert greeting]</p><!-- Insert response here based on the input body and the specified response type --><p>[Insert sign_off],</p><p>[Your Name]</p>
-
-    ----
-
-    Answer must be above HTML without spaces
-    {ASSISTANT}
-    """"""
-    template = f"""{HUMAN}As a smart email assistant and Based on the email with the subject: '{input_subject}' and body: '{input_body}' craft a response strictly in {language} following the user instruction: '{user_instruction}'.
-    1. Ensure the response is structured as an HTML email. Make sure to create a brief response that is straight to the point. RESPECT the tone employed in the subject and body, as well as the relationship and respectful markers between recipients.
-    2. Here is a template to follow, with placeholders for the dynamic content:
-    <p>[Insert greeting]</p><html>[Insert the response]</html><p>[Insert sign_off],</p>
-
-    ---
-    Answer must be above HTML without spaces
-    {ASSISTANT}
-    """
-    response = get_prompt_response(template)
-    body = response.content[0].text.strip()
-
-    print(f"{Fore.GREEN}[REPLY] body: {body}")
-
-    return body
-'''
+    return subject_text, email_body'''

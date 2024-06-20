@@ -690,9 +690,6 @@ async function submitSignupData(event) {
     if (response.status === 201) {
       // Django access token
       localStorage.setItem('access_token', data.access_token);
-      // Store the email and use it in request headers
-      localStorage.setItem('email', data.email);
-
       sessionStorage.clear();
       localStorage.removeItem("categories");
       // Redirect to the home page once signed in

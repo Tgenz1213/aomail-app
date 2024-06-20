@@ -284,7 +284,7 @@
                                             <div class="flex space-x-1 items-center">
                                                 <envelope-icon class="w-4 h-4" />
                                                 <label class="block text-sm font-medium leading-6 text-gray-900">{{
-                                                    $t('constants.userActions.username') }}</label>
+                                                    $t('constants.username') }}</label>
                                             </div>
                                             <div class="relative items-stretch mt-2">
                                                 <input v-model="userData" type="text" name="username" id="username"
@@ -494,7 +494,7 @@
                                         </div>
                                         <div class="relative flex justify-center">
                                             <span class="bg-white px-2 text-sm text-gray-500">
-                                                TODO Choose the email service provider
+                                                {{$t('settingsPage.accountPage.chooseTheEmailServiceProvider') }}
                                             </span>
                                         </div>
                                     </div>
@@ -649,7 +649,7 @@
                                             </div>
                                             <div class="relative flex justify-center">
                                                 <span class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('constants.userActions.theme') }}</span>
+                                                    $t('constants.theme') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
@@ -668,7 +668,7 @@
                                             <div class="relative flex justify-center">
                                                 <span
                                                     class="bg-white px-2 text-sm text-gray-500">{{
-                                                    $t('constants.userActions.timezone') }}</span>
+                                                    $t('constants.timezone') }}</span>
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">

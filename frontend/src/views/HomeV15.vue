@@ -231,7 +231,7 @@
                                             <div class="bg-orange-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-3 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
-                                                        TODO Urgent(c'est important ds les trads)</p>
+                                                        {{ $t('constants.ruleModalConstants.important') }}</p>
                                                     <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                     <div class="ml-auto">
                                                         <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
@@ -520,7 +520,7 @@
                                             <div class="bg-blue-100 bg-opacity-90 rounded-md">
                                                 <div class="flex px-2 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
-                                                    TODO Informatif
+                                                        {{ $t('constants.ruleModalConstants.informative') }}
                                                     </p>
                                                     <div class="ml-auto">
                                                     <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -813,7 +813,7 @@
                                                 <div class="bg-gray-200 bg-opacity-90 rounded-md">
                                                     <div class="flex px-2 py-2">
                                                         <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
-                                                            TODO Inutile</p>
+                                                            {{ $t('constants.ruleModalConstants.useless') }}</p>
                                                         <!-- ring-1 ring-red-700 ring-opacity-20 -->
                                                         <div class="ml-auto">
                                                             <trash-icon class="w-6 h-6 text-gray-500" />

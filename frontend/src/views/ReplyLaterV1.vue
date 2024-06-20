@@ -41,7 +41,7 @@
                       <div class="px-6 pb-6">
                         <div class="bg-orange-100 bg-opacity-90 rounded-md">
                           <div class="flex px-3 py-2">
-                            <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">TODO - Urgent(c'est important ds les trads)</p>
+                            <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">{{ $t('constants.ruleModalConstants.important') }}</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
                               <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
@@ -79,7 +79,7 @@
                                               <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                             </svg>
-                                            <p>{{ $t('ReplyLater_vue.click_to_see_the_summary') }}</p>
+                                            <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
                                           </div>
                                         </div>
                                       </div>
@@ -101,7 +101,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                              {{ $t('ReplyLater_vue.open') }}
+                                              {{ $t('constants.userActions.copen') }}
                                             </div>
                                             <button @click="openInNewWindow(item.id_provider)" type="button"
                                               class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -113,7 +113,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.answer') }}
+                                              {{ $t('constants.userActions.reply') }}
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -126,7 +126,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.Remove_from_reply_later') }}
+                                              {{ $t('constants.userActions.reply') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -152,7 +152,7 @@
                                           <div class="relative group">
                                             <div v-if="showTooltip"
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
-                                              {{ $t('ReplyLater_vue.additional_actions') }}
+                                              {{ $t('constants.additionalActions') }}
                                             </div>
                                             <Menu as="div" class="relative inline-block text-left">
                                               <div>
@@ -198,7 +198,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>{{ $t('ReplyLater_vue.create_a_rule') }}</span>
+                                                          <span>{{ $t('constants.createARule') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -301,7 +301,7 @@
                       <div class="px-6 pb-6">
                         <div class="bg-blue-100 bg-opacity-90 rounded-md">
                           <div class="flex px-2 py-2">
-                            <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">TODO Informatif</p>
+                            <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">{{ $t('constants.ruleModalConstants.informative') }}</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
                               <information-circle-icon class="w-6 h-6 text-blue-500" />
@@ -340,7 +340,7 @@
                                               <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                             </svg>
-                                            <p>{{ $t('ReplyLater_vue.click_to_see_the_summary') }}</p>
+                                            <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
                                           </div>
                                         </div>
                                       </div>
@@ -362,7 +362,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                              {{ $t('ReplyLater_vue.open') }}
+                                              {{ $t('constants.userActions.open') }}
                                             </div>
                                             <button @click="openInNewWindow(item.id_provider)" type="button"
                                               class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -374,7 +374,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.answer') }}
+                                              {{ $t('constants.userActions.reply') }}
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -387,7 +387,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.Remove_from_reply_later') }}
+                                              {{ $t('replyLaterPage.removeFromReplyLater') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -413,7 +413,7 @@
                                           <div class="relative group">
                                             <div v-if="showTooltip"
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
-                                              {{ $t('ReplyLater_vue.additional_actions') }}
+                                              {{ $t('constants.additionalActions') }}
                                             </div>
                                             <Menu as="div" class="relative inline-block text-left">
                                               <div>
@@ -459,7 +459,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>{{ $t('ReplyLater_vue.create_a_rule') }}</span>
+                                                          <span>{{ $t('constants.userActions.createARule') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -562,7 +562,7 @@
                       <div class="px-6 pb-6">
                         <div class="bg-gray-200 bg-opacity-90 rounded-md">
                           <div class="flex px-2 py-2">
-                            <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">TODO Inutile</p>
+                            <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">{{ $t('constants.ruleModalConstants.useless') }}</p>
                             <!-- ring-1 ring-red-700 ring-opacity-20 -->
                             <div class="ml-auto">
                               <trash-icon class="w-6 h-6 text-gray-500" />
@@ -598,7 +598,7 @@
                                               <path stroke-linecap="round" stroke-linejoin="round"
                                                 d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                             </svg>
-                                            <p>{{ $t('ReplyLater_vue.click_to_see_the_summary') }}</p>
+                                            <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
                                           </div>
                                         </div>
                                       </div>
@@ -717,7 +717,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>{{ $t('ReplyLater_vue.create_a_rule') }}</span>
+                                                          <span>{{ $t('constants.userActions.createARule') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -739,7 +739,7 @@
                                                           <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                             style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                         </svg>
-                                                        <span>{{ $t('ReplyLater_vue.transfer') }}</span>
+                                                        <span>{{ $t('constants.userActions.transfer') }}</span>
                                                       </span>
                                                     </a>
                                                     </MenuItem>

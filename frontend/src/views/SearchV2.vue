@@ -70,9 +70,9 @@
           </div>
         </div>
 
-        <div class="flex flex-col flex-1 h-full w-full">
+        <div class="flex w-full">
 
-          <div class="flex flex-col flex-1 h-full w-full px-6 pt-2 mb-4"> <!--ligne 2 : searchbar,bouton search et bouton filtres -->
+          <div class="flex flex-col w-full px-6 pt-2 mb-4"> 
             
               <!--??? -->
               <div class="flex space-x-1 items-center">
@@ -81,22 +81,21 @@
                   $t('Search_vue.manual_Search') }}</label>-->
               </div>
 
-              <!-- searchbar and buttons -->
+               <!-- searchbar and buttons -->
               <div class="flex space-x-2 items-stretch pr-2 w-full">
-
                 <div class="relative w-full">
                   <div class="absolute inset-y-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 ml-2 2xl:ml-3 items-center">
-                    <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
-                    <label for="search"
-                      class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
-                      {{ $t('searchPage.searchPlaceholder') }}
-                    </label>
+                  <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
+                  <label for="search" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
+                  {{ $t('searchPage.searchPlaceholder') }}
+                  </label>
                   </div>
-                  <Combobox as="div">
-                    <ComboboxInput id="search"
-                      class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-10 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-14 2xl:pr-14 2xl:text-base text-center" />
-                  </Combobox>
-                </div>
+                <Combobox as="div">
+                 <ComboboxInput id="search" 
+                 class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-10 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-14 2xl:pr-14 2xl:text-base text-center" />
+                </Combobox>
+              </div>
+                            
 
                 <!--<div class="flex-grow w-full h-full">
                   <div class="relative flex flex-grow items-stretch h-full">
@@ -132,9 +131,9 @@
                 </div>
               </div>
 
-              <!-- filtres -->
-            <div class=" flex space-x-2  hidden pr-2 w-full" id="filtres">
-              <div class="flex flex-col gap-4 w-full h-full">
+              <!-- filters -->
+              <div class=" flex space-x-2 hidden pr-2 w-full" id="filtres">
+              <div class="flex flex-col gap-4">
 
 
                 <div class="flex gap-4 gap-y-2 w-full flex-wrap">
@@ -157,7 +156,7 @@
                             </ComboboxButton>
                           </div>
                           <ComboboxOptions v-if="filteredPeople.length > 0"
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
+                            class="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
                             <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template"
                               v-slot="{ active, selected }">
                               <li @click="toggleSelection(person)"
@@ -231,7 +230,7 @@
                             </ComboboxButton>
                           </div>
                           <ComboboxOptions v-if="filteredPeople.length > 0"
-                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
+                            class="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
                             <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template"
                               v-slot="{ active, selected }">
                               <li @click="toggleSelection(person)"
@@ -516,7 +515,7 @@
                     </div>  -->
 
 
-              <!-- <div class="col-span-1">
+                      <!-- <div class="col-span-1">
                   <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Tout les fields doivent
                     être ds advanced à part recherche</label>
 
@@ -538,13 +537,13 @@
                 </div>-->
 
               </div>
-            </div>
+              </div>
 
               <!-- email List -->
-              <div class="flex flex-col flex-1 overflow-hidden pr-2 pt-4 pb-4" id="liste_email">
-                <div class="flex flex-col overflow-auto h-full pr-4">
+              <div class="flex flex-col overflow-hidden pr-2 pt-4 h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] xl:h-[350px] 2xl:h-[500px]" id="liste_email">
+              <div class="flex flex-col overflow-y-auto pr-4 h-full">
+
                   <!-- List element -->
-                  
                   <div class="flex justify-between items-center py-4 email-item">
                     <!-- Details -->
                     <div class="flex flex-col justify-center">
@@ -565,23 +564,23 @@
                   </div>
 
                   <!-- Séparateur -->
-                  <div class="relative pt-2">
+                  <div class=" flex relative pt-2">
                     <div class="absolute inset-0 flex items-center" aria-hidden="true">
                       <div class="w-full border-t border-gray-300"></div>
                     </div>
                   </div>
 
-                  <!-- Élément de la liste -->
+                  <!-- List element -->
                   <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Gauche : Détails de l'email -->
+                    <!-- Details -->
                     <div class="flex flex-col justify-center">
                       <span class="font-bold text-sm">Expéditeur</span>
                       <span class="text-sm">Objet du mail - Début du mail...</span>
                     </div>
 
-                    <!-- Droite : Actions (visuellement statique) -->
+                    <!-- Actions -->
                     <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Icône Oeil (Voir) avec texte -->
+                      <!-- Eyeicon -->
                       <div class="relative group">
                         <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                           <EyeIcon class="w-5 h-5" />
@@ -590,24 +589,26 @@
                       </div>
                     </span>
                   </div>
+
                   <!-- Séparateur -->
-                  <div class="relative pt-2">
+                  <div class=" flex relative pt-2">
                     <div class="absolute inset-0 flex items-center" aria-hidden="true">
                       <div class="w-full border-t border-gray-300"></div>
                     </div>
                   </div>
 
-                  <!-- Élément de la liste -->
+
+                  <!-- List element -->
                   <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Gauche : Détails de l'email -->
+                    <!-- Details -->
                     <div class="flex flex-col justify-center">
                       <span class="font-bold text-sm">Expéditeur</span>
                       <span class="text-sm">Objet du mail - Début du mail...</span>
                     </div>
 
-                    <!-- Droite : Actions (visuellement statique) -->
+                    <!-- Actions -->
                     <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Icône Oeil (Voir) avec texte -->
+                      <!-- Eyeicon -->
                       <div class="relative group">
                         <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                           <EyeIcon class="w-5 h-5" />
@@ -616,24 +617,25 @@
                       </div>
                     </span>
                   </div>
+
                   <!-- Séparateur -->
-                  <div class="relative pt-2">
+                  <div class=" flex relative pt-2">
                     <div class="absolute inset-0 flex items-center" aria-hidden="true">
                       <div class="w-full border-t border-gray-300"></div>
                     </div>
                   </div>
 
-                  <!-- Élément de la liste -->
+                  <!-- List element -->
                   <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Gauche : Détails de l'email -->
+                    <!-- Details -->
                     <div class="flex flex-col justify-center">
                       <span class="font-bold text-sm">Expéditeur</span>
                       <span class="text-sm">Objet du mail - Début du mail...</span>
                     </div>
 
-                    <!-- Droite : Actions (visuellement statique) -->
+                    <!-- Actions -->
                     <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Icône Oeil (Voir) avec texte -->
+                      <!-- Eyeicon -->
                       <div class="relative group">
                         <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                           <EyeIcon class="w-5 h-5" />
@@ -642,24 +644,25 @@
                       </div>
                     </span>
                   </div>
+
                   <!-- Séparateur -->
-                  <div class="relative pt-2">
+                  <div class=" flex relative pt-2">
                     <div class="absolute inset-0 flex items-center" aria-hidden="true">
                       <div class="w-full border-t border-gray-300"></div>
                     </div>
                   </div>
 
-                  <!-- Élément de la liste -->
+                  <!-- List element -->
                   <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Gauche : Détails de l'email -->
+                    <!-- Details -->
                     <div class="flex flex-col justify-center">
                       <span class="font-bold text-sm">Expéditeur</span>
                       <span class="text-sm">Objet du mail - Début du mail...</span>
                     </div>
 
-                    <!-- Droite : Actions (visuellement statique) -->
+                    <!-- Actions -->
                     <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Icône Oeil (Voir) avec texte -->
+                      <!-- Eyeicon -->
                       <div class="relative group">
                         <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                           <EyeIcon class="w-5 h-5" />
@@ -668,21 +671,133 @@
                       </div>
                     </span>
                   </div>
+
                   <!-- Séparateur -->
-                  <div class="relative pt-2">
+                  <div class=" flex relative pt-2">
                     <div class="absolute inset-0 flex items-center" aria-hidden="true">
                       <div class="w-full border-t border-gray-300"></div>
                     </div>
                   </div>
 
-                  <!-- Ajoutez d'autres éléments ici pour simuler les emails -->
-                </div>
+
+                  <!-- List element -->
+                  <div class="flex justify-between items-center py-4 email-item">
+                    <!-- Details -->
+                    <div class="flex flex-col justify-center">
+                      <span class="font-bold text-sm">Expéditeur</span>
+                      <span class="text-sm">Objet du mail - Début du mail...</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <span class="isolate inline-flex items-center rounded-2xl">
+                      <!-- Eyeicon -->
+                      <div class="relative group">
+                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                          <EyeIcon class="w-5 h-5" />
+                          Voir
+                        </button>
+                      </div>
+                    </span>
+                  </div>
+
+                  <!-- Séparateur -->
+                  <div class=" flex relative pt-2">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                  </div>
+
+
+                  <!-- List element -->
+                  <div class="flex justify-between items-center py-4 email-item">
+                    <!-- Details -->
+                    <div class="flex flex-col justify-center">
+                      <span class="font-bold text-sm">Expéditeur</span>
+                      <span class="text-sm">Objet du mail - Début du mail...</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <span class="isolate inline-flex items-center rounded-2xl">
+                      <!-- Eyeicon -->
+                      <div class="relative group">
+                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                          <EyeIcon class="w-5 h-5" />
+                          Voir
+                        </button>
+                      </div>
+                    </span>
+                  </div>
+
+                  <!-- Séparateur -->
+                  <div class=" flex relative pt-2">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                  </div>
+
+
+                  <!-- List element -->
+                  <div class="flex justify-between items-center py-4 email-item">
+                    <!-- Details -->
+                    <div class="flex flex-col justify-center">
+                      <span class="font-bold text-sm">Expéditeur</span>
+                      <span class="text-sm">Objet du mail - Début du mail...</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <span class="isolate inline-flex items-center rounded-2xl">
+                      <!-- Eyeicon -->
+                      <div class="relative group">
+                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                          <EyeIcon class="w-5 h-5" />
+                          Voir
+                        </button>
+                      </div>
+                    </span>
+                  </div>
+
+                  <!-- Séparateur -->
+                  <div class="flex relative pt-2">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                  </div>
+
+                  <!-- List element -->
+                  <div class="flex justify-between items-center py-4 email-item">
+                    <!-- Details -->
+                    <div class="flex flex-col justify-center">
+                      <span class="font-bold text-sm">Expéditeur</span>
+                      <span class="text-sm">Objet du mail - Début du mail...</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <span class="isolate inline-flex items-center rounded-2xl">
+                      <!-- Eyeicon -->
+                      <div class="relative group">
+                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                          <EyeIcon class="w-5 h-5" />
+                          Voir
+                        </button>
+                      </div>
+                    </span>
+                  </div>
+
+                  <!-- Séparateur -->
+                  <div class=" flex relative pt-2">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                  </div>
+
+              <!-- Ajoutez d'autres éléments ici pour simuler les emails -->
+              </div>
               </div>
 
           </div>
 
           <!-- h-[600px] 2xl:h-[700px] -->
-          <!--ligne 6 : email not found -->
+          <!--ligne 6 : email not found block -->
           <div class="flex-grow p-6 mr-2 block" id="no_mail" v-show="!isEmailhere">
             <div class="h-96 flex flex-col h-full">
               <div class="flex-1 overflow-y-auto">
@@ -750,7 +865,7 @@
         </div>
       </div>
     </div>
-  </div>
+    </div>
 </template>
 
 
@@ -815,6 +930,7 @@ const attachmentSelected = ref(null)
 
 let emailsLinked = ref('');
 
+
 const contacts = [];
 const queryGetContacts = ref('')
 const selectedPerson = ref(null)
@@ -838,6 +954,8 @@ const checkLoginStatus = () => {
   isEmailhere.value = hasEmails;
 };
 
+
+
 onMounted(() => {
   checkLoginStatus();
 });
@@ -849,6 +967,7 @@ const filteredPeople = computed(() =>
       return person.username.toLowerCase().includes(queryGetContacts.value.toLowerCase())
     })
 )
+
 
 const toggleSelection = (person) => {
   const index = selectedRecipients.value.findIndex((recipient) => recipient.email === person.email)
@@ -1078,22 +1197,40 @@ async function searchEmails() {
 
 async function Hide_filtres() {
     var toggleDiv = document.getElementById('filtres');
+    var emailListDiv = document.getElementById('liste_email');
+
     if (toggleDiv.classList.contains('hidden')) {
-      toggleDiv.classList.remove('hidden');
-      setTimeout(function () {
-        toggleDiv.classList.remove('opacity-0');
-        toggleDiv.classList.add('opacity-100');
-      }, 10);
+        toggleDiv.classList.remove('hidden');
+        setTimeout(function () {
+            toggleDiv.classList.remove('opacity-0');
+            toggleDiv.classList.add('opacity-100');
+        }, 10);
+        
+        // Réduire la hauteur de la liste des emails
+        adjustHeight2(emailListDiv, -185);
     } else {
-      toggleDiv.classList.remove('opacity-100');
-      toggleDiv.classList.add('opacity-0');
-      setTimeout(function () {
-        toggleDiv.classList.add('hidden');
-      }, 250);
+        toggleDiv.classList.remove('opacity-100');
+        toggleDiv.classList.add('opacity-0');
+        setTimeout(function () {
+            toggleDiv.classList.add('hidden');
+        }, 250);
+        
+        // Augmenter la hauteur de la liste des emails
+        adjustHeight2(emailListDiv, 185);
     }
-  }
+}
 
+function adjustHeight2(element, adjustment) {
+    const currentHeight = parseInt(window.getComputedStyle(element).height, 10);
 
+    // Si la hauteur actuelle est supérieure à 350px et que l'ajustement est négatif, ajuster de 300px
+    if (currentHeight > 350 && adjustment < 0) {
+        adjustment = -200;
+    }
+
+    const newHeight = currentHeight + adjustment;
+    element.style.height = newHeight + 'px';
+}
 
 
 async function displayMessage(message, ai_icon) {

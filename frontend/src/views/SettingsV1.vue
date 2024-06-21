@@ -1207,7 +1207,7 @@ async function updatePassword() {
     };
 
     try {
-        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update-password/`, requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update_password/`, requestOptions);
 
         return 'Password updated successfully';
     } catch (error) {
@@ -1225,7 +1225,7 @@ async function updateUsername() {
     };
 
     try {
-        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update-username/`, requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}user/preferences/update_username/`, requestOptions);
 
         return 'Username updated successfully';
     } catch (error) {

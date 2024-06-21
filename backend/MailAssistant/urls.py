@@ -6,6 +6,7 @@ from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.controllers import artificial_intelligence as ai
 from MailAssistant.controllers import authentication as auth
+from MailAssistant.controllers import categories
 from .controllers import views
 
 
@@ -25,23 +26,26 @@ urlpatterns = [
     path('user/social_api/unlink/', auth.unlink_email, name='unlink_email'), # ok
     path('user/social_api/link/', auth.link_email, name='link_email'), # ok
     #----------------------- CATEGORIES -----------------------#
-    path('user/categories/', views.get_user_categories, name='user-categories'), # ok
-    path('api/create_category/', views.create_category, name='create_category'), # ok
-    path('api/get-category-id/', views.get_category_id, name='get_category_id'), # ok
-    path('api/update_category/', views.update_category, name='update_category'), # ok
-    path('api/delete_category/', views.delete_category, name='delete_category'), # ok
-    path('api/get_rules_linked/', views.get_rules_linked, name='get_rules_linked'), # ok
+    path('user/categories/', categories.get_user_categories, name='get_user_categories'), # ok
+    path('api/create_category/', categories.create_category, name='create_category'), # ok
+    path('api/get_category_id/', categories.get_category_id, name='get_category_id'), # ok
+    path('api/update_category/', categories.update_category, name='update_category'), # ok
+    path('api/delete_category/', categories.delete_category, name='delete_category'), # ok
+    path('api/get_rules_linked/', categories.get_rules_linked, name='get_rules_linked'), # ok
     #----------------------- RULES -----------------------#
     path('user/rules/', views.get_user_rules, name='get_user_rules'), # ok
     path('user/rules/<int:id_rule>/', views.get_user_rule_by_id, name='get_user_rule_by_id'), # ok
-    path('user/delete-rules/<int:id_rule>/', views.delete_user_rule_by_id, name='delete_user_rule_by_id'), # ok
-    path('user/create-rule/', views.create_user_rule, name='create_user_rule'), # ok
-    path('user/update-rule/', views.update_user_rule, name='update_user_rule'), # ok
+    path('user/delete_rules/<int:id_rule>/', views.delete_user_rule_by_id, name='delete_user_rule_by_id'), # ok
+    path('user/create_rule/', views.create_user_rule, name='create_user_rule'), # ok
+    path('user/update_rule/', views.update_user_rule, name='update_user_rule'), # ok
     #----------------------- PREFERENCES -----------------------#
-    path('user/preferences/update-username/', views.update_username, name='update_username'), # ok
-    path('user/preferences/update-password/', views.update_password, name='update_password'), # ok
+    path('user/preferences/update_username/', views.update_username, name='update_username'), # ok
+    path('user/preferences/update_password/', views.update_password, name='update_password'), # ok
+
+    # TO DELETE
     path('user/preferences/bg_color/', views.get_user_bg_color, name='get_user_bg_color'), # ok
     path('user/preferences/set_bg_color/', views.set_user_bg_color, name='set_bg_color'), # ok
+
     path('user/preferences/language/', views.get_user_language, name='get_user_language'), # ok
     path('user/preferences/set_language/', views.set_user_language, name='set_user_language'), # ok
     path('user/preferences/theme/', views.get_user_theme, name='get_user_theme'), # ok
@@ -57,14 +61,14 @@ urlpatterns = [
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
     path('user/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
-    path('user/emails/', views.get_user_emails, name='user-emails'), # ok
-    path('user/emails/<int:email_id>/mark-read/', views.set_email_read, name='email-mark-read'), # ok
-    path('user/emails/<int:email_id>/mark-unread/', views.set_email_unread, name='email-mark-unread'), # ok
-    path('user/emails/<int:email_id>/mark-reply-later/', views.set_email_reply_later, name='email-mark-reply-later'), # ok
-    path('user/emails/<int:email_id>/unmark-reply-later/', views.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
-    path('user/emails/<int:email_id>/block-sender/', views.set_rule_block_for_sender, name='block-sender-via-email'), # ok
+    path('user/emails/', views.get_user_emails, name='get_user_emails'), # ok
+    path('user/emails/<int:email_id>/mark_read/', views.set_email_read, name='set_email_read'), # ok
+    path('user/emails/<int:email_id>/mark_unread/', views.set_email_unread, name='set_email_unread'), # ok
+    path('user/emails/<int:email_id>/mark_reply_later/', views.set_email_reply_later, name='set_email_reply_laterr'), # ok
+    path('user/emails/<int:email_id>/unmark_reply_later/', views.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
+    path('user/emails/<int:email_id>/block_sender/', views.set_rule_block_for_sender, name='set_rule_block_for_sender'), # ok
     path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', views.retrieve_attachment_data, name='retrieve_attachment_data'), 
-    path('user/emails/<int:email_id>/delete/', views.delete_email, name='email-delete'), # ok
+    path('user/emails/<int:email_id>/delete/', views.delete_email, name='delete_email'), # ok
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok    
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
@@ -77,7 +81,7 @@ urlpatterns = [
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/search_emails_ai/', ai.search_emails_ai , name='search_emails_ai'), # ok
     path('api/search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'), # ok
-    path('api/find-user-ai/', ai.find_user_view_ai, name='find-user-ai'), # ok
+    path('api/find_user_ai/', ai.find_user_view_ai, name='find_user_view_ai'), # ok
     path('api/new_email_ai/', ai.new_email_ai, name='new_email_ai'), # ok
     path('api/improve_email_writing/', ai.improve_email_writing, name='improve_email_writing'), # ok
     path('api/correct_email_language/', ai.correct_email_language, name='correct_email_language'), # ok

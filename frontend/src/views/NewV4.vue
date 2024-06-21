@@ -1117,7 +1117,7 @@ async function findUser(searchQuery) {
     };
 
     try {
-        const data = await fetchWithToken(`${API_BASE_URL}api/find-user-ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}api/find_user_ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
         console.log(data);
         userSearchResult.value = data; // Update the reactive variable
         return data

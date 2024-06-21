@@ -10,6 +10,10 @@ Endpoints available:
 - unlink_email: Unlink email and delete associated data.
 - delete_account: Remove the authenticated user account.
 - refresh_token: Refresh JWT access token and return a new one.
+
+
+TODO:
+- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import datetime

@@ -1,6 +1,20 @@
 """
 Handles LLM calls, returns results to frontend after processing.
 
+Endpoints available:
+- get_new_email_response: Generate a new email response based on user input, email importance, subject, body, and chat history.
+- improve_draft: Improve the draft email response based on user input, email length, formality, subject, body, and chat history.
+- search_emails_ai: Search emails using AI interpretation of user query.
+- search_tree_knowledge: Search emails using AI interpretation of user query.
+- find_user_view_ai: Search for emails in the user's mailbox based on the provided search query in both the subject and body.
+- new_email_ai: Return an AI-generated email subject and content based on input data.
+- improve_email_writing: Enhance the subject and body of an email in French, focusing on both quantity and quality improvements, while retaining key details from the original version.
+- correct_email_language: Correct spelling and grammar mistakes in the email subject and body based on user's request.
+- check_email_copywriting: Check and provide feedback on the email copywriting based on the user's request.
+- generate_email_response_keywords: Generate response keywords based on the provided email subject and content.
+- generate_email_answer: Generate an automated response to an email based on its subject, content, and user instructions.
+
+
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 - Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
@@ -392,7 +406,6 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
         )
 
 
-######################## PROMPT ENGINEERING ########################
 @api_view(["GET"])
 @subscription([FREE_PLAN])
 def find_user_view_ai(request: HttpRequest) -> Response:
@@ -483,7 +496,6 @@ def find_user_view_ai(request: HttpRequest) -> Response:
         )
 
 
-# ----------------------- REDACTION -----------------------#
 @api_view(["POST"])
 @subscription([FREE_PLAN])
 def new_email_ai(request: HttpRequest) -> Response:
@@ -614,7 +626,6 @@ def check_email_copywriting(request: HttpRequest) -> Response:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ----------------------- ANSWER -----------------------#
 @api_view(["POST"])
 @subscription([FREE_PLAN])
 def generate_email_response_keywords(request: HttpRequest) -> Response:

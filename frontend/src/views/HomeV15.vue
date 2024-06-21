@@ -1780,7 +1780,7 @@ async function markEmailAsUnread(emailId) {
     updateEmailUnreadStatus(emailId);
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-unread/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_unread/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1808,7 +1808,7 @@ async function markEmailAsRead(emailId) {
     updateEmailReadStatus(emailId);
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-read/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_read/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1936,7 +1936,7 @@ async function markEmailReplyLater(email) {
     isMenuOpen.value = false;
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark-reply-later/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply_later/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1986,7 +1986,7 @@ async function setRuleBlockForSender(email) {
     const emailId = email.id;
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/block-sender/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/block_sender/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

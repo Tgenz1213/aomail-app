@@ -969,7 +969,7 @@ export default {
       this.deleteEmailFromState(emailId);
 
       try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/unmark-reply-later/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/unmark_reply_later/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

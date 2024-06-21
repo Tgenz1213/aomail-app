@@ -564,7 +564,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round"
                             d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                         </svg>
-                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">TODO Description (optionelle)</label>
+                        <label for="login" class="block text-sm font-medium leading-6 text-gray-900">{{ $t('settingsPage.accountPage..optionalDescription') }}</label>
                       </div>
                       <div class="mt-2">
                         <input v-model="userDescription" :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')"
@@ -806,13 +806,13 @@ function deleteCategoryOnUpdate() {
 function updateCategoryHandler() {
 
   if (!updateCategoryName.value.trim() || !updateCategoryDescription.value.trim()) {
-    errorUpdateMessage.value = "TODO Veuillez remplir tous les champs";
+    errorUpdateMessage.value = t('homepage.modals.pleaseFillAllFields');
   } else if (categories.value.some(cat => cat.name === updateCategoryName.value && cat.name != updateOldCategoryName.value)) {
-    errorUpdateMessage.value = "TODO La catégorie existe déjà";
+    errorUpdateMessage.value = t('signUpPart1Page.categoryAlreadyExists');
   } else if (updateCategoryDescription.value.length > 300) {
-    errorUpdateMessage.value = "TODO Pas plus de 300 caractères pour la description";
+    errorUpdateMessage.value = t('homepage.modals.maxDescriptionCharacters');
   } else if (updateCategoryName.value.length > 50) {
-    errorUpdateMessage.value = "TODO Pas plus de 50 caractères pour le nom";
+    errorUpdateMessage.value = t('homepage.modals.maxNameCharacters');
   } else {
     categoryOpened.value.name = updateCategoryName.value;
     categoryOpened.value.description = updateCategoryDescription.value;
@@ -917,15 +917,15 @@ async function nextStep0() {
 
   // Checks username requirements
   if (!login.value) {
-    credentialError.value = 'TODO Veuillez saisir un identifiant';
+    credentialError.value = t('constants.popUpConstants.errorMessages.pleaseEnterAnIdentifier');
     return false;
   }
   if (login.value.includes(" ")) {
-    credentialError.value = 'TODO L\'identifiant ne doit pas contenir d\'espaces';
+    credentialError.value = t('constants.popUpConstants.errorMessages.identifierMustNotContainSpaces');
     return false;
   }
   if (login.value.length > 150) {
-    credentialError.value = 'TODO Longueur max nom d\'utilisateur : 150 caractères';
+    credentialError.value = t('constants.popUpConstants.errorMessages.maxUsernameLength150Characters');
     return false;
   }
 
@@ -943,13 +943,13 @@ async function nextStep0() {
     const responseData = await response.json();
 
     if (responseData.available === false) {
-      credentialError.value = 'TODO L\'identifiant est déjà utilisé';
+      credentialError.value = t('constants.popUpConstants.errorMessages.identifierIsAlreadyInUse');
       return false;
     }
   } catch (error) {
     // Show the pop-up
     backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle.value = 'TODO Erreur vérification identifiant';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.errorMessageVerificationIdentifier');
     notificationMessage.value = error;
     displayPopup();
     return false;
@@ -961,19 +961,19 @@ async function nextStep0() {
   const maxLength = 32;
 
   if (!password.value.trim()) {
-    credentialError.value = 'TODO Veuillez saisir un mot de passe';
+    credentialError.value = t('constants.popUpConstants.errorMessages.pleaseEnterPassword');
     return false;
   }
   else if (!confirmPassword.value.trim()) {
-    credentialError.value = 'TODO Veuillez confirmer votre mot de passe';
+    credentialError.value = t('constants.popUpConstants.errorMessages.pleaseConfirmPassword');
     return false;
   }
   else if (password.value.length < minLength || password.value.length > maxLength) {
-    credentialError.value = 'TODO La longueur du mot de passe doit être entre 8 et 32 caractères';
+    credentialError.value = t('constants.popUpConstants.errorMessages.passwordLengthShouldBeBetween8And32Characters');
     return false;
   }
   else if (password.value !== confirmPassword.value) {
-    credentialError.value = 'TODO Les mots de passe ne correspondent pas';
+    credentialError.value = t('constants.popUpConstants.errorMessages.passwordsDoNotMatch');
     return false;
   }
   // else if (password.value.includes(" ")) {
@@ -1019,7 +1019,7 @@ function addCategory() {
   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
     errorMessage.value = t('homePage.modals.pleaseFillAllFields');
   } else if (categories.value.some(cat => cat.name === categoryName.value)) {
-    errorMessage.value = "TODO La catégorie existe déjà";
+    errorMessage.value = t('signUpPart1Page.categoryAlreadyExists');
   } else if (categoryDescription.value.length > 300) {
     errorMessage.value = t('homePage.modals.newCategoryModal.maxDescriptionCharacters');
   } else if (categoryName.value.length > 50) {
@@ -1047,7 +1047,7 @@ async function submitSignupData() {
   catch (error) {
     // Show the pop-up
     backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle.value = 'TODO Erreur lors de l\'envoi des données';
+    notificationTitle.value = t('homepage.modals.maxNameCharacters');
     notificationMessage.value = error;
     displayPopup();
   }

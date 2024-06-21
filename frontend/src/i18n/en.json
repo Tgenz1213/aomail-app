@@ -76,7 +76,6 @@
         "emailSendErrorNoRecipient": "No recipient entered",
         "deleteEmailFailure": "Failed to delete email",
         "addCategoryError": "Error adding category",
-        "categoryAddedSuccess": "Category has been added",
         "updateCategoryError": "Error updating category",
         "emptyCategoryNameError": "Category name cannot be empty",
         "deleteCategoryError": "Error deleting category",
@@ -90,6 +89,7 @@
         "passwordLengthShouldBeBetween8And32Characters": "Password length should be between 8 and 32 characters",
         "passwordsDoNotMatch": "Passwords do not match",
         "pleaseEnterAnIdentifier": "Please enter an identifier",
+        "recuperationRules": "Error retrieving the rules",
         "identifierMustNotContainSpaces": "The identifier must not contain spaces",
         "maxUsernameLength150Characters": "Maximum username length: 150 characters",
         "identifierIsAlreadyInUse": "The identifier is already in use"
@@ -98,6 +98,7 @@
         "success": "Success!",
         "emailSuccessfullySent": "Your email has been successfully sent.",
         "updateCategorySuccess": "Category has been updated",
+        "categoryAddedSuccess": "Category has been added",
         "deleteCategorySuccess": "Your category has been deleted"
       }
     },
@@ -165,6 +166,7 @@
     "waitingDatabaseResponse": "Waiting for database response",
     "accountCreationError": "Error creating account",
     "registerToAomail": "Register to Aomail",
+    "AcceptTerms": "You must accept Aomail terms",
     "linkAGmailAccount": "Link a Gmail account",
     "linkAnOutlookAccount": "Link an Outlook account",
     "linkYourGmailAccount": "Link your Gmail account",

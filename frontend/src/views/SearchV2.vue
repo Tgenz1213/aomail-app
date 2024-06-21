@@ -188,7 +188,8 @@
                                       class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                                       <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
                                       <span class="block truncate text-gray-700">
-                                          {{ attachmentSelected ? attachmentSelected.name : 'TODO Type de pièce jointe' }}
+                                        {{ attachmentSelected ? attachmentSelected.name : $t('searchPage.attachmentSelectedPlaceholder') }}
+
                                       </span>
                                       <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                           <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
@@ -1014,7 +1015,7 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
   })
   .catch(error => {
     backgroundColor = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle.value = 'TODO Erreur récupération des contacts';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.contactFetchError');
     notificationMessage.value = error;
     displayPopup();
   });
@@ -1048,7 +1049,7 @@ async function fetchEmailLinked() {
     if ("error" in response) {
       // Show the pop-up
       backgroundColor = 'bg-red-200/[.89] border border-red-400';
-      notificationTitle = 'TODO Erreur récupération de vos emails';
+      notificationTitle = t('constants.popUpConstants.errorMessages.emailLinkedFetchError');
       notificationMessage = response.error;
       displayPopup();
     } else {
@@ -1057,7 +1058,7 @@ async function fetchEmailLinked() {
   } catch (error) {
     // Show the pop-up
     backgroundColor = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle = 'TODO Erreur récupération de vos emails';
+    notificationTitle = t('constants.popUpConstants.errorMessages.emailLinkedFetchError');
     notificationMessage = error.message;
     displayPopup();
   }
@@ -1127,24 +1128,24 @@ async function handleAIClick() {
     if (result.error) {
       // Show the pop-up
       backgroundColor = 'bg-red-200/[.89] border border-red-400';
-      notificationTitle = 'TODO Erreur recherche intelligente';
+      notificationTitle = t('searchPage.popUpConstants.successMessages.smartSearchError');
       notificationMessage = result.error;
       displayPopup();
     } else if (result.message) {
-      message = "TODO You do not have enough data to answer the question";
+      message = t('searchPage.notEnoughDataToAnswer');
     } else {
       const { sure, answer, emails } = result.answer;
       message = answer;
 
       if (!sure) {
-        message += "\n\nTODO Voici les emails pour que vous vérifier par vous-même: " + emails.join(', ');
+        message += "\n\n" + t('searchPage.emailsToCheckList') + emails.join(', ');
       }
     }
 
     await displayMessage(message, aiIcon);
   } catch (error) {
     console.error('Error fetching AI response:', error);
-    await displayMessage('TODO An error occurred while searching the response. Please try again', aiIcon);
+    await displayMessage( t('searchPage.anErrorOccuredDuringSmartSearch') , aiIcon);
   } finally {
     hideLoading();
     isAIWriting.value = false;

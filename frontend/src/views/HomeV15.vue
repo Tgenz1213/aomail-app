@@ -1790,14 +1790,14 @@ async function markEmailAsUnread(emailId) {
         if (response.read != false) {
             console.log("RESPONSE markEmailAsUnread", response);
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Échec de marquage de l\'email comme non lu';
+            notificationTitle =  t('homepage.markEmailUnreadFailure');
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsUnread:', error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Échec de marquage de l\'email comme non lu';
+        notificationTitle = t('homepage.markEmailUnreadFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1818,14 +1818,14 @@ async function markEmailAsRead(emailId) {
         if (response.read != true) {
             console.log("RESPONSE", response);
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Échec de marquage de l\'email comme lu';
+            notificationTitle = t('homepage.markEmailReadFailure');
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsRead:', error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Échec de marquage de l\'email comme lu';
+        notificationTitle = t('homepage.markEmailReadFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1923,7 +1923,7 @@ async function transferEmail(email) {
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Échec de transfer d\'email';
+        notificationTitle = t('homepage.transferEmailFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1947,14 +1947,14 @@ async function markEmailReplyLater(email) {
         } else {
             console.error('Failed to mark email for reply later', response);
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Échec de marquage d\'email pour répondre pour plus tard';
+            notificationTitle = t('homepage.markEmailReplyLaterFailure');
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailReplyLater:', error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Échec de marquage d\'email pour répondre pour plus tard';
+        notificationTitle = t('homepage.markEmailReplyLaterFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -1998,14 +1998,14 @@ async function setRuleBlockForSender(email) {
         } else {
             console.error('Failed to set block rule for sender', response);
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Échec du bloquage de l\'addresse email';
+            notificationTitle = t('homepage.blockEmailAddressFailure');
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in setRuleBlockForSender:', error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Échec du bloquage de l\'addresse email';
+        notificationTitle = t('homepage.blockEmailAddressFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -2026,14 +2026,14 @@ async function deleteEmail(emailId) {
 
         if (!response.message) {
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Échec de suppression d\'email';
+            notificationTitle = t('constants.popUpConstants.deleteEmailFailure');
             notificationMessage = response.error;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in deleteEmail:', error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Échec de suppression d\'email';
+        notificationTitle = t('constants.popUpConstants.deleteEmailFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -2075,7 +2075,7 @@ async function openAnswer(email) {
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Échec d\'ouverture de la page de réponse';
+        notificationTitle = t('constants.popUpConstants.openReplyPageFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -2143,7 +2143,7 @@ async function handleAddCategory(categoryData) {
         if ('error' in response) {
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Erreur lors de l\'ajout de la catégorie';
+            notificationTitle = t('constants.popUpConstants.addCategoryError');
             notificationMessage = response.error;
             displayPopup();
 
@@ -2151,8 +2151,8 @@ async function handleAddCategory(categoryData) {
         } else if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'TODO Succès !';
-            notificationMessage = 'TODO La catégorie a été ajoutée';
+            notificationTitle = t('constants.popUpConstants.successMessages.success');
+            notificationMessage = t('constants.popUpConstants.successMessages.categoryAddedSuccess');
             displayPopup();
 
             closeModal();
@@ -2166,7 +2166,7 @@ async function handleAddCategory(categoryData) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur lors de l\'ajout de la catégorie';
+        notificationTitle =  t('constants.popUpConstants.errorMessages.addCategoryError');
         notificationMessage = error.message;
         displayPopup();
 
@@ -2189,8 +2189,8 @@ async function handleUpdateCategory(updatedCategory) {
     if (!updatedCategory.name.trim()) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur lors de la mise à jour de la catégorie';
-        notificationMessage = 'TODO Le nom de la catégorie ne peut pas être vide';
+        notificationTitle =  t('constants.popUpConstants.errorMessages.updateCategoryError');
+        notificationMessage = t('constants.popUpConstants.errorMessages.emptyCategoryNameError');
         displayPopup();
 
         closeUpdateModal();
@@ -2215,8 +2215,8 @@ async function handleUpdateCategory(updatedCategory) {
         if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'TODO Succès !';
-            notificationMessage = 'TODO La catégorie a été mise à jour';
+            notificationTitle = t('constants.popUpConstants.successMessages.success');
+            notificationMessage = t('constants.popUpConstants.successMessages.updateCategorySuccess');
             displayPopup();
 
             closeUpdateModal();
@@ -2231,7 +2231,7 @@ async function handleUpdateCategory(updatedCategory) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur lors de la mise à jour de la catégorie';
+        notificationTitle = t('constants.popUpConstants.errorMessages.updateCategoryError');
         notificationMessage = error.message;
         displayPopup();
 
@@ -2243,8 +2243,8 @@ async function handleCategoryDelete(categoryNameToDelete) {
     if (!categoryNameToDelete.trim()) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur lors de la suppression de la catégorie';
-        notificationMessage = 'TODO Le nom de la catégorie ne peut pas être vide';
+        notificationTitle = t('constants.popUpConstants.errorMessages.openTransferPageFailure');
+        notificationMessage = t('constants.popUpConstants.errorMessages.emptyCategoryNameError');
         displayPopup();
         return;
     }
@@ -2273,7 +2273,7 @@ async function handleCategoryDelete(categoryNameToDelete) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur récupération des règles associées';
+        notificationTitle = t('constants.popUpConstants.errorMessages.recuperationRules');
         notificationMessage = error.message;
         displayPopup();
 
@@ -2300,8 +2300,8 @@ async function deleteCategory(categoryNameToDelete) {
         if (response) {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'TODO Succès !';
-            notificationMessage = 'TODO Votre catégorie a été supprimée';
+            notificationTitle =  t('constants.popUpConstants.successMessages.success');
+            notificationMessage = t('constants.popUpConstants.successMessages.deleteCategorySuccess');
             displayPopup();
 
             // Fetch the categories
@@ -2314,7 +2314,7 @@ async function deleteCategory(categoryNameToDelete) {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur lors de la suppression de la catégorie';
+        notificationTitle = t('constants.popUpConstants.errorMessages.deleteCategoryError');
         notificationMessage = error.message;
         displayPopup();
     }

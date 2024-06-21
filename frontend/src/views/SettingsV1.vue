@@ -179,12 +179,13 @@
                     <div>
                         <div class="flex space-x-1 items-center">
                             <envelope-icon class="w-4 h-4" />
-                            <label class="block text-sm font-medium leading-6 text-gray-900">TODO Description
-                                (optionnelle)</label>
+                            <label class="block text-sm font-medium leading-6 text-gray-900">{{
+                            $t('settingsPage.accountPage.optionalDescription')
+                            }}</label>
                         </div>
                         <div class="relative items-stretch mt-2 pb-6">
                             <input v-model="userDescription" type="text"
-                                placeholder="TODO Summarize yourself with name to help Ao"
+                               :placeholder="$t('signUpPart1Page.summaryUserPlaceholder')" 
                                 class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6">
                         </div>
                     </div>
@@ -372,7 +373,7 @@
                                             <div class="flex justify-end pt-4">
                                                 <button @click="handleSubmit"
                                                     class="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">{{
-                                                        $t('settingsPage.accountPage.modify') }}</button>
+                                                        $t('constants.userActions.modify') }}</button>
                                             </div>
                                         </div>
                                     </div>
@@ -512,8 +513,8 @@
                                                         <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                                                     </svg>
                                                     <span
-                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Securely
-                                                        link my Outlook account with Oauth2.0</span>
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">
+                                                        {{ $t('settingsPage.accountPage.securelyLinkOutlookAccount') }}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -538,8 +539,8 @@
                                                             id="Shape" fill="#EB4335"></path>
                                                     </svg>
                                                     <span
-                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Securely
-                                                        link my Gmail account with Oauth2.0</span>
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">
+                                                        {{ $t('settingsPage.accountPage.securelyLinkGmailAccount') }}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -558,7 +559,7 @@
                                                         </path>
                                                     </svg>
                                                     <span
-                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Under Development</span>
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block"> {{ $t('constants.underDevelopment') }}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -580,7 +581,7 @@
                                                         </g>
                                                     </svg>
                                                     <span
-                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">TODO Under Development</span>
+                                                        class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 hidden w-max px-2 py-1 text-xs text-white bg-black rounded-md group-hover:block">{{ $t('constants.underDevelopment') }}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -750,8 +751,8 @@ async function openUnLinkModal(email) {
     if (emailsLinked.value.length == 1) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'TODO Impossibilité de supprimer l\'email principal';
-        notificationMessage.value = 'TODO Si vous souhaitez supprimer votre compte utilisez la section dédiée';
+        notificationTitle.value = t('settingsPage.accountPage.unableToDeletePrimaryEmail');
+        notificationMessage.value = t('settingsPage.accountPage.deleteAccountInstruction');
         displayPopup();
         closeUnlinkModal();
         return;
@@ -775,21 +776,21 @@ async function unLinkAccount() {
         if ("error" in response) {
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle.value = 'TODO Erreur lors de la désassociation de l\'adresse e-mail';
+            notificationTitle.value = t('settingsPage.accountPage.errorUnlinkingEmailAddress');
             notificationMessage.value = response.error;
             displayPopup();
         } else if (response.message == "Email unlinked successfully!") {
             fetchEmailLinked();
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle.value = 'TODO Succès !';
-            notificationMessage.value = 'TODO Email désassocié de votre compte avec succès !';
+            notificationTitle.value = t('constants.popUpConstants.successMessages.success');
+            notificationMessage.value = t('settingsPage.accountPage.emailUnlinkedSuccess');
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'TODO Erreur lors de la désassociation de l\'adresse e-mail';
+        notificationTitle.value = t('settingsPage.accountPage.errorUnlinkingEmailAddress');
         notificationMessage.value = error.message;
         displayPopup();
     }
@@ -844,13 +845,13 @@ async function linkEmail(authorizationCode) {
         fetchEmailLinked();
         // Show the pop-up
         backgroundColor.value = 'bg-green-200/[.89] border border-green-400';
-        notificationTitle.value = 'TODO Succès !';
-        notificationMessage.value = 'TODO Votre email a été lié à votre compte';
+        notificationTitle.value = t('constants.popUpConstants.successMessages.success');
+        notificationMessage.value = t('settingsPage.accountPage.emailLinkedSuccess');
         displayPopup();
     } else {
         // Show the pop-up
         backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'TODO Échec de liaison d\'email';
+        notificationTitle.value = t('settingsPage.accountPage.emailLinkingFailure');
         notificationMessage.value = response.error;
         displayPopup();
     }
@@ -874,7 +875,7 @@ async function fetchEmailLinked() {
         if ("error" in response) {
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Erreur récupération de vos emails';
+            notificationTitle = t('constants.popUpConstants.primaryEmailFetchError');
             notificationMessage = response.error;
             displayPopup();
         } else {
@@ -883,7 +884,7 @@ async function fetchEmailLinked() {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur récupération de vos emails';
+        notificationTitle = t('constants.popUpConstants.primaryEmailFetchError');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -896,8 +897,8 @@ function openModal() {
     } else {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Confirmation nécessaire';
-        notificationMessage = 'TODO Cochez la case pour approuver la suppression';
+        notificationTitle = t('settingsPage.accountPage.confirmationRequired');
+        notificationMessage = t('settingsPage.accountPage.checkBoxApprovalDeletion');
         displayPopup();
     }
 }
@@ -930,7 +931,7 @@ async function openUserDescriptionModal(email) {
         userDescription.value = response.data;
     } else {
         backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = "TODO Erreur récupération de votre description";
+        notificationTitle.value = t('settingsPage.accountPage.errorUnlinkingEmailAddress');
         notificationMessage.value = response.error;
         displayPopup();
     }
@@ -951,12 +952,12 @@ async function updateUserDescription() {
 
     if (response.message == "User description updated") {
         backgroundColor = 'bg-green-200/[.89] border border-green-400';
-        notificationTitle.value = "TODO Succès !";
-        notificationMessage.value = "TODO Description email mise à jour";
+        notificationTitle.value = t('constants.popUpConstants.successMessages.success');
+        notificationMessage.value = t('settingsPage.accountPage.emailDescriptionUpdated');
         displayPopup();
     } else {
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = "TODO Erreur mise à jour description";
+        notificationTitle.value = t('settingsPage.accountPage.errorUpdatingDescription');
         notificationMessage.value = response.error;
         displayPopup();
     }
@@ -1065,7 +1066,7 @@ async function fetchUserData() {
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur récupération de votre identifiant';
+        notificationTitle = t('settingsPage.accountPage.errorRetrievingUsername');
         notificationMessage = error;
         displayPopup();
     }
@@ -1087,7 +1088,7 @@ async function getUsername() {
         console.error(error);
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur récupération de votre identifiant';
+        notificationTitle = t('settingsPage.accountPage.errorRetrievingUsername');
         notificationMessage = error;
         displayPopup();
         return;
@@ -1109,7 +1110,7 @@ async function handleSubmit() {
         console.log("An error occured while checking the username", error);
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur vérification nom d\'utilisateur';
+        notificationTitle = t('settingsPage.accountPage.usernameCheckError');
         notificationMessage = error;
         displayPopup();
         return;
@@ -1121,8 +1122,8 @@ async function handleSubmit() {
     if (response.available == false) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Nom d\'utilisateur déjà existant';
-        notificationMessage = 'TODO Veuillez choisir un autre nom';
+        notificationTitle = t('settingsPage.accountPage.usernameAlreadyExists');
+        notificationMessage = t('settingsPage.accountPage.pleaseChooseDifferentUsername');
         displayPopup();
         return;
     }
@@ -1137,7 +1138,7 @@ async function handleSubmit() {
             console.error("Error occurre while retrieving data about username", error);
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Erreur vérification nom d\'utilisateur';
+            notificationTitle = t('settingsPage.accountPage.usernameCheckError');
             notificationMessage = error;
             displayPopup();
         }
@@ -1156,8 +1157,8 @@ async function handleSubmit() {
         if (resultUpdateUsername == 'Username updated successfully' && resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'TODO Succès !';
-            notificationMessage = 'TODO Votre identifiant et mot de passe ont été modifiés';
+            notificationTitle = t('constants.popUpConstants.successMessages.success');
+            notificationMessage = t('settingsPage.accountPage.credentialsUpdated');
             displayPopup();
         }
         else if (!resultUpdatePwd) {
@@ -1165,14 +1166,14 @@ async function handleSubmit() {
             if (resultUpdateUsername == 'Username updated successfully') {
                 // Show the pop-up
                 backgroundColor = 'bg-green-200/[.89] border border-green-400';
-                notificationTitle = 'TODO Succès !';
-                notificationMessage = 'TODO Votre identifiant a bien été mis à jour';
+                notificationTitle = t('constants.popUpConstants.successMessages.success');
+                notificationMessage = t('settingsPage.accountPage.usernameUpdatedSuccess');
                 displayPopup();
             }
             else {
                 // Show the pop-up
-                backgroundColor = 'bg-green-200/[.89] border border-green-400';
-                notificationTitle = 'TODO Erreur mise à jour identifiant';
+                backgroundColor = 'bg-red-200/[.89] border border-red-400';
+                notificationTitle = t('settingsPage.accountPage.errorUpdatingUsername');
                 notificationMessage = resultUpdateUsername;
                 displayPopup();
             }
@@ -1183,14 +1184,14 @@ async function handleSubmit() {
         if (resultUpdatePwd == 'Password updated successfully') {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'TODO Succès !';
-            notificationMessage = 'TODO Votre mot de passe a bien été modifié';
+            notificationTitle = t('constants.popUpConstants.successMessages.success');
+            notificationMessage =  t('settingsPage.accountPage.passwordUpdatedSuccess');
             displayPopup();
         }
         else {
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Erreur mise à jour mot de passe';
+            notificationTitle = t('settingsPage.accountPage.errorUpdatingPassword');
             notificationMessage = resultUpdatePwd;
             displayPopup();
         }
@@ -1253,8 +1254,8 @@ async function deleteAccount() {
             closeModal();
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'TODO Redirection en cours...';
-            notificationMessage = 'TODO Votre compte a bien été supprimé';
+            notificationTitle = t('settingsPage.accountPage.redirectionInProgress');
+            notificationMessage = t('settingsPage.accountPage.accountDeletedSuccess');
             displayPopup();
 
             setTimeout(() => {
@@ -1265,14 +1266,14 @@ async function deleteAccount() {
         } else {
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'TODO Erreur suppresion de votre compte';
+            notificationTitle = t('settingsPage.accountPage.errorDeletingAccount');
             notificationMessage = responseData.error;
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle ='TODO Erreur suppresion de votre compte';
+        notificationTitle = t('settingsPage.accountPage.errorDeletingAccount');
         notificationMessage = error;
         displayPopup();
     }

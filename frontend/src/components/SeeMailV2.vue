@@ -34,7 +34,7 @@
                   <!-- <div class="relative group"> -->
                       <div
                           class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                          {{ $t('SeeMail_vue.more_actions') }} 
+                          {{ $t('homePage.seeEmailModal.moreActions') }} 
                       </div>
                       <div class="flex justify-center">
                         <span class="isolate inline-flex rounded-2xl">
@@ -44,7 +44,7 @@
                                 <!-- Adjusted tooltip positioning -->
                                 <div
                                     class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
-                                    {{ $t('SeeMail_vue.read') }} 
+                                    {{ $t('homePage.modals.seeEmailModal.read') }}  
                                 </div>
                                 <button
                                     @click="markEmailAsRead(email.id)"
@@ -60,7 +60,7 @@
                               <!-- Updated tooltip positioning -->
                               <div
                                   class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
-                                  {{ $t('SeeMail_vue.answer') }} 
+                                  {{ $t('homePage.answer') }}  
                               </div>
                               <button @click="openAnswer(email)"
                                   type="button"
@@ -75,7 +75,7 @@
                               <!-- Updated tooltip positioning -->
                               <div
                                   class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
-                                  TODO: Répondre
+                                  {{ $t('homePage.answer') }} 
                               </div>
                               <button @click="openRuleEditor"
                                   type="button"
@@ -89,7 +89,7 @@
                               <div class="relative group">
                                   <div
                                     class="absolute hidden group-hover:block px-2 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2 -translate-x-3">
-                                    {{ $t('SeeMail_vue.more_actions') }} 
+                                    {{ $t('homePage.modals.seeEmailModal.moreActions') }} 
                                 </div>
                                   <Menu as="div"
                                       class="relative inline-block text-left">
@@ -133,9 +133,7 @@
                                                                     d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                             </svg>
-                                                            <span>TODO: Répondre
-                                                                plus
-                                                                tard</span>
+                                                            <span> {{ $t('constants.userActions.replyLater') }} </span>
                                                         </span>
                                                     </a>
                                                     </MenuItem>
@@ -163,7 +161,7 @@
                                                                     d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                                     style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                             </svg>
-                                                            <span>TODO: Transférer</span>
+                                                            <span>{{ $t('constants.userActions.transfer') }}</span>
                                                         </span>
                                                     </a>
                                                     </MenuItem>

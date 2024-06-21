@@ -93,13 +93,13 @@ const updateLanguageSelection = async (newLanguage) => {
     });
 
     if (response.error) {
-      setNotification('bg-red-300', 'TODO Error getting language', response.error);
+      setNotification('bg-red-200/[.89] border border-red-400', t('settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage'), response.error);
     } else if (response.message === "Language updated successfully") {
       i18n.global.locale = newLanguageKey;
-      setNotification('bg-green-200/[.89] border border-green-400', 'TODO Success!', 'TODO Language updated successfully');
+      setNotification('bg-green-200/[.89] border border-green-400', t('settingsPage.preferencesPage.popUpConstants.successMessages.languageUpdatedSuccessfully'));
     }
   } catch (error) {
-    setNotification('bg-red-200/[.89] border border-red-400', 'TODO Error getting language', error.message);
+    setNotification('bg-red-200/[.89] border border-red-400', t('settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage'), error.message);
   }
 };
 

@@ -6,7 +6,7 @@ from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.controllers import artificial_intelligence as ai
 from MailAssistant.controllers import authentication as auth
-from MailAssistant.controllers import categories
+from MailAssistant.controllers import categories, rules
 from .controllers import views
 
 
@@ -33,11 +33,12 @@ urlpatterns = [
     path('api/delete_category/', categories.delete_category, name='delete_category'), # ok
     path('api/get_rules_linked/', categories.get_rules_linked, name='get_rules_linked'), # ok
     #----------------------- RULES -----------------------#
-    path('user/rules/', views.get_user_rules, name='get_user_rules'), # ok
-    path('user/rules/<int:id_rule>/', views.get_user_rule_by_id, name='get_user_rule_by_id'), # ok
-    path('user/delete_rules/<int:id_rule>/', views.delete_user_rule_by_id, name='delete_user_rule_by_id'), # ok
-    path('user/create_rule/', views.create_user_rule, name='create_user_rule'), # ok
-    path('user/update_rule/', views.update_user_rule, name='update_user_rule'), # ok
+    path('user/rules/', rules.get_user_rules, name='get_user_rules'), # ok
+    path('user/rules/<int:id_rule>/', rules.get_user_rule_by_id, name='get_user_rule_by_id'), # ok
+    path('user/delete_rules/<int:id_rule>/', rules.delete_user_rule_by_id, name='delete_user_rule_by_id'), # ok
+    path('user/create_rule/', rules.create_user_rule, name='create_user_rule'), # ok
+    path('user/update_rule/', rules.update_user_rule, name='update_user_rule'), # ok
+    path('user/emails/<int:email_id>/block_sender/', rules.set_rule_block_for_sender, name='set_rule_block_for_sender'), # ok
     #----------------------- PREFERENCES -----------------------#
     path('user/preferences/update_username/', views.update_username, name='update_username'), # ok
     path('user/preferences/update_password/', views.update_password, name='update_password'), # ok
@@ -66,16 +67,16 @@ urlpatterns = [
     path('user/emails/<int:email_id>/mark_unread/', views.set_email_unread, name='set_email_unread'), # ok
     path('user/emails/<int:email_id>/mark_reply_later/', views.set_email_reply_later, name='set_email_reply_laterr'), # ok
     path('user/emails/<int:email_id>/unmark_reply_later/', views.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
-    path('user/emails/<int:email_id>/block_sender/', views.set_rule_block_for_sender, name='set_rule_block_for_sender'), # ok
     path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', views.retrieve_attachment_data, name='retrieve_attachment_data'), 
+    path('api/get_mail_by_id', views.get_mail_by_id, name='get_mail_by_id'), # ok
     path('user/emails/<int:email_id>/delete/', views.delete_email, name='delete_email'), # ok
+
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
-    path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok    
+    path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
     path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
-    path('api/get_mail_by_id', views.get_mail_by_id, name='get_mail_by_id'), # ok
     #----------------------- EMAIL PICTURES -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
@@ -88,7 +89,6 @@ urlpatterns = [
     path('api/check_email_copywriting/', ai.check_email_copywriting, name='check_email_copywriting'), # ok
     path('api/generate_email_response_keywords/', ai.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
     path('api/generate_email_answer/', ai.generate_email_answer, name='generate_email_answer'), # ok
-    #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
     path('api/get_new_email_response/', ai.get_new_email_response, name='get_new_email_response'), # ok
     path('api/improve_draft/', ai.improve_draft, name='improve_draft'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#

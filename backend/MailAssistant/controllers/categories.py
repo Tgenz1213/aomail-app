@@ -1,5 +1,13 @@
 """
 Handles category operations, returns results to frontend, and saves to database.
+
+Endpoints available:
+- get_user_categories: Retrieve categories associated with the authenticated user.
+- update_category: Update an existing category for the authenticated user.
+- delete_category: Delete a category associated with the authenticated user.
+- get_rules_linked: Retrieve the number of rules linked to a specified category for the authenticated user.
+- create_category: Create a new category for the authenticated user.
+- get_category_id: Retrieve the ID of a category based on its name for the authenticated user.
 """
 
 import json

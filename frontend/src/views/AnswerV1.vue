@@ -693,7 +693,7 @@ async function handleAIClick() {
     },
   };
 
-  const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
+  const data = await fetchWithToken(`${API_BASE_URL}user/social_api/get_profile_image/`, requestOptions);
   let imageURL = data.profile_image_url || require('@/assets/user.png');
   const profileImageHTML = `
     <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
@@ -1375,7 +1375,7 @@ async function sendEmail() {
   formData.append('email', emailReceiver);
 
   try {
-    const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_email/`, {
       method: 'POST',
       body: formData
     });

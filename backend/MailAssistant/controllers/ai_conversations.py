@@ -1,5 +1,7 @@
 """
 Provides views for generating new email responses based on user input and chat history.
+
+TODO: put inside ai_views.py
 """
 
 import json

@@ -717,7 +717,7 @@ async function handleAIClick() {
         },
     };
 
-    const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
+    const data = await fetchWithToken(`${API_BASE_URL}user/social_api/get_profile_image/`, requestOptions);
 
     if (data.profile_image_url) {
         imageURL = data.profile_image_url;
@@ -2160,7 +2160,7 @@ async function sendEmail() {
     formData.append('email', emailSelected.value);
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_email/`, {
             method: 'POST',
             body: formData
         });

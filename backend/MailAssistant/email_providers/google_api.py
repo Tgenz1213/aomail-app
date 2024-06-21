@@ -60,8 +60,8 @@ from MailAssistant.constants import (
     MEDIA_ROOT,
     BASE_URL_MA,
 )
-from MailAssistant.controllers.tree_knowledge import Search
-from .. import library
+from MailAssistant.utils.tree_knowledge import Search
+from ..utils import email_processing 
 from ..models import (
     Contact,
     KeyPoint,
@@ -397,7 +397,7 @@ def send_email(request: HttpRequest) -> Response:
             service.users().messages().send(userId="me", body=body).execute()
 
             threading.Thread(
-                target=library.save_contacts, args=(user, email, all_recipients)
+                target=email_processing.save_contacts, args=(user, email, all_recipients)
             ).start()
 
             return Response(
@@ -668,8 +668,8 @@ def get_mail_to_db(services):
             if cid_ref in image_file:
                 img["src"] = f"{BASE_URL_MA}pictures/{os.path.basename(image_file)}"
 
-    cleaned_html = library.html_clear(email_html)
-    preprocessed_data = library.preprocess_email(cleaned_html)
+    cleaned_html = email_processing.html_clear(email_html)
+    preprocessed_data = email_processing.preprocess_email(cleaned_html)
     safe_html = soup.prettify()
 
     return (
@@ -836,8 +836,8 @@ def get_mail_to_db(services: dict) -> tuple:
             if cid_ref in image_file:
                 img["src"] = f"{BASE_URL_MA}pictures/{os.path.basename(image_file)}"
 
-    cleaned_html = library.html_clear(email_html)
-    preprocessed_data = library.preprocess_email(cleaned_html)
+    cleaned_html = email_processing.html_clear(email_html)
+    preprocessed_data = email_processing.preprocess_email(cleaned_html)
     safe_html = soup.prettify()
 
     return (
@@ -1202,7 +1202,7 @@ def search_emails(services: dict, search_query: str, max_results=2):
 
                 # Additional filtering: Check if the sender email/name matches the search query
                 if search_query.lower() in email or search_query.lower() in name:
-                    if email and not library.is_no_reply_email(email):
+                    if email and not email_processing.is_no_reply_email(email):
                         found_emails[email] = name
 
         return found_emails
@@ -1315,7 +1315,7 @@ def set_all_contacts(user: User, email: str):
         for contact_info, _ in all_contacts.items():
             name, email, _, contact_id = contact_info
             if name and email:
-                library.save_email_sender(user, name, email, contact_id)
+                email_processing.save_email_sender(user, name, email, contact_id)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
@@ -1674,7 +1674,7 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
         return "No decoded data"
 
     sender = Sender.objects.filter(email=from_name[1]).first()
-    category_dict = library.get_db_categories(user)
+    category_dict = email_processing.get_db_categories(user)
     category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
     rules = Rule.objects.filter(sender=sender)
     rule_category = None
@@ -1688,7 +1688,7 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
                 category = rule.category
                 rule_category = True
 
-    email_content = library.preprocess_email(decoded_data)
+    email_content = email_processing.preprocess_email(decoded_data)
     search = Search(user.id)
 
     if is_reply:
@@ -1893,7 +1893,7 @@ def get_mail(services, int_mail=None, id_mail=None):
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
-            decoded_data_temp = library.process_part(part, plaintext_var)
+            decoded_data_temp = email_processing.process_part(part, plaintext_var)
 
             print(
                 "______________________DATA decoded_data_temp (PARTS) looks like that ______________________________"
@@ -1903,7 +1903,7 @@ def get_mail(services, int_mail=None, id_mail=None):
                 "___________________________________________________________________________________"
             )
             if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+                decoded_data = email_processing.concat_text(decoded_data, decoded_data_temp)
     elif "body" in msg["payload"]:
         data = msg["payload"]["body"]["data"]
 
@@ -1917,7 +1917,7 @@ def get_mail(services, int_mail=None, id_mail=None):
 
         data = data.replace("-", "+").replace("_", "/")
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
-        decoded_data = library.html_clear(decoded_data_temp)
+        decoded_data = email_processing.html_clear(decoded_data_temp)
 
     return (
         subject,

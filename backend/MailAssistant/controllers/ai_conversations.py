@@ -27,7 +27,6 @@ from MailAssistant.constants import (
 LOGGER = logging.getLogger(__name__)
 
 
-# TODO: think where we should put this function for cleaner code
 def dict_to_chat_history(data: dict) -> ChatMessageHistory:
     """
     Convert a dictionary representation of chat history to a ChatMessageHistory object.

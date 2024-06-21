@@ -31,11 +31,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import View
 from rest_framework.response import Response
 from MailAssistant.ai_providers import claude
-from MailAssistant.controllers.tree_knowledge import Search
+from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
 from MailAssistant.utils.serializers import EmailDataSerializer
-from .. import library
+from ..utils import email_processing 
 from MailAssistant.constants import (
     FREE_PLAN,
     ADMIN_EMAIL_LIST,
@@ -589,7 +589,7 @@ def send_email(request: HttpRequest) -> Response:
 
                 if response.status_code == 202:
                     threading.Thread(
-                        target=library.save_contacts, args=(user, email, all_recipients)
+                        target=email_processing.save_contacts, args=(user, email, all_recipients)
                     ).start()
                     return Response(
                         {"message": "Email sent successfully!"},
@@ -913,7 +913,7 @@ def search_emails(access_token: str, search_query: str, max_results=2) -> dict:
 
                 # Additional filtering: Check if the sender email/name matches the search query
                 if search_query.lower() in email or search_query.lower() in name:
-                    if email and not library.is_no_reply_email(email):
+                    if email and not email_processing.is_no_reply_email(email):
                         found_emails[email] = name
 
         return found_emails
@@ -978,7 +978,7 @@ def set_all_contacts(access_token: str, user: User):
         for contact_info, emails in all_contacts.items():
             _, name, email_address, provider_id = contact_info
             for _ in emails:
-                library.save_email_sender(user, name, email_address, provider_id)
+                email_processing.save_email_sender(user, name, email_address, provider_id)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
@@ -1114,8 +1114,8 @@ def get_mail_to_db(
         sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
         sent_date = make_aware(sent_date)
     decoded_data = parse_message_body(message_data)
-    decoded_data_temp = library.html_clear(decoded_data)
-    preprocessed_data = library.preprocess_email(decoded_data_temp)
+    decoded_data_temp = email_processing.html_clear(decoded_data)
+    preprocessed_data = email_processing.preprocess_email(decoded_data_temp)
 
     return (
         subject,
@@ -1631,7 +1631,7 @@ class MicrosoftContactNotification(View):
                             email = contact_data.get("emailAddresses")[0].get("address")
 
                             if change_type == "created":
-                                library.save_email_sender(
+                                email_processing.save_email_sender(
                                     subscription.user, name, email, id_contact
                                 )
 
@@ -1728,7 +1728,7 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         )
         return False
 
-    category_dict = library.get_db_categories(user)
+    category_dict = email_processing.get_db_categories(user)
     category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
     rules = Rule.objects.filter(sender=sender)
     rule_category = None
@@ -1749,7 +1749,7 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
 
     if is_reply:
         # Summarize conversation with Search
-        email_content = library.preprocess_email(decoded_data)
+        email_content = email_processing.preprocess_email(decoded_data)
         user_id = user.id
         search = Search(user_id)
         conversation_summary = search.summarize_conversation(
@@ -1757,7 +1757,7 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         )
     else:
         # Summarize single email with Search
-        email_content = library.preprocess_email(decoded_data)
+        email_content = email_processing.preprocess_email(decoded_data)
         user_id = user.id
         search = Search(user_id)
         email_summary = search.summarize_email(

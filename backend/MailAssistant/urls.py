@@ -5,7 +5,7 @@ Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.controllers import ai_conversations as ai_conv
-from . import views
+from .controllers import views
 
 
 app_name = 'MailAssistant'

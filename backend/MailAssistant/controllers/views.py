@@ -72,7 +72,7 @@ from MailAssistant.constants import (
     THEMES,
     MEDIA_ROOT,
 )
-from MailAssistant.controllers.tree_knowledge import Search
+from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.models import (
     Category,
@@ -522,13 +522,6 @@ def is_authenticated(request):
 
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
 # ----------------------- GET REQUESTS -----------------------#
-@api_view(["GET"])
-# @permission_classes([IsAuthenticated])
-@subscription([FREE_PLAN])
-def unread_mails(request: Request):
-    return forward_request(request._request, "unread_mails")
-
-
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])

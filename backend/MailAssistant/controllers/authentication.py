@@ -1,3 +1,17 @@
+"""
+Handles authentication processes and email account linking.
+
+Endpoints available:
+- signup: Register user and handle OAuth2.0 callback.
+- login: Authenticate user and return access token.
+- check_username: Verify if the username is available.
+- is_authenticated: Check if the user has a valid access token.
+- link_email: Link email with the authenticated user's account.
+- unlink_email: Unlink email and delete associated data.
+- delete_account: Remove the authenticated user account.
+- refresh_token: Refresh JWT access token and return a new one.
+"""
+
 import datetime
 import json
 import logging

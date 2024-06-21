@@ -4,7 +4,8 @@ Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 
 from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
-from MailAssistant.controllers import artificial_intelligence as ai_view
+from MailAssistant.controllers import artificial_intelligence as ai
+from MailAssistant.controllers import authentication as auth
 from .controllers import views
 
 
@@ -12,15 +13,17 @@ app_name = 'MailAssistant'
 
 urlpatterns = [
     #----------------------- AUTHENTICATION -----------------------#
-    path("reset_password/<token>/", views.reset_password, name="reset_password"), # dev
-    path("generate_reset_token/", views.generate_reset_token, name="generate_reset_token"), # dev
+    path("reset_password/<token>/", auth.reset_password, name="reset_password"), # dev
+    path("generate_reset_token/", auth.generate_reset_token, name="generate_reset_token"), # dev
 
-    path('api/is_authenticated/', views.is_authenticated, name='is_authenticated'), # ok
-    path('api/login/', views.login, name='login'), # ok
-    path('api/token/refresh/', views.refresh_token, name='refresh_token'), # ok
-    path('api/delete_account/', views.delete_account, name='delete_account'), # ok
-    path('signup/', views.signup, name='signup'), # ok
-    path('check_username/', views.check_username, name='check_username'), # ok
+    path('api/is_authenticated/', auth.is_authenticated, name='is_authenticated'), # ok
+    path('api/login/', auth.login, name='login'), # ok
+    path('api/token/refresh/', auth.refresh_token, name='refresh_token'), # ok
+    path('api/delete_account/', auth.delete_account, name='delete_account'), # ok
+    path('signup/', auth.signup, name='signup'), # ok
+    path('check_username/', auth.check_username, name='check_username'), # ok
+    path('user/social_api/unlink/', auth.unlink_email, name='unlink_email'), # ok
+    path('user/social_api/link/', auth.link_email, name='link_email'), # ok
     #----------------------- CATEGORIES -----------------------#
     path('user/categories/', views.get_user_categories, name='user-categories'), # ok
     path('api/create_category/', views.create_category, name='create_category'), # ok
@@ -66,26 +69,24 @@ urlpatterns = [
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok    
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
     path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
-    path('user/social_api/unlink/', views.unlink_email, name='unlink_email'), # ok
-    path('user/social_api/link/', views.link_email, name='link_email'), # ok
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
     path('api/get_mail_by_id', views.get_mail_by_id, name='get_mail_by_id'), # ok
     #----------------------- EMAIL PICTURES -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
-    path('api/search_emails_ai/', ai_view.search_emails_ai , name='search_emails_ai'), # ok
-    path('api/search_tree_knowledge/', ai_view.search_tree_knowledge, name='search_tree_knowledge'), # ok
-    path('api/find-user-ai/', ai_view.find_user_view_ai, name='find-user-ai'), # ok
-    path('api/new_email_ai/', ai_view.new_email_ai, name='new_email_ai'), # ok
-    path('api/improve_email_writing/', ai_view.improve_email_writing, name='improve_email_writing'), # ok
-    path('api/correct_email_language/', ai_view.correct_email_language, name='correct_email_language'), # ok
-    path('api/check_email_copywriting/', ai_view.check_email_copywriting, name='check_email_copywriting'), # ok
-    path('api/generate_email_response_keywords/', ai_view.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
-    path('api/generate_email_answer/', ai_view.generate_email_answer, name='generate_email_answer'), # ok
+    path('api/search_emails_ai/', ai.search_emails_ai , name='search_emails_ai'), # ok
+    path('api/search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'), # ok
+    path('api/find-user-ai/', ai.find_user_view_ai, name='find-user-ai'), # ok
+    path('api/new_email_ai/', ai.new_email_ai, name='new_email_ai'), # ok
+    path('api/improve_email_writing/', ai.improve_email_writing, name='improve_email_writing'), # ok
+    path('api/correct_email_language/', ai.correct_email_language, name='correct_email_language'), # ok
+    path('api/check_email_copywriting/', ai.check_email_copywriting, name='check_email_copywriting'), # ok
+    path('api/generate_email_response_keywords/', ai.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
+    path('api/generate_email_answer/', ai.generate_email_answer, name='generate_email_answer'), # ok
     #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
-    path('api/get_new_email_response/', ai_view.get_new_email_response, name='get_new_email_response'), # ok
-    path('api/improve_draft/', ai_view.improve_draft, name='improve_draft'), # ok
+    path('api/get_new_email_response/', ai.get_new_email_response, name='get_new_email_response'), # ok
+    path('api/improve_draft/', ai.improve_draft, name='improve_draft'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('microsoft/auth_url_link_email/', microsoft_api.auth_url_link_email, name='microsoft_auth_url_link_email'), # ok

@@ -4,7 +4,7 @@ Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 
 from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
-from MailAssistant.controllers import ai_conversations as ai_conv
+from MailAssistant.controllers import artificial_intelligence as ai_view
 from .controllers import views
 
 
@@ -53,6 +53,7 @@ urlpatterns = [
     path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
+    path('user/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
     path('user/emails/', views.get_user_emails, name='user-emails'), # ok
     path('user/emails/<int:email_id>/mark-read/', views.set_email_read, name='email-mark-read'), # ok
     path('user/emails/<int:email_id>/mark-unread/', views.set_email_unread, name='email-mark-unread'), # ok
@@ -73,19 +74,18 @@ urlpatterns = [
     #----------------------- EMAIL PICTURES -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
-    path('api/search_emails_ai/', views.search_emails_ai , name='search_emails_ai'), # ok
-    path('api/search_tree_knowledge/', views.search_tree_knowledge, name='search_tree_knowledge'), # ok
-    path('api/find-user-ai/', views.find_user_view_ai, name='find-user-ai'), # ok
-    path('api/new_email_ai/', views.new_email_ai, name='new_email_ai'), # ok
-    path('api/improve_email_writing/', views.improve_email_writing, name='improve_email_writing'), # ok
-    path('api/correct_email_language/', views.correct_email_language, name='correct_email_language'), # ok
-    path('api/check_email_copywriting/', views.check_email_copywriting, name='check_email_copywriting'), # ok
-    path('api/generate_email_response_keywords/', views.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
-    path('api/generate_email_answer/', views.generate_email_answer, name='generate_email_answer'), # ok
-    path('api/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
+    path('api/search_emails_ai/', ai_view.search_emails_ai , name='search_emails_ai'), # ok
+    path('api/search_tree_knowledge/', ai_view.search_tree_knowledge, name='search_tree_knowledge'), # ok
+    path('api/find-user-ai/', ai_view.find_user_view_ai, name='find-user-ai'), # ok
+    path('api/new_email_ai/', ai_view.new_email_ai, name='new_email_ai'), # ok
+    path('api/improve_email_writing/', ai_view.improve_email_writing, name='improve_email_writing'), # ok
+    path('api/correct_email_language/', ai_view.correct_email_language, name='correct_email_language'), # ok
+    path('api/check_email_copywriting/', ai_view.check_email_copywriting, name='check_email_copywriting'), # ok
+    path('api/generate_email_response_keywords/', ai_view.generate_email_response_keywords, name='generate_email_response_keywords'), # ok
+    path('api/generate_email_answer/', ai_view.generate_email_answer, name='generate_email_answer'), # ok
     #----------------------- AI CONVERSATIONS EXCHANGE FE & BE -----------------------#
-    path('api/get_new_email_response/', ai_conv.get_new_email_response, name='get_new_email_response'), # ok
-    path('api/improve_draft/', ai_conv.improve_draft, name='improve_draft'), # ok
+    path('api/get_new_email_response/', ai_view.get_new_email_response, name='get_new_email_response'), # ok
+    path('api/improve_draft/', ai_view.improve_draft, name='improve_draft'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
     path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
     path('microsoft/auth_url_link_email/', microsoft_api.auth_url_link_email, name='microsoft_auth_url_link_email'), # ok

@@ -830,7 +830,7 @@ export default {
 
     async function fetchAnswerLaterEmails() {
       try {
-        const data = await fetchWithToken(`${API_BASE_URL}api/get_answer_later_emails/`, {
+        const data = await fetchWithToken(`${API_BASE_URL}user/get_answer_later_emails/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -865,7 +865,7 @@ export default {
     },
     async fetchAnswerLaterEmails() {
       try {
-        const data = await fetchWithToken(`${API_BASE_URL}api/get_answer_later_emails/`, {
+        const data = await fetchWithToken(`${API_BASE_URL}user/get_answer_later_emails/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

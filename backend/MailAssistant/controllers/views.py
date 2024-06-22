@@ -1,16 +1,16 @@
 """
 Handles user profile, email sending, and contact management operations, returns results to frontend, and saves to database.
 
-Endpoints available:
-- check_sender_for_user: Check if a sender with the specified email exists.
-- create_sender: Create a new sender associated with the authenticated user.
-- get_emails_linked: Returns the list of emails linked to the authenticated user's account.
-- get_profile_image: Retrieves the profile image URL of the social API selected.
-- get_user_contacts: Retrieve contacts associated with the authenticated user.
-- get_user_description: Retrieves user description of the given email.
-- search_emails: Searches emails based on user-specified parameters.
-- send_email: Sends an email using the social API selected.
-- update_user_description: Updates the user description of the given email.
+Endpoints:
+- ✅ check_sender_for_user: Check if a sender with the specified email exists.
+- ✅ create_sender: Create a new sender associated with the authenticated user.
+- ✅ get_emails_linked: Returns the list of emails linked to the authenticated user's account.
+- ✅ get_profile_image: Retrieves the profile image URL of the social API selected.
+- ✅ get_user_contacts: Retrieve contacts associated with the authenticated user.
+- ✅ get_user_description: Retrieves user description of the given email.
+- ✅ search_emails: Searches emails based on user-specified parameters.
+- ✅ send_email: Sends an email using the social API selected.
+- ✅ update_user_description: Updates the user description of the given email.
 
 
 TODO:

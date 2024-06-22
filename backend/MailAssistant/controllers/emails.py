@@ -1,19 +1,19 @@
 """
 Handles email operations, returns results to frontend, and saves to database.
 
-Endpoints available:
-- archive_email: Archives an email associated with the authenticated user.
-- delete_email: Deletes an email associated with the authenticated user.
-- delete_emails: Delete emails based on the priority or specific email IDs provided in the request body.
-- get_answer_later_emails: Retrieve emails flagged for answering later by the authenticated user.
-- get_first_email: Returns the first email associated with the user in the database.
-- get_mail_by_id: Retrieves details of an email by its ID associated with the authenticated user.
-- get_user_emails: Retrieves and formats user emails grouped by category and priority.
-- retrieve_attachment_data: Retrieves email attachment data for a specific email and attachment ID.
-- set_email_not_reply_later: Unmarks a specific email for later reply for the authenticated user.
-- set_email_read: Marks a specific email as read for the authenticated user.
-- set_email_reply_later: Marks a specific email for later reply for the authenticated user.
-- set_email_unread: Marks a specific email as unread for the authenticated user.
+Endpoints:
+- ✅ archive_email: Archive an email.
+- ✅ delete_email: Delete an email.
+- ✅ delete_emails: Delete emails by priority or IDs.
+- ✅ get_answer_later_emails: Retrieve emails flagged for later reply.
+- ✅ get_first_email: Get the first email in the database.
+- ✅ get_mail_by_id: Retrieve email details by ID.
+- ✅ get_user_emails: Retrieve and format user emails by category and priority.
+- ✅ retrieve_attachment_data: Get attachment data by email and attachment ID.
+- ✅ set_email_not_reply_later: Unmark email for later reply.
+- ✅ set_email_read: Mark email as read.
+- ✅ set_email_reply_later: Mark email for later reply.
+- ✅ set_email_unread: Mark email as unread.
 
 
 TODO:

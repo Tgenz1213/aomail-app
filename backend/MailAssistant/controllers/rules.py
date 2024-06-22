@@ -1,13 +1,13 @@
 """
 Handles user rule operations, returns results to frontend, and saves to database.
 
-Endpoints available:
-- set_rule_block_for_sender: Set a blocking rule for the sender of the specified email associated with the authenticated user.
-- get_user_rules: Retrieve rules associated with the authenticated user.
-- get_user_rule_by_id: Retrieve details of a specific rule owned by the authenticated user.
-- delete_user_rule_by_id: Delete a specific rule owned by the authenticated user.
-- create_user_rule: Create a new rule for the authenticated user based on the request data.
-- update_user_rule: Update an existing rule for the authenticated user based on the request data.
+Endpoints:
+- ✅ set_rule_block_for_sender: Set a blocking rule for the sender of the specified email.
+- ✅ get_user_rules: Retrieve rules associated with the authenticated user.
+- ✅ get_user_rule_by_id: Retrieve details of a specific rule.
+- ✅ delete_user_rule_by_id: Delete a specific rule.
+- ✅ create_user_rule: Create a new rule.
+- ✅ update_user_rule: Update an existing rule.
 
 
 TODO:

@@ -4,6 +4,10 @@ Handles prompt engineering requests for Claude 3 API.
 TODO:
 - Clean the code with doc + datatypes
 - Remove all unecessary functions
+
+
+get_language 
+
 - Write an list of all supported function in the banner of that file like
     - search emails: ✅
     - feature 2: ⚒️

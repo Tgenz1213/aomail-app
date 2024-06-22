@@ -1,16 +1,16 @@
 """
 Handles user settings operations, returns results to frontend, and saves to database.
 
-Endpoints available:
-- get_user_details: Returns the username of the authenticated user.
-- get_user_language: Retrieve the language setting for the authenticated user.
-- get_user_theme: Retrieve the theme setting for the authenticated user.
-- get_user_timezone: Retrieve the timezone setting for the authenticated user.
-- set_user_language: Set the language for the authenticated user.
-- set_user_theme: Set the theme for the authenticated user.
-- set_user_timezone: Set the timezone for the authenticated user.
-- update_password: Update the password for the authenticated user.
-- update_username: Update the username for the authenticated user.
+Endpoints:
+- ✅ get_user_details: Returns the username of the authenticated user.
+- ✅ get_user_language: Retrieve the language.
+- ✅ get_user_theme: Retrieve the theme.
+- ✅ get_user_timezone: Retrieve the timezone.
+- ✅ set_user_language: Set the language.
+- ✅ set_user_theme: Set the theme.
+- ✅ set_user_timezone: Set the timezone.
+- ✅ update_password: Update the password.
+- ✅ update_username: Update the username.
 
 
 TODO:

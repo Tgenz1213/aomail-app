@@ -1,17 +1,17 @@
 """
 Handles LLM calls, returns results to frontend after processing.
 
-Endpoints available:
-- get_new_email_response: Generate a new email response based on user input, email importance, subject, body, and chat history.
-- improve_draft: Improve the draft email response based on user input, email length, formality, subject, body, and chat history.
-- search_emails_ai: Search emails using AI interpretation of user query.
-- search_tree_knowledge: Search emails using AI interpretation of user query.
-- find_user_view_ai: Search for emails in the user's mailbox based on the provided search query in both the subject and body.
-- new_email_ai: Return an AI-generated email subject and content based on input data.
-- correct_email_language: Correct spelling and grammar mistakes in the email subject and body based on user's request.
-- check_email_copywriting: Check and provide feedback on the email copywriting based on the user's request.
-- generate_email_response_keywords: Generate response keywords based on the provided email subject and content.
-- generate_email_answer: Generate an automated response to an email based on its subject, content, and user instructions.
+Endpoints:
+- ✅ get_new_email_response: Generate a new email.
+- ✅ improve_draft: Improve the draft email.
+- ✅ search_emails_ai: Search emails using AI interpretation of user query.
+- ✅ search_tree_knowledge: Search emails using tree-based AI interpretation of user query.
+- ✅ find_user_view_ai: Search for emails in the user's mailbox.
+- ✅ new_email_ai: Return an AI-generated email.
+- ✅ correct_email_language: Correct spelling and grammar mistakes.
+- ✅ check_email_copywriting: Check and provide feedback on the email copywriting.
+- ✅ generate_email_response_keywords: Generate response keywords based on the email.
+- ✅ generate_email_answer: Generate an answer to an email.
 
 
 TODO:

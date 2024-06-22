@@ -126,7 +126,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.Remove_from_reply_later') }}
+                                              {{ $t('ReplyLater_vue.Remove_from_reply-later') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -387,7 +387,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.Remove_from_reply_later') }}
+                                              {{ $t('ReplyLater_vue.Remove_from_reply-later') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
@@ -645,7 +645,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.reply_later') }}
+                                              {{ $t('ReplyLater_vue.reply-later') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -969,7 +969,7 @@ export default {
       this.deleteEmailFromState(emailId);
 
       try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/unmark_reply_later/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/unmark_reply-later/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

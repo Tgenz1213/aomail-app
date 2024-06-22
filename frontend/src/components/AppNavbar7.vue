@@ -103,7 +103,7 @@ const navigation = [
   { name: i18n.global.t('Global.NewMail'), href: '/new', icon: PencilSquareIcon },
   { name: i18n.global.t('Global.SearchMail'), href: '/search', icon: MagnifyingGlassIcon },
   { name: i18n.global.t('Global.Rules'), href: '/rules', icon: BeakerIcon },
-  { name: i18n.global.t('Global.ReplyLater'), href: '/reply_later', icon: ArrowUturnLeftIcon },
+  { name: i18n.global.t('Global.ReplyLater'), href: '/reply-later', icon: ArrowUturnLeftIcon },
   { name: i18n.global.t('Global.Settings'), href: '/settings', icon: CogIcon },
 ]
 

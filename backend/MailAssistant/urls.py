@@ -6,6 +6,7 @@ from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.controllers import artificial_intelligence as ai
 from MailAssistant.controllers import authentication as auth
+from MailAssistant.controllers import preferences as prefs
 from MailAssistant.controllers import categories, rules
 from .controllers import views
 
@@ -40,20 +41,20 @@ urlpatterns = [
     path('user/update_rule/', rules.update_user_rule, name='update_user_rule'), # ok
     path('user/emails/<int:email_id>/block_sender/', rules.set_rule_block_for_sender, name='set_rule_block_for_sender'), # ok
     #----------------------- PREFERENCES -----------------------#
-    path('user/preferences/update_username/', views.update_username, name='update_username'), # ok
-    path('user/preferences/update_password/', views.update_password, name='update_password'), # ok
+    path('user/preferences/update_username/', prefs.update_username, name='update_username'), # ok
+    path('user/preferences/update_password/', prefs.update_password, name='update_password'), # ok
 
     # TO DELETE
-    path('user/preferences/bg_color/', views.get_user_bg_color, name='get_user_bg_color'), # ok
-    path('user/preferences/set_bg_color/', views.set_user_bg_color, name='set_bg_color'), # ok
+    path('user/preferences/bg_color/', prefs.get_user_bg_color, name='get_user_bg_color'), # ok
+    path('user/preferences/set_bg_color/', prefs.set_user_bg_color, name='set_bg_color'), # ok
 
-    path('user/preferences/language/', views.get_user_language, name='get_user_language'), # ok
-    path('user/preferences/set_language/', views.set_user_language, name='set_user_language'), # ok
-    path('user/preferences/theme/', views.get_user_theme, name='get_user_theme'), # ok
-    path('user/preferences/set_theme/', views.set_user_theme, name='set_user_theme'), # ok
-    path('user/preferences/timezone/', views.get_user_timezone, name='get_user_timezone'), # ok
-    path('user/preferences/set_timezone/', views.set_user_timezone, name='set_user_timezone'), # ok
-    path('user/preferences/username/', views.get_user_details, name='get_user_details'), # ok    
+    path('user/preferences/language/', prefs.get_user_language, name='get_user_language'), # ok
+    path('user/preferences/set_language/', prefs.set_user_language, name='set_user_language'), # ok
+    path('user/preferences/theme/', prefs.get_user_theme, name='get_user_theme'), # ok
+    path('user/preferences/set_theme/', prefs.set_user_theme, name='set_user_theme'), # ok
+    path('user/preferences/timezone/', prefs.get_user_timezone, name='get_user_timezone'), # ok
+    path('user/preferences/set_timezone/', prefs.set_user_timezone, name='set_user_timezone'), # ok
+    path('user/preferences/username/', prefs.get_user_details, name='get_user_details'), # ok
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', views.delete_emails, name='delete_emails'), # waiting for implementation in FE
 

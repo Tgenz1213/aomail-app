@@ -1936,7 +1936,7 @@ async function markEmailReplyLater(email) {
     isMenuOpen.value = false;
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply_later/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply-later/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

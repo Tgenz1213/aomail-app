@@ -7,7 +7,7 @@ from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.controllers import artificial_intelligence as ai
 from MailAssistant.controllers import authentication as auth
 from MailAssistant.controllers import preferences as prefs
-from MailAssistant.controllers import categories, rules
+from MailAssistant.controllers import categories, rules, emails
 from .controllers import views
 
 
@@ -56,30 +56,31 @@ urlpatterns = [
     path('user/preferences/set_timezone/', prefs.set_user_timezone, name='set_user_timezone'), # ok
     path('user/preferences/username/', prefs.get_user_details, name='get_user_details'), # ok
     #----------------------- EMAILS -----------------------#
-    path('user/emails/delete_emails', views.delete_emails, name='delete_emails'), # waiting for implementation in FE
+    path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
+    path('user/emails/<int:email_id>/archive/', emails.archive_email, name='archive_email'), # waiting for implementation in FE
 
-    path('user/get_first_email/', views.get_first_email, name='get_first_email'), # ok
-    path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
-    path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
-    path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
-    path('user/get_answer_later_emails/', views.get_answer_later_emails, name='get_answer_later_emails'), # ok
-    path('user/emails/', views.get_user_emails, name='get_user_emails'), # ok
-    path('user/emails/<int:email_id>/mark_read/', views.set_email_read, name='set_email_read'), # ok
-    path('user/emails/<int:email_id>/mark_unread/', views.set_email_unread, name='set_email_unread'), # ok
-    path('user/emails/<int:email_id>/mark_reply_later/', views.set_email_reply_later, name='set_email_reply_laterr'), # ok
-    path('user/emails/<int:email_id>/unmark_reply_later/', views.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
-    path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', views.retrieve_attachment_data, name='retrieve_attachment_data'), 
-    path('api/get_mail_by_id', views.get_mail_by_id, name='get_mail_by_id'), # ok
-    path('user/emails/<int:email_id>/delete/', views.delete_email, name='delete_email'), # ok
+    path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok
+    path('user/get_answer_later_emails/', emails.get_answer_later_emails, name='get_answer_later_emails'), # ok
+    path('user/emails/', emails.get_user_emails, name='get_user_emails'), # ok
+    path('user/emails/<int:email_id>/mark_read/', emails.set_email_read, name='set_email_read'), # ok
+    path('user/emails/<int:email_id>/mark_unread/', emails.set_email_unread, name='set_email_unread'), # ok
+    path('user/emails/<int:email_id>/mark_reply_later/', emails.set_email_reply_later, name='set_email_reply_laterr'), # ok
+    path('user/emails/<int:email_id>/unmark_reply_later/', emails.set_email_not_reply_later, name='set_email_not_reply_later'), # ok
+    path('user/emails/<int:email_id>/attachments/<str:attachment_name>/', emails.retrieve_attachment_data, name='retrieve_attachment_data'), 
+    path('api/get_mail_by_id', emails.get_mail_by_id, name='get_mail_by_id'), # ok
+    path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'), # ok
+    #----------------------- VIEWS -----------------------#
+    path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
 
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
     path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
+    path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
+    path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
+    path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
-    #----------------------- EMAIL PICTURES -----------------------#
-    path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/search_emails_ai/', ai.search_emails_ai , name='search_emails_ai'), # ok
     path('api/search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'), # ok

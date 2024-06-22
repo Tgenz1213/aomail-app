@@ -11,6 +11,11 @@ Endpoints available:
 - set_user_timezone: Set the timezone for the authenticated user.
 - update_password: Update the password for the authenticated user.
 - update_username: Update the username for the authenticated user.
+
+
+TODO:
+- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
+- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
 """
 
 import json

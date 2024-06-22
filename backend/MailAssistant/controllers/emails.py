@@ -18,7 +18,6 @@ Endpoints available:
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
 """
 
 import datetime
@@ -162,7 +161,12 @@ def set_email_read(request: HttpRequest, email_id: int) -> Response:
         microsoft_api.set_email_read(social_api, email.provider_id)
 
     serializer = EmailReadUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -193,7 +197,12 @@ def set_email_unread(request: HttpRequest, email_id: int) -> Response:
         microsoft_api.set_email_unread(social_api, email.provider_id)
 
     serializer = EmailReadUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -216,7 +225,12 @@ def set_email_reply_later(request: HttpRequest, email_id: int) -> Response:
     email.save()
 
     serializer = EmailReplyLaterUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -239,7 +253,12 @@ def set_email_not_reply_later(request: HttpRequest, email_id: int) -> Response:
     email.save()
 
     serializer = EmailReplyLaterUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["GET"])

@@ -15,7 +15,6 @@ Endpoints available:
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
 """
 
 import json
@@ -335,5 +334,4 @@ def set_user_bg_color(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.error(f"Serializer errors in set_user_bg_color: {serializer.errors}")
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -12,7 +12,6 @@ Endpoints available:
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
 """
 
 import json
@@ -53,16 +52,14 @@ def get_user_categories(request: HttpRequest) -> Response:
         Response: JSON response containing user's categories or an error message.
     """
     user = request.user
-    try:
-        categories = Category.objects.filter(user=user)
-        serializer = CategoryNameSerializer(categories, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception as e:
-        LOGGER.error(f"Failed to retrieve user categories: {str(e)}")
+    categories = Category.objects.filter(user=user)
+    serializer = CategoryNameSerializer(categories, many=True)
+    if not serializer.is_valid():
         return Response(
-            {"error": str(e)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["PUT"])
@@ -119,10 +116,9 @@ def update_category(request: HttpRequest) -> Response:
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     else:
-        LOGGER.error(
-            f"Failed to update category '{current_name}' for user ID: {request.user.id}. Errors: {serializer.errors}"
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["DELETE"])
@@ -260,7 +256,9 @@ def create_category(request: HttpRequest) -> Response:
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])

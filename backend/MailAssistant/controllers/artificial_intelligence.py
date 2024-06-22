@@ -17,7 +17,6 @@ Endpoints available:
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
 
 REMAINING functions to opti and clean:
 - def find_user_view_ai(request: HttpRequest) -> Response:
@@ -429,6 +428,11 @@ def find_user_view_ai(request: HttpRequest) -> Response:
             )
 
         contacts_serializer = ContactSerializer(user_contacts, many=True)
+        if not contacts_serializer.is_valid():
+            return Response(
+                {"error": contacts_serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # TODO: check for performance (should be fast)
         def transform_list_of_dicts(list_of_dicts):
@@ -521,7 +525,9 @@ def new_email_ai(request: HttpRequest) -> Response:
 
         return Response({"subject": subject_text, "mail": mail_text})
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -553,7 +559,9 @@ def improve_email_writing(request: HttpRequest) -> Response:
         )
         return Response({"subject": subject_text, "email_body": email_body})
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -591,7 +599,9 @@ def correct_email_language(request: HttpRequest) -> Response:
             }
         )
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -623,7 +633,9 @@ def check_email_copywriting(request: HttpRequest) -> Response:
         )
         return Response({"feedback_copywriting": feedback_copywriting})
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -655,7 +667,9 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         )
         return Response({"response_keywords": response_keywords})
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 @api_view(["POST"])
@@ -690,4 +704,6 @@ def generate_email_answer(request: HttpRequest) -> Response:
 
         return Response({"email_answer": email_answer})
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )

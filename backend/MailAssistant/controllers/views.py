@@ -15,7 +15,6 @@ Endpoints available:
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-- Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
 """
 
 import datetime
@@ -159,7 +158,12 @@ def get_user_contacts(request: HttpRequest) -> Response:
         )
 
     contacts_serializer = ContactSerializer(user_contacts, many=True)
-    return Response(contacts_serializer.data, status=status.HTTP_200_OK)
+    if contacts_serializer.is_valid():
+        return Response(contacts_serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(
+            {"error": contacts_serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 ######################## DATABASE OPERATIONS ########################
@@ -415,7 +419,9 @@ def create_sender(request: HttpRequest) -> Response:
         sender = Sender.objects.create(email=data["email"], name=data["name"])
         return Response({"id": sender.id}, status=status.HTTP_201_CREATED)
     else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 ####################################################################

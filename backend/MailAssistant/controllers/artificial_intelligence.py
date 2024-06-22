@@ -413,7 +413,10 @@ def find_user_view_ai(request: HttpRequest) -> Response:
     search_query = request.GET.get("query")
 
     if search_query:
-        main_list, cc_list, bcc_list = claude.extract_contacts_recipients(search_query)
+        recipients_dict = claude.extract_contacts_recipients(search_query)
+        main_list = recipients_dict["main_recipients"]
+        cc_list = recipients_dict["cc_recipients"]
+        bcc_list = recipients_dict["bcc_recipients"]
 
         if not main_list:
             return Response(

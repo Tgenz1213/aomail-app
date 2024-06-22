@@ -1,23 +1,24 @@
 """
 Handles prompt engineering requests for Claude 3 API.
 
-TODO:
-- Clean the code with doc + datatypes
-- Remove all unecessary functions
-
-
-get_language 
-
-- Write an list of all supported function in the banner of that file like
-    - search emails: ✅
-    - feature 2: ⚒️
+Features:
+- ✅ get_language: Returns the primary language used in the email
+- ✅ extract_contacts_recipients
+- ✅ generate_response_keywords
+- ✅ generate_email
+- ✅ correct_mail_language_mistakes
+- ✅ improve_email_copywriting
+- ✅ generate_email_response
+- ⚒️ new_function_ (migration in progress)
+- ✅ search_emails
+- ✅ categorize_and_summarize_email (migration in progress)
 """
 
 import ast
 import json
 import anthropic
-from datetime import datetime
 import tiktoken
+from datetime import datetime
 from MailAssistant.constants import CLAUDE_CREDS
 
 
@@ -35,15 +36,31 @@ def get_prompt_response(formatted_prompt):
 
 
 def count_tokens(text: str) -> int:
-    """Calculates the number of tokens in a given text string using the provided tokenizer."""
+    """
+    Calculates the number of tokens in a given text string using the provided tokenizer.
+
+    Args:
+        text (str): The input text string to be tokenized.
+
+    Returns:
+        int: The number of tokens in the input text.
+    """
     encoding = tiktoken.get_encoding("cl100k_base")
     num_tokens = len(encoding.encode(text))
     return num_tokens
 
 
-def get_language(input_body, input_subject) -> str:
-    """Returns the primary language used in the email"""
+def get_language(input_body: str, input_subject: str) -> str:
+    """
+    Returns the primary language used in the email.
 
+    Args:
+        input_body (str): The body of the email.
+        input_subject (str): The subject of the email.
+
+    Returns:
+        str: The primary language identified in the email.
+    """
     formatted_prompt = f"""Given an email with subject: '{input_subject}' and body: '{input_body}',
     IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
     
@@ -56,37 +73,54 @@ def get_language(input_body, input_subject) -> str:
 
 
 def count_corrections(
-    original_subject, original_body, corrected_subject, corrected_body
-):
-    """Count and compare corrections in original and corrected texts"""
+    original_subject: str,
+    original_body: str,
+    corrected_subject: str,
+    corrected_body: str,
+) -> int:
+    """
+    Counts and compares corrections in original and corrected texts.
 
-    # Splitting the original and corrected texts into words
+    Args:
+        original_subject (str): The original subject text.
+        original_body (str): The original body text.
+        corrected_subject (str): The corrected subject text.
+        corrected_body (str): The corrected body text.
+
+    Returns:
+        int: The total number of corrections made in the subject and body texts.
+    """
     original_subject_words = original_subject.split()
     corrected_subject_words = corrected_subject.split()
     original_body_words = original_body.split()
     corrected_body_words = corrected_body.split()
 
-    # Counting the differences in the subject
     subject_corrections = sum(
-        1
+        orig != corr
         for orig, corr in zip(original_subject_words, corrected_subject_words)
-        if orig != corr
     )
-
-    # Counting the differences in the body
     body_corrections = sum(
-        1
-        for orig, corr in zip(original_body_words, corrected_body_words)
-        if orig != corr
+        orig != corr for orig, corr in zip(original_body_words, corrected_body_words)
     )
 
-    # Total corrections
     total_corrections = subject_corrections + body_corrections
 
     return total_corrections
 
 
-def extract_contacts_recipients(query) -> dict[str:list]:
+def extract_contacts_recipients(query: str) -> dict[str, list]:
+    """
+    Analyzes the input query to categorize email recipients into main, CC, and BCC categories.
+
+    Args:
+        query (str): The input string containing email recipient information.
+
+    Returns:
+        dict[str, list]: A dictionary with three keys:
+            'main_recipients': List of main recipients.
+            'cc_recipients': List of CC recipients.
+            'bcc_recipients': List of BCC recipients.
+    """
     formatted_prompt = f"""As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
 
     Guidelines for classification:
@@ -110,13 +144,25 @@ def extract_contacts_recipients(query) -> dict[str:list]:
     cc_recipients = recipients.get("cc_recipients", [])
     bcc_recipients = recipients.get("bcc_recipients", [])
 
-    return main_recipients, cc_recipients, bcc_recipients
+    return {
+        "main_recipients": main_recipients,
+        "cc_recipients": cc_recipients,
+        "bcc_recipients": bcc_recipients,
+    }
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email, input_subject) -> list:
-    """Generate a list of keywords for responding to a given email."""
+def generate_response_keywords(input_email: str, input_subject: str) -> list:
+    """
+    Generates a list of keywords for responding to a given email.
 
+    Args:
+        input_email (str): The body of the email.
+        input_subject (str): The subject of the email.
+
+    Returns:
+        list: A list of keywords suggesting ways to respond to the email.
+    """
     language = get_language(input_email, input_subject)
 
     formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
@@ -136,10 +182,23 @@ def generate_response_keywords(input_email, input_subject) -> list:
 
 
 ######################## WRITING ########################
-# TODO: remove HARD CODED language
-def generate_email(input_data, length, formality, language):
-    """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
+def generate_email(
+    input_data: str, length: str, formality: str, language: str
+) -> tuple:
+    """
+    Generates an email, enhancing both quantity and quality according to user guidelines.
 
+    Args:
+        input_data (str): The user's input data or guidelines for the email content.
+        length (str): The desired length of the email (e.g., "short", "medium", "long").
+        formality (str): The desired level of formality for the email (e.g., "informal", "formal").
+        language (str): The language in which the email should be written.
+
+    Returns:
+        tuple: A tuple containing two elements:
+            subject_text (str): The subject of the generated email.
+            email_body (str): The body of the generated email in HTML format.
+    """
     template = f"""As an email assistant, write a {length} and {formality} email in {language}.
     Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
     It must strictly contain only the information that is present in the input.
@@ -158,9 +217,20 @@ def generate_email(input_data, length, formality, language):
     return subject_text, email_body
 
 
-def correct_mail_language_mistakes(body, subject):
-    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
+def correct_mail_language_mistakes(body: str, subject: str) -> tuple:
+    """
+    Corrects spelling and grammar mistakes in the email subject and body based on user's request.
 
+    Args:
+        body (str): The body of the email to be corrected.
+        subject (str): The subject of the email to be corrected.
+
+    Returns:
+        tuple: A tuple containing three elements:
+            corrected_subject (str): The corrected subject of the email.
+            corrected_body (str): The corrected body of the email in HTML format.
+            num_corrections (int): The number of corrections made in the email subject and body.
+    """
     language = get_language(body, subject).upper()
 
     formatted_prompt = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
@@ -184,9 +254,17 @@ def correct_mail_language_mistakes(body, subject):
     return corrected_subject, corrected_body, num_corrections
 
 
-def improve_email_copywriting(email_subject, email_body):
-    """Provides feedback and suggestions for improving the copywriting in the email subject and body."""
+def improve_email_copywriting(email_subject: str, email_body: str) -> str:
+    """
+    Provides feedback and suggestions for improving the copywriting in the email subject and body.
 
+    Args:
+        email_subject (str): The subject of the email to be evaluated and improved.
+        email_body (str): The body of the email to be evaluated and improved.
+
+    Returns:
+        str: Feedback and suggestions for improving the copywriting in the email subject and body.
+    """
     language = get_language(email_body, email_subject)
 
     template = f"""Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
@@ -220,8 +298,17 @@ def improve_email_copywriting(email_subject, email_body):
 def generate_email_response(
     input_subject: str, input_body: str, user_instruction: str
 ) -> str:
-    """Generates an email response based on the given response type"""
+    """
+    Generates an email response based on the given response type.
 
+    Args:
+        input_subject (str): The subject of the email to respond to.
+        input_body (str): The body of the email to respond to.
+        user_instruction (str): Instructions or guidelines provided by the user for crafting the response.
+
+    Returns:
+        str: The generated email response in HTML format.
+    """
     template = f"""As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
     Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
     0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
@@ -332,10 +419,17 @@ def new_function_(
     )
 
 
-# TODO: remove HARD CODED language
 def search_emails(query: str, language: str) -> dict:
-    """Searches emails based on the user query and generates structured JSON response."""
+    """
+    Searches emails based on the user query and generates structured JSON response.
 
+    Args:
+        query (str): User's query for searching emails.
+        language (str): Language for the response JSON format.
+
+    Returns:
+        dict: Structured JSON response with search results and parameters.
+    """
     today = datetime.now().strftime("%m-%d-%Y")
 
     template = f"""As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}

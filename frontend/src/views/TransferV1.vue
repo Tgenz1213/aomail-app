@@ -320,7 +320,7 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
         console.error("Error fetching contacts:", error);
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Erreur récupération des contacts';
+        notificationTitle = t('constants.sendEmailConstants.popUpConstants.contactFetchError');
         notificationMessage = error;
         displayPopup();
     });
@@ -447,8 +447,8 @@ function handleBlur2(event) {
     } else if (!filteredPeople.value.length && inputValue) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'TODO Email invalide';
-        notificationMessage = 'TODO Le format de l\'email est incorrect'
+        notificationTitle = t('constants.sendEmailConstants.popUpConstants.invalidEmail');
+        notificationMessage = t('constants.sendEmailConstants.popUpConstants.emailFormatIncorrect');
         displayPopup();
     }
 }
@@ -616,7 +616,7 @@ async function handleAIClick() {
     setTimeout(async () => {
         if (stepcontainer == 0) {
             if (textareaValueSave.value == '') {
-                const message = "TODO Vous n'avez saisi aucun destinataire, veuillez réessayer"
+                const message = t('constants.sendEmailConstants.noRecipientsEntered');
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
                 displayMessage(message, ai_icon);
             } else {
@@ -752,19 +752,19 @@ async function handleAIClick() {
 
                         if (noUsersAdded) {
                             console.log("DEBUG");
-                            const message = "TODO Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
+                            const message = t('constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually');
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                             displayMessage(message, ai_icon);
                         } else if (!WaitforUserChoice) {
                             stepcontainer = 1;
                         }
                     } else {
-                        const message = "TODO Je n'ai pas trouvé de destinataires, veuillez réessayer ou saisir manuellement";
+                        const message = t('constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually');
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                         displayMessage(message, ai_icon);
                     }
                 } catch (error) {
-                    const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?"
+                    const message = t('constants.sendEmailConstants.processingErrorApology');
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
                     displayMessage(message, ai_icon);
                     console.error("Error finding user", error)
@@ -849,7 +849,7 @@ onMounted(() => {
     // DOM-related code
     AIContainer.value = document.getElementById('AIContainer');
 
-    const message = "TODO Bonjour, à qui souhaitez-vous transférer cet e-mail ?";
+    const message = t('constants.sendEmailConstants.emailRecipientRequest');
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
     displayMessage(message, ai_icon);
     objectInput.value = document.getElementById('objectInput');
@@ -1104,8 +1104,8 @@ async function sendEmail() {
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'TODO Email transféré !';
-            notificationMessage = 'TODO Redirection en cours...';
+            notificationTitle = t('transferPage.emailTransferred');
+            notificationMessage = t('constants.redirectionInProgress');
             displayPopup();
 
             // disable send button

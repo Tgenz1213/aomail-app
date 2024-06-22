@@ -16,6 +16,7 @@
       "clickToSeeTheSummary": "Cliquez pour voir le résumé",
       "replyLater": "Répondre plus tard",
       "enterManually": "Entrer manuellement",
+      "answerManually": "Répondre manuellement",
       "modifyACategory": "Modifier une catégorie",
       "login": "Connexion",
       "see": "Voir",
@@ -61,7 +62,7 @@
     "popUpConstants": {
       "errorMessages": {
         "emailSendError": "Erreur d'envoi d'email",
-        "contactFetchError": "Erreur récupération des contacts",
+        "contactFetchError": "Erreur de récupération des contacts",
         "primaryEmailFetchError": "Erreur récupération de votre email primaire",
         "emailLinkedFetchError": "Erreur récupération de vos emails",
         "invalidEmail": "Email invalide",
@@ -75,7 +76,6 @@
         "emailSendErrorNoRecipient": "Aucun destinataire n'a été saisi",
         "deleteEmailFailure": "Échec de suppression d'email",
         "addCategoryError": "Erreur lors de l'ajout de la catégorie",
-        "categoryAddedSuccess": "La catégorie a été ajoutée",
         "updateCategoryError": "Erreur lors de la mise à jour de la catégorie",
         "emptyCategoryNameError": "Le nom de la catégorie ne peut pas être vide",
         "deleteCategoryError": "Erreur lors de la suppression de la catégorie",
@@ -89,6 +89,7 @@
         "passwordLengthShouldBeBetween8And32Characters": "La longueur du mot de passe doit être entre 8 et 32 caractères",
         "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
         "pleaseEnterAnIdentifier": "Veuillez saisir un identifiant",
+        "recuperationRules": "Erreur lors de la récupération des règles",
         "identifierMustNotContainSpaces": "L'identifiant ne doit pas contenir d'espaces",
         "maxUsernameLength150Characters": "Longueur max nom d'utilisateur : 150 caractères",
         "identifierIsAlreadyInUse": "L'identifiant est déjà utilisé"
@@ -97,6 +98,7 @@
         "success": "Succès !",
         "emailSuccessfullySent": "Votre email a été envoyé avec succès.",
         "updateCategorySuccess": "La catégorie a été mise à jour",
+        "categoryAddedSuccess": "La catégorie a été ajoutée",
         "deleteCategorySuccess": "Votre catégorie a été supprimée"
       }
     },
@@ -164,6 +166,7 @@
     "waitingDatabaseResponse": "Attente de réponse de la base de données",
     "accountCreationError": "Erreur lors de la création du compte",
     "registerToAomail": "Inscription à Aomail",
+    "AcceptTerms": "Vous devez accepter les termes de Aomail",
     "linkAGmailAccount": "Lier un compte Gmail",
     "linkAnOutlookAccount": "Lier un compte Outlook",
     "linkYourGmailAccount": "Lier votre compte Google",

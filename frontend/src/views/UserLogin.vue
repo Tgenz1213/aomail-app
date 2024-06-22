@@ -128,8 +128,8 @@ async function login() {
     if (username.value.length > 150) {
         // Show the pop-up
         backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'TODO Erreur lors de la connexion';
-        notificationMessage.value = 'TODO Longueur max nom d\'utilisateur : 150 caractères';
+        notificationTitle.value = ('userLoginPage.loginError');
+        notificationMessage.value = ('userLoginPage.maxUsernameLength');
         displayPopup();
         return;
     }
@@ -158,8 +158,8 @@ async function login() {
     } catch (error) {
         // Show the pop-up
         backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'TODO Erreur lors de la connexion';
-        notificationMessage.value = 'TODO Informations d\'identification invalides';
+        notificationTitle.value = ('userLoginPage.loginError');
+        notificationMessage.value = ('userLoginPage.invalidCredentials');
         displayPopup();
     }
 }

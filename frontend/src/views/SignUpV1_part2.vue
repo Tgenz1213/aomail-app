@@ -617,8 +617,8 @@ async function nextStep3(event) {
   } else {
     // Show the pop-up
     backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle.value = 'TODO Erreur d\'autorisation';
-    notificationMessage.value = 'TODO Code d\'autorisation introuvable dans l\'URL';
+    notificationTitle.value = t('signUpPart2Page.authorizationError');
+    notificationMessage.value = t('signUpPart2Page.authorizationCodeNotFound');
     displayPopup();
   }
 }
@@ -642,7 +642,7 @@ async function submitSignupData(event) {
     
     // Show the pop-up    
     backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle.value = 'Vous devez accepter les termes de Aomail';
+    notificationTitle.value = t('signUpPart2Page.AcceptTerms');
     displayPopup();
 
     return;  
@@ -697,21 +697,21 @@ async function submitSignupData(event) {
     } else if (data.error == 'Email address already used') {
       // Show the pop-up      
       backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-      notificationTitle.value = 'TODO Erreur lors de la création du compte';
-      notificationMessage.value = 'TODO Adresse e-mail déjà utilisée';
+      notificationTitle.value = t('signUpPart2Page.accountCreationError');
+      notificationMessage.value = t('constants.popUpConstants.errorMessages.emailAlreadyUsed');
       displayPopup();
 
     } else {
       // Show the pop-up      
       backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-      notificationTitle.value = 'TODO Erreur lors de la création du compte';
+      notificationTitle.value = t('signUpPart2Page.accountCreationError');
       notificationMessage.value = data.error;
       displayPopup();
     }
   } catch (error) {
     // Show the pop-up    
     backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-    notificationTitle.value = 'TODO Erreur lors de la création du compte';
+    notificationTitle.value = t('signUpPart2Page.accountCreationError');
     notificationMessage.value = error;
     displayPopup();
   }

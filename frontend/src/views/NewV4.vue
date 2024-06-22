@@ -127,6 +127,7 @@
                                 <div class="flex items-stretch gap-1 2xl:gap-2">
                                     <div class="flex-grow">
                                         <div class="relative items-stretch">
+
                                             <div class="relative w-full">
                                                 <div v-if="!isFocused2"
                                                     class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3">
@@ -176,6 +177,8 @@
                                                     </ComboboxOptions>
                                                 </Combobox>
                                             </div>
+
+                                            
                                         </div>
                                     </div>
 

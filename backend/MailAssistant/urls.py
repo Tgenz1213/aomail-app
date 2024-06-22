@@ -86,7 +86,6 @@ urlpatterns = [
     path('api/search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'), # ok
     path('api/find_user_ai/', ai.find_user_view_ai, name='find_user_view_ai'), # ok
     path('api/new_email_ai/', ai.new_email_ai, name='new_email_ai'), # ok
-    path('api/improve_email_writing/', ai.improve_email_writing, name='improve_email_writing'), # ok
     path('api/correct_email_language/', ai.correct_email_language, name='correct_email_language'), # ok
     path('api/check_email_copywriting/', ai.check_email_copywriting, name='check_email_copywriting'), # ok
     path('api/generate_email_response_keywords/', ai.generate_email_response_keywords, name='generate_email_response_keywords'), # ok

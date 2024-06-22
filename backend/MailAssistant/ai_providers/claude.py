@@ -4,11 +4,9 @@ Handles prompt engineering requests for Claude 3 API.
 TODO:
 - Clean the code with doc + datatypes
 - Remove all unecessary functions
-- Clean imports
 - Write an list of all supported function in the banner of that file like
     - search emails: ✅
     - feature 2: ⚒️
-- Clean all utils linked (mostly in library) purely with ai and put everything in 'ai_providers/'
 """
 
 import ast
@@ -134,33 +132,8 @@ def generate_response_keywords(input_email, input_subject) -> list:
 
 
 ######################## WRITING ########################
-# TODO: OLD - delete after implementing new solution
-def improve_email_writing(body, subject):
-    """Enhance email subject and body"""
-
-    language = get_language(body, subject).upper()
-
-    formatted_prompt = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
-    
-    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
-
-    subject: {subject},
-    body: {body}
-    """
-    response = get_prompt_response(formatted_prompt)
-    result_json = json.loads(response.content[0].text.strip())
-
-    subject_text = result_json["subject"]
-    email_body = result_json["body"]
-
-    return email_body, subject_text
-
-
-""" OLD Ask Theo Before Delete (It's still used)"""
-
-
 # TODO: remove HARD CODED language
-def generate_email(input_data, length, formality, language="FRENCH"):
+def generate_email(input_data, length, formality, language):
     """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
 
     template = f"""As an email assistant, write a {length} and {formality} email in {language}.
@@ -356,7 +329,7 @@ def new_function_(
 
 
 # TODO: remove HARD CODED language
-def search_emails(query: str, language: str = "French") -> dict:
+def search_emails(query: str, language: str) -> dict:
     """Searches emails based on the user query and generates structured JSON response."""
 
     today = datetime.now().strftime("%m-%d-%Y")

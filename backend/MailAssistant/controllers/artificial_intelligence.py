@@ -8,7 +8,6 @@ Endpoints available:
 - search_tree_knowledge: Search emails using AI interpretation of user query.
 - find_user_view_ai: Search for emails in the user's mailbox based on the provided search query in both the subject and body.
 - new_email_ai: Return an AI-generated email subject and content based on input data.
-- improve_email_writing: Enhance the subject and body of an email in French, focusing on both quantity and quality improvements, while retaining key details from the original version.
 - correct_email_language: Correct spelling and grammar mistakes in the email subject and body based on user's request.
 - check_email_copywriting: Check and provide feedback on the email copywriting based on the user's request.
 - generate_email_response_keywords: Generate response keywords based on the provided email subject and content.
@@ -66,7 +65,7 @@ from MailAssistant.utils.serializers import (
     EmailGenerateAnswer,
     ContactSerializer,
 )
-from MailAssistant.ai_providers.ai_memory import (
+from MailAssistant.utils.ai_memory import (
     EmailReplyConversation,
     GenerateEmailConversation,
 )
@@ -203,10 +202,11 @@ def improve_draft(request: HttpRequest) -> Response:
     gen_email_conv = GenerateEmailConversation(
         user, length, formality, subject, body, chat_history
     )
+    language = Preference.objects.get(user=user).language
 
     for i in range(MAX_RETRIES):
         try:
-            new_subject, new_body = gen_email_conv.improve_draft(user_input)
+            new_subject, new_body = gen_email_conv.improve_draft(user_input, language)
             return Response(
                 {
                     "subject": new_subject,
@@ -261,7 +261,8 @@ def search_emails_ai(request: HttpRequest) -> Response:
     user = request.user
     emails = data["emails"]
     query = data["query"]
-    search_params: dict = claude.search_emails(query)
+    language = Preference.objects.get(user=user).language
+    search_params: dict = claude.search_emails(query, language)
     result = {}
 
     def append_to_result(provider: str, email: str, data: list):
@@ -428,11 +429,6 @@ def find_user_view_ai(request: HttpRequest) -> Response:
             )
 
         contacts_serializer = ContactSerializer(user_contacts, many=True)
-        if not contacts_serializer.is_valid():
-            return Response(
-                {"error": contacts_serializer.errors},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         # TODO: check for performance (should be fast)
         def transform_list_of_dicts(list_of_dicts):
@@ -515,49 +511,19 @@ def new_email_ai(request: HttpRequest) -> Response:
     """
     data: dict = json.loads(request.body)
     serializer = NewEmailAISerializer(data=data)
+    user = request.user
 
     if serializer.is_valid():
         input_data = serializer.validated_data["input_data"]
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
+        language = Preference.objects.get(user=user).language
 
-        subject_text, mail_text = claude.generate_email(input_data, length, formality)
+        subject_text, mail_text = claude.generate_email(
+            input_data, length, formality, language
+        )
 
         return Response({"subject": subject_text, "mail": mail_text})
-    else:
-        return Response(
-            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-        )
-
-
-@api_view(["POST"])
-@subscription([FREE_PLAN])
-def improve_email_writing(request: HttpRequest) -> Response:
-    """
-    Enhance the subject and body of an email in French, focusing on both quantity and quality improvements,
-    while retaining key details from the original version.
-
-    Args:
-        request (HttpRequest): The HTTP request object containing data to correct the email.
-            Expects a JSON body with fields:
-                email_body (str): The current body of the email.
-                email_subject (str): The current subject of the email.
-
-    Returns:
-        Response: JSON response containing the improved email subject and body,
-            or errors if the input data is invalid.
-    """
-    data: dict = json.loads(request.body)
-    serializer = EmailCorrectionSerializer(data=data)
-
-    if serializer.is_valid():
-        email_body = serializer.validated_data["email_body"]
-        email_subject = serializer.validated_data["email_subject"]
-
-        email_body, subject_text = claude.improve_email_writing(
-            email_body, email_subject
-        )
-        return Response({"subject": subject_text, "email_body": email_body})
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST

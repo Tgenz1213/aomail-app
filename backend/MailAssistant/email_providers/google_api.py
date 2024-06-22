@@ -1,8 +1,5 @@
 """
 Handles authentication and HTTP requests for the Gmail API.
-
-TODO:
-- add @subscription decorator
 """
 
 import base64
@@ -38,8 +35,10 @@ from MailAssistant.utils.serializers import EmailDataSerializer
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from MailAssistant.ai_providers import claude
+from MailAssistant.utils.security import subscription
 from MailAssistant.utils import security
 from MailAssistant.constants import (
+    FREE_PLAN,
     ADMIN_EMAIL_LIST,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
@@ -61,7 +60,7 @@ from MailAssistant.constants import (
     BASE_URL_MA,
 )
 from MailAssistant.utils.tree_knowledge import Search
-from ..utils import email_processing 
+from ..utils import email_processing
 from ..models import (
     Contact,
     KeyPoint,
@@ -339,7 +338,7 @@ def authenticate_service(user: User, email: str) -> dict | None:
 
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Gmail API.
@@ -397,7 +396,8 @@ def send_email(request: HttpRequest) -> Response:
             service.users().messages().send(userId="me", body=body).execute()
 
             threading.Thread(
-                target=email_processing.save_contacts, args=(user, email, all_recipients)
+                target=email_processing.save_contacts,
+                args=(user, email, all_recipients),
             ).start()
 
             return Response(
@@ -1388,7 +1388,7 @@ def get_unique_senders(services: dict) -> dict:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Google People API.
@@ -1903,7 +1903,9 @@ def get_mail(services, int_mail=None, id_mail=None):
                 "___________________________________________________________________________________"
             )
             if decoded_data_temp:
-                decoded_data = email_processing.concat_text(decoded_data, decoded_data_temp)
+                decoded_data = email_processing.concat_text(
+                    decoded_data, decoded_data_temp
+                )
     elif "body" in msg["payload"]:
         data = msg["payload"]["body"]["data"]
 

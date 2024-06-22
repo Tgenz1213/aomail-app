@@ -71,7 +71,7 @@ def subscription(allowed_plans):
                 print("User does not have an active subscription.")
 
                 #  (NOT 401 page) => TODO: change (it does not work anyway => TO debug)
-                return redirect(f"{BASE_URL}not-authorized")
+                # return redirect(f"{BASE_URL}not-authorized")
 
             return view_func(request, *args, **kwargs)
 

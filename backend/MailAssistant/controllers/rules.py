@@ -39,8 +39,6 @@ from MailAssistant.utils.serializers import (
 LOGGER = logging.getLogger(__name__)
 
 
-# ----------------------- RULES -----------------------#
-# TODO: https://github.com/Teh45/MailAssistant/issues/33
 @api_view(["POST"])
 @subscription([FREE_PLAN])
 def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:

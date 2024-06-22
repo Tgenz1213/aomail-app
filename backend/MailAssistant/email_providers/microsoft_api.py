@@ -2,7 +2,6 @@
 Handles authentication and HTTP requests for the Microsoft Graph API.
 
 TODO:
-- add @subscription decorator
 - [SUBSCRIPTION] handle "subscriptionRemoved or missed"
 """
 
@@ -36,7 +35,7 @@ from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
 from MailAssistant.utils.serializers import EmailDataSerializer
-from ..utils import email_processing 
+from ..utils import email_processing
 from MailAssistant.constants import (
     FREE_PLAN,
     ADMIN_EMAIL_LIST,
@@ -410,7 +409,6 @@ def get_unique_senders(access_token: str) -> dict:
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def get_profile_image(request: HttpRequest) -> Response:
     """
@@ -509,7 +507,6 @@ def get_email(access_token: str) -> dict:
 
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def send_email(request: HttpRequest) -> Response:
     """
@@ -590,7 +587,8 @@ def send_email(request: HttpRequest) -> Response:
 
                 if response.status_code == 202:
                     threading.Thread(
-                        target=email_processing.save_contacts, args=(user, email, all_recipients)
+                        target=email_processing.save_contacts,
+                        args=(user, email, all_recipients),
                     ).start()
                     return Response(
                         {"message": "Email sent successfully!"},
@@ -979,7 +977,9 @@ def set_all_contacts(access_token: str, user: User):
         for contact_info, emails in all_contacts.items():
             _, name, email_address, provider_id = contact_info
             for _ in emails:
-                email_processing.save_email_sender(user, name, email_address, provider_id)
+                email_processing.save_email_sender(
+                    user, name, email_address, provider_id
+                )
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(

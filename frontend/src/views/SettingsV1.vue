@@ -703,6 +703,10 @@
 <script setup>
 import { API_BASE_URL } from '@/main';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
+// Use i18n
+const { t } = useI18n();
 
 //import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 //import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid'

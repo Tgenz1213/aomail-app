@@ -276,6 +276,7 @@ import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { useRouter } from 'vue-router';
 import Quill from 'quill';
 import { API_BASE_URL } from '@/main';
+import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import {
     Combobox,
@@ -284,6 +285,10 @@ import {
     ComboboxOption,
     ComboboxOptions,
 } from '@headlessui/vue'
+
+
+// Use i18n
+const { t } = useI18n();
 
 // Variable to prevent the user from starting a prompt if AI is writing
 let isAIWriting = ref(false);

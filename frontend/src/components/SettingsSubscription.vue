@@ -51,10 +51,7 @@
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
 import { CheckIcon } from '@heroicons/vue/20/solid'
 import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 
-// Use i18n
-const { t } = useI18n();
 
 const frequencies = [
   { value: 'monthly', label: 'settingsPage.subscriptionPage.monthly', priceSuffix: 'settingsPage.subscriptionPage.perMonth' },

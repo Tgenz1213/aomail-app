@@ -779,6 +779,7 @@ import Navbar2 from '../components/AppNavbar8.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { API_BASE_URL } from '@/main';
+import { useI18n } from 'vue-i18n';
 import {
   ChatBubbleOvalLeftEllipsisIcon,
   TrashIcon,
@@ -805,7 +806,9 @@ export default {
     InformationCircleIcon,
     ExclamationTriangleIcon
   },
+  
   setup() {
+    const { t } = useI18n();
     const bgColor = ref('');
     let answerLaterEmails = ref([]);
     let emails = ref({});

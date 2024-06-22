@@ -885,7 +885,10 @@ import {
 } from '@headlessui/vue';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
 import { CheckIcon, ChevronUpDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
+import { useI18n } from 'vue-i18n';
 
+// Use i18n
+const { t } = useI18n();
 
 let showNotification = ref(false);
 let notificationTitle = ref('');

@@ -1,26 +1,21 @@
 """
-Handles frontend requests and redirects them to the appropriate API.
+Handles user profile, email sending, and contact management operations, returns results to frontend, and saves to database.
+
+Endpoints available:
+- check_sender_for_user: Check if a sender with the specified email exists.
+- create_sender: Create a new sender associated with the authenticated user.
+- get_emails_linked: Returns the list of emails linked to the authenticated user's account.
+- get_profile_image: Retrieves the profile image URL of the social API selected.
+- get_user_contacts: Retrieve contacts associated with the authenticated user.
+- get_user_description: Retrieves user description of the given email.
+- search_emails: Searches emails based on user-specified parameters.
+- send_email: Sends an email using the social API selected.
+- update_user_description: Updates the user description of the given email.
+
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-- Split all the code inside files and put it all inside 'controllers' folder
-- Define all constants locally and globally (according to the scope)
-- Log important messages/errors with user id, clear error name when possible
-- Clean the code by adding data types.
-- Improve documentation to be concise.
-- STOP using differents libs to do the same thing => only use 1
-    Use ONLY: status=status.HTTP_200_OK
-    Use ONLY: Response to send back data
-- Ensure Pylance can recognize variable types and methods.
-    EXAMPLE:
-    def view_function(request: HttpRequest):
-        user = request.user
-        # USE THIS instead of 'data'
-        parameters: dict = json.loads(request.body)
 - Add check if serializer is valid everywhere a serializer is used and return errors + 400_BAD_REQUEST
-
-REMAINING functions to opti and clean:
-- def find_user_view_ai(request: HttpRequest) -> Response:
 """
 
 import datetime
@@ -28,79 +23,36 @@ import json
 import logging
 import os
 import threading
-import jwt
 import stripe
-from collections import defaultdict
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import IntegrityError
-from django.db.models import Subquery, Exists, OuterRef
-from django.http import HttpRequest, FileResponse, Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.template.loader import render_to_string
-from django.utils import timezone
+from django.http import HttpRequest, FileResponse, Http404
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import api_view
 from rest_framework.request import Request
-from rest_framework_simplejwt.settings import api_settings
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
-from MailAssistant.ai_providers import claude
 from MailAssistant.constants import (
     FREE_PLAN,
-    ADMIN_EMAIL_LIST,
-    BASE_URL_MA,
-    DEFAULT_CATEGORY,
-    EMAIL_NO_REPLY,
-    ENCRYPTION_KEYS,
     GOOGLE_PROVIDER,
-    LANGUAGES,
-    MAX_RETRIES,
     MICROSOFT_PROVIDER,
     STRIPE_PAYMENT_FAILED_URL,
     STRIPE_PAYMENT_SUCCESS_URL,
     STRIPE_PRICES,
     STRIPE_SECRET_KEY,
-    THEMES,
     MEDIA_ROOT,
 )
-from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.models import (
-    Category,
-    GoogleListener,
-    MicrosoftListener,
     SocialAPI,
-    Email,
-    Rule,
-    Preference,
     Sender,
     Contact,
     Subscription,
 )
 from MailAssistant.utils.serializers import (
-    CategoryNameSerializer,
-    EmailReadUpdateSerializer,
-    EmailReplyLaterUpdateSerializer,
-    RuleBlockUpdateSerializer,
-    PreferencesSerializer,
-    RuleSerializer,
     SenderSerializer,
-    NewEmailAISerializer,
-    EmailAIRecommendationsSerializer,
-    EmailCorrectionSerializer,
-    EmailCopyWritingSerializer,
-    EmailProposalAnswerSerializer,
-    EmailGenerateAnswer,
-    NewCategorySerializer,
     ContactSerializer,
 )
 
@@ -110,17 +62,13 @@ LOGGER = logging.getLogger(__name__)
 
 
 ######################## ENDPOINTS HANDLING GMAIL & OUTLOOK ########################
-# ----------------------- GET REQUESTS -----------------------#
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def get_profile_image(request: Request):
     return forward_request(request._request, "get_profile_image")
 
 
-# ----------------------- POST REQUESTS -----------------------#
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def send_email(request: Request):
     return forward_request(request._request, "send_email")
@@ -192,7 +140,6 @@ def serve_image(request, image_name):
 
 ############################# CONTACT ##############################
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def get_user_contacts(request: HttpRequest) -> Response:
     """
@@ -218,7 +165,6 @@ def get_user_contacts(request: HttpRequest) -> Response:
 ######################## DATABASE OPERATIONS ########################
 # ----------------------- USER -----------------------#
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def check_sender_for_user(request: HttpRequest) -> Response:
     """
@@ -246,7 +192,6 @@ def check_sender_for_user(request: HttpRequest) -> Response:
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def get_emails_linked(request: HttpRequest) -> Response:
     """
@@ -272,7 +217,6 @@ def get_emails_linked(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def search_emails(request: HttpRequest) -> Response:
     """
@@ -376,7 +320,6 @@ def search_emails(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def update_user_description(request: HttpRequest) -> Response:
     """
@@ -415,7 +358,6 @@ def update_user_description(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def get_user_description(request: HttpRequest) -> Response:
     """
@@ -451,7 +393,6 @@ def get_user_description(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def create_sender(request: HttpRequest) -> Response:
     """

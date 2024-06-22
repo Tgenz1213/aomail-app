@@ -65,12 +65,7 @@ def set_rule_block_for_sender(request: HttpRequest, email_id) -> Response:
         rule.save()
 
     serializer = RuleBlockUpdateSerializer(rule)
-    if serializer.is_valid():
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
-        return Response(
-            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-        )
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -90,10 +85,6 @@ def get_user_rules(request: HttpRequest) -> Response:
 
     for rule in user_rules:
         rule_serializer = RuleSerializer(rule)
-        if not rule_serializer.is_valid():
-            return Response(
-                {"error": rule_serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-            )
         rule_data = rule_serializer.data
 
         category_name = rule.category.name if rule.category else None
@@ -129,10 +120,6 @@ def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
         return Response({"error": "Rule not found"}, status=status.HTTP_400_BAD_REQUEST)
 
     rule_serializer = RuleSerializer(user_rule)
-    if not rule_serializer.is_valid():
-        return Response(
-            {"error": rule_serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-        )
     rule_data = rule_serializer.data
 
     category_name = user_rule.category.name if user_rule.category else None

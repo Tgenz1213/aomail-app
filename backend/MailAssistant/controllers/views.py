@@ -158,12 +158,7 @@ def get_user_contacts(request: HttpRequest) -> Response:
         )
 
     contacts_serializer = ContactSerializer(user_contacts, many=True)
-    if contacts_serializer.is_valid():
-        return Response(contacts_serializer.data, status=status.HTTP_200_OK)
-    else:
-        return Response(
-            {"error": contacts_serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-        )
+    return Response(contacts_serializer.data, status=status.HTTP_200_OK)
 
 
 ######################## DATABASE OPERATIONS ########################

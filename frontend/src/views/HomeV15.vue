@@ -266,44 +266,45 @@
                                                         <div class="overflow-hidden border-l-4 border-orange-300  hover:rounded-l-xl" style="overflow: visible;">
                                                             <ul role="list" class="divide-y divide-gray-200">
                                                                 <li v-for="item in emailsByDate" :key="item.id" class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                                                                    <div class="col-span-8 cursor-pointer"
-                                                                        @click="toggleHiddenParagraph(item.id)">
-                                                                        <div class="flex-auto group">
-                                                                            <div class="flex gap-x-4">
-                                                                                <div class="flex items-center">
-                                                                                    <p class="text-sm font-semibold leading-6 text-orange-700 mr-2">{{ item.name }}</p>
-                                                                                    <p class="text-sm leading-6 text-orange-700">{{ item.time }}</p>   
-                                                                                </div> 
-                                                                                <div
-                                                                                    class="hidden group-hover:block px-2 py-0.5 bg-orange-300 text-white text-sm shadow rounded-xl">
-                                                                                    <div class="flex gap-x-1 items-center">
-                                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                            fill="none" viewBox="0 0 24 24"
-                                                                                            stroke-width="1.5"
-                                                                                            stroke="currentColor"
-                                                                                            class="w-4 h-4">
-                                                                                            <path stroke-linecap="round"
-                                                                                                stroke-linejoin="round"
-                                                                                                d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-                                                                                        </svg>
-                                                                                        <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
+                                                                    <div class="col-span-8 cursor-pointer">
+                                                                        <div @click="toggleHiddenParagraph(item.id)">
+                                                                            <div class="flex-auto group">
+                                                                                <div class="flex gap-x-4">
+                                                                                    <div class="flex items-center">
+                                                                                        <p class="text-sm font-semibold leading-6 text-orange-700 mr-2">{{ item.name }}</p>
+                                                                                        <p class="text-sm leading-6 text-orange-700">{{ item.time }}</p>   
+                                                                                    </div> 
+                                                                                    <div
+                                                                                        class="hidden group-hover:block px-2 py-0.5 bg-orange-300 text-white text-sm shadow rounded-xl">
+                                                                                        <div class="flex gap-x-1 items-center">
+                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                                fill="none" viewBox="0 0 24 24"
+                                                                                                stroke-width="1.5"
+                                                                                                stroke="currentColor"
+                                                                                                class="w-4 h-4">
+                                                                                                <path stroke-linecap="round"
+                                                                                                    stroke-linejoin="round"
+                                                                                                    d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+                                                                                            </svg>
+                                                                                            <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
+                                                                                <p
+                                                                                    class="mt-1 text-md text-gray-700 leading-relaxed">
+                                                                                    {{ item.description }}</p>
                                                                             </div>
-                                                                            <p
-                                                                                class="mt-1 text-md text-gray-700 leading-relaxed">
-                                                                                {{ item.description }}</p>
+                                                                            <ul v-show="showHiddenParagraphs[item.id]"
+                                                                                role="list" class="text-black text-sm/6 pt-2"
+                                                                                :ref="el => setParentRef(el, item.id)">
+                                                                                <!-- Potential design update : bg-white shadow rounded-xl -->
+                                                                                <li v-for="detail in item.details"
+                                                                                    :key="detail.id" class="pl-8"
+                                                                                    :ref="'hiddenText' + item.id"
+                                                                                    :data-text="detail.text">
+                                                                                </li>
+                                                                            </ul>
                                                                         </div>
-                                                                        <ul v-show="showHiddenParagraphs[item.id]"
-                                                                            role="list" class="text-black text-sm/6 pt-2"
-                                                                            :ref="el => setParentRef(el, item.id)">
-                                                                            <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                            <li v-for="detail in item.details"
-                                                                                :key="detail.id" class="pl-8"
-                                                                                :ref="'hiddenText' + item.id"
-                                                                                :data-text="detail.text">
-                                                                            </li>
-                                                                        </ul>
                                                                         <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
                                                                             <div
                                                                                 v-for="attachment in item.attachments"
@@ -557,44 +558,45 @@
                                                             <ul role="list" class="divide-y divide-gray-200">
                                                                 <li v-for="item in emailsByDate" :key="item.id" class="px-6 py-4 2xl:py-5 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                                                                     <!-- Your content -->
-                                                                    <div class="col-span-8 cursor-pointer"
-                                                                        @click="toggleHiddenParagraph(item.id)">
-                                                                        <div class="flex-auto group">
-                                                                            <div class="flex gap-x-4">
-                                                                                <div class="flex items-center">
-                                                                                    <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.name }}</p>
-                                                                                    <p class="text-sm leading-6 text-blue-800 dark:text-white">{{ item.time }}</p>   
-                                                                                </div> 
-                                                                                <div
-                                                                                    class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
-                                                                                    <div class="flex gap-x-1 items-center">
-                                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                            fill="none" viewBox="0 0 24 24"
-                                                                                            stroke-width="1.5"
-                                                                                            stroke="currentColor"
-                                                                                            class="w-4 h-4">
-                                                                                            <path stroke-linecap="round"
-                                                                                                stroke-linejoin="round"
-                                                                                                d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-                                                                                        </svg>
-                                                                                        <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
+                                                                    <div class="col-span-8 cursor-pointer">
+                                                                        <div @click="toggleHiddenParagraph(item.id)">
+                                                                            <div class="flex-auto group">
+                                                                                <div class="flex gap-x-4">
+                                                                                    <div class="flex items-center">
+                                                                                        <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.name }}</p>
+                                                                                        <p class="text-sm leading-6 text-blue-800 dark:text-white">{{ item.time }}</p>   
+                                                                                    </div> 
+                                                                                    <div
+                                                                                        class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
+                                                                                        <div class="flex gap-x-1 items-center">
+                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                                                                fill="none" viewBox="0 0 24 24"
+                                                                                                stroke-width="1.5"
+                                                                                                stroke="currentColor"
+                                                                                                class="w-4 h-4">
+                                                                                                <path stroke-linecap="round"
+                                                                                                    stroke-linejoin="round"
+                                                                                                    d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+                                                                                            </svg>
+                                                                                            <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
+                                                                                        </div>
                                                                                     </div>
                                                                                 </div>
+                                                                                <p
+                                                                                    class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">
+                                                                                    {{ item.description }}</p>
                                                                             </div>
-                                                                            <p
-                                                                                class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">
-                                                                                {{ item.description }}</p>
+                                                                            <ul v-show="showHiddenParagraphs[item.id]"
+                                                                                role="list" class="text-black text-sm/6 pt-2"
+                                                                                :ref="el => setParentRef(el, item.id)">
+                                                                                <!-- Potential design update : bg-white shadow rounded-xl -->
+                                                                                <li v-for="detail in item.details"
+                                                                                    :key="detail.id" class="pl-8"
+                                                                                    :ref="'hiddenText' + item.id"
+                                                                                    :data-text="detail.text">
+                                                                                </li>
+                                                                            </ul>
                                                                         </div>
-                                                                        <ul v-show="showHiddenParagraphs[item.id]"
-                                                                            role="list" class="text-black text-sm/6 pt-2"
-                                                                            :ref="el => setParentRef(el, item.id)">
-                                                                            <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                            <li v-for="detail in item.details"
-                                                                                :key="detail.id" class="pl-8"
-                                                                                :ref="'hiddenText' + item.id"
-                                                                                :data-text="detail.text">
-                                                                            </li>
-                                                                        </ul>
                                                                         <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
                                                                             <div
                                                                                 v-for="attachment in item.attachments"

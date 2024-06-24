@@ -176,7 +176,7 @@
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="AddressesSelected"
+                              placeholder="À"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -250,7 +250,7 @@
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="fromAddressesSelected"
+                              placeholder="De"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -291,7 +291,7 @@
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="toAddressesSelected"
+                              placeholder="Résultats maximums"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -310,7 +310,7 @@
                                       class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                                       <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
                                       <span class="block truncate text-gray-700">
-                                          {{ attachmentSelected ? attachmentSelected.name : 'emails Linked for search' }}
+                                          {{ attachmentSelected ? attachmentSelected.name : 'Email lié' }}
                                       </span>
                                       <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                           <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
@@ -335,7 +335,6 @@
                       </div>
 
                       <!-- Sixième input Combobox subject-->
-                    
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
                           <div class="relative flex items-center w-full">
@@ -344,7 +343,7 @@
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="Subject"
+                              placeholder="Sujet"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -364,7 +363,7 @@
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="body"
+                              placeholder="Objet"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -385,7 +384,7 @@
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="date_from"
+                              placeholder="Tailles"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -406,7 +405,7 @@
                                     class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                                     <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
                                     <span class="block truncate text-gray-700">
-                                      {{ attachmentSelected ? attachmentSelected.name : 'emails Linked for search' }}
+                                      {{ attachmentSelected ? attachmentSelected.name : 'Plage de dates' }}
                                     </span>
                                     <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                       <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />

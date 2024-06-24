@@ -808,7 +808,7 @@ export default {
   },
   
   setup() {
-    const { t } = useI18n();
+    
     const bgColor = ref('');
     let answerLaterEmails = ref([]);
     let emails = ref({});
@@ -1119,6 +1119,8 @@ export default {
     }
   },
   data() {
+    const { t } = useI18n();
+
     return {
       showHiddenParagraphs: {},
       animationTriggered: [false, false, false],
@@ -1126,6 +1128,7 @@ export default {
       showTooltip: true,
       isDropdownOpen: false,
       isMenuOpen: true,
+      t: t,
       showNotification: false,
       notificationTitle: '',
       notificationMessage: '',

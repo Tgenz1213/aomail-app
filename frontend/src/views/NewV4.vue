@@ -87,7 +87,7 @@
                         </div>
                     </div>
 
-                    <form class="flex flex-col flex-grow w-full px-10 py-4 2xl:px-14 2xl:py-6 overflow-hidden">
+                    <form class="flex flex-col flex-grow w-full px-10 pt-4 2xl:px-14 2xl:pt-6 overflow-hidden">
                         <div class="flex flex-col space-y-5 h-full w-full">
                             <div class="">
 
@@ -239,80 +239,82 @@
                                 </div>
                             </div>
 
-                            <div class="flex-1 pb-[25px] 2xl:pb-[42px] overflow-hidden">
-                            <div id="editor-container" class="w-full h-[calc(100vh-150px)] md:h-[calc(100vh-200px)] lg:h-[calc(100vh-250px)] xl:h-[calc(100vh-300px)] 2xl:h-[calc(100vh-350px)] flex flex-col">
-                                <div id="editor" class="flex-1 overflow-auto">
-                                <!-- Quill editor will be initialized here -->
-                                </div>
-                            </div>
-                            </div>
-
-                            <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6 lg:pt-4 items-stretch">
-                                <!-- EMAIL LIST -->
-                                <div class="relative flex-grow flex items-stretch">
-                                    <Listbox as="div" v-model="emailSelected" class="w-full flex flex-col">
-                                        <ListboxButton
-                                            class="relative w-full h-full cursor-default rounded-md bg-white px-6 py-2 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6 2xl:px-7 2xl:py-3 2xl:text-base">
-                                            <span class="block truncate">{{ emailSelected }}</span>
-                                            <span
-                                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                            </span>
-                                        </ListboxButton>
-                                        <transition leave-active-class="transition ease-in duration-100"
-                                            leave-from-class="opacity-100" leave-to-class="opacity-0">
-                                            <ListboxOptions
-                                                class="absolute z-10 mb-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm bottom-full">
-                                                <ListboxOption as="template" v-for="email in emailsLinked"
-                                                    :key="email.email" :value="email.email"
-                                                    v-slot="{ active, selected }">
-                                                    <li
-                                                        :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                                        <span
-                                                            :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{
-                                                                email.email }}</span>
-                                                        <span v-if="selected"
-                                                            :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                        </span>
-                                                    </li>
-                                                </ListboxOption>
-                                            </ListboxOptions>
-                                        </transition>
-                                    </Listbox>
+                            <div class = "flex flex-col h-full space-y-5 pb-4 2xl:pb-6">
+                                <div class="flex-1 overflow-hidden h-full">
+                                    <div id="editor-container" class="w-full [300px] sm:h-[335px] md:h-[340px] lg:h-[338px] xl:h-[350px] 2xl:h-[350px] flex flex-col">
+                                    <div id="editor" class="flex-1 overflow-auto">
+                                    <!-- Quill editor will be initialized here -->
+                                    </div>
+                                    </div>
                                 </div>
 
-                                <div class="inline-flex rounded-lg shadow-lg items-stretch">
-                                    <button @click="sendEmail"
-                                        class="bg-gray-700 rounded-l-lg px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg">
-                                        {{ $t('constants.userActions.send') }}
-                                        <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
-                                    </button>
-                                    <Menu as="div" class="relative -ml-px block items-stretch">
-                                        <MenuButton
-                                            class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
-                                            <span class="sr-only">{{ $t('newPage.openOptions') }}</span>
-                                            <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
-                                        </MenuButton>
-                                        <transition enter-active-class="transition ease-out duration-100"
-                                            enter-from-class="transform opacity-0 scale-95"
-                                            enter-to-class="transform opacity-100 scale-100"
-                                            leave-active-class="transition ease-in duration-75"
-                                            leave-from-class="transform opacity-100 scale-100"
-                                            leave-to-class="transform opacity-0 scale-95">
-                                            <MenuItems
-                                                class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                <div class="py-1">
-                                                    <MenuItem v-for="item in items" :key="item.name"
-                                                        v-slot="{ active }">
-                                                    <a :href="item.href"
-                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm 2xl:px-5 2xl:py-3 2xl:text-base']">{{
-                                                            item.name }}</a>
-                                                    </MenuItem>
-                                                </div>
-                                            </MenuItems>
-                                        </transition>
-                                    </Menu>
+                                <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6 items-stretch">
+                                    <!-- EMAIL LIST -->
+                                    <div class="relative flex-grow flex items-stretch">
+                                        <Listbox as="div" v-model="emailSelected" class="w-full flex flex-col">
+                                            <ListboxButton
+                                                class="relative w-full h-full cursor-default rounded-md bg-white px-6 py-2 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6 2xl:px-7 2xl:py-3 2xl:text-base">
+                                                <span class="block truncate">{{ emailSelected }}</span>
+                                                <span
+                                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                </span>
+                                            </ListboxButton>
+                                            <transition leave-active-class="transition ease-in duration-100"
+                                                leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                                <ListboxOptions
+                                                    class="absolute z-10 mb-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm bottom-full">
+                                                    <ListboxOption as="template" v-for="email in emailsLinked"
+                                                        :key="email.email" :value="email.email"
+                                                        v-slot="{ active, selected }">
+                                                        <li
+                                                            :class="[active ? 'bg-gray-800 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                                            <span
+                                                                :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">{{
+                                                                    email.email }}</span>
+                                                            <span v-if="selected"
+                                                                :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                                                <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                            </span>
+                                                        </li>
+                                                    </ListboxOption>
+                                                </ListboxOptions>
+                                            </transition>
+                                        </Listbox>
+                                    </div>
+
+                                    <div class="inline-flex rounded-lg shadow-lg items-stretch">
+                                        <button @click="sendEmail"
+                                            class="bg-gray-700 rounded-l-lg px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg">
+                                            {{ $t('constants.userActions.send') }}
+                                            <PaperAirplaneIcon class="w-4 2xl:w-5" aria-hidden="true" />
+                                        </button>
+                                        <Menu as="div" class="relative -ml-px block items-stretch">
+                                            <MenuButton
+                                                class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
+                                                <span class="sr-only">{{ $t('newPage.openOptions') }}</span>
+                                                <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
+                                            </MenuButton>
+                                            <transition enter-active-class="transition ease-out duration-100"
+                                                enter-from-class="transform opacity-0 scale-95"
+                                                enter-to-class="transform opacity-100 scale-100"
+                                                leave-active-class="transition ease-in duration-75"
+                                                leave-from-class="transform opacity-100 scale-100"
+                                                leave-to-class="transform opacity-0 scale-95">
+                                                <MenuItems
+                                                    class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                    <div class="py-1">
+                                                        <MenuItem v-for="item in items" :key="item.name"
+                                                            v-slot="{ active }">
+                                                        <a :href="item.href"
+                                                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm 2xl:px-5 2xl:py-3 2xl:text-base']">{{
+                                                                item.name }}</a>
+                                                        </MenuItem>
+                                                    </div>
+                                                </MenuItems>
+                                            </transition>
+                                        </Menu>
+                                    </div>
                                 </div>
                             </div>
 

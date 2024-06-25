@@ -981,14 +981,14 @@ export default {
         if (response.answer_later != false) {
           console.error('Failed to mark email for reply later', response);
           this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-          this.notificationTitle = t('replyLaterPage.markEmailNotReplyLaterFailure');
+          this.notificationTitle = this.t('replyLaterPage.markEmailNotReplyLaterFailure');
           this.notificationMessage = response;
           displayPopup();
         }
       } catch (error) {
         console.error('Error in unmarkReplyLater:', error.message);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('replyLaterPage.markEmailNotReplyLaterFailure');
+        this.notificationTitle = this.t('replyLaterPage.markEmailNotReplyLaterFailure');
         this.notificationMessage = error.message;
         displayPopup();
       }
@@ -1029,7 +1029,7 @@ export default {
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('constants.popUpConstants.errorMessages.openReplyPageFailure');
+        this.notificationTitle = this.t('constants.popUpConstants.errorMessages.openReplyPageFailure');
         this.notificationMessage = error.message;
         this.displayPopup();
       }
@@ -1069,7 +1069,7 @@ export default {
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('constants.popUpConstants.errorMessages.openTransferPageFailure');
+        this.notificationTitle = this.t('constants.popUpConstants.errorMessages.openTransferPageFailure');
         this.notificationMessage = error.message;
         this.displayPopup();
       }
@@ -1091,14 +1091,14 @@ export default {
         } else {
           console.error('Failed to delete email', response.error);
           this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-          this.notificationTitle = t('constants.popUpConstants.errorMessages.deleteEmailFailure');
+          this.notificationTitle = this.t('constants.popUpConstants.errorMessages.deleteEmailFailure');
           this.notificationMessage = response.error;
           this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleteEmail:', error.message);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('constants.popUpConstants.errorMessages.deleteEmailFailure');
+        this.notificationTitle = this.t('constants.popUpConstants.errorMessages.deleteEmailFailure');
         this.notificationMessage = error.message;
         this.displayPopup();
       }

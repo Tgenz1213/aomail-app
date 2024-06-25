@@ -53,12 +53,12 @@
 
       <!--Secondes Colonnes -->
       <div id="secondMainColumn" 
-      class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-hidden">
+      class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-y-auto">
 
         <!--xl:h-[695px] xl:w-[560px]-->
 
         <!--titre -->
-        <div class="flex items-center h-[65px] justify-center lg:py-3 2xl:h-[80px] min-h-4">
+        <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
           <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
           <div class="flex gap-x-3 items-center ">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -568,367 +568,46 @@
               </div>
               </div>
 
-             <!-- email List -->
-              <div class="flex-1 flex flex-col overflow-hidden pr-2 pt-4" id="liste_email">
-                <div class="flex-1 flex flex-col overflow-y-auto pr-4">
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
+          
+              <!-- email List -->
+              <div class="flex-1 flex flex-col  pr-2 py-4" id="liste_email">
+                <div class="h-full overflow-y-auto pr-4 ">
+                  <ul class="space-y-4">
+                    <!-- List element -->
+                    <li class="flex justify-between items-center py-4 email-item">
+                      <!-- Details -->
+                      <div class="flex flex-col justify-center">
+                        <span class="font-bold text-sm">Expéditeur</span>
+                        <span class="text-sm">Objet du mail - Début du mail...</span>
                       </div>
-                    </span>
+
+                      <!-- Actions -->
+                      <span class="isolate inline-flex items-center rounded-2xl">
+                        <!-- Eyeicon -->
+                        <div class="relative group">
+                          <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                            <EyeIcon class="w-5 h-5" />
+                            Voir
+                          </button>
+                        </div>
+                      </span>
+                    </li>
+
+                      <!-- Separator -->
+                      <li class="flex relative pt-2">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                          <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                      </li>
+
+                   
+
+                      <!-- Répétez les éléments de la liste ci-dessus pour chaque email -->
+                      <!-- ... -->
+                    </ul>
                   </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Separator -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  
-
-                  <!-- Répétez les éléments de la liste ci-dessus pour chaque email -->
-                  <!-- ... -->
                 </div>
-              </div>
+
 
                <!-- h-[600px] 2xl:h-[700px] -->
               <!--ligne 6 : email not found block -->

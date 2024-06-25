@@ -74,7 +74,7 @@
            <div id="secondMainColumn" class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
                     <div class="flex flex-col h-full w-full">
                          <!--Titre-->
-                         <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
+                         <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-8">
                         <div class="flex gap-x-3 items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                                 stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
@@ -87,7 +87,7 @@
                         </div>
                     </div>
 
-                    <form class="flex flex-col flex-grow w-full px-10 pt-4 2xl:px-14 2xl:pt-6 overflow-hidden">
+                    <form class="flex-1 flex flex-col w-full px-10 pt-4 2xl:px-14 2xl:pt-6 overflow-hidden">
                         <div class="flex flex-col space-y-5 h-full w-full">
                             <div class="">
 
@@ -239,10 +239,10 @@
                                 </div>
                             </div>
 
-                            <div class = "flex flex-col h-full space-y-5 pb-4 2xl:pb-6">
-                                <div class="flex-1 overflow-hidden h-full">
-                                    <div id="editor-container" class="w-full [300px] sm:h-[335px] md:h-[340px] lg:h-[338px] xl:h-[350px] 2xl:h-[350px] flex flex-col">
-                                    <div id="editor" class="flex-1 overflow-auto">
+                            <div class = "flex flex-col h-full space-y-5 pb-4 2xl:pb-6 overflow-hidden ">
+                                <div class="flex-1 overflow-hidden h-screen border-b-2 rounded-lg">
+                                    <div id="editor-container" class=" flex-1 h-full w-full flex flex-col border-solid ">
+                                    <div id="editor" class="flex-1">
                                     <!-- Quill editor will be initialized here -->
                                     </div>
                                     </div>

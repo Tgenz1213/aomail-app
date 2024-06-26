@@ -515,7 +515,6 @@ def get_user_emails(request: HttpRequest) -> Response:
                 "rule": email.has_rule,
                 "rule_id": email.rule_id,
                 "answer_later": email.answer_later,
-                "web_link": email.web_link,
                 "has_attachments": email.has_attachments,
                 "attachments": [
                     {

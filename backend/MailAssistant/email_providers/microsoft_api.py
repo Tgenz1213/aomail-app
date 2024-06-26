@@ -1100,10 +1100,6 @@ def get_mail_to_db(
     response = requests.get(message_url, headers=headers)
     message_data: dict = response.json()
 
-    # TODO: delete => and in models too
-    conversation_id = message_data.get("conversationId")
-    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
-
     has_attachments = message_data["hasAttachments"]
     subject: str = message_data.get("subject")
     is_reply: bool = subject.lower().startswith("re:")
@@ -1124,7 +1120,6 @@ def get_mail_to_db(
         preprocessed_data,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
     )
@@ -1713,7 +1708,6 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         decoded_data,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
     ) = get_mail_to_db(access_token, None, id_email)
@@ -1826,7 +1820,6 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             category=category,
             user=user,
             date=sent_date,
-            web_link=web_link,
             has_attachments=has_attachments,
             answer=answer,
             relevance=relevance,
@@ -1914,10 +1907,6 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
     response = requests.get(message_url, headers=headers)
     message_data: dict = response.json()
 
-    # TODO: delete => and in models too
-    conversation_id = message_data.get("conversationId")
-    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
-
     subject = message_data.get("subject")
     sender = message_data.get("from")
     from_info = parse_name_and_email(sender)
@@ -1946,5 +1935,4 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
         bcc_info,
         email_id,
         sent_date,
-        web_link,
     )

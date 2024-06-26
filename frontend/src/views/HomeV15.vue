@@ -2040,11 +2040,6 @@ async function deleteEmail(emailId) {
     lockEmailsAccess.value = false;
 }
 
-function openInNewWindow(web_link) {
-    console.log(web_link)
-    window.open(web_link, '_blank');
-}
-
 async function openAnswer(email) {
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 

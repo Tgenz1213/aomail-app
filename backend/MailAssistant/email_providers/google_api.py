@@ -583,9 +583,6 @@ def get_mail_to_db(services):
         elif name == "Date":
             sent_date = parsedate_to_datetime(values["value"])
 
-    # TODO: delete => and in models too
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
-
     has_attachments = False
     is_reply = "in-reply-to" in {
         header["name"].lower() for header in msg["payload"]["headers"]
@@ -679,7 +676,6 @@ def get_mail_to_db(services):
         safe_html,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
         cc_info,
@@ -743,9 +739,6 @@ def get_mail_to_db(services: dict) -> tuple:
             bcc_info = parse_name_and_email(values["value"])
         elif name == "Date":
             sent_date = parsedate_to_datetime(values["value"])
-
-    # TODO: delete => and in models too
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
     has_attachments = False
     is_reply = "in-reply-to" in {
@@ -847,7 +840,6 @@ def get_mail_to_db(services: dict) -> tuple:
         safe_html,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
         cc_info,
@@ -1650,7 +1642,6 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
         safe_html,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
         cc_info,
@@ -1768,7 +1759,6 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
             category=category,
             user=user,
             date=sent_date,
-            web_link=web_link,
             has_attachments=has_attachments,
             answer=answer,
             relevance=relevance,
@@ -1876,7 +1866,6 @@ def get_mail(services, int_mail=None, id_mail=None):
     subject = from_info = decoded_data = None
     cc_info = bcc_info = []
     email_data = msg["payload"]["headers"]
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
     for values in email_data:
         name = values["name"]
@@ -1929,5 +1918,4 @@ def get_mail(services, int_mail=None, id_mail=None):
         bcc_info,
         email_id,
         sent_date,
-        web_link,
     )

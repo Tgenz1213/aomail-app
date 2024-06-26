@@ -117,11 +117,7 @@ class Email(models.Model):
 
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
-    # TO ADD
-    # one_line_summary = models.CharField(max_length=500)
-
-    # TO DELETE
-    web_link = models.CharField(max_length=200, null=True)
+    one_line_summary = models.CharField(max_length=500)
     # TO DELETE (duplicate with html_content)
     content = models.TextField()
 

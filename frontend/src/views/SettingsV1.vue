@@ -297,7 +297,7 @@
                                                     <div class="flex flex-col">
                                                         <div class="flex space-x-1 items-center">
                                                             <key-icon class="w-4 h-4" />
-                                                            <label
+                                                            <label id ="newPassword"
                                                                 class="block text-sm font-medium leading-6 text-gray-900">{{
                                                                     $t('settingsPage.accountPage.newPassword') }}</label>
                                                         </div>
@@ -337,7 +337,7 @@
                                                     <div class="flex flex-col">
                                                         <div class="flex space-x-1 items-center">
                                                             <key-icon class="w-4 h-4" />
-                                                            <label
+                                                            <label id="confirmNewPassword"
                                                                 class="block text-sm font-medium leading-6 text-gray-900">{{
                                                                     $t('settingsPage.accountPage.confirmYourNewPassword') }}</label>
                                                         </div>
@@ -1123,37 +1123,64 @@ async function handleSubmit() {
 
     let resultUpdateUsername;
 
-    if (response.available == false) {
-        // Show the pop-up
-        backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = t('settingsPage.accountPage.usernameAlreadyExists');
-        notificationMessage = t('settingsPage.accountPage.pleaseChooseDifferentUsername');
-        displayPopup();
-        return;
-    }
-    else {
-        try {
-            let currentUsername = await getUsername();
+if (response.available == false) {
+    // Show the pop-up for username already exists
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle = t('settingsPage.accountPage.usernameAlreadyExists');
+    notificationMessage = t('settingsPage.accountPage.pleaseChooseDifferentUsername');
+    displayPopup();
+    return;
+} else {
+    try {
+        let currentUsername = await getUsername();
 
-            if (userData.value != currentUsername) {
+        if (userData.value != currentUsername) {
+            // Check if the username meets the criteria
+            if (userData.value.length <= 150 && !/\s/.test(userData.value)) {
                 resultUpdateUsername = await updateUsername();
+            } else {
+                // Show the pop-up for username criteria not met
+                backgroundColor = 'bg-red-200/[.89] border border-red-400';
+                if (userData.value.length > 150) {
+                    notificationTitle = t('settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotExceed150Characters');
+                    notificationMessage = t('settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAShorterUsername');
+                } else if (/\s/.test(userData.value)) {
+                    notificationTitle = t('settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotContainSpaces');
+                    notificationMessage = t('settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAUsernameWithoutSpaces');
+                }
+                displayPopup();
             }
-        } catch (error) {
-            console.error("Error occurre while retrieving data about username", error);
-            // Show the pop-up
-            backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = t('settingsPage.accountPage.usernameCheckError');
-            notificationMessage = error;
-            displayPopup();
         }
+    } catch (error) {
+        console.error("Error occurred while retrieving data about username", error);
+        // Show the pop-up for username check error
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = t('settingsPage.accountPage.usernameCheckError');
+        notificationMessage = error;
+        displayPopup();
+    }
+}
+
+
+
+
+    if (newPassword.value && newPassword.value == confirmPassword.value && newPassword.value.length >= 8 && newPassword.value.length <= 32) {
+    var resultUpdatePwd = await updatePassword();
+    } else {
+        if (!newPassword.value || newPassword.value != confirmPassword.value) {
+            // Show the pop-up for password mismatch
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle = t('settingsPage.preferencesPage.popUpConstants.errorMessages.errorPasswordDontCorrespond');
+            notificationMessage =  t('settingsPage.preferencesPage.popUpConstants.errorMessages.checkPassword');
+        } else if (newPassword.value.length < 8 || newPassword.value.length > 32) {
+            // Show the pop-up for password length issue
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle = t('settingsPage.preferencesPage.popUpConstants.errorMessages.passwordMustBeBetween8And32Characters');
+            notificationMessage = t('settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAPasswordWithTheAppropriateLength');
+        }
+        displayPopup();
     }
 
-
-
-    // Check if passwords are provided and match
-    if (newPassword.value && newPassword.value == confirmPassword.value) {
-        var resultUpdatePwd = await updatePassword();
-    }
 
     // Handle all cases with pop-ups
     if (resultUpdateUsername) {

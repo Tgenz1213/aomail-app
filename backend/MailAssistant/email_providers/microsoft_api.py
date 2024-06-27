@@ -57,7 +57,6 @@ from MailAssistant.constants import (
     USELESS,
 )
 from ..models import (
-    BulletPoint,
     Category,
     Contact,
     Email,
@@ -1811,7 +1810,6 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             provider_id=email_id,
             email_provider=MICROSOFT_PROVIDER,
             email_short_summary=sentence,
-            content=decoded_data,
             subject=subject,
             priority=importance,
             read=False,
@@ -1863,9 +1861,9 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             user=user, email=contact_email, username=contact_name
         )
 
-        if summary_list:
-            for point in summary_list:
-                BulletPoint.objects.create(content=point, email=email_entry)
+        # if summary_list:
+        #     for point in summary_list:
+        #         BulletPoint.objects.create(content=point, email=email_entry)
 
         LOGGER.info(
             f"Email ID: {id_email} saved to database successfully for user ID: {user.id} using Microsoft Graph API"

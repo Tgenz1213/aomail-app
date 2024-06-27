@@ -379,6 +379,7 @@ def new_function_(
     Complete the following tasks in {language}:
     - Categorize the email according to the user description (if provided) and given categories.
     - Summarize the email without adding any greetings.
+    - Provide a short sentence (up to 10 words) summarizing the core content of the email.
     - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones.
     - The summary should objectively reflect the most important information of the email without making subjective judgments.
     - If the email is explicitely mentionning the name of the user (provided with user description), then use 'You' instead of the name of the user.
@@ -389,7 +390,10 @@ def new_function_(
         "topic": Topic Title Category,
         "response": Response Category,
         "relevance": Relevance Category,
-        "summary": Summary of the email
+        "summary": {{
+            "one_line": One sentence summary,
+            "short": Short summary of the email
+        }}
     }}"""
     response = get_prompt_response(template)
 

@@ -10,7 +10,6 @@ from ..models import (
     Message,
     Category,
     Email,
-    BulletPoint,
     Rule,
     Preference,
     Sender,
@@ -210,11 +209,3 @@ class UserEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Email
         fields = ("email_short_summary", "content", "subject", "priority")
-
-
-class BulletPointSerializer(serializers.ModelSerializer):
-    """Serializer for retrieving all bullet points through a GET request."""
-
-    class Meta:
-        model = BulletPoint
-        fields = "__all__"

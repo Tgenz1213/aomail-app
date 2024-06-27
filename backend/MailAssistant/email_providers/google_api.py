@@ -67,7 +67,6 @@ from ..models import (
     Preference,
     Rule,
     SocialAPI,
-    BulletPoint,
     Category,
     Email,
     Sender,
@@ -1749,7 +1748,6 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
             provider_id=email_id,
             email_provider=GOOGLE_PROVIDER,
             email_short_summary=sentence,
-            content=decoded_data,
             html_content=safe_html,
             subject=subject,
             priority=importance,
@@ -1813,9 +1811,9 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
             for image_path in image_files:
                 Picture.objects.create(mail_id=email_entry, picture=image_path)
 
-        if summary_list:
-            for point in summary_list:
-                BulletPoint.objects.create(content=point, email=email_entry)
+        # if summary_list:
+        #     for point in summary_list:
+        #         BulletPoint.objects.create(content=point, email=email_entry)
 
         if attachments:
             for attachment in attachments:

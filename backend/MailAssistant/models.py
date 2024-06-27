@@ -117,7 +117,7 @@ class Email(models.Model):
     email_provider = models.CharField(max_length=50)
     email_short_summary = models.CharField(max_length=500)
     one_line_summary = models.CharField(max_length=500)
-    html_content = models.TextField(default="")  # quick fix
+    html_content = models.TextField(default="")
     subject = models.CharField(max_length=400)
     priority = models.CharField(max_length=50)
     read = models.BooleanField()
@@ -126,11 +126,16 @@ class Email(models.Model):
     sender = models.ForeignKey(
         Sender, on_delete=models.CASCADE, related_name="related_emails"
     )
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     date = models.DateTimeField(null=True)
     has_attachments = models.BooleanField(default=False)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     answer = models.CharField(max_length=50, default="")
     relevance = models.CharField(max_length=50, default="")
+    spam = models.BooleanField(default=False)
+    scam = models.BooleanField(default=False)
+    newsletter = models.BooleanField(default=False)
+    notification = models.BooleanField(default=False)
+    meeting = models.BooleanField(default=False)
 
 
 class Attachment(models.Model):

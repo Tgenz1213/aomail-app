@@ -27,7 +27,7 @@ def categorize_and_summarize_email(
     user_description: str,
     sender: str,
     language: str = "French",
-) -> tuple[str, str, str, dict[str:str, str:list], dict[str:int]]:
+) -> dict:
     """Categorizes and summarizes an email"""
 
     response_list = {
@@ -104,17 +104,7 @@ def categorize_and_summarize_email(
 
     result_json = json.loads(clear_response)
 
-    topic_category = result_json["topic"]
-    response_category = result_json["response"]
-    relevance_category = result_json["relevance"]
-    summary = result_json["summary"]
-
-    return (
-        topic_category,
-        response_category,
-        summary,
-        relevance_category,
-    )
+    return result_json
 
 
 decoded_data = """

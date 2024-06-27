@@ -264,12 +264,17 @@
                             </div>
                         </div>
                     </main>
+
                     <div v-if="activeSection === 'account'" class="flex-1 h-full">
                         <!-- TO DO : CENTER -->
                         <div class="h-full w-full flex items-center justify-center">
                             <!-- We've used 3xl here, but feel free to try other max-widths based on your needs -->
                             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">
+
+                                <!--First part-->
                                 <div class="flex-1 flex-col h-full flex-grow px-4">
+                                    
+                                    <!--First  block-->
                                     <div class="flex-col w-full pt-6">
                                         <div class="relative w-full">
                                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -281,6 +286,7 @@
                                                     }}</span>
                                             </div>
                                         </div>
+                                        
                                         <div class="pt-6 pb-10">
                                             <div class="flex space-x-1 items-center">
                                                 <envelope-icon class="w-4 h-4" />
@@ -377,6 +383,8 @@
                                             </div>
                                         </div>
                                     </div>
+
+
                                     <div class="flex-col flex-grow w-full py-12 2xl:py-20">
                                         <div class="relative">
                                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -411,6 +419,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+
                                 <div class="flex-1 flex-col h-full flex-grow px-4 py-6">
                                     <div class="relative">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -421,13 +431,20 @@
                                                 $t('settingsPage.accountPage.linkANewEmailAddress') }}</span>
                                         </div>
                                     </div>
+
+                                    <!-- Link Email adresses -->
                                     <div class="pt-[52px]">
                                         <div class="overflow-y-auto w-full"><!--max-h-[120px]-->
                                             <div class="max-h-20 sm:max-h-24 md:max-h-32 lg:max-h-40 w-full">
                                                 <ul role="list" class="space-y-1 w-full">
                                                     <li v-for="email in emailsLinked" :key="email.email"
-                                                        class="border border-black w-full overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
+                                                        class="w-full overflow-hidden font-semibold rounded-md bg-gray-10 px-6 pb-0.5 mt-0.5 shadow hover:shadow-md text-gray-700 relative border-0 ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-800 text-sm leading-6">
                                                         <div class="flex items-center justify-center w-full">
+
+                                                          <!-- <ul role="list" class="space-y-1 w-full">
+                                                            <li v-for="email in emailsLinked" :key="email.email" class="border border-black w-full overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
+                                                            <div class="flex items-center justify-center w-full">--> 
+
                                                             <svg v-if="email.type_api === 'microsoft'"
                                                                 xmlns="http://www.w3.org/2000/svg" width="21"
                                                                 height="21" viewBox="0 0 21 21">
@@ -489,6 +506,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     <div class="relative py-4">
                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                             <div class="w-full border-t border-gray-300"></div>
@@ -587,6 +605,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -623,12 +643,17 @@
                             </div>
                         </div>
                     </div>
+
                     <div v-if="activeSection === 'preferences'" class="flex-1 section">
+
                         <!-- TO DO : CENTER -->
                         <div class="mx-auto w-full h-full px-8 2xl:px-12 pt-10">
+
                             <!-- Content goes here -->
-                            <div class="flex flex-col h-full pb-6">
+                            <div class="flex flex-col gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12"> 
+
                                 <div class="flex gap-x-10 w-full">
+                                    
                                     <div class="flex-1 flex flex-col">
                                         <div class="relative">
                                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -643,7 +668,9 @@
                                             <LanguageChange></LanguageChange>
                                         </div>
                                     </div>
-                                    <div class="flex-1 flex flex-col">
+
+                                    
+                                    <div class="flex-1 flex flex-col pl-6">
                                         <div class="relative">
                                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                                 <div class="w-full border-t border-gray-300"></div>
@@ -659,7 +686,9 @@
                                             </div>
                                         </div>
                                     </div>
+
                                 </div>
+                                
                                 <div class="flex gap-x-10 w-full">
                                     <div class="flex-1 flex flex-col">
                                         <div class="relative">
@@ -692,6 +721,7 @@
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>

@@ -316,7 +316,7 @@ export default {
       } catch (error) {
         console.error(`Error in postSender: ${error}`);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('rulesPage.popUpConstants.errorMessages.senderCreationError');
+        this.notificationTitle = this.t('rulesPage.popUpConstants.errorMessages.senderCreationError');
         this.notificationMessage = error;
         this.displayPopup();
         this.closeModal();

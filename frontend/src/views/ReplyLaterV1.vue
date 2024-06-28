@@ -182,7 +182,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>{{ $t('ReplyLater_vue.change_the_rule') }}</span>
+                                                          <span>{{ $t('constants.userActions.changeTheRule') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -220,7 +220,7 @@
                                                           <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                             style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                         </svg>
-                                                        <span>{{ $t('ReplyLater_vue.transfer') }}</span>
+                                                        <span>{{ $t('constants.userActions.transfer') }}</span>
                                                       </span>
                                                     </a>
                                                     </MenuItem>
@@ -443,7 +443,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>{{ $t('ReplyLater_vue.change_the_rule') }}</span>
+                                                          <span>{{ $t('constants.userActions.changeTheRule') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -481,7 +481,7 @@
                                                           <path d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
                                                             style="fill:none;stroke:#000;stroke-width:1.7px;" />
                                                         </svg>
-                                                        <span>{{ $t('ReplyLater_vue.transfer') }}</span>
+                                                        <span>{{ $t('constants.userActions.transfer') }}</span>
                                                       </span>
                                                     </a>
                                                     </MenuItem>
@@ -620,7 +620,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                              {{ $t('ReplyLater_vue.open') }}
+                                              {{ $t('constants.userActions.open') }}
                                             </div>
                                             <button @click="openInNewWindow(item.id_provider)" type="button"
                                               class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -632,7 +632,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.answer') }}
+                                              {{ $t('constants.userActions.reply') }}
                                             </div>
                                             <button @click="openAnswer(item)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -645,7 +645,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('ReplyLater_vue.reply-later') }}
+                                              {{ $t('constants.userActions.replyLater') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -671,7 +671,7 @@
                                           <div class="relative group">
                                             <div v-if="showTooltip"
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-20 w-[185px]">
-                                              {{ $t('ReplyLater_vue.additional_actions') }}
+                                              {{ $t('constants.additionalActions') }}
                                             </div>
                                             <Menu as="div" class="relative inline-block text-left">
                                               <div>
@@ -701,7 +701,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>{{ $t('ReplyLater_vue.change_the_rule') }}</span>
+                                                          <span>{{ $t('constants.userActions.changeTheRule') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -779,6 +779,7 @@ import Navbar2 from '../components/AppNavbar8.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { API_BASE_URL } from '@/main';
+import { useI18n } from 'vue-i18n';
 import {
   ChatBubbleOvalLeftEllipsisIcon,
   TrashIcon,
@@ -805,7 +806,9 @@ export default {
     InformationCircleIcon,
     ExclamationTriangleIcon
   },
+  
   setup() {
+    
     const bgColor = ref('');
     let answerLaterEmails = ref([]);
     let emails = ref({});
@@ -978,14 +981,14 @@ export default {
         if (response.answer_later != false) {
           console.error('Failed to mark email for reply later', response);
           this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-          this.notificationTitle = t('replyLaterPage.markEmailNotReplyLaterFailure');
+          this.notificationTitle = this.t('replyLaterPage.markEmailNotReplyLaterFailure');
           this.notificationMessage = response;
           displayPopup();
         }
       } catch (error) {
         console.error('Error in unmarkReplyLater:', error.message);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('replyLaterPage.markEmailNotReplyLaterFailure');
+        this.notificationTitle = this.t('replyLaterPage.markEmailNotReplyLaterFailure');
         this.notificationMessage = error.message;
         displayPopup();
       }
@@ -1026,7 +1029,7 @@ export default {
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('constants.popUpConstants.errorMessages.openReplyPageFailure');
+        this.notificationTitle = this.t('constants.popUpConstants.errorMessages.openReplyPageFailure');
         this.notificationMessage = error.message;
         this.displayPopup();
       }
@@ -1066,7 +1069,7 @@ export default {
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('constants.popUpConstants.errorMessages.openTransferPageFailure');
+        this.notificationTitle = this.t('constants.popUpConstants.errorMessages.openTransferPageFailure');
         this.notificationMessage = error.message;
         this.displayPopup();
       }
@@ -1088,14 +1091,14 @@ export default {
         } else {
           console.error('Failed to delete email', response.error);
           this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-          this.notificationTitle = t('constants.popUpConstants.errorMessages.deleteEmailFailure');
+          this.notificationTitle = this.t('constants.popUpConstants.errorMessages.deleteEmailFailure');
           this.notificationMessage = response.error;
           this.displayPopup();
         }
       } catch (error) {
         console.error('Error in deleteEmail:', error.message);
         this.backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        this.notificationTitle = t('constants.popUpConstants.errorMessages.deleteEmailFailure');
+        this.notificationTitle = this.t('constants.popUpConstants.errorMessages.deleteEmailFailure');
         this.notificationMessage = error.message;
         this.displayPopup();
       }
@@ -1116,6 +1119,8 @@ export default {
     }
   },
   data() {
+    const { t } = useI18n();
+
     return {
       showHiddenParagraphs: {},
       animationTriggered: [false, false, false],
@@ -1123,6 +1128,7 @@ export default {
       showTooltip: true,
       isDropdownOpen: false,
       isMenuOpen: true,
+      t: t,
       showNotification: false,
       notificationTitle: '',
       notificationMessage: '',

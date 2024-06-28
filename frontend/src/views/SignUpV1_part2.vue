@@ -495,7 +495,7 @@
                               <input id="comments" aria-describedby="comments-description" name="comments" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-black focus:ring-black">
                             </div>
                             <div class="ml-3 text-sm leading-6 w-full">
-                              <label for="comments" class="text-gray-500 font-normal">J'accepte les <a href="URL_DES_CONDITIONS" class="font-medium text-black hover:underline" target="_blank">conditions et la politique de confidentialité</a> d'Aomail</label>
+                              <label for="comments" class="text-gray-500 font-normal">{{$t('signUpPart2Page.iAcceptThe') }} <a href="URL_DES_CONDITIONS" class="font-medium text-black hover:underline" target="_blank">{{$t('signUpPart2Page.conditionsAndPrivacyPolicyOf') }}</a> Aomail</label>
                             </div>
                           </div>
                         </div>
@@ -546,7 +546,7 @@
       </div>
     </div>
   </div>
-</template>
+</template>  
 
 <script setup>
 import { ref, onMounted } from 'vue';

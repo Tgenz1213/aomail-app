@@ -28,10 +28,6 @@
 <script setup>
 import { ref } from 'vue';
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid';
-import { useI18n } from 'vue-i18n';
-
-// Use i18n
-const { t } = useI18n();
 
 const searchQuery = ref('');
 const emits = defineEmits(['updateSearchQuery']);

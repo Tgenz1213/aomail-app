@@ -52,13 +52,13 @@
       </div>
 
       <!--Secondes Colonnes -->
-      <div id="secondMainColumn"
-       class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-hidden">
+      <div id="secondMainColumn" 
+      class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-y-auto">
 
         <!--xl:h-[695px] xl:w-[560px]-->
 
         <!--titre -->
-        <div class="flex items-center justify-center lg:py-3 h-[65px] 2xl:h-[80px] min-h-4">
+        <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
           <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
           <div class="flex gap-x-3 items-center ">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -70,31 +70,60 @@
           </div>
         </div>
 
-        <div class="flex w-full">
+        <div class="flex-1 flex flex-col w-full px-6 pt-2 mb-4">
 
-          <div class="flex flex-col w-full px-6 pt-2 mb-4"> 
             
               <!--??? -->
-              <div class="flex space-x-1 items-center">
+              <div class="flex space-x-1 items-center mb-4">
               <!--  <magnifying-glass-icon class="w-4 h-4" />
                 <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
                   $t('Search_vue.manual_Search') }}</label>-->
               </div>
 
                <!-- searchbar and buttons -->
-              <div class="flex space-x-2 items-stretch pr-2 w-full">
+               <div class="flex space-x-2 items-stretch pr-2 w-full mb-4">
+
+                <!-- searchbar and buttons old version. If picke has to be fixed !!!-->
+                <!--<div class="relative flex-grow">
+                  <SearchbarV2 @input="updateSearchQuery" class="h-[5px]"></SearchbarV2>
+                </div>-->
+
+                <!-- searchbar and buttons old version. If picke has to be fixed !!!-->
+                <!-- <div class="relative w-full">
+                    <div class="absolute inset-y-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 ml-2 2xl:ml-3 items-center">
+                    <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
+                    <label for="search" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
+                    {{ $t('searchPage.searchPlaceholder') }}
+                    </label>
+                    </div>
+                  <Combobox as="div">
+                  <ComboboxInput id="search" 
+                  class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-10 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-14 2xl:pr-14 2xl:text-base text-center" />
+                  </Combobox>
+                </div>-->
+
                 <div class="relative w-full">
-                  <div class="absolute inset-y-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 ml-2 2xl:ml-3 items-center">
-                  <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
-                  <label for="search" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
-                  {{ $t('searchPage.searchPlaceholder') }}
-                  </label>
-                  </div>
-                <Combobox as="div">
-                 <ComboboxInput id="search" 
-                 class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-10 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-14 2xl:pr-14 2xl:text-base text-center" />
-                </Combobox>
-              </div>
+                                                
+                    <div v-if="!isFocused2"
+                        class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3">
+                        <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
+                        
+                        <label for="search" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
+                          {{ $t('searchPage.searchPlaceholder') }}
+                        </label>
+                        
+                    </div>
+
+                    <Combobox as="div" v-model="selectedPerson"
+                        @update:model-value="personSelected">
+                        <ComboboxInput id="recipients"
+                            class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
+                            @change="query = $event.target.value"
+                            :display-value="(person) => person?.name"
+                            @focus="handleFocusDestinary" @blur="handleBlur2($event)"
+                            @keydown.enter="handleEnterKey" />
+                    </Combobox>
+                </div>                
                             
 
                 <!--<div class="flex-grow w-full h-full">
@@ -132,31 +161,30 @@
               </div>
 
               <!-- filters -->
-              <div class=" flex space-x-2 hidden pr-2 w-full" id="filtres">
+              <div class="flex space-x-2 hidden pr-2 w-full mb-4" id="filtres">
               <div class="flex flex-col gap-4">
 
 
                 <div class="flex gap-4 gap-y-2 w-full flex-wrap">
 
-                      <!-- Premier input Combobox toAddressesSelected -->
+                     <!-- Premier input Combobox toAddressesSelected -->
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
-                          <div class="relative">
+                          <div class="relative flex items-center w-full">
+                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <ComboboxInput
-                              class="flex items-center w-full rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
-                              ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="AddressesSelected"
+                              placeholder="À"
+                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
-                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <ComboboxButton
-                              class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
                               <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                             </ComboboxButton>
                           </div>
                           <ComboboxOptions v-if="filteredPeople.length > 0"
-                            class="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
+                            class="absolute z-10 max-h-60  w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
                             <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template"
                               v-slot="{ active, selected }">
                               <li @click="toggleSelection(person)"
@@ -166,7 +194,7 @@
                                     {{ person.username }}
                                   </span>
                                   <span
-                                    :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
+                                    :class="['ml-2 truncate hidden text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
                                     &lt;{{ person.email }}&gt;
                                   </span>
                                 </div>
@@ -216,17 +244,16 @@
                       <!-- Troisième input Combobox  fromAddressesSelected -->
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
-                          <div class="relative">
+                          <div class="relative flex items-center w-full">
+                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <ComboboxInput
-                              class="flex items-center w-full rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
-                              ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 "
+                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="query = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="from_Addresses"
+                              placeholder="De"
+                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
-                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <ComboboxButton
-                              class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
                               <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                             </ComboboxButton>
                           </div>
@@ -256,23 +283,23 @@
                       </div>
 
                       <!-- Quatrième input Combobox -->
-                      <div class="flex-1 min-w-[150px] mt-2">
-                          <Combobox as="div" v-model="selectedPerson">
-                              <div class="relative">
-                                  <ComboboxInput
-                                      class="flex items-center w-full rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
-                                      ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                      @input="query = $event.target.value"
-                                      :display-value="(person) => person?.username"
-                                      placeholder="toAddressesSelected"
-                                  />
-                                  <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                  <ComboboxButton
-                                      class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                                      <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                  </ComboboxButton>
-                              </div>
-                          </Combobox>
+                      <div class="flex-1 min-w-[150px] mt-2 relative">
+                        <Combobox as="div" v-model="selectedPerson">
+                          <div class="relative flex items-center w-full">
+                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <ComboboxInput
+                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
+                              @input="query = $event.target.value"
+                              :display-value="(person) => person?.username"
+                              placeholder="Résultats maximums"
+                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
+                            />
+                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
+                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            </ComboboxButton>
+                          </div>
+                        
+                        </Combobox>
                       </div>
 
                       <!-- Cinquième input Listbox emails Linked for search -->
@@ -283,7 +310,7 @@
                                       class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                                       <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
                                       <span class="block truncate text-gray-700">
-                                          {{ attachmentSelected ? attachmentSelected.name : 'emails Linked for search' }}
+                                          {{ attachmentSelected ? attachmentSelected.name : 'Email lié' }}
                                       </span>
                                       <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                           <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
@@ -308,65 +335,66 @@
                       </div>
 
                       <!-- Sixième input Combobox subject-->
-                    
-                      <div class="flex-1 min-w-[150px] mt-2">
-                          <Combobox as="div" v-model="selectedPerson">
-                              <div class="relative">
-                                  <ComboboxInput
-                                      class="flex items-center w-full rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
-                                      ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                      @input="query = $event.target.value"
-                                      :display-value="(person) => person?.username"
-                                      placeholder="toAddressesSelected"
-                                  />
-                                  <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                  <ComboboxButton
-                                      class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                                      <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                  </ComboboxButton>
-                              </div>
-                          </Combobox>
+                      <div class="flex-1 min-w-[150px] mt-2 relative">
+                        <Combobox as="div" v-model="selectedPerson">
+                          <div class="relative flex items-center w-full">
+                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <ComboboxInput
+                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
+                              @input="query = $event.target.value"
+                              :display-value="(person) => person?.username"
+                              placeholder="Sujet"
+                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
+                            />
+                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
+                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            </ComboboxButton>
+                          </div>
+                        
+                        </Combobox>
                       </div>
 
                       <!-- Septième input Combobox body -->
-                      <div class="flex-1 min-w-[150px] mt-2">
-                          <Combobox as="div" v-model="selectedPerson">
-                              <div class="relative">
-                                  <ComboboxInput
-                                      class="flex items-center w-full rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
-                                      ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                      @input="query = $event.target.value"
-                                      :display-value="(person) => person?.username"
-                                      placeholder="toAddressesSelected"
-                                  />
-                                  <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                  <ComboboxButton
-                                      class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                                      <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                  </ComboboxButton>
-                              </div>
-                          </Combobox>
+                      <div class="flex-1 min-w-[150px] mt-2 relative">
+                        <Combobox as="div" v-model="selectedPerson">
+                          <div class="relative flex items-center w-full">
+                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <ComboboxInput
+                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
+                              @input="query = $event.target.value"
+                              :display-value="(person) => person?.username"
+                              placeholder="Objet"
+                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
+                            />
+                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
+                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            </ComboboxButton>
+                          </div>
+                        
+                        </Combobox>
                       </div>
 
+
                       <!-- Huitième input Combobox date_from -->
-                      <div class="flex-1 min-w-[150px] mt-2">
-                          <Combobox as="div" v-model="selectedPerson">
-                              <div class="relative">
-                                  <ComboboxInput
-                                      class="flex items-center w-full rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
-                                      ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                      @input="query = $event.target.value"
-                                      :display-value="(person) => person?.username"
-                                      placeholder="toAddressesSelected"
-                                  />
-                                  <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                  <ComboboxButton
-                                      class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                                      <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                  </ComboboxButton>
-                              </div>
-                          </Combobox>
+                      <div class="flex-1 min-w-[150px] mt-2 relative">
+                        <Combobox as="div" v-model="selectedPerson">
+                          <div class="relative flex items-center w-full">
+                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <ComboboxInput
+                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
+                              @input="query = $event.target.value"
+                              :display-value="(person) => person?.username"
+                              placeholder="Tailles"
+                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
+                            />
+                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
+                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                            </ComboboxButton>
+                          </div>
+                        
+                        </Combobox>
                       </div>
+
 
                       <!-- neuxième input Listbox  1month, 2 weeks, 90days A REVOIR --> 
                       <div class="flex-1 min-w-[150px] mt-2">
@@ -377,7 +405,7 @@
                                     class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
                                     <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
                                     <span class="block truncate text-gray-700">
-                                      {{ attachmentSelected ? attachmentSelected.name : 'emails Linked for search' }}
+                                      {{ attachmentSelected ? attachmentSelected.name : 'Plage de dates' }}
                                     </span>
                                     <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                                       <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
@@ -540,331 +568,117 @@
               </div>
               </div>
 
+          
               <!-- email List -->
-              <div class="flex flex-col overflow-hidden pr-2 pt-4 h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] xl:h-[350px] 2xl:h-[500px]" id="liste_email">
-              <div class="flex flex-col overflow-y-auto pr-4 h-full">
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
+              <div class="flex-1 flex flex-col  pr-2 py-4" id="liste_email">
+                <div class="h-full overflow-y-auto pr-4 ">
+                  <ul class="space-y-4">
+                    <!-- List element -->
+                    <li class="flex justify-between items-center py-4 email-item">
+                      <!-- Details -->
+                      <div class="flex flex-col justify-center">
+                        <span class="font-bold text-sm">Expéditeur</span>
+                        <span class="text-sm">Objet du mail - Début du mail...</span>
                       </div>
-                    </span>
-                  </div>
 
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
+                      <!-- Actions -->
+                      <span class="isolate inline-flex items-center rounded-2xl">
+                        <!-- Eyeicon -->
+                        <div class="relative group">
+                          <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                            <EyeIcon class="w-5 h-5" />
+                            Voir
+                          </button>
+                        </div>
+                      </span>
+                    </li>
 
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class="flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-                  <!-- List element -->
-                  <div class="flex justify-between items-center py-4 email-item">
-                    <!-- Details -->
-                    <div class="flex flex-col justify-center">
-                      <span class="font-bold text-sm">Expéditeur</span>
-                      <span class="text-sm">Objet du mail - Début du mail...</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <span class="isolate inline-flex items-center rounded-2xl">
-                      <!-- Eyeicon -->
-                      <div class="relative group">
-                        <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                          <EyeIcon class="w-5 h-5" />
-                          Voir
-                        </button>
-                      </div>
-                    </span>
-                  </div>
-
-                  <!-- Séparateur -->
-                  <div class=" flex relative pt-2">
-                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                      <div class="w-full border-t border-gray-300"></div>
-                    </div>
-                  </div>
-
-              <!-- Ajoutez d'autres éléments ici pour simuler les emails -->
-              </div>
-              </div>
-
-          </div>
-
-          <!-- h-[600px] 2xl:h-[700px] -->
-          <!--ligne 6 : email not found block -->
-          <div class="flex-grow p-6 mr-2 block" id="no_mail" v-show="!isEmailhere">
-            <div class="h-96 flex flex-col h-full">
-              <div class="flex-1 overflow-y-auto">
-                <div
-                  class="flex h-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-center">
-                  <div
-                    class="flex-1 rounded-xl bg-white lg:mt-4 overflow-y-auto custom-scrollbar max-h-full">
-                    <ul v-if="searchResult && Object.keys(searchResult).length > 0" role="list"
-                      class="flex flex-col w-full">
-                      <li v-for="(listIds, email) in searchResult.Gmail" :key="email" class="mb-4">
-                        <svg class="-ml-0.5 h-5 w-5" aria-hidden="true" viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                          <path
-                            d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
-                            id="Shape" fill="#4285F4"></path>
-                          <path
-                            d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
-                            id="Shape" fill="#34A853"></path>
-                          <path
-                            d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
-                            id="Shape" fill="#FBBC05"></path>
-                          <path
-                            d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
-                            id="Shape" fill="#EB4335"></path>
-                        </svg>
-                        <p>Email found for: {{ email }}</p>
-                        <ul>
-                          <li v-for="id in listIds" :key="id"
-                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
-                            <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
-                          </li>
-                        </ul>
+                      <!-- Separator -->
+                      <li class="flex relative pt-2">
+                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                          <div class="w-full border-t border-gray-300"></div>
+                        </div>
                       </li>
-                      <li v-for="(listIds, email) in searchResult.Outlook" :key="email" class="mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
-                          <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-                          <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-                          <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-                          <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-                        </svg>
-                        <p>Email found for: {{ email }}</p>
-                        <ul>
-                          <li v-for="id in listIds" :key="id"
-                            class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
-                            <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
-                          </li>
-                        </ul>
-                      </li>
+
+                   
+
+                      <!-- Répétez les éléments de la liste ci-dessus pour chaque email -->
+                      <!-- ... -->
                     </ul>
-                    <div v-else class="h-full">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                        stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
-                      </svg>
-                      <span class="mt-2 block text-sm font-semibold text-gray-900">{{
-                        $t('Search_vue.negative_results') }}</span>
+                  </div>
+                </div>
+
+
+               <!-- h-[600px] 2xl:h-[700px] -->
+              <!--ligne 6 : email not found block -->
+              <div class="flex-grow p-6 mr-2 block" id="no_mail" v-show="!isEmailhere">
+                <div class="h-96 flex flex-col h-full">
+                  <div class="flex-1 overflow-y-auto">
+                    <div
+                      class="flex h-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-center">
+                      <div
+                        class="flex-1 rounded-xl bg-white lg:mt-4 overflow-y-auto custom-scrollbar max-h-full">
+                        <ul v-if="searchResult && Object.keys(searchResult).length > 0" role="list"
+                          class="flex flex-col w-full">
+                          <li v-for="(listIds, email) in searchResult.Gmail" :key="email" class="mb-4">
+                            <svg class="-ml-0.5 h-5 w-5" aria-hidden="true" viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                              <path
+                                d="M23.4392061,12.2245191 C23.4392061,11.2412519 23.3594198,10.5237252 23.1867481,9.77963359 L11.9587786,9.77963359 L11.9587786,14.2176183 L18.5493435,14.2176183 C18.4165191,15.3205191 17.6989924,16.9814656 16.104458,18.0975573 L16.0821069,18.2461374 L19.6321832,20.9963359 L19.8781374,21.0208855 C22.1369771,18.9347176 23.4392061,15.8652824 23.4392061,12.2245191"
+                                id="Shape" fill="#4285F4"></path>
+                              <path
+                                d="M11.9587786,23.9175573 C15.1876031,23.9175573 17.898229,22.8545038 19.8781374,21.0208855 L16.104458,18.0975573 C15.094626,18.8018015 13.7392672,19.2934351 11.9587786,19.2934351 C8.79636641,19.2934351 6.11230534,17.2073588 5.15551145,14.3239695 L5.01526718,14.3358779 L1.32384733,17.1927023 L1.27557252,17.3269008 C3.24210687,21.2334046 7.28152672,23.9175573 11.9587786,23.9175573"
+                                id="Shape" fill="#34A853"></path>
+                              <path
+                                d="M5.15551145,14.3239695 C4.90305344,13.5798779 4.75694656,12.7825649 4.75694656,11.9587786 C4.75694656,11.1349008 4.90305344,10.3376794 5.14222901,9.59358779 L5.13554198,9.4351145 L1.3978626,6.53239695 L1.27557252,6.59056489 C0.465068702,8.21166412 0,10.0320916 0,11.9587786 C0,13.8854656 0.465068702,15.7058015 1.27557252,17.3269008 L5.15551145,14.3239695"
+                                id="Shape" fill="#FBBC05"></path>
+                              <path
+                                d="M11.9587786,4.62403053 C14.2043359,4.62403053 15.719084,5.59401527 16.5828092,6.40461069 L19.9578321,3.10928244 C17.8850382,1.18259542 15.1876031,0 11.9587786,0 C7.28152672,0 3.24210687,2.68406107 1.27557252,6.59056489 L5.14222901,9.59358779 C6.11230534,6.71019847 8.79636641,4.62403053 11.9587786,4.62403053"
+                                id="Shape" fill="#EB4335"></path>
+                            </svg>
+                            <p>Email found for: {{ email }}</p>
+                            <ul>
+                              <li v-for="id in listIds" :key="id"
+                                class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
+                                <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
+                              </li>
+                            </ul>
+                          </li>
+                          <li v-for="(listIds, email) in searchResult.Outlook" :key="email" class="mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
+                              <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+                              <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+                              <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+                              <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+                            </svg>
+                            <p>Email found for: {{ email }}</p>
+                            <ul>
+                              <li v-for="id in listIds" :key="id"
+                                class="px-6 md:py-6 2xl:py-6 hover:bg-opacity-70 dark:hover:bg-red-500 dark:hover:bg-opacity-100 grid grid-cols-10 gap-4 items-center">
+                                <p class="text-sm font-semibold leading-6 text-red-700 dark:text-white">{{ id }}</p>
+                              </li>
+                            </ul>
+                          </li>
+                        </ul>
+                        <div v-else class="h-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                            stroke="currentColor" class="w-12 h-12 mx-auto text-gray-400">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
+                          </svg>
+                          <span class="mt-2 block text-sm font-semibold text-gray-900">
+                            {{$t('searchPage.noResults') }}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+
 
         </div>
       </div>
+
     </div>
     </div>
 </template>
@@ -874,6 +688,7 @@
 import { ref, computed, nextTick, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
+import SearchbarV2 from '../components/SearchbarV2.vue'
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import {
@@ -885,7 +700,10 @@ import {
 } from '@headlessui/vue';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
 import { CheckIcon, ChevronUpDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
+import { useI18n } from 'vue-i18n';
 
+// Use i18n
+const { t } = useI18n();
 
 let showNotification = ref(false);
 let notificationTitle = ref('');
@@ -933,6 +751,8 @@ let emailsLinked = ref('');
 
 
 const contacts = [];
+const isFocused2 = ref(false);
+const isFocused = ref(false);
 const queryGetContacts = ref('')
 const selectedPerson = ref(null)
 const selectedRecipients = ref([])
@@ -1021,7 +841,53 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
   });
 
 
+// User pressed the object input
+function handleFocusObject() {
+    isFocused.value = true;
+}
+function handleBlur() {
+    isFocused.value = false;
+}
+function handleFocusDestinary() {
+    isFocused2.value = true;
+}
 
+  function handleBlur2(event) {
+    // Checks for a valid input email and adds it to the recipients list
+    isFocused2.value = false;
+    const inputValue = event.target.value.trim().toLowerCase();
+    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (inputValue && emailFormat.test(inputValue)) {
+        if (!people.find(person => person.email === inputValue)) {
+            const newPerson = { username: '', email: inputValue };
+            people.push(newPerson);
+            selectedPeople.value.push(newPerson);
+        }
+    } else if (!filteredPeople.value.length && inputValue) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.invalidEmail');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailFormatIncorrect');
+        displayPopup();
+    }
+}
+
+
+// function linked to ENTER key listeners
+function handleEnterKey(event) {
+    // Allow pressing Enter with Shift to create a line break
+    if (event.target.id === 'dynamicTextarea' && event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleAIClick();
+    }
+    else if (isFocused2.value) {
+        event.preventDefault();
+        handleBlur2(event);
+        // the user is still on the input
+        handleFocusDestinary();
+    }
+}
 
 
 // Mounted lifecycle hook
@@ -1224,8 +1090,8 @@ async function Hide_filtres() {
 function adjustHeight2(element, adjustment) {
     const currentHeight = parseInt(window.getComputedStyle(element).height, 10);
 
-    // Si la hauteur actuelle est supérieure à 350px et que l'ajustement est négatif, ajuster de 300px
-    if (currentHeight > 350 && adjustment < 0) {
+    // Si la hauteur actuelle est supérieure à 350px et que l'ajustement est négatif, ajuster de 200px
+    if (currentHeight > 500 && adjustment < 0) {
         adjustment = -200;
     }
 

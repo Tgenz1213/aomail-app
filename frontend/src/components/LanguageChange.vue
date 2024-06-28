@@ -41,6 +41,9 @@ import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import i18n from '@/main';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
+import { useI18n } from 'vue-i18n';
+
+
 
 // Language options
 const languages = ref([
@@ -52,6 +55,10 @@ const languages = ref([
   { key: 'chinese', value: 'constants.languagesList.chinese' },
   { key: 'indian', value: 'constants.languagesList.indian' },
 ]);
+
+// Use i18n
+const { t } = useI18n();
+
 
 // Selected language
 const storedLanguageKey = localStorage.getItem("language");

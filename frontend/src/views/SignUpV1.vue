@@ -743,12 +743,13 @@ import Color from '../components/SettingsColor.vue';
 import { API_BASE_URL } from '@/main';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
-import ShowNotification from '../components/ShowNotification.vue';
 import { useI18n } from 'vue-i18n';
+import ShowNotification from '../components/ShowNotification.vue';
 
 // Use i18n
 const { t } = useI18n();
 const router = useRouter();
+
 
 let bgColor = ref('bg-white');
 let showPassword = ref(false);

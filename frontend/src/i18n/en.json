@@ -244,14 +244,6 @@
         "errorMessages": {
           "errorGettingLanguage": "Error getting language",
           "errorUpdatingTheme": "Error updating theme",
-          "errorPasswordDontCorrespond": "Passwords do not match.",
-          "checkPassword": "Please check that the passwords match.",
-          "passwordMustBeBetween8And32Characters": "The password must be between 8 and 32 characters long.",
-          "chooseAPasswordWithTheAppropriateLength": "Please choose a password of the appropriate length.",
-          "usernameMustNotExceed150Characters": "The username must not exceed 150 characters.",
-          "chooseAShorterUsername": "Please choose a shorter username.",
-          "usernameMustNotContainSpaces": "The username must not contain spaces.",
-          "chooseAUsernameWithoutSpaces": "Please choose a username without spaces.",
           "errorUpdatingTimezone": "Error updating timezone"
         },
         "successMessages": {

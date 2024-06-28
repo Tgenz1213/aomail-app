@@ -244,14 +244,6 @@
         "errorMessages": {
           "errorGettingLanguage": "Erreur lors de l'obtention de la langue",
           "errorUpdatingTheme": "Erreur lors de la mise à jour du thème",
-          "errorPasswordDontCorrespond": "Les mots de passe ne correspondent pas.",
-          "checkPassword": "Veuillez vérifier que les mots de passe sont identiques.",
-          "passwordMustBeBetween8And32Characters": "Le mot de passe doit contenir entre 8 et 32 caractères.",
-          "chooseAPasswordWithTheAppropriateLength": "Veuillez choisir un mot de passe de longueur appropriée.",
-          "usernameMustNotExceed150Characters": "Le nom d'utilisateur ne doit pas dépasser 150 caractères.",
-          "chooseAShorterUsername": "Veuillez choisir un nom d'utilisateur plus court.",
-          "usernameMustNotContainSpaces": "Le nom d'utilisateur ne doit pas contenir d'espaces.",
-          "chooseAUsernameWithoutSpaces": "Veuillez choisir un nom d'utilisateur sans espaces.",
           "errorUpdatingTimezone": "Erreur lors de la mise à jour du fuseau horaire"
         },
         "successMessages": {

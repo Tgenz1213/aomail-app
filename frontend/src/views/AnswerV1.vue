@@ -67,8 +67,6 @@
           </div>
         </div>
       </div>
-
-      
       <div id="secondMainColumn"
         class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
         <!--xl:h-[695px] xl:w-[560px]-->
@@ -228,39 +226,36 @@
               <div class="flex-1 pb-[68px] 2xl:pb-[42px]">
                 <div id="editor" class="w-full h-full"></div>
               </div>
-
-              <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6 justify-end">
+              <div class="flex gap-x-2 mb-5 2xl:gap-3 2xl:mb-6">
                 <div class="inline-flex rounded-lg shadow-lg">
                   <button @click.prevent="sendEmail" :disabled="emailAnswered"
-                  class="bg-gray-700 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-2 2xl:text-lg">
-                  {{ $t('constants.userActions.send') }}
-                </button>
-                <Menu as="div" class="relative -ml-px block items-stretch">
-                  <MenuButton
-                    class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
-                    <span class="sr-only">{{ $t('newPage.openOptions') }}</span>
-                    <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
-                  </MenuButton>
-                  <transition enter-active-class="transition ease-out duration-100"
-                    enter-from-class="transform opacity-0 -translate-y-2" enter-to-class="transform opacity-100 translate-y-0"
-                    leave-active-class="transition ease-in duration-75"
-                    leave-from-class="transform opacity-100 translate-y-0" leave-to-class="transform opacity-0 -translate-y-2">
-                    <MenuItems
-                      class="absolute right-0 z-10 -mr-1 bottom-full mb-2 w-56 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      <div class="py-1">
-                        <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
+                    class="bg-gray-700 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-2 2xl:text-lg">{{
+                      $t('constants.userActions.send') }}</button>
+                  <Menu as="div" class="relative -ml-px block">
+                    <MenuButton
+                      class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
+                      <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                      <span class="sr-only">{{ $t('newPage.openOptions') }}</span>
+                      <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
+                    </MenuButton>
+                    <transition enter-active-class="transition ease-out duration-100"
+                      enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
+                      leave-active-class="transition ease-in duration-75"
+                      leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+                      <MenuItems
+                        class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div class="py-1">
+                          <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
                           <a :href="item.href"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm 2xl:px-5 2xl:py-3 2xl:text-base']">
-                            {{ item.name }}
-                          </a>
-                        </MenuItem>
-                      </div>
-                    </MenuItems>
-                  </transition>
-                </Menu>
+                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
+                              item.name }}</a>
+                          </MenuItem>
+                        </div>
+                      </MenuItems>
+                    </transition>
+                  </Menu>
                 </div>
               </div>
-              
             </div>
           </form>
         </div>

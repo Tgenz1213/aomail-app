@@ -3,6 +3,8 @@ Handles authentication and HTTP requests for the Microsoft Graph API.
 
 TODO:
 - [SUBSCRIPTION] handle "subscriptionRemoved or missed"
+- Split into smaller functions: email_to_db + opti the function first
+- Add a function save_email_to_db as a utility function common to all email providers
 """
 
 import base64
@@ -1073,7 +1075,6 @@ def get_mail_to_db(
             str: Preprocessed email content.
             str: ID of the email message.
             datetime.datetime: Sent date and time of the email.
-            str: Web link to view the email in Outlook. (TODO: delete and update doc)
             bool: Flag indicating whether the email has attachments.
             bool: Flag indicating whether the email is a reply ('RE:' in subject).
 
@@ -1758,38 +1759,23 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             subject, email_content, user_description, language
         )
 
-    (
-        topic,
-        importance_dict,
-        answer,
-        summary_list,
-        sentence,
-        relevance,
-    ) = claude.categorize_and_summarize_email(
-        subject, decoded_data, category_dict, user_description
+    email_processed = claude.categorize_and_summarize_email(
+        subject, decoded_data, category_dict, user_description, from_name[1]
     )
 
-    importance = None
-
-    if importance_dict["UrgentWorkInformation"] >= 50:
-        importance = IMPORTANT
-    else:
-        max_percentage = 0
-        for key, value in importance_dict.items():
-            if value > max_percentage:
-                importance = key
-                if importance == "Promotional" or importance == "News":
-                    importance = USELESS
-                elif (
-                    importance == "RoutineWorkUpdates"
-                    or importance == "InternalCommunications"
-                ):
-                    importance = INFORMATION
-                elif importance == "UrgentWorkInformation":
-                    importance = IMPORTANT
-                max_percentage = importance_dict[key]
-        if max_percentage == 0:
-            importance = INFORMATION
+    priority: str = email_processed["importance"]
+    topic: str = email_processed["topic"]
+    answer: str = email_processed["response"]
+    relevance: str = email_processed["relevance"]
+    flags: dict = email_processed["flags"]
+    spam: bool = flags["spam"]
+    scam: bool = flags["scam"]
+    newsletter: bool = flags["newsletter"]
+    notification: bool = flags["notification"]
+    meeting: bool = flags["meeting"]
+    summary: dict = email_processed["summary"]
+    short_summary: str = summary["short"]
+    one_line_summary: str = summary["one_line"]
 
     if not rule_category:
         if topic in category_dict:
@@ -1809,11 +1795,10 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             social_api=social_api,
             provider_id=email_id,
             email_provider=MICROSOFT_PROVIDER,
-            email_short_summary=sentence,
+            short_summary=short_summary,
+            one_line_summary=one_line_summary,
             subject=subject,
-            priority=importance,
-            read=False,
-            answer_later=False,
+            priority=priority,
             sender=sender,
             category=category,
             user=user,
@@ -1821,6 +1806,11 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             has_attachments=has_attachments,
             answer=answer,
             relevance=relevance,
+            spam=spam,
+            scam=scam,
+            newsletter=newsletter,
+            notification=notification,
+            meeting=meeting,
         )
 
         if is_reply:
@@ -1860,10 +1850,6 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         Contact.objects.get_or_create(
             user=user, email=contact_email, username=contact_name
         )
-
-        # if summary_list:
-        #     for point in summary_list:
-        #         BulletPoint.objects.create(content=point, email=email_entry)
 
         LOGGER.info(
             f"Email ID: {id_email} saved to database successfully for user ID: {user.id} using Microsoft Graph API"

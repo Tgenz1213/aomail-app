@@ -226,7 +226,7 @@
                                             <div class="inline-flex rounded-lg shadow-lg">
                                                 <button @click="sendEmail" :disabled="emailTransfered"
                                                     class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
-                                                    {{ $t('Transfer_vue.send') }}</button>
+                                                    {{ $t('constants.userActions.send') }}</button>
 
                                                 <Menu as="div" class="relative -ml-px block">
                                                     <MenuButton

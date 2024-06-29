@@ -52,15 +52,11 @@ from MailAssistant.constants import (
     GOOGLE_PROJECT_ID,
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
-    IMPORTANT,
     MAX_RETRIES,
     MEDIA_URL,
     REDIRECT_URI_LINK_EMAIL,
-    USELESS,
-    INFORMATION,
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
-    MEDIA_ROOT,
     BASE_URL_MA,
 )
 from MailAssistant.utils.tree_knowledge import Search

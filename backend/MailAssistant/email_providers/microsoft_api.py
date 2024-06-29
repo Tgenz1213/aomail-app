@@ -46,8 +46,6 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
     GRAPH_URL,
-    IMPORTANT,
-    INFORMATION,
     MAX_RETRIES,
     MICROSOFT_AUTHORITY,
     MICROSOFT_CLIENT_STATE,
@@ -56,7 +54,6 @@ from MailAssistant.constants import (
     MICROSOFT_SCOPES,
     REDIRECT_URI_LINK_EMAIL,
     REDIRECT_URI_SIGNUP,
-    USELESS,
 )
 from ..models import (
     Category,

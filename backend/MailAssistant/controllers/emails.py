@@ -18,7 +18,8 @@ Endpoints:
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-- get_answer_later_emails
+- Add a filter function for emails + max_results per page (scam, newsletter, importance, etc) (for reply later & home)
+- get_answer_later_emails & get_user_emails can form only 1 function with parameters
 """
 
 import datetime
@@ -29,12 +30,16 @@ from collections import defaultdict
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from MailAssistant.utils.security import subscription
 from MailAssistant.constants import (
     FREE_PLAN,
+    IMPORTANT,
+    INFORMATIVE,
+    USELESS,
 )
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.models import (
@@ -135,7 +140,6 @@ def get_mail_by_id(request: HttpRequest) -> Response:
 
 
 @api_view(["POST"])
-@subscription([FREE_PLAN])
 def set_email_read(request: HttpRequest, email_id: int) -> Response:
     """
     Marks a specific email as read for the authenticated user.
@@ -146,20 +150,21 @@ def set_email_read(request: HttpRequest, email_id: int) -> Response:
 
     Returns:
         Response: JSON response with the serialized data of the updated email,
-                      status=status.HTTP_200_OK if successful.
+                  status=status.HTTP_200_OK if successful.
     """
     user = request.user
 
     email = get_object_or_404(Email, user=user, id=email_id)
     email.read = True
-    email.read_date = datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)
+    email.read_date = timezone.now()
     email.save()
 
     social_api = email.social_api
-    if social_api.type_api == "google":
-        google_api.set_email_read(user, social_api.email, email.provider_id)
-    elif social_api.type_api == "microsoft":
-        microsoft_api.set_email_read(social_api, email.provider_id)
+    if social_api:
+        if social_api.type_api == "google":
+            google_api.set_email_read(user, social_api.email, email.provider_id)
+        elif social_api.type_api == "microsoft":
+            microsoft_api.set_email_read(social_api, email.provider_id)
 
     serializer = EmailReadUpdateSerializer(email)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -272,35 +277,86 @@ def get_answer_later_emails(request: HttpRequest) -> Response:
     """
     try:
         user = request.user
-        emails = Email.objects.filter(user=user, answer_later=True).prefetch_related(
-            "bulletpoint_set", "sender", "category"
+        emails = (
+            Email.objects.filter(user=user, answer_later=True)
+            .prefetch_related("category", "cc_senders", "bcc_senders", "attachments")
+            .select_related("sender")
         )
 
-        emails = emails.annotate(
-            has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
-        )
+        # Annotate emails with rule existence and rule id
         rule_id_subquery = Rule.objects.filter(
             sender=OuterRef("sender"), user=user
         ).values("id")[:1]
-        emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+        emails = emails.annotate(
+            has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
+        )
 
-        formatted_data = defaultdict(list)
+        formatted_data = defaultdict(lambda: defaultdict(list))
 
+        current_datetime_utc = timezone.now()
         for email in emails:
+            if email.read_date:
+                delta_time = current_datetime_utc - email.read_date
+
+                # Delete read email older than 1 week
+                if delta_time > datetime.timedelta(weeks=1):
+                    email.delete()
+                    continue
+
             email_data = {
                 "id": email.id,
                 "id_provider": email.provider_id,
-                "email": email.sender.email,
-                "name": email.sender.name,
-                "description": email.email_short_summary,
-                "details": [
-                    {"id": bp.id, "text": bp.content}
-                    for bp in email.bulletpoint_set.all()
+                "subject": email.subject,
+                "sender": {
+                    "email": email.sender.email,
+                    "name": email.sender.name,
+                },
+                "short_summary": email.short_summary,
+                "one_line_summary": email.one_line_summary,
+                "html_content": email.html_content,
+                "cc": [
+                    {"email": cc.email, "name": cc.name}
+                    for cc in email.cc_senders.all()
                 ],
-                "rule": email.has_rule,
-                "rule_id": email.rule_id,
+                "bcc": [
+                    {"email": bcc.email, "name": bcc.name}
+                    for bcc in email.bcc_senders.all()
+                ],
+                "read": email.read,
+                "rule": {
+                    "has_rule": email.has_rule,
+                    "rule_id": email.rule_id,
+                },
+                "answer_later": email.answer_later,
+                "has_attachments": email.has_attachments,
+                "attachments": [
+                    {
+                        "attachmentName": attachment.name,
+                        "attachmentId": attachment.id_api,
+                    }
+                    for attachment in email.attachments.all()
+                ],
+                "sent_date": email.date.date() if email.date else None,
+                "sent_time": email.date.strftime("%H:%M") if email.date else None,
+                "answer": email.answer,
+                "relevance": email.relevance,
+                "priority": email.priority,
+                "flags": {
+                    "spam": email.spam,
+                    "scam": email.scam,
+                    "newsletter": email.newsletter,
+                    "notification": email.notification,
+                    "meeting": email.meeting,
+                },
             }
-            formatted_data[email.priority].append(email_data)
+
+            formatted_data[email.category.name][email.priority].append(email_data)
+
+        # Ensuring all priorities are present for each category
+        all_priorities = {IMPORTANT, INFORMATIVE, USELESS}
+        for category in formatted_data:
+            for priority in all_priorities:
+                formatted_data[category].setdefault(priority, [])
 
         return Response(formatted_data, status=status.HTTP_200_OK)
 
@@ -453,98 +509,87 @@ def get_user_emails(request: HttpRequest) -> Response:
 
     Returns:
         Response: A JSON response containing formatted user emails grouped by category and priority.
-                      Each email entry includes details such as ID, provider ID, sender information,
-                      subject, content, attachments, date, time, read status, rules applied, and other metadata.
-                      Returns status=status.HTTP_200_OK on success.
+                  Each email entry includes details such as ID, provider ID, sender information,
+                  subject, content, attachments, date, time, read status, rules applied, and other metadata.
+                  Returns status=status.HTTP_200_OK on success.
     """
     user = request.user
-    emails = Email.objects.filter(user=user).prefetch_related(
-        "category", "bulletpoint_set", "cc_senders", "bcc_senders", "attachments"
+    emails = (
+        Email.objects.filter(user=user)
+        .prefetch_related("category", "cc_senders", "bcc_senders", "attachments")
+        .select_related("sender")
     )
-    emails = emails.annotate(
-        has_rule=Exists(Rule.objects.filter(sender=OuterRef("sender"), user=user))
-    )
+
+    # Annotate emails with rule existence and rule id
     rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
         "id"
     )[:1]
-    emails = emails.annotate(rule_id=Subquery(rule_id_subquery))
+    emails = emails.annotate(
+        has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
+    )
 
     formatted_data = defaultdict(lambda: defaultdict(list))
 
-    one_third = len(emails) // 3
-    emails1 = emails[:one_third]
-    emails2 = emails[one_third : 2 * one_third]
-    emails3 = emails[2 * one_third :]
+    current_datetime_utc = timezone.now()
+    for email in emails:
+        if email.read_date:
+            delta_time = current_datetime_utc - email.read_date
 
-    def process_emails(email_list: list[Email]):
-        for email in email_list:
-            if email.read_date:
-                current_datetime_utc = datetime.datetime.now().replace(
-                    tzinfo=datetime.timezone.utc
-                )
-                delta_time = current_datetime_utc - email.read_date
+            # Delete read email older than 1 week
+            if delta_time > datetime.timedelta(weeks=1):
+                email.delete()
+                continue
 
-                # Delete read email older than 1 week
-                if delta_time > datetime.timedelta(weeks=1):
-                    email.delete()
-                    continue
-
-            email_date = email.date.date() if email.date else None
-            email_time = email.date.strftime("%H:%M") if email.date else None
-
-            email_data = {
-                "id": email.id,
-                "id_provider": email.provider_id,
+        email_data = {
+            "id": email.id,
+            "id_provider": email.provider_id,
+            "subject": email.subject,
+            "sender": {
                 "email": email.sender.email,
-                "subject": email.subject,
                 "name": email.sender.name,
-                "description": email.email_short_summary,
-                "html_content": email.html_content,
-                "details": [
-                    {"id": bp.id, "text": bp.content}
-                    for bp in email.bulletpoint_set.all()
-                ],
-                "cc": [
-                    {"email": cc.email, "name": cc.name}
-                    for cc in email.cc_senders.all()
-                ],
-                "bcc": [
-                    {"email": bcc.email, "name": bcc.name}
-                    for bcc in email.bcc_senders.all()
-                ],
-                "read": email.read,
-                "rule": email.has_rule,
+            },
+            "short_summary": email.short_summary,
+            "one_line_summary": email.one_line_summary,
+            "html_content": email.html_content,
+            "cc": [
+                {"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()
+            ],
+            "bcc": [
+                {"email": bcc.email, "name": bcc.name}
+                for bcc in email.bcc_senders.all()
+            ],
+            "read": email.read,
+            "rule": {
+                "has_rule": email.has_rule,
                 "rule_id": email.rule_id,
-                "answer_later": email.answer_later,
-                "has_attachments": email.has_attachments,
-                "attachments": [
-                    {
-                        "attachmentName": attachment.name,
-                        "attachmentId": attachment.id_api,
-                    }
-                    for attachment in email.attachments.all()
-                ],
-                "date": email_date,
-                "time": email_time,
-            }
+            },
+            "answer_later": email.answer_later,
+            "has_attachments": email.has_attachments,
+            "attachments": [
+                {
+                    "attachmentName": attachment.name,
+                    "attachmentId": attachment.id_api,
+                }
+                for attachment in email.attachments.all()
+            ],
+            "sent_date": email.date.date() if email.date else None,
+            "sent_time": email.date.strftime("%H:%M") if email.date else None,
+            "answer": email.answer,
+            "relevance": email.relevance,
+            "priority": email.priority,
+            "flags": {
+                "spam": email.spam,
+                "scam": email.scam,
+                "newsletter": email.newsletter,
+                "notification": email.notification,
+                "meeting": email.meeting,
+            },
+        }
 
-            formatted_data[email.category.name][email.priority].append(email_data)
-
-    # Multi-threading for faster computation with large amount of emails
-    thread1 = threading.Thread(target=process_emails, args=(emails1,))
-    thread2 = threading.Thread(target=process_emails, args=(emails2,))
-    thread3 = threading.Thread(target=process_emails, args=(emails3,))
-
-    thread1.start()
-    thread2.start()
-    thread3.start()
-
-    thread1.join()
-    thread2.join()
-    thread3.join()
+        formatted_data[email.category.name][email.priority].append(email_data)
 
     # Ensuring all priorities are present for each category
-    all_priorities = {"Important", "Information", "Useless"}
+    all_priorities = {IMPORTANT, INFORMATIVE, USELESS}
     for category in formatted_data:
         for priority in all_priorities:
             formatted_data[category].setdefault(priority, [])

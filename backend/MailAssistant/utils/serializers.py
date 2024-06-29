@@ -29,6 +29,18 @@ class EmailDataSerializer(serializers.Serializer):
     attachments = serializers.ListField(child=serializers.FileField(), required=False)
 
 
+class EmailScheduleDataSerializer(serializers.Serializer):
+    """Serializer for scheduling emails (POST request)."""
+
+    to = serializers.ListField(child=serializers.EmailField(), required=True)
+    subject = serializers.CharField(required=True)
+    message = serializers.CharField(required=False, allow_blank=True)
+    cc = serializers.ListField(child=serializers.EmailField(), required=False)
+    bcc = serializers.ListField(child=serializers.EmailField(), required=False)
+    attachments = serializers.ListField(child=serializers.FileField(), required=False)
+    datetime = serializers.DateTimeField(required=True)
+
+
 class EmailReadUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating the 'read' status of an email through a POST request."""
 

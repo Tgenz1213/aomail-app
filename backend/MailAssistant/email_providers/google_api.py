@@ -403,22 +403,9 @@ def send_email(request: HttpRequest) -> Response:
                 {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
             )
 
-        else:
-            keys = serializer.errors.keys()
-
-            if "to" in keys:
-                return Response(
-                    {"error": "recipient is missing"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            elif "subject" in keys:
-                return Response(
-                    {"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            else:
-                return Response(
-                    {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-                )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")

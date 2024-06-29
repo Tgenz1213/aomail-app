@@ -2181,7 +2181,7 @@ async function scheduleSend() {
     }
     formData.append('email', emailSelected.value);
     // update here with the date and time provided by the user
-    formData.append('datetime', emailSelected.value);
+    formData.append('datetime', "2024-07-02T10:00:00Z");
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_schedule_email/`, {

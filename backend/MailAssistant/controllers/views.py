@@ -73,6 +73,12 @@ def send_email(request: Request):
     return forward_request(request._request, "send_email")
 
 
+@api_view(["POST"])
+@subscription([FREE_PLAN])
+def send_schedule_email(request: Request):
+    return forward_request(request._request, "send_schedule_email")
+
+
 def forward_request(request: HttpRequest, api_method: str) -> Response:
     """
     Forwards the request to the appropriate API method based on type_api.

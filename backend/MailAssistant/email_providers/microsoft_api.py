@@ -37,7 +37,10 @@ from MailAssistant.ai_providers import claude
 from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
-from MailAssistant.utils.serializers import EmailDataSerializer
+from MailAssistant.utils.serializers import (
+    EmailDataSerializer,
+    EmailScheduleDataSerializer,
+)
 from ..utils import email_processing
 from MailAssistant.constants import (
     FREE_PLAN,
@@ -507,6 +510,119 @@ def get_email(access_token: str) -> dict:
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @subscription([FREE_PLAN])
+def send_schedule_email(request: HttpRequest) -> Response:
+    """
+    Schedule the sending of an email using the Microsoft Graph API with deferred delivery.
+
+    Args:
+        request (HttpRequest): HTTP request object containing POST data with email details.
+
+    Returns:
+        Response: Response indicating success or error.
+    """
+    user = request.user
+    email = request.POST.get("email")
+    social_api = get_social_api(user, email)
+
+    if not social_api:
+        return Response(
+            {"error": "Social API credentials not found"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    access_token = refresh_access_token(social_api)
+    serializer = EmailScheduleDataSerializer(data=request.POST)
+
+    if serializer.is_valid():
+        data = serializer.validated_data
+        try:
+            send_datetime: datetime.datetime = data["datetime"]
+            subject = data["subject"]
+            message = data["message"]
+            to = data["to"]
+            cc = data.get("cc")
+            bcc = data.get("bcc")
+            attachments: list[UploadedFile] = data.get("attachments", [])
+            all_recipients = to + (cc if cc else []) + (bcc if bcc else [])
+
+            graph_endpoint = f"{GRAPH_URL}me/sendMail"
+            headers = get_headers(access_token)
+
+            email_content = {
+                "message": {
+                    "subject": subject,
+                    "body": {"contentType": "HTML", "content": message},
+                    "toRecipients": [
+                        {"emailAddress": {"address": email}} for email in to
+                    ],
+                    "singleValueExtendedProperties": [
+                        {"id": "SystemTime 0x3FEF", "value": send_datetime.isoformat()}
+                    ],
+                }
+            }
+
+            if cc:
+                email_content["message"]["ccRecipients"] = [
+                    {"emailAddress": {"address": email}} for email in cc
+                ]
+
+            if bcc:
+                email_content["message"]["bccRecipients"] = [
+                    {"emailAddress": {"address": email}} for email in bcc
+                ]
+
+            if attachments:
+                email_content["message"]["attachments"] = []
+
+                for file_data in attachments:
+                    file_name = file_data.name
+                    file_content = file_data.read()
+                    attachment = base64.b64encode(file_content).decode("utf-8")
+                    email_content["message"]["attachments"].append(
+                        {
+                            "@odata.type": "#microsoft.graph.fileAttachment",
+                            "name": file_name,
+                            "contentBytes": attachment,
+                        }
+                    )
+
+            try:
+                response = requests.post(
+                    graph_endpoint, headers=headers, json=email_content
+                )
+
+                if response.status_code == 202:
+                    threading.Thread(
+                        target=email_processing.save_contacts,
+                        args=(user, email, all_recipients),
+                    ).start()
+                    return Response(
+                        {"message": "Email scheduled successfully!"},
+                        status=status.HTTP_202_ACCEPTED,
+                    )
+                else:
+                    response_data: dict = response.json()
+                    error = response_data.get("error", response.reason)
+                    LOGGER.error(f"Failed to schedule email: {error}")
+                    return Response({"error": error}, status=response.status_code)
+
+            except Exception as e:
+                LOGGER.error(f"Failed to send email: {str(e)}")
+                return Response(
+                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+        except Exception as e:
+            LOGGER.error(f"Error preparing email data: {str(e)}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@subscription([FREE_PLAN])
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Microsoft Graph API.
@@ -611,7 +727,7 @@ def send_email(request: HttpRequest) -> Response:
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def delete_email(email_id: int, social_api: SocialAPI) -> dict:

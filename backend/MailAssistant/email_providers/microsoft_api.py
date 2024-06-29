@@ -5,6 +5,7 @@ TODO:
 - [SUBSCRIPTION] handle "subscriptionRemoved or missed"
 - Split into smaller functions: email_to_db + opti the function first
 - Add a function save_email_to_db as a utility function common to all email providers
+- add endpoint for send email at a certain moment (+ test)
 """
 
 import base64

@@ -78,7 +78,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
               </svg>
-              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('constants.userActions.answerManually') }}
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                $t('constants.userActions.answerManually') }}
               </h1>
             </div>
           </div>
@@ -245,11 +246,11 @@
                       <MenuItems
                         class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div class="py-1">
-                          <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                          <a :href="item.href"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                              item.name }}</a>
-                          </MenuItem>
+                          <button
+                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
+                            @click="scheduleSend">
+                            Schedule send
+                          </button>
                         </div>
                       </MenuItems>
                     </transition>
@@ -313,9 +314,6 @@ function displayPopup() {
     dismissPopup();
   }, 4000);
 }
-const items = [
-  { name: 'Envoyer à une heure', href: '#' },
-]
 
 // lists of different types of recipients
 const people = [];
@@ -1327,6 +1325,9 @@ async function WriteBetter() {
 ////////////////////////////////////////////////////// To handle sending the email  ///////////////////////////////////////////////////////
 
 const router = useRouter();
+
+// TODO: implement this function scheduleSend (cf NewV4.vue)
+
 
 async function sendEmail() {
   const emailSubject = inputValue.value;

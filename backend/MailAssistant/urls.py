@@ -76,6 +76,7 @@ urlpatterns = [
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
     path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
+    # path('user/social_api/send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # dev
     path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok

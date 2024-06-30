@@ -62,6 +62,9 @@ urlpatterns = [
     path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok
     path('user/get_answer_later_emails/', emails.get_answer_later_emails, name='get_answer_later_emails'), # ok
     path('user/emails/', emails.get_user_emails, name='get_user_emails'), # ok
+    
+    path('user/get_user_emails_with_filter/', emails.get_user_emails_with_filter, name='get_user_emails'), # dev
+
     path('user/emails/<int:email_id>/mark_read/', emails.set_email_read, name='set_email_read'), # ok
     path('user/emails/<int:email_id>/mark_unread/', emails.set_email_unread, name='set_email_unread'), # ok
     path('user/emails/<int:email_id>/mark_reply_later/', emails.set_email_reply_later, name='set_email_reply_laterr'), # ok
@@ -76,7 +79,7 @@ urlpatterns = [
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
     path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
-    path('user/social_api/send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # dev
+    path('user/social_api/send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # ok
     path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok

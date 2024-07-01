@@ -526,22 +526,24 @@ from django.db import models
 
 # ALL potential filters # TODO: fix my potential enlgish typing mistakes
 {
-    "emailProvider": str,
+    "emailProvider": list[str],
     "subject": str,  # contains inside subject
     "senderEmail": str,  # contains inside sender email
     "senderName": str,  # contains inside sender name
-    "emailAdresses": list,  # todo make a query with SocialAPI model
+    "emailAdresses": list[str],  # todo make a query with SocialAPI model
     "read": bool,
     "sentDate": models.DateTimeField,
     "readDate": models.DateTimeField,
-    "answer": str,
-    "relevance": str,
+    "answer": list[str],
+    "relevance": list[str],
+    "priority": list[str],
     "spam": bool,
     "scam": bool,
     "newsletter": bool,
     "notification": bool,
     "meeting": bool,
 }
+# TODO: add maxResult as a param (min=25, max=100)
 
 
 @api_view(["POST"])
@@ -549,40 +551,35 @@ from django.db import models
 def get_user_emails_with_filter(request: HttpRequest) -> Response:
     try:
         parameters: dict = json.loads(request.body)
-        category: str = parameters["category"]  # it's mandatory
+        category: str = parameters["category"]
 
         # Get the user from the request
         user = 1  # leave it hardcoded for testing
 
-        # Create a dictionary to store our filters
         filters = {"user": user, "answer_later": False}
 
-        # Get the category object
-        try:
-            category_obj = Category.objects.get(name=category)
-            filters["category"] = category_obj
-        except Category.DoesNotExist:
-            return Response(
-                {"error": "Invalid category"}, status=status.HTTP_400_BAD_REQUEST
-            )
+        category_obj = Category.objects.get(name=category)
+        filters["category"] = category_obj
 
         # List of boolean fields we want to filter
-        boolean_fields = ["scam", "spam", "newsletter", "notification", "meeting"]
-
-        # Add filters based on the parameters
+        boolean_fields = [
+            "scam",
+            "spam",
+            "newsletter",
+            "notification",
+            "meeting",
+            "read",
+            "hasAttachments",
+        ]
         for field in boolean_fields:
             if field in parameters:
                 filters[field] = parameters[field]
 
         # Additional filters
-        if "hasAttachments" in parameters:
-            filters["has_attachments"] = parameters["hasAttachments"]
         if "priority" in parameters:
-            filters["priority"] = parameters["priority"]
-        if "read" in parameters:
-            filters["read"] = parameters["read"]
+            filters["priority__in"] = parameters["priority"]
         if "emailProvider" in parameters:
-            filters["email_provider"] = parameters["emailProvider"]
+            filters["email_provider__in"] = parameters["emailProvider"]
         if "subject" in parameters:
             filters["subject__icontains"] = parameters["subject"]
         if "senderEmail" in parameters:
@@ -590,26 +587,20 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
         if "senderName" in parameters:
             filters["sender__name__icontains"] = parameters["senderName"]
         if "sentDate" in parameters:
-            filters["date"] = parameters["sentDate"]
+            filters["date__gte"] = parameters["sentDate"]
         if "readDate" in parameters:
-            filters["read_date"] = parameters["readDate"]
+            filters["read_date__gte"] = parameters["readDate"]
         if "answer" in parameters:
-            filters["answer"] = parameters["answer"]
+            filters["answer__in"] = parameters["answer"]
         if "relevance" in parameters:
-            filters["relevance"] = parameters["relevance"]
-
-        # Handle emailAddresses filter
+            filters["relevance__in"] = parameters["relevance"]
         if "emailAddresses" in parameters:
             social_apis = SocialAPI.objects.filter(
                 email__in=parameters["emailAddresses"], user=user
             )
             filters["social_api__in"] = social_apis
 
-        # Create the queryset with all filters applied
-
-        print("------- DEBUG -------")
-        print(filters)
-
+        # Make the query
         queryset = Email.objects.filter(**filters)
         rule_id_subquery = Rule.objects.filter(
             sender=OuterRef("sender"), user=user
@@ -620,11 +611,10 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
         # Apply sorting
         queryset.order_by("-date")
 
-        # Count the number of emails that match the filters
         email_count = queryset.count()
         email_ids = []
-
         formatted_data = defaultdict(lambda: defaultdict(list))
+        nb_email_treated = 0
 
         current_datetime_utc = timezone.now()
         for email in queryset:
@@ -636,60 +626,65 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
                     email.delete()
                     continue
 
-            email_data = {
-                "id": email.id,
-                "id_provider": email.provider_id,
-                # "subject": email.subject,
-                # "sender": {
-                #     "email": email.sender.email,
-                #     "name": email.sender.name,
-                # },
-                # "short_summary": email.short_summary,
-                # "one_line_summary": email.one_line_summary,
-                # "html_content": email.html_content,
-                # "cc": [
-                #     {"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()
-                # ],
-                # "bcc": [
-                #     {"email": bcc.email, "name": bcc.name}
-                #     for bcc in email.bcc_senders.all()
-                # ],
-                # "read": email.read,
-                # "rule": {
-                #     "has_rule": email.has_rule,
-                #     "rule_id": email.rule_id,
-                # },
-                # "answer_later": email.answer_later,
-                # "has_attachments": email.has_attachments,
-                # "attachments": [
-                #     {
-                #         "attachmentName": attachment.name,
-                #         "attachmentId": attachment.id_api,
-                #     }
-                #     for attachment in email.attachments.all()
-                # ],
-                # "sent_date": email.date.date() if email.date else None,
-                # "sent_time": email.date.strftime("%H:%M") if email.date else None,
-                # "answer": email.answer,
-                # "relevance": email.relevance,
-                # "priority": email.priority,
-                # "flags": {
-                #     "spam": email.spam,
-                #     "scam": email.scam,
-                #     "newsletter": email.newsletter,
-                #     "notification": email.notification,
-                #     "meeting": email.meeting,
-                # },
-            }
+            if nb_email_treated < 50:
+                email_data = {
+                    "id": email.id,
+                    "id_provider": email.provider_id,
+                    "subject": email.subject,
+                    "sender": {
+                        "email": email.sender.email,
+                        "name": email.sender.name,
+                    },
+                    "short_summary": email.short_summary,
+                    "one_line_summary": email.one_line_summary,
+                    "html_content": email.html_content,
+                    "cc": [
+                        {"email": cc.email, "name": cc.name}
+                        for cc in email.cc_senders.all()
+                    ],
+                    "bcc": [
+                        {"email": bcc.email, "name": bcc.name}
+                        for bcc in email.bcc_senders.all()
+                    ],
+                    "read": email.read,
+                    "rule": {
+                        "has_rule": email.has_rule,
+                        "rule_id": email.rule_id,
+                    },
+                    "answer_later": email.answer_later,
+                    "has_attachments": email.has_attachments,
+                    "attachments": [
+                        {
+                            "attachmentName": attachment.name,
+                            "attachmentId": attachment.id_api,
+                        }
+                        for attachment in email.attachments.all()
+                    ],
+                    "sent_date": email.date.date() if email.date else None,
+                    "sent_time": email.date.strftime("%H:%M") if email.date else None,
+                    "answer": email.answer,
+                    "relevance": email.relevance,
+                    "priority": email.priority,
+                    "flags": {
+                        "spam": email.spam,
+                        "scam": email.scam,
+                        "newsletter": email.newsletter,
+                        "notification": email.notification,
+                        "meeting": email.meeting,
+                    },
+                }
+                formatted_data[email.category.name][email.priority].append(email_data)
+                nb_email_treated += 1
 
             email_ids.append(email.id)
-            formatted_data[email.category.name][email.priority].append(email_data)
 
-        # TODO: return the formatted_data ONLY of the first 50 (max) emails
-        # {"emails": formatted_data, "email_count": email_count, "ids": email_ids}
         return Response(
-            {"email_count": email_count, "ids": email_ids},
+            {"data": formatted_data, "count": email_count, "ids": email_ids},
             status=status.HTTP_200_OK,
+        )
+    except Category.DoesNotExist:
+        return Response(
+            {"error": "Invalid category"}, status=status.HTTP_400_BAD_REQUEST
         )
     except KeyError:
         return Response(
@@ -705,72 +700,72 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-import uuid
-import random
+# import uuid
+# import random
 
-EMAIL_PROVIDERS = [GOOGLE_PROVIDER, MICROSOFT_PROVIDER]
+# EMAIL_PROVIDERS = [GOOGLE_PROVIDER, MICROSOFT_PROVIDER]
 
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def get_user_emails_with_filter(request: HttpRequest) -> Response:
-    try:
-        parameters = json.loads(request.body)
-        user = 1  # Hardcoded for testing
+# @api_view(["POST"])
+# @permission_classes([AllowAny])
+# def get_user_emails_with_filter(request: HttpRequest) -> Response:
+#     try:
+#         parameters = json.loads(request.body)
+#         user = 1  # Hardcoded for testing
 
-        # Create the queryset with all filters applied
-        filters = {"user": user, "answer_later": False}
-        queryset = Email.objects.filter(**filters).order_by("-date")
-        first_email = queryset.first()
+#         # Create the queryset with all filters applied
+#         filters = {"user": user, "answer_later": False}
+#         queryset = Email.objects.filter(**filters).order_by("-date")
+#         first_email = queryset.first()
 
-        if first_email:
-            for i in range(999):
-                Email.objects.create(
-                    user=first_email.user,
-                    social_api=first_email.social_api,
-                    provider_id=str(uuid.uuid4()),  # Generating a unique UUID
-                    subject=first_email.subject,
-                    sender=first_email.sender,
-                    short_summary=first_email.short_summary,
-                    one_line_summary="this is a one line summary",
-                    html_content=first_email.html_content,
-                    date=timezone.now()
-                    + datetime.timedelta(
-                        days=random.randint(-1825, 1825)
-                    ),  # Random date within ±5 years
-                    read_date=timezone.now()
-                    + datetime.timedelta(
-                        days=random.randint(-1825, 1825)
-                    ),  # Random date within ±5 years
-                    has_attachments=random.choice([True, False]),
-                    answer=random.choice(
-                        [
-                            "Answer Required",
-                            "Might Require Answer",
-                            "No Answer Required",
-                        ]
-                    ),
-                    relevance=random.choice(
-                        ["Highly Relevant", "Possibly Relevant", "Not Relevant"]
-                    ),
-                    priority=random.choice([IMPORTANT, INFORMATIVE, USELESS]),
-                    scam=random.choice([True, False]),
-                    spam=random.choice([True, False]),
-                    newsletter=random.choice([True, False]),
-                    notification=random.choice([True, False]),
-                    meeting=random.choice([True, False]),
-                    category=first_email.category,
-                    email_provider=random.choice(EMAIL_PROVIDERS),
-                )
-                print(f"Created email {i + 1}/999")
+#         if first_email:
+#             for i in range(999):
+#                 Email.objects.create(
+#                     user=first_email.user,
+#                     social_api=first_email.social_api,
+#                     provider_id=str(uuid.uuid4()),  # Generating a unique UUID
+#                     subject=first_email.subject,
+#                     sender=first_email.sender,
+#                     short_summary=first_email.short_summary,
+#                     one_line_summary="this is a one line summary",
+#                     html_content=first_email.html_content,
+#                     date=timezone.now()
+#                     + datetime.timedelta(
+#                         days=random.randint(-1825, 1825)
+#                     ),  # Random date within ±5 years
+#                     read_date=timezone.now()
+#                     + datetime.timedelta(
+#                         days=random.randint(-1825, 1825)
+#                     ),  # Random date within ±5 years
+#                     has_attachments=random.choice([True, False]),
+#                     answer=random.choice(
+#                         [
+#                             "Answer Required",
+#                             "Might Require Answer",
+#                             "No Answer Required",
+#                         ]
+#                     ),
+#                     relevance=random.choice(
+#                         ["Highly Relevant", "Possibly Relevant", "Not Relevant"]
+#                     ),
+#                     priority=random.choice([IMPORTANT, INFORMATIVE, USELESS]),
+#                     scam=random.choice([True, False]),
+#                     spam=random.choice([True, False]),
+#                     newsletter=random.choice([True, False]),
+#                     notification=random.choice([True, False]),
+#                     meeting=random.choice([True, False]),
+#                     category=first_email.category,
+#                     email_provider=random.choice(EMAIL_PROVIDERS),
+#                 )
+#                 print(f"Created email {i + 1}/999")
 
-        return Response(
-            {"message": "Emails filtered and duplicated successfully"},
-            status=status.HTTP_200_OK,
-        )
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         return Response(
+#             {"message": "Emails filtered and duplicated successfully"},
+#             status=status.HTTP_200_OK,
+#         )
+#     except Exception as e:
+#         print(f"Error: {str(e)}")
+#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])

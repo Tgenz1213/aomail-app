@@ -381,7 +381,7 @@ def categorize_and_summarize_email(
     - Summarize the email without adding any greetings.
     - If the email explicitly mentions the name of the user (provided with user description), then use 'You' instead of the name of the user.
     - Provide a short sentence (up to 10 words) summarizing the core content of the email.
-    - Define the importance level of the email with one keyword: "Important", "Informative" or "Useless".
+    - Define the importance level of the email with one keyword: "important", "informative" or "useless".
     - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones.
     - The summary should objectively reflect the most important information of the email without making subjective judgments.    
     

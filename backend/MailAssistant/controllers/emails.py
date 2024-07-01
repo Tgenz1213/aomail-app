@@ -37,8 +37,10 @@ from rest_framework.response import Response
 from MailAssistant.utils.security import subscription
 from MailAssistant.constants import (
     FREE_PLAN,
+    GOOGLE_PROVIDER,
     IMPORTANT,
     INFORMATIVE,
+    MICROSOFT_PROVIDER,
     USELESS,
 )
 from MailAssistant.email_providers import google_api, microsoft_api
@@ -525,32 +527,29 @@ from django.db import models
 # ALL potential filters # TODO: fix my potential enlgish typing mistakes
 {
     "emailProvider": str,
-    "subject": str, # contains inside subject
-    "senderEmail": str, # contains inside sender email
-    "senderName": str, # contains inside sender name
-    "emailAdresses": list, # todo make a query with SocialAPI model
+    "subject": str,  # contains inside subject
+    "senderEmail": str,  # contains inside sender email
+    "senderName": str,  # contains inside sender name
+    "emailAdresses": list,  # todo make a query with SocialAPI model
     "read": bool,
     "sentDate": models.DateTimeField,
-    "readDate": models.DateTimeField, 
+    "readDate": models.DateTimeField,
     "answer": str,
     "relevance": str,
     "spam": bool,
     "scam": bool,
     "newsletter": bool,
     "notification": bool,
-    "meeting": bool
+    "meeting": bool,
 }
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def get_user_emails_with_filter(request: HttpRequest) -> Response:
     try:
         parameters: dict = json.loads(request.body)
-        sort: str = parameters.get("sort", "date")
-        category: str = parameters.get("category")  # it's mandatory
-
-        if not category:
-            return Response({"error": "Category is mandatory"}, status=status.HTTP_400_BAD_REQUEST)
+        category: str = parameters["category"]  # it's mandatory
 
         # Get the user from the request
         user = 1  # leave it hardcoded for testing
@@ -563,7 +562,9 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
             category_obj = Category.objects.get(name=category)
             filters["category"] = category_obj
         except Category.DoesNotExist:
-            return Response({"error": "Invalid category"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid category"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         # List of boolean fields we want to filter
         boolean_fields = ["scam", "spam", "newsletter", "notification", "meeting"]
@@ -599,31 +600,29 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
 
         # Handle emailAddresses filter
         if "emailAddresses" in parameters:
-            social_apis = SocialAPI.objects.filter(email__in=parameters["emailAddresses"], user=user)
+            social_apis = SocialAPI.objects.filter(
+                email__in=parameters["emailAddresses"], user=user
+            )
             filters["social_api__in"] = social_apis
 
         # Create the queryset with all filters applied
-        queryset = Email.objects.filter(**filters)
 
+        print("------- DEBUG -------")
+        print(filters)
+
+        queryset = Email.objects.filter(**filters)
+        rule_id_subquery = Rule.objects.filter(
+            sender=OuterRef("sender"), user=user
+        ).values("id")[:1]
+        queryset = queryset.annotate(
+            has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
+        )
         # Apply sorting
-        if sort == "date":
-            queryset = queryset.order_by("-date")
-        elif sort == "priority":
-            priority_order = {IMPORTANT: 3, INFORMATIVE: 2, USELESS: 1}
-            queryset = queryset.annotate(
-                priority_order=models.Case(
-                    *[models.When(priority=k, then=models.Value(v)) for k, v in priority_order.items()],
-                    default=models.Value(0),
-                    output_field=models.IntegerField(),
-                )
-            ).order_by("-priority_order", "-date")
-        elif sort == "subject":
-            queryset = queryset.order_by("subject", "-date")
-        else:
-            return Response({"error": "Invalid sort parameter"}, status=status.HTTP_400_BAD_REQUEST)
+        queryset.order_by("-date")
 
         # Count the number of emails that match the filters
         email_count = queryset.count()
+        email_ids = []
 
         formatted_data = defaultdict(lambda: defaultdict(list))
 
@@ -640,63 +639,63 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
             email_data = {
                 "id": email.id,
                 "id_provider": email.provider_id,
-                "subject": email.subject,
-                "sender": {
-                    "email": email.sender.email,
-                    "name": email.sender.name,
-                },
-                "short_summary": email.short_summary,
-                "one_line_summary": email.one_line_summary,
-                "html_content": email.html_content,
-                "cc": [
-                    {"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()
-                ],
-                "bcc": [
-                    {"email": bcc.email, "name": bcc.name}
-                    for bcc in email.bcc_senders.all()
-                ],
-                "read": email.read,
-                # TODO: fix
+                # "subject": email.subject,
+                # "sender": {
+                #     "email": email.sender.email,
+                #     "name": email.sender.name,
+                # },
+                # "short_summary": email.short_summary,
+                # "one_line_summary": email.one_line_summary,
+                # "html_content": email.html_content,
+                # "cc": [
+                #     {"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()
+                # ],
+                # "bcc": [
+                #     {"email": bcc.email, "name": bcc.name}
+                #     for bcc in email.bcc_senders.all()
+                # ],
+                # "read": email.read,
                 # "rule": {
                 #     "has_rule": email.has_rule,
                 #     "rule_id": email.rule_id,
                 # },
-                "answer_later": email.answer_later,
-                "has_attachments": email.has_attachments,
-                "attachments": [
-                    {
-                        "attachmentName": attachment.name,
-                        "attachmentId": attachment.id_api,
-                    }
-                    for attachment in email.attachments.all()
-                ],
-                "sent_date": email.date.date() if email.date else None,
-                "sent_time": email.date.strftime("%H:%M") if email.date else None,
-                "answer": email.answer,
-                "relevance": email.relevance,
-                "priority": email.priority,
-                "flags": {
-                    "spam": email.spam,
-                    "scam": email.scam,
-                    "newsletter": email.newsletter,
-                    "notification": email.notification,
-                    "meeting": email.meeting,
-                },
+                # "answer_later": email.answer_later,
+                # "has_attachments": email.has_attachments,
+                # "attachments": [
+                #     {
+                #         "attachmentName": attachment.name,
+                #         "attachmentId": attachment.id_api,
+                #     }
+                #     for attachment in email.attachments.all()
+                # ],
+                # "sent_date": email.date.date() if email.date else None,
+                # "sent_time": email.date.strftime("%H:%M") if email.date else None,
+                # "answer": email.answer,
+                # "relevance": email.relevance,
+                # "priority": email.priority,
+                # "flags": {
+                #     "spam": email.spam,
+                #     "scam": email.scam,
+                #     "newsletter": email.newsletter,
+                #     "notification": email.notification,
+                #     "meeting": email.meeting,
+                # },
             }
 
+            email_ids.append(email.id)
             formatted_data[email.category.name][email.priority].append(email_data)
 
-        # Ensuring all priorities are present for each category
-        all_priorities = {IMPORTANT, INFORMATIVE, USELESS}
-        for category in formatted_data:
-            for priority in all_priorities:
-                formatted_data[category].setdefault(priority, [])
-
+        # TODO: return the formatted_data ONLY of the first 50 (max) emails
+        # {"emails": formatted_data, "email_count": email_count, "ids": email_ids}
         return Response(
-            {"emails": formatted_data, "email_count": email_count},
+            {"email_count": email_count, "ids": email_ids},
             status=status.HTTP_200_OK,
         )
-
+    except KeyError:
+        return Response(
+            {"error": "Invalid JSON keys in request body"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     except json.JSONDecodeError:
         return Response(
             {"error": "Invalid JSON in request body"},
@@ -704,6 +703,75 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
         )
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+import uuid
+import random
+
+EMAIL_PROVIDERS = [GOOGLE_PROVIDER, MICROSOFT_PROVIDER]
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def get_user_emails_with_filter(request: HttpRequest) -> Response:
+    try:
+        parameters = json.loads(request.body)
+        user = 1  # Hardcoded for testing
+
+        # Create the queryset with all filters applied
+        filters = {"user": user, "answer_later": False}
+        queryset = Email.objects.filter(**filters).order_by("-date")
+        first_email = queryset.first()
+
+        if first_email:
+            for i in range(999):
+                Email.objects.create(
+                    user=first_email.user,
+                    social_api=first_email.social_api,
+                    provider_id=str(uuid.uuid4()),  # Generating a unique UUID
+                    subject=first_email.subject,
+                    sender=first_email.sender,
+                    short_summary=first_email.short_summary,
+                    one_line_summary="this is a one line summary",
+                    html_content=first_email.html_content,
+                    date=timezone.now()
+                    + datetime.timedelta(
+                        days=random.randint(-1825, 1825)
+                    ),  # Random date within ±5 years
+                    read_date=timezone.now()
+                    + datetime.timedelta(
+                        days=random.randint(-1825, 1825)
+                    ),  # Random date within ±5 years
+                    has_attachments=random.choice([True, False]),
+                    answer=random.choice(
+                        [
+                            "Answer Required",
+                            "Might Require Answer",
+                            "No Answer Required",
+                        ]
+                    ),
+                    relevance=random.choice(
+                        ["Highly Relevant", "Possibly Relevant", "Not Relevant"]
+                    ),
+                    priority=random.choice([IMPORTANT, INFORMATIVE, USELESS]),
+                    scam=random.choice([True, False]),
+                    spam=random.choice([True, False]),
+                    newsletter=random.choice([True, False]),
+                    notification=random.choice([True, False]),
+                    meeting=random.choice([True, False]),
+                    category=first_email.category,
+                    email_provider=random.choice(EMAIL_PROVIDERS),
+                )
+                print(f"Created email {i + 1}/999")
+
+        return Response(
+            {"message": "Emails filtered and duplicated successfully"},
+            status=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(["GET"])
 @subscription([FREE_PLAN])

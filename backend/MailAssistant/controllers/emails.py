@@ -45,6 +45,7 @@ from MailAssistant.constants import (
 )
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.models import (
+    CC_sender,
     Category,
     SocialAPI,
     Email,
@@ -515,22 +516,23 @@ import datetime
 from django.db.models import Q
 from django.db import models
 
-# TODO: add the filtering system nb result per page is an arg stored in localStorage
-# POST endpoint
 
-
+# TODO: create a endpoint get_emails_data (returns data for a list of ids (between 25 and 100 ids max))
 # TODO: change the name
 
 # sort
 # Newest First/Oldest First = order by date
 
 # ALL potential filters # TODO: fix my potential enlgish typing mistakes
+# THIS IS THE BEGINNING OF THE DOCUMENTAION
 {
     "emailProvider": list[str],
-    "subject": str,  # contains inside subject
-    "senderEmail": str,  # contains inside sender email
-    "senderName": str,  # contains inside sender name
-    "emailAdresses": list[str],  # todo make a query with SocialAPI model
+    "subject": str,
+    "senderEmail": str,
+    "senderName": str,
+    "CCEmails": list[str],
+    "CCNames": list[str],
+    "emailAdresses": list[str],
     "read": bool,
     "sentDate": models.DateTimeField,
     "readDate": models.DateTimeField,
@@ -543,7 +545,6 @@ from django.db import models
     "notification": bool,
     "meeting": bool,
 }
-# TODO: add maxResult as a param (min=25, max=100)
 
 
 @api_view(["POST"])
@@ -552,6 +553,12 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
     try:
         parameters: dict = json.loads(request.body)
         category: str = parameters["category"]
+        result_per_page: int = parameters["resultPerPage"]
+        if not 25 <= result_per_page <= 100:
+            return Response(
+                {"error": "resultPerPage must be an integer between 25 and 100 included"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Get the user from the request
         user = 1  # leave it hardcoded for testing
@@ -599,6 +606,10 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
                 email__in=parameters["emailAddresses"], user=user
             )
             filters["social_api__in"] = social_apis
+        if "CCEmails" in parameters:
+            filters["cc_senders__email__in"] = parameters["CCEmails"]
+        if "CCNames" in parameters:
+            filters["cc_senders__name__in"] = parameters["CCNames"]
 
         # Make the query
         queryset = Email.objects.filter(**filters)
@@ -626,7 +637,7 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
                     email.delete()
                     continue
 
-            if nb_email_treated < 50:
+            if nb_email_treated < result_per_page:
                 email_data = {
                     "id": email.id,
                     "id_provider": email.provider_id,
@@ -637,7 +648,7 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
                     },
                     "short_summary": email.short_summary,
                     "one_line_summary": email.one_line_summary,
-                    "html_content": email.html_content,
+                    # "html_content": email.html_content,
                     "cc": [
                         {"email": cc.email, "name": cc.name}
                         for cc in email.cc_senders.all()
@@ -679,7 +690,7 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
             email_ids.append(email.id)
 
         return Response(
-            {"data": formatted_data, "count": email_count, "ids": email_ids},
+            {"count": email_count, "data": formatted_data, "ids": email_ids},
             status=status.HTTP_200_OK,
         )
     except Category.DoesNotExist:
@@ -691,13 +702,22 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
             {"error": "Invalid JSON keys in request body"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    except TypeError:
+        return Response(
+            {"error": "resultPerPage must be an integer"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     except json.JSONDecodeError:
         return Response(
             {"error": "Invalid JSON in request body"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {"error": str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
 
 
 # import uuid
@@ -720,7 +740,7 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
 
 #         if first_email:
 #             for i in range(999):
-#                 Email.objects.create(
+#                 email = Email.objects.create(
 #                     user=first_email.user,
 #                     social_api=first_email.social_api,
 #                     provider_id=str(uuid.uuid4()),  # Generating a unique UUID
@@ -756,6 +776,16 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
 #                     meeting=random.choice([True, False]),
 #                     category=first_email.category,
 #                     email_provider=random.choice(EMAIL_PROVIDERS),
+#                 )
+#                 CC_sender.objects.create(
+#                     mail_id=email,
+#                     email=random.choice(
+#                         [
+#                             "augustin.rolet.pro@gmail.com",
+#                             "augustin@MailAssistant.onmicrosoft.com",
+#                         ]
+#                     ),
+#                     name="name",
 #                 )
 #                 print(f"Created email {i + 1}/999")
 

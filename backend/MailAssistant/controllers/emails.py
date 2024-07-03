@@ -5,10 +5,10 @@ Endpoints:
 - ✅ archive_email: Archive an email.
 - ✅ delete_email: Delete an email.
 - ✅ delete_emails: Delete emails by priority or IDs.
-- ✅ get_answer_later_emails: Retrieve emails flagged for later reply.
+- ⚒️ get_answer_later_emails: Retrieve emails flagged for later reply.
+- ✅ get_user_emails: Retrieve and format user emails by category and priority.
 - ✅ get_first_email: Get the first email in the database.
 - ✅ get_mail_by_id: Retrieve email details by ID.
-- ✅ get_user_emails: Retrieve and format user emails by category and priority.
 - ✅ retrieve_attachment_data: Get attachment data by email and attachment ID.
 - ✅ set_email_not_reply_later: Unmark email for later reply.
 - ✅ set_email_read: Mark email as read.
@@ -25,7 +25,6 @@ TODO:
 import datetime
 import json
 import logging
-import threading
 from collections import defaultdict
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import HttpRequest, HttpResponse
@@ -37,20 +36,12 @@ from rest_framework.response import Response
 from MailAssistant.utils.security import subscription
 from MailAssistant.constants import (
     FREE_PLAN,
-    GOOGLE_PROVIDER,
     IMPORTANT,
     INFORMATIVE,
-    MICROSOFT_PROVIDER,
     USELESS,
 )
 from MailAssistant.email_providers import google_api, microsoft_api
-from MailAssistant.models import (
-    CC_sender,
-    Category,
-    SocialAPI,
-    Email,
-    Rule,
-)
+from MailAssistant.models import Category, SocialAPI, Email, Rule
 from MailAssistant.utils.serializers import (
     EmailReadUpdateSerializer,
     EmailReplyLaterUpdateSerializer,
@@ -502,66 +493,64 @@ def archive_email(request: HttpRequest, email_id: int) -> Response:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.http import HttpRequest
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework import status
-from django.utils import timezone
-from collections import defaultdict
-import json
-import datetime
-from django.db.models import Q
-from django.db import models
-
-
-# TODO: create a endpoint get_emails_data (returns data for a list of ids (between 25 and 100 ids max))
-# TODO: change the name
-
-# sort
-# Newest First/Oldest First = order by date
-
-# ALL potential filters # TODO: fix my potential enlgish typing mistakes
-# THIS IS THE BEGINNING OF THE DOCUMENTAION
-{
-    "emailProvider": list[str],
-    "subject": str,
-    "senderEmail": str,
-    "senderName": str,
-    "CCEmails": list[str],
-    "CCNames": list[str],
-    "emailAdresses": list[str],
-    "read": bool,
-    "sentDate": models.DateTimeField,
-    "readDate": models.DateTimeField,
-    "answer": list[str],
-    "relevance": list[str],
-    "priority": list[str],
-    "spam": bool,
-    "scam": bool,
-    "newsletter": bool,
-    "notification": bool,
-    "meeting": bool,
-}
-
-
 @api_view(["POST"])
-@permission_classes([AllowAny])
-def get_user_emails_with_filter(request: HttpRequest) -> Response:
+@subscription([FREE_PLAN])
+def get_user_emails(request: HttpRequest) -> Response:
+    """
+    Retrieves filtered user emails based on provided criteria and formats them grouped by category and priority.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.
+
+    JSON Body:
+        Mandatory params:
+
+            category (str): The category of emails to filter
+            resultPerPage (int): Number of results per page (must be between 25 and 100)
+
+        Optional filters:
+            sort (str): Sorting order ("asc" for ascending, "desc" for descending). Default is "asc".
+            emailProvider (list[str]): List of email providers to filter by.
+            subject (str): Keyword to filter by email subject.
+            senderEmail (str): Keyword to filter by sender's email.
+            senderName (str): Keyword to filter by sender's name.
+            CCEmails (list[str]): List of email addresses to filter by CC recipients.
+            CCNames (list[str]): List of names to filter by CC recipients.
+            emailAddresses (list[str]): List of email addresses to filter by any associated email.
+            read (bool): Filter by read/unread status.
+            sentDate (datetime): Filter by sent date (emails sent on or after this date).
+            readDate (datetime): Filter by read date (emails read on or after this date).
+            answer (list[str]): Filter by answer status.
+            relevance (list[str]): Filter by relevance status.
+            priority (list[str]): Filter by priority status.
+            hasAttachments (bool): Filter by emails with attachments.
+            spam (bool): Filter by spam status.
+            scam (bool): Filter by scam status.
+            newsletter (bool): Filter by newsletter status.
+            notification (bool): Filter by notification status.
+            meeting (bool): Filter by meeting status.
+
+    Returns:
+        Response: JSON response with the following structure:
+            {
+                "count": int,  # Total number of emails matching the filters.
+                "data": dict,  # Filtered and formatted email data grouped by category and priority, limited to max results.
+                "ids": list[int]  # List of email IDs matching the filters.
+            }
+    """
     try:
+        user = request.user
         parameters: dict = json.loads(request.body)
         category: str = parameters["category"]
         result_per_page: int = parameters["resultPerPage"]
+        sort: str = parameters.get("sort", "asc")
         if not 25 <= result_per_page <= 100:
             return Response(
-                {"error": "resultPerPage must be an integer between 25 and 100 included"},
+                {
+                    "error": "resultPerPage must be an integer between 25 and 100 included"
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        # Get the user from the request
-        user = 1  # leave it hardcoded for testing
 
         filters = {"user": user, "answer_later": False}
 
@@ -611,7 +600,7 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
         if "CCNames" in parameters:
             filters["cc_senders__name__in"] = parameters["CCNames"]
 
-        # Make the query
+        # Execute the query
         queryset = Email.objects.filter(**filters)
         rule_id_subquery = Rule.objects.filter(
             sender=OuterRef("sender"), user=user
@@ -619,8 +608,12 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
         queryset = queryset.annotate(
             has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
         )
+
         # Apply sorting
-        queryset.order_by("-date")
+        if sort == "asc":
+            queryset = queryset.order_by("-date")
+        else:
+            queryset = queryset.order_by("date")
 
         email_count = queryset.count()
         email_ids = []
@@ -648,7 +641,6 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
                     },
                     "short_summary": email.short_summary,
                     "one_line_summary": email.one_line_summary,
-                    # "html_content": email.html_content,
                     "cc": [
                         {"email": cc.email, "name": cc.name}
                         for cc in email.cc_senders.all()
@@ -719,182 +711,104 @@ def get_user_emails_with_filter(request: HttpRequest) -> Response:
         )
 
 
+# TODO: delete after implementing email filtering in frontend
+# @api_view(["GET"])
+# @subscription([FREE_PLAN])
+# def get_user_emails(request: HttpRequest) -> Response:
+#     """
+#     Retrieves and formats user emails grouped by category and priority.
 
-# import uuid
-# import random
+#     Args:
+#         request (HttpRequest): The HTTP request object.
 
-# EMAIL_PROVIDERS = [GOOGLE_PROVIDER, MICROSOFT_PROVIDER]
+#     Returns:
+#         Response: A JSON response containing formatted user emails grouped by category and priority.
+#                   Each email entry includes details such as ID, provider ID, sender information,
+#                   subject, content, attachments, date, time, read status, rules applied, and other metadata.
+#                   Returns status=status.HTTP_200_OK on success.
+#     """
+#     user = request.user
+#     emails = (
+#         Email.objects.filter(user=user)
+#         .prefetch_related("category", "cc_senders", "bcc_senders", "attachments")
+#         .select_related("sender")
+#     )
 
+#     # Annotate emails with rule existence and rule id
+#     rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
+#         "id"
+#     )[:1]
+#     emails = emails.annotate(
+#         has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
+#     )
 
-# @api_view(["POST"])
-# @permission_classes([AllowAny])
-# def get_user_emails_with_filter(request: HttpRequest) -> Response:
-#     try:
-#         parameters = json.loads(request.body)
-#         user = 1  # Hardcoded for testing
+#     formatted_data = defaultdict(lambda: defaultdict(list))
 
-#         # Create the queryset with all filters applied
-#         filters = {"user": user, "answer_later": False}
-#         queryset = Email.objects.filter(**filters).order_by("-date")
-#         first_email = queryset.first()
+#     current_datetime_utc = timezone.now()
+#     for email in emails:
+#         if email.read_date:
+#             delta_time = current_datetime_utc - email.read_date
 
-#         if first_email:
-#             for i in range(999):
-#                 email = Email.objects.create(
-#                     user=first_email.user,
-#                     social_api=first_email.social_api,
-#                     provider_id=str(uuid.uuid4()),  # Generating a unique UUID
-#                     subject=first_email.subject,
-#                     sender=first_email.sender,
-#                     short_summary=first_email.short_summary,
-#                     one_line_summary="this is a one line summary",
-#                     html_content=first_email.html_content,
-#                     date=timezone.now()
-#                     + datetime.timedelta(
-#                         days=random.randint(-1825, 1825)
-#                     ),  # Random date within ±5 years
-#                     read_date=timezone.now()
-#                     + datetime.timedelta(
-#                         days=random.randint(-1825, 1825)
-#                     ),  # Random date within ±5 years
-#                     has_attachments=random.choice([True, False]),
-#                     answer=random.choice(
-#                         [
-#                             "Answer Required",
-#                             "Might Require Answer",
-#                             "No Answer Required",
-#                         ]
-#                     ),
-#                     relevance=random.choice(
-#                         ["Highly Relevant", "Possibly Relevant", "Not Relevant"]
-#                     ),
-#                     priority=random.choice([IMPORTANT, INFORMATIVE, USELESS]),
-#                     scam=random.choice([True, False]),
-#                     spam=random.choice([True, False]),
-#                     newsletter=random.choice([True, False]),
-#                     notification=random.choice([True, False]),
-#                     meeting=random.choice([True, False]),
-#                     category=first_email.category,
-#                     email_provider=random.choice(EMAIL_PROVIDERS),
-#                 )
-#                 CC_sender.objects.create(
-#                     mail_id=email,
-#                     email=random.choice(
-#                         [
-#                             "augustin.rolet.pro@gmail.com",
-#                             "augustin@MailAssistant.onmicrosoft.com",
-#                         ]
-#                     ),
-#                     name="name",
-#                 )
-#                 print(f"Created email {i + 1}/999")
+#             # Delete read email older than 1 week
+#             if delta_time > datetime.timedelta(weeks=1):
+#                 email.delete()
+#                 continue
 
-#         return Response(
-#             {"message": "Emails filtered and duplicated successfully"},
-#             status=status.HTTP_200_OK,
-#         )
-#     except Exception as e:
-#         print(f"Error: {str(e)}")
-#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         email_data = {
+#             "id": email.id,
+#             "id_provider": email.provider_id,
+#             "subject": email.subject,
+#             "sender": {
+#                 "email": email.sender.email,
+#                 "name": email.sender.name,
+#             },
+#             "short_summary": email.short_summary,
+#             "one_line_summary": email.one_line_summary,
+#             "html_content": email.html_content,
+#             "cc": [
+#                 {"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()
+#             ],
+#             "bcc": [
+#                 {"email": bcc.email, "name": bcc.name}
+#                 for bcc in email.bcc_senders.all()
+#             ],
+#             "read": email.read,
+#             "rule": {
+#                 "has_rule": email.has_rule,
+#                 "rule_id": email.rule_id,
+#             },
+#             "answer_later": email.answer_later,
+#             "has_attachments": email.has_attachments,
+#             "attachments": [
+#                 {
+#                     "attachmentName": attachment.name,
+#                     "attachmentId": attachment.id_api,
+#                 }
+#                 for attachment in email.attachments.all()
+#             ],
+#             "sent_date": email.date.date() if email.date else None,
+#             "sent_time": email.date.strftime("%H:%M") if email.date else None,
+#             "answer": email.answer,
+#             "relevance": email.relevance,
+#             "priority": email.priority,
+#             "flags": {
+#                 "spam": email.spam,
+#                 "scam": email.scam,
+#                 "newsletter": email.newsletter,
+#                 "notification": email.notification,
+#                 "meeting": email.meeting,
+#             },
+#         }
 
+#         formatted_data[email.category.name][email.priority].append(email_data)
 
-@api_view(["GET"])
-@subscription([FREE_PLAN])
-def get_user_emails(request: HttpRequest) -> Response:
-    """
-    Retrieves and formats user emails grouped by category and priority.
+#     # Ensuring all priorities are present for each category
+#     all_priorities = {IMPORTANT, INFORMATIVE, USELESS}
+#     for category in formatted_data:
+#         for priority in all_priorities:
+#             formatted_data[category].setdefault(priority, [])
 
-    Args:
-        request (HttpRequest): The HTTP request object.
-
-    Returns:
-        Response: A JSON response containing formatted user emails grouped by category and priority.
-                  Each email entry includes details such as ID, provider ID, sender information,
-                  subject, content, attachments, date, time, read status, rules applied, and other metadata.
-                  Returns status=status.HTTP_200_OK on success.
-    """
-    user = request.user
-    emails = (
-        Email.objects.filter(user=user)
-        .prefetch_related("category", "cc_senders", "bcc_senders", "attachments")
-        .select_related("sender")
-    )
-
-    # Annotate emails with rule existence and rule id
-    rule_id_subquery = Rule.objects.filter(sender=OuterRef("sender"), user=user).values(
-        "id"
-    )[:1]
-    emails = emails.annotate(
-        has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
-    )
-
-    formatted_data = defaultdict(lambda: defaultdict(list))
-
-    current_datetime_utc = timezone.now()
-    for email in emails:
-        if email.read_date:
-            delta_time = current_datetime_utc - email.read_date
-
-            # Delete read email older than 1 week
-            if delta_time > datetime.timedelta(weeks=1):
-                email.delete()
-                continue
-
-        email_data = {
-            "id": email.id,
-            "id_provider": email.provider_id,
-            "subject": email.subject,
-            "sender": {
-                "email": email.sender.email,
-                "name": email.sender.name,
-            },
-            "short_summary": email.short_summary,
-            "one_line_summary": email.one_line_summary,
-            "html_content": email.html_content,
-            "cc": [
-                {"email": cc.email, "name": cc.name} for cc in email.cc_senders.all()
-            ],
-            "bcc": [
-                {"email": bcc.email, "name": bcc.name}
-                for bcc in email.bcc_senders.all()
-            ],
-            "read": email.read,
-            "rule": {
-                "has_rule": email.has_rule,
-                "rule_id": email.rule_id,
-            },
-            "answer_later": email.answer_later,
-            "has_attachments": email.has_attachments,
-            "attachments": [
-                {
-                    "attachmentName": attachment.name,
-                    "attachmentId": attachment.id_api,
-                }
-                for attachment in email.attachments.all()
-            ],
-            "sent_date": email.date.date() if email.date else None,
-            "sent_time": email.date.strftime("%H:%M") if email.date else None,
-            "answer": email.answer,
-            "relevance": email.relevance,
-            "priority": email.priority,
-            "flags": {
-                "spam": email.spam,
-                "scam": email.scam,
-                "newsletter": email.newsletter,
-                "notification": email.notification,
-                "meeting": email.meeting,
-            },
-        }
-
-        formatted_data[email.category.name][email.priority].append(email_data)
-
-    # Ensuring all priorities are present for each category
-    all_priorities = {IMPORTANT, INFORMATIVE, USELESS}
-    for category in formatted_data:
-        for priority in all_priorities:
-            formatted_data[category].setdefault(priority, [])
-
-    return Response(formatted_data, status=status.HTTP_200_OK)
+#     return Response(formatted_data, status=status.HTTP_200_OK)
 
 
 ####################################################################

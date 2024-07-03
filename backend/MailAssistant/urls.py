@@ -58,12 +58,11 @@ urlpatterns = [
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
     path('user/emails/<int:email_id>/archive/', emails.archive_email, name='archive_email'), # waiting for implementation in FE
+    path('user/emails/', search_emails.get_user_emails, name='get_user_emails'), # waiting for implementation in FE 
+    path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'), # waiting for implementation in FE
+    path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'), # waiting for implementation in FE
 
     path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok
-    path('user/emails/', search_emails.get_user_emails, name='get_user_emails'), # ok
-    
-    path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'), # ok
-
     path('user/emails/<int:email_id>/mark_read/', emails.set_email_read, name='set_email_read'), # ok
     path('user/emails/<int:email_id>/mark_unread/', emails.set_email_unread, name='set_email_unread'), # ok
     path('user/emails/<int:email_id>/mark_reply_later/', emails.set_email_reply_later, name='set_email_reply_laterr'), # ok

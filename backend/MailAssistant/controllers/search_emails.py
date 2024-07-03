@@ -3,71 +3,142 @@ Handles searching emails among Aomail database, filtering, sorting, and retrievi
 
 Endpoints:
 - ✅ get_user_emails: Retrieves filtered and formatted user emails grouped by category and priority.
-- ⚒️ get_email_content: Retrieves HTML content of a specific email for display.
-- ⚒️ get_emails_data: Retrieves formatted email data to be displayed.
+- ✅ get_email_content: Retrieves HTML content of a specific email for display.
+- ✅ get_emails_data: Retrieves formatted email data to be displayed.
 
 
 TODO:
 - (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
-import uuid
-import random
-import datetime
 import json
 from collections import defaultdict
+from datetime import timedelta
+import logging
 from django.db.models import Subquery, Exists, OuterRef
 from django.http import HttpRequest
 from django.utils import timezone
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from django.http import HttpRequest
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework import status
-from django.utils import timezone
-from collections import defaultdict
-import json
-import datetime
 from django.db.models.manager import BaseManager
-from django.db.models.query import QuerySet
-from collections import defaultdict
-from datetime import timedelta
-from django.http import HttpRequest, JsonResponse
-from django.utils import timezone
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
-import json
+from MailAssistant.constants import FREE_PLAN
+from MailAssistant.models import Category, SocialAPI, Email, Rule
 from MailAssistant.utils.security import subscription
-
 from django.contrib.auth.models import User
-
-from MailAssistant.constants import (
-    FREE_PLAN,
-    GOOGLE_PROVIDER,
-    IMPORTANT,
-    INFORMATIVE,
-    MICROSOFT_PROVIDER,
-    USELESS,
-)
 from MailAssistant.models import (
-    CC_sender,
     Category,
     SocialAPI,
     Email,
     Rule,
 )
 
-EMAIL_PROVIDERS = [GOOGLE_PROVIDER, MICROSOFT_PROVIDER]
+
+######################## LOGGING CONFIGURATION ########################
+LOGGER = logging.getLogger(__name__)
 
 
-# TODO: create a endpoint get_emails_data (returns data for a list of ids (between 25 and 100 ids max))
+@api_view(["POST"])
+@subscription([FREE_PLAN])
+def get_emails_data(request: HttpRequest) -> Response:
+    """
+    Retrieves detailed data for multiple emails based on provided email IDs.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing JSON data with email IDs.
+
+    Returns:
+        Response: HTTP response object containing formatted data categorized by email categories
+                  and priorities.
+    """
+    try:
+        user = request.user
+        parameters: dict = json.loads(request.body)
+        email_ids = parameters.get("ids")
+
+        if not (25 <= len(email_ids) <= 100):
+            return Response(
+                {"error": "IDs must be provided as a list with 25 to 100 elements"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        formatted_data = defaultdict(lambda: defaultdict(list))
+        queryset = Email.objects.filter(id__in=email_ids)
+        rule_id_subquery = Rule.objects.filter(
+            sender=OuterRef("sender"), user=user
+        ).values("id")[:1]
+        queryset = queryset.annotate(
+            has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
+        )
+
+        for email in queryset:
+            email_data = {
+                "id": email.id,
+                "subject": email.subject,
+                "sender": {
+                    "email": email.sender.email,
+                    "name": email.sender.name,
+                },
+                "shortSummary": email.short_summary,
+                "oneLineSummary": email.one_line_summary,
+                "cc": [
+                    {"email": cc.email, "name": cc.name}
+                    for cc in email.cc_senders.all()
+                ],
+                "bcc": [
+                    {"email": bcc.email, "name": bcc.name}
+                    for bcc in email.bcc_senders.all()
+                ],
+                "read": email.read,
+                "rule": {
+                    "hasRule": email.has_rule,
+                    "ruleId": email.rule_id,
+                },
+                "hasAttachments": email.has_attachments,
+                "attachments": [
+                    {
+                        "attachmentName": attachment.name,
+                        "attachmentId": attachment.id_api,
+                    }
+                    for attachment in email.attachments.all()
+                ],
+                "sentDate": email.date.date() if email.date else None,
+                "sentTime": email.date.strftime("%H:%M") if email.date else None,
+                "answer": email.answer,
+                "relevance": email.relevance,
+                "priority": email.priority,
+                "flags": {
+                    "spam": email.spam,
+                    "scam": email.scam,
+                    "newsletter": email.newsletter,
+                    "notification": email.notification,
+                    "meeting": email.meeting,
+                },
+            }
+            formatted_data[email.category.name][email.priority].append(email_data)
+
+        return Response(
+            {"data": formatted_data},
+            status=status.HTTP_200_OK,
+        )
+    except Email.DoesNotExist:
+        return Response(
+            {"error": "An email does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    except TypeError:
+        return Response(
+            {"error": "IDs must be provided as a list with 25 to 100 elements"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except json.JSONDecodeError:
+        return Response(
+            {"error": "Invalid JSON in request body"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        LOGGER.error(f"Error retrieving emails data from ids: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -109,6 +180,7 @@ def get_email_content(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
+        LOGGER.error(f"Error retrieving email content from id: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -305,10 +377,8 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
     return email_count, formatted_data, email_ids
 
 
-# @api_view(["POST"])
-# @subscription([FREE_PLAN])
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@subscription([FREE_PLAN])
 def get_user_emails(request: HttpRequest) -> Response:
     """
     Retrieves filtered user emails based on provided criteria and formats them grouped by category and priority.
@@ -353,7 +423,7 @@ def get_user_emails(request: HttpRequest) -> Response:
             }
     """
     try:
-        user = 1  # leave it hardcoded for now
+        user = request.user
         parameters, category, result_per_page, sort = validate_and_parse_parameters(
             request
         )
@@ -389,79 +459,8 @@ def get_user_emails(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
+        LOGGER.error(f"Error filtering and sorting emails: {str(e)}")
         return Response(
             {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def create_emails(request: HttpRequest) -> Response:
-    try:
-        parameters = json.loads(request.body)
-        user = 1  # Hardcoded for testing
-
-        # Create the queryset with all filters applied
-        filters = {"user": user, "answer_later": False}
-        queryset = Email.objects.filter(**filters).order_by("-date")
-        first_email = queryset.first()
-
-        if first_email:
-            for i in range(999):
-                email = Email.objects.create(
-                    user=first_email.user,
-                    social_api=first_email.social_api,
-                    provider_id=str(uuid.uuid4()),  # Generating a unique UUID
-                    subject=first_email.subject,
-                    sender=first_email.sender,
-                    short_summary=first_email.short_summary,
-                    one_line_summary="this is a one line summary",
-                    html_content=first_email.html_content,
-                    date=timezone.now()
-                    + datetime.timedelta(
-                        days=random.randint(-1825, 1825)
-                    ),  # Random date within ±5 years
-                    read_date=timezone.now()
-                    + datetime.timedelta(
-                        days=random.randint(-1825, 1825)
-                    ),  # Random date within ±5 years
-                    has_attachments=random.choice([True, False]),
-                    answer=random.choice(
-                        [
-                            "Answer Required",
-                            "Might Require Answer",
-                            "No Answer Required",
-                        ]
-                    ),
-                    relevance=random.choice(
-                        ["Highly Relevant", "Possibly Relevant", "Not Relevant"]
-                    ),
-                    priority=random.choice([IMPORTANT, INFORMATIVE, USELESS]),
-                    scam=random.choice([True, False]),
-                    spam=random.choice([True, False]),
-                    newsletter=random.choice([True, False]),
-                    notification=random.choice([True, False]),
-                    meeting=random.choice([True, False]),
-                    category=first_email.category,
-                    email_provider=random.choice(EMAIL_PROVIDERS),
-                )
-                CC_sender.objects.create(
-                    mail_id=email,
-                    email=random.choice(
-                        [
-                            "augustin.rolet.pro@gmail.com",
-                            "augustin@MailAssistant.onmicrosoft.com",
-                        ]
-                    ),
-                    name="name",
-                )
-                print(f"Created email {i + 1}/999")
-
-        return Response(
-            {"message": "Emails filtered and duplicated successfully"},
-            status=status.HTTP_200_OK,
-        )
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

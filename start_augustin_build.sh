@@ -11,10 +11,6 @@ export POSTGRES_DB="mailassistantdb"
 if [ ! -d "backend/media" ]; then
     mkdir -p backend/media/pictures
 fi
-# Create the folder backend/MailAssistant/controllers/trees if it doesn't exist
-if [ ! -d "backend/MailAssistant/controllers/trees" ]; then
-    mkdir -p backend/MailAssistant/controllers/trees
-fi
 
 # docker compose -p augustin_project up --build
 # use this to force install reqs or delete backend instance

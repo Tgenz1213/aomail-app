@@ -44,10 +44,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 import json
+from MailAssistant.utils.security import subscription
 
 from django.contrib.auth.models import User
 
 from MailAssistant.constants import (
+    FREE_PLAN,
     GOOGLE_PROVIDER,
     IMPORTANT,
     INFORMATIVE,
@@ -66,7 +68,48 @@ EMAIL_PROVIDERS = [GOOGLE_PROVIDER, MICROSOFT_PROVIDER]
 
 
 # TODO: create a endpoint get_emails_data (returns data for a list of ids (between 25 and 100 ids max))
-# "html_content": email.html_content
+
+
+@api_view(["POST"])
+@subscription([FREE_PLAN])
+def get_email_content(request: HttpRequest) -> Response:
+    """
+    Retrieves the HTML content of an email based on the provided email ID.
+
+    Args:
+        request (HttpRequest): The HTTP request object containing JSON data with the email ID.
+
+    Returns:
+        Response: HTTP response object containing either the HTML content of the email
+                  or an error message with appropriate status code.
+    """
+    parameters: dict = json.loads(request.body)
+    email_id = parameters.get("id")
+
+    if not email_id:
+        return Response(
+            {"error": "id not provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        email = Email.objects.get(id=email_id)
+        return Response({"content": email.html_content}, status=status.HTTP_200_OK)
+    except Email.DoesNotExist:
+        return Response(
+            {"error": "email does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    except TypeError:
+        return Response(
+            {"error": "id must be an integer"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except json.JSONDecodeError:
+        return Response(
+            {"error": "Invalid JSON in request body"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 def validate_and_parse_parameters(request: HttpRequest) -> tuple:
@@ -80,9 +123,6 @@ def validate_and_parse_parameters(request: HttpRequest) -> tuple:
         tuple: A tuple containing the parsed parameters dictionary,
                the email category (str), the number of results per page (int),
                and the sort order (str).
-
-    Raises:
-        ValueError: If resultPerPage is not an integer between 25 and 100.
     """
     parameters: dict = json.loads(request.body)
     category = parameters["category"]

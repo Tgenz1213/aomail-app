@@ -62,7 +62,7 @@ urlpatterns = [
     path('user/get_first_email/', emails.get_first_email, name='get_first_email'), # ok
     path('user/emails/', search_emails.get_user_emails, name='get_user_emails'), # ok
     
-    path('user/create_emails/', search_emails.create_emails, name='create_emails'), # dev
+    path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'), # ok
 
     path('user/emails/<int:email_id>/mark_read/', emails.set_email_read, name='set_email_read'), # ok
     path('user/emails/<int:email_id>/mark_unread/', emails.set_email_unread, name='set_email_unread'), # ok

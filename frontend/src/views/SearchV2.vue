@@ -398,115 +398,115 @@
 
                       <!-- neuxième input Listbox  1month, 2 weeks, 90days A REVOIR --> 
                       <div class="flex-1 min-w-[150px] mt-2">
-                              <Listbox as="div" v-model="attachmentSelected">
-                                <div class="relative">
+                          <Listbox as="div" v-model="attachmentSelected">
+                            <div class="relative">
 
-                                  <ListboxButton
-                                    class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
-                                    <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
-                                    <span class="block truncate text-gray-700">
-                                      {{ attachmentSelected ? attachmentSelected.name : 'Plage de dates' }}
-                                    </span>
-                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                      <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
-                                    </span>
-                                  </ListboxButton>
+                              <ListboxButton
+                                class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                                <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
+                                <span class="block truncate text-gray-700">
+                                  {{ attachmentSelected ? attachmentSelected.name : 'Plage de dates' }}
+                                </span>
+                                <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                  <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
+                                </span>
+                              </ListboxButton>
 
-                                  <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-                                    <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                      
-                                      <ListboxOption as="template" :value="{ name: '1 day', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            1 day
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                              <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                                <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                  
+                                  <ListboxOption as="template" :value="{ name: '1 day', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        1 day
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                      <ListboxOption as="template" :value="{ name: '3 days', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            3 days
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                                  <ListboxOption as="template" :value="{ name: '3 days', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        3 days
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                      <ListboxOption as="template" :value="{ name: '1 week', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            1 week
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                                  <ListboxOption as="template" :value="{ name: '1 week', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        1 week
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                      <ListboxOption as="template" :value="{ name: '2 weeks', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            2 weeks
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                                  <ListboxOption as="template" :value="{ name: '2 weeks', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        2 weeks
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                      <ListboxOption as="template" :value="{ name: '1 month', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            1 month
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                                  <ListboxOption as="template" :value="{ name: '1 month', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        1 month
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                      <ListboxOption as="template" :value="{ name: '2 months', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            2 months
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                                  <ListboxOption as="template" :value="{ name: '2 months', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        2 months
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                      <ListboxOption as="template" :value="{ name: '6 months', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            6 months
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                                  <ListboxOption as="template" :value="{ name: '6 months', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        6 months
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                      <ListboxOption as="template" :value="{ name: '1 year', extension: '' }" v-slot="{ active, selected }">
-                                        <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                          <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                            1 year
-                                          </span>
-                                          <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                            <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                          </span>
-                                        </li>
-                                      </ListboxOption>
+                                  <ListboxOption as="template" :value="{ name: '1 year', extension: '' }" v-slot="{ active, selected }">
+                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                        1 year
+                                      </span>
+                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                      </span>
+                                    </li>
+                                  </ListboxOption>
 
-                                    </ListboxOptions>
-                                  </transition>
-                                </div>
-                              </Listbox>
+                                </ListboxOptions>
+                              </transition>
+                            </div>
+                          </Listbox>
                       </div>
 
 
@@ -570,46 +570,46 @@
 
           
               <!-- email List -->
-              <div class="flex-1 flex flex-col  pr-2 py-4" id="liste_email">
-                <div class="h-full overflow-y-auto pr-4 ">
+              <div class="flex-1 flex flex-col pr-2 py-4" id="liste_email">
+                <div class="h-full overflow-y-auto pr-4">
                   <ul class="space-y-4">
-                    <!-- List element -->
-                    <li class="flex justify-between items-center py-4 email-item">
-                      <!-- Details -->
-                      <div class="flex flex-col justify-center">
-                        <span class="font-bold text-sm">Expéditeur</span>
-                        <span class="text-sm">Objet du mail - Début du mail...</span>
-                      </div>
-
-                      <!-- Actions -->
-                      <span class="isolate inline-flex items-center rounded-2xl">
-                        <!-- Eyeicon -->
-                        <div class="relative group">
-                          <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
-                            <EyeIcon class="w-5 h-5" />
-                            Voir
-                          </button>
+                    <template v-for="(email, index) in emailList" :key="email.email_id">
+                      <!-- List element -->
+                      <li class="flex justify-between items-center py-4 email-item">
+                        <!-- Details -->
+                        <div class="flex flex-col justify-center">
+                          <span class="font-bold text-sm">
+                            {{ email.from_info && email.from_info[0] ? email.from_info[0] : 'Unknown' }}
+                            ({{ email.from_info && email.from_info[1] ? email.from_info[1] : 'No email' }})
+                          </span>
+                          <span class="text-sm">{{ email.subject }} - {{ email.snippet }}...</span>
                         </div>
-                      </span>
-                    </li>
+
+                        <!-- Actions -->
+                        <span class="isolate inline-flex items-center rounded-2xl">
+                          <!-- Eyeicon -->
+                          <div class="relative group">
+                            <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                              <EyeIcon class="w-5 h-5" />
+                              Voir
+                            </button>
+                          </div>
+                        </span>
+                      </li>
 
                       <!-- Separator -->
-                      <li class="flex relative pt-2">
+                      <li v-if="index < emailList.length - 1" class="flex relative pt-2">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
                           <div class="w-full border-t border-gray-300"></div>
                         </div>
                       </li>
-
-                   
-
-                      <!-- Répétez les éléments de la liste ci-dessus pour chaque email -->
-                      <!-- ... -->
-                    </ul>
-                  </div>
+                    </template>
+                  </ul>
                 </div>
+              </div>
 
 
-               <!-- h-[600px] 2xl:h-[700px] -->
+              <!-- h-[600px] 2xl:h-[700px] -->
               <!--ligne 6 : email not found block -->
               <div class="flex-grow p-6 mr-2 block" id="no_mail" v-show="!isEmailhere">
                 <div class="h-96 flex flex-col h-full">
@@ -756,6 +756,7 @@ const isFocused = ref(false);
 const queryGetContacts = ref('')
 const selectedPerson = ref(null)
 const selectedRecipients = ref([])
+const emailList = ref([]);
 
 const selectedFromPerson = ref(null)
 const selectedFromAddresses = ref([])
@@ -963,6 +964,9 @@ async function fetchEmailLinked() {
 //   isAIWriting.value = false;
 // }
 
+// WHAT IS THIS ? TO FIX ?
+const aiIcon = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /> ';
+
 // THIS FUNCTION IS USED TO ANSWER A USER QUESTION WITH TREE KNOWLEDGE
 async function handleAIClick() {
   if (isAIWriting.value) {
@@ -988,7 +992,7 @@ async function handleAIClick() {
   try {
     const result = await fetchWithToken(`${API_BASE_URL}user/search_tree_knowledge/`, requestOptions);
 
-    const aiIcon = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
+    //const aiIcon = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
 
     let message = '';
     if (result.error) {
@@ -1004,7 +1008,12 @@ async function handleAIClick() {
       message = answer;
 
       if (!sure) {
-        message += "\n\n" + t('searchPage.emailsToCheckList') + emails.join(', ');
+        // Limit to 25 results
+        const limitedEmails = emails.slice(0, 25);
+        message += "\n\n" + t('searchPage.emailsToCheckList');
+        console.log(limitedEmails);
+        const emailDetails = await fetchEmailDetails(limitedEmails);
+        emailList.value = emailDetails;
       }
     }
 
@@ -1015,6 +1024,27 @@ async function handleAIClick() {
   } finally {
     hideLoading();
     isAIWriting.value = false;
+  }
+}
+
+async function fetchEmailDetails(emailIds) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email_ids: emailIds
+    }),
+  };
+
+  try {
+    const result = await fetchWithToken(`${API_BASE_URL}user/get-batch-emails/`, requestOptions);
+    console.log("RESULT :", result);
+    return result;
+  } catch (error) {
+    console.error('Error fetching email details:', error);
+    return [];
   }
 }
 

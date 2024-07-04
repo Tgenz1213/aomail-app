@@ -79,6 +79,7 @@ from ..models import (
 )
 from base64 import urlsafe_b64encode
 from bs4 import BeautifulSoup
+from googleapiclient.http import BatchHttpRequest
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -879,6 +880,113 @@ def get_mail_id(services: dict, int_mail: int) -> str:
         return None
 
     return messages[int_mail]["id"]
+
+
+def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
+    """
+    Retrieves email information for a batch of email IDs using the Gmail API.
+
+    Args:
+        services (dict): A dictionary containing authenticated service instances for various email providers,
+                         including the Gmail service instance under the key "gmail".
+        email_ids (list[str]): A list of email IDs to retrieve information for.
+
+    Returns:
+        list[dict]: A list of dictionaries, each containing the following information for an email:
+            - subject (str): Subject of the email.
+            - from_info (tuple[str, str]): Tuple containing the sender's name and email address.
+            - email_id (str): ID of the email message.
+            - has_attachments (bool): Flag indicating whether the email has attachments.
+            - is_reply (bool): Flag indicating whether the email is a reply.
+            - cc_info (list[tuple[str, str]]): List of CC recipients (name, email).
+            - bcc_info (list[tuple[str, str]]): List of BCC recipients (name, email).
+            - snippet (str): First few words of the email.
+    """
+    service = services["gmail"]
+    batch = service.new_batch_http_request()
+    email_info = {}
+
+    def callback(request_id, response, exception):
+        if exception is not None:
+            LOGGER.error(f"Error fetching email {request_id}: {str(exception)}")
+            return
+
+        email_id = request_id
+        msg = response
+
+        email_data = msg["payload"]["headers"]
+        subject = from_info = cc_info = bcc_info = None
+        for values in email_data:
+            name = values["name"]
+            if name == "Subject":
+                subject = values["value"]
+            elif name == "From":
+                from_info = parse_name_and_email(values["value"])
+            elif name == "Cc":
+                cc_info = [parse_name_and_email(cc) for cc in values["value"].split(',')]
+            elif name == "Bcc":
+                bcc_info = [parse_name_and_email(bcc) for bcc in values["value"].split(',')]
+
+        has_attachments = False
+        is_reply = "in-reply-to" in {header["name"].lower() for header in msg["payload"]["headers"]}
+        email_html = ""
+        email_txt_html = ""
+
+        def process_part(part):
+            nonlocal email_html, email_txt_html, has_attachments
+
+            if part["mimeType"] == "text/plain":
+                if "data" in part["body"]:
+                    data = part["body"]["data"]
+                    decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                    email_txt_html += f"<pre>{decoded_data}</pre>"
+            elif part["mimeType"] == "text/html":
+                if "data" in part["body"]:
+                    data = part["body"]["data"]
+                    decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                    email_html += decoded_data
+            elif "filename" in part:
+                has_attachments = True
+
+        if "parts" in msg["payload"]:
+            for part in msg["payload"]["parts"]:
+                process_part(part)
+        else:
+            process_part(msg["payload"])
+
+        if not email_html:
+            email_html = email_txt_html
+
+        # Extract snippet
+        soup = BeautifulSoup(email_html, "html.parser")
+        snippet = ' '.join(soup.get_text().split()[:20])  # Extract first 20 words
+
+        email_info[email_id] = {
+            "subject": subject,
+            "from_info": from_info,
+            "email_id": email_id,
+            "has_attachments": has_attachments,
+            "is_reply": is_reply,
+            "cc_info": cc_info,
+            "bcc_info": bcc_info,
+            "snippet": snippet
+        }
+
+    # Ensure email_ids are unique
+    unique_email_ids = list(set(email_ids))
+
+    for email_id in unique_email_ids:
+        try:
+            batch.add(service.users().messages().get(userId="me", id=email_id), callback=callback, request_id=email_id)
+        except Exception as e:
+            LOGGER.error(f"Error adding email {email_id} to batch: {str(e)}")
+
+    try:
+        batch.execute()
+    except Exception as e:
+        LOGGER.error(f"Error executing batch request: {str(e)}")
+
+    return list(email_info.values())
 
 
 def search_emails_ai(

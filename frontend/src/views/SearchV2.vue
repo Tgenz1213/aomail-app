@@ -1010,7 +1010,7 @@ async function handleAIClick() {
       if (!sure) {
         // Limit to 25 results
         const limitedEmails = emails.slice(0, 25);
-        message += "\n\n" + t('searchPage.emailsToCheckList');
+        message += "\n\n";
         console.log(limitedEmails);
         const emailDetails = await fetchEmailDetails(limitedEmails);
         emailList.value = emailDetails;

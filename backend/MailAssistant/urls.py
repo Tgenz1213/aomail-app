@@ -3,8 +3,10 @@ Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 """
 
 from django.urls import path
-from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.email_providers.google import authentication as auth_google
+from MailAssistant.email_providers.google import webhook as webhook_google
+from MailAssistant.email_providers.microsoft import authentication as auth_microsoft
+from MailAssistant.email_providers.microsoft import webhook as webhook_microsoft
 from MailAssistant.controllers import artificial_intelligence as ai
 from MailAssistant.controllers import authentication as auth
 from MailAssistant.controllers import preferences as prefs
@@ -97,14 +99,14 @@ urlpatterns = [
     path('api/get_new_email_response/', ai.get_new_email_response, name='get_new_email_response'), # ok
     path('api/improve_draft/', ai.improve_draft, name='improve_draft'), # ok
     #----------------------- OAuth 2.0 EMAIL PROVIDERS API -----------------------#
-    path('microsoft/auth_url/', microsoft_api.generate_auth_url, name='microsoft_auth_url'), # ok
-    path('microsoft/auth_url_link_email/', microsoft_api.auth_url_link_email, name='microsoft_auth_url_link_email'), # ok
-    path('microsoft/receive_mail_notifications/', microsoft_api.MicrosoftEmailNotification.as_view(), name='receive_mail_notifications'), # ok
-    path('microsoft/receive_contact_notifications/', microsoft_api.MicrosoftContactNotification.as_view(), name='receive_contact_notifications'), # ok
-    path('microsoft/receive_subscription_notifications/', microsoft_api.MicrosoftSubscriptionNotification.as_view(), name='receive_subscription_notifications'), # ok
+    path('microsoft/auth_url/', auth_microsoft.generate_auth_url, name='microsoft_auth_url'), # ok
+    path('microsoft/auth_url_link_email/', auth_microsoft.auth_url_link_email, name='microsoft_auth_url_link_email'), # ok
+    path('microsoft/receive_mail_notifications/', webhook_microsoft.MicrosoftEmailNotification.as_view(), name='receive_mail_notifications'), # ok
+    path('microsoft/receive_contact_notifications/', webhook_microsoft.MicrosoftContactNotification.as_view(), name='receive_contact_notifications'), # ok
+    path('microsoft/receive_subscription_notifications/', webhook_microsoft.MicrosoftSubscriptionNotification.as_view(), name='receive_subscription_notifications'), # ok
     path('google/auth_url/', auth_google.generate_auth_url, name='google_auth_url'), # ok
     path('google/auth_url_link_email/', auth_google.auth_url_link_email, name='google_auth_url_link_email'), # ok
-    path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
+    path('google/receive_mail_notifications/', webhook_google.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
     path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
 ]

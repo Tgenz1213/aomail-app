@@ -7,7 +7,7 @@ import re
 import base64
 from django.db import IntegrityError
 from MailAssistant.constants import DEFAULT_CATEGORY
-from ..models import Category, Contact
+from MailAssistant.models import Category, Contact
 from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 

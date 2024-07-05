@@ -6,7 +6,7 @@ A serializer is an object that requires specific parameters and is used to check
 
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from ..models import (
+from MailAssistant.models import (
     Message,
     Category,
     Email,

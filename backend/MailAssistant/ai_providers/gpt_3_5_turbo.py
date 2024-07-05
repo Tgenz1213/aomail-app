@@ -1,5 +1,7 @@
 """
 Handles prompt engineering requests for GPT-3.5-turbo API.
+
+⚠️ Some functions are outdated ⚠️
 """
 
 from colorama import Fore, init

@@ -1,5 +1,9 @@
 """
 Handles all functions linked with logging and encryption
+
+
+TODO:
+- Redirect to a subscription expired page with expiration date infos
 """
 
 import logging

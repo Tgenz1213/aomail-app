@@ -4,6 +4,7 @@ Django Rest Framework (DRF) URL Configuration for MailAssistant RESTful API.
 
 from django.urls import path
 from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.email_providers.google import authentication as auth_google
 from MailAssistant.controllers import artificial_intelligence as ai
 from MailAssistant.controllers import authentication as auth
 from MailAssistant.controllers import preferences as prefs
@@ -72,14 +73,12 @@ urlpatterns = [
     path('user/emails/<int:email_id>/delete/', emails.delete_email, name='delete_email'), # ok
     #----------------------- VIEWS -----------------------#
     path('pictures/<path:image_name>', views.serve_image, name='serve_image'), # dev
+    path('user/get_batch_emails/', views.get_batch_emails, name='get_batch_emails'), # dev
 
     path('user/contacts/', views.get_user_contacts, name='get_user_contacts'), # ok
     path('user/emails_linked/', views.get_emails_linked , name='get_emails_linked'), # ok
     path('user/search_emails/', views.search_emails , name='search_emails'), # ok
     path('user/social_api/send_email/', views.send_email, name='send_email'), # ok
-
-    path('user/get-batch-emails/', views.get_batch_emails, name='get_batch_emails'),
-
     path('user/social_api/send_schedule_email/', views.send_schedule_email, name='send_schedule_email'), # ok
     path('user/social_api/get_profile_image/', views.get_profile_image, name='get_profile_image'), # ok
     path('user/social_api/update_user_description/', views.update_user_description, name='update_user_description'), # ok
@@ -103,8 +102,8 @@ urlpatterns = [
     path('microsoft/receive_mail_notifications/', microsoft_api.MicrosoftEmailNotification.as_view(), name='receive_mail_notifications'), # ok
     path('microsoft/receive_contact_notifications/', microsoft_api.MicrosoftContactNotification.as_view(), name='receive_contact_notifications'), # ok
     path('microsoft/receive_subscription_notifications/', microsoft_api.MicrosoftSubscriptionNotification.as_view(), name='receive_subscription_notifications'), # ok
-    path('google/auth_url/', google_api.generate_auth_url, name='google_auth_url'), # ok
-    path('google/auth_url_link_email/', google_api.auth_url_link_email, name='google_auth_url_link_email'), # ok
+    path('google/auth_url/', auth_google.generate_auth_url, name='google_auth_url'), # ok
+    path('google/auth_url_link_email/', auth_google.auth_url_link_email, name='google_auth_url_link_email'), # ok
     path('google/receive_mail_notifications/', google_api.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
     path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev

@@ -1,5 +1,7 @@
 """
 Handles prompt engineering requests for GPT-4 API.
+
+⚠️ Some functions are outdated ⚠️
 """
 
 import json

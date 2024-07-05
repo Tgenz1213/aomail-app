@@ -986,7 +986,7 @@ async function fetchEmailDetails(emailIds) {
   };
 
   try {
-    const result = await fetchWithToken(`${API_BASE_URL}user/get-batch-emails/`, requestOptions);
+    const result = await fetchWithToken(`${API_BASE_URL}user/get_batch_emails/`, requestOptions);
     console.log("RESULT :", result);
     return result;
   } catch (error) {

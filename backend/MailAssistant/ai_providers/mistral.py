@@ -1,5 +1,7 @@
 """
 Handles prompt engineering requests for Mistral API.
+
+⚠️ Some functions are outdated ⚠️
 """
 
 import ast

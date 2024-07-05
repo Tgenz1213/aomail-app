@@ -45,6 +45,7 @@ from MailAssistant.constants import (
 )
 from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.models import (
+    Email,
     SocialAPI,
     Sender,
     Contact,
@@ -428,6 +429,81 @@ def create_sender(request: HttpRequest) -> Response:
 ####################################################################
 ######################## UNDER CONSTRUCTION ########################
 ####################################################################
+
+
+######################## SEARCH ########################
+# -------------------- SEARCH GET EMAIL----------------------#
+# TODO: put in emails.py
+@api_view(["POST"])
+@subscription([FREE_PLAN])
+def get_batch_emails(request: HttpRequest) -> Response:
+    try:
+        data: dict = json.loads(request.body)
+        email_ids = data.get("email_ids")
+
+        LOGGER.info(f"Processing request for user")
+
+        if not email_ids or not isinstance(email_ids, list):
+            return Response(
+                {"error": "Invalid or missing email_ids"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = request.user
+
+        first_email = Email.objects.filter(user=user, provider_id=email_ids[0]).first()
+
+        if not first_email:
+            return Response(
+                {"error": "No matching email found"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        social_api = first_email.social_api
+
+        if not social_api:
+            return Response(
+                {"error": "No linked email account found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        email = social_api.email
+        type_api = social_api.type_api
+
+        result = {}
+
+        def append_to_result(provider: str, email: str, data: list):
+            if len(data) > 0:
+                if provider not in result:
+                    result[provider] = {}
+                result[provider][email] = data
+
+        if type_api == "google":
+            LOGGER.info(f"-------------------- API Google DETECTED -----------------")
+            services = google_api.authenticate_service(user, email)
+            LOGGER.info(f"-------------------- SERVICES -----------------")
+            email_info = google_api.get_mails_batch(services, email_ids)
+            LOGGER.info(email_info)
+        elif type_api == "microsoft":
+            # TO FINISH --------------------------------------------------------------------
+            access_token = microsoft_api.refresh_access_token(social_api)
+            email_info_thread = threading.Thread(
+                target=append_to_result,
+                args=(
+                    MICROSOFT_PROVIDER,
+                    email,
+                    microsoft_api.get_mails_batch(access_token, email_ids),
+                ),
+            )
+        else:
+            return Response(
+                {"error": "Unsupported email provider"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return Response(email_info, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 ######################## STRIPE ########################

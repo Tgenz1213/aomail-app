@@ -1,3 +1,7 @@
+"""
+This file is just used for debugging with POSTMAN. It can be deleted without any problems
+"""
+
 import uuid
 import random
 import datetime

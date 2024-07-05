@@ -57,13 +57,12 @@ def save_email_sender(user: User, sender_name: str, sender_email: str, sender_id
 
 
 # ----------------------- SAVE CONTACTS AFTER SENDING EMAIL -----------------------#
-def save_contacts(user: User, email: str, all_recipients: list[str]):
+def save_contacts(user: User, all_recipients: list[str]):
     """
     Saves contacts to the database if they do not already exist.
 
     Args:
         user (User): The authenticated user object.
-        email (str): The email address of the sender.
         all_recipients (list[str]): A list of recipient email addresses to be saved as contacts.
     """
     for recipient_email in all_recipients:
@@ -97,7 +96,9 @@ def get_db_categories(current_user: User) -> dict[str, str]:
     categories = Category.objects.filter(user=current_user)
     category_list = {category.name: category.description for category in categories}
     category_list.pop(DEFAULT_CATEGORY)
-    category_list[DEFAULT_CATEGORY] = "All emails that can not be classify in any of the given categories"
+    category_list[DEFAULT_CATEGORY] = (
+        "All emails that can not be classify in any of the given categories"
+    )
     return category_list
 
 

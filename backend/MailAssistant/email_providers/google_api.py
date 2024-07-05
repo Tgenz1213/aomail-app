@@ -2,7 +2,8 @@
 Handles authentication and HTTP requests for the Gmail API.
 
 TODO:
-- add @subscription decorator
+- Split into smaller functions: email_to_db + opti the function first
+- Add a function save_email_to_db as a utility function common to all email providers
 """
 
 import base64
@@ -38,8 +39,10 @@ from MailAssistant.utils.serializers import EmailDataSerializer
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from MailAssistant.ai_providers import claude
+from MailAssistant.utils.security import subscription
 from MailAssistant.utils import security
 from MailAssistant.constants import (
+    FREE_PLAN,
     ADMIN_EMAIL_LIST,
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
@@ -49,26 +52,21 @@ from MailAssistant.constants import (
     GOOGLE_PROJECT_ID,
     GOOGLE_PROVIDER,
     GOOGLE_TOPIC_NAME,
-    IMPORTANT,
     MAX_RETRIES,
     MEDIA_URL,
     REDIRECT_URI_LINK_EMAIL,
-    USELESS,
-    INFORMATION,
     REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
-    MEDIA_ROOT,
     BASE_URL_MA,
 )
-from MailAssistant.controllers.tree_knowledge import Search
-from .. import library
+from MailAssistant.utils.tree_knowledge import Search
+from ..utils import email_processing
 from ..models import (
     Contact,
     KeyPoint,
     Preference,
     Rule,
     SocialAPI,
-    BulletPoint,
     Category,
     Email,
     Sender,
@@ -340,7 +338,7 @@ def authenticate_service(user: User, email: str) -> dict | None:
 
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def send_email(request: HttpRequest) -> Response:
     """
     Sends an email using the Gmail API.
@@ -398,29 +396,17 @@ def send_email(request: HttpRequest) -> Response:
             service.users().messages().send(userId="me", body=body).execute()
 
             threading.Thread(
-                target=library.save_contacts, args=(user, email, all_recipients)
+                target=email_processing.save_contacts,
+                args=(user, email, all_recipients),
             ).start()
 
             return Response(
                 {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
             )
 
-        else:
-            keys = serializer.errors.keys()
-
-            if "to" in keys:
-                return Response(
-                    {"error": "recipient is missing"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            elif "subject" in keys:
-                return Response(
-                    {"error": "subject is missing"}, status=status.HTTP_400_BAD_REQUEST
-                )
-            else:
-                return Response(
-                    {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
-                )
+        return Response(
+            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     except Exception as e:
         LOGGER.error(f"Failed to send email: {str(e)}")
@@ -547,149 +533,6 @@ def get_info_contacts(services: dict) -> list[dict]:
     return names_emails
 
 
-def get_mail_to_db(services):
-    """Retrieve email information for processing email to database."""
-
-    service = services["gmail"]
-
-    results: dict = (
-        service.users()
-        .messages()
-        .list(userId="me", labelIds=["INBOX"], maxResults=1)
-        .execute()
-    )
-    messages = results.get("messages", [])
-    if not messages:
-        return None
-
-    message = messages[0]
-    email_id = message["id"]
-
-    msg: dict[str, dict[str, dict[str]]] = (
-        service.users().messages().get(userId="me", id=email_id).execute()
-    )
-    email_data = msg["payload"]["headers"]
-
-    subject = from_info = cc_info = bcc_info = sent_date = None
-    for values in email_data:
-        name = values["name"]
-        if name == "Subject":
-            subject = values["value"]
-        elif name == "From":
-            from_info = parse_name_and_email(values["value"])
-        elif name == "Cc":
-            cc_info = parse_name_and_email(values["value"])
-        elif name == "Bcc":
-            bcc_info = parse_name_and_email(values["value"])
-        elif name == "Date":
-            sent_date = parsedate_to_datetime(values["value"])
-
-    # TODO: delete => and in models too
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
-
-    has_attachments = False
-    is_reply = "in-reply-to" in {
-        header["name"].lower() for header in msg["payload"]["headers"]
-    }
-    email_html = ""
-    email_txt_html = ""
-    email_detect_html = False
-    image_files = []
-    attachments = []
-
-    def process_part(part: dict[str, str]):
-        nonlocal email_html, email_txt_html, email_detect_html, has_attachments, image_files, attachments
-
-        if part["mimeType"] == "text/plain":
-            if "data" in part["body"]:
-                data: str = part["body"]["data"]
-                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
-                    "utf-8"
-                )
-                email_txt_html += f"<pre>{decoded_data}</pre>"
-        elif part["mimeType"] == "text/html":
-            if "data" in part["body"]:
-                email_detect_html = True
-                data: str = part["body"]["data"]
-                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode(
-                    "utf-8"
-                )
-                email_html += decoded_data
-
-                # Find and replace base64 encoded images in the HTML
-                img_tags = re.findall(
-                    r'<img[^>]+src="data:image/([^;]+);base64,([^"]+)"', decoded_data
-                )
-                for img_type, img_data in img_tags:
-                    timestamp = int(time.time())
-                    random_str = "".join(
-                        random.choices(string.ascii_letters + string.digits, k=8)
-                    )
-                    image_filename = f"image_{timestamp}_{random_str}.{img_type}"
-                    image_files.append(image_filename)
-                    email_html = email_html.replace(
-                        f"data:image/{img_type};base64,{img_data}",
-                        f"{MEDIA_URL}pictures/{image_filename}",
-                    )
-        elif part["mimeType"].startswith("image/"):
-            timestamp = int(time.time())
-            random_str = "".join(
-                random.choices(string.ascii_letters + string.digits, k=8)
-            )
-            image_filename = part.get("filename", f"image_{timestamp}_{random_str}.jpg")
-            image_files.append(image_filename)
-            email_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
-            email_txt_html += f'<img src="{BASE_URL_MA}pictures/{image_filename}" alt="Embedded Image" />'
-        elif part["mimeType"].startswith("multipart/"):
-            if "parts" in part:
-                for subpart in part["parts"]:
-                    process_part(subpart)
-        elif "filename" in part:
-            has_attachments = True
-            print("---------------------------->", part)
-            attachment_id = part["body"]["attachmentId"]
-            attachments.append(
-                {"attachmentId": attachment_id, "attachmentName": part["filename"]}
-            )
-
-    if "parts" in msg["payload"]:
-        for part in msg["payload"]["parts"]:
-            process_part(part)
-    else:
-        process_part(msg["payload"])
-
-    if email_detect_html is False:
-        email_html = email_txt_html
-
-    # Replace CID references in HTML with local paths
-    soup = BeautifulSoup(email_html, "html.parser")
-    for img in soup.find_all("img"):
-        cid_ref = img["src"].lstrip("cid:")
-        for image_file in image_files:
-            if cid_ref in image_file:
-                img["src"] = f"{BASE_URL_MA}pictures/{os.path.basename(image_file)}"
-
-    cleaned_html = library.html_clear(email_html)
-    preprocessed_data = library.preprocess_email(cleaned_html)
-    safe_html = soup.prettify()
-
-    return (
-        subject,
-        from_info,
-        preprocessed_data,
-        safe_html,
-        email_id,
-        sent_date,
-        web_link,
-        has_attachments,
-        is_reply,
-        cc_info,
-        bcc_info,
-        image_files,
-        attachments,
-    )
-
-
 def get_mail_to_db(services: dict) -> tuple:
     """
     Retrieve email information from the Gmail API for processing and storing in the database.
@@ -706,7 +549,6 @@ def get_mail_to_db(services: dict) -> tuple:
             str: Safe HTML version of the email content.
             str: ID of the email message.
             datetime.datetime: Sent date and time of the email.
-            str: Web link to view the email in Gmail. (TODO: delete and update doc)
             bool: Flag indicating whether the email has attachments.
             bool: Flag indicating whether the email is a reply.
     """
@@ -744,9 +586,6 @@ def get_mail_to_db(services: dict) -> tuple:
             bcc_info = parse_name_and_email(values["value"])
         elif name == "Date":
             sent_date = parsedate_to_datetime(values["value"])
-
-    # TODO: delete => and in models too
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
     has_attachments = False
     is_reply = "in-reply-to" in {
@@ -837,8 +676,8 @@ def get_mail_to_db(services: dict) -> tuple:
             if cid_ref in image_file:
                 img["src"] = f"{BASE_URL_MA}pictures/{os.path.basename(image_file)}"
 
-    cleaned_html = library.html_clear(email_html)
-    preprocessed_data = library.preprocess_email(cleaned_html)
+    cleaned_html = email_processing.html_clear(email_html)
+    preprocessed_data = email_processing.preprocess_email(cleaned_html)
     safe_html = soup.prettify()
 
     return (
@@ -848,7 +687,6 @@ def get_mail_to_db(services: dict) -> tuple:
         safe_html,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
         cc_info,
@@ -1310,7 +1148,7 @@ def search_emails(services: dict, search_query: str, max_results=2):
 
                 # Additional filtering: Check if the sender email/name matches the search query
                 if search_query.lower() in email or search_query.lower() in name:
-                    if email and not library.is_no_reply_email(email):
+                    if email and not email_processing.is_no_reply_email(email):
                         found_emails[email] = name
 
         return found_emails
@@ -1423,7 +1261,7 @@ def set_all_contacts(user: User, email: str):
         for contact_info, _ in all_contacts.items():
             name, email, _, contact_id = contact_info
             if name and email:
-                library.save_email_sender(user, name, email, contact_id)
+                email_processing.save_email_sender(user, name, email, contact_id)
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
@@ -1496,7 +1334,7 @@ def get_unique_senders(services: dict) -> dict:
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
 def get_profile_image(request: HttpRequest) -> Response:
     """
     Retrieves the profile image URL of the user from Google People API.
@@ -1758,7 +1596,6 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
         safe_html,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
         cc_info,
@@ -1782,7 +1619,7 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
         return "No decoded data"
 
     sender = Sender.objects.filter(email=from_name[1]).first()
-    category_dict = library.get_db_categories(user)
+    category_dict = email_processing.get_db_categories(user)
     category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
     rules = Rule.objects.filter(sender=sender)
     rule_category = None
@@ -1796,7 +1633,7 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
                 category = rule.category
                 rule_category = True
 
-    email_content = library.preprocess_email(decoded_data)
+    email_content = email_processing.preprocess_email(decoded_data)
     search = Search(user.id)
 
     if is_reply:
@@ -1808,47 +1645,25 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
             subject, email_content, user_description, language
         )
 
-    (
-        topic,
-        importance_dict,
-        answer,
-        summary_list,
-        sentence,
-        relevance,
-    ) = claude.categorize_and_summarize_email(
-        subject, decoded_data, category_dict, user_description
+    email_processed = claude.categorize_and_summarize_email(
+        subject, decoded_data, category_dict, user_description, from_name[1]
     )
 
-    importance = None
+    priority: str = email_processed["importance"]
+    topic: str = email_processed["topic"]
+    answer: str = email_processed["response"]
+    relevance: str = email_processed["relevance"]
+    flags: dict = email_processed["flags"]
+    spam: bool = flags["spam"]
+    scam: bool = flags["scam"]
+    newsletter: bool = flags["newsletter"]
+    notification: bool = flags["notification"]
+    meeting: bool = flags["meeting"]
+    summary: dict = email_processed["summary"]
+    short_summary: str = summary["short"]
+    one_line_summary: str = summary["one_line"]
 
-    if (
-        importance_dict["UrgentWorkInformation"] >= 50
-    ):  # MAYBE TO UPDATE TO >50 =>  To test
-        importance = IMPORTANT
-    elif (
-        importance_dict["Promotional"] <= 50
-        and importance_dict["RoutineWorkUpdates"] > 10
-    ):  # To avoid some error that might put a None promotional email in Useless => Ask Theo before Delete
-        importance = INFORMATION
-    else:
-        max_percentage = 0
-        for key, value in importance_dict.items():
-            if value > max_percentage:
-                importance = key
-                if importance == "Promotional" or importance == "News":
-                    importance = USELESS
-                elif (
-                    importance == "RoutineWorkUpdates"
-                    or importance == "InternalCommunications"
-                ):
-                    importance = INFORMATION
-                elif importance == "UrgentWorkInformation":
-                    importance = IMPORTANT
-                max_percentage = importance_dict[key]
-        if max_percentage == 0:
-            importance = INFORMATION
-
-    if not rule_category and topic in category_dict:
+    if not rule_category:
         category = Category.objects.get(name=topic, user=user)
 
     if not sender:
@@ -1865,21 +1680,23 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
             social_api=social_api,
             provider_id=email_id,
             email_provider=GOOGLE_PROVIDER,
-            email_short_summary=sentence,
-            content=decoded_data,
+            short_summary=short_summary,
+            one_line_summary=one_line_summary,
             html_content=safe_html,
             subject=subject,
-            priority=importance,
-            read=False,
-            answer_later=False,
+            priority=priority,
             sender=sender,
             category=category,
             user=user,
             date=sent_date,
-            web_link=web_link,
             has_attachments=has_attachments,
             answer=answer,
             relevance=relevance,
+            spam=spam,
+            scam=scam,
+            newsletter=newsletter,
+            notification=notification,
+            meeting=meeting,
         )
 
         if is_reply:
@@ -1930,10 +1747,6 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
         if image_files:
             for image_path in image_files:
                 Picture.objects.create(mail_id=email_entry, picture=image_path)
-
-        if summary_list:
-            for point in summary_list:
-                BulletPoint.objects.create(content=point, email=email_entry)
 
         if attachments:
             for attachment in attachments:
@@ -2078,7 +1891,6 @@ def get_mail(services, int_mail=None, id_mail=None):
     subject = from_info = decoded_data = None
     cc_info = bcc_info = []
     email_data = msg["payload"]["headers"]
-    web_link = f"https://mail.google.com/mail/u/0/#inbox/{email_id}"
 
     for values in email_data:
         name = values["name"]
@@ -2095,7 +1907,7 @@ def get_mail(services, int_mail=None, id_mail=None):
 
     if "parts" in msg["payload"]:
         for part in msg["payload"]["parts"]:
-            decoded_data_temp = library.process_part(part, plaintext_var)
+            decoded_data_temp = email_processing.process_part(part, plaintext_var)
 
             print(
                 "______________________DATA decoded_data_temp (PARTS) looks like that ______________________________"
@@ -2105,7 +1917,9 @@ def get_mail(services, int_mail=None, id_mail=None):
                 "___________________________________________________________________________________"
             )
             if decoded_data_temp:
-                decoded_data = library.concat_text(decoded_data, decoded_data_temp)
+                decoded_data = email_processing.concat_text(
+                    decoded_data, decoded_data_temp
+                )
     elif "body" in msg["payload"]:
         data = msg["payload"]["body"]["data"]
 
@@ -2119,7 +1933,7 @@ def get_mail(services, int_mail=None, id_mail=None):
 
         data = data.replace("-", "+").replace("_", "/")
         decoded_data_temp = base64.b64decode(data).decode("utf-8")
-        decoded_data = library.html_clear(decoded_data_temp)
+        decoded_data = email_processing.html_clear(decoded_data_temp)
 
     return (
         subject,
@@ -2129,5 +1943,4 @@ def get_mail(services, int_mail=None, id_mail=None):
         bcc_info,
         email_id,
         sent_date,
-        web_link,
     )

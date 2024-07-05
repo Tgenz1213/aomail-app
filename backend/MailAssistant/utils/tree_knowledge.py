@@ -13,11 +13,16 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Search:
-    """
-    Class for searching through categorized email data within a knowledge tree.
-    """
+    """Class for searching through categorized email data within a knowledge tree."""
 
     def __init__(self, user_id: int, question: str = None):
+        """
+        Initializes a Search object.
+
+        Args:
+            user_id (int): The ID of the user for whom the search is being conducted.
+            question (str, optional): The question or query for the search. Defaults to None.
+        """
         self.user_id = user_id
         self.question = question
         self.knowledge_tree = self.get_knowledge_tree()

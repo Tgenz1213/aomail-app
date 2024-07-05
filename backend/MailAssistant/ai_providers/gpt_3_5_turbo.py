@@ -156,32 +156,6 @@ def shorten_keywords(keywords) -> dict:
 
 
 ######################## WRITING ########################
-def improve_email_writing(body, subject):
-    """Enhance email subject and body"""
-
-    language = get_language(body, subject).upper()
-
-    template = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
-    
-    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
-
-    subject: {subject},
-    body: {body}
-    """
-    response = get_prompt_response(template)
-    clear_text = response.choices[0].message.content.strip()
-    result_json = json.loads(clear_text)
-
-    subject_text = result_json["subject"]
-    email_body = result_json["body"]
-
-    print(f"{Fore.CYAN}EMAIL DRAFT IMPROVED:")
-    print(f"{Fore.GREEN}Subject: {subject_text}")
-    print(f"{Fore.CYAN}Email Body: {email_body}")
-
-    return email_body, subject_text
-
-
 def new_mail_recommendation(
     mail_content, email_subject, user_recommendation, language="FRENCH"
 ):

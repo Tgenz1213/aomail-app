@@ -101,7 +101,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                              {{ $t('constants.userActions.open') }}
+                                              {{ $t('constants.userActions.copen') }}
                                             </div>
                                             <button @click="openInNewWindow(item.id_provider)" type="button"
                                               class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -126,7 +126,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('replyLaterPage.removeFromReplyLater') }}
+                                              {{ $t('constants.userActions.reply') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
@@ -198,7 +198,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                               d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                           </svg>
-                                                          <span>{{ $t('constants.userActions.createARule') }}</span>
+                                                          <span>{{ $t('constants.createARule') }}</span>
                                                         </span>
                                                       </a>
                                                       </MenuItem>
@@ -645,7 +645,7 @@
                                           <div class="relative group">
                                             <div
                                               class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                              {{ $t('replyLaterPage.removeFromReplyLater') }}
+                                              {{ $t('constants.userActions.replyLater') }}
                                             </div>
                                             <button @click="unmarkReplyLater(item.id)" type="button"
                                               class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
@@ -833,7 +833,7 @@ export default {
 
     async function fetchAnswerLaterEmails() {
       try {
-        const data = await fetchWithToken(`${API_BASE_URL}api/get_answer_later_emails/`, {
+        const data = await fetchWithToken(`${API_BASE_URL}user/get_answer_later_emails/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -868,7 +868,7 @@ export default {
     },
     async fetchAnswerLaterEmails() {
       try {
-        const data = await fetchWithToken(`${API_BASE_URL}api/get_answer_later_emails/`, {
+        const data = await fetchWithToken(`${API_BASE_URL}user/get_answer_later_emails/`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -972,7 +972,7 @@ export default {
       this.deleteEmailFromState(emailId);
 
       try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/unmark-reply-later/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/unmark_reply-later/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

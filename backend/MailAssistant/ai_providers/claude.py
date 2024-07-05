@@ -1,21 +1,27 @@
 """
 Handles prompt engineering requests for Claude 3 API.
 
+Features:
+- ✅ get_language: Returns the primary language used in the email
+- ✅ extract_contacts_recipients
+- ✅ generate_response_keywords
+- ✅ generate_email
+- ✅ correct_mail_language_mistakes
+- ✅ improve_email_copywriting
+- ✅ generate_email_response
+- ✅ search_emails
+- ✅ categorize_and_summarize_email (migration in progress)
+
+
 TODO:
-- Clean the code with doc + datatypes
-- Remove all unecessary functions
-- Clean imports
-- Write an list of all supported function in the banner of that file like
-    - search emails: ✅
-    - feature 2: ⚒️
-- Clean all utils linked (mostly in library) purely with ai and put everything in 'ai_providers/'
+- implement stats with token count
 """
 
 import ast
 import json
 import anthropic
-from datetime import datetime
 import tiktoken
+from datetime import datetime
 from MailAssistant.constants import CLAUDE_CREDS
 
 
@@ -33,15 +39,31 @@ def get_prompt_response(formatted_prompt):
 
 
 def count_tokens(text: str) -> int:
-    """Calculates the number of tokens in a given text string using the provided tokenizer."""
+    """
+    Calculates the number of tokens in a given text string using the provided tokenizer.
+
+    Args:
+        text (str): The input text string to be tokenized.
+
+    Returns:
+        int: The number of tokens in the input text.
+    """
     encoding = tiktoken.get_encoding("cl100k_base")
     num_tokens = len(encoding.encode(text))
     return num_tokens
 
 
-def get_language(input_body, input_subject) -> str:
-    """Returns the primary language used in the email"""
+def get_language(input_body: str, input_subject: str) -> str:
+    """
+    Returns the primary language used in the email.
 
+    Args:
+        input_body (str): The body of the email.
+        input_subject (str): The subject of the email.
+
+    Returns:
+        str: The primary language identified in the email.
+    """
     formatted_prompt = f"""Given an email with subject: '{input_subject}' and body: '{input_body}',
     IDENTIFY the primary language used (e.g: French, English, Russian), prioritizing the body over the subject.
     
@@ -54,37 +76,54 @@ def get_language(input_body, input_subject) -> str:
 
 
 def count_corrections(
-    original_subject, original_body, corrected_subject, corrected_body
-):
-    """Count and compare corrections in original and corrected texts"""
+    original_subject: str,
+    original_body: str,
+    corrected_subject: str,
+    corrected_body: str,
+) -> int:
+    """
+    Counts and compares corrections in original and corrected texts.
 
-    # Splitting the original and corrected texts into words
+    Args:
+        original_subject (str): The original subject text.
+        original_body (str): The original body text.
+        corrected_subject (str): The corrected subject text.
+        corrected_body (str): The corrected body text.
+
+    Returns:
+        int: The total number of corrections made in the subject and body texts.
+    """
     original_subject_words = original_subject.split()
     corrected_subject_words = corrected_subject.split()
     original_body_words = original_body.split()
     corrected_body_words = corrected_body.split()
 
-    # Counting the differences in the subject
     subject_corrections = sum(
-        1
+        orig != corr
         for orig, corr in zip(original_subject_words, corrected_subject_words)
-        if orig != corr
     )
-
-    # Counting the differences in the body
     body_corrections = sum(
-        1
-        for orig, corr in zip(original_body_words, corrected_body_words)
-        if orig != corr
+        orig != corr for orig, corr in zip(original_body_words, corrected_body_words)
     )
 
-    # Total corrections
     total_corrections = subject_corrections + body_corrections
 
     return total_corrections
 
 
-def extract_contacts_recipients(query) -> dict[str:list]:
+def extract_contacts_recipients(query: str) -> dict[str, list]:
+    """
+    Analyzes the input query to categorize email recipients into main, CC, and BCC categories.
+
+    Args:
+        query (str): The input string containing email recipient information.
+
+    Returns:
+        dict[str, list]: A dictionary with three keys:
+            'main_recipients': List of main recipients.
+            'cc_recipients': List of CC recipients.
+            'bcc_recipients': List of BCC recipients.
+    """
     formatted_prompt = f"""As an intelligent email assistant, analyze the input to categorize email recipients into main, cc, and bcc categories based on the presence of keywords and context that suggest copying or blind copying. Here's the input: '{query}'.
 
     Guidelines for classification:
@@ -108,13 +147,25 @@ def extract_contacts_recipients(query) -> dict[str:list]:
     cc_recipients = recipients.get("cc_recipients", [])
     bcc_recipients = recipients.get("bcc_recipients", [])
 
-    return main_recipients, cc_recipients, bcc_recipients
+    return {
+        "main_recipients": main_recipients,
+        "cc_recipients": cc_recipients,
+        "bcc_recipients": bcc_recipients,
+    }
 
 
 # ----------------------- PREPROCESSING REPLY EMAIL -----------------------#
-def generate_response_keywords(input_email, input_subject) -> list:
-    """Generate a list of keywords for responding to a given email."""
+def generate_response_keywords(input_email: str, input_subject: str) -> list:
+    """
+    Generates a list of keywords for responding to a given email.
 
+    Args:
+        input_email (str): The body of the email.
+        input_subject (str): The subject of the email.
+
+    Returns:
+        list: A list of keywords suggesting ways to respond to the email.
+    """
     language = get_language(input_email, input_subject)
 
     formatted_prompt = f"""As an email assistant, and given the email with subject: '{input_subject}' and body: '{input_email}' written in {language}.
@@ -134,35 +185,23 @@ def generate_response_keywords(input_email, input_subject) -> list:
 
 
 ######################## WRITING ########################
-# TODO: OLD - delete after implementing new solution
-def improve_email_writing(body, subject):
-    """Enhance email subject and body"""
-
-    language = get_language(body, subject).upper()
-
-    formatted_prompt = f"""As an email assistant, enhance the subject and body of this email in both QUANTITY and QUALITY in {language}, while preserving key details from the original version.
-    
-    Answer must be a Json format with two keys: subject (STRING) AND body (HTML)
-
-    subject: {subject},
-    body: {body}
+def generate_email(
+    input_data: str, length: str, formality: str, language: str
+) -> tuple:
     """
-    response = get_prompt_response(formatted_prompt)
-    result_json = json.loads(response.content[0].text.strip())
+    Generates an email, enhancing both quantity and quality according to user guidelines.
 
-    subject_text = result_json["subject"]
-    email_body = result_json["body"]
+    Args:
+        input_data (str): The user's input data or guidelines for the email content.
+        length (str): The desired length of the email (e.g., "short", "medium", "long").
+        formality (str): The desired level of formality for the email (e.g., "informal", "formal").
+        language (str): The language in which the email should be written.
 
-    return email_body, subject_text
-
-
-""" OLD Ask Theo Before Delete (It's still used)"""
-
-
-# TODO: remove HARD CODED language
-def generate_email(input_data, length, formality, language="FRENCH"):
-    """Generate an email, enhancing both QUANTITY and QUALITY according to user guidelines."""
-
+    Returns:
+        tuple: A tuple containing two elements:
+            subject_text (str): The subject of the generated email.
+            email_body (str): The body of the generated email in HTML format.
+    """
     template = f"""As an email assistant, write a {length} and {formality} email in {language}.
     Improve the QUANTITY and QUALITY in {language} according to the user guideline: '{input_data}'.
     It must strictly contain only the information that is present in the input.
@@ -181,9 +220,20 @@ def generate_email(input_data, length, formality, language="FRENCH"):
     return subject_text, email_body
 
 
-def correct_mail_language_mistakes(body, subject):
-    """Corrects spelling and grammar mistakes in the email subject and body based on user's request."""
+def correct_mail_language_mistakes(body: str, subject: str) -> tuple:
+    """
+    Corrects spelling and grammar mistakes in the email subject and body based on user's request.
 
+    Args:
+        body (str): The body of the email to be corrected.
+        subject (str): The subject of the email to be corrected.
+
+    Returns:
+        tuple: A tuple containing three elements:
+            corrected_subject (str): The corrected subject of the email.
+            corrected_body (str): The corrected body of the email in HTML format.
+            num_corrections (int): The number of corrections made in the email subject and body.
+    """
     language = get_language(body, subject).upper()
 
     formatted_prompt = f"""As an email assistant, check the following {language} text for any grammatical or spelling errors and correct them, Do not change any words unless they are misspelled or grammatically incorrect.
@@ -207,9 +257,17 @@ def correct_mail_language_mistakes(body, subject):
     return corrected_subject, corrected_body, num_corrections
 
 
-def improve_email_copywriting(email_subject, email_body):
-    """Provides feedback and suggestions for improving the copywriting in the email subject and body."""
+def improve_email_copywriting(email_subject: str, email_body: str) -> str:
+    """
+    Provides feedback and suggestions for improving the copywriting in the email subject and body.
 
+    Args:
+        email_subject (str): The subject of the email to be evaluated and improved.
+        email_body (str): The body of the email to be evaluated and improved.
+
+    Returns:
+        str: Feedback and suggestions for improving the copywriting in the email subject and body.
+    """
     language = get_language(email_body, email_subject)
 
     template = f"""Evaluate the quality of copywriting in both the subject and body of this email in {language}. Provide feedback and improvement suggestions.
@@ -243,8 +301,17 @@ def improve_email_copywriting(email_subject, email_body):
 def generate_email_response(
     input_subject: str, input_body: str, user_instruction: str
 ) -> str:
-    """Generates an email response based on the given response type"""
+    """
+    Generates an email response based on the given response type.
 
+    Args:
+        input_subject (str): The subject of the email to respond to.
+        input_body (str): The body of the email to respond to.
+        user_instruction (str): Instructions or guidelines provided by the user for crafting the response.
+
+    Returns:
+        str: The generated email response in HTML format.
+    """
     template = f"""As a smart email assistant and based on the email with the subject: '{input_subject}' and body: '{input_body}'.
     Craft a response strictly in the language used in the email following the user instruction: '{user_instruction}'.
     0. Pay attention if the email appears to be a conversation. You MUST only reply to the last email and do NOT summarize the conversation at all.
@@ -262,16 +329,13 @@ def generate_email_response(
     return body
 
 
-# TODO: finish to implement by merging with the old function
-# categorize_and_summarize_email
-def new_function_(
+def categorize_and_summarize_email(
     subject: str,
     decoded_data: str,
     category_dict: dict,
     user_description: str,
     sender: str,
-    language: str,
-) -> tuple[str, str, str, dict[str:str, str:list], dict[str:int]]:
+) -> dict:
     """Categorizes and summarizes an email"""
 
     response_list = {
@@ -312,53 +376,61 @@ def new_function_(
     Relevance Categories:
     {relevance_list}
 
-    Complete the following tasks in {language}:
+    Complete the following tasks in same language used in the email:
     - Categorize the email according to the user description (if provided) and given categories.
     - Summarize the email without adding any greetings.
+    - If the email explicitly mentions the name of the user (provided with user description), then use 'You' instead of the name of the user.
+    - Provide a short sentence (up to 10 words) summarizing the core content of the email.
+    - Define the importance level of the email with one keyword: "important", "informative" or "useless".
     - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones.
-    - The summary should objectively reflect the most important information of the email without making subjective judgments.
-    - If the email is explicitely mentionning the name of the user (provided with user description), then use 'You' instead of the name of the user.
+    - The summary should objectively reflect the most important information of the email without making subjective judgments.    
     
     ---
-    Answer must always be a Json format matching this template:
+    Answer must always be a JSON format matching this template:
     {{
-        "topic": Topic Title Category,
+        "topic": Selected Category,
         "response": Response Category,
         "relevance": Relevance Category,
-        "summary": Summary of the email
+        "importance": Importance of the email,
+        "flags": {{
+            "spam": bool,
+            "scam": bool,
+            "newsletter": bool,
+            "notification": bool,
+            "meeting": bool
+        }},
+        "summary": {{
+            "one_line": One sentence summary,
+            "short": Short summary of the email
+        }}
     }}"""
-    response = get_prompt_response(template)
-
     print("=====================NUMBER OF TOKENS INPUT=========================")
     print(count_tokens(template))
-
+    response = get_prompt_response(template)
     clear_response = response.content[0].text.strip()
+
+    print("Claude")
+    print(clear_response)
 
     print("=====================NUMBER OF TOKENS OUTPUT =========================")
     print(count_tokens(clear_response))
 
-    print("Claude categorize_and_summarize_email")
-    print(clear_response)
-
     result_json = json.loads(clear_response)
 
-    topic_category = result_json["topic"]
-    response_category = result_json["response"]
-    relevance_category = result_json["relevance"]
-    summary = result_json["summary"]
-
-    return (
-        topic_category,
-        response_category,
-        summary,
-        relevance_category,
-    )
+    return result_json
 
 
-# TODO: remove HARD CODED language
-def search_emails(query: str, language: str = "French") -> dict:
-    """Searches emails based on the user query and generates structured JSON response."""
+def search_emails(query: str, language: str) -> dict:
+    """
+    Searches emails based on the user query and generates structured JSON response.
 
+    Args:
+        query (str): User's query for searching emails.
+        language (str): Language for the response JSON format.
+
+    Returns:
+        dict: Structured JSON response with search results and parameters.
+    """
     today = datetime.now().strftime("%m-%d-%Y")
 
     template = f"""As a smart email assistant and based on the user query: '{query}'. Knowing today's date: {today}
@@ -398,127 +470,6 @@ def search_emails(query: str, language: str = "French") -> dict:
 ###########################################################
 ######################## TO DELETE ########################
 ###########################################################
-
-
-# TO DELETE
-def categorize_and_summarize_email(
-    subject: str,
-    decoded_data: str,
-    category_dict: dict,
-    user_description: str,
-    language: str = "French",
-) -> tuple[str, str, str, dict[str:str, str:list], dict[str:int]]:
-    """Categorizes and summarizes an email"""
-
-    importance_list = {
-        "UrgentWorkInformation": "Critical updates or information requiring immediate attention related to projects, deadlines, or time-sensitive matters.",
-        "RoutineWorkUpdates": "Regular updates or communications important for work but not requiring immediate action, such as team updates or general announcements.",
-        "InternalCommunications": "Internal company matters including policy updates, HR announcements, or events.",
-        "Promotional": "Messages that contain offers, deals, or advertisements from services, stores, or subscriptions the user has interacted with.",
-        "News": "Messages that contain information not related to work, insights, news, often with options to subscribe or unsubscribe",
-    }
-    response_list = {
-        "Answer Required": "Message requires an answer.",
-        "Might Require Answer": "Message might require an answer.",
-        "No Answer Required": "No answer is required.",
-    }
-    relevance_list = {
-        "Highly Relevant": "Message is highly relevant to the recipient.",
-        "Possibly Relevant": "Message might be relevant to the recipient.",
-        "Not Relevant": "Message is not relevant to the recipient.",
-    }
-
-    template = f"""Given the following email:
-
-    Subject:
-    {subject}
-
-    Text:
-    {decoded_data}
-
-    User description:
-    {user_description}
-
-    Using the provided categories:
-
-    Topic Categories:
-    {category_dict}
-
-    Importance Categories:
-    {importance_list}
-
-    Response Categories:
-    {response_list}
-
-    Relevance Categories:
-    {relevance_list}
-
-    Complete the following tasks in {language}:
-    - Categorize the email according to the user description (if provided) and given categories.
-    - If the email appears to be a response or a conversation, summarize only the last email and IGNORE the previous ones. There is no need to summarize the topic as it is given in the short sentence.
-    - Provide a short sentence (up to 10 words) summarizing the core content of the email.
-    - The summary should objectively reflect the most important information of the email without making subjective judgments.
-    - Bullet points MUST strictly be different from the short sentence summary.
-    - If the email is explicitely mentionning the name of the user (provided with user description), then use 'You' instead of the name of the user.
-    - Provide up to 5 (according to email length and relevance) short bullet points WITHOUT making any judgment or interpretation. They should be clear and concise (max 10 words).
-    - Every bullet point MUST be unique and useful for the user to help him save time. If several bullet points express the same idea, keep only the best one.
-
-    ---
-    Answer must always be a Json format matching this template:
-    {{
-        "topic": Topic Title Category,
-        "response": Response Category,
-        "relevance": Relevance Category,
-        "summary": {{
-            "one_line": Short sentence summary,
-            "complete": [
-                "Short Bullet Point 1",
-                "Short Bullet Point 2",
-                ...
-            ]
-        }},
-        "importance": {{
-            "UrgentWorkInformation": Percentage for UrgentWorkInformation,
-            "RoutineWorkUpdates": Percentage for RoutineWorkUpdates,
-            "InternalCommunications": Percentage for InternalCommunications,
-            "Promotional": Percentage for Promotional,
-            "News": Percentage for News 
-        }}
-    }}"""
-
-    print("=====================NUMBER OF TOKENS INPUT=========================")
-    print(count_tokens(template))
-    response = get_prompt_response(template)
-    clear_response = response.content[0].text.strip()
-
-    # print("Claude")
-    # print(clear_response)
-
-    print("=====================NUMBER OF TOKENS OUTPUT =========================")
-    print(count_tokens(clear_response))
-
-    result_json = json.loads(clear_response)
-
-    topic_category = result_json["topic"]
-    response_category = result_json["response"]
-    relevance_category = result_json["relevance"]
-    short_sentence = result_json["summary"]["one_line"]
-    summary_list = result_json["summary"]["complete"]
-    importance_dict = result_json["importance"]
-
-    # convert percentages to int
-    for key, value in importance_dict.items():
-        importance_dict[key] = int(value)
-
-    return (
-        topic_category,
-        importance_dict,
-        response_category,
-        summary_list,
-        short_sentence,
-        relevance_category,
-    )
-
 
 ''' IN DEV => DO NOT DELETE OR IMPLEMENT => Reserved for Theo => Ask Theo if you want to delete
 def generate_email(input_data, length, formality, language="FRENCH"):

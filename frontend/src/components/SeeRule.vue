@@ -386,7 +386,7 @@ export default {
 
         if (this.formData.category) {
           // Fetch the category ID using fetchWithToken
-          const categoryUrl = `${API_BASE_URL}api/get-category-id/`;
+          const categoryUrl = `${API_BASE_URL}api/get_category_id/`;
           const categoryData = await fetchWithToken(categoryUrl, {
             method: 'POST',
             headers: {
@@ -415,7 +415,7 @@ export default {
         console.log("RuleData", ruleData);
 
         // Use fetchWithToken for the POST request to create the rule
-        const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/create-rule/`, {
+        const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/create_rule/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

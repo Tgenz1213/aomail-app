@@ -70,11 +70,12 @@
                 </div>
             </div>
 
-           <!-- Seconde Colonne -->
-           <div id="secondMainColumn" class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
-                    <div class="flex flex-col h-full w-full">
-                         <!--Titre-->
-                         <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-8">
+            <!-- Seconde Colonne -->
+            <div id="secondMainColumn"
+                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
+                <div class="flex flex-col h-full w-full">
+                    <!--Titre-->
+                    <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-8">
                         <div class="flex gap-x-3 items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                                 stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
@@ -178,7 +179,7 @@
                                                 </Combobox>
                                             </div>
 
-                                            
+
                                         </div>
                                     </div>
 
@@ -239,12 +240,13 @@
                                 </div>
                             </div>
 
-                            <div class = "flex flex-col h-full space-y-5 pb-4 2xl:pb-6 overflow-hidden ">
+                            <div class="flex flex-col h-full space-y-5 pb-4 2xl:pb-6 overflow-hidden ">
                                 <div class="flex-1 overflow-hidden h-screen border-b-2 rounded-lg">
-                                    <div id="editor-container" class=" flex-1 h-full w-full flex flex-col border-solid ">
-                                    <div id="editor" class="flex-1">
-                                    <!-- Quill editor will be initialized here -->
-                                    </div>
+                                    <div id="editor-container"
+                                        class=" flex-1 h-full w-full flex flex-col border-solid ">
+                                        <div id="editor" class="flex-1">
+                                            <!-- Quill editor will be initialized here -->
+                                        </div>
                                     </div>
                                 </div>
 
@@ -257,7 +259,8 @@
                                                 <span class="block truncate">{{ emailSelected }}</span>
                                                 <span
                                                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                                                    <ChevronUpDownIcon class="h-5 w-5 text-gray-400"
+                                                        aria-hidden="true" />
                                                 </span>
                                             </ListboxButton>
                                             <transition leave-active-class="transition ease-in duration-100"
@@ -303,14 +306,13 @@
                                                 leave-to-class="transform opacity-0 -translate-y-2">
                                                 <MenuItems
                                                     class="absolute right-0 z-10 -mr-1 bottom-full mb-2 w-56 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                    <div class="py-1">
-                                                        <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                                                            <a :href="item.href"
-                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm 2xl:px-5 2xl:py-3 2xl:text-base']">
-                                                                {{ item.name }}
-                                                            </a>
-                                                        </MenuItem>
-                                                    </div>
+                                                        <div class="py-1">
+                                                            <button
+                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
+                                                                @click="scheduleSend">
+                                                                Schedule send
+                                                            </button>
+                                                        </div>
                                                 </MenuItems>
                                             </transition>
                                         </Menu>
@@ -385,10 +387,11 @@ let timerId = ref(null);
 
 let history = ref({});
 
+// TODO: translate
+// fr: Envoyer à une heure
 const items = [
-    { name: 'Envoyer à une heure', href: '#' },
+    { name: 'Schedule send', href: '#' },
 ]
-
 
 
 
@@ -723,7 +726,7 @@ async function handleAIClick() {
         },
     };
 
-    const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
+    const data = await fetchWithToken(`${API_BASE_URL}user/social_api/get_profile_image/`, requestOptions);
 
     if (data.profile_image_url) {
         imageURL = data.profile_image_url;
@@ -1123,7 +1126,7 @@ async function findUser(searchQuery) {
     };
 
     try {
-        const data = await fetchWithToken(`${API_BASE_URL}api/find-user-ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}api/find_user_ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
         console.log(data);
         userSearchResult.value = data; // Update the reactive variable
         return data
@@ -2119,6 +2122,115 @@ function hideLoading() {
     }
 }
 
+// TODO: add translations
+// TODO: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
+async function scheduleSend() {
+    const emailSubject = inputValue.value;
+    const emailBody = quill.value.root.innerHTML;
+
+    for (const tupleEmail of emailsLinked.value) {
+        if (emailSelected.value === tupleEmail.email && tupleEmail.type_api !== "microsoft") {
+            // Show the pop-up
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle.value = 'Email service provider not supported';
+            notificationMessage.value = 'Scheduled send is only available for Outlook accounts';
+            displayPopup();
+            return;
+        }
+    }
+
+    if (!emailSubject.trim()) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoSubject');
+        displayPopup();
+        return;
+    } else if (emailBody == "<p><br></p>") {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
+        displayPopup();
+        return;
+    } else if (selectedPeople.value.length == 0) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
+        displayPopup();
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append('subject', emailSubject);
+    formData.append('message', emailBody);
+    fileObjects.value.forEach(file => formData.append('attachments', file));
+
+    // Add recipients to formData
+    selectedPeople.value.forEach(person => formData.append('to', person.email));
+
+    // Add CC recipients to formData
+    if (selectedCC.value.length > 0) {
+        selectedCC.value.forEach(person => formData.append('cc', person.email));
+    }
+    // Add BCC recipients to formData
+    if (selectedCCI.value.length > 0) {
+        selectedCCI.value.forEach(person => formData.append('cci', person.email));
+    }
+    formData.append('email', emailSelected.value);
+    // update here with the date and time provided by the user
+    formData.append('datetime', "2024-07-02T10:00:00Z");
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_schedule_email/`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.message === 'Email scheduled successfully!') {
+            // Show the pop-up
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
+            notificationTitle = 'Email scheduled successfully!';
+            notificationMessage = 'Your email will be send on time';
+            displayPopup();
+
+            // Other logic
+            inputValue.value = '';
+            quill.value.root.innerHTML = '';
+            selectedPeople.value = [];
+            selectedCC.value = [];
+            selectedCCI.value = [];
+            stepcontainer = 0;
+            AIContainer.value.innerHTML = '';
+            AIContainer.value = document.getElementById('AIContainer');
+
+            localStorage.removeItem("uploadedFiles");
+            uploadedFiles.value = [];
+            fileObjects.value = [];
+
+            const message = t('constants.sendEmailConstants.emailRecipientRequest');
+            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+            //const ai_icon = happy_icon;
+            displayMessage(message, ai_icon);
+        } else {
+            // Show the pop-up
+            notificationMessage.value = response.error;
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+            displayPopup();
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = error.message;
+        displayPopup();
+    }
+}
+
+
 async function sendEmail() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
@@ -2166,7 +2278,7 @@ async function sendEmail() {
     formData.append('email', emailSelected.value);
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_email/`, {
             method: 'POST',
             body: formData
         });

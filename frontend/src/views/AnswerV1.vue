@@ -78,7 +78,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round"
                   d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
               </svg>
-              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('constants.userActions.answerManually') }}
+              <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                $t('constants.userActions.answerManually') }}
               </h1>
             </div>
           </div>
@@ -245,11 +246,11 @@
                       <MenuItems
                         class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div class="py-1">
-                          <MenuItem v-for="item in items" :key="item.name" v-slot="{ active }">
-                          <a :href="item.href"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                              item.name }}</a>
-                          </MenuItem>
+                          <button
+                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
+                            @click="scheduleSend">
+                            Schedule send
+                          </button>
                         </div>
                       </MenuItems>
                     </transition>
@@ -313,9 +314,6 @@ function displayPopup() {
     dismissPopup();
   }, 4000);
 }
-const items = [
-  { name: 'Envoyer à une heure', href: '#' },
-]
 
 // lists of different types of recipients
 const people = [];
@@ -693,7 +691,7 @@ async function handleAIClick() {
     },
   };
 
-  const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
+  const data = await fetchWithToken(`${API_BASE_URL}user/social_api/get_profile_image/`, requestOptions);
   let imageURL = data.profile_image_url || require('@/assets/user.png');
   const profileImageHTML = `
     <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
@@ -1328,6 +1326,116 @@ async function WriteBetter() {
 
 const router = useRouter();
 
+
+// TODO: add translations
+// TODO: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
+async function scheduleSend() {
+  const emailSubject = inputValue.value;
+  const emailBody = quill.value.root.innerHTML;
+
+  for (const tupleEmail of emailsLinked.value) {
+    if (emailSelected.value === tupleEmail.email && tupleEmail.type_api !== "microsoft") {
+      // Show the pop-up
+      backgroundColor = 'bg-red-200/[.89] border border-red-400';
+      notificationTitle.value = 'Email service provider not supported';
+      notificationMessage.value = 'Scheduled send is only available for Outlook accounts';
+      displayPopup();
+      return;
+    }
+  }
+
+  if (!emailSubject.trim()) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+    notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoSubject');
+    displayPopup();
+    return;
+  } else if (emailBody == "<p><br></p>") {
+    // Show the pop-up
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+    notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
+    displayPopup();
+    return;
+  } else if (selectedPeople.value.length == 0) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+    notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
+    displayPopup();
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append('subject', emailSubject);
+  formData.append('message', emailBody);
+  fileObjects.value.forEach(file => formData.append('attachments', file));
+
+  // Add recipients to formData
+  selectedPeople.value.forEach(person => formData.append('to', person.email));
+
+  // Add CC recipients to formData
+  if (selectedCC.value.length > 0) {
+    selectedCC.value.forEach(person => formData.append('cc', person.email));
+  }
+  // Add BCC recipients to formData
+  if (selectedCCI.value.length > 0) {
+    selectedCCI.value.forEach(person => formData.append('cci', person.email));
+  }
+  formData.append('email', emailSelected.value);
+  // update here with the date and time provided by the user
+  formData.append('datetime', "2024-07-02T10:00:00Z");
+
+  try {
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_schedule_email/`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.message === 'Email scheduled successfully!') {
+      // Show the pop-up
+      backgroundColor = 'bg-green-200/[.89] border border-green-400';
+      notificationTitle = 'Email scheduled successfully!';
+      notificationMessage = 'Your email will be send on time';
+      displayPopup();
+
+      // Other logic
+      inputValue.value = '';
+      quill.value.root.innerHTML = '';
+      selectedPeople.value = [];
+      selectedCC.value = [];
+      selectedCCI.value = [];
+      stepcontainer = 0;
+      AIContainer.value.innerHTML = '';
+      AIContainer.value = document.getElementById('AIContainer');
+
+      localStorage.removeItem("uploadedFiles");
+      uploadedFiles.value = [];
+      fileObjects.value = [];
+
+      const message = t('constants.sendEmailConstants.emailRecipientRequest');
+      const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+      //const ai_icon = happy_icon;
+      displayMessage(message, ai_icon);
+    } else {
+      // Show the pop-up
+      notificationMessage.value = response.error;
+      backgroundColor = 'bg-red-200/[.89] border border-red-400';
+      notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+      displayPopup();
+    }
+  } catch (error) {
+    // Show the pop-up
+    backgroundColor = 'bg-red-200/[.89] border border-red-400';
+    notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+    notificationMessage.value = error.message;
+    displayPopup();
+  }
+}
+
+
 async function sendEmail() {
   const emailSubject = inputValue.value;
   const emailBody = quill.value.root.innerHTML;
@@ -1375,7 +1483,7 @@ async function sendEmail() {
   formData.append('email', emailReceiver);
 
   try {
-    const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_email/`, {
       method: 'POST',
       body: formData
     });

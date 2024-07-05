@@ -27,7 +27,7 @@
 # DEBUGGING DATABASE MIGRATIONS ERROR
 ```bash
 sudo rm -fr backend/MailAssistant/migrations
-docker compose -p {theo_project} run backend python manage.py makemigrations --empty MailAssistant
+docker exec -it augustin_project-backend-1 python manage.py makemigrations --empty MailAssistant
 ./start_{theo}_build.sh
 ./start_{theo}_build.sh
 ```

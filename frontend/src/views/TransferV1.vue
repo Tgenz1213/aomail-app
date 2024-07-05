@@ -2,267 +2,264 @@
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
-        <div class="grid grid-cols-12 2xl:grid-cols-7 gap-8 2xl:gap-6">
-            <div class="col-span-1 2xl:col-span-1">
+        <div class="flex h-full w-full">
+
+            <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
                 <navbar></navbar>
             </div>
-            <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-                <div class="flex gap-4 w-full h-full">
-                    <div id="firstMainColumn"
-                        class="flex-grow bg-gray-100 bg-opacity-75 rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]">
-                        <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
-                        <div
-                            class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-400 bg-opacity-10">
-                            <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
-                            <div class="flex gap-x-2 items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
-                                    stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
-                                </svg>
-                                <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
-                                    $t('Transfer_vue.AI_assistant') }}</h1>
-                            </div>
-                        </div>
-                        <div class="flex flex-col divide-y xl:h-[85vh] 2xl:h-[755px]">
-                            <div class="overflow-y-auto xl:h-[75vh] 2xl:h-[calc(5/8*100vh)]" style="margin-right: 2px;"
-                                ref="scrollableDiv">
-                                <div class="px-10 py-6">
-                                    <div class="flex-grow">
-                                        <div id="AIContainer">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
+            <!--If this code is needed add two closes div at the end of the template !!!!-->
+            <!-- <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
+                <div class="flex gap-4 w-full h-full">-->
+
+
+            <div id="firstMainColumn"
+                class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
+                <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
+
+
+                <!-- titre -->
+                <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
+                    <div class="flex gap-x-3 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                            stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                        </svg>
+                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('constants.aiAssistant')
+                            }}</h1>
+                    </div>
+                </div>
+
+                <!-- IA assistant-->
+                <div class="flex flex-1 flex-col divide-y">
+                    <div class="overflow-y-auto flex-1" style="margin-right: 2px;" ref="scrollableDiv">
+                        <div class="px-10 py-4 2xl:px-13.5 2xl:py-6">
                             <div class="flex-grow">
-                                <div class="flex px-6 2xl:py-8 pb-6 pt-4 relative w-full">
-                                    <!-- Old value (26/12/2023) -->
-                                    <div class="flex flex-grow items-stretch">
-                                        <textarea id="dynamicTextarea" @keydown.enter="handleEnterKey"
-                                            @input="adjustHeight" v-model="textareaValue"
-                                            class="overflow-y-hidden left-0 pl-3 only:block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                            placeholder="Instruction"></textarea>
-                                    </div>
-                                    <button type="button" @click="handleAIClick"
-                                        class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 bg-gray-50 hover:bg-gray-50 z-50">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"
-                                            stroke-width="1.5" stroke="rgb(243 244 246)" class="w-6 h-6 text-gray-400">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-                                        </svg>
-                                    </button>
+                                <div id="AIContainer">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div id="secondMainColumn"
-                        class="flex-grow bg-white rounded-xl lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow hover:shadow-lg h-full xl:w-[43vw] 2xl:w-[700px]">
-                        <!--xl:h-[695px] xl:w-[560px]-->
-                        <div class="flex flex-col divide-y divide-gray-200 h-full w-full">
-                            <div
-                                class="flex items-center justify-center h-[65px] 2xl:h-[75px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
-                                <div class="flex gap-x-2 items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                                    </svg>
-                                    <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
-                                        $t('Transfer_vue.manual_search') }}
-                                    </h1>
-                                </div>
-                            </div>
-                            <form class="flex flex-grow w-full px-10">
-                                <div class="flex flex-col space-y-6 h-full w-full">
-                                    <div class="pt-8">
-                                        <div class="flex flex-wrap">
-                                            <!-- Main Recipients List -->
-                                            <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
-                                                <div v-for="person in selectedPeople" :key="person.email"
-                                                    class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                                                    {{ person.username || person.email }}
-                                                    <button @click="removePersonFromMain(person)">×</button>
-                                                </div>
-                                            </div>
-                                            <!-- CC Recipients List -->
-                                            <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
-                                                <div v-for="person in selectedCC" :key="person.email"
-                                                    class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                                                    <span class="font-semibold mr-1">CC:</span>
-                                                    {{ person.username || person.email }}
-                                                    <button @click="removePersonFromCC(person)">×</button>
-                                                </div>
-                                            </div>
-                                            <!-- CCI Recipients List -->
-                                            <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
-                                                <div v-for="person in selectedCCI" :key="person.email"
-                                                    class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
-                                                    <span class="font-semibold mr-1">CCI:</span>
-                                                    {{ person.username || person.email }}
-                                                    <button @click="removePersonFromCCI(person)">×</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-stretch gap-1">
-                                            <div class="flex-grow">
-                                                <div class="relative items-stretch">
-                                                    <div class="relative w-full">
-                                                        <div v-if="!isFocused2"
-                                                            class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2">
-                                                            <UserGroupIcon class="w-4 h-4 pointer-events-none" />
-                                                            <label for="email"
-                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{
-                                                                    $t('Transfer_vue.recipient') }}</label>
-                                                        </div>
-                                                        <Combobox as="div" v-model="selectedPerson"
-                                                            @update:model-value="personSelected">
-                                                            <ComboboxInput id="recipients"
-                                                                class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                                                                @change="query = $event.target.value"
-                                                                :display-value="(person) => person?.name"
-                                                                @focus="handleFocusDestinary"
-                                                                @blur="handleBlur2($event)"
-                                                                @keydown.enter="handleEnterKey" />
-                                                            <ComboboxButton
-                                                                class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                                                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400"
-                                                                    aria-hidden="true" />
-                                                            </ComboboxButton>
-                                                            <!-- List possible email according to current input -->
-                                                            <!-- && filteredPeople.length <= 10" -->
-                                                            <ComboboxOptions v-if="filteredPeople.length > 0"
-                                                                class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
-                                                                style="z-index: 21">
-                                                                <ComboboxOption v-for="person in filteredPeople"
-                                                                    :key="person.username" :value="person" as="template"
-                                                                    v-slot="{ active, selected }">
-                                                                    <li
-                                                                        :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
-                                                                        <div class="flex">
-                                                                            <span
-                                                                                :class="['truncate', selected && 'font-semibold']">
-                                                                                {{ person.username }}
-                                                                            </span>
-                                                                            <span
-                                                                                :class="['ml-2 truncate text-gray-800', active ? 'text-gray-200' : 'text-gray-800']">
-                                                                                {{ person.email }}
-                                                                            </span>
-                                                                        </div>
-                                                                        <span v-if="selected"
-                                                                            :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
-                                                                            <CheckIcon class="h-5 w-5"
-                                                                                aria-hidden="true" />
-                                                                        </span>
-                                                                    </li>
-                                                                </ComboboxOption>
-                                                            </ComboboxOptions>
-                                                        </Combobox>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex gap-1">
-                                                <button type="button" @click="toggleCC"
-                                                    :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                                                    class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                                                    {{ $t('newPage.carbonCopyInitials') }}
-                                                </button>
-
-                                                <!-- CCI Button -->
-                                                <button type="button" @click="toggleCCI"
-                                                    :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
-                                                    class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
-                                                    {{ $t('newPage.blindCarbonCopyInitials') }}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="">
-                                        <div class="flex flex-wrap">
-                                            <div v-for="(file, index) in uploadedFiles" :key="index"
-                                                class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
-                                                {{ file.name }}
-                                                <button @click="removeFile(index)">×</button>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-stretch gap-1">
-                                            <div class="flex-grow">
-                                                <div
-                                                    class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
-                                                    <div class="relative w-full">
-                                                        <div v-if="!isFocused && !inputValue"
-                                                            class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10">
-                                                            <Bars2Icon class="w-4 h-4 pointer-events-none" />
-                                                            <label for="username"
-                                                                class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{
-                                                                    $t('Transfer_vue.subject') }}</label>
-                                                        </div>
-                                                        <input id="objectInput" v-model="inputValue" type="text"
-                                                            class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
-                                                            @focus="handleFocusObject" @blur="handleBlur" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex">
-                                                <input type="file" ref="fileInput" @change="handleFileUpload" multiple
-                                                    hidden>
-                                                <button @click="triggerFileInput" type="button"
-                                                    class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-transparent hover:bg-gray-600 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                        class="w-6 h-6">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col flex-grow">
-                                        <div class="flex-grow mb-20 h-[200px]">
-                                            <div id="editor" class="w-full"></div>
-                                            <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
-                                        </div>
-                                        <div class="flex mb-4">
-                                            <div class="inline-flex rounded-lg shadow-lg">
-                                                <button @click="sendEmail" :disabled="emailTransfered"
-                                                    class="bg-gray-600 rounded-l-lg px-6 py-1 text-md font-semibold text-white hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
-                                                    {{ $t('Transfer_vue.send') }}</button>
-
-                                                <Menu as="div" class="relative -ml-px block">
-                                                    <MenuButton
-                                                        class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
-                                                        <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
-                                                        <span class="sr-only">Open options</span>
-                                                        <ChevronDownIcon class="h-8 w-5" aria-hidden="true" />
-                                                    </MenuButton>
-                                                    <transition enter-active-class="transition ease-out duration-100"
-                                                        enter-from-class="transform opacity-0 scale-95"
-                                                        enter-to-class="transform opacity-100 scale-100"
-                                                        leave-active-class="transition ease-in duration-75"
-                                                        leave-from-class="transform opacity-100 scale-100"
-                                                        leave-to-class="transform opacity-0 scale-95">
-                                                        <MenuItems
-                                                            class="absolute right-0 z-10 -mr-1 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                            <div class="py-1">
-                                                                <MenuItem v-for="item in items" :key="item.name"
-                                                                    v-slot="{ active }">
-                                                                <a :href="item.href"
-                                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']">{{
-                                                                        item.name }}</a>
-                                                                </MenuItem>
-                                                            </div>
-                                                        </MenuItems>
-                                                    </transition>
-                                                </Menu>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+                    <div class="flex flex-col h-[22vh] 2xl:h-[23vh]">
+                        <textarea id="dynamicTextarea" @input="adjustHeight" v-model="textareaValue"
+                            class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
+                            placeholder="Instruction">
+                            </textarea>
+                        <div class="flex justify-end m-3 2xl:m-5">
+                            <button type="button" @click="handleAIClick"
+                                class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button>
                         </div>
                     </div>
                 </div>
             </div>
+
+
+
+            <div id="secondMainColumn"
+                class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
+                <!--xl:h-[695px] xl:w-[560px]-->
+                <div class="flex flex-col  h-full w-full">
+                    <!--titre -->
+                    <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
+                        <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+                        <div class="flex gap-x-3 items-center ">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
+                                stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+                            </svg>
+                            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{
+                                $t('constants.manualSearch') }}</h1>
+                        </div>
+                    </div>
+
+                    <form class="flex flex-grow w-full px-10">
+                        <div class="flex flex-col space-y-6 h-full w-full">
+                            <div class="pt-8">
+                                <div class="flex flex-wrap">
+                                    <!-- Main Recipients List -->
+                                    <div v-if="selectedPeople.length > 0" class="flex items-center mb-1">
+                                        <div v-for="person in selectedPeople" :key="person.email"
+                                            class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                            {{ person.username || person.email }}
+                                            <button @click="removePersonFromMain(person)">×</button>
+                                        </div>
+                                    </div>
+                                    <!-- CC Recipients List -->
+                                    <div v-if="selectedCC.length > 0" class="flex items-center mb-1">
+                                        <div v-for="person in selectedCC" :key="person.email"
+                                            class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                            <span class="font-semibold mr-1">CC:</span>
+                                            {{ person.username || person.email }}
+                                            <button @click="removePersonFromCC(person)">×</button>
+                                        </div>
+                                    </div>
+                                    <!-- CCI Recipients List -->
+                                    <div v-if="selectedCCI.length > 0" class="flex items-center mb-1">
+                                        <div v-for="person in selectedCCI" :key="person.email"
+                                            class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1">
+                                            <span class="font-semibold mr-1">CCI:</span>
+                                            {{ person.username || person.email }}
+                                            <button @click="removePersonFromCCI(person)">×</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-stretch gap-1">
+                                    <div class="flex-grow">
+                                        <div class="relative items-stretch">
+                                            <div class="relative w-full">
+                                                <div v-if="!isFocused2"
+                                                    class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2">
+                                                    <UserGroupIcon class="w-4 h-4 pointer-events-none" />
+                                                    <label for="email"
+                                                        class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{
+                                                            $t('constants.recipient') }}</label>
+                                                </div>
+                                                <Combobox as="div" v-model="selectedPerson"
+                                                    @update:model-value="personSelected">
+                                                    <ComboboxInput id="recipients"
+                                                        class="w-full h-10 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                                                        @change="query = $event.target.value"
+                                                        :display-value="(person) => person?.name"
+                                                        @focus="handleFocusDestinary" @blur="handleBlur2($event)"
+                                                        @keydown.enter="handleEnterKey" />
+                                                    <ComboboxButton
+                                                        class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                                                        <ChevronUpDownIcon class="h-5 w-5 text-gray-400"
+                                                            aria-hidden="true" />
+                                                    </ComboboxButton>
+                                                    <!-- List possible email according to current input -->
+                                                    <!-- && filteredPeople.length <= 10" -->
+                                                    <ComboboxOptions v-if="filteredPeople.length > 0"
+                                                        class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                                                        style="z-index: 21">
+                                                        <ComboboxOption v-for="person in filteredPeople"
+                                                            :key="person.username" :value="person" as="template"
+                                                            v-slot="{ active, selected }">
+                                                            <li
+                                                                :class="['relative cursor-default select-none py-2 pl-3 pr-9', active ? 'bg-gray-500 text-white' : 'text-gray-900']">
+                                                                <div class="flex">
+                                                                    <span
+                                                                        :class="['truncate', selected && 'font-semibold']">
+                                                                        {{ person.username }}
+                                                                    </span>
+                                                                    <span
+                                                                        :class="['ml-2 truncate text-gray-800', active ? 'text-gray-200' : 'text-gray-800']">
+                                                                        {{ person.email }}
+                                                                    </span>
+                                                                </div>
+                                                                <span v-if="selected"
+                                                                    :class="['absolute inset-y-0 right-0 flex items-center pr-4', active ? 'text-white' : 'text-gray-500']">
+                                                                    <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                                                </span>
+                                                            </li>
+                                                        </ComboboxOption>
+                                                    </ComboboxOptions>
+                                                </Combobox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-1">
+                                        <button type="button" @click="toggleCC"
+                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CC' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                                            class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                                            {{ $t('newPage.carbonCopyInitials') }}
+                                        </button>
+
+                                        <!-- CCI Button -->
+                                        <button type="button" @click="toggleCCI"
+                                            :class="['inline-flex items-center gap-x-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold hover:bg-gray-600 hover:text-white', activeType === 'CCI' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-400']"
+                                            class="ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                                            {{ $t('newPage.blindCarbonCopyInitials') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div class="flex flex-wrap">
+                                    <div v-for="(file, index) in uploadedFiles" :key="index"
+                                        class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1">
+                                        {{ file.name }}
+                                        <button @click="removeFile(index)">×</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-stretch gap-1">
+                                    <div class="flex-grow">
+                                        <div
+                                            class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full">
+                                            <div class="relative w-full">
+                                                <div v-if="!isFocused && !inputValue"
+                                                    class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10">
+                                                    <Bars2Icon class="w-4 h-4 pointer-events-none" />
+                                                    <label for="username"
+                                                        class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none">{{
+                                                            $t('newPage.subject') }}</label>
+                                                </div>
+                                                <input id="objectInput" v-model="inputValue" type="text"
+                                                    class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
+                                                    @focus="handleFocusObject" @blur="handleBlur" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex">
+                                        <input type="file" ref="fileInput" @change="handleFileUpload" multiple hidden>
+                                        <button @click="triggerFileInput" type="button"
+                                            class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2.5 py-1.5 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-300 shadow-sm hover:ring-transparent hover:bg-gray-600 hover:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col flex-grow">
+                                <div class="flex-grow mb-20 h-[200px]">
+                                    <div id="editor" class="w-full"></div>
+                                    <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
+                                </div>
+                                <div class="flex mb-4">
+                                    <div class="inline-flex rounded-lg shadow-lg">
+                                        <button @click="sendEmail" :disabled="emailTransfered"
+                                            class="bg-gray-700 rounded-l-lg px-6 py-2 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center 2xl:px-7 2xl:py-3 2xl:text-lg">
+                                            {{ $t('constants.userActions.send') }}
+                                        </button>
+
+                                        <Menu as="div" class="relative -ml-px block">
+                                            <MenuButton
+                                                class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
+                                                <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                                                <span class="sr-only">Open options</span>
+                                                <ChevronDownIcon class="h-9 w-5" aria-hidden="true" />
+                                            </MenuButton>
+                                            <transition enter-active-class="transition ease-out duration-100"
+                                                enter-from-class="transform opacity-0 scale-95"
+                                                enter-to-class="transform opacity-100 scale-100"
+                                                leave-active-class="transition ease-in duration-75"
+                                                leave-from-class="transform opacity-100 scale-100"
+                                                leave-to-class="transform opacity-0 scale-95">
+                                                <MenuItems
+                                                    class="absolute right-0 z-10 -mr-1 bottom-full mb-2 w-56 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                                    <div class="py-1">
+                                                        <button
+                                                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
+                                                            @click="scheduleSend">
+                                                            Schedule send
+                                                        </button>
+                                                    </div>
+                                                </MenuItems>
+                                            </transition>
+                                        </Menu>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 </template>
@@ -303,9 +300,7 @@ let emailTransfered = ref(false);
 const route = useRoute();
 const router = useRouter();
 const userSearchResult = ref(null);
-const items = [
-    { name: 'Envoyer à une heure', href: '#' },
-]
+
 // lists of different types of recipients
 const people = [];
 
@@ -564,7 +559,7 @@ async function findUser(searchQuery) {
     };
 
     try {
-        const data = await fetchWithToken(`${API_BASE_URL}api/find-user-ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
+        const data = await fetchWithToken(`${API_BASE_URL}api/find_user_ai/?query=` + encodeURIComponent(searchQuery), requestOptions);
         console.log(data);
         userSearchResult.value = data; // Update the reactive variable
         return data
@@ -593,7 +588,7 @@ async function handleAIClick() {
         },
     };
 
-    const data = await fetchWithToken(`${API_BASE_URL}api/get_profile_image/`, requestOptions);
+    const data = await fetchWithToken(`${API_BASE_URL}user/social_api/get_profile_image/`, requestOptions);
     let imageURL = data.profile_image_url || require('@/assets/user.png');
     const profileImageHTML = `
       <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
@@ -1054,6 +1049,116 @@ function hideLoading() {
     }
 }
 
+
+
+// TODO: add translations
+// TODO: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
+async function scheduleSend() {
+    const emailSubject = inputValue.value;
+    const emailBody = quill.value.root.innerHTML;
+
+    for (const tupleEmail of emailsLinked.value) {
+        if (emailSelected.value === tupleEmail.email && tupleEmail.type_api !== "microsoft") {
+            // Show the pop-up
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle.value = 'Email service provider not supported';
+            notificationMessage.value = 'Scheduled send is only available for Outlook accounts';
+            displayPopup();
+            return;
+        }
+    }
+
+    if (!emailSubject.trim()) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoSubject');
+        displayPopup();
+        return;
+    } else if (emailBody == "<p><br></p>") {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoObject');
+        displayPopup();
+        return;
+    } else if (selectedPeople.value.length == 0) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailSendErrorNoRecipient');
+        displayPopup();
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append('subject', emailSubject);
+    formData.append('message', emailBody);
+    fileObjects.value.forEach(file => formData.append('attachments', file));
+
+    // Add recipients to formData
+    selectedPeople.value.forEach(person => formData.append('to', person.email));
+
+    // Add CC recipients to formData
+    if (selectedCC.value.length > 0) {
+        selectedCC.value.forEach(person => formData.append('cc', person.email));
+    }
+    // Add BCC recipients to formData
+    if (selectedCCI.value.length > 0) {
+        selectedCCI.value.forEach(person => formData.append('cci', person.email));
+    }
+    formData.append('email', emailSelected.value);
+    // update here with the date and time provided by the user
+    formData.append('datetime', "2024-07-02T10:00:00Z");
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_schedule_email/`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.message === 'Email scheduled successfully!') {
+            // Show the pop-up
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
+            notificationTitle = 'Email scheduled successfully!';
+            notificationMessage = 'Your email will be send on time';
+            displayPopup();
+
+            // Other logic
+            inputValue.value = '';
+            quill.value.root.innerHTML = '';
+            selectedPeople.value = [];
+            selectedCC.value = [];
+            selectedCCI.value = [];
+            stepcontainer = 0;
+            AIContainer.value.innerHTML = '';
+            AIContainer.value = document.getElementById('AIContainer');
+
+            localStorage.removeItem("uploadedFiles");
+            uploadedFiles.value = [];
+            fileObjects.value = [];
+
+            const message = t('constants.sendEmailConstants.emailRecipientRequest');
+            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+            //const ai_icon = happy_icon;
+            displayMessage(message, ai_icon);
+        } else {
+            // Show the pop-up
+            notificationMessage.value = response.error;
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+            displayPopup();
+        }
+    } catch (error) {
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle.value = t('constants.popUpConstants.errorMessages.emailSendError');
+        notificationMessage.value = error.message;
+        displayPopup();
+    }
+}
+
 async function sendEmail() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
@@ -1101,7 +1206,7 @@ async function sendEmail() {
     formData.append('email', emailReceiver);
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}api/send_email/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/send_email/`, {
             method: 'POST',
             body: formData
         });

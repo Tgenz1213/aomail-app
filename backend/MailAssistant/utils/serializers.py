@@ -10,7 +10,6 @@ from ..models import (
     Message,
     Category,
     Email,
-    BulletPoint,
     Rule,
     Preference,
     Sender,
@@ -28,6 +27,18 @@ class EmailDataSerializer(serializers.Serializer):
     cc = serializers.ListField(required=False)
     cci = serializers.ListField(required=False)
     attachments = serializers.ListField(child=serializers.FileField(), required=False)
+
+
+class EmailScheduleDataSerializer(serializers.Serializer):
+    """Serializer for scheduling emails (POST request)."""
+
+    to = serializers.ListField(child=serializers.EmailField(), required=True)
+    subject = serializers.CharField(required=True)
+    message = serializers.CharField(required=False, allow_blank=True)
+    cc = serializers.ListField(child=serializers.EmailField(), required=False)
+    bcc = serializers.ListField(child=serializers.EmailField(), required=False)
+    attachments = serializers.ListField(child=serializers.FileField(), required=False)
+    datetime = serializers.DateTimeField(required=True)
 
 
 class EmailReadUpdateSerializer(serializers.ModelSerializer):
@@ -92,6 +103,7 @@ class EmailGenerateAnswer(serializers.Serializer):
 
 
 # ----------------------- USER  SERIALIZER -----------------------#
+# TODO: remove when deleting attribute bg_color from models.py
 class PreferencesSerializer(serializers.ModelSerializer):
     """Serializer for handling 'Preferences' model data in API interactions."""
 
@@ -210,11 +222,3 @@ class UserEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Email
         fields = ("email_short_summary", "content", "subject", "priority")
-
-
-class BulletPointSerializer(serializers.ModelSerializer):
-    """Serializer for retrieving all bullet points through a GET request."""
-
-    class Meta:
-        model = BulletPoint
-        fields = "__all__"

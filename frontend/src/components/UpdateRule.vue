@@ -298,7 +298,7 @@ export default {
           throw new Error("Rule ID is required for deletion.");
         }
 
-        const deleteUrl = `${API_BASE_URL}user/delete-rules/${this.formData.id}`;
+        const deleteUrl = `${API_BASE_URL}user/delete_rules/${this.formData.id}`;
 
         const deleteResponse = await fetchWithToken(deleteUrl, {
           method: 'DELETE'
@@ -435,7 +435,7 @@ export default {
 
         if (this.formData.category) {
           // Fetch the category ID using fetchWithToken
-          const categoryUrl = `${API_BASE_URL}api/get-category-id/`;
+          const categoryUrl = `${API_BASE_URL}api/get_category_id/`;
           const categoryData = await fetchWithToken(categoryUrl, {
             method: 'POST',
             headers: {
@@ -463,7 +463,7 @@ export default {
         }
         console.log("RuleData", ruleData);
 
-        const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/update-rule/`, {
+        const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/update_rule/`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'

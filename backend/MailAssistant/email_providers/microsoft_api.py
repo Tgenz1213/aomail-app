@@ -3,6 +3,8 @@ Handles authentication and HTTP requests for the Microsoft Graph API.
 
 TODO:
 - [SUBSCRIPTION] handle "subscriptionRemoved or missed"
+- Split into smaller functions: email_to_db + opti the function first
+- Add a function save_email_to_db as a utility function common to all email providers
 """
 
 import base64
@@ -31,11 +33,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import View
 from rest_framework.response import Response
 from MailAssistant.ai_providers import claude
-from MailAssistant.controllers.tree_knowledge import Search
+from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
-from MailAssistant.utils.serializers import EmailDataSerializer
-from .. import library
+from MailAssistant.utils.serializers import (
+    EmailDataSerializer,
+    EmailScheduleDataSerializer,
+)
+from ..utils import email_processing
 from MailAssistant.constants import (
     FREE_PLAN,
     ADMIN_EMAIL_LIST,
@@ -44,8 +49,6 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
     GRAPH_URL,
-    IMPORTANT,
-    INFORMATION,
     MAX_RETRIES,
     MICROSOFT_AUTHORITY,
     MICROSOFT_CLIENT_STATE,
@@ -54,10 +57,8 @@ from MailAssistant.constants import (
     MICROSOFT_SCOPES,
     REDIRECT_URI_LINK_EMAIL,
     REDIRECT_URI_SIGNUP,
-    USELESS,
 )
 from ..models import (
-    BulletPoint,
     Category,
     Contact,
     Email,
@@ -409,7 +410,6 @@ def get_unique_senders(access_token: str) -> dict:
 
 
 @api_view(["GET"])
-# @permission_classes([IsAuthenticated])
 @subscription([FREE_PLAN])
 def get_profile_image(request: HttpRequest) -> Response:
     """
@@ -508,7 +508,119 @@ def get_email(access_token: str) -> dict:
 
 ######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
+@subscription([FREE_PLAN])
+def send_schedule_email(request: HttpRequest) -> Response:
+    """
+    Schedule the sending of an email using the Microsoft Graph API with deferred delivery.
+
+    Args:
+        request (HttpRequest): HTTP request object containing POST data with email details.
+
+    Returns:
+        Response: Response indicating success or error.
+    """
+    user = request.user
+    email = request.POST.get("email")
+    social_api = get_social_api(user, email)
+
+    if not social_api:
+        return Response(
+            {"error": "Social API credentials not found"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    access_token = refresh_access_token(social_api)
+    serializer = EmailScheduleDataSerializer(data=request.POST)
+
+    if serializer.is_valid():
+        data = serializer.validated_data
+        try:
+            send_datetime: datetime.datetime = data["datetime"]
+            subject = data["subject"]
+            message = data["message"]
+            to = data["to"]
+            cc = data.get("cc")
+            bcc = data.get("bcc")
+            attachments: list[UploadedFile] = data.get("attachments", [])
+            all_recipients = to + (cc if cc else []) + (bcc if bcc else [])
+
+            graph_endpoint = f"{GRAPH_URL}me/sendMail"
+            headers = get_headers(access_token)
+
+            email_content = {
+                "message": {
+                    "subject": subject,
+                    "body": {"contentType": "HTML", "content": message},
+                    "toRecipients": [
+                        {"emailAddress": {"address": email}} for email in to
+                    ],
+                    "singleValueExtendedProperties": [
+                        {"id": "SystemTime 0x3FEF", "value": send_datetime.isoformat()}
+                    ],
+                }
+            }
+
+            if cc:
+                email_content["message"]["ccRecipients"] = [
+                    {"emailAddress": {"address": email}} for email in cc
+                ]
+
+            if bcc:
+                email_content["message"]["bccRecipients"] = [
+                    {"emailAddress": {"address": email}} for email in bcc
+                ]
+
+            if attachments:
+                email_content["message"]["attachments"] = []
+
+                for file_data in attachments:
+                    file_name = file_data.name
+                    file_content = file_data.read()
+                    attachment = base64.b64encode(file_content).decode("utf-8")
+                    email_content["message"]["attachments"].append(
+                        {
+                            "@odata.type": "#microsoft.graph.fileAttachment",
+                            "name": file_name,
+                            "contentBytes": attachment,
+                        }
+                    )
+
+            try:
+                response = requests.post(
+                    graph_endpoint, headers=headers, json=email_content
+                )
+
+                if response.status_code == 202:
+                    threading.Thread(
+                        target=email_processing.save_contacts,
+                        args=(user, email, all_recipients),
+                    ).start()
+                    return Response(
+                        {"message": "Email scheduled successfully!"},
+                        status=status.HTTP_202_ACCEPTED,
+                    )
+                else:
+                    response_data: dict = response.json()
+                    error = response_data.get("error", response.reason)
+                    LOGGER.error(f"Failed to schedule email: {error}")
+                    return Response({"error": error}, status=response.status_code)
+
+            except Exception as e:
+                LOGGER.error(f"Failed to send email: {str(e)}")
+                return Response(
+                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+        except Exception as e:
+            LOGGER.error(f"Error preparing email data: {str(e)}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
 @subscription([FREE_PLAN])
 def send_email(request: HttpRequest) -> Response:
     """
@@ -589,7 +701,8 @@ def send_email(request: HttpRequest) -> Response:
 
                 if response.status_code == 202:
                     threading.Thread(
-                        target=library.save_contacts, args=(user, email, all_recipients)
+                        target=email_processing.save_contacts,
+                        args=(user, email, all_recipients),
                     ).start()
                     return Response(
                         {"message": "Email sent successfully!"},
@@ -613,7 +726,7 @@ def send_email(request: HttpRequest) -> Response:
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 def delete_email(email_id: int, social_api: SocialAPI) -> dict:
@@ -913,7 +1026,7 @@ def search_emails(access_token: str, search_query: str, max_results=2) -> dict:
 
                 # Additional filtering: Check if the sender email/name matches the search query
                 if search_query.lower() in email or search_query.lower() in name:
-                    if email and not library.is_no_reply_email(email):
+                    if email and not email_processing.is_no_reply_email(email):
                         found_emails[email] = name
 
         return found_emails
@@ -978,7 +1091,9 @@ def set_all_contacts(access_token: str, user: User):
         for contact_info, emails in all_contacts.items():
             _, name, email_address, provider_id = contact_info
             for _ in emails:
-                library.save_email_sender(user, name, email_address, provider_id)
+                email_processing.save_email_sender(
+                    user, name, email_address, provider_id
+                )
 
         formatted_time = str(datetime.timedelta(seconds=time.time() - start))
         LOGGER.info(
@@ -1073,7 +1188,6 @@ def get_mail_to_db(
             str: Preprocessed email content.
             str: ID of the email message.
             datetime.datetime: Sent date and time of the email.
-            str: Web link to view the email in Outlook. (TODO: delete and update doc)
             bool: Flag indicating whether the email has attachments.
             bool: Flag indicating whether the email is a reply ('RE:' in subject).
 
@@ -1099,10 +1213,6 @@ def get_mail_to_db(
     response = requests.get(message_url, headers=headers)
     message_data: dict = response.json()
 
-    # TODO: delete => and in models too
-    conversation_id = message_data.get("conversationId")
-    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
-
     has_attachments = message_data["hasAttachments"]
     subject: str = message_data.get("subject")
     is_reply: bool = subject.lower().startswith("re:")
@@ -1114,8 +1224,8 @@ def get_mail_to_db(
         sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
         sent_date = make_aware(sent_date)
     decoded_data = parse_message_body(message_data)
-    decoded_data_temp = library.html_clear(decoded_data)
-    preprocessed_data = library.preprocess_email(decoded_data_temp)
+    decoded_data_temp = email_processing.html_clear(decoded_data)
+    preprocessed_data = email_processing.preprocess_email(decoded_data_temp)
 
     return (
         subject,
@@ -1123,7 +1233,6 @@ def get_mail_to_db(
         preprocessed_data,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
     )
@@ -1631,7 +1740,7 @@ class MicrosoftContactNotification(View):
                             email = contact_data.get("emailAddresses")[0].get("address")
 
                             if change_type == "created":
-                                library.save_email_sender(
+                                email_processing.save_email_sender(
                                     subscription.user, name, email, id_contact
                                 )
 
@@ -1712,7 +1821,6 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         decoded_data,
         email_id,
         sent_date,
-        web_link,
         has_attachments,
         is_reply,
     ) = get_mail_to_db(access_token, None, id_email)
@@ -1728,7 +1836,7 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         )
         return False
 
-    category_dict = library.get_db_categories(user)
+    category_dict = email_processing.get_db_categories(user)
     category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
     rules = Rule.objects.filter(sender=sender)
     rule_category = None
@@ -1749,7 +1857,7 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
 
     if is_reply:
         # Summarize conversation with Search
-        email_content = library.preprocess_email(decoded_data)
+        email_content = email_processing.preprocess_email(decoded_data)
         user_id = user.id
         search = Search(user_id)
         conversation_summary = search.summarize_conversation(
@@ -1757,45 +1865,30 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         )
     else:
         # Summarize single email with Search
-        email_content = library.preprocess_email(decoded_data)
+        email_content = email_processing.preprocess_email(decoded_data)
         user_id = user.id
         search = Search(user_id)
         email_summary = search.summarize_email(
             subject, email_content, user_description, language
         )
 
-    (
-        topic,
-        importance_dict,
-        answer,
-        summary_list,
-        sentence,
-        relevance,
-    ) = claude.categorize_and_summarize_email(
-        subject, decoded_data, category_dict, user_description
+    email_processed = claude.categorize_and_summarize_email(
+        subject, decoded_data, category_dict, user_description, from_name[1]
     )
 
-    importance = None
-
-    if importance_dict["UrgentWorkInformation"] >= 50:
-        importance = IMPORTANT
-    else:
-        max_percentage = 0
-        for key, value in importance_dict.items():
-            if value > max_percentage:
-                importance = key
-                if importance == "Promotional" or importance == "News":
-                    importance = USELESS
-                elif (
-                    importance == "RoutineWorkUpdates"
-                    or importance == "InternalCommunications"
-                ):
-                    importance = INFORMATION
-                elif importance == "UrgentWorkInformation":
-                    importance = IMPORTANT
-                max_percentage = importance_dict[key]
-        if max_percentage == 0:
-            importance = INFORMATION
+    priority: str = email_processed["importance"]
+    topic: str = email_processed["topic"]
+    answer: str = email_processed["response"]
+    relevance: str = email_processed["relevance"]
+    flags: dict = email_processed["flags"]
+    spam: bool = flags["spam"]
+    scam: bool = flags["scam"]
+    newsletter: bool = flags["newsletter"]
+    notification: bool = flags["notification"]
+    meeting: bool = flags["meeting"]
+    summary: dict = email_processed["summary"]
+    short_summary: str = summary["short"]
+    one_line_summary: str = summary["one_line"]
 
     if not rule_category:
         if topic in category_dict:
@@ -1815,20 +1908,22 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
             social_api=social_api,
             provider_id=email_id,
             email_provider=MICROSOFT_PROVIDER,
-            email_short_summary=sentence,
-            content=decoded_data,
+            short_summary=short_summary,
+            one_line_summary=one_line_summary,
             subject=subject,
-            priority=importance,
-            read=False,
-            answer_later=False,
+            priority=priority,
             sender=sender,
             category=category,
             user=user,
             date=sent_date,
-            web_link=web_link,
             has_attachments=has_attachments,
             answer=answer,
             relevance=relevance,
+            spam=spam,
+            scam=scam,
+            newsletter=newsletter,
+            notification=notification,
+            meeting=meeting,
         )
 
         if is_reply:
@@ -1868,10 +1963,6 @@ def email_to_db(user: User, email: str, id_email: str) -> bool | str:
         Contact.objects.get_or_create(
             user=user, email=contact_email, username=contact_name
         )
-
-        if summary_list:
-            for point in summary_list:
-                BulletPoint.objects.create(content=point, email=email_entry)
 
         LOGGER.info(
             f"Email ID: {id_email} saved to database successfully for user ID: {user.id} using Microsoft Graph API"
@@ -1913,10 +2004,6 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
     response = requests.get(message_url, headers=headers)
     message_data: dict = response.json()
 
-    # TODO: delete => and in models too
-    conversation_id = message_data.get("conversationId")
-    web_link = f"https://outlook.office.com/mail/inbox/id/{urllib.parse.quote(conversation_id)}"
-
     subject = message_data.get("subject")
     sender = message_data.get("from")
     from_info = parse_name_and_email(sender)
@@ -1945,5 +2032,4 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
         bcc_info,
         email_id,
         sent_date,
-        web_link,
     )

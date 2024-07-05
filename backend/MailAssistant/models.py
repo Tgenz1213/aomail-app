@@ -114,31 +114,28 @@ class Email(models.Model):
         SocialAPI, on_delete=models.CASCADE, related_name="social_api_emails", null=True
     )
     provider_id = models.CharField(max_length=200, unique=True)
-
     email_provider = models.CharField(max_length=50)
-    email_short_summary = models.CharField(max_length=500)
-    # TO ADD
-    # one_line_summary = models.CharField(max_length=500)
-
-    # TO DELETE
-    web_link = models.CharField(max_length=200, null=True)
-    # TO DELETE (duplicate with html_content)
-    content = models.TextField()
-
-    html_content = models.TextField(default="")  # quick fix
+    short_summary = models.CharField(max_length=1000)
+    one_line_summary = models.CharField(max_length=200)
+    html_content = models.TextField(default="")
     subject = models.CharField(max_length=400)
     priority = models.CharField(max_length=50)
-    read = models.BooleanField()
-    read_date = models.DateTimeField(null=True)
-    answer_later = models.BooleanField()
+    read = models.BooleanField(default=False)
+    read_date = models.DateTimeField(null=True, default=None)
+    answer_later = models.BooleanField(default=False)
     sender = models.ForeignKey(
         Sender, on_delete=models.CASCADE, related_name="related_emails"
     )
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    date = models.DateTimeField(null=True)
+    date = models.DateTimeField(null=True, blank=True)
     has_attachments = models.BooleanField(default=False)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     answer = models.CharField(max_length=50, default="")
     relevance = models.CharField(max_length=50, default="")
+    spam = models.BooleanField(default=False)
+    scam = models.BooleanField(default=False)
+    newsletter = models.BooleanField(default=False)
+    notification = models.BooleanField(default=False)
+    meeting = models.BooleanField(default=False)
 
 
 class Attachment(models.Model):
@@ -176,14 +173,6 @@ class Picture(models.Model):
         Email, on_delete=models.CASCADE, related_name="picture_mail"
     )
     picture = models.TextField()
-
-
-# TO DELETE
-class BulletPoint(models.Model):
-    """Model for storing bullet points."""
-
-    content = models.TextField()
-    email = models.ForeignKey(Email, on_delete=models.CASCADE)
 
 
 class KeyPoint(models.Model):

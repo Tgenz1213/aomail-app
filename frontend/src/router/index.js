@@ -199,8 +199,8 @@ const routes = [
     component: Search,
   },
   {
-    path: '/reply_later',
-    name: 'reply_later',
+    path: '/reply-later',
+    name: 'reply-later',
     meta: { requiresAuth: true },
     component: ReplyLater,
   },

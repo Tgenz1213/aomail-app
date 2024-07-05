@@ -1955,6 +1955,100 @@ def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
         return str(e)
 
 
+# Used for search to retreive the info for one mail
+def get_mail_v2(services: dict, id_mail: str) -> tuple:
+    """
+    Retrieve email information from the Gmail API for a specific email.
+
+    Args:
+        services (dict): A dictionary containing authenticated service instances for various email providers,
+                         including the Gmail service instance under the key "gmail".
+        id_mail (str): The ID of the specific email to retrieve.
+
+    Returns:
+        tuple: A tuple containing email information:
+            str: Subject of the email.
+            tuple[str, str]: Tuple containing the sender's name and email address.
+            str: Safe HTML version of the email content.
+            str: ID of the email message.
+            datetime.datetime: Sent date and time of the email.
+            bool: Flag indicating whether the email has attachments.
+            list: CC recipients.
+            list: BCC recipients.
+    """
+    service = services["gmail"]
+
+    try:
+        msg = service.users().messages().get(userId="me", id=id_mail).execute()
+    except Exception as e:
+        print(f"Error retrieving email: {e}")
+        return None
+
+    email_data = msg["payload"]["headers"]
+
+    subject = from_info = cc_info = bcc_info = sent_date = None
+    for values in email_data:
+        name = values["name"]
+        if name == "Subject":
+            subject = values["value"]
+        elif name == "From":
+            from_info = parse_name_and_email(values["value"])
+        elif name == "Cc":
+            cc_info = parse_name_and_email(values["value"])
+        elif name == "Bcc":
+            bcc_info = parse_name_and_email(values["value"])
+        elif name == "Date":
+            sent_date = parsedate_to_datetime(values["value"])
+
+    has_attachments = False
+    email_html = ""
+    email_txt_html = ""
+    email_detect_html = False
+
+    def process_part(part: dict[str, str]):
+        nonlocal email_html, email_txt_html, email_detect_html, has_attachments
+
+        if part["mimeType"] == "text/plain":
+            if "data" in part["body"]:
+                data = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                email_txt_html += f"<pre>{decoded_data}</pre>"
+        elif part["mimeType"] == "text/html":
+            if "data" in part["body"]:
+                email_detect_html = True
+                data = part["body"]["data"]
+                decoded_data = base64.urlsafe_b64decode(data.encode("UTF-8")).decode("utf-8")
+                email_html += decoded_data
+        elif part["mimeType"].startswith("multipart/"):
+            if "parts" in part:
+                for subpart in part["parts"]:
+                    process_part(subpart)
+        elif "filename" in part:
+            has_attachments = True
+
+    if "parts" in msg["payload"]:
+        for part in msg["payload"]["parts"]:
+            process_part(part)
+    else:
+        process_part(msg["payload"])
+
+    if email_detect_html is False:
+        email_html = email_txt_html
+
+    safe_html = BeautifulSoup(email_html, "html.parser").prettify()
+
+    return (
+        subject,
+        from_info,
+        safe_html,
+        id_mail,
+        sent_date,
+        has_attachments,
+        cc_info,
+        bcc_info,
+    )
+
+
 ###########################################################################
 ######################## TO DELETE IN THE FUTURE ? ########################
 ###########################################################################

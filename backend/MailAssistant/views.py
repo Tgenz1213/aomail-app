@@ -2717,8 +2717,8 @@ def get_mail_by_id(request: HttpRequest) -> Response:
     if mail_id:
         if type_api == "google":
             services = google_api.authenticate_service(user, email_user)
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
-                google_api.get_mail(services, None, mail_id)
+            subject, from_info, safe_html, email_id, sent_date, has_attachments, cc_info, bcc_info = (
+                google_api.get_mail_v2(services, None, mail_id)
             )
         elif type_api == "microsoft":
             access_token = microsoft_api.refresh_access_token(
@@ -2738,12 +2738,14 @@ def get_mail_by_id(request: HttpRequest) -> Response:
                 "message": "Authentication successful",
                 "email": {
                     "subject": subject,
-                    "from_name": from_name,
-                    "decoded_data": decoded_data,
-                    "cc": cc,
-                    "bcc": bcc,
+                    "from_name": from_info[0] if from_info else None,
+                    "from_email": from_info[1] if from_info else None,
+                    "decoded_data": safe_html,
+                    "cc": cc_info,
+                    "bcc": bcc_info,
                     "email_id": email_id,
-                    "date": date,
+                    "date": sent_date.isoformat() if sent_date else None,
+                    "has_attachments": has_attachments,
                     "email_receiver": email_user,
                 },
             },

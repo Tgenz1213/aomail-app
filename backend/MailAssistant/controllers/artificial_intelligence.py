@@ -47,10 +47,10 @@ from MailAssistant.constants import (
     ADMIN_EMAIL_LIST,
     EMAIL_NO_REPLY,
     GOOGLE,
-    GOOGLE_PROVIDER,
+    GOOGLE,
     MAX_RETRIES,
     MICROSOFT,
-    MICROSOFT_PROVIDER,
+    MICROSOFT,
 )
 from MailAssistant.email_providers.google import authentication as auth_google
 from MailAssistant.email_providers.microsoft import authentication as auth_microsoft
@@ -299,7 +299,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
-                    GOOGLE_PROVIDER,
+                    GOOGLE,
                     email,
                     email_operations_google.search_emails_ai(
                         services,
@@ -322,7 +322,7 @@ def search_emails_ai(request: HttpRequest) -> Response:
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
-                    MICROSOFT_PROVIDER,
+                    MICROSOFT,
                     email,
                     email_operations_microsoft.search_emails_ai(
                         access_token,

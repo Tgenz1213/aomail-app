@@ -39,7 +39,6 @@ from MailAssistant.constants import (
     MAX_RETRIES,
     MICROSOFT,
     MICROSOFT_CLIENT_STATE,
-    MICROSOFT_PROVIDER,
 )
 from MailAssistant.models import (
     Contact,
@@ -435,6 +434,9 @@ class MicrosoftEmailNotification(View):
                     Email.objects.get(provider_id=email_id).delete()
 
                 elif subscription.exists():
+                    social_api = get_social_api(
+                        subscription.first().user, subscription.first().email
+                    )
 
                     def process_email():
                         """Processes the email asynchronously.
@@ -444,9 +446,7 @@ class MicrosoftEmailNotification(View):
                         """
                         for i in range(MAX_RETRIES):
                             result = email_to_db(
-                                MICROSOFT,
-                                subscription.first().user,
-                                subscription.first().email,
+                                social_api,
                                 email_id,
                             )
                             if result:
@@ -459,7 +459,7 @@ class MicrosoftEmailNotification(View):
                                     "error": result,
                                     "attempt_number": i + 1,
                                     "email": subscription.first().email,
-                                    "email_provider": MICROSOFT_PROVIDER,
+                                    "email_provider": MICROSOFT,
                                     "user": subscription.first().user,
                                 }
                                 email_html = render_to_string(

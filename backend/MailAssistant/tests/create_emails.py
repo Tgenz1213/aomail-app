@@ -13,15 +13,15 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from MailAssistant.constants import (
-    GOOGLE_PROVIDER,
-    MICROSOFT_PROVIDER,
+    GOOGLE,
+    MICROSOFT,
     IMPORTANT,
     INFORMATIVE,
     USELESS,
 )
 from MailAssistant.models import CC_sender, Email
 
-EMAIL_PROVIDERS = [GOOGLE_PROVIDER, MICROSOFT_PROVIDER]
+EMAIL_PROVIDERS = [GOOGLE, MICROSOFT]
 
 
 @api_view(["POST"])

@@ -1,35 +1,22 @@
 """
-Provides functions to search emails and perform operations using Microsoft Graph API.
+Provides email search and operation functions using Microsoft Graph API.
+
+Endpoints:
+- ✅ send_schedule_email: Schedule the sending of an email.
+- ✅ send_email: Sends an email using the Microsoft Graph API.
 """
 
 import base64
 import datetime
-import json
 import logging
 import threading
-import time
-import urllib.parse
 import requests
-from collections import defaultdict
-from urllib.parse import urlencode
-from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect
-from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpRequest
 from django.core.files.uploadedfile import UploadedFile
 from django.utils.timezone import make_aware
-from msal import ConfidentialClientApplication
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import View
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from MailAssistant.ai_providers import claude
-from MailAssistant.utils.tree_knowledge import Search
-from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
 from MailAssistant.utils.serializers import (
     EmailDataSerializer,
@@ -43,32 +30,9 @@ from MailAssistant.email_providers.microsoft.authentication import (
 from MailAssistant.utils import email_processing
 from MailAssistant.constants import (
     FREE_PLAN,
-    ADMIN_EMAIL_LIST,
-    BASE_URL,
-    DEFAULT_CATEGORY,
-    EMAIL_NO_REPLY,
-    ENCRYPTION_KEYS,
     GRAPH_URL,
-    MAX_RETRIES,
-    MICROSOFT_AUTHORITY,
-    MICROSOFT_CLIENT_STATE,
-    MICROSOFT_CONFIG,
-    MICROSOFT_PROVIDER,
-    MICROSOFT_SCOPES,
-    REDIRECT_URI_LINK_EMAIL,
-    REDIRECT_URI_SIGNUP,
 )
-from MailAssistant.models import (
-    Category,
-    Contact,
-    Email,
-    KeyPoint,
-    MicrosoftListener,
-    Preference,
-    Rule,
-    Sender,
-    SocialAPI,
-)
+from MailAssistant.models import SocialAPI
 
 
 ######################## LOGGING CONFIGURATION ########################

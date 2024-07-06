@@ -86,7 +86,6 @@ GOOGLE_CREDS = f"{CREDS_PATH}google_creds.json"
 GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
-GOOGLE_PROVIDER = "Gmail"
 GOOGLE = "google"
 # TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 
@@ -112,6 +111,5 @@ MICROSOFT_AUTHORITY = (
     f'https://login.microsoftonline.com/{MICROSOFT_CONFIG["tenant_id"]}'
 )
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
-MICROSOFT_PROVIDER = "Outlook"
 MICROSOFT = "microsoft"
 MICROSOFT_CLIENT_STATE = MICROSOFT_CONFIG["client_state"]

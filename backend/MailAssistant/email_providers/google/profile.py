@@ -1,80 +1,30 @@
 """
 Contains functions for managing contacts and user profile operations for Google API.
+
+Endpoints:
+- ✅  get_profile_image: Retrieves the profile image URL of the user.
 """
 
-import base64
 import datetime
 import logging
 import re
-import string
-import threading
 import time
-import random
-import json
-import os
 from rest_framework import status
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest
 from django.contrib.auth.models import User
 from collections import defaultdict
-from django.db import IntegrityError
-from django.shortcuts import redirect
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from google.auth import exceptions as auth_exceptions
-from google.auth.transport.requests import Request
 from google.oauth2 import credentials
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import Flow
-from httpx import HTTPError
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from email.utils import parsedate_to_datetime
-from MailAssistant.utils.serializers import EmailDataSerializer
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from MailAssistant.ai_providers import claude
 from MailAssistant.utils.security import subscription
-from MailAssistant.utils import security
 from MailAssistant.constants import (
     FREE_PLAN,
-    ADMIN_EMAIL_LIST,
-    DEFAULT_CATEGORY,
-    EMAIL_NO_REPLY,
-    ENCRYPTION_KEYS,
     GOOGLE_CONFIG,
-    GOOGLE_CREDS,
-    GOOGLE_PROJECT_ID,
-    GOOGLE_PROVIDER,
-    GOOGLE_TOPIC_NAME,
-    MAX_RETRIES,
-    MEDIA_URL,
-    REDIRECT_URI_LINK_EMAIL,
-    REDIRECT_URI_SIGNUP,
     GOOGLE_SCOPES,
-    BASE_URL_MA,
 )
-from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.email_providers.google.authentication import authenticate_service
 from MailAssistant.utils import email_processing
-from MailAssistant.models import (
-    Contact,
-    KeyPoint,
-    Preference,
-    Rule,
-    SocialAPI,
-    Category,
-    Email,
-    Sender,
-    CC_sender,
-    BCC_sender,
-    Picture,
-    Attachment,
-)
-from base64 import urlsafe_b64encode
-from bs4 import BeautifulSoup
-from googleapiclient.http import BatchHttpRequest
 
 
 ######################## LOGGING CONFIGURATION ########################

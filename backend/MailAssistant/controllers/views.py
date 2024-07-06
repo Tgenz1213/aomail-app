@@ -46,9 +46,9 @@ from MailAssistant.email_providers.microsoft import authentication as auth_micro
 from MailAssistant.constants import (
     FREE_PLAN,
     GOOGLE,
-    GOOGLE_PROVIDER,
+    GOOGLE,
     MICROSOFT,
-    MICROSOFT_PROVIDER,
+    MICROSOFT,
     STRIPE_PAYMENT_FAILED_URL,
     STRIPE_PAYMENT_SUCCESS_URL,
     STRIPE_PRICES,
@@ -295,7 +295,7 @@ def search_emails(request: HttpRequest) -> Response:
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
-                    GOOGLE_PROVIDER,
+                    GOOGLE,
                     email,
                     email_operations_google.search_emails_manually(
                         services,
@@ -319,7 +319,7 @@ def search_emails(request: HttpRequest) -> Response:
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
-                    MICROSOFT_PROVIDER,
+                    MICROSOFT,
                     email,
                     email_operations_microsoft.search_emails_manually(
                         access_token,
@@ -507,7 +507,7 @@ def get_batch_emails(request: HttpRequest) -> Response:
             email_info_thread = threading.Thread(
                 target=append_to_result,
                 args=(
-                    MICROSOFT_PROVIDER,
+                    MICROSOFT,
                     email,
                     email_operations_microsoft.get_mails_batch(access_token, email_ids),
                 ),

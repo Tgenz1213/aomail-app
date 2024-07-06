@@ -45,10 +45,10 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
     GOOGLE,
-    GOOGLE_PROVIDER,
+    GOOGLE,
     MAX_RETRIES,
     MICROSOFT,
-    MICROSOFT_PROVIDER,
+    MICROSOFT,
 )
 from MailAssistant.email_providers.google import profile as profile_google
 from MailAssistant.email_providers.microsoft import profile as profile_microsoft
@@ -294,7 +294,7 @@ def unsubscribe_listeners(user: User, email: str = None):
                             "title": "Critical Alert: Google Unsubscription Failure",
                             "attempt_number": i + 1,
                             "subscription_id": social_api.email,
-                            "email_provider": GOOGLE_PROVIDER,
+                            "email_provider": GOOGLE,
                             "user": user,
                         }
                         email_html = render_to_string(
@@ -330,7 +330,7 @@ def unsubscribe_listeners(user: User, email: str = None):
                         "title": "Critical Alert: Microsoft Unsubscription Failure",
                         "attempt_number": i + 1,
                         "subscription_id": listener.subscription_id,
-                        "email_provider": MICROSOFT_PROVIDER,
+                        "email_provider": MICROSOFT,
                         "user": user,
                     }
                     email_html = render_to_string("unsubscribe_failure.html", context)

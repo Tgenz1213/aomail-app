@@ -3,63 +3,14 @@ TODO:
 - split email_to_db + separate call depending on the api
 """
 
-import base64
-import datetime
 import logging
-import re
-import string
-import threading
-import time
-import random
-import json
-import os
-from rest_framework import status
-from django.http import HttpRequest, HttpResponseRedirect
-from django.contrib.auth.models import User
-from collections import defaultdict
-from django.db import IntegrityError
-from django.shortcuts import redirect
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from google.auth import exceptions as auth_exceptions
-from google.auth.transport.requests import Request
-from google.oauth2 import credentials
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import Flow
-from httpx import HTTPError
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from email.utils import parsedate_to_datetime
-from MailAssistant.utils.serializers import EmailDataSerializer
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from MailAssistant.ai_providers import claude
-from MailAssistant.utils.security import subscription
-from MailAssistant.utils import security
 from MailAssistant.constants import (
-    FREE_PLAN,
-    ADMIN_EMAIL_LIST,
     DEFAULT_CATEGORY,
-    EMAIL_NO_REPLY,
-    ENCRYPTION_KEYS,
     GOOGLE,
-    GOOGLE_CONFIG,
-    GOOGLE_CREDS,
-    GOOGLE_PROJECT_ID,
-    GOOGLE_PROVIDER,
-    GOOGLE_TOPIC_NAME,
-    MAX_RETRIES,
-    MEDIA_URL,
     MICROSOFT,
-    REDIRECT_URI_LINK_EMAIL,
-    REDIRECT_URI_SIGNUP,
-    GOOGLE_SCOPES,
-    BASE_URL_MA,
 )
 from MailAssistant.utils.tree_knowledge import Search
-from MailAssistant.email_providers.google.authentication import authenticate_service
 from MailAssistant.utils import email_processing
 from MailAssistant.models import (
     Contact,
@@ -75,78 +26,12 @@ from MailAssistant.models import (
     Picture,
     Attachment,
 )
-from base64 import urlsafe_b64encode
-from bs4 import BeautifulSoup
-from googleapiclient.http import BatchHttpRequest
-import base64
-import datetime
-import json
-import logging
-import threading
-import time
-import urllib.parse
-import requests
-from collections import defaultdict
-from urllib.parse import urlencode
-from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import redirect
-from django.template.loader import render_to_string
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from django.core.files.uploadedfile import UploadedFile
-from django.utils.timezone import make_aware
-from msal import ConfidentialClientApplication
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import View
-from rest_framework.response import Response
-from MailAssistant.ai_providers import claude
-from MailAssistant.utils.tree_knowledge import Search
-from MailAssistant.utils import security
-from MailAssistant.utils.security import subscription
-from MailAssistant.utils.serializers import (
-    EmailDataSerializer,
-    EmailScheduleDataSerializer,
-)
-
-from MailAssistant.email_providers.google import authentication as auth_google
-from MailAssistant.email_providers.microsoft import authentication as auth_microsoft
-from MailAssistant.utils import email_processing
-from MailAssistant.constants import (
-    FREE_PLAN,
-    ADMIN_EMAIL_LIST,
-    BASE_URL,
-    DEFAULT_CATEGORY,
-    EMAIL_NO_REPLY,
-    ENCRYPTION_KEYS,
-    GRAPH_URL,
-    MAX_RETRIES,
-    MICROSOFT_AUTHORITY,
-    MICROSOFT_CLIENT_STATE,
-    MICROSOFT_CONFIG,
-    MICROSOFT_PROVIDER,
-    MICROSOFT_SCOPES,
-    REDIRECT_URI_LINK_EMAIL,
-    REDIRECT_URI_SIGNUP,
-)
-from MailAssistant.models import (
-    Category,
-    Contact,
-    Email,
-    KeyPoint,
-    MicrosoftListener,
-    Preference,
-    Rule,
-    Sender,
-    SocialAPI,
-)
 from MailAssistant.email_providers.google import (
+    authentication as auth_google,
     email_operations as email_operations_google,
 )
 from MailAssistant.email_providers.microsoft import (
+    authentication as auth_microsoft,
     email_operations as email_operations_microsoft,
 )
 
@@ -155,26 +40,36 @@ from MailAssistant.email_providers.microsoft import (
 LOGGER = logging.getLogger(__name__)
 
 
-def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
+
+# CLean the documenation + clean the logging messages + optimize the function where its obvious. DO NOT TRY anything that moight not work
+
+
+def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool | str:
     """
-    Saves email notifications from Microsoft Graph API listener to the database.
+    Saves email notifications from Google or Microsoft Graph API listener to the database.
 
     Args:
-    TODO clean
-        email_provider (str): GOOGLE or MICROSOFT 
-        user (User): The user object for whom the email is being saved.
-        email (str): The email address associated with the notification.
-        id_email (str): The ID of the email notification from Microsoft Graph API.
+        social_api (SocialAPI): The SocialAPI instance associated with the user.
+        email_id (str): The ID of the email notification from Microsoft Graph API.
 
     Returns:
         bool | str: True if the email was successfully saved, False if there was an issue saving the email,
                     or an error message if an exception occurred.
     """
     type_api = social_api.type_api
+    user = social_api.user
 
-    
+    # TODO: log also the api if its MICROSFOT or GOOLE
     LOGGER.info(
-        f"Starting the process of saving email from Microsoft Graph API to database for user ID: {user.id} and email ID: {id_email}"
+        f"Starting the process of saving email to database for user ID: {user.id}"
+    )
+    # like here
+    LOGGER.info(
+        f"Starting the process of saving email from Microsoft Graph API to database for user ID: {user.id} and email ID: {email_id}"
+    )
+    # or here
+    LOGGER.info(
+        f"Starting the process of saving email from Google API to database for user ID: {user.id}"
     )
 
     if type_api == MICROSOFT:
@@ -188,7 +83,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
             sent_date,
             has_attachments,
             is_reply,
-        ) = get_mail_to_db(access_token, None, id_email)
+        ) = email_operations_microsoft.get_mail_to_db(access_token, None, email_id)
 
         if Email.objects.filter(provider_id=email_id).exists():
             return True
@@ -197,7 +92,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
 
         if not decoded_data:
             LOGGER.info(
-                f"No decoded data retrieved from Microsoft Graph API for user ID: {user.id} and email ID: {id_email}"
+                f"No decoded data retrieved from Microsoft Graph API for user ID: {user.id} and email ID: {email_id}"
             )
             return False
 
@@ -215,9 +110,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
                     category = rule.category
                     rule_category = True
 
-        user_description = (
-            social_api.user_description if social_api.user_description is not None else ""
-        )
+        user_description = social_api.user_description
         language = Preference.objects.get(user=user).language
 
         if is_reply:
@@ -272,7 +165,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
             email_entry = Email.objects.create(
                 social_api=social_api,
                 provider_id=email_id,
-                email_provider=MICROSOFT_PROVIDER,
+                email_provider=MICROSOFT,
                 short_summary=short_summary,
                 one_line_summary=one_line_summary,
                 subject=subject,
@@ -330,7 +223,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
             )
 
             LOGGER.info(
-                f"Email ID: {id_email} saved to database successfully for user ID: {user.id} using Microsoft Graph API"
+                f"Email ID: {email_id} saved to database successfully for user ID: {user.id} using Microsoft Graph API"
             )
             return True
 
@@ -340,9 +233,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
             )
             return str(e)
 
-
-
-    elif email_provider == GOOGLE:
+    elif type_api == GOOGLE:
         LOGGER.info(
             f"Starting the process of saving email from Google API to database for user ID: {user.id}"
         )
@@ -363,7 +254,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
             bcc_info,
             image_files,
             attachments,
-        ) = get_mail_to_db(services)
+        ) = email_operations_google.get_mail_to_db(services)
 
         if Email.objects.filter(provider_id=email_id).exists():
             return True
@@ -440,7 +331,7 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
             email_entry = Email.objects.create(
                 social_api=social_api,
                 provider_id=email_id,
-                email_provider=GOOGLE_PROVIDER,
+                email_provider=GOOGLE,
                 short_summary=short_summary,
                 one_line_summary=one_line_summary,
                 html_content=safe_html,
@@ -499,11 +390,15 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
 
             if cc_info:
                 for email, name in cc_info:
-                    CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+                    CC_sender.objects.create(
+                        mail_id=email_entry, email=email, name=name
+                    )
 
             if bcc_info:
                 for email, name in bcc_info:
-                    BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+                    BCC_sender.objects.create(
+                        mail_id=email_entry, email=email, name=name
+                    )
 
             if image_files:
                 for image_path in image_files:
@@ -527,21 +422,3 @@ def email_to_db(user: User, id_email: str, social_api: SocialAPI) -> bool | str:
                 f"An error occurred when trying to create an email with ID {email_id} for user ID: {user.id}: {str(e)}"
             )
             return str(e)
-
-    
-
-
-def email_to_db(user: User, services, social_api: SocialAPI) -> bool | str:
-    """
-    Saves email notifications from Google listener to the database.
-
-    Args:
-        user (User): The user object for whom the email is being saved.
-        services: The authenticated Google API services.
-        social_api (SocialAPI): The SocialAPI instance associated with the user.
-
-    Returns:
-        bool | str: True if the email was successfully saved, False if there was an issue saving the email,
-                    or an error message if an exception occurred.
-    """
-    ...

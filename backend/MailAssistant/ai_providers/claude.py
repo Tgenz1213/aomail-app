@@ -389,8 +389,8 @@ def categorize_and_summarize_email(
     Answer must always be a JSON format matching this template:
     {{
         "topic": Selected Category,
-        "response": Response Category,
-        "relevance": Relevance Category,
+        "response": Response,
+        "relevance": Relevance,
         "importance": Importance of the email,
         "flags": {{
             "spam": bool,

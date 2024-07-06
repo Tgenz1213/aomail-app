@@ -95,7 +95,6 @@ def get_db_categories(current_user: User) -> dict[str, str]:
     """
     categories = Category.objects.filter(user=current_user)
     category_list = {category.name: category.description for category in categories}
-    category_list.pop(DEFAULT_CATEGORY)
     category_list[DEFAULT_CATEGORY] = (
         "All emails that can not be classify in any of the given categories"
     )

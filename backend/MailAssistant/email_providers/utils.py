@@ -9,7 +9,7 @@ import logging
 from django.db import transaction
 from django.contrib.auth.models import User
 from MailAssistant.ai_providers import claude
-from MailAssistant.constants import GOOGLE, MICROSOFT
+from MailAssistant.constants import DEFAULT_CATEGORY, GOOGLE, MICROSOFT
 from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.utils import email_processing
 from MailAssistant.models import (
@@ -159,6 +159,9 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
         from_email,
     )
 
+    if email_processed["topic"] not in category_dict:
+        email_processed["topic"] = DEFAULT_CATEGORY
+
     return {
         "email_data": email_data,
         "email_processed": email_processed,
@@ -177,11 +180,13 @@ def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
         social_api (SocialAPI): An object representing the social API being used.
     """
     email_data = processed_email["email_data"]
-    is_reply = email_data["is_reply"]
     email_ai = processed_email["email_processed"]
     summary = processed_email["summary"]
+    topic = email_ai["topic"]
+    is_reply = email_data["is_reply"]
+    from_info = email_data["from_info"]
 
-    category, sender = process_email_entities(email_data, user)
+    category, sender = process_email_entities(topic, from_info, user)
 
     email_entry = create_email_entry(
         email_ai, email_data, user, social_api, category, sender
@@ -194,7 +199,7 @@ def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
 
 
 def process_email_entities(
-    processed_email: dict, user: User
+    topic: str, from_info: tuple, user: User
 ) -> tuple[Category, Sender]:
     """
     Get or create the email category, sender, and contact.
@@ -208,10 +213,9 @@ def process_email_entities(
                category: The Category object for the email.
                sender: The Sender object for the email.
     """
-    category_name = processed_email.get("topic", "Uncategorized")
-    category = Category.objects.get_or_create(name=category_name, user=user)[0]
+    category = Category.objects.get_or_create(name=topic, user=user)[0]
 
-    sender_name, sender_email = processed_email["from_info"]
+    sender_name, sender_email = from_info
     sender, _ = Sender.objects.get_or_create(
         email=sender_email, defaults={"name": sender_name or sender_email}
     )

@@ -10,7 +10,20 @@ import logging
 from django.db import transaction
 from django.contrib.auth.models import User
 from MailAssistant.ai_providers import claude
-from MailAssistant.constants import DEFAULT_CATEGORY, GOOGLE, MICROSOFT
+from MailAssistant.constants import (
+    ANSWER_REQUIRED,
+    DEFAULT_CATEGORY,
+    GOOGLE,
+    HIGHLY_RELEVANT,
+    IMPORTANT,
+    INFORMATIVE,
+    MICROSOFT,
+    MIGHT_REQUIRE_ANSWER,
+    NO_ANSWER_REQUIRED,
+    NOT_RELEVANT,
+    POSSIBLY_RELEVANT,
+    USELESS,
+)
 from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.utils import email_processing
 from MailAssistant.models import (
@@ -26,6 +39,7 @@ from MailAssistant.models import (
     BCC_sender,
     Picture,
     Attachment,
+    Statistics,
 )
 from MailAssistant.email_providers.microsoft import (
     email_operations as email_operations_microsoft,
@@ -202,14 +216,57 @@ def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
         email_ai, email_data, user, social_api, category, sender
     )
     create_keypoints(summary, is_reply, email_entry)
-    save_stats(email_ai)
+    save_stats(email_ai, user)
 
     if social_api.type_api == GOOGLE:
         create_cc_bcc_senders(email_data, email_entry)
         create_pictures_and_attachments(email_data, email_entry)
 
 
-def save_stats(email_ai: dict, user: User): ...
+def save_stats(email_ai: dict, user: User):
+    """
+    Updates the statistical data for a user based on the AI analysis of an email.
+
+    Args:
+        email_ai (dict): A dictionary containing AI-generated information about the email.
+        user (User): The user object whose statistics are being updated.
+    """
+    statistics = Statistics.objects.get(user=user)
+
+    statistics.nb_emails_received += 1
+
+    statistics.nb_tokens_input += email_ai["tokens_input"]
+    statistics.nb_tokens_output += email_ai["tokens_output"]
+
+    statistics.nb_meeting += 1 if email_ai["flags"]["meeting"] else 0
+    statistics.nb_spam += 1 if email_ai["flags"]["spam"] else 0
+    statistics.nb_scam += 1 if email_ai["flags"]["scam"] else 0
+    statistics.nb_newsletter += 1 if email_ai["flags"]["newsletter"] else 0
+    statistics.nb_notification += 1 if email_ai["flags"]["notification"] else 0
+
+    statistics.nb_emails_important += 1 if email_ai["importance"] == IMPORTANT else 0
+    statistics.nb_emails_informative += (
+        1 if email_ai["importance"] == INFORMATIVE else 0
+    )
+    statistics.nb_emails_useless += 1 if email_ai["importance"] == USELESS else 0
+
+    statistics.nb_answer_required += 1 if email_ai["response"] == ANSWER_REQUIRED else 0
+    statistics.nb_might_require_answer += (
+        1 if email_ai["response"] == MIGHT_REQUIRE_ANSWER else 0
+    )
+    statistics.nb_no_answer_required += (
+        1 if email_ai["response"] == NO_ANSWER_REQUIRED else 0
+    )
+
+    statistics.nb_highly_relevant += (
+        1 if email_ai["relevance"] == HIGHLY_RELEVANT else 0
+    )
+    statistics.nb_possibly_relevant += (
+        1 if email_ai["relevance"] == POSSIBLY_RELEVANT else 0
+    )
+    statistics.nb_not_relevant += 1 if email_ai["relevance"] == NOT_RELEVANT else 0
+
+    statistics.save()
 
 
 def process_email_entities(

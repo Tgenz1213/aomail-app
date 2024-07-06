@@ -5,6 +5,7 @@ Features:
 - ✅ email_to_db: Save email notifications from various email service APIs to the database.
 """
 
+from concurrent.futures import ThreadPoolExecutor
 import logging
 from django.db import transaction
 from django.contrib.auth.models import User
@@ -140,24 +141,33 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
     email_content = email_processing.preprocess_email(email_data["preprocessed_data"])
     search = Search(user.id)
 
-    if email_data["is_reply"]:
-        summary = search.summarize_conversation(
-            email_data["subject"], email_content, user_description, language
-        )
-    else:
-        summary = search.summarize_email(
-            email_data["subject"], email_content, user_description, language
-        )
-
     from_email = email_data["from_info"][1]
 
-    email_processed = claude.categorize_and_summarize_email(
-        email_data["subject"],
-        email_data["preprocessed_data"],
-        category_dict,
-        user_description,
-        from_email,
-    )
+    def get_summary():
+        if email_data["is_reply"]:
+            return search.summarize_conversation(
+                email_data["subject"], email_content, user_description, language
+            )
+        else:
+            return search.summarize_email(
+                email_data["subject"], email_content, user_description, language
+            )
+
+    def get_email_processed():
+        return claude.categorize_and_summarize_email(
+            email_data["subject"],
+            email_data["preprocessed_data"],
+            category_dict,
+            user_description,
+            from_email,
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        summary_future = executor.submit(get_summary)
+        email_processed_future = executor.submit(get_email_processed)
+
+        summary = summary_future.result()
+        email_processed = email_processed_future.result()
 
     if email_processed["topic"] not in category_dict:
         email_processed["topic"] = DEFAULT_CATEGORY
@@ -192,10 +202,14 @@ def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
         email_ai, email_data, user, social_api, category, sender
     )
     create_keypoints(summary, is_reply, email_entry)
+    save_stats(email_ai)
 
     if social_api.type_api == GOOGLE:
         create_cc_bcc_senders(email_data, email_entry)
         create_pictures_and_attachments(email_data, email_entry)
+
+
+def save_stats(email_ai: dict, user: User): ...
 
 
 def process_email_entities(

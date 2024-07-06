@@ -22,10 +22,37 @@ class Subscription(models.Model):
     currency = models.CharField(max_length=3, default="EUR")
 
 
-# class Statistics(models.Model):
-#     """Model for storgin statistical data about user."""
+class Statistics(models.Model):
+    """Model for storing statistical data about emails received."""
 
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # Email categories
+    emails_received = models.IntegerField(default=0)
+    emails_important = models.IntegerField(default=0)
+    emails_informative = models.IntegerField(default=0)
+    emails_useless = models.IntegerField(default=0)
+
+    # Token usage
+    tokens_input = models.IntegerField(default=0)
+    tokens_output = models.IntegerField(default=0)
+
+    # Answer
+    answer_required = models.IntegerField(default=0)
+    might_require_answer = models.IntegerField(default=0)
+    no_answer_required = models.IntegerField(default=0)
+
+    # Relevance
+    highly_relevant = models.IntegerField(default=0)
+    possibly_relevant = models.IntegerField(default=0)
+    not_relevant = models.IntegerField(default=0)
+
+    # Flags
+    spam = models.IntegerField(default=0)
+    scam = models.IntegerField(default=0)
+    newsletter = models.IntegerField(default=0)
+    notification = models.IntegerField(default=0)
+    meeting = models.IntegerField(default=0)
 
 
 class Message(models.Model):

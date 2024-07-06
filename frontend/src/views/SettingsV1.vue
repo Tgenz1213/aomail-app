@@ -815,19 +815,19 @@ async function unLinkAccount() {
 function linkNewEmail() {
     const type_api = sessionStorage.getItem("type_api");
 
-    if (type_api == GOOGLE) {
+    if (type_api == "google") {
         caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))))
         window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
-    } else if (type_api == MICROSOFT) {
+    } else if (type_api == "microsoft") {
         window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
     }
 }
 function authorize_google() {
-    saveVariables(GOOGLE);
+    saveVariables("google");
     isModalAddUserDescriptionOpen.value = true;
 }
 function authorize_microsoft() {
-    saveVariables(MICROSOFT);
+    saveVariables("microsoft");
     isModalAddUserDescriptionOpen.value = true;
 }
 function saveVariables(type_api) {

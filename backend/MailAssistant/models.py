@@ -22,10 +22,10 @@ class Subscription(models.Model):
     currency = models.CharField(max_length=3, default="EUR")
 
 
-# class Statistics(models.Model):
-#     """Model for storgin statistical data about user."""
+class Statistics(models.Model):
+    """Model for storgin statistical data about user."""
 
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Message(models.Model):

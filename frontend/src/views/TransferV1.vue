@@ -1058,7 +1058,7 @@ async function scheduleSend() {
     const emailBody = quill.value.root.innerHTML;
 
     for (const tupleEmail of emailsLinked.value) {
-        if (emailSelected.value === tupleEmail.email && tupleEmail.type_api !== "microsoft") {
+        if (emailSelected.value === tupleEmail.email && tupleEmail.type_api !== MICROSOFT) {
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle.value = 'Email service provider not supported';

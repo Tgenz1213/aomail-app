@@ -46,12 +46,21 @@ from MailAssistant.constants import (
     FREE_PLAN,
     ADMIN_EMAIL_LIST,
     EMAIL_NO_REPLY,
+    GOOGLE,
     GOOGLE_PROVIDER,
     MAX_RETRIES,
+    MICROSOFT,
     MICROSOFT_PROVIDER,
 )
+from MailAssistant.email_providers.google import authentication as auth_google
+from MailAssistant.email_providers.microsoft import authentication as auth_microsoft
+from MailAssistant.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
+from MailAssistant.email_providers.google import (
+    email_operations as email_operations_google,
+)
 from MailAssistant.utils.tree_knowledge import Search
-from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.models import (
     SocialAPI,
     Preference,
@@ -141,7 +150,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
                     "email_body": new_body_response,
                     "history": email_reply_conv.history.dict(),
                 },
-                status=200,
+                status=status.HTTP_200_OK,
             )
         except Exception as e:
             LOGGER.critical(
@@ -167,7 +176,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
         {
             "error": "The generation of a new email response body failed 3 times in a row. Our team is on his way to fix it."
         },
-        status=500,
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
 
@@ -213,7 +222,7 @@ def improve_draft(request: HttpRequest) -> Response:
                     "email_body": new_body,
                     "history": gen_email_conv.history.dict(),
                 },
-                status=200,
+                status=status.HTTP_200_OK,
             )
         except Exception as e:
             LOGGER.critical(f"[Attempt n°{i+1}] Failed to generate a draft: {str(e)}")
@@ -237,7 +246,7 @@ def improve_draft(request: HttpRequest) -> Response:
         {
             "error": "The generation of a draft failed 3 times in a row. Our team is on his way to fix it."
         },
-        status=500,
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
 
@@ -285,14 +294,14 @@ def search_emails_ai(request: HttpRequest) -> Response:
         social_api = SocialAPI.objects.get(email=email)
         type_api = social_api.type_api
 
-        if type_api == "google":
-            services = google_api.authenticate_service(user, email)
+        if type_api == GOOGLE:
+            services = auth_google.authenticate_service(user, email)
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
                     GOOGLE_PROVIDER,
                     email,
-                    google_api.search_emails_ai(
+                    email_operations_google.search_emails_ai(
                         services,
                         max_results=max_results,
                         filenames=filenames,
@@ -306,16 +315,16 @@ def search_emails_ai(request: HttpRequest) -> Response:
                     ),
                 ),
             )
-        elif type_api == "microsoft":
-            access_token = microsoft_api.refresh_access_token(
-                microsoft_api.get_social_api(user, email)
+        elif type_api == MICROSOFT:
+            access_token = auth_microsoft.refresh_access_token(
+                auth_microsoft.get_social_api(user, email)
             )
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
                     MICROSOFT_PROVIDER,
                     email,
-                    microsoft_api.search_emails_ai(
+                    email_operations_microsoft.search_emails_ai(
                         access_token,
                         max_results=max_results,
                         filenames=filenames,

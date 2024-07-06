@@ -585,14 +585,14 @@ function handleKeyDown(event) {
 }
 function authorize_google(event) {
   event.preventDefault();
-  sessionStorage.setItem("type_api", "google");
+  sessionStorage.setItem("type_api", GOOGLE);
 
   // Redirect the user to the authorization URL
   window.location.replace(`${API_BASE_URL}google/auth_url/`);
 }
 function authorize_microsoft(event) {
   event.preventDefault();
-  sessionStorage.setItem("type_api", "microsoft");
+  sessionStorage.setItem("type_api", MICROSOFT);
 
   // Redirect the user to the authorization URL
   window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);

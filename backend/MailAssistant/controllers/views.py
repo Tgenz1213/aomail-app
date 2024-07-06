@@ -18,6 +18,7 @@ TODO:
 """
 
 import datetime
+import importlib
 import json
 import logging
 import os
@@ -33,9 +34,20 @@ from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
 from MailAssistant.utils.security import subscription
+from MailAssistant.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
+from MailAssistant.email_providers.google import (
+    email_operations as email_operations_google,
+)
+from MailAssistant.email_providers.google import authentication as auth_google
+from MailAssistant.email_providers.microsoft import authentication as auth_microsoft
+
 from MailAssistant.constants import (
     FREE_PLAN,
+    GOOGLE,
     GOOGLE_PROVIDER,
+    MICROSOFT,
     MICROSOFT_PROVIDER,
     STRIPE_PAYMENT_FAILED_URL,
     STRIPE_PAYMENT_SUCCESS_URL,
@@ -43,7 +55,6 @@ from MailAssistant.constants import (
     STRIPE_SECRET_KEY,
     MEDIA_ROOT,
 )
-from MailAssistant.email_providers import google_api, microsoft_api
 from MailAssistant.models import (
     Email,
     SocialAPI,
@@ -80,14 +91,16 @@ def send_schedule_email(request: Request):
     return forward_request(request._request, "send_schedule_email")
 
 
-def forward_request(request: HttpRequest, api_method: str) -> Response:
+# TODO: verify that it still works
+def forward_request(request: HttpRequest, api_module: str, api_method: str) -> Response:
     """
     Forwards the request to the appropriate API method based on type_api.
 
     Args:
-        request (HttpRequest): The HTTP request object containing the following parameters in the body:
+        request (HttpRequest): The HTTP request object containing the following parameters in the body or headers:
             email (str, optional): User's email address.
-        api_method (str): The API method to be called.
+        api_module (str): The module containing the API methods.
+        api_method (str): The specific API method to be called.
 
     Returns:
         Response: The response from the API method or an error response if
@@ -95,14 +108,16 @@ def forward_request(request: HttpRequest, api_method: str) -> Response:
                       entry is not found for the user and email.
     """
     user = request.user
-    email = request.POST.get("email")
-    if email is None:
-        email = request.headers.get("email")
+    email = request.POST.get("email") or request.headers.get("email")
+    if not email:
+        return Response(
+            {"error": "Email is neither in body nor in headers of the request"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     try:
         social_api = SocialAPI.objects.get(user=user, email=email)
-        type_api = social_api.type_api
-    except SocialAPI.DoesNotExist:
+    except ObjectDoesNotExist:
         LOGGER.error(
             f"SocialAPI entry not found for the user with ID: {user.id} and email: {email}"
         )
@@ -111,18 +126,22 @@ def forward_request(request: HttpRequest, api_method: str) -> Response:
             status=status.HTTP_404_NOT_FOUND,
         )
 
-    api_module = None
-    if type_api == "google":
-        api_module = google_api
-    elif type_api == "microsoft":
-        api_module = microsoft_api
-
-    if api_module and hasattr(api_module, api_method):
-        api_function = getattr(api_module, api_method)
-        return api_function(request)
-    else:
+    type_api = social_api.type_api
+    module_name = f"MailAssistant.email_providers.{type_api}.{api_module}"
+    try:
+        module = importlib.import_module(module_name)
+        if hasattr(module, api_method):
+            api_function = getattr(module, api_method)
+            return api_function(request)
+        else:
+            return Response(
+                {"error": f"Unsupported API method: {api_method}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+    except ImportError:
         return Response(
-            {"error": "Unsupported API or method"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": f"Unsupported API module: {module_name}"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -169,7 +188,6 @@ def get_user_contacts(request: HttpRequest) -> Response:
 
 
 ######################## DATABASE OPERATIONS ########################
-# ----------------------- USER -----------------------#
 @api_view(["POST"])
 @subscription([FREE_PLAN])
 def check_sender_for_user(request: HttpRequest) -> Response:
@@ -272,14 +290,14 @@ def search_emails(request: HttpRequest) -> Response:
         social_api = SocialAPI.objects.get(email=email)
         type_api = social_api.type_api
 
-        if type_api == "google":
-            services = google_api.authenticate_service(user, email)
+        if type_api == GOOGLE:
+            services = auth_google.authenticate_service(user, email)
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
                     GOOGLE_PROVIDER,
                     email,
-                    google_api.search_emails(
+                    email_operations_google.search_emails_manually(
                         services,
                         query,
                         max_results,
@@ -294,16 +312,16 @@ def search_emails(request: HttpRequest) -> Response:
                     ),
                 ),
             )
-        elif type_api == "microsoft":
-            access_token = microsoft_api.refresh_access_token(
-                microsoft_api.get_social_api(user, email)
+        elif type_api == MICROSOFT:
+            access_token = auth_microsoft.refresh_access_token(
+                auth_microsoft.get_social_api(user, email)
             )
             search_result = threading.Thread(
                 target=append_to_result,
                 args=(
                     MICROSOFT_PROVIDER,
                     email,
-                    microsoft_api.search_emails(
+                    email_operations_microsoft.search_emails_manually(
                         access_token,
                         query,
                         max_results,
@@ -477,21 +495,21 @@ def get_batch_emails(request: HttpRequest) -> Response:
                     result[provider] = {}
                 result[provider][email] = data
 
-        if type_api == "google":
+        if type_api == GOOGLE:
             LOGGER.info(f"-------------------- API Google DETECTED -----------------")
-            services = google_api.authenticate_service(user, email)
+            services = auth_google.authenticate_service(user, email)
             LOGGER.info(f"-------------------- SERVICES -----------------")
-            email_info = google_api.get_mails_batch(services, email_ids)
+            email_info = email_operations_google.get_mails_batch(services, email_ids)
             LOGGER.info(email_info)
-        elif type_api == "microsoft":
+        elif type_api == MICROSOFT:
             # TO FINISH --------------------------------------------------------------------
-            access_token = microsoft_api.refresh_access_token(social_api)
+            access_token = auth_microsoft.refresh_access_token(social_api)
             email_info_thread = threading.Thread(
                 target=append_to_result,
                 args=(
                     MICROSOFT_PROVIDER,
                     email,
-                    microsoft_api.get_mails_batch(access_token, email_ids),
+                    email_operations_microsoft.get_mails_batch(access_token, email_ids),
                 ),
             )
         else:

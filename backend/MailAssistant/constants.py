@@ -37,6 +37,7 @@ LANGUAGES = ["french", "american", "german", "russian", "spanish", "chinese", "i
 THEMES = ["dark", "light"]
 
 ######################## STRIPE ########################
+# under dev
 STRIPE_CREDS = json.load(open(f"{CREDS_PATH}stripe_creds.json"))
 STRIPE_SECRET_KEY = STRIPE_CREDS["secret_key"]
 STRIPE_PUBLISHABLE_KEY = STRIPE_CREDS["publishable_key"]
@@ -86,6 +87,7 @@ GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]
 GOOGLE_PROJECT_ID = GOOGLE_CONFIG["project_id"]
 GOOGLE_TOPIC_NAME = "mail_push"
 GOOGLE_PROVIDER = "Gmail"
+GOOGLE = "google"
 # TOPIC_NAME = os.environ.get("TOPIC_NAME") => To subscribe to a different TOPIC (OPTIONAL)
 
 ######################## MICROSOFT API ########################
@@ -111,4 +113,5 @@ MICROSOFT_AUTHORITY = (
 )
 GRAPH_URL = "https://graph.microsoft.com/v1.0/"
 MICROSOFT_PROVIDER = "Outlook"
+MICROSOFT = "microsoft"
 MICROSOFT_CLIENT_STATE = MICROSOFT_CONFIG["client_state"]

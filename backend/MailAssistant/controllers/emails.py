@@ -27,9 +27,16 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from MailAssistant.utils.security import subscription
-from MailAssistant.constants import FREE_PLAN
-from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.constants import FREE_PLAN, GOOGLE, MICROSOFT
 from MailAssistant.models import SocialAPI, Email
+from MailAssistant.email_providers.google import authentication as auth_google
+from MailAssistant.email_providers.microsoft import authentication as auth_microsoft
+from MailAssistant.email_providers.microsoft import (
+    email_operations as email_operations_microsoft,
+)
+from MailAssistant.email_providers.google import (
+    email_operations as email_operations_google,
+)
 from MailAssistant.utils.serializers import (
     EmailReadUpdateSerializer,
     EmailReplyLaterUpdateSerializer,
@@ -82,17 +89,17 @@ def get_mail_by_id(request: HttpRequest) -> Response:
     type_api = social_api.type_api
 
     if mail_id:
-        if type_api == "google":
-            services = google_api.authenticate_service(user, email_user)
+        if type_api == GOOGLE:
+            services = auth_google.authenticate_service(user, email_user)
             subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
-                google_api.get_mail(services, None, mail_id)
+                email_operations_google.get_mail(services, None, mail_id)
             )
-        elif type_api == "microsoft":
-            access_token = microsoft_api.refresh_access_token(
-                microsoft_api.get_social_api(user, email_user)
+        elif type_api == MICROSOFT:
+            access_token = auth_microsoft.refresh_access_token(
+                auth_microsoft.get_social_api(user, email_user)
             )
             subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
-                microsoft_api.get_mail(access_token, None, mail_id)
+                email_operations_microsoft.get_mail(access_token, None, mail_id)
             )
 
         if cc:
@@ -144,10 +151,12 @@ def set_email_read(request: HttpRequest, email_id: int) -> Response:
 
     social_api = email.social_api
     if social_api:
-        if social_api.type_api == "google":
-            google_api.set_email_read(user, social_api.email, email.provider_id)
-        elif social_api.type_api == "microsoft":
-            microsoft_api.set_email_read(social_api, email.provider_id)
+        if social_api.type_api == GOOGLE:
+            email_operations_google.set_email_read(
+                user, social_api.email, email.provider_id
+            )
+        elif social_api.type_api == MICROSOFT:
+            email_operations_microsoft.set_email_read(social_api, email.provider_id)
 
     serializer = EmailReadUpdateSerializer(email)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -175,10 +184,12 @@ def set_email_unread(request: HttpRequest, email_id: int) -> Response:
     email.save()
 
     social_api = email.social_api
-    if social_api.type_api == "google":
-        google_api.set_email_unread(user, social_api.email, email.provider_id)
-    elif social_api.type_api == "microsoft":
-        microsoft_api.set_email_unread(social_api, email.provider_id)
+    if social_api.type_api == GOOGLE:
+        email_operations_google.set_email_unread(
+            user, social_api.email, email.provider_id
+        )
+    elif social_api.type_api == MICROSOFT:
+        email_operations_microsoft.set_email_unread(social_api, email.provider_id)
 
     serializer = EmailReadUpdateSerializer(email)
     if serializer.is_valid():
@@ -322,10 +333,12 @@ def delete_email(request: HttpRequest, email_id: int) -> Response:
         provider_id = email.provider_id
         email.delete()
 
-        if type_api == "google":
-            result = google_api.delete_email(user, social_api.email, provider_id)
-        elif type_api == "microsoft":
-            result = microsoft_api.delete_email(provider_id, social_api)
+        if type_api == GOOGLE:
+            result = email_operations_google.delete_email(
+                user, social_api.email, provider_id
+            )
+        elif type_api == MICROSOFT:
+            result = email_operations_microsoft.delete_email(provider_id, social_api)
 
         if result.get("message", "") == "Email moved to trash successfully!":
             return Response(
@@ -399,8 +412,8 @@ def retrieve_attachment_data(
     email = get_object_or_404(Email, user=user, id=email_id)
     social_api = email.social_api
 
-    if social_api.type_api == "google":
-        attachment_data = google_api.get_attachment_data(
+    if social_api.type_api == GOOGLE:
+        attachment_data = email_operations_google.get_attachment_data(
             user, social_api.email, email.provider_id, attachment_name
         )
         if attachment_data:
@@ -412,8 +425,10 @@ def retrieve_attachment_data(
             )
             return response
         else:
-            return Response({"error": "Attachment not found"}, status=404)
-    elif social_api.type_api == "microsoft":
+            return Response(
+                {"error": "Attachment not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+    elif social_api.type_api == MICROSOFT:
         # TODO: Implement handling for Microsoft API attachments
         return Response(
             {"error": "Microsoft API attachment handling not implemented yet"},

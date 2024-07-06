@@ -37,6 +37,7 @@ from MailAssistant.constants import (
     EMAIL_NO_REPLY,
     GRAPH_URL,
     MAX_RETRIES,
+    MICROSOFT,
     MICROSOFT_CLIENT_STATE,
     MICROSOFT_PROVIDER,
 )
@@ -46,7 +47,7 @@ from MailAssistant.models import (
     MicrosoftListener,
     SocialAPI,
 )
-from backend.MailAssistant.email_providers.microsoft_api import email_to_db
+from MailAssistant.email_providers.utils import email_to_db
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -443,6 +444,7 @@ class MicrosoftEmailNotification(View):
                         """
                         for i in range(MAX_RETRIES):
                             result = email_to_db(
+                                MICROSOFT,
                                 subscription.first().user,
                                 subscription.first().email,
                                 email_id,

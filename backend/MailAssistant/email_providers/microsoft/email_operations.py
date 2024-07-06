@@ -1,10 +1,5 @@
 """
-Handles authentication and HTTP requests for the Microsoft Graph API.
-
-TODO:
-- [SUBSCRIPTION] handle "subscriptionRemoved or missed"
-- Split into smaller functions: email_to_db + opti the function first
-- Add a function save_email_to_db as a utility function common to all email providers
+Provides functions to search emails and perform operations using Microsoft Graph API.
 """
 
 import base64
@@ -80,209 +75,68 @@ from MailAssistant.models import (
 LOGGER = logging.getLogger(__name__)
 
 
-######################## PROFILE REQUESTS ########################
-def verify_license(access_token: str) -> bool:
+def parse_name_and_email(
+    sender: dict[str, dict]
+) -> tuple[str, str] | tuple[None, None]:
     """
-    Verifies if there is a license associated with the account.
+    Parses the name and email address from a sender dictionary.
 
     Args:
-        access_token (str): The access token used to authenticate the request.
+        sender (dict): Dictionary containing sender information.
 
     Returns:
-        bool: True if a license is associated with the account, False otherwise.
+        tuple: Tuple containing name and email address
     """
-    graph_endpoint = f"{GRAPH_URL}me/licenseDetails"
-    headers = get_headers(access_token)
-    response = requests.get(graph_endpoint, headers=headers)
+    if not sender:
+        return None, None
 
-    if response.status_code == 200:
-        data: dict = response.json()
-        if data["value"] == []:
-            return False
-        else:
-            return True
-    return False
+    name = sender.get("emailAddress", {}).get("name")
+    email = sender.get("emailAddress", {}).get("address")
+
+    return name, email
 
 
-def get_info_contacts(access_token: str) -> list:
+def parse_recipients(recipients: list[dict[str, dict]]) -> list[tuple[str, str]]:
     """
-    Fetch the name and the email of the contacts of the user.
+    Parses names and email addresses from a list of recipient dictionaries.
 
     Args:
-        access_token (str): The access token used to authenticate the request.
+        recipients (list): List of dictionaries containing recipient information.
 
     Returns:
-        list: A list of dictionaries containing contact names and their email addresses.
+        list[tuple[str, str]]: List of tuples containing names and email addresses of recipients.
+
     """
-    graph_endpoint = f"{GRAPH_URL}me/contacts"
-
-    try:
-        headers = get_headers(access_token)
-        params = {"$top": 1000}
-
-        response = requests.get(graph_endpoint, headers=headers, params=params)
-        response.raise_for_status()
-        response_data: dict = response.json()
-
-        contacts: list[dict] = response_data.get("value", [])
-        names_emails = []
-
-        for contact in contacts:
-            name = contact.get("displayName")
-            email_addresses = [
-                email["address"] for email in contact.get("emailAddresses", [])
-            ]
-            names_emails.append({"name": name, "emails": email_addresses})
-
-        return names_emails
-
-    except Exception as e:
-        error = (
-            response_data.get("error_description", response.reason)
-            if response
-            else str(e)
-        )
-        LOGGER.error(
-            f"Failed to retrieve contacts. Error: {str(e)}. Response details: {error}"
-        )
+    if not recipients:
         return []
 
+    parsed_recipients = []
+    for recipient in recipients:
+        name, email = parse_name_and_email(recipient)
+        parsed_recipients.append((name, email))
 
-def get_unique_senders(access_token: str) -> dict:
+    return parsed_recipients
+
+
+def parse_message_body(message_data: dict) -> str | None:
     """
-    Fetches unique sender information from Microsoft Graph API messages.
+    Parses the message body content from a message data dictionary.
 
     Args:
-        access_token (str): The access token used to authenticate the request.
+        message_data (dict): Dictionary containing message data.
 
     Returns:
-        dict: A dictionary where keys are email addresses of senders and values are their corresponding names.
+        str | None: Message body content as string, or None if no valid content type found.
+
     """
-    senders_info = {}
+    if "body" in message_data:
+        body = message_data["body"]
+        if body["contentType"] in ["text", "html", "multipart"]:
+            return body["content"]
 
-    try:
-        headers = get_headers(access_token)
-        limit = 50
-        graph_endpoint = f"{GRAPH_URL}me/messages?$select=sender&$top={limit}"
-        response = requests.get(graph_endpoint, headers=headers)
-        response_data: dict = response.json()
-
-        if response.status_code == 200:
-            messages: list[dict] = response_data.get("value", [])
-            for message in messages:
-                sender: dict[str, dict] = message.get("sender", {})
-                email_address = sender.get("emailAddress", {}).get("address", "")
-                name = sender.get("emailAddress", {}).get("name", "")
-                senders_info[email_address] = name
-        else:
-            error = response_data.get("error_description", response.reason)
-            LOGGER.error(f"Failed to fetch messages: {error}")
-
-        return senders_info
-
-    except Exception as e:
-        LOGGER.error(f"Error fetching senders: {str(e)}")
-        return senders_info
+    return None
 
 
-@api_view(["GET"])
-@subscription([FREE_PLAN])
-def get_profile_image(request: HttpRequest) -> Response:
-    """
-    Retrieves the profile image URL of the user from Microsoft Graph API.
-
-    Args:
-        request (HttpRequest): The HTTP request object containing the user and email headers.
-
-    Returns:
-        Response: A JSON response containing the profile image URL or an error message.
-    """
-    user = request.user
-    email = request.headers.get("email")
-    social_api = get_social_api(user, email)
-
-    if not social_api:
-        return Response(
-            {"error": "Social API credentials not found"},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
-    access_token = refresh_access_token(social_api)
-
-    try:
-        headers = get_headers(access_token)
-        graph_endpoint = f"{GRAPH_URL}me/photo/$value"
-        response = requests.get(graph_endpoint, headers=headers)
-
-        if response.status_code == 200:
-            photo_data = response.content
-
-            if photo_data:
-                # Convert image to URL
-                photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
-                photo_url = f"data:image/png;base64,{photo_data_base64}"
-                return Response(
-                    {"profile_image_url": photo_url}, status=status.HTTP_200_OK
-                )
-            else:
-                return Response(
-                    {"error": "Profile image not found"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-
-        else:
-            response_data: dict = response.json()
-            error = response_data.get("error_description", response.reason)
-            LOGGER.error(
-                f"Failed to retrieve profile image for user ID {user.id}: {error}"
-            )
-            return Response(
-                {"error": f"Failed to retrieve profile image: {error}"},
-                status=response.status_code,
-            )
-
-    except Exception as e:
-        LOGGER.error(
-            f"Failed to retrieve profile image for user ID {user.id}: {str(e)}"
-        )
-        return Response(
-            {"error": str(e)},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-
-def get_email(access_token: str) -> dict:
-    """
-    Retrieves the primary email of the user from Microsoft Graph API.
-
-    Args:
-        access_token (str): Access token required for authentication.
-
-    Returns:
-        dict: {'email': <user_email>} if successful,
-              {'error': <error_message>} if any error occurs.
-    """
-    if not access_token:
-        return {"error": "Access token is missing"}
-
-    try:
-        graph_api_endpoint = f"{GRAPH_URL}me"
-        headers = get_headers(access_token)
-        response = requests.get(graph_api_endpoint, headers=headers)
-        json_data: dict = response.json()
-
-        if response.status_code == 200:
-            email = json_data["mail"]
-            return {"email": email}
-        else:
-            error = json_data.get("error_description", response.reason)
-            return {"error": f"Failed to get email from Microsoft API: {error}"}
-
-    except Exception as e:
-        return {"error": f"Failed to get email from Microsoft API: {str(e)}"}
-
-
-######################## EMAIL REQUESTS ########################
 @api_view(["POST"])
 @subscription([FREE_PLAN])
 def send_schedule_email(request: HttpRequest) -> Response:
@@ -765,187 +619,6 @@ def search_emails_manually(
         return []
 
 
-def search_emails(access_token: str, search_query: str, max_results=2) -> dict:
-    """
-    Searches for emails in the user's mailbox based on the provided search query in both the subject and body.
-
-    Args:
-        access_token (str): Access token for authenticating with Microsoft Graph API.
-        search_query (str): The search query string to search for in email subjects and bodies.
-        max_results (int, optional): Maximum number of email results to retrieve. Defaults to 2.
-
-    Returns:
-        dict: A dictionary mapping found email addresses (keys) to corresponding sender names (values).
-              Each key-value pair represents an email address and its associated sender name found in the search results.
-    """
-    graph_endpoint = f"{GRAPH_URL}me/messages"
-
-    try:
-        headers = get_headers(access_token)
-        filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
-        params = {"$filter": filter_expression, "$top": max_results}
-
-        response = requests.get(graph_endpoint, headers=headers, params=params)
-        data: dict = response.json()
-        messages: list[dict[str, dict[str, dict]]] = data.get("value", [])
-
-        found_emails = {}
-
-        for message in messages:
-            sender: str = (
-                message.get("from", {}).get("emailAddress", {}).get("address", "")
-            )
-
-            if sender:
-                email = sender.lower()
-                name = sender.split("@")[0].lower()
-
-                # Additional filtering: Check if the sender email/name matches the search query
-                if search_query.lower() in email or search_query.lower() in name:
-                    if email and not email_processing.is_no_reply_email(email):
-                        found_emails[email] = name
-
-        return found_emails
-
-    except Exception as e:
-        LOGGER.error(
-            f"Failed to search emails from Microsoft Graph API. Query: {search_query}. Error: {str(e)}"
-        )
-        return {}
-
-
-def set_all_contacts(access_token: str, user: User):
-    """
-    Retrieves all unique contacts from an email account using Microsoft Graph API and stores them in the database.
-
-    Args:
-        access_token (str): Access token for authenticating with Microsoft Graph API.
-        user (User): User object representing the owner of the email account.
-    """
-    LOGGER.info(
-        f"Starting to save all contacts from user ID: {user.id} with Microsoft Graph API"
-    )
-    start = time.time()
-
-    graph_api_contacts_endpoint = f"{GRAPH_URL}me/contacts"
-    graph_api_messages_endpoint = f"{GRAPH_URL}me/messages?$top=500"
-    headers = get_headers(access_token)
-
-    try:
-        all_contacts = defaultdict(set)
-
-        # Part 1: Retrieve contacts from Microsoft Contacts
-        response = requests.get(graph_api_contacts_endpoint, headers=headers)
-        response.raise_for_status()
-        response_data: dict = response.json()
-        contacts: list[dict[str, dict]] = response_data.get("value", [])
-
-        for contact in contacts:
-            name = contact.get("displayName", "")
-            email_address = contact.get("emailAddresses", [{}])[0].get("address", "")
-            provider_id = contact.get("id", "")
-            all_contacts[(user, name, email_address, provider_id)].add(email_address)
-
-        # Part 2: Retrieve contacts from Outlook messages
-        response = requests.get(graph_api_messages_endpoint, headers=headers)
-        response.raise_for_status()
-        data: dict = response.json()
-        messages: list[dict[str, dict[str, dict]]] = data.get("value", [])
-
-        for message in messages:
-            sender: str = (
-                message.get("from", {}).get("emailAddress", {}).get("address", "")
-            )
-            if sender:
-                name = sender.split("@")[0]
-                if (user, name, sender, "") in all_contacts:
-                    continue
-                else:
-                    all_contacts[(user, name, sender, "")].add(sender)
-
-        # Part 3: Save the contacts to the database
-        for contact_info, emails in all_contacts.items():
-            _, name, email_address, provider_id = contact_info
-            for _ in emails:
-                email_processing.save_email_sender(
-                    user, name, email_address, provider_id
-                )
-
-        formatted_time = str(datetime.timedelta(seconds=time.time() - start))
-        LOGGER.info(
-            f"Retrieved {len(all_contacts)} unique contacts in {formatted_time} from Microsoft Graph API for user ID: {user.id}"
-        )
-
-    except Exception as e:
-        LOGGER.error(
-            f"Error fetching contacts from Microsoft Graph API for user ID {user.id}: {str(e)}"
-        )
-
-
-def parse_name_and_email(
-    sender: dict[str, dict]
-) -> tuple[str, str] | tuple[None, None]:
-    """
-    Parses the name and email address from a sender dictionary.
-
-    Args:
-        sender (dict): Dictionary containing sender information.
-
-    Returns:
-        tuple[str, str] | tuple[None, None]: Tuple containing name and email address,
-                                             or (None, None) if sender information is empty.
-
-    """
-    if not sender:
-        return None, None
-
-    name = sender.get("emailAddress", {}).get("name")
-    email = sender.get("emailAddress", {}).get("address")
-
-    return name, email
-
-
-def parse_recipients(recipients: list[dict[str, dict]]) -> list[tuple[str, str]]:
-    """
-    Parses names and email addresses from a list of recipient dictionaries.
-
-    Args:
-        recipients (list): List of dictionaries containing recipient information.
-
-    Returns:
-        list[tuple[str, str]]: List of tuples containing names and email addresses of recipients.
-
-    """
-    if not recipients:
-        return []
-
-    parsed_recipients = []
-    for recipient in recipients:
-        name, email = parse_name_and_email(recipient)
-        parsed_recipients.append((name, email))
-
-    return parsed_recipients
-
-
-def parse_message_body(message_data: dict) -> str | None:
-    """
-    Parses the message body content from a message data dictionary.
-
-    Args:
-        message_data (dict): Dictionary containing message data.
-
-    Returns:
-        str | None: Message body content as string, or None if no valid content type found.
-
-    """
-    if "body" in message_data:
-        body = message_data["body"]
-        if body["contentType"] in ["text", "html", "multipart"]:
-            return body["content"]
-
-    return None
-
-
 def get_mail_to_db(
     access_token: str, int_mail: int = None, id_mail: str = None
 ) -> tuple:
@@ -1014,189 +687,6 @@ def get_mail_to_db(
     )
 
 
-
-
-def email_to_db(user: User, email: str, id_email: str) -> bool | str:
-    """
-    Saves email notifications from Microsoft Graph API listener to the database.
-
-    Args:
-        user (User): The user object for whom the email is being saved.
-        email (str): The email address associated with the notification.
-        id_email (str): The ID of the email notification from Microsoft Graph API.
-
-    Returns:
-        bool | str: True if the email was successfully saved, False if there was an issue saving the email,
-                    or an error message if an exception occurred.
-    """
-    LOGGER.info(
-        f"Starting the process of saving email from Microsoft Graph API to database for user ID: {user.id} and email ID: {id_email}"
-    )
-
-    social_api = get_social_api(user, email)
-    access_token = refresh_access_token(social_api)
-
-    (
-        subject,
-        from_name,
-        decoded_data,
-        email_id,
-        sent_date,
-        has_attachments,
-        is_reply,
-    ) = get_mail_to_db(access_token, None, id_email)
-
-    if Email.objects.filter(provider_id=email_id).exists():
-        return True
-
-    sender = Sender.objects.filter(email=from_name[1]).first()
-
-    if not decoded_data:
-        LOGGER.info(
-            f"No decoded data retrieved from Microsoft Graph API for user ID: {user.id} and email ID: {id_email}"
-        )
-        return False
-
-    category_dict = email_processing.get_db_categories(user)
-    category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
-    rules = Rule.objects.filter(sender=sender)
-    rule_category = None
-
-    if rules.exists():
-        for rule in rules:
-            if rule.block:
-                return True
-
-            if rule.category:
-                category = rule.category
-                rule_category = True
-
-    user_description = (
-        social_api.user_description if social_api.user_description is not None else ""
-    )
-    language = Preference.objects.get(user=user).language
-
-    if is_reply:
-        # Summarize conversation with Search
-        email_content = email_processing.preprocess_email(decoded_data)
-        user_id = user.id
-        search = Search(user_id)
-        conversation_summary = search.summarize_conversation(
-            subject, email_content, user_description, language
-        )
-    else:
-        # Summarize single email with Search
-        email_content = email_processing.preprocess_email(decoded_data)
-        user_id = user.id
-        search = Search(user_id)
-        email_summary = search.summarize_email(
-            subject, email_content, user_description, language
-        )
-
-    email_processed = claude.categorize_and_summarize_email(
-        subject, decoded_data, category_dict, user_description, from_name[1]
-    )
-
-    priority: str = email_processed["importance"]
-    topic: str = email_processed["topic"]
-    answer: str = email_processed["response"]
-    relevance: str = email_processed["relevance"]
-    flags: dict = email_processed["flags"]
-    spam: bool = flags["spam"]
-    scam: bool = flags["scam"]
-    newsletter: bool = flags["newsletter"]
-    notification: bool = flags["notification"]
-    meeting: bool = flags["meeting"]
-    summary: dict = email_processed["summary"]
-    short_summary: str = summary["short"]
-    one_line_summary: str = summary["one_line"]
-
-    if not rule_category:
-        if topic in category_dict:
-            category = Category.objects.get(name=topic, user=user)
-
-    if not sender:
-        sender_name, sender_email = from_name[0], from_name[1]
-        if not sender_name:
-            sender_name = sender_email
-
-        sender = Sender.objects.filter(email=sender_email).first()
-        if not sender:
-            sender = Sender.objects.create(email=sender_email, name=sender_name)
-
-    try:
-        email_entry = Email.objects.create(
-            social_api=social_api,
-            provider_id=email_id,
-            email_provider=MICROSOFT_PROVIDER,
-            short_summary=short_summary,
-            one_line_summary=one_line_summary,
-            subject=subject,
-            priority=priority,
-            sender=sender,
-            category=category,
-            user=user,
-            date=sent_date,
-            has_attachments=has_attachments,
-            answer=answer,
-            relevance=relevance,
-            spam=spam,
-            scam=scam,
-            newsletter=newsletter,
-            notification=notification,
-            meeting=meeting,
-        )
-
-        if is_reply:
-            conversation_summary_category = conversation_summary["category"]
-            conversation_summary_organization = conversation_summary["organization"]
-            conversation_summary_topic = conversation_summary["topic"]
-            keypoints: dict = conversation_summary["keypoints"]
-
-            for index, keypoints_list in keypoints.items():
-                for keypoint in keypoints_list:
-                    KeyPoint.objects.create(
-                        is_reply=True,
-                        position=index,
-                        category=conversation_summary_category,
-                        organization=conversation_summary_organization,
-                        topic=conversation_summary_topic,
-                        content=keypoint,
-                        email=email_entry,
-                    )
-
-        else:
-            email_summary_category = email_summary["category"]
-            email_summary_organization = email_summary["organization"]
-            email_summary_topic = email_summary["topic"]
-
-            for keypoint in email_summary["keypoints"]:
-                KeyPoint.objects.create(
-                    is_reply=False,
-                    category=email_summary_category,
-                    organization=email_summary_organization,
-                    topic=email_summary_topic,
-                    content=keypoint,
-                    email=email_entry,
-                )
-
-        contact_name, contact_email = from_name[0], from_name[1]
-        Contact.objects.get_or_create(
-            user=user, email=contact_email, username=contact_name
-        )
-
-        LOGGER.info(
-            f"Email ID: {id_email} saved to database successfully for user ID: {user.id} using Microsoft Graph API"
-        )
-        return True
-
-    except Exception as e:
-        LOGGER.error(
-            f"An error occurred when trying to create an email with ID {email_id} for user ID: {user.id}: {str(e)}"
-        )
-        return str(e)
-
-
 ###########################################################################
 ######################## TO DELETE IN THE FUTURE ? ########################
 ###########################################################################
@@ -1254,3 +744,54 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
         email_id,
         sent_date,
     )
+
+
+'''
+def search_emails(access_token: str, search_query: str, max_results=2) -> dict:
+    """
+    Searches for emails in the user's mailbox based on the provided search query in both the subject and body.
+
+    Args:
+        access_token (str): Access token for authenticating with Microsoft Graph API.
+        search_query (str): The search query string to search for in email subjects and bodies.
+        max_results (int, optional): Maximum number of email results to retrieve. Defaults to 2.
+
+    Returns:
+        dict: A dictionary mapping found email addresses (keys) to corresponding sender names (values).
+              Each key-value pair represents an email address and its associated sender name found in the search results.
+    """
+    graph_endpoint = f"{GRAPH_URL}me/messages"
+
+    try:
+        headers = get_headers(access_token)
+        filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
+        params = {"$filter": filter_expression, "$top": max_results}
+
+        response = requests.get(graph_endpoint, headers=headers, params=params)
+        data: dict = response.json()
+        messages: list[dict[str, dict[str, dict]]] = data.get("value", [])
+
+        found_emails = {}
+
+        for message in messages:
+            sender: str = (
+                message.get("from", {}).get("emailAddress", {}).get("address", "")
+            )
+
+            if sender:
+                email = sender.lower()
+                name = sender.split("@")[0].lower()
+
+                # Additional filtering: Check if the sender email/name matches the search query
+                if search_query.lower() in email or search_query.lower() in name:
+                    if email and not email_processing.is_no_reply_email(email):
+                        found_emails[email] = name
+
+        return found_emails
+
+    except Exception as e:
+        LOGGER.error(
+            f"Failed to search emails from Microsoft Graph API. Query: {search_query}. Error: {str(e)}"
+        )
+        return {}
+'''

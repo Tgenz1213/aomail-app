@@ -44,11 +44,18 @@ from MailAssistant.constants import (
     DEFAULT_CATEGORY,
     EMAIL_NO_REPLY,
     ENCRYPTION_KEYS,
+    GOOGLE,
     GOOGLE_PROVIDER,
     MAX_RETRIES,
+    MICROSOFT,
     MICROSOFT_PROVIDER,
 )
-from MailAssistant.email_providers import google_api, microsoft_api
+from MailAssistant.email_providers.google import profile as profile_google
+from MailAssistant.email_providers.microsoft import profile as profile_microsoft
+from MailAssistant.email_providers.google import authentication as auth_google
+from MailAssistant.email_providers.microsoft import authentication as auth_microsoft
+from MailAssistant.email_providers.google import webhook as webhook_google
+from MailAssistant.email_providers.microsoft import webhook as webhook_microsoft
 from MailAssistant.models import (
     Category,
     GoogleListener,
@@ -174,14 +181,14 @@ def signup(request: HttpRequest) -> Response:
     LOGGER.info(f"User data saved successfully for {username}")
 
     try:
-        if type_api == "google":
+        if type_api == GOOGLE:
             threading.Thread(
-                target=google_api.set_all_contacts, args=(user, email)
+                target=profile_google.set_all_contacts, args=(user, email)
             ).start()
-        elif type_api == "microsoft":
-            if microsoft_api.verify_license(access_token):
+        elif type_api == MICROSOFT:
+            if profile_microsoft.verify_license(access_token):
                 threading.Thread(
-                    target=microsoft_api.set_all_contacts, args=(access_token, user)
+                    target=profile_microsoft.set_all_contacts, args=(access_token, user)
                 ).start()
             else:
                 LOGGER.error("No license associated with the account")
@@ -238,18 +245,20 @@ def subscribe_listeners(type_api: str, user: str, email: str) -> bool:
     Returns:
         bool: True if subscription was successful, False otherwise.
     """
-    if type_api == "google":
-        subscribed = google_api.subscribe_to_email_notifications(user, email)
+    if type_api == GOOGLE:
+        subscribed = webhook_google.subscribe_to_email_notifications(user, email)
         if subscribed:
-            social_api = google_api.get_social_api(user, email)
+            social_api = auth_google.get_social_api(user, email)
             GoogleListener.objects.create(
                 last_modified=timezone.now(), social_api=social_api
             )
             return True
 
-    elif type_api == "microsoft":
-        subscribed_email = microsoft_api.subscribe_to_email_notifications(user, email)
-        subscribed_contact = microsoft_api.subscribe_to_contact_notifications(
+    elif type_api == MICROSOFT:
+        subscribed_email = webhook_microsoft.subscribe_to_email_notifications(
+            user, email
+        )
+        subscribed_contact = webhook_microsoft.subscribe_to_contact_notifications(
             user, email
         )
         if subscribed_email and subscribed_contact:
@@ -271,9 +280,9 @@ def unsubscribe_listeners(user: User, email: str = None):
     # Unsubscribe from Google APIs
     if social_apis.exists():
         for social_api in social_apis:
-            if social_api.type_api == "google":
+            if social_api.type_api == GOOGLE:
                 for i in range(MAX_RETRIES):
-                    if google_api.unsubscribe_from_email_notifications(
+                    if webhook_google.unsubscribe_from_email_notifications(
                         user, social_api.email
                     ):
                         break
@@ -309,7 +318,7 @@ def unsubscribe_listeners(user: User, email: str = None):
     if microsoft_listeners.exists():
         for listener in microsoft_listeners:
             for i in range(MAX_RETRIES):
-                if microsoft_api.delete_subscription(
+                if webhook_microsoft.delete_subscription(
                     user, listener.email, listener.subscription_id
                 ):
                     break
@@ -349,27 +358,27 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
               or an error message if validation fails.
     """
     try:
-        if type_api == "google":
-            access_token, refresh_token = google_api.exchange_code_for_tokens(code)
+        if type_api == GOOGLE:
+            access_token, refresh_token = auth_google.exchange_code_for_tokens(code)
             if not access_token or not refresh_token:
                 return {
                     "error": "Failed to obtain access or refresh token from Google API"
                 }
 
-            result_get_email = google_api.get_email(access_token, refresh_token)
+            result_get_email = profile_google.get_email(access_token, refresh_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
                 email = result_get_email["email"]
 
-        elif type_api == "microsoft":
-            access_token, refresh_token = microsoft_api.exchange_code_for_tokens(code)
+        elif type_api == MICROSOFT:
+            access_token, refresh_token = auth_microsoft.exchange_code_for_tokens(code)
             if not access_token or not refresh_token:
                 return {
                     "error": "Failed to obtain access or refresh token from Microsoft API"
                 }
 
-            result_get_email = microsoft_api.get_email(access_token)
+            result_get_email = profile_microsoft.get_email(access_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
@@ -402,25 +411,25 @@ def validate_code_link_email(type_api: str, code: str) -> dict:
               or an error message if validation fails.
     """
     try:
-        if type_api == "google":
-            access_token, refresh_token = google_api.link_email_tokens(code)
+        if type_api == GOOGLE:
+            access_token, refresh_token = auth_google.link_email_tokens(code)
             if not access_token or not refresh_token:
                 return {
                     "error": "Failed to obtain access or refresh token from Google API"
                 }
 
-            result_get_email = google_api.get_email(access_token, refresh_token)
+            result_get_email = profile_google.get_email(access_token, refresh_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
                 email = result_get_email["email"]
 
-        elif type_api == "microsoft":
-            access_token, refresh_token = microsoft_api.link_email_tokens(code)
+        elif type_api == MICROSOFT:
+            access_token, refresh_token = auth_microsoft.link_email_tokens(code)
             if not access_token:
                 return {"error": "Failed to obtain access token from Microsoft API"}
 
-            result_get_email = microsoft_api.get_email(access_token)
+            result_get_email = profile_microsoft.get_email(access_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
@@ -747,13 +756,13 @@ def link_email(request: HttpRequest) -> Response:
         )
 
     try:
-        if type_api == "google":
+        if type_api == GOOGLE:
             threading.Thread(
-                target=google_api.set_all_contacts, args=(user, email)
+                target=profile_google.set_all_contacts, args=(user, email)
             ).start()
-        elif type_api == "microsoft":
+        elif type_api == MICROSOFT:
             threading.Thread(
-                target=microsoft_api.set_all_contacts, args=(access_token, user)
+                target=profile_microsoft.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

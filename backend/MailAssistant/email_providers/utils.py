@@ -1,15 +1,15 @@
 """
-TODO:
-- split email_to_db + separate call depending on the api
+Contains common functions for email service provider APIs.
+
+Features:
+- ✅ email_to_db: Save email notifications from various email service APIs to the database.
 """
 
 import logging
+from django.db import transaction
+from django.contrib.auth.models import User
 from MailAssistant.ai_providers import claude
-from MailAssistant.constants import (
-    DEFAULT_CATEGORY,
-    GOOGLE,
-    MICROSOFT,
-)
+from MailAssistant.constants import GOOGLE, MICROSOFT
 from MailAssistant.utils.tree_knowledge import Search
 from MailAssistant.utils import email_processing
 from MailAssistant.models import (
@@ -26,13 +26,11 @@ from MailAssistant.models import (
     Picture,
     Attachment,
 )
-from MailAssistant.email_providers.google import (
-    authentication as auth_google,
-    email_operations as email_operations_google,
-)
 from MailAssistant.email_providers.microsoft import (
-    authentication as auth_microsoft,
     email_operations as email_operations_microsoft,
+)
+from MailAssistant.email_providers.google import (
+    email_operations as email_operations_google,
 )
 
 
@@ -40,385 +38,304 @@ from MailAssistant.email_providers.microsoft import (
 LOGGER = logging.getLogger(__name__)
 
 
-
-# CLean the documenation + clean the logging messages + optimize the function where its obvious. DO NOT TRY anything that moight not work
-
-
-def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool | str:
+def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
     """
-    Saves email notifications from Google or Microsoft Graph API listener to the database.
+    Save email notifications from various email service APIs to the database.
 
     Args:
         social_api (SocialAPI): The SocialAPI instance associated with the user.
-        email_id (str): The ID of the email notification from Microsoft Graph API.
+        email_id (Optional[str]): The ID of the email notification (if applicable).
 
     Returns:
-        bool | str: True if the email was successfully saved, False if there was an issue saving the email,
-                    or an error message if an exception occurred.
+        bool: True if the email was successfully saved, False otherwise.
     """
-    type_api = social_api.type_api
     user = social_api.user
+    api_type = social_api.type_api
 
-    # TODO: log also the api if its MICROSFOT or GOOLE
     LOGGER.info(
-        f"Starting the process of saving email to database for user ID: {user.id}"
-    )
-    # like here
-    LOGGER.info(
-        f"Starting the process of saving email from Microsoft Graph API to database for user ID: {user.id} and email ID: {email_id}"
-    )
-    # or here
-    LOGGER.info(
-        f"Starting the process of saving email from Google API to database for user ID: {user.id}"
+        f"Saving email to database for user ID: {user.id} using {api_type.capitalize()} API"
     )
 
-    if type_api == MICROSOFT:
-        access_token = auth_microsoft.refresh_access_token(social_api)
-
-        (
-            subject,
-            from_name,
-            decoded_data,
-            email_id,
-            sent_date,
-            has_attachments,
-            is_reply,
-        ) = email_operations_microsoft.get_mail_to_db(access_token, None, email_id)
-
-        if Email.objects.filter(provider_id=email_id).exists():
-            return True
-
-        sender = Sender.objects.filter(email=from_name[1]).first()
-
-        if not decoded_data:
-            LOGGER.info(
-                f"No decoded data retrieved from Microsoft Graph API for user ID: {user.id} and email ID: {email_id}"
-            )
+    try:
+        email_data = get_email_data(social_api, email_id)
+        if not email_data:
             return False
 
-        category_dict = email_processing.get_db_categories(user)
-        category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
-        rules = Rule.objects.filter(sender=sender)
-        rule_category = None
-
-        if rules.exists():
-            for rule in rules:
-                if rule.block:
-                    return True
-
-                if rule.category:
-                    category = rule.category
-                    rule_category = True
-
-        user_description = social_api.user_description
-        language = Preference.objects.get(user=user).language
-
-        if is_reply:
-            # Summarize conversation with Search
-            email_content = email_processing.preprocess_email(decoded_data)
-            user_id = user.id
-            search = Search(user_id)
-            conversation_summary = search.summarize_conversation(
-                subject, email_content, user_description, language
-            )
-        else:
-            # Summarize single email with Search
-            email_content = email_processing.preprocess_email(decoded_data)
-            user_id = user.id
-            search = Search(user_id)
-            email_summary = search.summarize_email(
-                subject, email_content, user_description, language
-            )
-
-        email_processed = claude.categorize_and_summarize_email(
-            subject, decoded_data, category_dict, user_description, from_name[1]
-        )
-
-        priority: str = email_processed["importance"]
-        topic: str = email_processed["topic"]
-        answer: str = email_processed["response"]
-        relevance: str = email_processed["relevance"]
-        flags: dict = email_processed["flags"]
-        spam: bool = flags["spam"]
-        scam: bool = flags["scam"]
-        newsletter: bool = flags["newsletter"]
-        notification: bool = flags["notification"]
-        meeting: bool = flags["meeting"]
-        summary: dict = email_processed["summary"]
-        short_summary: str = summary["short"]
-        one_line_summary: str = summary["one_line"]
-
-        if not rule_category:
-            if topic in category_dict:
-                category = Category.objects.get(name=topic, user=user)
-
-        if not sender:
-            sender_name, sender_email = from_name[0], from_name[1]
-            if not sender_name:
-                sender_name = sender_email
-
-            sender = Sender.objects.filter(email=sender_email).first()
-            if not sender:
-                sender = Sender.objects.create(email=sender_email, name=sender_name)
-
-        try:
-            email_entry = Email.objects.create(
-                social_api=social_api,
-                provider_id=email_id,
-                email_provider=MICROSOFT,
-                short_summary=short_summary,
-                one_line_summary=one_line_summary,
-                subject=subject,
-                priority=priority,
-                sender=sender,
-                category=category,
-                user=user,
-                date=sent_date,
-                has_attachments=has_attachments,
-                answer=answer,
-                relevance=relevance,
-                spam=spam,
-                scam=scam,
-                newsletter=newsletter,
-                notification=notification,
-                meeting=meeting,
-            )
-
-            if is_reply:
-                conversation_summary_category = conversation_summary["category"]
-                conversation_summary_organization = conversation_summary["organization"]
-                conversation_summary_topic = conversation_summary["topic"]
-                keypoints: dict = conversation_summary["keypoints"]
-
-                for index, keypoints_list in keypoints.items():
-                    for keypoint in keypoints_list:
-                        KeyPoint.objects.create(
-                            is_reply=True,
-                            position=index,
-                            category=conversation_summary_category,
-                            organization=conversation_summary_organization,
-                            topic=conversation_summary_topic,
-                            content=keypoint,
-                            email=email_entry,
-                        )
-
-            else:
-                email_summary_category = email_summary["category"]
-                email_summary_organization = email_summary["organization"]
-                email_summary_topic = email_summary["topic"]
-
-                for keypoint in email_summary["keypoints"]:
-                    KeyPoint.objects.create(
-                        is_reply=False,
-                        category=email_summary_category,
-                        organization=email_summary_organization,
-                        topic=email_summary_topic,
-                        content=keypoint,
-                        email=email_entry,
-                    )
-
-            contact_name, contact_email = from_name[0], from_name[1]
-            Contact.objects.get_or_create(
-                user=user, email=contact_email, username=contact_name
-            )
-
-            LOGGER.info(
-                f"Email ID: {email_id} saved to database successfully for user ID: {user.id} using Microsoft Graph API"
-            )
+        if not should_process_email(email_data):
             return True
 
-        except Exception as e:
-            LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id} for user ID: {user.id}: {str(e)}"
-            )
-            return str(e)
+        processed_email = process_email(email_data, user, social_api)
+        save_email_to_db(processed_email, user, social_api)
 
-    elif type_api == GOOGLE:
         LOGGER.info(
-            f"Starting the process of saving email from Google API to database for user ID: {user.id}"
+            f"Email ID: {email_data['email_id']} saved successfully for user ID: {user.id}"
         )
+        return True
 
-        email_user = social_api.email
-        services = auth_google.authenticate_service(user, email_user)
+    except Exception as e:
+        LOGGER.error(f"Error saving email for user ID: {user.id}: {str(e)}")
+        return False
 
-        (
-            subject,
-            from_name,
-            decoded_data,
-            safe_html,
-            email_id,
-            sent_date,
-            has_attachments,
-            is_reply,
-            cc_info,
-            bcc_info,
-            image_files,
-            attachments,
-        ) = email_operations_google.get_mail_to_db(services)
 
-        if Email.objects.filter(provider_id=email_id).exists():
-            return True
+def get_email_data(social_api: SocialAPI, email_id: str = None) -> dict:
+    """
+    Fetch email data from the appropriate API.
 
-        user_description = (
-            social_api.user_description if social_api.user_description else ""
-        )
-        language = Preference.objects.get(user=user).language
+    Args:
+        social_api (SocialAPI): An object representing the social API being used.
+        email_id (str, optional): The ID of the email to fetch. Defaults to None.
 
-        if not decoded_data:
-            LOGGER.info(
-                f"No decoded data retrieved from Google API for user ID: {user.id} and email ID: {email_id}"
-            )
-            return "No decoded data"
+    Returns:
+        dict: A dictionary containing the fetched email data.
+    """
+    if social_api.type_api == MICROSOFT:
+        return email_operations_microsoft.get_mail_to_db(social_api, email_id)
+    elif social_api.type_api == GOOGLE:
+        return email_operations_google.get_mail_to_db(social_api)
+    else:
+        raise ValueError(f"Unsupported API type: {social_api.type_api}")
 
-        sender = Sender.objects.filter(email=from_name[1]).first()
-        category_dict = email_processing.get_db_categories(user)
-        category = Category.objects.get(name=DEFAULT_CATEGORY, user=user)
+
+def should_process_email(email_data: dict) -> bool:
+    """
+    Check if the email should be processed.
+
+    Args:
+        email_data (dict): A dictionary containing the email data.
+
+    Returns:
+        bool: True if the email should be processed, False otherwise.
+    """
+    if Email.objects.filter(provider_id=email_data["email_id"]).exists():
+        return False
+
+    from_email = email_data["from_info"][1]
+
+    sender = Sender.objects.filter(email=from_email).first()
+    if sender:
         rules = Rule.objects.filter(sender=sender)
-        rule_category = None
+        if rules.exists() and any(rule.block for rule in rules):
+            return False
 
-        if rules.exists():
-            for rule in rules:
-                if rule.block:
-                    return True
+    return True
 
-                if rule.category:
-                    category = rule.category
-                    rule_category = True
 
-        email_content = email_processing.preprocess_email(decoded_data)
-        search = Search(user.id)
+def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
+    """
+    Process the email data.
 
-        if is_reply:
-            conversation_summary = search.summarize_conversation(
-                subject, email_content, user_description, language
-            )
-        else:
-            email_summary = search.summarize_email(
-                subject, email_content, user_description, language
-            )
+    Args:
+        email_data (dict): A dictionary containing the email data to be processed.
+        user (User): The user object associated with the email.
+        social_api (SocialAPI): An object representing the social API being used.
 
-        email_processed = claude.categorize_and_summarize_email(
-            subject, decoded_data, category_dict, user_description, from_name[1]
+    Returns:
+        dict: A dictionary containing the processed email data, including the original
+              email data, processed information, and summary.
+    """
+    user_description = social_api.user_description or ""
+    language = Preference.objects.get(user=user).language
+    category_dict = email_processing.get_db_categories(user)
+
+    email_content = email_processing.preprocess_email(email_data["preprocessed_data"])
+    search = Search(user.id)
+
+    if email_data["is_reply"]:
+        summary = search.summarize_conversation(
+            email_data["subject"], email_content, user_description, language
+        )
+    else:
+        summary = search.summarize_email(
+            email_data["subject"], email_content, user_description, language
         )
 
-        priority: str = email_processed["importance"]
-        topic: str = email_processed["topic"]
-        answer: str = email_processed["response"]
-        relevance: str = email_processed["relevance"]
-        flags: dict = email_processed["flags"]
-        spam: bool = flags["spam"]
-        scam: bool = flags["scam"]
-        newsletter: bool = flags["newsletter"]
-        notification: bool = flags["notification"]
-        meeting: bool = flags["meeting"]
-        summary: dict = email_processed["summary"]
-        short_summary: str = summary["short"]
-        one_line_summary: str = summary["one_line"]
+    from_email = email_data["from_info"][1]
 
-        if not rule_category:
-            category = Category.objects.get(name=topic, user=user)
+    email_processed = claude.categorize_and_summarize_email(
+        email_data["subject"],
+        email_data["preprocessed_data"],
+        category_dict,
+        user_description,
+        from_email,
+    )
 
-        if not sender:
-            sender_name, sender_email = from_name[0], from_name[1]
-            if not sender_name:
-                sender_name = sender_email
+    return {
+        "email_data": email_data,
+        "email_processed": email_processed,
+        "summary": summary,
+    }
 
-            sender = Sender.objects.filter(email=sender_email).first()
-            if not sender:
-                sender = Sender.objects.create(email=sender_email, name=sender_name)
 
-        try:
-            email_entry = Email.objects.create(
-                social_api=social_api,
-                provider_id=email_id,
-                email_provider=GOOGLE,
-                short_summary=short_summary,
-                one_line_summary=one_line_summary,
-                html_content=safe_html,
-                subject=subject,
-                priority=priority,
-                sender=sender,
-                category=category,
-                user=user,
-                date=sent_date,
-                has_attachments=has_attachments,
-                answer=answer,
-                relevance=relevance,
-                spam=spam,
-                scam=scam,
-                newsletter=newsletter,
-                notification=notification,
-                meeting=meeting,
+@transaction.atomic
+def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
+    """
+    Save the processed email to the database.
+
+    Args:
+        processed_email (dict): A dictionary containing the processed email data.
+        user (User): The user object associated with the email.
+        social_api (SocialAPI): An object representing the social API being used.
+    """
+    email_data = processed_email["email_data"]
+    is_reply = email_data["is_reply"]
+    email_ai = processed_email["email_processed"]
+    summary = processed_email["summary"]
+
+    category, sender = process_email_entities(email_data, user)
+
+    email_entry = create_email_entry(
+        email_ai, email_data, user, social_api, category, sender
+    )
+    create_keypoints(summary, is_reply, email_entry)
+
+    if social_api.type_api == GOOGLE:
+        create_cc_bcc_senders(email_data, email_entry)
+        create_pictures_and_attachments(email_data, email_entry)
+
+
+def process_email_entities(
+    processed_email: dict, user: User
+) -> tuple[Category, Sender]:
+    """
+    Get or create the email category, sender, and contact.
+
+    Args:
+        processed_email (dict): A dictionary containing the processed email data.
+        user (User): The user object associated with the email.
+
+    Returns:
+        tuple: A tuple containing two elements:
+               category: The Category object for the email.
+               sender: The Sender object for the email.
+    """
+    category_name = processed_email.get("topic", "Uncategorized")
+    category = Category.objects.get_or_create(name=category_name, user=user)[0]
+
+    sender_name, sender_email = processed_email["from_info"]
+    sender, _ = Sender.objects.get_or_create(
+        email=sender_email, defaults={"name": sender_name or sender_email}
+    )
+
+    Contact.objects.get_or_create(
+        user=user, email=sender_email, defaults={"username": sender_name}
+    )
+
+    return category, sender
+
+
+def create_email_entry(
+    email_ai: dict,
+    email_data: dict,
+    user: User,
+    social_api: SocialAPI,
+    category: Category,
+    sender: Sender,
+) -> Email:
+    """
+    Create the main Email entry in the database.
+
+    Args:
+        email_ai (dict): Information provided by the AI processing.
+        email_data (dict): Raw email data from the email provider.
+        user (User): The user object associated with the email.
+        social_api (SocialAPI): The social API object used to fetch the email.
+        category (Category): The category object for the email.
+        sender (Sender): The sender object for the email.
+
+    Returns:
+        Email: The created Email object.
+    """
+    return Email.objects.create(
+        social_api=social_api,
+        provider_id=email_data["email_id"],
+        email_provider=social_api.type_api,
+        short_summary=email_ai["summary"]["short"],
+        one_line_summary=email_ai["summary"]["one_line"],
+        html_content=email_data.get("safe_html", ""),
+        subject=email_data["subject"],
+        priority=email_ai["importance"],
+        sender=sender,
+        category=category,
+        user=user,
+        date=email_data["sent_date"],
+        has_attachments=email_data["has_attachments"],
+        answer=email_ai["response"],
+        relevance=email_ai["relevance"],
+        spam=email_ai["flags"]["spam"],
+        scam=email_ai["flags"]["scam"],
+        newsletter=email_ai["flags"]["newsletter"],
+        notification=email_ai["flags"]["notification"],
+        meeting=email_ai["flags"]["meeting"],
+    )
+
+
+def create_keypoints(summary: dict, is_reply: bool, email_entry: Email):
+    """
+    Create KeyPoint entries for the email.
+
+    Args:
+        summary (dict): data from ai aswith keypoiiunts
+        is_reply (Email): The Email object to associate the keypoints with.
+    """
+    if is_reply:
+        keypoints = summary["keypoints"]
+        for index, keypoints_list in keypoints.items():
+            for keypoint in keypoints_list:
+                KeyPoint.objects.create(
+                    is_reply=True,
+                    position=index,
+                    category=summary["category"],
+                    organization=summary["organization"],
+                    topic=summary["topic"],
+                    content=keypoint,
+                    email=email_entry,
+                )
+    else:
+        for keypoint in summary["keypoints"]:
+            KeyPoint.objects.create(
+                is_reply=False,
+                category=summary["category"],
+                organization=summary["organization"],
+                topic=summary["topic"],
+                content=keypoint,
+                email=email_entry,
             )
 
-            if is_reply:
-                conversation_summary_category = conversation_summary["category"]
-                conversation_summary_organization = conversation_summary["organization"]
-                conversation_summary_topic = conversation_summary["topic"]
-                keypoints: dict = conversation_summary["keypoints"]
 
-                for index, keypoints_list in keypoints.items():
-                    for keypoint in keypoints_list:
-                        KeyPoint.objects.create(
-                            is_reply=True,
-                            position=index,
-                            category=conversation_summary_category,
-                            organization=conversation_summary_organization,
-                            topic=conversation_summary_topic,
-                            content=keypoint,
-                            email=email_entry,
-                        )
-            else:
-                email_summary_category = email_summary["category"]
-                email_summary_organization = email_summary["organization"]
-                email_summary_topic = email_summary["topic"]
+def create_cc_bcc_senders(processed_email: dict, email_entry: Email):
+    """
+    Create CC and BCC sender entries.
 
-                for keypoint in email_summary["keypoints"]:
-                    KeyPoint.objects.create(
-                        is_reply=False,
-                        category=email_summary_category,
-                        organization=email_summary_organization,
-                        topic=email_summary_topic,
-                        content=keypoint,
-                        email=email_entry,
-                    )
+    Args:
+        processed_email (dict): A dictionary containing the processed email data.
+        email_entry (Email): The Email object to associate the CC and BCC senders with.
+    """
+    cc_info = processed_email.get("cc_info", [])
+    bcc_info = processed_email.get("bcc_info", [])
 
-            contact_name, contact_email = from_name[0], from_name[1]
-            Contact.objects.get_or_create(
-                user=user, email=contact_email, username=contact_name
-            )
+    if cc_info:
+        for email, name in cc_info:
+            CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
 
-            if cc_info:
-                for email, name in cc_info:
-                    CC_sender.objects.create(
-                        mail_id=email_entry, email=email, name=name
-                    )
+    if bcc_info:
+        for email, name in bcc_info:
+            BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
 
-            if bcc_info:
-                for email, name in bcc_info:
-                    BCC_sender.objects.create(
-                        mail_id=email_entry, email=email, name=name
-                    )
 
-            if image_files:
-                for image_path in image_files:
-                    Picture.objects.create(mail_id=email_entry, picture=image_path)
+def create_pictures_and_attachments(processed_email: dict, email_entry: Email):
+    """
+    Create Picture and Attachment entries.
 
-            if attachments:
-                for attachment in attachments:
-                    Attachment.objects.create(
-                        mail_id=email_entry,
-                        name=attachment["attachmentName"],
-                        id_api=attachment["attachmentId"],
-                    )
+    Args:
+        processed_email (dict): A dictionary containing the processed email data.
+        email_entry (Email): The Email object to associate the pictures and attachments with.
+    """
+    for image_path in processed_email.get("image_files", []):
+        Picture.objects.create(mail_id=email_entry, picture=image_path)
 
-            LOGGER.info(
-                f"Email ID: {email_id} saved to database successfully for user ID: {user.id} using Google API"
-            )
-            return True
-
-        except Exception as e:
-            LOGGER.error(
-                f"An error occurred when trying to create an email with ID {email_id} for user ID: {user.id}: {str(e)}"
-            )
-            return str(e)
+    for attachment in processed_email.get("attachments", []):
+        Attachment.objects.create(
+            mail_id=email_entry,
+            name=attachment["attachmentName"],
+            id_api=attachment["attachmentId"],
+        )

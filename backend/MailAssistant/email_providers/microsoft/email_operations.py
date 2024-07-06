@@ -4,6 +4,10 @@ Provides email search and operation functions using Microsoft Graph API.
 Endpoints:
 - ✅ send_schedule_email: Schedule the sending of an email.
 - ✅ send_email: Sends an email using the Microsoft Graph API.
+
+
+TODO:
+- merge get_mail_to_db inside get_mail + return a dict instead of a tuple
 """
 
 import base64
@@ -583,19 +587,16 @@ def search_emails_manually(
         return []
 
 
-def get_mail_to_db(
-    access_token: str, int_mail: int = None, id_mail: str = None
-) -> tuple:
+def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
     """
     Retrieve email information for processing email to database.
 
     Args:
-        access_token (str): Access token for authentication.
-        int_mail (int, optional): Index of the email in the inbox to retrieve. Defaults to None.
-        id_mail (str, optional): ID of the specific email message to retrieve. Defaults to None.
+        social_api (SocialAPI): SocialAPI object containing authentication information.
+        email_id (str): ID of the specific email message to retrieve.
 
     Returns:
-        tuple: Tuple containing email information for processing:
+        dict: Dictionary containing email information for processing:
             str: Subject of the email.
             tuple[str, str]: Tuple containing sender name and email address.
             str: Preprocessed email content.
@@ -603,24 +604,10 @@ def get_mail_to_db(
             datetime.datetime: Sent date and time of the email.
             bool: Flag indicating whether the email has attachments.
             bool: Flag indicating whether the email is a reply ('RE:' in subject).
-
     """
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
+    access_token = refresh_access_token(social_api)
     headers = get_headers(access_token)
-
-    if int_mail is not None:
-        response = requests.get(url, headers=headers)
-        response_data: dict = response.json()
-        messages: list[dict] = response_data.get("value", [])
-
-        if not messages:
-            return None
-
-        email_id = messages[int_mail]["id"]
-    elif id_mail is not None:
-        email_id = id_mail
-    else:
-        return None
 
     message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
@@ -640,21 +627,22 @@ def get_mail_to_db(
     decoded_data_temp = email_processing.html_clear(decoded_data)
     preprocessed_data = email_processing.preprocess_email(decoded_data_temp)
 
-    return (
-        subject,
-        from_info,
-        preprocessed_data,
-        email_id,
-        sent_date,
-        has_attachments,
-        is_reply,
-    )
+    return {
+        "subject": subject,
+        "from_info": from_info,
+        "preprocessed_data": preprocessed_data,
+        "email_id": email_id,
+        "sent_date": sent_date,
+        "has_attachments": has_attachments,
+        "is_reply": is_reply,
+    }
 
 
 ###########################################################################
 ######################## TO DELETE IN THE FUTURE ? ########################
 ###########################################################################
-# TO DELETE IN THE FUTURE ?
+# TO DELETE IN THE FUTURE ? => no, but we must merge get_mail_to_db inside this function because its the same function litterally
+# TODO: return a dict instead of a tuple because microsoft and google do not return exactly the same data and its hard after
 def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
     """Retrieve email information for processing."""
 

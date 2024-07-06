@@ -3,6 +3,10 @@ Provides email search and operation functions using Google API.
 
 Endpoints:
 - ✅ send_email: Sends an email using the Gmail API.
+
+
+TODO:
+- merge get_mail_to_db inside get_mail + return a dict instead of a tuple
 """
 
 import base64
@@ -33,6 +37,7 @@ from MailAssistant.constants import (
 )
 from MailAssistant.email_providers.google.authentication import authenticate_service
 from MailAssistant.utils import email_processing
+from MailAssistant.models import SocialAPI
 from base64 import urlsafe_b64encode
 from bs4 import BeautifulSoup
 
@@ -389,16 +394,15 @@ def search_emails_manually(
         return []
 
 
-def get_mail_to_db(services: dict) -> tuple:
+def get_mail_to_db(social_api: SocialAPI) -> dict:
     """
     Retrieve email information from the Gmail API for processing and storing in the database.
 
     Args:
-        services (dict): A dictionary containing authenticated service instances for various email providers,
-                         including the Gmail service instance under the key "gmail".
+        social_api (SocialAPI): An object containing user and email information for authentication.
 
     Returns:
-        tuple: A tuple containing email information required for further processing and database storage:
+        dict: Dictionary containing email information required for further processing and database storage:
             str: Subject of the email.
             tuple[str, str]: Tuple containing the sender's name and email address.
             str: Preprocessed email content (cleaned and summarized).
@@ -407,7 +411,12 @@ def get_mail_to_db(services: dict) -> tuple:
             datetime.datetime: Sent date and time of the email.
             bool: Flag indicating whether the email has attachments.
             bool: Flag indicating whether the email is a reply.
+            tuple[str, str] or None: Tuple containing CC recipient's name and email address, or None if not present.
+            tuple[str, str] or None: Tuple containing BCC recipient's name and email address, or None if not present.
+            list[str]: List of image filenames embedded in the email.
+            list[dict]: List of dictionaries containing attachment information (attachmentId and attachmentName).
     """
+    services = authenticate_service(social_api.user, social_api.email)
     service = services["gmail"]
 
     results: dict = (
@@ -536,20 +545,20 @@ def get_mail_to_db(services: dict) -> tuple:
     preprocessed_data = email_processing.preprocess_email(cleaned_html)
     safe_html = soup.prettify()
 
-    return (
-        subject,
-        from_info,
-        preprocessed_data,
-        safe_html,
-        email_id,
-        sent_date,
-        has_attachments,
-        is_reply,
-        cc_info,
-        bcc_info,
-        image_files,
-        attachments,
-    )
+    return {
+        "subject": subject,
+        "from_info": from_info,
+        "preprocessed_data": preprocessed_data,
+        "safe_html": safe_html,
+        "email_id": email_id,
+        "sent_date": sent_date,
+        "has_attachments": has_attachments,
+        "is_reply": is_reply,
+        "cc_info": cc_info,
+        "bcc_info": bcc_info,
+        "image_files": image_files,
+        "attachments": attachments,
+    }
 
 
 def get_mail_id(services: dict, int_mail: int) -> str:
@@ -700,7 +709,8 @@ def get_mails_batch(services: dict, email_ids: list[str]) -> list[dict]:
 ###########################################################################
 ######################## TO DELETE IN THE FUTURE ? ########################
 ###########################################################################
-# TO DELETE IN THE FUTURE ?
+# TO DELETE IN THE FUTURE ? => no, but we must merge get_mail_to_db inside this function because its the same function litterally
+# TODO: return a dict instead of a tuple because microsoft and google do not return exactly the same data and its hard after
 def get_mail(services, int_mail=None, id_mail=None):
     """Retrieve email information including subject, sender, content, CC, BCC, and ID"""
     service = services["gmail"]

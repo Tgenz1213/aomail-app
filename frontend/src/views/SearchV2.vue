@@ -103,27 +103,48 @@
                 </div>-->
 
                 <div class="relative w-full">
-                                                
-                    <div v-if="!isFocused2"
+                  <div class="flex">
+                    <div class="relative flex-grow">
+                      <div v-if="!isFocused2"
                         class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3">
                         <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
-                        
                         <label for="search" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
                           {{ $t('searchPage.searchPlaceholder') }}
                         </label>
-                        
-                    </div>
+                      </div>
 
-                    <Combobox as="div" v-model="selectedPerson"
-                        @update:model-value="personSelected">
-                        <ComboboxInput id="recipients"
-                            class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
-                            @change="query = $event.target.value"
-                            :display-value="(person) => person?.name"
-                            @focus="handleFocusDestinary" @blur="handleBlur2($event)"
-                            @keydown.enter="handleEnterKey" />
-                    </Combobox>
-                </div>                
+                      <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected">
+                        <ComboboxInput
+                          id="recipients"
+                          class="w-full h-full rounded-l-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
+                          @change="query = $event.target.value"
+                          :display-value="(person) => person?.name"
+                          @focus="handleFocusDestinary"
+                          @blur="handleBlur2($event)"
+                          @keydown.enter="handleEnterKey"
+                        />
+                      </Combobox>
+                    </div>
+                    
+                    <div class="relative inline-block dropdown-container">
+                      <button
+                        type="button"
+                        @click="toggleDropdown"
+                        class="inline-flex justify-center items-center h-full rounded-r-md border border-l-0 border-gray-300 shadow-sm px-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-500 focus:border-gray-500 relative"
+                      >
+                        {{ selectedOption }}
+                        <chevron-down-icon class="ml-1 h-4 w-4" />
+                      </button>
+
+                      <div v-if="isOpen" class="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                        <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption('aomail')">aomail</a>
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption('tous les mails')">tous les mails</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>              
                             
 
                 <!--<div class="flex-grow w-full h-full">
@@ -646,7 +667,7 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
-import { CheckIcon, ChevronUpDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
+import { CheckIcon, ChevronUpDownIcon, ChevronDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
 import { useI18n } from 'vue-i18n';
 
 // Use i18n
@@ -708,6 +729,26 @@ const emailList = ref([]);
 const selectedFromPerson = ref(null)
 const selectedFromAddresses = ref([])
 
+/************************************* For dropdown button next to manual search input **************************************/
+const isOpen = ref(false)
+const selectedOption = ref('aomail')
+
+const toggleDropdown = () => {
+  isOpen.value = !isOpen.value
+}
+
+const selectOption = (option) => {
+  selectedOption.value = option
+  isOpen.value = false
+}
+
+const closeDropdown = (event) => {
+  if (isOpen.value && !event.target.closest('.dropdown-container')) {
+    isOpen.value = false
+  }
+}
+
+/*****************************************************************************************************************************/
 
 const filteredFromPeople = computed(() =>
   queryGetContacts.value === ''
@@ -727,6 +768,7 @@ const checkLoginStatus = () => {
 
 onMounted(() => {
   checkLoginStatus();
+  document.addEventListener('click', closeDropdown);
 });
 
 const filteredPeople = computed(() =>

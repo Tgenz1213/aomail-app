@@ -11,6 +11,8 @@ from MailAssistant.controllers import artificial_intelligence as ai
 from MailAssistant.controllers import authentication as auth
 from MailAssistant.controllers import preferences as prefs
 from MailAssistant.controllers import categories, rules, emails, search_emails
+from MailAssistant.controllers import statistics
+from MailAssistant.tests.create_emails import create_emails # TODO: remove
 from .controllers import views
 
 
@@ -87,6 +89,9 @@ urlpatterns = [
     path('user/social_api/get_user_description/', views.get_user_description, name='get_user_description'), # ok
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
+    #----------------------- STATISTICS -----------------------#
+    path('user/statistics/', statistics.get_statistics , name='statistics'), # dev
+    path('user/create_emails/', create_emails , name='create_emails'), # ONLY for debug - delete in production to avoid HUGE problems
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/search_emails_ai/', ai.search_emails_ai , name='search_emails_ai'), # ok
     path('api/search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'), # ok

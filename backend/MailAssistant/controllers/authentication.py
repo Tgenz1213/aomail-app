@@ -62,6 +62,7 @@ from MailAssistant.models import (
     MicrosoftListener,
     SocialAPI,
     Preference,
+    Statistics,
     Subscription,
 )
 
@@ -543,6 +544,8 @@ def save_user_data(
             description="",
             user=user,
         )
+
+        Statistics.objects.create(user=user)
 
         return {"message": "User data saved successfully"}
 

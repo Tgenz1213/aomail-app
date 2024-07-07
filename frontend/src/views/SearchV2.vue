@@ -571,9 +571,9 @@
           
               <!-- email List -->
               <div class="flex-1 flex flex-col pr-2 py-4" id="liste_email">
-                <div class="h-full overflow-y-auto pr-4">
+                <div class="h-full overflow-y-auto">
                   <template v-if="emailList.length > 0">
-                    <ul class="space-y-4">
+                    <ul class="space-y-4 pr-4">
                       <template v-for="(email, index) in emailList" :key="email.email_id">
                         <!-- List element -->
                         <li class="flex justify-between items-center py-4 email-item">

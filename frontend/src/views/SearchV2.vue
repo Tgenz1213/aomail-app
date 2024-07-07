@@ -1129,10 +1129,11 @@ async function askQueryUser() {
   // Wait for isAIWriting to become false
   await waitForAIWriting();
 
+  // TO DELETE AFTER feature/searchPage is valid
   //const message1 = "Cette page est non fonctionnelle et en cours de développement";
-  const message1 = "Recherche avec IA désactivée ❌ | Connaissance arborescente activée ✅";
-  const ai_icon1 = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
-  await displayMessage(message1, ai_icon1);
+  //const message1 = "Recherche avec IA désactivée ❌ | Connaissance arborescente activée ✅";
+  //const ai_icon1 = '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
+  //await displayMessage(message1, ai_icon1);
 }
 
 // To handle the input going to wide 

@@ -81,7 +81,7 @@
               </div>
 
                <!-- searchbar and buttons -->
-               <div class="flex space-x-2 items-stretch pr-2 w-full mb-4">
+               <div class="flex space-x-1 2xl:space-x-2 items-stretch w-full mb-4">
 
                 <!-- searchbar and buttons old version. If picke has to be fixed !!!-->
                 <!--<div class="relative flex-grow">
@@ -116,7 +116,7 @@
                       <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected">
                         <ComboboxInput
                           id="recipients"
-                          class="w-full h-full rounded-l-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
+                          class="w-full rounded-l-md border-0 bg-white h-10 2xl:h-11 py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
                           @change="query = $event.target.value"
                           :display-value="(person) => person?.name"
                           @focus="handleFocusDestinary"
@@ -139,7 +139,7 @@
                       <div v-if="isOpen" class="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                         <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                           <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption('aomail')">aomail</a>
-                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption('tous les mails')">tous les mails</a>
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption('anciens')">anciens mails</a>
                         </div>
                       </div>
                     </div>
@@ -165,16 +165,15 @@
 
                 <div class="flex-grow h-full">
                   <button type="button" @click="searchEmails"
-                    class="w-full h-full bg-gray-700 rounded-md px-6 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:px-7 2xl:text-lg">
+                    class="w-full h-full bg-gray-700 rounded-md px-2 2xl:px-4 text-md font-semibold text-white hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 flex gap-x-2 items-center justify-between 2xl:px-7 2xl:text-lg">
                     {{ $t('searchPage.searchButton') }}
                     <magnifying-glass-icon class="w-4 2xl:w-5" />
                   </button>
                 </div>
 
                 <div class="flex-grow h-full">
-                  <button type="button" @click="Hide_filtres()"
-                    class="w-full h-full bg-gray-700 rounded-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3">
-                    <svg class="w-6 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                  <button type="button" class="group w-full h-full bg-gray-100 rounded-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3 ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm" @click="Hide_filtres()">
+                    <svg class="w-6 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="none" viewBox="0 0 24 24">
                       <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4 a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
                     </svg>
                   </button>

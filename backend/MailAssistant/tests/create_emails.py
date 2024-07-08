@@ -22,16 +22,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from MailAssistant.constants import (
+    ANSWER_REQUIRED,
     GOOGLE,
     MICROSOFT,
     IMPORTANT,
     INFORMATIVE,
-    USELESS,
+    MIGHT_REQUIRE_ANSWER,
+    USELESS,NO_ANSWER_REQUIRED,HIGHLY_RELEVANT,POSSIBLY_RELEVANT,NOT_RELEVANT
 )
 from MailAssistant.models import CC_sender, Email, Statistics
 
 EMAIL_PROVIDERS = [GOOGLE, MICROSOFT]
-
 
 def create_single_email(first_email, i):
     email = Email.objects.create(
@@ -47,10 +48,10 @@ def create_single_email(first_email, i):
         read_date=timezone.now() + datetime.timedelta(days=random.randint(-1825, 1825)),
         has_attachments=random.choice([True, False]),
         answer=random.choice(
-            ["Answer Required", "Might Require Answer", "No Answer Required"]
+            [ANSWER_REQUIRED, MIGHT_REQUIRE_ANSWER, NO_ANSWER_REQUIRED]
         ),
         relevance=random.choice(
-            ["Highly Relevant", "Possibly Relevant", "Not Relevant"]
+            [HIGHLY_RELEVANT, POSSIBLY_RELEVANT, NOT_RELEVANT]
         ),
         priority=random.choice([IMPORTANT, INFORMATIVE, USELESS]),
         scam=random.choice([True, False]),

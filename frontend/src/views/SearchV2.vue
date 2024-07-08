@@ -590,7 +590,7 @@
 
           
               <!-- email List -->
-              <div class="flex-1 flex flex-col pr-2 py-4" id="liste_email">
+              <div class="flex-1 flex flex-col py-2" id="liste_email">
                 <div class="h-full overflow-y-auto">
                   <template v-if="emailList.length > 0">
                     <ul class="space-y-4 pr-4">

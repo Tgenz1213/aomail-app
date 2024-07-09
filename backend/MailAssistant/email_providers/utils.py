@@ -3,6 +3,10 @@ Contains common functions for email service provider APIs.
 
 Features:
 - ✅ email_to_db: Save email notifications from various email service APIs to the database.
+
+
+
+TODO: count tokens everywhere
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -47,6 +51,7 @@ from MailAssistant.email_providers.microsoft import (
 from MailAssistant.email_providers.google import (
     email_operations as email_operations_google,
 )
+from MailAssistant.ai_providers.utils import update_tokens_stats
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -159,13 +164,15 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
 
     def get_summary():
         if email_data["is_reply"]:
-            return search.summarize_conversation(
+            result = search.summarize_conversation(
                 email_data["subject"], email_content, user_description, language
             )
         else:
-            return search.summarize_email(
+            result = search.summarize_email(
                 email_data["subject"], email_content, user_description, language
             )
+        result = update_tokens_stats(user, result)
+        return result
 
     def get_email_processed():
         return claude.categorize_and_summarize_email(

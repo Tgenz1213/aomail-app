@@ -11,14 +11,17 @@ Features:
 - ✅ generate_email_response
 - ✅ search_emails
 - ✅ categorize_and_summarize_email
+
+
+TODO: count tokens everywhere
 """
 
 import ast
 import json
 import anthropic
-import tiktoken
 from datetime import datetime
 from MailAssistant.constants import CLAUDE_CREDS
+from MailAssistant.ai_providers.utils import count_tokens
 
 
 ######################## TEXT PROCESSING UTILITIES ########################
@@ -32,21 +35,6 @@ def get_prompt_response(formatted_prompt):
         messages=[{"role": "user", "content": formatted_prompt}],
     )
     return response
-
-
-def count_tokens(text: str) -> int:
-    """
-    Calculates the number of tokens in a given text string using the provided tokenizer.
-
-    Args:
-        text (str): The input text string to be tokenized.
-
-    Returns:
-        int: The number of tokens in the input text.
-    """
-    encoding = tiktoken.get_encoding("cl100k_base")
-    num_tokens = len(encoding.encode(text))
-    return num_tokens
 
 
 def get_language(input_body: str, input_subject: str) -> str:

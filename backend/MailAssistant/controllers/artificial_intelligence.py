@@ -65,6 +65,7 @@ from MailAssistant.models import (
     SocialAPI,
     Preference,
     Contact,
+    Statistics,
 )
 from MailAssistant.utils.serializers import (
     NewEmailAISerializer,
@@ -80,6 +81,8 @@ from MailAssistant.utils.ai_memory import (
 )
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
+
+from backend.MailAssistant.ai_providers.utils import update_tokens_stats
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -380,6 +383,8 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
             )
 
         selected_categories = search.get_selected_categories()
+        selected_categories = update_tokens_stats(user, selected_categories)
+
         keypoints = search.get_keypoints(selected_categories)
 
         if not selected_categories or not keypoints:
@@ -390,6 +395,7 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
 
         language = Preference.objects.get(user=user).language
         answer = search.get_answer(keypoints, language)
+        answer = update_tokens_stats(user, answer)
         emails = []
 
         for category in keypoints:

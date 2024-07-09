@@ -40,6 +40,7 @@ from django.utils import timezone
 from django.db.models import QuerySet
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from MailAssistant.utils.email_processing import camel_to_snake
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -321,17 +322,3 @@ def get_avg_value(
         .aggregate(avg_count=Avg("count"))
     )
     return result["avg_count"] or 0
-
-
-def camel_to_snake(name: str) -> str:
-    """
-    Convert a camelCase string to snake_case.
-
-    Args:
-        name (str): The camelCase string to convert.
-
-    Returns:
-        str: The converted snake_case string.
-    """
-    pattern = re.compile(r"(?<!^)(?=[A-Z])")
-    return pattern.sub("_", name).lower()

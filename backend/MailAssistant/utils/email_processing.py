@@ -16,6 +16,35 @@ from django.contrib.auth.models import User
 LOGGER = logging.getLogger(__name__)
 
 
+# ----------------------- CONVERTERS -----------------------#
+def camel_to_snake(name: str) -> str:
+    """
+    Convert a camelCase string to snake_case.
+
+    Args:
+        name (str): The camelCase string to convert.
+
+    Returns:
+        str: The converted snake_case string.
+    """
+    pattern = re.compile(r"(?<!^)(?=[A-Z])")
+    return pattern.sub("_", name).lower()
+
+
+def snake_to_camel(name: str) -> str:
+    """
+    Convert a snake_case string to camelCase.
+
+    Args:
+        name (str): The snake_case string to convert.
+
+    Returns:
+        str: The converted camelCase string.
+    """
+    components = name.split("_")
+    return components[0] + "".join(x.title() for x in components[1:])
+
+
 # ----------------------- NO REPLY CHECKING -----------------------#
 def is_no_reply_email(sender_email: str) -> bool:
     """

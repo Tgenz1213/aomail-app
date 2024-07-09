@@ -28,11 +28,16 @@ from MailAssistant.constants import (
     IMPORTANT,
     INFORMATIVE,
     MIGHT_REQUIRE_ANSWER,
-    USELESS,NO_ANSWER_REQUIRED,HIGHLY_RELEVANT,POSSIBLY_RELEVANT,NOT_RELEVANT
+    USELESS,
+    NO_ANSWER_REQUIRED,
+    HIGHLY_RELEVANT,
+    POSSIBLY_RELEVANT,
+    NOT_RELEVANT,
 )
 from MailAssistant.models import CC_sender, Email, Statistics
 
 EMAIL_PROVIDERS = [GOOGLE, MICROSOFT]
+
 
 def create_single_email(first_email, i):
     email = Email.objects.create(
@@ -50,9 +55,7 @@ def create_single_email(first_email, i):
         answer=random.choice(
             [ANSWER_REQUIRED, MIGHT_REQUIRE_ANSWER, NO_ANSWER_REQUIRED]
         ),
-        relevance=random.choice(
-            [HIGHLY_RELEVANT, POSSIBLY_RELEVANT, NOT_RELEVANT]
-        ),
+        relevance=random.choice([HIGHLY_RELEVANT, POSSIBLY_RELEVANT, NOT_RELEVANT]),
         priority=random.choice([IMPORTANT, INFORMATIVE, USELESS]),
         scam=random.choice([True, False]),
         spam=random.choice([True, False]),
@@ -126,22 +129,19 @@ def update_stats():
     stats.save()
 
 
-@api_view(["POST"])
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def create_emails(request: HttpRequest) -> Response:
     try:
-        parameters = json.loads(request.body)
         user = 1  # Hardcoded for testing
-
-        update_stats()
 
         filters = {"user": user, "answer_later": False}
         queryset = Email.objects.filter(**filters).order_by("-date")
         first_email = queryset.first()
 
         if first_email:
-            num_emails = 0
-            with ThreadPoolExecutor(max_workers=20) as executor:
+            num_emails = 10_000
+            with ThreadPoolExecutor(max_workers=100) as executor:
                 futures = [
                     executor.submit(create_single_email, first_email, i)
                     for i in range(num_emails)
@@ -151,6 +151,8 @@ def create_emails(request: HttpRequest) -> Response:
                     i = future.result()
                     if (i + 1) % 100 == 0:
                         print(f"Created email {i + 1}/{num_emails}")
+
+        update_stats()
 
         return Response(
             {"message": "Emails filtered and duplicated successfully"},

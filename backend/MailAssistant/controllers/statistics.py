@@ -1,27 +1,26 @@
 """
-TODO: Everything about stats data bout a suer
-
+Handles user statistics computation and retrieval.
 
 Endpoints:
-- ⚒️ get_statistics: ...
+- ✅ get_statistics: Returns required statistics of the user based on specified parameters.
 
 
 TODO:
-- endpoint for admins to get the cost of a user:
-    - nbTokensInput, nbTokensOutput
+- Implement endpoint for admins to get the cost of a user:
+    - Calculate based on nbTokensInput, nbTokensOutput
+- Add more granular time period options (e.g., custom date ranges)
+- Implement data visualization helpers for frontend integration
 """
 
 import json
 import logging
-import re
 from django.http import HttpRequest
 from rest_framework import status
 from django.db.models import Count, Min, Max, Avg
 from django.db.models.functions import TruncDate
 from MailAssistant.models import Email, Statistics
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 from MailAssistant.utils.security import subscription
 from MailAssistant.constants import (
     ANSWER_REQUIRED,
@@ -47,13 +46,8 @@ from MailAssistant.utils.email_processing import camel_to_snake
 LOGGER = logging.getLogger(__name__)
 
 
-# TODO thread to opti speed
-
-
-# @api_view(["POST"])
-# @subscription([FREE_PLAN])
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@subscription([FREE_PLAN])
 def get_statistics(request: HttpRequest) -> Response:
     """
     Compute and return statistics for a user based on provided parameters.
@@ -80,9 +74,9 @@ def get_statistics(request: HttpRequest) -> Response:
 
     Allowed statName keys:
         nbMightRequireAnswer, nbEmailsReceived, nbAnswerRequired, nbNoAnswerRequired,
-        nbHighlyRelevant, nbPossiblyRelevant, nbNotRelevant, nbImportant,
-        nbInformative, nbUseless, nbScam, nbSpam, nbNewsletter, nbNotification,
-        nbMeeting, nbHasAttachments, nbRead, nbUnread
+        nbHighlyRelevant, nbPossiblyRelevant, nbNotRelevant, nbEmailsImportant,
+        nbEmailsInformative, nbEmailsUseless, nbScam, nbSpam, nbNewsletter, nbNotification,
+        nbMeeting
 
     "since" options: join, today, monday, mtd, ytd
     "periods" options: 24Hours, 7Days, 30Days, 3Months, 6Months, 1year, 5years
@@ -110,7 +104,7 @@ def get_statistics(request: HttpRequest) -> Response:
 
 def compute_statistics(statistics: Statistics, parameters: dict) -> dict:
     """
-    Compute various statistics based on the provided parameters.
+    Compute various statistics based on the provided parameters using threading.
 
     Args:
         statistics (Statistics): A Statistics object associated with a user.
@@ -126,32 +120,54 @@ def compute_statistics(statistics: Statistics, parameters: dict) -> dict:
     now = timezone.now()
     time_ranges = get_time_ranges(now)
 
-    for stat_name, stat_config in parameters.items():
-        snake_case_stat_name = camel_to_snake(stat_name)
-        computed_stats[stat_name] = {}
+    with ThreadPoolExecutor(max_workers=min(len(parameters), 10)) as executor:
+        futures = [
+            executor.submit(
+                compute_stat, statistics, user, stat_name, stat_config, time_ranges, now
+            )
+            for stat_name, stat_config in parameters.items()
+        ]
 
-        if "since" in stat_config:
-            computed_stats[stat_name]["since"] = {}
-            for period in stat_config["since"]:
-                if period == "join":
-                    computed_stats[stat_name]["since"]["join"] = getattr(
-                        statistics, snake_case_stat_name
-                    )
-                else:
-                    start_date = time_ranges[period]
-                    email_queryset = get_filtered_queryset(
-                        Email.objects.filter(
-                            user=user, date__gte=start_date, date__lte=now
-                        ),
-                        stat_name,
-                    )
-                    count = email_queryset.count()
-                    computed_stats[stat_name]["since"][period] = count
+        for future in as_completed(futures):
+            result = future.result()
+            computed_stats.update(result)
 
-        if "periods" in stat_config:
-            computed_stats[stat_name]["periods"] = {}
-            for period, stats in stat_config["periods"].items():
-                computed_stats[stat_name]["periods"][period] = {}
+    return computed_stats
+
+
+def compute_stat(
+    statistics: Statistics,
+    user: User,
+    stat_name: str,
+    stat_config: dict,
+    time_ranges: dict,
+    now: datetime,
+) -> dict:
+    """
+    Compute statistics for a single stat_name and its configuration.
+
+    Args:
+        statistics (Statistics): A Statistics object associated with a user.
+        user (User): The user for whom statistics are being computed.
+        stat_name (str): The name of the statistic being computed.
+        stat_config (dict): Configuration for the statistic.
+        time_ranges (dict): Pre-computed time ranges.
+        now (datetime): The current time.
+
+    Returns:
+        dict: A dictionary containing the computed statistics for the given stat_name.
+    """
+    snake_case_stat_name = camel_to_snake(stat_name)
+    stat_result = {stat_name: {}}
+
+    if "since" in stat_config:
+        stat_result[stat_name]["since"] = {}
+        for period in stat_config["since"]:
+            if period == "join":
+                stat_result[stat_name]["since"]["join"] = getattr(
+                    statistics, snake_case_stat_name
+                )
+            else:
                 start_date = time_ranges[period]
                 email_queryset = get_filtered_queryset(
                     Email.objects.filter(
@@ -159,22 +175,34 @@ def compute_statistics(statistics: Statistics, parameters: dict) -> dict:
                     ),
                     stat_name,
                 )
+                count = email_queryset.count()
+                stat_result[stat_name]["since"][period] = count
 
-                for stat in stats:
-                    if stat == "min":
-                        min_value = get_min_value(email_queryset, start_date, now)
-                        computed_stats[stat_name]["periods"][period]["min"] = min_value
-                    elif stat == "max":
-                        max_value = get_max_value(email_queryset, start_date, now)
-                        computed_stats[stat_name]["periods"][period]["max"] = max_value
-                    elif stat == "count":
-                        count = email_queryset.count()
-                        computed_stats[stat_name]["periods"][period]["count"] = count
-                    elif stat == "avg":
-                        avg_value = get_avg_value(email_queryset, start_date, now)
-                        computed_stats[stat_name]["periods"][period]["avg"] = avg_value
+    if "periods" in stat_config:
+        stat_result[stat_name]["periods"] = {}
+        for period, stats in stat_config["periods"].items():
+            stat_result[stat_name]["periods"][period] = {}
+            start_date = time_ranges[period]
+            email_queryset = get_filtered_queryset(
+                Email.objects.filter(user=user, date__gte=start_date, date__lte=now),
+                stat_name,
+            )
 
-    return computed_stats
+            for stat in stats:
+                if stat == "min":
+                    min_value = get_min_value(email_queryset, start_date, now)
+                    stat_result[stat_name]["periods"][period]["min"] = min_value
+                elif stat == "max":
+                    max_value = get_max_value(email_queryset, start_date, now)
+                    stat_result[stat_name]["periods"][period]["max"] = max_value
+                elif stat == "count":
+                    count = email_queryset.count()
+                    stat_result[stat_name]["periods"][period]["count"] = count
+                elif stat == "avg":
+                    avg_value = get_avg_value(email_queryset, start_date, now)
+                    stat_result[stat_name]["periods"][period]["avg"] = avg_value
+
+    return stat_result
 
 
 def get_filtered_queryset(queryset: QuerySet, stat_name: str) -> QuerySet:
@@ -190,12 +218,12 @@ def get_filtered_queryset(queryset: QuerySet, stat_name: str) -> QuerySet:
         QuerySet: A filtered queryset based on the provided stat_name.
     """
     match stat_name:
-        case "nbMightRequireAnswer":
-            return queryset.filter(answer=MIGHT_REQUIRE_ANSWER)
         case "nbEmailsReceived":
             return queryset
         case "nbAnswerRequired":
             return queryset.filter(answer=ANSWER_REQUIRED)
+        case "nbMightRequireAnswer":
+            return queryset.filter(answer=MIGHT_REQUIRE_ANSWER)
         case "nbNoAnswerRequired":
             return queryset.filter(answer=NO_ANSWER_REQUIRED)
         case "nbHighlyRelevant":
@@ -220,12 +248,6 @@ def get_filtered_queryset(queryset: QuerySet, stat_name: str) -> QuerySet:
             return queryset.filter(notification=True)
         case "nbMeeting":
             return queryset.filter(meeting=True)
-        case "nbHasAttachments":
-            return queryset.filter(has_attachments=True)
-        case "nbRead":
-            return queryset.filter(read=True)
-        case "nbUnread":
-            return queryset.filter(read=False)
         case _:
             return queryset
 

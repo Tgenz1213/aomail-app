@@ -10,11 +10,7 @@ Features:
 - ✅ improve_email_copywriting
 - ✅ generate_email_response
 - ✅ search_emails
-- ✅ categorize_and_summarize_email (migration in progress)
-
-
-TODO:
-- implement stats with token count
+- ✅ categorize_and_summarize_email
 """
 
 import ast

@@ -373,6 +373,11 @@
     "emailTransferred": "Email transféré !"
   },
   "searchPage": {
+    "choiceAomail":"aomail",
+    "choiceOldMail":"anciens mails",
+    "choiceOldMailDisplay":"anciens",
+    "oldChoiceSelected":"Ok je vais rechercher l'information dans tous vos mails y compris les anciens",
+    "aomailChoiceSelected":"Ok je vais rechercher l'information dans les mails d'aomail",
     "anErrorOccuredDuringSmartSearch": "Une erreur s'est produite lors de la recherche de la réponse. Veuillez réessayer",
     "noResults": "Aucun résultat",
     "toAddressesSelectedPlaceholder": "À",

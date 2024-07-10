@@ -9,12 +9,11 @@
         <navbar></navbar>
       </div>
 
-      <!--first coloumn -->
       <div id="firstMainColumn"
         class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
         <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
         
-       <!-- titre --> 
+       <!-- Title --> 
         <div
           class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
           <div class="flex gap-x-3 items-center">
@@ -27,7 +26,7 @@
           </div>
         </div>
 
-        <!-- IA assistant-->
+        <!-- AO AI Assistant -->
         <div class="flex flex-1 flex-col divide-y">
           <div class="overflow-y-auto flex-1" style="margin-right: 2px;" ref="scrollableDiv">
             <div class="px-10 py-4 2xl:px-13.5 2xl:py-6">
@@ -43,7 +42,23 @@
                 class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
                 placeholder="Instruction">
             </textarea>
-            <div class="flex justify-end m-3 2xl:m-5">
+            <div v-if="stepcontainer == 0" class="flex justify-end m-3 2xl:m-5">
+              <div class="flex space-x-2 items-center">
+                <div class="relative">
+                  <select
+                    v-model="selectedOption"
+                    @change="updateOption"
+                    class="form-select appearance-none block w-full h-[38px] 2xl:h-[46px] px-1 pr-6 rounded-md bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900 text-center text-sm 2xl:text-base">
+                    <option :value="$t('searchPage.choiceAomail')">{{ $t('searchPage.choiceAomail') }}</option>
+                    <option :value="$t('searchPage.choiceOldMailDisplay')">{{ $t('searchPage.choiceOldMail') }}</option>
+                  </select>
+                </div>
+                <div class="flex items-center">
+                  <button type="button" @click="handleAIClick" class="h-[38px] 2xl:h-[46px] w-[80px] 2xl:w-[100px] rounded-md bg-gray-700 px-2 text-sm 2xl:text-base text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
+                </div>
+              </div>
+            </div>
+            <div v-else class="flex justify-end m-3 2xl:m-5">
               <button type="button" @click="handleAIClick" class="2xl:w-[100px] w-[80px] rounded-md bg-gray-700 px-5.5 py-2.5 2xl:px-6.5 2xl:py-3 2xl:text-base text-sm text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
             </div>
           </div>
@@ -51,7 +66,6 @@
 
       </div>
 
-      <!--Secondes Colonnes -->
       <div id="secondMainColumn" 
       class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-y-auto">
 
@@ -138,8 +152,8 @@
 
                       <div v-if="isOpen" class="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                         <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption('aomail')">aomail</a>
-                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption('anciens')">anciens mails</a>
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption($t('searchPage.choiceAomail'))">{{ $t('searchPage.choiceAomail') }}</a>
+                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption($t('searchPage.choiceOldMailDisplay'))">{{ $t('searchPage.choiceOldMail') }}</a>
                         </div>
                       </div>
                     </div>
@@ -682,6 +696,7 @@ const AIContainer = ref(null);
 const bgColor = ref('');
 let counter_display = 0;
 let query = ref('');
+let stepcontainer = 0;
 const scrollableDiv = ref(null);
 const scrollToBottom = async () => {
   await nextTick();
@@ -737,6 +752,23 @@ const toggleDropdown = () => {
 const selectOption = (option) => {
   selectedOption.value = option
   isOpen.value = false
+  if (option == t('searchPage.choiceOldMailDisplay')) {
+    displayMessage( t('searchPage.oldChoiceSelected'), aiIcon)
+  }
+  else {
+    displayMessage( t('searchPage.aomailChoiceSelected'), aiIcon)
+  }
+}
+
+const updateOption = (event) => {
+  selectedOption.value = event.target.value
+  isOpen.value = false
+  if (selectedOption.value == t('searchPage.choiceOldMailDisplay')) {
+    displayMessage( t('searchPage.oldChoiceSelected'), aiIcon)
+  }
+  else {
+    displayMessage( t('searchPage.aomailChoiceSelected'), aiIcon)
+  }
 }
 
 const closeDropdown = (event) => {

@@ -373,6 +373,11 @@
     "emailTransferred": "Email transferred!"
   },
   "searchPage": {
+    "choiceAomail":"aomail",
+    "choiceOldMail":"old mail",
+    "choiceOldMailDisplay":"old",
+    "oldChoiceSelected": "Ok, I'm going to search for the information in all of your emails, including the old ones",
+    "aomailChoiceSelected": "Ok, I'm going to search for the information in Aomail's emails",
     "anErrorOccuredDuringSmartSearch": "An error occurred while searching the response. Please try again",
     "noResults": "No results",
     "toAddressesSelectedPlaceholder": "To",

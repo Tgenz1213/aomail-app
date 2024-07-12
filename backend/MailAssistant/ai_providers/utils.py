@@ -1,34 +1,21 @@
-"""
-TODO: Use the good tokenizer that is used by Anthropic and not a random one I found online
-"""
-
 import tiktoken
 from MailAssistant.models import Statistics
 from django.contrib.auth.models import User
 
 
-def count_tokens(text: str) -> int:
+def update_tokens_stats(user: User, result: dict) -> dict:
     """
-    Calculates the number of tokens in a given text string using the provided tokenizer.
+    Update token statistics for a user and remove token information from the result dictionary.
 
     Args:
-        text (str): The input text string to be tokenized.
+        user (User): The User object for whom the token statistics are being updated.
+        result (dict): A dictionary containing the result of an AI function.
 
     Returns:
-        int: The number of tokens in the input text.
+        dict: The modified result dictionary with 'tokens_input' and 'tokens_output' keys removed.
     """
-    encoding = tiktoken.get_encoding("cl100k_base")
-    num_tokens = len(encoding.encode(text))
-    return num_tokens
-
-
-def update_tokens_stats(user: User, result: dict) -> dict:
-    """Update the tokens
-
-    retrutn the dict without the tokens"""
-
     statistics = Statistics.objects.get(user=user)
     statistics.nb_tokens_input += result.pop("tokens_input")
-    statistics.nb_tokens_output += result.pop("tokens_intokens_outputput")
+    statistics.nb_tokens_output += result.pop("tokens_output")
     statistics.save()
     return result

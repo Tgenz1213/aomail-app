@@ -6,7 +6,6 @@ import json
 import logging
 from MailAssistant.ai_providers import claude
 from MailAssistant.models import KeyPoint
-from MailAssistant.ai_providers.utils import count_tokens
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -162,8 +161,8 @@ class Search:
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)
-            result_json["tokens_input"] = count_tokens(template)
-            result_json["tokens_output"] = count_tokens(clear_response)
+            result_json["tokens_input"] = response.usage.input_tokens
+            result_json["tokens_output"] = response.usage.output_tokens
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"
@@ -207,8 +206,8 @@ class Search:
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)
-            result_json["tokens_input"] = count_tokens(template)
-            result_json["tokens_output"] = count_tokens(clear_response)
+            result_json["tokens_input"] = response.usage.input_tokens
+            result_json["tokens_output"] = response.usage.output_tokens
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"
@@ -267,8 +266,8 @@ class Search:
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)
-            result_json["tokens_input"] = count_tokens(template)
-            result_json["tokens_output"] = count_tokens(clear_response)
+            result_json["tokens_input"] = response.usage.input_tokens
+            result_json["tokens_output"] = response.usage.output_tokens
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"
@@ -323,8 +322,8 @@ class Search:
         clear_response = response.content[0].text.strip()
         try:
             result_json = json.loads(clear_response)
-            result_json["tokens_input"] = count_tokens(template)
-            result_json["tokens_output"] = count_tokens(clear_response)
+            result_json["tokens_input"] = response.usage.input_tokens
+            result_json["tokens_output"] = response.usage.output_tokens
         except json.JSONDecodeError:
             LOGGER.critical(
                 f"The AI failed to return a proper JSON format for user {self.user_id}"

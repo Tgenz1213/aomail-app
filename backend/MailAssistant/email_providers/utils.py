@@ -3,10 +3,6 @@ Contains common functions for email service provider APIs.
 
 Features:
 - ✅ email_to_db: Save email notifications from various email service APIs to the database.
-
-
-
-TODO: count tokens everywhere
 """
 
 from concurrent.futures import ThreadPoolExecutor
@@ -164,15 +160,13 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
 
     def get_summary():
         if email_data["is_reply"]:
-            result = search.summarize_conversation(
+            return search.summarize_conversation(
                 email_data["subject"], email_content, user_description, language
             )
         else:
-            result = search.summarize_email(
+            return search.summarize_email(
                 email_data["subject"], email_content, user_description, language
             )
-        result = update_tokens_stats(user, result)
-        return result
 
     def get_email_processed():
         return claude.categorize_and_summarize_email(
@@ -189,6 +183,8 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
 
         summary = summary_future.result()
         email_processed = email_processed_future.result()
+        summary = update_tokens_stats(user, summary)
+        email_processed = update_tokens_stats(user, email_processed)
 
     if email_processed["topic"] not in category_dict:
         email_processed["topic"] = DEFAULT_CATEGORY
@@ -241,9 +237,6 @@ def save_stats(email_ai: dict, user: User):
     statistics = Statistics.objects.get(user=user)
 
     statistics.nb_emails_received += 1
-
-    statistics.nb_tokens_input += email_ai["tokens_input"]
-    statistics.nb_tokens_output += email_ai["tokens_output"]
 
     statistics.nb_meeting += 1 if email_ai["flags"]["meeting"] else 0
     statistics.nb_spam += 1 if email_ai["flags"]["spam"] else 0

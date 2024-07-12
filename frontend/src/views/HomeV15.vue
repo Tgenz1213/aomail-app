@@ -189,9 +189,26 @@
                             </div>
                         </main>
 
+                        <div class="w-full bg-white flex flex-col sm:flex-row items-center">
+                            <div class="w-full sm:flex-grow sm:mr-4 mb-4 sm:mb-0">
+                                <SearchbarV2 @input="updateSearchQuery" height="3rem" class="w-full"></SearchbarV2>
+                            </div>
 
-
+                            <div class="flex items-center">
+                                <div class="hidden sm:block w-px h-8 bg-gray-400 mr-4"></div>
+                                <select 
+                                    @change="applyFilter"
+                                    class="border-none text-gray-900 text-sm focus:ring-0 focus:outline-none"
+                                >
+                                    <option disabled value="">Aucun filtre</option>
+                                    <option value="important">Important</option>
+                                    <option value="informatif">Informatif</option>
+                                    <option value="inutile">Inutile</option>
+                                </select>
+                            </div>
+                        </div>
                         
+                          
                         <!-- HIDE 
                         <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5">
                             <p>En cours de dev</p>
@@ -211,6 +228,7 @@
                                         }}</span>
                                 </div>
                             </div>
+                            
                         </div>
 
                         <!--L'utilisateur a des nouveaux mails-->
@@ -2522,6 +2540,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
+import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeMail from '../components/SeeMailV2.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
@@ -2557,6 +2576,7 @@ export default {
         EllipsisHorizontalIcon,
         HandRaisedIcon,
         EyeIcon,
+        SearchbarV2,
         Menu,
         MenuButton,
         MenuItem,
@@ -2567,6 +2587,12 @@ export default {
         DocumentIcon,
         DocumentTextIcon,
         CameraIcon,
+    },
+
+    methods: {
+    updateSearchQuery(event) {
+      this.searchQuery = event.target.value;
+    },
     }
 }
 </script>

@@ -78,11 +78,11 @@ async function resetPassword() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                new_password: password.value
+                password: password.value
             }),
         });
 
-        if (response.message === 'Password reset successfully') {
+        if (response.status === 200) {
             backgroundColor.value = 'bg-green-200/[.89] border border-green-400';
             notificationTitle.value = 'Success';
             notificationMessage.value = 'Password reset successful! Redirecting...';
@@ -92,9 +92,10 @@ async function resetPassword() {
                 router.push({ name: 'login' })
             }, 3000);
         } else {
+            const data = await response.json();
             backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
             notificationTitle.value = 'Error';
-            notificationMessage.value = response.error || 'An error occurred. Please try again.';
+            notificationMessage.value = data.error || 'An error occurred. Please try again.';
             displayPopup();
         }
     } catch (error) {

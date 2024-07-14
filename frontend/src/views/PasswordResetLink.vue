@@ -49,7 +49,6 @@ function displayPopup() {
 
 async function generateResetLink() {
     try {
-        console.log(email.value)
         const response = await fetch(`${API_BASE_URL}generate_reset_token/`, {
             method: 'POST',
             headers: {
@@ -60,9 +59,7 @@ async function generateResetLink() {
             }),
         });
 
-        console.log(response)
-
-        if (response.message === 'Email sent successfully!') {
+        if (response.status === 200) {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
             notificationTitle = 'Check your mailbox!';
@@ -70,13 +67,14 @@ async function generateResetLink() {
             displayPopup();
 
             setTimeout(() => {
-                router.push({ name: 'home' })
+                router.push({ name: 'login' })
             }, 3000);
         } else {
+            const data = await response.json();
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
             notificationTitle = 'Error sending password reset email';
-            notificationMessage = response.error;
+            notificationMessage = data.error;
             displayPopup();
         }
     } catch (error) {

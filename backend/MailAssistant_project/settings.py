@@ -8,7 +8,6 @@ import json
 from datetime import timedelta
 from MailAssistant.constants import (
     BACKEND_DIR,
-    DOMAIN,
     EMAIL_NO_REPLY,
     EMAIL_NO_REPLY_PASSWORD,
     HOSTS_URLS,
@@ -159,7 +158,6 @@ LOGGING = {
 DEBUG = True
 ALLOWED_HOSTS = HOSTS_URLS
 CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS
-# CSRF_TRUSTED_ORIGINS = [DOMAIN]
 
 # ----------------------- DATABASE CONFIGURATION -----------------------#
 DATABASES = CONFIG["database_conf"]

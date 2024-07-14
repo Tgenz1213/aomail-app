@@ -826,11 +826,13 @@ def generate_reset_token(request: HttpRequest) -> Response:
     try:
         parameters: dict = json.loads(request.body)
         email = parameters.get("email")
-        social_api = SocialAPI.objects.get(email=email)
+        LOGGER.info(f"Attempting to generate reset password token for email: {email}")
 
+        social_api = SocialAPI.objects.get(email=email)
         token = PasswordResetTokenGenerator().make_token(social_api.user)
         uidb64 = urlsafe_base64_encode(str(social_api.user.pk).encode())
         reset_link = f"{BASE_URL_MA}reset_password/{uidb64}/{token}/"
+
         context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
         email_html = render_to_string("password_reset_email.html", context)
 
@@ -842,6 +844,7 @@ def generate_reset_token(request: HttpRequest) -> Response:
             html_message=email_html,
             fail_silently=False,
         )
+        LOGGER.info(f"Password reset email sent successfully to {email}")
         return Response(
             {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
         )
@@ -851,6 +854,7 @@ def generate_reset_token(request: HttpRequest) -> Response:
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:
+        LOGGER.error(f"Error generating reset token: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -871,10 +875,13 @@ def reset_password(
         Response: For GET requests.
         HttpResponseRedirect: For POST requests.
     """
+    LOGGER.info(f"Password reset request received. Method: {request.method}")
+
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
     except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+        LOGGER.error(f"Error decoding user ID or finding user: {str(e)}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if not PasswordResetTokenGenerator().check_token(user, token):
@@ -901,6 +908,7 @@ def reset_password(
 
         user.set_password(password)
         user.save()
+        LOGGER.info(f"Password reset successfully for user: {user.username}")
         return Response(
             {"message": "Password reset successfully"}, status=status.HTTP_200_OK
         )

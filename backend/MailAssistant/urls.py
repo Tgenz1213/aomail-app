@@ -14,9 +14,8 @@ app_name = 'MailAssistant'
 
 urlpatterns = [
     #----------------------- AUTHENTICATION -----------------------#
-    path("generate_reset_token/", auth.generate_reset_token, name="generate_reset_token"), # dev
-    path("reset_password/<str:uidb64>/<str:token>/", auth.reset_password, name="reset_password"), # dev
-
+    path("generate_reset_token/", auth.generate_reset_token, name="generate_reset_token"), # ok
+    path("reset_password/<str:uidb64>/<str:token>/", auth.reset_password, name="reset_password"), # ok
     path('api/is_authenticated/', auth.is_authenticated, name='is_authenticated'), # ok
     path('api/login/', auth.login, name='login'), # ok
     path('api/token/refresh/', auth.refresh_token, name='refresh_token'), # ok

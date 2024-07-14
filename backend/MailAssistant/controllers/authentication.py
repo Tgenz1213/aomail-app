@@ -10,6 +10,8 @@ Endpoints:
 - ✅ unlink_email: Unlink email and delete associated data.
 - ✅ delete_account: Remove the authenticated user account.
 - ✅ refresh_token: Refresh JWT access token and return a new one.
+- ✅ generate_reset_token: Send password reset email
+- ✅ reset_password: Handle password reset requests
 
 
 TODO:
@@ -21,12 +23,13 @@ import json
 import logging
 import threading
 import jwt
+from urllib.parse import urlencode
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.db import IntegrityError
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.utils import timezone
 from rest_framework import status
@@ -35,9 +38,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
 from MailAssistant.constants import (
+    BASE_URL,
     FREE_PLAN,
     ADMIN_EMAIL_LIST,
     BASE_URL_MA,
@@ -817,29 +823,31 @@ def check_username(request: HttpRequest) -> Response:
         return Response({"available": True}, status=status.HTTP_200_OK)
 
 
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
-# ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def generate_reset_token(request):
-    """Sends an email with the reset password link."""
+def generate_reset_token(request: HttpRequest) -> Response:
+    """
+    Generate a password reset token and send an email with the reset link.
 
-    email = request.data.get("email")
-    social_api = SocialAPI.objects.filter(email=email)
-    if social_api.exists() == False:
-        return Response(
-            {"error": "Email address is not linked with an account"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    Args:
+        request (HttpRequest): HTTP request object containing the email in the request body.
 
-    token = PasswordResetTokenGenerator().make_token(social_api.first().user)
-    reset_link = f"{BASE_URL_MA}reset_password/?token={token}"
-    context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
-    email_html = render_to_string("password_reset_email.html", context)
-
+    Returns:
+        Response: A JSON response indicating the result of the operation.
+    """
     try:
+        parameters: dict = json.loads(request.body)
+        email = parameters.get("email")
+        LOGGER.info(f"Attempting to generate reset password token for email: {email}")
+
+        social_api = SocialAPI.objects.get(email=email)
+        token = PasswordResetTokenGenerator().make_token(social_api.user)
+        uidb64 = urlsafe_base64_encode(str(social_api.user.pk).encode())
+        reset_link = f"{BASE_URL_MA}reset_password/{uidb64}/{token}/"
+
+        context = {"reset_link": reset_link, "email": EMAIL_NO_REPLY}
+        email_html = render_to_string("password_reset_email.html", context)
+
         send_mail(
             subject="Password Reset for MailAssistant",
             message="",
@@ -848,16 +856,71 @@ def generate_reset_token(request):
             html_message=email_html,
             fail_silently=False,
         )
+        LOGGER.info(f"Password reset email sent successfully to {email}")
         return Response(
             {"message": "Email sent successfully!"}, status=status.HTTP_200_OK
         )
-
+    except SocialAPI.DoesNotExist:
+        return Response(
+            {"error": "Email address is not linked with an account"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     except Exception as e:
-        return Response({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        LOGGER.error(f"Error generating reset token: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 @permission_classes([AllowAny])
-def reset_password(request):
-    """Checks if the token is valid and reset the password of user"""
-    ...
+def reset_password(
+    request: HttpRequest, uidb64: str, token: str
+) -> Response | HttpResponseRedirect:
+    """
+    Handle password reset requests.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        uidb64 (str): Base64 encoded user ID.
+        token (str): Password reset token.
+
+    Returns:
+        Response: For GET requests.
+        HttpResponseRedirect: For POST requests.
+    """
+    LOGGER.info(f"Password reset request received. Method: {request.method}")
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+        LOGGER.error(f"Error decoding user ID or finding user: {str(e)}")
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if not PasswordResetTokenGenerator().check_token(user, token):
+        return Response(
+            {"error": "Invalid or expired password reset link"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if request.method == "GET":
+        base_url = f"{BASE_URL}reset-password-form"
+        params = urlencode({"uidb64": uidb64, "token": token})
+        redirect_url = f"{base_url}?{params}"
+        return HttpResponseRedirect(redirect_url)
+
+    if request.method == "POST":
+        parameters: dict = json.loads(request.body)
+        password = parameters["password"]
+
+        if not (8 <= len(password) <= 32):
+            return Response(
+                {"error": "Password length must be between 8 and 32 characters"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(password)
+        user.save()
+        LOGGER.info(f"Password reset successfully for user: {user.username}")
+        return Response(
+            {"message": "Password reset successfully"}, status=status.HTTP_200_OK
+        )

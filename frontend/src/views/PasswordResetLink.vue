@@ -3,33 +3,29 @@
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="password-reset-form">
         <h1>Reset Password</h1>
-        <p>Please enter your new password below.</p>
+        <p>Please enter your email address below. We will send you a link to reset your password.
+            your password.</p>
         <form @submit.prevent="resetPassword" class="form">
             <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" v-model="password" required class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="confirmPassword">Confirm Password:</label>
-                <input type="password" id="confirmPassword" v-model="confirmPassword" required class="form-control">
+                <label for="email">E-mail address :</label>
+                <input type="email" id="email" v-model="email" required class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 </template>
 
+
+<!--  TODO change the name of that file as it is absolutely not relevant - It must be stricly: PasswordResetLink.vue -->
+
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { API_BASE_URL } from '@/main';
 import { useRouter } from 'vue-router';
 import ShowNotification from '../components/ShowNotification.vue';
 
-let password = ref('');
-let confirmPassword = ref('');
-let uidb64 = ref('');
-let token = ref('');
+let email = ref('');
 const router = useRouter();
-
 // Variables to display a notification
 let showNotification = ref(false);
 let notificationTitle = ref('');
@@ -37,72 +33,58 @@ let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
 
-onMounted(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    uidb64.value = urlParams.get('uidb64');
-    token.value = urlParams.get('token');
-});
 
 function dismissPopup() {
     showNotification.value = false;
+    // Cancel the timer
     clearTimeout(timerId.value);
 }
-
 function displayPopup() {
     showNotification.value = true;
+
     timerId.value = setTimeout(() => {
         dismissPopup();
     }, 4000);
 }
 
+
 async function resetPassword() {
-    if (password.value.length < 8 || password.value.length > 32) {
-        backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'Error';
-        notificationMessage.value = "Password length must be between 8 and 32 characters";
-        displayPopup();
-        return;
-    }
-
-    if (password.value !== confirmPassword.value) {
-        backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'Error';
-        notificationMessage.value = "Passwords do not match";
-        displayPopup();
-        return;
-    }
-
     try {
-        const response = await fetch(`${API_BASE_URL}reset_password/${uidb64.value}/${token.value}/`, {
+        console.log(email.value)
+        const response = await fetch(`${API_BASE_URL}generate_reset_token/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                new_password: password.value,
-                confirm_password: confirmPassword.value
+                email: email.value
             }),
         });
 
-        if (response.message === 'Password reset successfully') {
-            backgroundColor.value = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle.value = 'Success';
-            notificationMessage.value = 'Password reset successful! Redirecting...';
+        console.log(response)
+
+        if (response.message === 'Email sent successfully!') {
+            // Show the pop-up
+            backgroundColor = 'bg-green-200/[.89] border border-green-400';
+            notificationTitle = 'Vérifiez votre boîte mail !';
+            notificationMessage = 'Redirection en cours...';
             displayPopup();
 
             setTimeout(() => {
-                router.push({ name: 'login' })
+                router.push({ name: 'home' })
             }, 3000);
         } else {
-            backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle.value = 'Error';
-            notificationMessage.value = response.error || 'An error occurred. Please try again.';
+            // Show the pop-up
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle = 'Erreur d\'envoi d\'email de réinitialisation de mdp';
+            notificationMessage = response.error;
             displayPopup();
         }
     } catch (error) {
-        backgroundColor.value = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = 'Error';
-        notificationMessage.value = error.message || 'An error occurred. Please try again.';
+        // Show the pop-up
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = 'Erreur d\'envoi d\'email de réinitialisation de mdp';
+        notificationMessage = error.message;
         displayPopup();
     }
 }
@@ -110,7 +92,7 @@ async function resetPassword() {
 
 <script>
 export default {
-    name: 'ResetPasswordForm',
+    name: 'PasswordResetLink',
 }
 </script>
 

@@ -1,32 +1,32 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { isUserAuthenticated } from '@/services/authService';
-import Login from '@/views/UserLogin.vue';
-import SignUp from '@/views/SignUpV1.vue';
-import SignUpPart2 from '@/views/SignUpV1_part2.vue';
-import Home from '@/views/HomeV15.vue';
-import New from '@/views/NewV4.vue';
-import Answer from '@/views/AnswerV1.vue';
-import Transfer from '@/views/TransferV1.vue';
-import Rules from '@/views/RulesV2.vue';
-import Settings from '@/views/SettingsV1.vue';
-import StripePaymentFailed from '@/views/StripePaymentFailed.vue'
-import StripePaymentSuccess from '@/views/StripePaymentSuccess.vue';
-import Search from '@/views/SearchV2.vue';
-import ReplyLater from '@/views/ReplyLaterV1.vue';
-import NotFound from '@/views/404NotFound.vue';
-import NotAuthorized from '@/views/401NotAuthorized.vue'
-import { API_BASE_URL } from '@/main';
-import ResetPasswordForm from '@/views/ResetPasswordForm.vue';
-
+import { createRouter, createWebHistory } from "vue-router";
+import { isUserAuthenticated } from "@/services/authService";
+import Login from "@/views/UserLogin.vue";
+import SignUp from "@/views/SignUpV1.vue";
+import SignUpPart2 from "@/views/SignUpV1_part2.vue";
+import Home from "@/views/HomeV15.vue";
+import New from "@/views/NewV4.vue";
+import Answer from "@/views/AnswerV1.vue";
+import Transfer from "@/views/TransferV1.vue";
+import Rules from "@/views/RulesV2.vue";
+import Settings from "@/views/SettingsV1.vue";
+import StripePaymentFailed from "@/views/StripePaymentFailed.vue";
+import StripePaymentSuccess from "@/views/StripePaymentSuccess.vue";
+import Search from "@/views/SearchV2.vue";
+import ReplyLater from "@/views/ReplyLaterV1.vue";
+import NotFound from "@/views/404NotFound.vue";
+import NotAuthorized from "@/views/401NotAuthorized.vue";
+import { API_BASE_URL } from "@/main";
+import PasswordResetLink from "@/views/PasswordResetLink.vue";
+import ResetPasswordForm from "@/views/ResetPasswordForm.vue";
 
 async function fetchWithToken(url, options = {}) {
-  const accessToken = localStorage.getItem('access_token');
+  const accessToken = localStorage.getItem("access_token");
 
   if (!options.headers) {
     options.headers = {};
   }
   if (accessToken) {
-    options.headers['Authorization'] = `Bearer ${accessToken}`;
+    options.headers["Authorization"] = `Bearer ${accessToken}`;
   } else {
     console.log("No access token provided");
     return;
@@ -39,11 +39,11 @@ async function fetchWithToken(url, options = {}) {
 
     if (response.status == 401) {
       const refreshResponse = await fetch(`${API_BASE_URL}api/token/refresh/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ access_token: accessToken })
+        body: JSON.stringify({ access_token: accessToken }),
       });
 
       //console.log("----------------> DEBUG", refreshResponse); // To delete after test (only Theo can delete)
@@ -51,16 +51,15 @@ async function fetchWithToken(url, options = {}) {
       if (refreshResponse.ok) {
         const refreshData = await refreshResponse.json();
         const newAccessToken = refreshData.access_token;
-        localStorage.setItem('access_token', newAccessToken);
-        options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        localStorage.setItem("access_token", newAccessToken);
+        options.headers["Authorization"] = `Bearer ${newAccessToken}`;
         response = await fetch(url, options);
       } else {
         try {
-          router.push({ name: 'not-authorized' });
+          router.push({ name: "not-authorized" });
         } catch (error) {
-          console.error(error)
+          console.error(error);
         }
-
       }
     }
     // Access token is still valid
@@ -77,20 +76,20 @@ async function fetchWithToken(url, options = {}) {
 
     return response.json();
   } catch (error) {
-    console.error('Error in fetchWithToken:', error.message);
+    console.error("Error in fetchWithToken:", error.message);
     throw error;
   }
 }
 
 // TO REMOVE OR CHANGE ?
 async function fetchWithTokenv2(url, options = {}) {
-  const accessToken = localStorage.getItem('access_token');
+  const accessToken = localStorage.getItem("access_token");
 
   if (!options.headers) {
     options.headers = {};
   }
   if (accessToken) {
-    options.headers['Authorization'] = `Bearer ${accessToken}`;
+    options.headers["Authorization"] = `Bearer ${accessToken}`;
   } else {
     console.log("No access token provided");
     return;
@@ -103,11 +102,11 @@ async function fetchWithTokenv2(url, options = {}) {
 
     if (response.status == 401) {
       const refreshResponse = await fetch(`${API_BASE_URL}api/token/refresh/`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ access_token: accessToken })
+        body: JSON.stringify({ access_token: accessToken }),
       });
 
       //console.log("----------------> DEBUG", refreshResponse); // To delete after test (only Theo can delete)
@@ -115,16 +114,15 @@ async function fetchWithTokenv2(url, options = {}) {
       if (refreshResponse.ok) {
         const refreshData = await refreshResponse.json();
         const newAccessToken = refreshData.access_token;
-        localStorage.setItem('access_token', newAccessToken);
-        options.headers['Authorization'] = `Bearer ${newAccessToken}`;
+        localStorage.setItem("access_token", newAccessToken);
+        options.headers["Authorization"] = `Bearer ${newAccessToken}`;
         response = await fetch(url, options);
       } else {
         try {
-          router.push({ name: 'not-authorized' });
+          router.push({ name: "not-authorized" });
         } catch (error) {
-          console.error(error)
+          console.error(error);
         }
-
       }
     }
     // Access token is still valid
@@ -140,122 +138,129 @@ async function fetchWithTokenv2(url, options = {}) {
 
     return response;
   } catch (error) {
-    console.error('Error in fetchWithToken:', error.message);
+    console.error("Error in fetchWithToken:", error.message);
     throw error;
   }
 }
 
 // TODO: remove + in all vue files
 async function getBackgroundColor() {
-  const response = await fetchWithToken(`${API_BASE_URL}user/preferences/bg_color/`);
+  const response = await fetchWithToken(
+    `${API_BASE_URL}user/preferences/bg_color/`
+  );
   const bgColor = response.bg_color;
-  localStorage.setItem('bgColor', bgColor);
+  localStorage.setItem("bgColor", bgColor);
 }
 
 const routes = [
   {
-    path: '/',
-    name: 'login',
+    path: "/",
+    name: "login",
     component: Login,
   },
   {
-    path: '/signup',
-    name: 'signup',
+    path: "/signup",
+    name: "signup",
     component: SignUp,
   },
   {
-    path: '/signup_part2',
-    name: 'signup_part2',
+    path: "/signup_part2",
+    name: "signup_part2",
     component: SignUpPart2,
   },
   {
-    path: '/home',
-    name: 'home',
+    path: "/home",
+    name: "home",
     meta: { requiresAuth: true },
     component: Home,
   },
   {
-    path: '/new',
-    name: 'new',
+    path: "/new",
+    name: "new",
     meta: { requiresAuth: true },
     component: New,
   },
   {
-    path: '/answer',
-    name: 'answer',
+    path: "/answer",
+    name: "answer",
     meta: { requiresAuth: true },
     component: Answer,
   },
   {
-    path: '/transfer',
-    name: 'transfer',
+    path: "/transfer",
+    name: "transfer",
     meta: { requiresAuth: true },
     component: Transfer,
   },
   {
-    path: '/search',
-    name: 'search',
+    path: "/search",
+    name: "search",
     meta: { requiresAuth: true },
     component: Search,
   },
   {
-    path: '/reply-later',
-    name: 'reply-later',
+    path: "/reply-later",
+    name: "reply-later",
     meta: { requiresAuth: true },
     component: ReplyLater,
   },
   {
-    path: '/rules',
-    name: 'rules',
+    path: "/rules",
+    name: "rules",
     meta: { requiresAuth: true },
     component: Rules,
   },
   {
-    path: '/settings',
-    name: 'settings',
+    path: "/settings",
+    name: "settings",
     meta: { requiresAuth: true },
     component: Settings,
   },
   {
-    path: '/stripe/payment_failed/',
-    name: 'stripe/_payment_failed',
+    path: "/stripe/payment-failed/",
+    name: "stripe-payment-failed",
     meta: { requiresAuth: true },
     component: StripePaymentFailed,
   },
   {
-    path: '/stripe/payment_successful/',
-    name: 'stripe_payment_successful',
+    path: "/stripe/payment-successful/",
+    name: "stripe-payment-successful",
     meta: { requiresAuth: true },
     component: StripePaymentSuccess,
   },
   {
-    path: '/reset_password_form',
-    name: 'reset_password_form',
+    path: "/password-reset-link",
+    name: "password-reset-link",
+    component: PasswordResetLink,
+  },
+  {
+    paht: "/reset-password-form",
+    name: "reset-password-form",
     component: ResetPasswordForm,
   },
   {
-    path: '/not-authorized',
-    name: 'not-authorized',
+    path: "/not-authorized",
+    name: "not-authorized",
     component: NotAuthorized,
   },
   {
-    path: '/:catchAll(.*)',
-    name: 'not-found',
+    path: "/:catchAll(.*)",
+    name: "not-found",
     component: NotFound,
-  }
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
 router.beforeEach(async (to, _, next) => {
   try {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
       const isAuthenticated = await isUserAuthenticated();
       if (!isAuthenticated) {
-        next({ name: 'not-authorized' });
+        next({ name: "not-authorized" });
       } else {
         next();
       }
@@ -263,7 +268,7 @@ router.beforeEach(async (to, _, next) => {
       next();
     }
   } catch (error) {
-    next({ name: 'login' });
+    next({ name: "login" });
   }
 });
 

@@ -54,7 +54,6 @@ function displayPopup() {
         dismissPopup();
     }, 4000);
 }
-
 async function resetPassword() {
     if (password.value.length < 8 || password.value.length > 32) {
         backgroundColor.value = 'bg-red-200/[.89] border border-red-400';

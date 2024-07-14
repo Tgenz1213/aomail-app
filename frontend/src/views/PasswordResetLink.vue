@@ -5,7 +5,7 @@
         <h1>Reset Password</h1>
         <p>Please enter your email address below. We will send you a link to reset your password.
             your password.</p>
-        <form @submit.prevent="resetPassword" class="form">
+        <form @submit.prevent="generateResetLink" class="form">
             <div class="form-group">
                 <label for="email">E-mail address :</label>
                 <input type="email" id="email" v-model="email" required class="form-control">
@@ -47,8 +47,7 @@ function displayPopup() {
     }, 4000);
 }
 
-
-async function resetPassword() {
+async function generateResetLink() {
     try {
         console.log(email.value)
         const response = await fetch(`${API_BASE_URL}generate_reset_token/`, {
@@ -66,8 +65,8 @@ async function resetPassword() {
         if (response.message === 'Email sent successfully!') {
             // Show the pop-up
             backgroundColor = 'bg-green-200/[.89] border border-green-400';
-            notificationTitle = 'Vérifiez votre boîte mail !';
-            notificationMessage = 'Redirection en cours...';
+            notificationTitle = 'Check your mailbox!';
+            notificationMessage = 'Redirecting...';
             displayPopup();
 
             setTimeout(() => {
@@ -76,14 +75,14 @@ async function resetPassword() {
         } else {
             // Show the pop-up
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle = 'Erreur d\'envoi d\'email de réinitialisation de mdp';
+            notificationTitle = 'Error sending password reset email';
             notificationMessage = response.error;
             displayPopup();
         }
     } catch (error) {
         // Show the pop-up
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = 'Erreur d\'envoi d\'email de réinitialisation de mdp';
+        notificationTitle = 'Error sending password reset email';
         notificationMessage = error.message;
         displayPopup();
     }

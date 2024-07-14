@@ -10,6 +10,8 @@ Endpoints:
 - ✅ unlink_email: Unlink email and delete associated data.
 - ✅ delete_account: Remove the authenticated user account.
 - ✅ refresh_token: Refresh JWT access token and return a new one.
+- ✅ generate_reset_token: Send password reset email
+- ✅ reset_password: Handle password reset requests
 
 
 TODO:
@@ -20,8 +22,8 @@ import datetime
 import json
 import logging
 import threading
-from urllib.parse import urlencode
 import jwt
+from urllib.parse import urlencode
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -36,12 +38,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from MailAssistant.utils import security
 from MailAssistant.utils.security import subscription
 from MailAssistant.constants import (
+    BASE_URL,
     FREE_PLAN,
     ADMIN_EMAIL_LIST,
     BASE_URL_MA,
@@ -809,14 +811,18 @@ def check_username(request: HttpRequest) -> Response:
         return Response({"available": True}, status=status.HTTP_200_OK)
 
 
-####################################################################
-######################## UNDER CONSTRUCTION ########################
-####################################################################
-# ----------------------- PASSWORD RESET CONFIGURATION -----------------------#
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def generate_reset_token(request: HttpRequest):
-    """Sends an email with the reset password link."""
+def generate_reset_token(request: HttpRequest) -> Response:
+    """
+    Generate a password reset token and send an email with the reset link.
+
+    Args:
+        request (HttpRequest): HTTP request object containing the email in the request body.
+
+    Returns:
+        Response: A JSON response indicating the result of the operation.
+    """
     try:
         parameters: dict = json.loads(request.body)
         email = parameters.get("email")
@@ -850,7 +856,21 @@ def generate_reset_token(request: HttpRequest):
 
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
-def reset_password(request, uidb64, token):
+def reset_password(
+    request: HttpRequest, uidb64: str, token: str
+) -> Response | HttpResponseRedirect:
+    """
+    Handle password reset requests.
+
+    Args:
+        request (HttpRequest): HTTP request object.
+        uidb64 (str): Base64 encoded user ID.
+        token (str): Password reset token.
+
+    Returns:
+        Response: For GET requests.
+        HttpResponseRedirect: For POST requests.
+    """
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
@@ -864,13 +884,14 @@ def reset_password(request, uidb64, token):
         )
 
     if request.method == "GET":
-        base_url = "https://augustin.aomail.ai/reset-password-form"
+        base_url = f"{BASE_URL}reset-password-form"
         params = urlencode({"uidb64": uidb64, "token": token})
         redirect_url = f"{base_url}?{params}"
         return HttpResponseRedirect(redirect_url)
 
-    elif request.method == "POST":
-        password = request.data.get("password")
+    if request.method == "POST":
+        parameters: dict = json.loads(request.body)
+        password = parameters["password"]
 
         if not (8 <= len(password) <= 32):
             return Response(

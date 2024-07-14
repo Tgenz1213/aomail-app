@@ -234,7 +234,7 @@ const routes = [
     component: PasswordResetLink,
   },
   {
-    paht: "/reset-password-form",
+    path: "/reset-password-form",
     name: "reset-password-form",
     component: ResetPasswordForm,
   },

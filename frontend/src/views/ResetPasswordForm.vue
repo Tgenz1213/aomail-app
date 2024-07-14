@@ -78,8 +78,7 @@ async function resetPassword() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                new_password: password.value,
-                confirm_password: confirmPassword.value
+                new_password: password.value
             }),
         });
 

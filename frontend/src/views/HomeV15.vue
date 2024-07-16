@@ -189,7 +189,37 @@
                             </div>
                         </main>
 
-                        <div class="w-full bg-white flex flex-col sm:flex-row items-center">
+                        <div class="bg-white flex flex-wrap items-center space-x-2 p-2">
+                            <select v-model="selectedFilter" @change="handleFilterChange" class="flex-grow border-none text-gray-900 text-sm focus:ring-0 focus:outline-none">
+                                <option value="">Sélectionnez un filtre</option>
+                                <option value="subject">Sujet</option>
+                                <option value="senderEmail">Email de l'expéditeur</option>
+                                <option value="senderName">Nom de l'expéditeur</option>
+                                <option value="CCNames">Noms en CC</option>
+                                <option value="CCEmails">Emails en CC</option>
+                                <option value="dateTime">Date et heure</option>
+                                <option value="status">Statut</option>
+                                <option value="priority">Priorité</option>
+                            </select>
+
+                            <SearchbarV2 v-if="showSearchBar" @input="updateSearchQuery" height="3rem" class="flex-grow"></SearchbarV2>
+
+                            <input v-if="selectedFilter === 'dateTime'" type="datetime-local" v-model="dateTimeValue" class="flex-grow">
+
+                            <div v-if="selectedFilter === 'status'" class="flex space-x-2">
+                                <label><input type="radio" value="new" v-model="statusValue"> Nouveau</label>
+                                <label><input type="radio" value="in-progress" v-model="statusValue"> En cours</label>
+                                <label><input type="radio" value="completed" v-model="statusValue"> Terminé</label>
+                            </div>
+
+                            <select v-if="selectedFilter === 'priority'" v-model="priorityValue" class="flex-grow border-none text-gray-900 text-sm focus:ring-0 focus:outline-none">
+                                <option value="low">Basse</option>
+                                <option value="medium">Moyenne</option>
+                                <option value="high">Haute</option>
+                            </select>
+                        </div>
+
+                        <!--<div class="w-full bg-white flex flex-col sm:flex-row items-center">
                             <div class="w-full sm:flex-grow sm:mr-4 mb-4 sm:mb-0">
                                 <SearchbarV2 @input="updateSearchQuery" height="3rem" class="w-full"></SearchbarV2>
                             </div>
@@ -206,9 +236,8 @@
                                     <option value="inutile">Inutile</option>
                                 </select>
                             </div>
-                        </div>
-                        
-                          
+                        </div>-->
+
                         <!-- HIDE 
                         <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5">
                             <p>En cours de dev</p>
@@ -1581,6 +1610,13 @@
 import { API_BASE_URL } from '@/main';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import {
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from '@headlessui/vue';
 
 // Use i18n
 const { t } = useI18n();
@@ -2532,6 +2568,27 @@ async function fetchData() {
         console.error('Failed to fetch data:', error);
     }
 }
+
+
+async function Hide_filtres() {
+    var toggleDiv = document.getElementById('filtres');
+    
+    if (toggleDiv.classList.contains('hidden')) {
+        toggleDiv.classList.remove('hidden');
+        setTimeout(function () {
+            toggleDiv.classList.remove('opacity-0');
+            toggleDiv.classList.add('opacity-100');
+        }, 10);
+        
+    } else {
+        toggleDiv.classList.remove('opacity-100');
+        toggleDiv.classList.add('opacity-0');
+        setTimeout(function () {
+            toggleDiv.classList.add('hidden');
+        }, 250);
+        
+    }
+}
 </script>
 
 <script>
@@ -2548,7 +2605,6 @@ import { ref, nextTick, onMounted } from 'vue';
 import { fetchWithToken, fetchWithTokenv2, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
-    //ChatBubbleOvalLeftEllipsisIcon,
     ExclamationTriangleIcon,
     InformationCircleIcon,
     TrashIcon,
@@ -2567,7 +2623,6 @@ export default {
     components: {
         Navbar,
         Navbar2,
-        //ChatBubbleOvalLeftEllipsisIcon,
         ExclamationTriangleIcon,
         InformationCircleIcon,
         TrashIcon,
@@ -2588,11 +2643,44 @@ export default {
         DocumentTextIcon,
         CameraIcon,
     },
-
-    methods: {
-    updateSearchQuery(event) {
-      this.searchQuery = event.target.value;
+    data() {
+        return {
+            selectedFilter: '',
+            searchQuery: '',
+            dateTimeValue: '',
+            statusValue: '',
+            priorityValue: ''
+        }
     },
+    computed: {
+        showSearchBar() {
+            const searchBarFilters = ['subject', 'senderEmail', 'senderName', 'CCNames', 'CCEmails']
+            return searchBarFilters.includes(this.selectedFilter)
+        }
+    },
+    methods: {
+        updateSearchQuery(event) {
+            this.searchQuery = event.target.value;
+        },
+        handleFilterChange() {
+            // Réinitialiser les valeurs lorsqu'un nouveau filtre est sélectionné
+            this.searchQuery = ''
+            this.dateTimeValue = ''
+            this.statusValue = ''
+            this.priorityValue = ''
+        },
+        applyFilter() {
+            // Logique pour appliquer le filtre en fonction de selectedFilter et des valeurs correspondantes
+            if (this.showSearchBar) {
+                console.log(`Appliquer le filtre ${this.selectedFilter} avec la valeur: ${this.searchQuery}`)
+            } else if (this.selectedFilter === 'dateTime') {
+                console.log(`Appliquer le filtre de date et heure avec la valeur: ${this.dateTimeValue}`)
+            } else if (this.selectedFilter === 'status') {
+                console.log(`Appliquer le filtre de statut avec la valeur: ${this.statusValue}`)
+            } else if (this.selectedFilter === 'priority') {
+                console.log(`Appliquer le filtre de priorité avec la valeur: ${this.priorityValue}`)
+            }
+        }
     }
 }
 </script>

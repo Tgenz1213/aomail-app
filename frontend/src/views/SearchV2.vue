@@ -1050,7 +1050,7 @@ async function Hide_filtres() {
             toggleDiv.classList.add('opacity-100');
         }, 10);
         
-        // Réduire la hauteur de la liste des emails
+        // lower the height of the email list
         adjustHeight2(emailListDiv, -185);
     } else {
         toggleDiv.classList.remove('opacity-100');
@@ -1059,7 +1059,7 @@ async function Hide_filtres() {
             toggleDiv.classList.add('hidden');
         }, 250);
         
-        // Augmenter la hauteur de la liste des emails
+        // Buff the height of the email list
         adjustHeight2(emailListDiv, 185);
     }
 }
@@ -1067,7 +1067,7 @@ async function Hide_filtres() {
 function adjustHeight2(element, adjustment) {
     const currentHeight = parseInt(window.getComputedStyle(element).height, 10);
 
-    // Si la hauteur actuelle est supérieure à 350px et que l'ajustement est négatif, ajuster de 200px
+    // If the height is above 350px and the changes of height is a negative value then we adjust 200px instead
     if (currentHeight > 500 && adjustment < 0) {
         adjustment = -200;
     }

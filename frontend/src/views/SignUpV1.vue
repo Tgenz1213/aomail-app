@@ -93,7 +93,7 @@
           </div>
           <div>
             <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
-              $t('constants.categoryModalConstants.addCategory') }}</label>
+              $t('constants.categoryModalConstants.categoryDescription') }}</label>
             <div class="mt-2">
               <textarea v-model="categoryDescription" id="categoryDescription" name="about" rows="3"
                 style="min-height: 60px"

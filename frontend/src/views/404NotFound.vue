@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>{{ $t('"errorWebPagesTemplates.error404Page.pageNotFound') }}</h1>
-    <p>{{ $t('"errorWebPagesTemplates.error404Page.pageDoesNotExist') }}</p>
+    <h1>{{ $t('errorWebPagesTemplates.error404Page.pageNotFound') }}</h1>
+    <p>{{ $t('errorWebPagesTemplates.error404Page.pageDoesNotExist') }}</p>
   </div>
 </template>
   

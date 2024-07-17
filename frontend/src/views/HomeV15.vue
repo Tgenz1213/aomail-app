@@ -189,34 +189,24 @@
                             </div>
                         </main>
 
-                        <div class="bg-white flex flex-wrap items-center space-x-2 p-2">
-                            <select v-model="selectedFilter" @change="handleFilterChange" class="flex-grow border-none text-gray-900 text-sm focus:ring-0 focus:outline-none">
-                                <option value="">Sélectionnez un filtre</option>
-                                <option value="subject">Sujet</option>
-                                <option value="senderEmail">Email de l'expéditeur</option>
-                                <option value="senderName">Nom de l'expéditeur</option>
-                                <option value="CCNames">Noms en CC</option>
-                                <option value="CCEmails">Emails en CC</option>
-                                <option value="dateTime">Date et heure</option>
-                                <option value="status">Statut</option>
-                                <option value="priority">Priorité</option>
-                            </select>
-
-                            <SearchbarV2 v-if="showSearchBar" @input="updateSearchQuery" height="3rem" class="flex-grow"></SearchbarV2>
-
-                            <input v-if="selectedFilter === 'dateTime'" type="datetime-local" v-model="dateTimeValue" class="flex-grow">
-
-                            <div v-if="selectedFilter === 'status'" class="flex space-x-2">
-                                <label><input type="radio" value="new" v-model="statusValue"> Nouveau</label>
-                                <label><input type="radio" value="in-progress" v-model="statusValue"> En cours</label>
-                                <label><input type="radio" value="completed" v-model="statusValue"> Terminé</label>
-                            </div>
-
-                            <select v-if="selectedFilter === 'priority'" v-model="priorityValue" class="flex-grow border-none text-gray-900 text-sm focus:ring-0 focus:outline-none">
-                                <option value="low">Basse</option>
-                                <option value="medium">Moyenne</option>
-                                <option value="high">Haute</option>
-                            </select>
+                        <div class="w-full bg-white relative">
+                            <SearchbarV2 
+                            @input="updateSearchQuery" 
+                            height="3rem"
+                            :showFilterButton="true"
+                            :filterFields="[
+                                { name: 'from', label: 'De', type: 'text', placeholder: 'De' },
+                                { name: 'to', label: 'À', type: 'text', placeholder: 'À' },
+                                { name: 'subject', label: 'Objet', type: 'text', placeholder: 'Objet' },
+                                { name: 'contains', label: 'Contient les mots', type: 'text', placeholder: 'Contient les mots' },
+                                { name: 'doesNotContain', label: 'Ne contient pas', type: 'text', placeholder: 'Ne contient pas' },
+                                { name: 'size', label: 'Taille', type: 'select', options: [{ value: 'greater', label: 'supérieure à' }, { value: 'less', label: 'inférieure à' }] },
+                                { name: 'dateRange', label: 'Plage de dates', type: 'select', options: [{ value: '1day', label: '1 jour' }, { value: '1week', label: '1 semaine' }, { value: '1month', label: '1 mois' }, { value: '1year', label: '1 an' }] },
+                                { name: 'searchIn', label: 'Rechercher', type: 'select', options: [{ value: 'all', label: 'Tous les messages' }, { value: 'read', label: 'Messages lus' }, { value: 'unread', label: 'Messages non lus' }] },
+                                { name: 'hasAttachment', label: 'Contenant une pièce jointe', type: 'checkbox' },
+                                { name: 'excludeChats', label: 'Ne pas inclure les chats', type: 'checkbox' }
+                            ]"
+                            />
                         </div>
 
                         <!--<div class="w-full bg-white flex flex-col sm:flex-row items-center">
@@ -2605,82 +2595,51 @@ import { ref, nextTick, onMounted } from 'vue';
 import { fetchWithToken, fetchWithTokenv2, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
-    ExclamationTriangleIcon,
-    InformationCircleIcon,
-    TrashIcon,
-    ArrowUturnLeftIcon,
-    CheckIcon,
-    EllipsisHorizontalIcon,
-    HandRaisedIcon,
-    EyeIcon,
-    DocumentIcon,
-    DocumentTextIcon,
-    CameraIcon,
+//ChatBubbleOvalLeftEllipsisIcon,
+ExclamationTriangleIcon,
+InformationCircleIcon,
+TrashIcon,
+ArrowUturnLeftIcon,
+CheckIcon,
+EllipsisHorizontalIcon,
+HandRaisedIcon,
+EyeIcon,
+DocumentIcon,
+DocumentTextIcon,
+CameraIcon,
 } from '@heroicons/vue/24/outline'
 
 export default {
-    name: 'UserHome',
-    components: {
-        Navbar,
-        Navbar2,
-        ExclamationTriangleIcon,
-        InformationCircleIcon,
-        TrashIcon,
-        ArrowUturnLeftIcon,
-        CheckIcon,
-        EllipsisHorizontalIcon,
-        HandRaisedIcon,
-        EyeIcon,
-        SearchbarV2,
-        Menu,
-        MenuButton,
-        MenuItem,
-        MenuItems,
-        ModalSeeMail,
-        NewCategoryModal,
-        UpdateCategoryModal,
-        DocumentIcon,
-        DocumentTextIcon,
-        CameraIcon,
-    },
-    data() {
-        return {
-            selectedFilter: '',
-            searchQuery: '',
-            dateTimeValue: '',
-            statusValue: '',
-            priorityValue: ''
-        }
-    },
-    computed: {
-        showSearchBar() {
-            const searchBarFilters = ['subject', 'senderEmail', 'senderName', 'CCNames', 'CCEmails']
-            return searchBarFilters.includes(this.selectedFilter)
-        }
-    },
-    methods: {
-        updateSearchQuery(event) {
-            this.searchQuery = event.target.value;
-        },
-        handleFilterChange() {
-            // Réinitialiser les valeurs lorsqu'un nouveau filtre est sélectionné
-            this.searchQuery = ''
-            this.dateTimeValue = ''
-            this.statusValue = ''
-            this.priorityValue = ''
-        },
-        applyFilter() {
-            // Logique pour appliquer le filtre en fonction de selectedFilter et des valeurs correspondantes
-            if (this.showSearchBar) {
-                console.log(`Appliquer le filtre ${this.selectedFilter} avec la valeur: ${this.searchQuery}`)
-            } else if (this.selectedFilter === 'dateTime') {
-                console.log(`Appliquer le filtre de date et heure avec la valeur: ${this.dateTimeValue}`)
-            } else if (this.selectedFilter === 'status') {
-                console.log(`Appliquer le filtre de statut avec la valeur: ${this.statusValue}`)
-            } else if (this.selectedFilter === 'priority') {
-                console.log(`Appliquer le filtre de priorité avec la valeur: ${this.priorityValue}`)
-            }
-        }
-    }
+name: 'UserHome',
+components: {
+Navbar,
+Navbar2,
+//ChatBubbleOvalLeftEllipsisIcon,
+ExclamationTriangleIcon,
+InformationCircleIcon,
+TrashIcon,
+ArrowUturnLeftIcon,
+CheckIcon,
+EllipsisHorizontalIcon,
+HandRaisedIcon,
+EyeIcon,
+SearchbarV2,
+Menu,
+MenuButton,
+MenuItem,
+MenuItems,
+ModalSeeMail,
+NewCategoryModal,
+UpdateCategoryModal,
+DocumentIcon,
+DocumentTextIcon,
+CameraIcon,
+},
+
+methods: {
+updateSearchQuery(event) {
+this.searchQuery = event.target.value;
+},
+}
 }
 </script>

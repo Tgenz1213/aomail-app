@@ -15,10 +15,10 @@ import json
 import logging
 from collections import defaultdict
 from datetime import timedelta
-from django.db.models import Subquery, Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q, Subquery
+from django.db.models.manager import BaseManager
 from django.http import HttpRequest
 from django.utils import timezone
-from django.db.models import BaseManager, Exists, OuterRef, Q, Subquery
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -245,6 +245,8 @@ def construct_filters(user: User, parameters: dict, category: str) -> dict:
             if flag in parameters:
                 filters[flag] = parameters[flag]
 
+        if "archive" in parameters:
+            filters["archive"] = parameters["archive"]
         if "hasAttachments" in parameters:
             filters["has_attachments"] = parameters["hasAttachments"]
         if "replyLater" in parameters:
@@ -353,9 +355,10 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
         if email.read:
             delta_time = current_datetime_utc - email.read_date
 
-            # delete emails older than 1 week
+            # archive emails older than 1 week
             if delta_time > timedelta(weeks=1):
-                email.delete()
+                email.archive = True
+                email.save()
                 continue
 
         if nb_email_treated < result_per_page:
@@ -434,6 +437,7 @@ def get_user_emails(request: HttpRequest) -> Response:
             CCEmails (list[str]): List of email addresses to filter by CC recipients.
             CCNames (list[str]): List of names to filter by CC recipients.
             emailAddresses (list[str]): List of email addresses to filter by any associated email.
+            archive (bool): Filter by archive status.
             replyLater (bool): Filter by reply later status.
             read (bool): Filter by read/unread status.
             sentDate (datetime): Filter by sent date (emails sent on or after this date).
@@ -464,6 +468,7 @@ def get_user_emails(request: HttpRequest) -> Response:
         # TODO for Théo: DELETE as if category is not in the parameters it means we filter with all categories
         # no need to write category = "All" it is not opti | UPDATE the documentation
         category = valid_data["category"]
+
         result_per_page = valid_data["result_per_page"]
         sort = valid_data["sort"]
 

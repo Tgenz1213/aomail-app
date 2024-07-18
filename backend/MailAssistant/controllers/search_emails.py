@@ -228,7 +228,8 @@ def construct_filters(user: User, parameters: dict, category: str) -> dict:
     """
     filters = {"user": user}
 
-    # TODO: merge with Théo's code
+    # TODO: merge with Théo's code (category becomes optional so remove from the params of the function)
+    # UPDATE documentation
     category_obj = Category.objects.get(name=category)
     filters["category"] = category_obj
 
@@ -312,7 +313,7 @@ def get_sorted_queryset(
             if key != "user" and key != "category":
                 query |= Q(**{key: value})
 
-        # TODO for Théo: UPDATE and handle when category filter is not present (aka: filters among all categories)
+        # TODO for Théo: UPDATE and handle when category filter is not present (aka: filter among all categories)
         queryset = Email.objects.filter(
             query, user=filters["user"], category=filters["category"]
         )
@@ -384,6 +385,7 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
                     "hasRule": email.has_rule,
                     "ruleId": email.rule_id,
                 },
+                "archive": email.archive,
                 "hasAttachments": email.has_attachments,
                 "attachments": [
                     {

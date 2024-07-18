@@ -2535,11 +2535,21 @@ const groupedEmailsByCategoryAndDate = (category) => {
 };
 
 async function fetchEmails() {
-    const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
+    const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            // JUST for information send ONLY subject if the user has ONLY used the search bar
+            subject: "",
+            resultPerPage: 25,
+            category: "Others"
+        }),
+    });
+    console.log(emailData);
     if (lockEmailsAccess.value == false) {
         emails.value = emailData;
-        console.log("LOG DATA ---------------------------");
-        console.log(emailData);
     }
     updateNumberUnreadEmails();
 }

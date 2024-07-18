@@ -74,7 +74,7 @@
                     <div class="flex flex-col h-full w-full">
 
                          <!--ligne 1 : navbar horizontale -->
-                        <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
+                        <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 border-b border-black shadow-sm border-opacity-10">
                             <div class="w-full py-2 2xl:py-3 px-4 2xl:px-8 lg:px-2">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
                                     <div class="pl-4 col-span-11 h-full flex items-center">
@@ -189,7 +189,7 @@
                             </div>
                         </main>
 
-                        <div class="w-full bg-white relative">
+                        <div class="w-full relative">
                             <SearchbarV2 
                             @input="updateSearchQuery" 
                             height="3rem"

@@ -56,6 +56,12 @@ CLAUDE_CREDS = json.load(open(f"{CREDS_PATH}claude_creds.json"))
 IMPORTANT = "important"
 INFORMATIVE = "informative"
 USELESS = "useless"
+ANSWER_REQUIRED = "Answer Required"
+MIGHT_REQUIRE_ANSWER = "Might Require Answer"
+NO_ANSWER_REQUIRED = "No Answer Required"
+HIGHLY_RELEVANT = "Highly Relevant"
+POSSIBLY_RELEVANT = "Possibly Relevant"
+NOT_RELEVANT = "Not Relevant"
 DEFAULT_CATEGORY = "Others"
 MAX_RETRIES = 3
 

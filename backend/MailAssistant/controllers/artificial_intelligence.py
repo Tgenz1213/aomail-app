@@ -65,6 +65,7 @@ from MailAssistant.models import (
     SocialAPI,
     Preference,
     Contact,
+    Statistics,
 )
 from MailAssistant.utils.serializers import (
     NewEmailAISerializer,
@@ -80,6 +81,7 @@ from MailAssistant.utils.ai_memory import (
 )
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.schema import AIMessage, HumanMessage
+from MailAssistant.ai_providers.utils import update_tokens_stats
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -120,11 +122,11 @@ def get_new_email_response(request: HttpRequest) -> Response:
 
     Parameters:
         request (HttpRequest): The HTTP request object containing the following parameters in the POST data:
-            - userInput (str): User input to enhance the email body response.
-            - importance (str): Importance level of the email.
-            - subject (str): Subject of the email response.
-            - body (str): Current body of the previously generated response.
-            - history (dict): Dictionary representing the chat history.
+            userInput (str): User input to enhance the email body response.
+            importance (str): Importance level of the email.
+            subject (str): Subject of the email response.
+            body (str): Current body of the previously generated response.
+            history (dict): Dictionary representing the chat history.
 
     Returns:
         Response: A response object containing the new email body response or an error message.
@@ -144,10 +146,11 @@ def get_new_email_response(request: HttpRequest) -> Response:
 
     for i in range(MAX_RETRIES):
         try:
-            new_body_response = email_reply_conv.improve_email_response(user_input)
+            result = email_reply_conv.improve_email_response(user_input)
+            update_tokens_stats(user, result)
             return Response(
                 {
-                    "email_body": new_body_response,
+                    "email_body": result["body"],
                     "history": email_reply_conv.history.dict(),
                 },
                 status=status.HTTP_200_OK,
@@ -188,12 +191,12 @@ def improve_draft(request: HttpRequest) -> Response:
 
     Parameters:
         request (HttpRequest): The HTTP request object containing the following parameters in the POST data:
-            - userInput (str): User input to refine the email draft.
-            - length (str): Length of the email (short, medium, long).
-            - formality (str): Formality level of the email (casual, formal).
-            - subject (str): Subject of the email draft.
-            - body (str): Current body of the email draft.
-            - history (dict): Dictionary representing the chat history.
+            userInput (str): User input to refine the email draft.
+            length (str): Length of the email (short, medium, long).
+            formality (str): Formality level of the email (casual, formal).
+            subject (str): Subject of the email draft.
+            body (str): Current body of the email draft.
+            history (dict): Dictionary representing the chat history.
 
     Returns:
         Response: A response object containing the updated subject, email body, and chat history, or an error message if the draft generation fails.
@@ -215,11 +218,13 @@ def improve_draft(request: HttpRequest) -> Response:
 
     for i in range(MAX_RETRIES):
         try:
-            new_subject, new_body = gen_email_conv.improve_draft(user_input, language)
+            result = gen_email_conv.improve_draft(user_input, language)
+            update_tokens_stats(user, result)
+
             return Response(
                 {
-                    "subject": new_subject,
-                    "email_body": new_body,
+                    "subject": result["new_subject"],
+                    "email_body": result["new_body"],
                     "history": gen_email_conv.history.dict(),
                 },
                 status=status.HTTP_200_OK,
@@ -271,7 +276,10 @@ def search_emails_ai(request: HttpRequest) -> Response:
     emails = data["emails"]
     query = data["query"]
     language = Preference.objects.get(user=user).language
-    search_params: dict = claude.search_emails(query, language)
+    result: dict = claude.search_emails(query, language)
+    search_params = result["search_params"]
+    update_tokens_stats(user, result)
+
     result = {}
 
     def append_to_result(provider: str, email: str, data: list):
@@ -380,6 +388,8 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
             )
 
         selected_categories = search.get_selected_categories()
+        selected_categories = update_tokens_stats(user, selected_categories)
+
         keypoints = search.get_keypoints(selected_categories)
 
         if not selected_categories or not keypoints:
@@ -390,6 +400,7 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
 
         language = Preference.objects.get(user=user).language
         answer = search.get_answer(keypoints, language)
+        answer = update_tokens_stats(user, answer)
         emails = []
 
         for category in keypoints:
@@ -423,6 +434,8 @@ def find_user_view_ai(request: HttpRequest) -> Response:
 
     if search_query:
         recipients_dict = claude.extract_contacts_recipients(search_query)
+        update_tokens_stats(request.user, recipients_dict)
+
         main_list = recipients_dict["main_recipients"]
         cc_list = recipients_dict["cc_recipients"]
         bcc_list = recipients_dict["bcc_recipients"]
@@ -531,11 +544,12 @@ def new_email_ai(request: HttpRequest) -> Response:
         formality = serializer.validated_data["formality"]
         language = Preference.objects.get(user=user).language
 
-        subject_text, mail_text = claude.generate_email(
-            input_data, length, formality, language
-        )
+        result = claude.generate_email(input_data, length, formality, language)
+        update_tokens_stats(user, result)
 
-        return Response({"subject": subject_text, "mail": mail_text})
+        return Response(
+            {"subject": result["subject_text"], "mail": result["email_body"]}
+        )
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
@@ -566,16 +580,10 @@ def correct_email_language(request: HttpRequest) -> Response:
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
 
-        corrected_subject, corrected_body, num_corrections = (
-            claude.correct_mail_language_mistakes(email_body, email_subject)
-        )
-        return Response(
-            {
-                "corrected_subject": corrected_subject,
-                "corrected_body": corrected_body,
-                "num_corrections": num_corrections,
-            }
-        )
+        result = claude.correct_mail_language_mistakes(email_body, email_subject)
+        result = update_tokens_stats(request.user, result)
+
+        return Response(result, status=status.HTTP_200_OK)
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
@@ -606,10 +614,12 @@ def check_email_copywriting(request: HttpRequest) -> Response:
         email_subject = serializer.validated_data["email_subject"]
         email_body = serializer.validated_data["email_body"]
 
-        feedback_copywriting = claude.improve_email_copywriting(
-            email_body, email_subject
+        result = claude.improve_email_copywriting(email_body, email_subject)
+        update_tokens_stats(request.user, result)
+
+        return Response(
+            {"feedback_copywriting": result["feedback_ai"]}, status=status.HTTP_200_OK
         )
-        return Response({"feedback_copywriting": feedback_copywriting})
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
@@ -640,10 +650,13 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         email_subject = serializer.validated_data["email_subject"]
         email_content = serializer.validated_data["email_content"]
 
-        response_keywords = claude.generate_response_keywords(
-            email_subject, email_content
+        result = claude.generate_response_keywords(email_subject, email_content)
+        update_tokens_stats(request.user, result)
+
+        return Response(
+            {"response_keywords": result["response_keywords"]},
+            status=status.HTTP_200_OK,
         )
-        return Response({"response_keywords": response_keywords})
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
@@ -676,11 +689,12 @@ def generate_email_answer(request: HttpRequest) -> Response:
         email_content = serializer.validated_data["email_content"]
         user_instruction = serializer.validated_data["response_type"]
 
-        email_answer = claude.generate_email_response(
+        result = claude.generate_email_response(
             email_subject, email_content, user_instruction
         )
+        update_tokens_stats(request.user, result)
 
-        return Response({"email_answer": email_answer})
+        return Response({"email_answer": result["body"]}, status=status.HTTP_200_OK)
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST

@@ -183,7 +183,7 @@ def get_email_content(request: HttpRequest) -> Response:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def validate_and_parse_parameters(request: HttpRequest) -> tuple:
+def validate_and_parse_parameters(request: HttpRequest) -> dict:
     """
     Validates and parses the request parameters.
 
@@ -191,47 +191,39 @@ def validate_and_parse_parameters(request: HttpRequest) -> tuple:
         request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.
 
     Returns:
-        tuple: A tuple containing the parsed parameters dictionary,
-               the email category (str), the number of results per page (int),
-               and the sort order (str).
+        dict: A dictionary containing:
+            parameters (dict): The parsed parameters.
+            result_per_page (int): The number of results per page.
+            sort (str): The sort order.
     """
     parameters: dict = json.loads(request.body)
-    # TODO: use get and merge with Théo's code
-    category = parameters["category"]
-
     result_per_page = parameters["resultPerPage"]
     sort = parameters.get("sort", "asc")
 
     if not 25 <= result_per_page <= 100:
-        raise ValueError("resultPerPage must be an integer between 25 and 100 included")
+        raise ValueError(
+            "resultPerPage must be an integer between 25 and 100 inclusive"
+        )
 
-    # TODO for Théo: do NOT return category as it is an optional param + UPDATE documentation when its done
     return {
         "parameters": parameters,
-        "category": category,
         "result_per_page": result_per_page,
         "sort": sort,
     }
 
 
-def construct_filters(user: User, parameters: dict, category: str) -> dict:
+def construct_filters(user: User, parameters: dict) -> dict:
     """
     Constructs a dictionary of filters based on provided user, parameters, and category.
 
     Args:
         user (User): The user ID for whom the filters are being constructed.
         parameters (dict): A dictionary containing various filter parameters.
-        category (str): The category of emails to filter.
 
     Returns:
         dict: A dictionary containing the constructed filters.
     """
     filters = {"user": user}
-
-    # TODO: merge with Théo's code (category becomes optional so remove from the params of the function)
-    # UPDATE documentation
-    category_obj = Category.objects.get(name=category)
-    filters["category"] = category_obj
 
     if parameters.get("advanced"):
         flags = [
@@ -246,6 +238,9 @@ def construct_filters(user: User, parameters: dict, category: str) -> dict:
             if flag in parameters:
                 filters[flag] = parameters[flag]
 
+        if "category" in parameters:
+            category_obj = Category.objects.get(name=parameters["category"])
+            filters["category"] = category_obj
         if "archive" in parameters:
             filters["archive"] = parameters["archive"]
         if "hasAttachments" in parameters:
@@ -281,6 +276,8 @@ def construct_filters(user: User, parameters: dict, category: str) -> dict:
             filters["cc_senders__name__in"] = parameters["CCNames"]
 
     else:
+        category_obj = Category.objects.get(name=parameters["category"])
+        filters["category"] = category_obj
         subject = parameters["subject"]
         filters["subject__icontains"] = subject
         filters["sender__email__icontains"] = subject
@@ -313,7 +310,6 @@ def get_sorted_queryset(
             if key != "user" and key != "category":
                 query |= Q(**{key: value})
 
-        # TODO for Théo: UPDATE and handle when category filter is not present (aka: filter among all categories)
         queryset = Email.objects.filter(
             query, user=filters["user"], category=filters["category"]
         )
@@ -426,7 +422,6 @@ def get_user_emails(request: HttpRequest) -> Response:
 
     JSON Body:
         Mandatory params:
-            category (str): The category of emails to filter
             resultPerPage (int): Number of results per page (must be between 25 and 100)
 
         Optional filters:
@@ -438,6 +433,7 @@ def get_user_emails(request: HttpRequest) -> Response:
             senderName (str): Keyword to filter by sender's name.
             CCEmails (list[str]): List of email addresses to filter by CC recipients.
             CCNames (list[str]): List of names to filter by CC recipients.
+            category (str): The category of emails to filter by.
             emailAddresses (list[str]): List of email addresses to filter by any associated email.
             archive (bool): Filter by archive status.
             replyLater (bool): Filter by reply later status.
@@ -466,15 +462,10 @@ def get_user_emails(request: HttpRequest) -> Response:
         user = request.user
         valid_data = validate_and_parse_parameters(request)
         parameters: dict = valid_data["parameters"]
-
-        # TODO for Théo: DELETE as if category is not in the parameters it means we filter with all categories
-        # no need to write category = "All" it is not opti | UPDATE the documentation
-        category = valid_data["category"]
-
         result_per_page = valid_data["result_per_page"]
         sort = valid_data["sort"]
 
-        filters = construct_filters(user, parameters, category)
+        filters = construct_filters(user, parameters)
         queryset = get_sorted_queryset(filters, sort, parameters.get("advanced"))
         email_count, formatted_data, email_ids = format_email_data(
             queryset, result_per_page
@@ -483,10 +474,6 @@ def get_user_emails(request: HttpRequest) -> Response:
         return Response(
             {"count": email_count, "data": formatted_data, "ids": email_ids},
             status=status.HTTP_200_OK,
-        )
-    except Category.DoesNotExist:
-        return Response(
-            {"error": "Invalid category"}, status=status.HTTP_400_BAD_REQUEST
         )
     except ValueError as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -498,11 +485,6 @@ def get_user_emails(request: HttpRequest) -> Response:
     except TypeError:
         return Response(
             {"error": "resultPerPage must be an integer"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    except json.JSONDecodeError:
-        return Response(
-            {"error": "Invalid JSON in request body"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:

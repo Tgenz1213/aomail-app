@@ -17,6 +17,8 @@ import { API_BASE_URL } from "@/main";
 import PasswordResetLink from "@/views/PasswordResetLink.vue";
 import ResetPasswordForm from "@/views/ResetPasswordForm.vue";
 
+
+// TODO: remove this file and folder (its in router.ts now)
 async function fetchWithToken(url, options = {}) {
   const accessToken = localStorage.getItem("access_token");
 

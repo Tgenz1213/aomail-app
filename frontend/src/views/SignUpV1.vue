@@ -1072,7 +1072,7 @@ export default {
   },
   data() {
     return {
-      logo: require('@/assets/LogoAugmentAI_export4.png')
+      logo: require('@/assets/logo-Aomail.png')
     };
   }
 }

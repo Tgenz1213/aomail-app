@@ -2592,7 +2592,7 @@ async function Hide_filtres() {
 </script>
 
 <script>
-import ShowNotification from '../components/ShowNotification.vue';
+import ShowNotification from '../components/NotificationTimer.vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/AppNavbar7.vue';

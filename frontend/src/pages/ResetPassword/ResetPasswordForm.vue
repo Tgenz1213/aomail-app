@@ -51,7 +51,7 @@
 import { ref, onMounted } from "vue"
 import { API_BASE_URL } from "@/main"
 import { useRouter } from "vue-router"
-import ShowNotification from "../components/ShowNotification.vue"
+import ShowNotification from "../components/NotificationTimer.vue"
 
 const isModalOpen = ref(true)
 const password = ref("")

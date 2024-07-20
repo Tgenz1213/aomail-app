@@ -275,7 +275,7 @@ import { useRouter } from 'vue-router';
 import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import Quill from 'quill';
-import ShowNotification from '../components/ShowNotification.vue';
+import ShowNotification from '../components/NotificationTimer.vue/index.js';
 import {
   Combobox,
   ComboboxButton,

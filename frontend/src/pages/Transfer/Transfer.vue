@@ -268,7 +268,7 @@
 import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
-import ShowNotification from '../components/ShowNotification.vue';
+import ShowNotification from '../components/NotificationTimer.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { useRouter } from 'vue-router';
 import Quill from 'quill';

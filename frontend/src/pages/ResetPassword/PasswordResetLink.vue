@@ -35,7 +35,7 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
-import ShowNotification from "../components/ShowNotification.vue"
+import ShowNotification from "../components/NotificationTimer.vue"
 import { API_BASE_URL } from "@/main"
 
 const isModalOpen = ref(true)

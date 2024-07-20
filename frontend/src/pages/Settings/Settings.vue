@@ -1325,7 +1325,7 @@ async function deleteAccount() {
 
 <script>
 import '@fortawesome/fontawesome-free/css/all.css';
-import ShowNotification from '../components/ShowNotification.vue';
+import ShowNotification from '../components/NotificationTimer.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { ref, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';

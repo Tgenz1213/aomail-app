@@ -137,6 +137,7 @@ async function login() {
     }
 
     try {
+        // TODO: use fetch not axios for consistency
         const response = await axios.post(`${API_BASE_URL}api/login/`, {
             username: username.value,
             password: password.value

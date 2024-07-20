@@ -549,6 +549,9 @@
 </template>  
 
 <script setup>
+// TODO: rename all the functions that contains a number + use ONLY camelCase for functions and variables
+
+
 import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';

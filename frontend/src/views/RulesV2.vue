@@ -69,7 +69,7 @@
                           <ExclamationCircleIcon class="w-4 h-4" />
                           <p class="font-semibold text-sm">{{ $t('rulesPage.priorityField') }}</p>
                         </div>
-                        <!-- TODO: check where this has been set in French and fix into English (it's in the backend, probably in views.py) -->
+                        <!-- TODO: update with good values (export them as constants) -->
                         <span v-if="rule.priority === 'Important'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{
                             rule.priority }}</span>
@@ -129,6 +129,9 @@
 </template>
 
 <script>
+// TODO: use script setup for consistency
+
+
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'

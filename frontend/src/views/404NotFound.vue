@@ -6,6 +6,7 @@
 </template>
   
 <script>
+// TODO: add automatic redirection to login
 export default {
   name: 'NotFound',
 };

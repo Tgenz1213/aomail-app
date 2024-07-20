@@ -735,6 +735,9 @@
 </template>
 
 <script setup>
+// TODO: rename all the functions that contains a number + use ONLY camelCase for functions and variables
+
+
 import Language from '../components/SettingsLanguageSignUp.vue';
 import TimeZone from '../components/SettingsTimeZoneSignUp.vue';
 import { ref, onMounted } from 'vue';

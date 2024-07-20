@@ -4,15 +4,12 @@ import './assets/css/tailwind.css';
 import router from './router';
 import { createI18n } from 'vue-i18n';
 import { fetchWithToken } from './router/index.js';
-import messages from './i18n/index.js';
+import languages from './i18n/index.js';
+import { allowedthemes, allowedLanguages } from './global/Settings/const';
 
 // =========================== API BASE URLS =========================== //
 export const BASE_URL = `https://${process.env.VUE_APP_ENV}.aomail.ai/`;
 export const API_BASE_URL = `https://${process.env.VUE_APP_ENV}.aomail.ai/MailAssistant/`;
-
-// ==================== ALLOWED LANGUAGES AND THEMES =================== //
-const languages = ['french', 'american', 'german', 'russian', 'spanish', 'chinese', 'indian'];
-const themes = ['light', 'dark'];
 
 // ========================== FETCH USER PREFERENCES ========================== //
 const fetchUserPreference = async (endpoint, key, allowedValues) => {
@@ -53,9 +50,9 @@ const initializePreferences = async () => {
     currentUrl !== `${BASE_URL}/signup` &&
     currentUrl !== `${BASE_URL}/signup_part2`
   ) {
-    const language = await fetchUserPreference('user/preferences/language/', 'language', languages);
+    const language = await fetchUserPreference('user/preferences/language/', 'language', allowedLanguages);
     languageSelected.value = language;
-    const theme = await fetchUserPreference('user/preferences/theme/', 'theme', themes);
+    const theme = await fetchUserPreference('user/preferences/theme/', 'theme', allowedthemes);
     themeSelected.value = theme;
   }
 };
@@ -69,7 +66,7 @@ await initializePreferences();
 const i18n = createI18n({
   locale: languageSelected.value,
   fallbackLocale: 'english',
-  messages,
+  languages,
 });
 
 // ======================== CREATE AND MOUNT VUE APP ======================== //

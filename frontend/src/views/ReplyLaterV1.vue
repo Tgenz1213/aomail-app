@@ -773,6 +773,10 @@
 </template>
 
 <script>
+// TODO: use script setup for consistency
+
+
+
 import { onMounted, ref } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';

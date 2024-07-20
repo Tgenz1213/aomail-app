@@ -1,0 +1,1 @@
+// TODO: put all common functions used in New.vue, Transfer.vue, Answer.vue

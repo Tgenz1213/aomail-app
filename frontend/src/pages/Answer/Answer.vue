@@ -1731,8 +1731,8 @@ function animateText(text, target) {
 </script>
 
 <script>
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import Navbar from '@/pages/components/NavBarLarge.vue';
+import Navbar2 from '@/pages/components/NavBarSmall.vue';
 
 import {
   //ChatBubbleOvalLeftEllipsisIcon,

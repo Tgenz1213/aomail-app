@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router"
-import { isUserAuthenticated } from "@/global/security.ts"
+import { isUserAuthenticated } from "@/global/security.js"
 import routes from "./routes.ts"
 
 const router = createRouter({

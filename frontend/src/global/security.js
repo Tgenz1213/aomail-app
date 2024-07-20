@@ -3,14 +3,36 @@
 // We MUST change fetchWithToken to return the complete result of the fetch
 // it will allow to check the status code instead of if response.message == "aLongStringThatMayChange"
 // EDIT: done => must change everywhere we use the function fetchWithToken
-
-EXPORT redirection function after 5sec
 */
 
 import router from "@/router/router.js"
 import { API_BASE_URL, BASE_URL } from "./const.js"
+import { ref } from "vue"
 
-export async function isUserAuthenticated(): Promise<boolean> {
+export function useRedirectCountdown(routeName, countdownTime = 5) {
+    const countdown = ref(countdownTime)
+
+    const updateCountdown = () => {
+        countdown.value--
+
+        if (countdown.value < 0) {
+            router.push({ name: routeName })
+        } else {
+            setTimeout(updateCountdown, 1000)
+        }
+    }
+
+    const startCountdown = () => {
+        updateCountdown()
+    }
+
+    return {
+        countdown,
+        startCountdown,
+    }
+}
+
+export async function isUserAuthenticated() {
     const access_token = localStorage.getItem("access_token")
     try {
         const requestOptions = {
@@ -32,14 +54,14 @@ export async function isUserAuthenticated(): Promise<boolean> {
     }
 }
 
-export async function fetchWithToken(url: string, options: RequestInit = {}): Promise<Response> {
+export async function fetchWithToken(url, options = {}) {
     const accessToken = localStorage.getItem("access_token")
 
     if (!options.headers) {
         options.headers = {}
     }
     if (accessToken) {
-        ;(options.headers as HeadersInit)["Authorization"] = `Bearer ${accessToken}`
+        options.headers["Authorization"] = `Bearer ${accessToken}`
     } else {
         window.location.href = `${BASE_URL}`
         return
@@ -61,7 +83,7 @@ export async function fetchWithToken(url: string, options: RequestInit = {}): Pr
                 const refreshData = await refreshResponse.json()
                 const newAccessToken = refreshData.access_token
                 localStorage.setItem("access_token", newAccessToken)
-                ;(options.headers as HeadersInit)["Authorization"] = `Bearer ${newAccessToken}`
+                options.headers["Authorization"] = `Bearer ${newAccessToken}`
                 response = await fetch(url, options)
             } else {
                 router.push({ name: "not-authorized" })

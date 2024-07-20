@@ -76,22 +76,21 @@ LOGGER = logging.getLogger(__name__)
 @api_view(["GET"])
 @subscription([FREE_PLAN])
 def get_profile_image(request: Request):
-    return forward_request(request._request, "get_profile_image")
+    return forward_request(request._request, "profile", "get_profile_image")
 
 
 @api_view(["POST"])
 @subscription([FREE_PLAN])
 def send_email(request: Request):
-    return forward_request(request._request, "send_email")
+    return forward_request(request._request, "email_operations", "send_email")
 
 
 @api_view(["POST"])
 @subscription([FREE_PLAN])
 def send_schedule_email(request: Request):
-    return forward_request(request._request, "send_schedule_email")
+    return forward_request(request._request, "email_operations", "send_schedule_email")
 
 
-# TODO: verify that it still works
 def forward_request(request: HttpRequest, api_module: str, api_method: str) -> Response:
     """
     Forwards the request to the appropriate API method based on type_api.

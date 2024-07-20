@@ -1,15 +1,15 @@
 // TODO: REPLACE with good imports
 import Login from "@/views/UserLogin.vue"
 import SignUp from "@/views/SignUpV1.vue"
-import SignUpPart2 from "@/views/SignUpV1_part2.vue"
+import SignupLink from "@/pages/Signup/SignUpLink.vue"
 import Home from "@/views/HomeV15.vue"
 import New from "@/views/NewV4.vue"
 import Answer from "@/views/AnswerV1.vue"
 import Transfer from "@/views/TransferV1.vue"
 import Rules from "@/views/RulesV2.vue"
 import Settings from "@/views/SettingsV1.vue"
-import StripePaymentFailed from "@/views/StripePaymentFailed.vue"
-import StripePaymentSuccess from "@/views/StripePaymentSuccess.vue"
+import StripePaymentFailed from "@/pages/Stripe/StripePaymentFailed.vue"
+import StripePaymentSuccess from "@/pages/Stripe/StripePaymentSuccess.vue"
 import Search from "@/views/SearchV2.vue"
 import ReplyLater from "@/views/ReplyLaterV1.vue"
 import NotFound from "@/views/404NotFound.vue"
@@ -32,7 +32,7 @@ export const signUp = {
 export const signUpLink = {
     path: "/signup_part2", // TODO: (only Augustin & Théo): rename as signup-link (but not now because we also need to change in Google Project & Azure)
     name: "signupLink",
-    component: SignUpPart2, // TODO: rename as SignupLink
+    component: SignupLink,
 }
 
 export const home = {

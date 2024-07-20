@@ -1,27 +1,50 @@
 <template>
-  <div>
-    <h1>{{ $t('errorWebPagesTemplates.error401Page.youAreNotConnected') }}</h1>
-    <p>{{ $t('errorWebPagesTemplates.error401Page.redirectionToLogin') }} {{ countdown }} seconds</p>
-  </div>
+    <div class="fixed inset-0 flex items-center justify-center bg-gray-100">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+            <h1 class="text-2xl font-semibold mb-4">
+                {{ $t("errorWebPagesTemplates.error401Page.youAreNotConnected") }}
+            </h1>
+            <p class="mb-4">
+                {{ $t("errorWebPagesTemplates.error401Page.redirectionToLogin") }}
+                <span class="font-bold">{{ countdown }}</span>
+                seconds
+            </p>
+            <button
+                @click="redirectNow"
+                class="w-full py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+            >
+                Redirect Now
+            </button>
+        </div>
+    </div>
 </template>
 
 <script setup>
-import { ref, getCurrentInstance } from 'vue';
+import { ref, onMounted, onUnmounted } from "vue"
+import { useRouter } from "vue-router"
 
-const countdown = ref(5);
-const instance = getCurrentInstance();
+const router = useRouter()
+const countdown = ref(5)
+let timer
 
 const updateCountdown = () => {
-  countdown.value--;
+    countdown.value--
 
-  if (countdown.value < 0) {
-    // REDIRECTION TO LOGIN PAGE
-    instance.appContext.config.globalProperties.$router.push({ name: 'login' });
-  } else {
-    setTimeout(updateCountdown, 1000); // Call itself after 1 second
-  }
-};
+    if (countdown.value <= 0) {
+        redirectNow()
+    }
+}
 
-// Start countdown on component mount
-updateCountdown();
+const redirectNow = () => {
+    clearInterval(timer)
+    router.push({ name: "login" })
+}
+
+onMounted(() => {
+    timer = setInterval(updateCountdown, 1000)
+})
+
+onUnmounted(() => {
+    clearInterval(timer)
+})
 </script>

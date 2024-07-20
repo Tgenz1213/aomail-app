@@ -1,9 +1,9 @@
 import en from './en.json';
 import fr from './fr.json';
 
-const languages = {
+const messages = {
   french: fr,
   english: en,
 };
 
-export default languages;
+export default messages;

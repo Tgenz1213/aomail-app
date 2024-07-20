@@ -7,10 +7,10 @@
 EXPORT redirection function after 5sec
 */
 
-import router from "@/router" // TODO: replace with the good import after refactor
-import { API_BASE_URL, BASE_URL } from "./const"
+import router from "@/router/router.js"
+import { API_BASE_URL, BASE_URL } from "./const.js"
 
-export async function isUserAuthenticated() {
+export async function isUserAuthenticated(): Promise<boolean> {
     const access_token = localStorage.getItem("access_token")
     try {
         const requestOptions = {
@@ -32,7 +32,7 @@ export async function isUserAuthenticated() {
     }
 }
 
-export async function fetchWithToken(url: string, options: RequestInit = {}) {
+export async function fetchWithToken(url: string, options: RequestInit = {}): Promise<Response> {
     const accessToken = localStorage.getItem("access_token")
 
     if (!options.headers) {

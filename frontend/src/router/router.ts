@@ -1,1 +1,0 @@
-// TODO: put all the logic from router/index.js and import routes

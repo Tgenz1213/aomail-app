@@ -12,16 +12,15 @@ TODO:
 """
 
 import json
+import logging
 from collections import defaultdict
 from datetime import timedelta
-import logging
-from django.db.models import Subquery, Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q, Subquery
+from django.db.models.manager import BaseManager
 from django.http import HttpRequest
 from django.utils import timezone
-from django.db.models.manager import BaseManager
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from MailAssistant.constants import FREE_PLAN
 from MailAssistant.models import Category, SocialAPI, Email, Rule
@@ -184,7 +183,7 @@ def get_email_content(request: HttpRequest) -> Response:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def validate_and_parse_parameters(request: HttpRequest) -> tuple:
+def validate_and_parse_parameters(request: HttpRequest) -> dict:
     """
     Validates and parses the request parameters.
 
@@ -192,96 +191,129 @@ def validate_and_parse_parameters(request: HttpRequest) -> tuple:
         request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.
 
     Returns:
-        tuple: A tuple containing the parsed parameters dictionary,
-               the email category (str), the number of results per page (int),
-               and the sort order (str).
+        dict: A dictionary containing:
+            parameters (dict): The parsed parameters.
+            result_per_page (int): The number of results per page.
+            sort (str): The sort order.
     """
     parameters: dict = json.loads(request.body)
-    category = parameters["category"]
     result_per_page = parameters["resultPerPage"]
     sort = parameters.get("sort", "asc")
 
     if not 25 <= result_per_page <= 100:
-        raise ValueError("resultPerPage must be an integer between 25 and 100 included")
+        raise ValueError(
+            "resultPerPage must be an integer between 25 and 100 inclusive"
+        )
 
-    return parameters, category, result_per_page, sort
+    return {
+        "parameters": parameters,
+        "result_per_page": result_per_page,
+        "sort": sort,
+    }
 
 
-def construct_filters(user: User, parameters: dict, category: str) -> dict:
+def construct_filters(user: User, parameters: dict) -> dict:
     """
     Constructs a dictionary of filters based on provided user, parameters, and category.
 
     Args:
         user (User): The user ID for whom the filters are being constructed.
         parameters (dict): A dictionary containing various filter parameters.
-        category (str): The category of emails to filter.
 
     Returns:
         dict: A dictionary containing the constructed filters.
     """
     filters = {"user": user}
-    category_obj = Category.objects.get(name=category)
-    filters["category"] = category_obj
 
-    flags = [
-        "scam",
-        "spam",
-        "newsletter",
-        "notification",
-        "meeting",
-        "read",
-    ]
-    for flag in flags:
-        if flag in parameters:
-            filters[flag] = parameters[flag]
+    if parameters.get("advanced"):
+        flags = [
+            "scam",
+            "spam",
+            "newsletter",
+            "notification",
+            "meeting",
+            "read",
+        ]
+        for flag in flags:
+            if flag in parameters:
+                filters[flag] = parameters[flag]
 
-    if "hasAttachments" in parameters:
-        filters["has_attachments"] = parameters["hasAttachments"]
-    if "replyLater" in parameters:
-        filters["answer_later"] = parameters["replyLater"]
-    if "priority" in parameters:
-        filters["priority__in"] = parameters["priority"]
-    if "emailProvider" in parameters:
-        filters["email_provider__in"] = parameters["emailProvider"]
-    if "subject" in parameters:
-        filters["subject__icontains"] = parameters["subject"]
-    if "senderEmail" in parameters:
-        filters["sender__email__icontains"] = parameters["senderEmail"]
-    if "senderName" in parameters:
-        filters["sender__name__icontains"] = parameters["senderName"]
-    if "sentDate" in parameters:
-        filters["date__gte"] = parameters["sentDate"]
-    if "readDate" in parameters:
-        filters["read_date__gte"] = parameters["readDate"]
-    if "answer" in parameters:
-        filters["answer__in"] = parameters["answer"]
-    if "relevance" in parameters:
-        filters["relevance__in"] = parameters["relevance"]
-    if "emailAddresses" in parameters:
-        social_apis = SocialAPI.objects.filter(
-            email__in=parameters["emailAddresses"], user=user
-        )
-        filters["social_api__in"] = social_apis
-    if "CCEmails" in parameters:
-        filters["cc_senders__email__in"] = parameters["CCEmails"]
-    if "CCNames" in parameters:
-        filters["cc_senders__name__in"] = parameters["CCNames"]
+        if "category" in parameters:
+            category_obj = Category.objects.get(name=parameters["category"])
+            filters["category"] = category_obj
+        if "archive" in parameters:
+            filters["archive"] = parameters["archive"]
+        if "hasAttachments" in parameters:
+            filters["has_attachments"] = parameters["hasAttachments"]
+        if "replyLater" in parameters:
+            filters["answer_later"] = parameters["replyLater"]
+        if "priority" in parameters:
+            filters["priority__in"] = parameters["priority"]
+        if "emailProvider" in parameters:
+            filters["email_provider__in"] = parameters["emailProvider"]
+        if "subject" in parameters:
+            filters["subject__icontains"] = parameters["subject"]
+        if "senderEmail" in parameters:
+            filters["sender__email__icontains"] = parameters["senderEmail"]
+        if "senderName" in parameters:
+            filters["sender__name__icontains"] = parameters["senderName"]
+        if "sentDate" in parameters:
+            filters["date__gte"] = parameters["sentDate"]
+        if "readDate" in parameters:
+            filters["read_date__gte"] = parameters["readDate"]
+        if "answer" in parameters:
+            filters["answer__in"] = parameters["answer"]
+        if "relevance" in parameters:
+            filters["relevance__in"] = parameters["relevance"]
+        if "emailAddresses" in parameters:
+            social_apis = SocialAPI.objects.filter(
+                email__in=parameters["emailAddresses"], user=user
+            )
+            filters["social_api__in"] = social_apis
+        if "CCEmails" in parameters:
+            filters["cc_senders__email__in"] = parameters["CCEmails"]
+        if "CCNames" in parameters:
+            filters["cc_senders__name__in"] = parameters["CCNames"]
+
+    else:
+        category_obj = Category.objects.get(name=parameters["category"])
+        filters["category"] = category_obj
+        subject = parameters["subject"]
+        filters["subject__icontains"] = subject
+        filters["sender__email__icontains"] = subject
+        filters["sender__name__icontains"] = subject
+        filters["cc_senders__email__icontains"] = subject
+        filters["cc_senders__name__icontains"] = subject
 
     return filters
 
 
-def get_sorted_queryset(filters: dict, sort: str) -> BaseManager[Email]:
+def get_sorted_queryset(
+    filters: dict, sort: str, advanced: bool | None
+) -> BaseManager[Email]:
     """
     Retrieves and sorts the queryset based on provided filters and sort order.
 
     Args:
         filters (dict): A dictionary containing the filter parameters for the queryset.
         sort (str): Sorting order ("asc" for ascending, "desc" for descending).
+        advanced (bool): True for a AND query, default OR query.
 
     Returns:
         BaseManager[QuerySet]: A Django BaseManager for the Email model's QuerySet.
     """
-    queryset = Email.objects.filter(**filters)
+    if advanced:
+        queryset = Email.objects.filter(**filters)
+    else:
+        query = Q()
+        for key, value in filters.items():
+            if key != "user" and key != "category":
+                query |= Q(**{key: value})
+
+        queryset = Email.objects.filter(
+            query, user=filters["user"], category=filters["category"]
+        )
+
     rule_id_subquery = Rule.objects.filter(
         sender=OuterRef("sender"), user=filters["user"]
     ).values("id")[:1]
@@ -320,9 +352,10 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
         if email.read:
             delta_time = current_datetime_utc - email.read_date
 
-            # delete emails older than 1 week
+            # archive emails older than 1 week
             if delta_time > timedelta(weeks=1):
-                email.delete()
+                email.archive = True
+                email.save()
                 continue
 
         if nb_email_treated < result_per_page:
@@ -348,6 +381,7 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
                     "hasRule": email.has_rule,
                     "ruleId": email.rule_id,
                 },
+                "archive": email.archive,
                 "hasAttachments": email.has_attachments,
                 "attachments": [
                     {
@@ -388,10 +422,10 @@ def get_user_emails(request: HttpRequest) -> Response:
 
     JSON Body:
         Mandatory params:
-            category (str): The category of emails to filter
             resultPerPage (int): Number of results per page (must be between 25 and 100)
 
         Optional filters:
+            advanced (bool): True if specific filters have been used.
             sort (str): Sorting order ("asc" for ascending, "desc" for descending). Default is "asc".
             emailProvider (list[str]): List of email providers to filter by.
             subject (str): Keyword to filter by email subject.
@@ -399,7 +433,9 @@ def get_user_emails(request: HttpRequest) -> Response:
             senderName (str): Keyword to filter by sender's name.
             CCEmails (list[str]): List of email addresses to filter by CC recipients.
             CCNames (list[str]): List of names to filter by CC recipients.
+            category (str): The category of emails to filter by.
             emailAddresses (list[str]): List of email addresses to filter by any associated email.
+            archive (bool): Filter by archive status.
             replyLater (bool): Filter by reply later status.
             read (bool): Filter by read/unread status.
             sentDate (datetime): Filter by sent date (emails sent on or after this date).
@@ -424,11 +460,13 @@ def get_user_emails(request: HttpRequest) -> Response:
     """
     try:
         user = request.user
-        parameters, category, result_per_page, sort = validate_and_parse_parameters(
-            request
-        )
-        filters = construct_filters(user, parameters, category)
-        queryset = get_sorted_queryset(filters, sort)
+        valid_data = validate_and_parse_parameters(request)
+        parameters: dict = valid_data["parameters"]
+        result_per_page = valid_data["result_per_page"]
+        sort = valid_data["sort"]
+
+        filters = construct_filters(user, parameters)
+        queryset = get_sorted_queryset(filters, sort, parameters.get("advanced"))
         email_count, formatted_data, email_ids = format_email_data(
             queryset, result_per_page
         )
@@ -436,10 +474,6 @@ def get_user_emails(request: HttpRequest) -> Response:
         return Response(
             {"count": email_count, "data": formatted_data, "ids": email_ids},
             status=status.HTTP_200_OK,
-        )
-    except Category.DoesNotExist:
-        return Response(
-            {"error": "Invalid category"}, status=status.HTTP_400_BAD_REQUEST
         )
     except ValueError as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -451,11 +485,6 @@ def get_user_emails(request: HttpRequest) -> Response:
     except TypeError:
         return Response(
             {"error": "resultPerPage must be an integer"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-    except json.JSONDecodeError:
-        return Response(
-            {"error": "Invalid JSON in request body"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except Exception as e:

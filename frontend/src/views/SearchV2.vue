@@ -44,6 +44,7 @@
             </textarea>
             <div v-if="stepcontainer == 0" class="flex justify-end m-3 2xl:m-5">
               <div class="flex space-x-2 items-center">
+                <!-- TO KEEP : ONLY IF OLD MAIL NEEDS TO BE ACTIVATED (ask user before implementation) 
                 <div class="relative">
                   <select
                     v-model="selectedOption"
@@ -52,7 +53,7 @@
                     <option :value="$t('searchPage.choiceAomail')">{{ $t('searchPage.choiceAomail') }}</option>
                     <option :value="$t('searchPage.choiceOldMailDisplay')">{{ $t('searchPage.choiceOldMail') }}</option>
                   </select>
-                </div>
+                </div>-->
                 <div class="flex items-center">
                   <button type="button" @click="handleAIClick" class="h-[38px] 2xl:h-[46px] w-[80px] 2xl:w-[100px] rounded-md bg-gray-700 px-2 text-sm 2xl:text-base text-white shadow-sm hover:bg-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Envoyer</button> 
                 </div>
@@ -139,7 +140,16 @@
                         />
                       </Combobox>
                     </div>
-                    
+
+                    <div class="relative inline-block">
+                      <button type="button" class="group w-full h-full bg-gray-100 rounded-r-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3 ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm" @click="Hide_filtres()">
+                        <svg class="w-6 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                          <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4 a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <!-- TO KEEP : ONLY IF OLD MAIL NEEDS TO BE ACTIVATED (ask user before implementation) 
                     <div class="relative inline-block dropdown-container">
                       <button
                         type="button"
@@ -156,7 +166,7 @@
                           <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem" @click="selectOption($t('searchPage.choiceOldMailDisplay'))">{{ $t('searchPage.choiceOldMail') }}</a>
                         </div>
                       </div>
-                    </div>
+                    </div>-->
                   </div>
                 </div>              
                             
@@ -174,14 +184,6 @@
                     </div>
                   </div>
                 </div>-->
-
-                <div class="flex-grow h-full">
-                  <button type="button" class="group w-full h-full bg-gray-100 rounded-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3 ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm" @click="Hide_filtres()">
-                    <svg class="w-6 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="none" viewBox="0 0 24 24">
-                      <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4 a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
-                    </svg>
-                  </button>
-                </div>
 
                 <div class="flex-grow h-full">
                   <button type="button" @click="searchEmails"
@@ -1105,7 +1107,7 @@ async function searchEmails() {
     }),
   };
 
-  const result = await fetchWithToken(`${API_BASE_URL}user/search_emails/`, requestOptions);
+  const result = await fetchWithToken(`${API_BASE_URL}user/emails/`, requestOptions);
   searchResult.value = result;
   hideLoading();
 }

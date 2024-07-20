@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 
 <head>
   <meta charset="utf-8">
@@ -12,138 +12,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://apis.google.com/js/platform.js" async defer></script>
   <title>Aomail</title>
-  <style>
-    .ql-container {
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.02);
-    }
-    .ql-toolbar {
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.02);
-    }
-
-    .ql-snow .ql-picker-label:hover .ql-stroke,
-    .ql-snow .ql-picker-item:hover .ql-stroke,
-    .ql-snow .ql-picker-item.ql-selected .ql-stroke,
-    .ql-snow .ql-picker-label.ql-active .ql-stroke,
-    .ql-snow .ql-picker-label.ql-expanded .ql-stroke,
-    .ql-snow .ql-toolbar button:hover .ql-stroke,
-    .ql-snow .ql-toolbar button:hover .ql-fill,
-    .ql-snow .ql-toolbar button.ql-active .ql-stroke,
-    .ql-snow .ql-toolbar button.ql-active .ql-fill {
-      stroke: #4F46E5;
-      /* Correspond à la couleur indigo-600 de TailwindCSS */
-      fill: #4F46E5;
-      /* Correspond à la couleur indigo-600 de TailwindCSS */
-    }
-
-    #dynamicTextarea {
-      overflow-y: hidden;
-      /* Supprime la barre de défilement verticale */
-      resize: none;
-      /* Empêche le redimensionnement manuel */
-    }
-
-    ::-webkit-scrollbar-track {
-      border-radius: 0.75rem;
-      background-color: #f0f0f0;
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      margin-right: 10px;
-      /* Décale la barre de défilement de 10 pixels vers la gauche */
-    }
-
-    #NewMailAI::-webkit-scrollbar {
-      margin-right: 100px;
-      /* Décale la barre de défilement de 10 pixels vers la gauche */
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background-color: darkgrey;
-      /*outline: 1px solid slategrey;*/
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background-color: grey;
-    }
-
-    ::-webkit-scrollbar-track {
-      background-color: rgba(240, 240, 240, 0.5);
-      /* 0.5 est l'opacité */
-    }
-
-    /* Initial flex settings */
-    #firstMainColumn,
-    #secondMainColumn {
-      flex: 1;
-      transition: flex 0.3s ease;
-      /* This line adds a transition effect to the flex property */
-    }
-
-    /* When hovering over the first main column, it expands more, while the second main column shrinks 
-    #firstMainColumn:hover {
-      flex: 1;
-    }*/
-
-    /* When hovering over the second main column, it expands more, while the first main column shrinks 
-    #secondMainColumn:hover {
-      flex: 1.5;
-    }*/
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-
-    .loading-spinner {
-      border: 4px solid rgba(0, 0, 0, 0.3);
-      /* Change to black with some transparency */
-      border-top: 4px solid #000;
-      /* Solid black for the top border */
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 2s linear infinite;
-    }
-
-    /* Animation mail actions buttons */
-    .fade-enter-active {
-      transition: opacity 0.3s ease;
-    }
-
-    .fade-enter
-
-    /* .fade-leave-active in <2.1.8 */
-      {
-      opacity: 0;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-      margin: 4px;
-      /* Adjust this value to set the margin for the scrollbar */
-    }
-  </style>
 </head>
 
-<body class="bg-gradient-to-r from-sky-300 to-blue-300">
-  <noscript>
-    <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to
-      continue.</strong>
-  </noscript>
+<body>
   <div id="app"></div>
-  <!-- Main Quill library -->
-  <script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
 </body>
 
 </html>

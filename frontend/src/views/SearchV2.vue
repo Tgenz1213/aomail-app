@@ -633,13 +633,16 @@
                   <template v-if="sortedEmailList.length > 0">
                     <ul class="space-y-4 pr-4">
                       <template v-for="(email, index) in sortedEmailList" :key="email.id">
-                        <li class="group flex justify-between items-center py-2 email-item">
+                        <li class="group flex justify-between items-center py-2 email-item"  @click="toggleHiddenParagraph(index)">
                           <div class="flex flex-col justify-center">
-                            <span class="font-bold text-sm">
+                            <span class="font-semibold text-sm leading-6">
                               {{ email.sender.name }}
-                              ({{ email.sender.email }})
+                              - {{ email.sender.email }} <span class="font-normal ml-2 text-gray-600 text-xs">  {{ email.sentDate }} </span>
                             </span>
-                            <span class="text-sm">{{ email.subject }} - {{ email.oneLineSummary }}</span>
+                            <span class="text-sm gray-600">{{ email.subject }} - {{ email.oneLineSummary }}</span>
+                            <div v-if="email.showSummary" class="py-1">
+                              <p class="text-xs">{{ email.shortSummary }}</p>
+                            </div>
                             <div class="mt-1 flex space-x-2">
                               <!-- Priority flag -->
                               <span v-if="email.priority === 'important'" class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10">Important</span>
@@ -927,6 +930,11 @@ function handleFocusSearch() {
 }
 function handleBlurSearch() {
     isFocused.value = false;
+}
+
+// User click on short summary
+function toggleHiddenParagraph(index) {
+  sortedEmailList.value[index].showSummary = !sortedEmailList.value[index].showSummary;
 }
 
 function handleBlur2(event) {

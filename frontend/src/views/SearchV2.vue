@@ -118,30 +118,23 @@
                 </div>-->
 
                 <div class="relative w-full">
-                  <div class="flex">
+                  <div class="flex w-full">
                     <div class="relative flex-grow">
-                      <div v-if="!isFocused2"
+                      <div v-if="!isFocused && !inputValue"
                         class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3">
                         <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
                         <label for="search" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
                           {{ $t('searchPage.searchPlaceholder') }}
                         </label>
                       </div>
-
-                      <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected">
-                        <ComboboxInput
-                          id="recipients"
-                          class="w-full rounded-l-md border-0 bg-white h-10 2xl:h-11 py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
-                          @change="query = $event.target.value"
-                          :display-value="(person) => person?.name"
-                          @focus="handleFocusDestinary"
-                          @blur="handleBlur2($event)"
-                          @keydown.enter="handleEnterKey"
-                        />
-                      </Combobox>
+                      <input id="searchInput" v-model="inputValue" type="text"
+                        class="block rounded-l-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:pl-4 2xl:text-base"
+                        @focus="handleFocusSearch" @blur="handleBlur2($event)"
+                        @input="handleInputUpdateSearch"
+                        @change="query = $event.target.value" />
                     </div>
 
-                    <div class="relative inline-block">
+                    <div class="relative">
                       <button type="button" class="group w-full h-full bg-gray-100 rounded-r-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3 ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm" @click="Hide_filtres()">
                         <svg class="w-6 h-5 text-gray-400 group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" stroke="none" viewBox="0 0 24 24">
                           <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4 a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
@@ -906,35 +899,32 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
 
 
 // User pressed the object input
-function handleFocusObject() {
+function handleFocusSearch() {
     isFocused.value = true;
 }
-function handleBlur() {
+function handleBlurSearch() {
     isFocused.value = false;
 }
-function handleFocusDestinary() {
-    isFocused2.value = true;
-}
 
-  function handleBlur2(event) {
-    // Checks for a valid input email and adds it to the recipients list
-    isFocused2.value = false;
-    const inputValue = event.target.value.trim().toLowerCase();
-    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function handleBlur2(event) {
+  // Checks for a valid input email and adds it to the recipients list
+  isFocused.value = false;
+  const inputValue = event.target.value.trim().toLowerCase();
+  const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (inputValue && emailFormat.test(inputValue)) {
-        if (!people.find(person => person.email === inputValue)) {
-            const newPerson = { username: '', email: inputValue };
-            people.push(newPerson);
-            selectedPeople.value.push(newPerson);
-        }
-    } else if (!filteredPeople.value.length && inputValue) {
-        // Show the pop-up
-        backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = t('constants.popUpConstants.errorMessages.invalidEmail');
-        notificationMessage.value = t('constants.popUpConstants.errorMessages.emailFormatIncorrect');
-        displayPopup();
-    }
+  if (inputValue && emailFormat.test(inputValue)) {
+      if (!people.find(person => person.email === inputValue)) {
+          const newPerson = { username: '', email: inputValue };
+          people.push(newPerson);
+          selectedPeople.value.push(newPerson);
+      }
+  } else if (!filteredPeople.value.length && inputValue) {
+      // Show the pop-up
+      backgroundColor = 'bg-red-200/[.89] border border-red-400';
+      notificationTitle.value = t('constants.popUpConstants.errorMessages.invalidEmail');
+      notificationMessage.value = t('constants.popUpConstants.errorMessages.emailFormatIncorrect');
+      displayPopup();
+  }
 }
 
 

@@ -56,9 +56,9 @@ def get_emails_data(request: HttpRequest) -> Response:
         parameters: dict = json.loads(request.body)
         email_ids = parameters.get("ids")
 
-        if not (25 <= len(email_ids) <= 100):
+        if not (0 <= len(email_ids) <= 100):
             return Response(
-                {"error": "IDs must be provided as a list with 25 to 100 elements"},
+                {"error": "IDs must be provided as a list with 0 to 100 elements"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -127,7 +127,7 @@ def get_emails_data(request: HttpRequest) -> Response:
         )
     except TypeError:
         return Response(
-            {"error": "IDs must be provided as a list with 25 to 100 elements"},
+            {"error": "IDs must be provided as a list with 0 to 100 elements"},
             status=status.HTTP_400_BAD_REQUEST,
         )
     except json.JSONDecodeError:
@@ -276,8 +276,8 @@ def construct_filters(user: User, parameters: dict) -> dict:
             filters["cc_senders__name__in"] = parameters["CCNames"]
 
     else:
-        category_obj = Category.objects.get(name=parameters["category"])
-        filters["category"] = category_obj
+        #category_obj = Category.objects.get(name=parameters["category"])
+        #filters["category"] = category_obj
         subject = parameters["subject"]
         filters["subject__icontains"] = subject
         filters["sender__email__icontains"] = subject
@@ -307,11 +307,11 @@ def get_sorted_queryset(
     else:
         query = Q()
         for key, value in filters.items():
-            if key != "user" and key != "category":
+            if key != "user":
                 query |= Q(**{key: value})
 
         queryset = Email.objects.filter(
-            query, user=filters["user"], category=filters["category"]
+            query, user=filters["user"]
         )
 
     rule_id_subquery = Rule.objects.filter(
@@ -339,76 +339,11 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
     Returns:
         tuple: A tuple containing:
             email_count (int): Total number of emails in the queryset.
-            formatted_data (defaultdict): Formatted email data grouped by category and priority.
             email_ids (list): List of email IDs from the queryset.
     """
     email_count = queryset.count()
-    email_ids = []
-    formatted_data = defaultdict(lambda: defaultdict(list))
-    nb_email_treated = 0
-    current_datetime_utc = timezone.now()
-
-    for email in queryset:
-        if email.read:
-            delta_time = current_datetime_utc - email.read_date
-
-            # archive emails older than 1 week
-            if delta_time > timedelta(weeks=1):
-                email.archive = True
-                email.save()
-                continue
-
-        if nb_email_treated < result_per_page:
-            email_data = {
-                "id": email.id,
-                "subject": email.subject,
-                "sender": {
-                    "email": email.sender.email,
-                    "name": email.sender.name,
-                },
-                "shortSummary": email.short_summary,
-                "oneLineSummary": email.one_line_summary,
-                "cc": [
-                    {"email": cc.email, "name": cc.name}
-                    for cc in email.cc_senders.all()
-                ],
-                "bcc": [
-                    {"email": bcc.email, "name": bcc.name}
-                    for bcc in email.bcc_senders.all()
-                ],
-                "read": email.read,
-                "rule": {
-                    "hasRule": email.has_rule,
-                    "ruleId": email.rule_id,
-                },
-                "archive": email.archive,
-                "hasAttachments": email.has_attachments,
-                "attachments": [
-                    {
-                        "attachmentName": attachment.name,
-                        "attachmentId": attachment.id_api,
-                    }
-                    for attachment in email.attachments.all()
-                ],
-                "sentDate": email.date.date() if email.date else None,
-                "sentTime": email.date.strftime("%H:%M") if email.date else None,
-                "answer": email.answer,
-                "relevance": email.relevance,
-                "priority": email.priority,
-                "flags": {
-                    "spam": email.spam,
-                    "scam": email.scam,
-                    "newsletter": email.newsletter,
-                    "notification": email.notification,
-                    "meeting": email.meeting,
-                },
-            }
-            formatted_data[email.category.name][email.priority].append(email_data)
-            nb_email_treated += 1
-
-        email_ids.append(email.id)
-
-    return email_count, formatted_data, email_ids
+    email_ids = list(queryset.values_list('id', flat=True)[:result_per_page])
+    return email_count, email_ids
 
 
 @api_view(["POST"])
@@ -454,7 +389,6 @@ def get_user_emails(request: HttpRequest) -> Response:
         Response: JSON response with the following structure:
             {
                 "count": int,  # Total number of emails matching the filters.
-                "data": dict,  # Filtered and formatted email data grouped by category and priority, limited to max results.
                 "ids": list[int]  # List of email IDs matching the filters.
             }
     """
@@ -467,12 +401,10 @@ def get_user_emails(request: HttpRequest) -> Response:
 
         filters = construct_filters(user, parameters)
         queryset = get_sorted_queryset(filters, sort, parameters.get("advanced"))
-        email_count, formatted_data, email_ids = format_email_data(
-            queryset, result_per_page
-        )
+        email_count, email_ids = format_email_data(queryset, result_per_page)
 
         return Response(
-            {"count": email_count, "data": formatted_data, "ids": email_ids},
+            {"count": email_count, "ids": email_ids},
             status=status.HTTP_200_OK,
         )
     except ValueError as e:

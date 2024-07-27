@@ -65,6 +65,7 @@ from MailAssistant.models import (
     SocialAPI,
     Preference,
     Contact,
+    Email,
 )
 from MailAssistant.utils.serializers import (
     NewEmailAISerializer,
@@ -390,18 +391,16 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
 
         language = Preference.objects.get(user=user).language
         answer = search.get_answer(keypoints, language)
-        emails = []
+        emails_ids = []
 
         for category in keypoints:
             for organization in keypoints[category]:
                 for topic in keypoints[category][organization]:
-                    emails.extend(
-                        search.knowledge_tree[category]["organizations"][organization][
-                            "topics"
-                        ][topic]["emails"]
-                    )
+                    provider_ids = search.knowledge_tree[category]["organizations"][organization]["topics"][topic]["emails"]
+                    ids = Email.objects.filter(provider_id__in=provider_ids).values_list('id', flat=True)
+                    emails_ids.extend(ids)
 
-        answer["emails"] = emails
+        answer["ids"] = emails_ids
 
         return Response({"answer": answer}, status=status.HTTP_200_OK)
 

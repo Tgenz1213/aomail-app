@@ -606,12 +606,11 @@
               <!-- email List -->
               <div class="flex-1 flex flex-col py-2" id="liste_email">
                 <div class="h-full overflow-y-auto">
+                  <!-- OLD ASK THEO BEFORE DELETE 
                   <template v-if="emailList.length > 0">
                     <ul class="space-y-4 pr-4">
                       <template v-for="(email, index) in emailList" :key="email.email_id">
-                        <!-- List element -->
                         <li class="flex justify-between items-center py-4 email-item">
-                          <!-- Details -->
                           <div class="flex flex-col justify-center">
                             <span class="font-bold text-sm">
                               {{ email.from_info && email.from_info[0] ? email.from_info[0] : 'Unknown' }}
@@ -620,9 +619,7 @@
                             <span class="text-sm">{{ email.subject }} - {{ email.snippet }}...</span>
                           </div>
 
-                          <!-- Actions -->
                           <span class="isolate inline-flex items-center rounded-2xl">
-                            <!-- Eyeicon -->
                             <div class="relative group">
                               <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                                 <EyeIcon class="w-5 h-5" />
@@ -632,8 +629,46 @@
                           </span>
                         </li>
 
-                        <!-- Separator -->
                         <li v-if="index < emailList.length - 1" class="flex relative pt-2">
+                          <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                            <div class="w-full border-t border-gray-300"></div>
+                          </div>
+                        </li>
+                      </template>
+                    </ul>
+                  </template>-->
+                  <template v-if="sortedEmailList.length > 0">
+                    <ul class="space-y-4 pr-4">
+                      <template v-for="(email, index) in sortedEmailList" :key="email.id">
+                        <li class="flex justify-between items-center py-4 email-item">
+                          <div class="flex flex-col justify-center">
+                            <span class="font-bold text-sm">
+                              {{ email.sender.name }}
+                              ({{ email.sender.email }})
+                            </span>
+                            <span class="text-sm">{{ email.subject }} - {{ email.oneLineSummary }}</span>
+                            <div class="mt-1 space-x-2">
+                              <!-- Priority flag -->
+                              <span v-if="email.priority === 'important'" class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">Important</span>
+                              <span v-else-if="email.priority === 'informative'" class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Informative</span>
+                              <span v-else class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">Useless</span>
+                              
+                              <!-- Category flag (always gray) -->
+                              <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{ email.category }}</span>
+                            </div>
+                          </div>
+
+                          <span class="isolate inline-flex items-center rounded-2xl">
+                            <div class="relative group">
+                              <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                                <EyeIcon class="w-5 h-5" />
+                                Voir
+                              </button>
+                            </div>
+                          </span>
+                        </li>
+
+                        <li v-if="index < sortedEmailList.length - 1" class="flex relative pt-2">
                           <div class="absolute inset-0 flex items-center" aria-hidden="true">
                             <div class="w-full border-t border-gray-300"></div>
                           </div>
@@ -742,6 +777,14 @@ const emailList = ref([]);
 
 const selectedFromPerson = ref(null)
 const selectedFromAddresses = ref([])
+
+// To sort the emailList corretly
+const sortedEmailList = computed(() => {
+  return [...emailList.value].sort((a, b) => {
+    const priorityOrder = { important: 0, informative: 1, useless: 2 };
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+});
 
 /************************************* For dropdown button next to manual search input **************************************/
 const isOpen = ref(false)
@@ -1024,23 +1067,30 @@ async function handleAIClick() {
     } else if (result.message) {
       message = t('searchPage.notEnoughDataToAnswer');
     } else {
-      const { sure, answer, emails } = result.answer;
+      const { sure, answer, ids } = result.answer;
+      console.log(result.answer);
       message = answer;
 
-      if (!sure) {
-        // Limit to 25 results
-        const limitedEmails = emails.slice(0, 25);
-        message += "\n\n";
-        console.log(limitedEmails);
-        const emailDetails = await fetchEmailDetails(limitedEmails);
-        emailList.value = emailDetails;
-      }
+      // Limit to 25 results
+      const limitedEmails = ids.slice(0, 25);
+      const emailDetails = await fetchEmailDetails(limitedEmails);
+      console.log(emailDetails);
+      emailList.value = Object.entries(emailDetails.data).flatMap(([category, priorities]) => 
+        Object.entries(priorities).flatMap(([priority, emails]) => 
+          emails.map(email => ({
+            ...email,
+            category: category,
+            priority: priority
+          }))
+        )
+      );
+      //emailList.value = emailDetails;
     }
 
     await displayMessage(message, aiIcon);
   } catch (error) {
     console.error('Error fetching AI response:', error);
-    await displayMessage( t('searchPage.anErrorOccuredDuringSmartSearch') , aiIcon);
+    await displayMessage(t('searchPage.anErrorOccuredDuringSmartSearch') , aiIcon);
   } finally {
     hideLoading();
     isAIWriting.value = false;
@@ -1054,12 +1104,12 @@ async function fetchEmailDetails(emailIds) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      email_ids: emailIds
+      ids: emailIds
     }),
   };
 
   try {
-    const result = await fetchWithToken(`${API_BASE_URL}user/get_batch_emails/`, requestOptions);
+    const result = await fetchWithToken(`${API_BASE_URL}user/get_emails_data/`, requestOptions);
     console.log("RESULT :", result);
     return result;
   } catch (error) {
@@ -1081,11 +1131,12 @@ async function searchEmails() {
   // une case par compte à cocher (email)
   // un bouton cocher TOUS (email)
   const toAddressesSelected = selectedRecipients.value.map(recipient => recipient.email);
-  const from_addressesSelected = selectedFromAddresses.value.map(recipient => recipient.email);
+  const fromAddressesSelected = selectedFromAddresses.value.map(recipient => recipient.email);
   const emailsLinkedSelected = emailsLinked.value.map(e => e.email)
 
   loading();
   scrollToBottom();
+
 
   const requestOptions = {
     method: 'POST',
@@ -1093,23 +1144,40 @@ async function searchEmails() {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      emails: emailsLinkedSelected,
-      from_addresses: from_addressesSelected,
-      to_addresses: toAddressesSelected,
-      subject: "",
-      body: "",
-      date_from: "",
-      file_extensions: [fileExt],
+      resultPerPage: 25,
       advanced: false,
-      search_in: {},
-      query: query.value,
-      max_results: 100
+      subject: query.value,
+      senderEmail: query.value,
+      senderName: query.value,
     }),
   };
 
+  console.log("Sending request:", JSON.stringify(requestOptions.body));
+
   const result = await fetchWithToken(`${API_BASE_URL}user/emails/`, requestOptions);
-  searchResult.value = result;
+  console.log(result);
+  if (result.count > 0) {
+    const limitedEmails = result.ids.slice(0, 25);
+    const emailDetails = await fetchEmailDetails(limitedEmails);
+    emailList.value = Object.entries(emailDetails.data).flatMap(([category, priorities]) => 
+      Object.entries(priorities).flatMap(([priority, emails]) => 
+        emails.map(email => ({
+          ...email,
+          category: category,
+          priority: priority
+        }))
+      )
+    );
+  }
   hideLoading();
+
+  if (result.count == 1) {
+    await displayMessage(result.count+' email '+t('searchPage.oneDataFound'), aiIcon);
+  } else if (result.count > 1) {
+    await displayMessage(result.count+" emails "+t('searchPage.severalDataFound'), aiIcon);
+  } else {
+    await displayMessage(t('searchPage.noDataFound'), aiIcon);
+  }
 }
 
 async function Hide_filtres() {

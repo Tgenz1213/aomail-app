@@ -121,13 +121,14 @@ class Email(models.Model):
     )
     provider_id = models.CharField(max_length=200, unique=True)
     email_provider = models.CharField(max_length=50)
-    short_summary = models.CharField(max_length=1000, default='')
-    one_line_summary = models.CharField(max_length=200, default='')
+    short_summary = models.CharField(max_length=1000)
+    one_line_summary = models.CharField(max_length=200)
     html_content = models.TextField(default="")
     subject = models.CharField(max_length=400)
     priority = models.CharField(max_length=50)
     read = models.BooleanField(default=False)
     read_date = models.DateTimeField(null=True, default=None)
+    archive = models.BooleanField(default=False)
     answer_later = models.BooleanField(default=False)
     sender = models.ForeignKey(
         Sender, on_delete=models.CASCADE, related_name="related_emails"
@@ -135,14 +136,14 @@ class Email(models.Model):
     date = models.DateTimeField(null=True, blank=True)
     has_attachments = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    answer = models.CharField(max_length=50, default="")
-    relevance = models.CharField(max_length=50, default="")
+    answer = models.CharField(max_length=50)
+    relevance = models.CharField(max_length=50)
     spam = models.BooleanField(default=False)
     scam = models.BooleanField(default=False)
     newsletter = models.BooleanField(default=False)
     notification = models.BooleanField(default=False)
     meeting = models.BooleanField(default=False)
-
+    
 
 class Attachment(models.Model):
     mail_id = models.ForeignKey(

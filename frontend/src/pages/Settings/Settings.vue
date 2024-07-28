@@ -713,7 +713,7 @@
 </template>
 
 <script setup>
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 

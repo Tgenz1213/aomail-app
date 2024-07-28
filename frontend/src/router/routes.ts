@@ -15,120 +15,130 @@ import NotFound from "@/pages/Errors/404NotFound.vue"
 import NotAuthorized from "@/pages/Errors/401NotAuthorized.vue"
 import PasswordResetLink from "@/pages/ResetPassword/PasswordResetLink.vue"
 import ResetPasswordForm from "@/pages/ResetPassword/ResetPasswordForm.vue"
+import { Component } from "vue"
 
-const login = {
+export interface RouteConfig {
+    path: string
+    name: string
+    meta?: {
+        requiresAuth?: boolean
+    }
+    component: Component
+}
+
+const login: RouteConfig = {
     path: "/",
     name: "login",
     component: Login,
 }
 
-const signUp = {
+const signUp: RouteConfig = {
     path: "/signup",
     name: "signup",
     component: SignUp,
 }
 
-const signUpLink = {
+const signUpLink: RouteConfig = {
     path: "/signup_part2", // TODO: (only Augustin & Théo): rename as signup-link (but not now because we also need to change in Google Project & Azure)
     name: "signupLink",
     component: SignupLink,
 }
 
-const home = {
+const home: RouteConfig = {
     path: "/home",
     name: "home",
     meta: { requiresAuth: true },
     component: Home,
 }
 
-const newRoute = {
+const newRoute: RouteConfig = {
     path: "/new",
     name: "new",
     meta: { requiresAuth: true },
     component: New,
 }
 
-const answer = {
+const answer: RouteConfig = {
     path: "/answer",
     name: "answer",
     meta: { requiresAuth: true },
     component: Answer,
 }
 
-const transfer = {
+const transfer: RouteConfig = {
     path: "/transfer",
     name: "transfer",
     meta: { requiresAuth: true },
     component: Transfer,
 }
 
-const search = {
+const search: RouteConfig = {
     path: "/search",
     name: "search",
     meta: { requiresAuth: true },
     component: Search,
 }
 
-const replyLater = {
+const replyLater: RouteConfig = {
     path: "/reply-later",
     name: "reply-later",
     meta: { requiresAuth: true },
     component: ReplyLater,
 }
 
-const rules = {
+const rules: RouteConfig = {
     path: "/rules",
     name: "rules",
     meta: { requiresAuth: true },
     component: Rules,
 }
 
-const settings = {
+const settings: RouteConfig = {
     path: "/settings",
     name: "settings",
     meta: { requiresAuth: true },
     component: Settings,
 }
 
-const stripePaymentFailed = {
+const stripePaymentFailed: RouteConfig = {
     path: "/stripe/payment-failed/",
     name: "stripe-payment-failed",
     meta: { requiresAuth: true },
     component: StripePaymentFailed,
 }
 
-const stripePaymentSuccess = {
+const stripePaymentSuccess: RouteConfig = {
     path: "/stripe/payment-successful/",
     name: "stripe-payment-successful",
     meta: { requiresAuth: true },
     component: StripePaymentSuccess,
 }
 
-const passwordResetLink = {
+const passwordResetLink: RouteConfig = {
     path: "/password-reset-link",
     name: "password-reset-link",
     component: PasswordResetLink,
 }
 
-const resetPasswordForm = {
+const resetPasswordForm: RouteConfig = {
     path: "/reset-password-form",
     name: "reset-password-form",
     component: ResetPasswordForm,
 }
 
-const notAuthorized = {
+const notAuthorized: RouteConfig = {
     path: "/not-authorized",
     name: "not-authorized",
     component: NotAuthorized,
 }
 
-const notFound = {
+const notFound: RouteConfig = {
     path: "/:catchAll(.*)",
     name: "not-found",
     component: NotFound,
 }
 
-const routes = [
+const routes: RouteConfig[] = [
     login,
     signUp,
     signUpLink,

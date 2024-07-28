@@ -38,7 +38,7 @@
 import { ref, watch } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { fetchWithToken } from '../router/index.js';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
 import moment from 'moment-timezone';
 import { useI18n } from 'vue-i18n';

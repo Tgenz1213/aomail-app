@@ -1597,7 +1597,7 @@
 </template>
 
 <script setup>
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {

@@ -116,7 +116,7 @@
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
 import ShowNotification from '../components/ShowNotification.vue';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import {
   Combobox,
   ComboboxButton,

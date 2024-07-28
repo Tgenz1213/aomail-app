@@ -555,7 +555,7 @@
 import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/NotificationTimer.vue';
 import { useRouter } from 'vue-router';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import { useI18n } from 'vue-i18n';
 
 // Use i18n

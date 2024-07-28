@@ -38,8 +38,13 @@
 import { ref, watch } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { fetchWithToken } from '../router/index.js';
+<<<<<<< HEAD
 import { API_BASE_URL } from '@/main';
 import i18n from '@/main';
+=======
+import { API_BASE_URL } from '@/main.jts';
+import i18n from '@/main.jts';
+>>>>>>> d03fc83b (🔃 refactor: add tsconfig.json + fix packages dependencies)
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
 import { useI18n } from 'vue-i18n';
 

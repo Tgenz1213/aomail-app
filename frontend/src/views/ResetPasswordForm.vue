@@ -49,7 +49,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue"
-import { API_BASE_URL } from "@/main"
+import { API_BASE_URL } from "@/main.jts"
 import { useRouter } from "vue-router"
 import ShowNotification from "../components/ShowNotification.vue"
 

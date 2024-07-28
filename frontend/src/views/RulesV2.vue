@@ -138,7 +138,7 @@ import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeRule from '../components/SeeRule.vue';
 import UpdateRule from '../components/UpdateRule.vue';
 import { fetchWithToken } from '../router/index.js';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import {
   ArchiveBoxIcon,
   ExclamationCircleIcon,

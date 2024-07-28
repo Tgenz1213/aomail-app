@@ -73,7 +73,7 @@ import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/NotificationTimer.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 
 
 const router = useRouter();

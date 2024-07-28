@@ -3,65 +3,62 @@
 // We MUST change fetchWithToken to return the complete result of the fetch
 // it will allow to check the status code instead of if response.message == "aLongStringThatMayChange"
 // EDIT: done => must change everywhere we use the function fetchWithToken
+
+EXPORT redirection function after 5sec
 */
 
-import router from "@/router/router.js"
-import { API_BASE_URL, BASE_URL } from "./const.js"
-import { ref } from "vue"
+import router from "@/router/router"
+import { API_BASE_URL, BASE_URL } from "./const"
 
-export function useRedirectCountdown(routeName, countdownTime = 5) {
-    const countdown = ref(countdownTime)
-
-    const updateCountdown = () => {
-        countdown.value--
-
-        if (countdown.value < 0) {
-            router.push({ name: routeName })
-        } else {
-            setTimeout(updateCountdown, 1000)
-        }
-    }
-
-    const startCountdown = () => {
-        updateCountdown()
-    }
-
-    return {
-        countdown,
-        startCountdown,
-    }
+interface AuthResponse {
+    isAuthenticated: boolean
 }
 
-export async function isUserAuthenticated() {
+interface RefreshTokenResponse {
+    access_token: string
+}
+
+export async function isUserAuthenticated(): Promise<boolean> {
     const access_token = localStorage.getItem("access_token")
+    if (!access_token) {
+        return false
+    }
+
     try {
-        const requestOptions = {
+        const requestOptions: RequestInit = {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${access_token}`,
             },
         }
-        let response = await fetchWithToken(`${API_BASE_URL}api/is_authenticated/`, requestOptions)
-        const data = await response.json()
 
-        if (data.isAuthenticated === true) {
-            return true
-        } else {
+        const response = await fetchWithToken(
+            `${API_BASE_URL}api/is_authenticated/`,
+            requestOptions
+        )
+        if (!response) {
             return false
         }
+
+        const data: AuthResponse = await response.json()
+        return data.isAuthenticated === true
     } catch (error) {
         return false
     }
 }
 
-export async function fetchWithToken(url, options = {}) {
+export async function fetchWithToken(
+    url: string,
+    options: RequestInit = {}
+): Promise<Response | void> {
     const accessToken = localStorage.getItem("access_token")
 
     if (!options.headers) {
         options.headers = {}
     }
+
     if (accessToken) {
-        options.headers["Authorization"] = `Bearer ${accessToken}`
+        ;(options.headers as Record<string, string>)["Authorization"] = `Bearer ${accessToken}`
     } else {
         window.location.href = `${BASE_URL}`
         return
@@ -80,10 +77,12 @@ export async function fetchWithToken(url, options = {}) {
             })
 
             if (refreshResponse.ok) {
-                const refreshData = await refreshResponse.json()
+                const refreshData: RefreshTokenResponse = await refreshResponse.json()
                 const newAccessToken = refreshData.access_token
                 localStorage.setItem("access_token", newAccessToken)
-                options.headers["Authorization"] = `Bearer ${newAccessToken}`
+                ;(options.headers as Record<string, string>)[
+                    "Authorization"
+                ] = `Bearer ${newAccessToken}`
                 response = await fetch(url, options)
             } else {
                 router.push({ name: "not-authorized" })
@@ -92,6 +91,9 @@ export async function fetchWithToken(url, options = {}) {
 
         return response
     } catch (error) {
-        throw error
+        if (error instanceof Error) {
+            console.error("An error occurred when fetching data from the API:", error.message)
+        }
+        return
     }
 }

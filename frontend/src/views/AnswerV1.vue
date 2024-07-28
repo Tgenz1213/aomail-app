@@ -273,7 +273,7 @@ import { ChevronDownIcon } from '@heroicons/vue/20/solid';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
 import { fetchWithToken } from '../router/index.js';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import Quill from 'quill';
 import ShowNotification from '../components/ShowNotification.vue';
 import {

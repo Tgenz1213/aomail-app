@@ -36,7 +36,7 @@
 import { ref } from "vue"
 import { useRouter } from "vue-router"
 import ShowNotification from "../components/ShowNotification.vue"
-import { API_BASE_URL } from "@/main"
+import { API_BASE_URL } from "@/main.jts"
 
 const isModalOpen = ref(true)
 const email = ref("")

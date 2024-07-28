@@ -59,7 +59,7 @@ import { fetchWithToken } from '../router/index.js';
 import { ref } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { onMounted } from 'vue';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import { useI18n } from 'vue-i18n';
 
 // Use i18n

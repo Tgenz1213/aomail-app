@@ -637,7 +637,7 @@ import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import {
   Combobox,
   ComboboxButton,

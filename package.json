@@ -1,9 +1,16 @@
 {
-  "devDependencies": {
-    "@types/quill": "^2.0.14",
-    "eslint-plugin-vue": "^9.22.0"
-  },
-  "dependencies": {
-    "vue-i18n": "^10.0.0-alpha.5"
-  }
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "@types/quill": "^2.0.14",
+        "@types/vue": "^2.0.0",
+        "@vue/cli-plugin-typescript": "~5.0.0",
+        "eslint-plugin-vue": "^9.22.0",
+        "typescript": "^5.5.4"
+    },
+    "dependencies": {
+        "@types/vue-router": "^2.0.0",
+        "vue": "^3.4.34",
+        "vue-i18n": "^10.0.0-alpha.5",
+        "vue-router": "^4.4.0"
+    }
 }

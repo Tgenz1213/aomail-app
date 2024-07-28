@@ -35,8 +35,13 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
-import ShowNotification from "../components/NotificationTimer.vue"
+<<<<<<< Updated upstream
+import ShowNotification from "../components/ShowNotification.vue"
 import { API_BASE_URL } from "@/main"
+=======
+import ShowNotification from "../components/NotificationTimer.vue"
+import { API_BASE_URL } from "@/main.jts"
+>>>>>>> Stashed changes
 
 const isModalOpen = ref(true)
 const email = ref("")

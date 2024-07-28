@@ -95,7 +95,7 @@
 </template>
 
 <script setup>
-import i18n from '@/main.js'
+import i18n from '@/main.jts'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router';
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from '@headlessui/vue'

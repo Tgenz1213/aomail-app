@@ -743,7 +743,7 @@ import TimeZone from '../components/SettingsTimeZoneSignUp.vue';
 import { ref, onMounted } from 'vue';
 import Theme from '../components/SettingsThemeSignUp.vue';
 import Color from '../components/SettingsColor.vue';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';

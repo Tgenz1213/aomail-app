@@ -358,7 +358,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import Quill from 'quill';
-import { API_BASE_URL } from '@/main';
+import { API_BASE_URL } from '@/main.jts';
 import {
     Combobox,
     ComboboxButton,

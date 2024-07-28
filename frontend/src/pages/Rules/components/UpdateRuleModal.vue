@@ -125,7 +125,11 @@
 import { fetchWithToken } from '../router/index.js';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
+<<<<<<< HEAD
 import { API_BASE_URL } from '@/main';
+=======
+import { API_BASE_URL } from '@/main.jts';
+>>>>>>> d03fc83b (🔃 refactor: add tsconfig.json + fix packages dependencies)
 import ShowNotification from '../components/ShowNotification.vue';
 import {
   Combobox,

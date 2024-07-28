@@ -34,7 +34,11 @@
 
 <script setup>
 import { ref, watch } from 'vue';
+<<<<<<< HEAD
 import i18n from '@/main';
+=======
+import i18n from '@/main.jts';
+>>>>>>> d03fc83b (🔃 refactor: add tsconfig.json + fix packages dependencies)
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from '@headlessui/vue';
 
 // Language options

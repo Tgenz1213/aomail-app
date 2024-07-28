@@ -65,7 +65,11 @@
 import { fetchWithToken } from '../router/index.js';
 import { ref, watch } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
+<<<<<<< HEAD
 import { API_BASE_URL } from '@/main';
+=======
+import { API_BASE_URL } from '@/main.jts';
+>>>>>>> d03fc83b (🔃 refactor: add tsconfig.json + fix packages dependencies)
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 

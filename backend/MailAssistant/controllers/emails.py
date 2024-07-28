@@ -91,7 +91,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
     if mail_id:
         if type_api == GOOGLE:
             services = auth_google.authenticate_service(user, email_user)
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date = (
                 email_operations_google.get_mail(services, None, mail_id)
             )
         elif type_api == MICROSOFT:

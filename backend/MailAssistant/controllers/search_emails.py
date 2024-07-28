@@ -79,6 +79,7 @@ def get_emails_data(request: HttpRequest) -> Response:
                     "email": email.sender.email,
                     "name": email.sender.name,
                 },
+                "id_provider": email.provider_id,
                 "shortSummary": email.short_summary,
                 "oneLineSummary": email.one_line_summary,
                 "cc": [

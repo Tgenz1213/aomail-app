@@ -726,6 +726,7 @@ import { ref, computed, nextTick, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
 import ModalSeeMail from '../components/SeeMailV2.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
+import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '@/main';
 import {
   Combobox,
@@ -740,6 +741,9 @@ import { useI18n } from 'vue-i18n';
 
 // Use i18n
 const { t } = useI18n();
+
+// Router
+const router = useRouter();
 
 // Variables to display a notification
 let showNotification = ref(false);
@@ -851,6 +855,7 @@ function closeSeeModal() {
     isModalSeeOpen.value = false;
 }
 async function openAnswer(email) {
+    // THIS IS NOT NEEDED => TO UPDATE
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
     try {

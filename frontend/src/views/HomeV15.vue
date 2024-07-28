@@ -1901,9 +1901,6 @@ async function transferEmail(email) {
             }
         });
 
-
-
-
         sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
         sessionStorage.setItem("cc", data.email.cc);
         sessionStorage.setItem("bcc", data.email.bcc);

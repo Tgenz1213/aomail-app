@@ -679,7 +679,7 @@
 
                           <span class="isolate inline-flex items-center rounded-2xl">
                             <div class="relative group">
-                              <button class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
+                              <button @click.stop="openMail(email.id)" class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center">
                                 <EyeIcon class="w-5 h-5" />
                                 Voir
                               </button>
@@ -715,6 +715,8 @@
       </div>
 
     </div>
+    <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @closeSeeModal="closeSeeModal"
+      @openAnswer="openAnswer" @openRuleEditor="openRuleEditor" @openNewRule="openNewRule" @markEmailAsRead="markEmailAsRead" @markEmailReplyLater="markEmailReplyLater" @transferEmail="transferEmail" />
     </div>
 </template>
 
@@ -722,8 +724,7 @@
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue';
 import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
-import SearchbarV2 from '../components/SearchbarV2.vue'
+import ModalSeeMail from '../components/SeeMailV2.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 import {
@@ -804,6 +805,177 @@ const sortedEmailList = computed(() => {
     return priorityOrder[a.priority] - priorityOrder[b.priority];
   });
 });
+
+// Modal SeeMail
+let isModalSeeOpen = ref(false);
+let selectedEmail = ref(null);
+
+/******************************************************** See Modal *********************************************************/
+async function openMail(emailId) {
+  try {
+    const htmlContent = await fetchEmailContent(emailId);
+    const emailIndex = emailList.value.findIndex(email => email.id === emailId);
+    
+    if (emailIndex !== -1) {
+      emailList.value[emailIndex] = {
+        ...emailList.value[emailIndex],
+        html_content: htmlContent
+      };
+      
+      selectedEmail.value = emailList.value[emailIndex];
+      console.log("EMAIL", selectedEmail.value)
+      isModalSeeOpen.value = true;
+    } else {
+      console.error(`Email with id ${emailId} not found.`);
+    }
+  } catch (error) {
+    console.error(`Error fetching email content: ${error}`);
+  }
+}
+function closeSeeModal() {
+    isModalSeeOpen.value = false;
+}
+async function openAnswer(email) {
+    const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
+
+    try {
+        const data = await fetchWithToken(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+
+        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
+        sessionStorage.setItem("cc", data.email.cc);
+        sessionStorage.setItem("bcc", data.email.bcc);
+        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
+        sessionStorage.setItem("email", JSON.stringify(email.email));
+        sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
+        sessionStorage.setItem("details", JSON.stringify(email.details));
+        sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+
+        console.log("_____________data.email.cc______________", data.email.cc)
+        console.log("_____________data.email.bcc______________", data.email.bcc)
+
+        router.push({
+            name: 'answer'
+        });
+    } catch (error) {
+        console.error("There was a problem with the fetch operation:", error.message);
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = t('constants.popUpConstants.openReplyPageFailure');
+        notificationMessage = error.message;
+        displayPopup();
+    }
+}
+function openRuleEditor(ruleId) {
+    if (ruleId) {
+        router.push({ name: 'rules', query: { id_rule: ruleId, edit_rule: true } });
+    }
+}
+function openNewRule(ruleName, ruleEmail) {
+    if (ruleName && ruleEmail) {
+        router.push({ name: 'rules', query: { rule_name: ruleName, rule_email: ruleEmail, edit_rule: false } });
+    }
+}
+async function markEmailAsRead(emailId) {
+    lockEmailsAccess.value = true;
+    updateEmailReadStatus(emailId);
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_read/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.read != true) {
+            console.log("RESPONSE", response);
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle = t('homepage.markEmailReadFailure');
+            notificationMessage = response;
+            displayPopup();
+        }
+    } catch (error) {
+        console.error('Error in markEmailAsRead:', error.message);
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = t('homepage.markEmailReadFailure');
+        notificationMessage = error.message;
+        displayPopup();
+    }
+    lockEmailsAccess.value = false;
+}
+async function markEmailReplyLater(email) {
+    lockEmailsAccess.value = true;
+    const emailId = email.id
+    email.answer_later = true;
+    isMenuOpen.value = false;
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply-later/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        if (response.answer_later) {
+            console.log("Email marked for reply later successfully");
+        } else {
+            console.error('Failed to mark email for reply later', response);
+            backgroundColor = 'bg-red-200/[.89] border border-red-400';
+            notificationTitle = t('homepage.markEmailReplyLaterFailure');
+            notificationMessage = response;
+            displayPopup();
+        }
+    } catch (error) {
+        console.error('Error in markEmailReplyLater:', error.message);
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = t('homepage.markEmailReplyLaterFailure');
+        notificationMessage = error.message;
+        displayPopup();
+    }
+    lockEmailsAccess.value = false;
+}
+async function transferEmail(email) {
+    const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
+
+    try {
+        const data = await fetchWithToken(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
+        sessionStorage.setItem("cc", data.email.cc);
+        sessionStorage.setItem("bcc", data.email.bcc);
+        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
+        sessionStorage.setItem("email", JSON.stringify(email.email));
+        sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
+        sessionStorage.setItem("details", JSON.stringify(email.details));
+        sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+        sessionStorage.setItem("date", JSON.stringify(data.email.date));
+
+
+        console.log("_____________data.email.cc______________", data.email.cc)
+        console.log("_____________data.email.bcc______________", data.email.bcc)
+
+        router.push({
+            name: 'transfer'
+        });
+
+    } catch (error) {
+        console.error("There was a problem with the fetch operation:", error.message);
+        backgroundColor = 'bg-red-200/[.89] border border-red-400';
+        notificationTitle = t('homepage.transferEmailFailure');
+        notificationMessage = error.message;
+        displayPopup();
+    }
+}
 
 /************************************* For dropdown button next to manual search input **************************************/
 const isOpen = ref(false)
@@ -1135,6 +1307,27 @@ async function fetchEmailDetails(emailIds) {
     return result;
   } catch (error) {
     console.error('Error fetching email details:', error);
+    return [];
+  }
+}
+
+async function fetchEmailContent(emailId) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      id: emailId
+    }),
+  };
+
+  try {
+    const result = await fetchWithToken(`${API_BASE_URL}user/get_email_content/`, requestOptions);
+    console.log("RESULT :", result);
+    return result.content;
+  } catch (error) {
+    console.error('Error fetching email HTML content:', error);
     return [];
   }
 }

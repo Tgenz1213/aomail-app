@@ -22,8 +22,8 @@
               <div class="flex">
                 <div class="flex flex-col gap-y-0">
                   <div class="flex items-center gap-x-2">
-                    <p class="text-gray-600 font-semibold">{{ email.name }}</p>
-                    <p class="text-gray-600 text-sm">&lt;{{ email.email }}&gt;</p>
+                    <p class="text-gray-600 font-semibold">{{ email.sender.name }}</p>
+                    <p class="text-gray-600 text-sm">&lt;{{ email.sender.email }}&gt;</p>
                   </div>
                   <!-- <div class="flex items-center gap-x-2">
                     <p class="text-gray-600 font-semibold">CC : </p>
@@ -36,8 +36,13 @@
                           class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
                           {{ $t('homePage.seeEmailModal.moreActions') }} 
                       </div>
-                      <div class="flex justify-center">
-                        <span class="isolate inline-flex rounded-2xl">
+                      <div class="flex gap-x-1 justify-center">
+                        <span v-if="email.priority === 'important'" class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10">Important</span>
+                        <span v-else-if="email.priority === 'informative'" class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Informative</span>
+                        <span v-else class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">Useless</span>
+                              
+                        <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{ email.category }}</span>
+                        <span class="isolate inline-flex">
                           
                           <div class="group action-buttons">
                             <div class="relative group">
@@ -49,9 +54,9 @@
                                 <button
                                     @click="markEmailAsRead(email.id)"
                                     type="button"
-                                    class="relative inline-flex items-center rounded-l-2xl px-1.5 py-1 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                    class="relative inline-flex items-center rounded-l-md px-1.5 py-1 text-sm font-semibold text-gray-400 border border-gray-600 hover:bg-gray-600 focus:z-10">
                                     <check-icon
-                                    class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
+                                    class="w-5 h-5 group-hover:text-white text-gray-600 group-active:text-gray-600 group-focus:text-grey focus:text-gray-600" />
                                 </button>
                             </div>
                         </div>
@@ -64,9 +69,9 @@
                               </div>
                               <button @click="openAnswer(email)"
                                   type="button"
-                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 border-r border-t border-b border-gray-600 hover:bg-gray-600 focus:z-10">
                                   <arrow-uturn-left-icon
-                                  class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
+                                  class="w-5 h-5 group-hover:text-white text-gray-600 group-active:text-gray-600 group-focus:text-grey focus:text-gray-600" />
                               </button>
                           </div>
                       </div>
@@ -79,9 +84,9 @@
                               </div>
                               <button @click="openRuleEditor"
                                   type="button"
-                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                  class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 border-t border-b border-gray-600 hover:bg-gray-600 focus:z-10">
                                   <BeakerIcon
-                                  class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
+                                  class="w-5 h-5 group-hover:text-white text-gray-600 group-active:text-gray-600 group-focus:text-grey focus:text-gray-600" />
                               </button>
                           </div>
                       </div>
@@ -96,9 +101,9 @@
                                       <div>
                                           <MenuButton
                                               @click="toggleTooltip"
-                                              class="relative inline-flex items-center rounded-r-2xl px-1.5 py-1 font-semibold text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
+                                              class="relative inline-flex items-center rounded-r-md px-1.5 py-1 font-semibold text-gray-400 border border-gray-600 hover:bg-gray-600 focus:z-10">
                                               <ellipsis-horizontal-icon
-                                              class="w-5 h-5 group-hover:text-white text-grey-400 group-active:text-grey-400 group-focus:text-grey focus:text-grey-400" />
+                                              class="w-5 h-5 group-hover:text-white text-gray-600 group-active:text-gray-600 group-focus:text-grey focus:text-gray-600" />
                                           </MenuButton>
                                         </div>
                                         <transition
@@ -114,7 +119,7 @@
                                                     <MenuItem
                                                         v-slot="{ active }">
                                                     <a @click.prevent="markEmailReplyLater(email)"
-                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                        :class="[active ? 'bg-gray-100 text-gray-600' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                         <span
                                                             class="flex gap-x-2 items-center">
                                                             <svg class="w-4 h-4"
@@ -142,7 +147,7 @@
                                                     <MenuItem
                                                         v-slot="{ active }">
                                                     <a @click.prevent="transferEmail(email)"
-                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                                                        :class="[active ? 'bg-gray-100 text-gray-600' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                         <span
                                                             class="flex gap-x-2 items-center">
                                                             <svg class="w-4 h-4"

@@ -741,12 +741,13 @@ import { useI18n } from 'vue-i18n';
 // Use i18n
 const { t } = useI18n();
 
+// Variables to display a notification
 let showNotification = ref(false);
+let selectedEmailId = ref('');
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
 let timerId = ref(null);
-
 
 // Main variables
 const AIContainer = ref(null);
@@ -811,6 +812,20 @@ let isModalSeeOpen = ref(false);
 let selectedEmail = ref(null);
 
 /******************************************************** See Modal *********************************************************/
+function dismissPopup() {
+    showNotification = false;
+    // Cancel the timer
+    clearTimeout(timerId);
+}
+
+function displayPopup() {
+    showNotification = true;
+
+    timerId = setTimeout(() => {
+        dismissPopup();
+    }, 4000);
+}
+
 async function openMail(emailId) {
   try {
     const htmlContent = await fetchEmailContent(emailId);
@@ -881,9 +896,6 @@ function openNewRule(ruleName, ruleEmail) {
     }
 }
 async function markEmailAsRead(emailId) {
-    lockEmailsAccess.value = true;
-    updateEmailReadStatus(emailId);
-
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_read/`, {
             method: 'POST',
@@ -906,7 +918,6 @@ async function markEmailAsRead(emailId) {
         notificationMessage = error.message;
         displayPopup();
     }
-    lockEmailsAccess.value = false;
 }
 async function markEmailReplyLater(email) {
     lockEmailsAccess.value = true;
@@ -1537,19 +1548,6 @@ function hideLoading() {
   if (loadingElement) {
     loadingElement.remove();
   }
-}
-
-
-function dismissPopup() {
-  showNotification = false;
-  clearTimeout(timerId);
-}
-
-function displayPopup() {
-  showNotification = true;
-  timerId = setTimeout(() => {
-    dismissPopup();
-  }, 4000);
 }
 </script>
 

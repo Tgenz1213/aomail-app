@@ -711,13 +711,13 @@
               </div>
 
 
+          </div>
         </div>
-      </div>
 
+      </div>
     </div>
     <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @closeSeeModal="closeSeeModal"
       @openAnswer="openAnswer" @openRuleEditor="openRuleEditor" @openNewRule="openNewRule" @markEmailAsRead="markEmailAsRead" @markEmailReplyLater="markEmailReplyLater" @transferEmail="transferEmail" />
-    </div>
 </template>
 
 

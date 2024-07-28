@@ -1,7 +1,7 @@
 <template>
   <transition name="modal-fade">
     <div @click.self="closeModal"
-      class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
+      class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center" v-if="isOpen">
       <div class="bg-white rounded-lg relative w-[800px] h-[600px] 2xl:w-[900px] 2xl:h-[800px]">
         <slot></slot>
         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">

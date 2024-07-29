@@ -71,7 +71,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/NotificationTimer.vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '@/main.jts';
 
@@ -137,25 +136,20 @@ async function login() {
     }
 
     try {
-        // TODO: use fetch not axios for consistency
-        const response = await axios.post(`${API_BASE_URL}api/login/`, {
-            username: username.value,
-            password: password.value
+        const response = await fetch(`${API_BASE_URL}api/login/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                username: username.value,
+                password: password.value
+            }),
         });
 
         if (response.status === 200) {
             const access_token = response.data.access_token;
             localStorage.setItem('access_token', access_token);
-
-            // Fetch color
-            const colorResponse = await axios.get(`${API_BASE_URL}user/preferences/bg_color/`, {
-                headers: { Authorization: `Bearer ${access_token}` }
-            });
-
-            const bgColor = colorResponse.data.bg_color;
-            localStorage.setItem('bgColor', bgColor);
-
-            // Redirect to home page after successful login
             router.push({ name: 'home' });
         }
     } catch (error) {
@@ -172,7 +166,7 @@ async function login() {
 export default {
     data() {
         return {
-            logo: require('@/assets/logo-Aomail.png')
+            logo: require('@/assets/logo-aomail.png')
         };
     }
 }

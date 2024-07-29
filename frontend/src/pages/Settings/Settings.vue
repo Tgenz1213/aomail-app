@@ -1039,36 +1039,6 @@ function setActiveSection(section) {
     activeSection.value = section;
 }
 
-async function handleColorChange(newColor) {
-
-    // this is directly linked to the ref bgColor in Vue template
-    bgColor.value = newColor;
-
-    const data = {
-        bg_color: newColor
-    };
-
-    const apiUrl = `${API_BASE_URL}user/preferences/set_bg_color/`;
-
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    };
-
-    try {
-        const response = await fetchWithToken(apiUrl, requestOptions);
-
-        if (response.bg_color) {
-            localStorage.setItem('bgColor', newColor);
-        }
-    } catch (error) {
-        console.error("Error updating background", error);
-    }
-}
-
 async function fetchUserData() {
     const requestOptions = {
         headers: {

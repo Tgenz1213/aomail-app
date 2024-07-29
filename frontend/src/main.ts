@@ -1,9 +1,9 @@
 import { createApp } from "vue"
 import App from "./App.vue"
 import "./assets/css/tailwind.css"
-import router from "./router"
 import { I18n } from "vue-i18n"
 import { i18n, initializePreferences } from "./global/Settings/preferences"
+import router from "./router/router"
 
 const app = createApp(App)
 app.use(router)

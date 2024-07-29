@@ -546,10 +546,10 @@ const AIContainer = ref(null);
 let stepcontainer = 0;
 const objectInput = ref(null);
 const mailInput = ref(null);
-//const new_idea_icon = ref(require('@/assets/new_idea.png'));
-const prompt_error_icon = ref(require('@/assets/prompt_error.png'));
-const happy_icon = ref(require('@/assets/happy.png'));
-const neutral_icon = ref(require('@/assets/neutral.png'));
+//const new_idea_icon = ref(require('@/assets/ao-new-idea.png'));
+const prompt_error_icon = ref(require('@/assets/ao-prompt-error.png'));
+const happy_icon = ref(require('@/assets/ao-happy.png'));
+const neutral_icon = ref(require('@/assets/ao-neutral.png'));
 
 let counter_display = 0; // to create the animation of the text displayed
 

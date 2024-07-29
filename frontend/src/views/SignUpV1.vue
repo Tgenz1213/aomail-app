@@ -1072,7 +1072,7 @@ export default {
   },
   data() {
     return {
-      logo: require('@/assets/logo-Aomail.png')
+      logo: require('@/assets/logo-aomail.png')
     };
   }
 }

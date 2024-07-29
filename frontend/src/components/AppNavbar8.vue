@@ -67,11 +67,11 @@
         </div>
     </div>-->
     <div class="flex flex-col items-center justify-center h-full">
-      <!-- LOGO Mail Assistant -->
+      <!-- Aomail logo -->
       <div class="flex h-16 shrink-0 items-center justify-center">
         <a href="/" class="button">
           <button type="button" class="h-8 w-auto">
-            <img class="h-8 w-auto" :src="logo" alt="LOGO Mail Assistant" />
+            <img class="h-8 w-auto" :src="logo" alt="Aomail logo" />
           </button>
         </a>
       </div>
@@ -129,7 +129,7 @@ const navigation = [
   { name: i18n.global.t('Global.Settings'), href: '/settings', icon: CogIcon },
 ]
 
-const logo = ref(require('@/assets/logo-Aomail.png'));
+const logo = ref(require('@/assets/logo-aomail.png'));
 const sidebarOpen = ref(false)
 </script>
 

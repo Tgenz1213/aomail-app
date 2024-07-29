@@ -1648,7 +1648,7 @@ let totalUnread = ref(0);
 let initialAnimationDone = ref(false);
 let isModalWarningCategoryOpen = ref(false)
 let nbRulesAssociated = ref(null);
-const happy_icon = ref(require('@/assets/happy.png'));
+const happy_icon = ref(require('@/assets/ao-happy.png'));
 let lockEmailsAccess = ref(false);
 
 
@@ -1660,7 +1660,7 @@ const toggleVisibility = () => {
 
 const downloadAttachment = async (emailId, attachmentName) => {
     try {
-        const response = await fetchWithTokenv2(`${API_BASE_URL}user/emails/${emailId}/attachments/${attachmentName}/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/attachments/${attachmentName}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -2602,7 +2602,7 @@ import ModalSeeMail from '../components/SeeMailV2.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
 import { ref, nextTick, onMounted } from 'vue';
-import { fetchWithToken, fetchWithTokenv2, getBackgroundColor } from '../router/index.js';
+import { fetchWithToken, fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
 //ChatBubbleOvalLeftEllipsisIcon,

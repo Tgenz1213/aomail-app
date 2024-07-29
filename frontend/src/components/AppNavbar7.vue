@@ -48,10 +48,10 @@
     </TransitionRoot>
 
     <div class="flex flex-col items-center justify-center h-full">
-      <!-- LOGO Mail Assistant -->
+      <!-- Aomail logo -->
       <a href="/" class="button">
         <button type="button" class="h-8 w-auto">
-          <img class="h-8 w-auto" :src="logo" alt="LOGO Mail Assistant" />
+          <img class="h-8 w-auto" :src="logo" alt="Aomail logo" />
         </button>
       </a>
       <nav class="h-5/6 flex items-center justify-center">
@@ -107,7 +107,7 @@ const navigation = [
   { name: i18n.global.t('Global.Settings'), href: '/settings', icon: CogIcon },
 ]
 
-const logo = ref(require('@/assets/logo-Aomail.png'));
+const logo = ref(require('@/assets/logo-aomail.png'));
 
 const sidebarOpen = ref(false)
 </script>

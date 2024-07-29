@@ -46,11 +46,6 @@ urlpatterns = [
     #----------------------- PREFERENCES -----------------------#
     path('user/preferences/update_username/', prefs.update_username, name='update_username'), # ok
     path('user/preferences/update_password/', prefs.update_password, name='update_password'), # ok
-
-    # TO DELETE
-    path('user/preferences/bg_color/', prefs.get_user_bg_color, name='get_user_bg_color'), # ok
-    path('user/preferences/set_bg_color/', prefs.set_user_bg_color, name='set_bg_color'), # ok
-
     path('user/preferences/language/', prefs.get_user_language, name='get_user_language'), # ok
     path('user/preferences/set_language/', prefs.set_user_language, name='set_user_language'), # ok
     path('user/preferences/theme/', prefs.get_user_theme, name='get_user_theme'), # ok

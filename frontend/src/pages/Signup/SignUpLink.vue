@@ -730,7 +730,7 @@ export default {
   data() {
     return {
       isOpen: false,
-      logo: require('@/assets/logo-Aomail.png')
+      logo: require('@/assets/logo-aomail.png')
     }
   },
   methods: {

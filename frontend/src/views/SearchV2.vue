@@ -27,7 +27,7 @@
         </div>
 
         <!-- AO AI Assistant -->
-        <div class="flex flex-1 flex-col divide-y">
+        <div class="flex flex-1 flex-col divide-y overflow-y-auto">
           <div class="overflow-y-auto flex-1" style="margin-right: 2px;" ref="scrollableDiv">
             <div class="px-10 py-4 2xl:px-13.5 2xl:py-6">
               <div class="flex-grow">

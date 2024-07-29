@@ -70,9 +70,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import ShowNotification from '../components/NotificationTimer.vue';
+import ShowNotification from '@/components/NotificationTimer.vue';
 import { useRouter } from 'vue-router';
-import { API_BASE_URL } from '@/main.jts';
+import { API_BASE_URL } from '@/global/const';
 
 
 const router = useRouter();
@@ -171,3 +171,13 @@ export default {
     }
 }
 </script>
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

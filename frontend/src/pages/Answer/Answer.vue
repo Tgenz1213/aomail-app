@@ -46,7 +46,6 @@
                   <select id="formalitySelect"
                     class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
                     <option value="very informal">{{ $t('newPage.informal') }}</option>
-                    <!--<option value="informal">Peu formel</option>-->
                     <option value="formal" selected>{{ $t('newPage.formal') }}</option>
                     <option value="very formal">{{ $t('newPage.veryFormal') }}</option>
                   </select>
@@ -69,7 +68,6 @@
       </div>
       <div id="secondMainColumn"
         class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
-        <!--xl:h-[695px] xl:w-[560px]-->
         <div class="flex flex-col h-full w-full">
           <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
             <div class="flex gap-x-3 items-center">
@@ -165,9 +163,6 @@
                         </Combobox>
                       </div>
                     </div>
-                    <!--<div class="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 w-full max-w-2xl">
-                                    <input type="text" name="username" id="userInput" autocomplete="username" class="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6" placeholder="janesmith">   
-                                </div>-->
                   </div>
                   <div class="flex gap-1 2xl:gap-2">
                     <button type="button" @click="toggleCC"
@@ -235,7 +230,7 @@
                   <Menu as="div" class="relative -ml-px block">
                     <MenuButton
                       class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3">
-                      <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                      
                       <span class="sr-only">{{ $t('newPage.openOptions') }}</span>
                       <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
                     </MenuButton>
@@ -272,15 +267,12 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { ChevronDownIcon } from '@heroicons/vue/20/solid';
 import { useRoute } from 'vue-router';
 import { useRouter } from 'vue-router';
-import { fetchWithToken } from '../router/index.js';
-import { API_BASE_URL } from '@/main.jts';
 import Quill from 'quill';
-import ShowNotification from '../components/NotificationTimer.vue/index.js';
+import ShowNotification from '@/components/NotificationTimer.vue';
 import {
   Combobox,
   ComboboxButton,
   ComboboxInput,
-  //ComboboxLabel,
   ComboboxOption,
   ComboboxOptions,
 } from '@headlessui/vue'
@@ -367,7 +359,7 @@ const selectedPerson = ref('');
 watch(selectedPerson, (newValue) => {
   console.log(selectedPerson);
   hasValueEverBeenEntered.value = true; // to make the icon disappear
-  //handleInputUpdate(selectedPerson.value.username);
+  
   emit('update:selectedPerson', newValue);
 })
 
@@ -450,7 +442,7 @@ function handleKeyDown(event) {
   }
 }
 
-// TO parse Email => TO CHECK
+
 function parseEmails(emailData) {
   console.log("parsing emails", emailData)
   if (!emailData) {
@@ -467,14 +459,7 @@ function parseEmails(emailData) {
         username: ''
       };
     });
-    // TODO: Handle the case where emailData is an array of tuples
-    // return emailData.map(data => {
-    //     const [name, email] = data;
-    //     return {
-    //         email: email || '',
-    //         username: name || (email.split('@')[0] || '')
-    //     };
-    // });
+    
   } else if (typeof emailData === 'object') {
     // Handle the case where emailData is a single tuple
     const [name, email] = emailData;
@@ -802,7 +787,6 @@ async function handleAIClick() {
             }),
           });
           hideLoading();
-          //subject.value = result.subject;
           mail.value = result.email_body;
           history.value = result.history;
           console.log("DEBUG ai conv step 1", result);
@@ -828,7 +812,6 @@ async function handleAIClick() {
             const quillEditorContainer = quill.value.root;
             quillEditorContainer.innerHTML = result.email_body;
 
-            // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = "TODO Est-ce que ce mail vous convient mieux ?";
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
             displayMessage(message, ai_icon);
@@ -866,16 +849,7 @@ function askContentAdvice() {
   const message = "TODO Comment puis-je vous aider à rédiger une réponse à cet email ?";
 
   let buttonsHTML = '';
-  /*
-  for (let i = 0; i < responseKeywords.value.length; i++) {
-      buttonsHTML += `
-          <div class="mr-4">
-              <button type="button" id="responseKeywordButton${i}" data-value="${responseKeywords.value[i]}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                  ${responseKeywords.value[i]}
-              </button>
-          </div>
-      `;
-  }*/
+  
 
   responseKeywords.value.forEach((keyword, index) => {
     // Start a new row for every two buttons
@@ -927,7 +901,7 @@ function askContentAdvice() {
       const keywordButton = document.getElementById(`responseKeywordButton${index}`);
       if (keywordButton) {
         keywordButton.addEventListener('click', () => {
-          //console.log('Button clicked with keyword:', keywordButton.getAttribute('data-value'));
+          
           handleButtonClick(keywordButton.getAttribute('data-value'));
         });
       }
@@ -938,7 +912,7 @@ function askContentAdvice() {
   counter_display += 1;
   animateText(message, animatedParagraph);
 
-  // TODO: add buttons and remove this question
+  
   const message2 = "Quelle longueur de mail et formalité souhaitez vous ?";
   const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
   displayMessage(message2, ai_icon);
@@ -1001,7 +975,7 @@ async function handleButtonClick(keyword) {
   }
 }
 
-// TO FIX : delete the INPUT subject or use both input
+
 async function fetchResponseKeywords(subject) {
   try {
     loading();
@@ -1014,7 +988,7 @@ async function fetchResponseKeywords(subject) {
     });
     hideLoading();
     console.log("DEBUG ANSWER PROPOSAL", data);
-    // Parsing the data to get a list  => TO UPGRADE
+    
     console.log("DEBUG 2", data.response_keywords);
     responseKeywords.value = data.response_keywords;
     console.log(typeof data.response_keywords);
@@ -1044,9 +1018,9 @@ function handleInputUpdateMailContent(newMessage) {
 }
 
 function askContentAdviceUser() {
-  // Your previous code to display the message when the component is mounted
-  const message = t('constants.sendEmailConstants.emailCompositionAssistance'); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
-
+  
+  const message = t('constants.sendEmailConstants.emailCompositionAssistance'); 
+  
   const messageHTML = `
       <div class="pb-12">
         <div class="flex">
@@ -1130,12 +1104,10 @@ async function checkSpelling() {
       }),
     });
     hideLoading();
-    //subject.value = result.corrected_subject; TO DELETE ?
-    //mail.value = result.corrected_body; TO DELETE ?
-    // retrieve num of corrections
+    
     console.log(result);
     if (result.corrected_subject && result.corrected_body) {
-      // TO FINISH => animation
+      
       const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
       const messageHTML = `
               <div class="flex pb-12">
@@ -1157,7 +1129,6 @@ async function checkSpelling() {
       const quillEditorContainer = quill.value.root;
       quillEditorContainer.innerHTML = result.corrected_body;
 
-      // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
       const message = "TODO J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
       displayMessage(message, ai_icon);
@@ -1193,12 +1164,10 @@ async function checkCopyWriting() {
       }),
     });
     hideLoading();
-    //subject.value = result.corrected_subject; TO DELETE ?
-    //mail.value = result.corrected_body; TO DELETE ?
-    // retrieve num of corrections
+    
     console.log(result);
     if (result.feedback_copywriting) {
-      // TO FINISH => animation
+      
       const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
 
       const messageHTML = `
@@ -1216,8 +1185,6 @@ async function checkCopyWriting() {
               </div>
           `;
       AIContainer.value.innerHTML += messageHTML;
-
-      // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
       const message = "TODO J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
       const messageHTML2 = `
               <div class="flex pb-12">
@@ -1257,8 +1224,8 @@ async function checkCopyWriting() {
 }
 
 async function WriteBetter() {
-  // THIS FUNCTION IS NOT WORKING: must implement api/improve_draft/  
-  // check NewV4.vue (must implement a system of memory)
+  // TODO for Jean & Théo: THIS FUNCTION IS NOT WORKING: must implement api/improve_draft/  
+  // check New.vue (must implement a system of memory)
   try {
     loading();
     scrollToBottom();
@@ -1278,7 +1245,7 @@ async function WriteBetter() {
     mail.value = result.email_body;
     console.log(result);
     if (result.subject && result.email_body) {
-      // TO FINISH => animation
+      
       const formattedMail = result.email_body.replace(/\n/g, '<br>');
       const messageHTML = `
             <div class="flex pb-12">
@@ -1300,7 +1267,6 @@ async function WriteBetter() {
       const quillEditorContainer = quill.value.root;
       quillEditorContainer.innerHTML = result.email_body;
 
-      // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
       const message = "TODO Est-ce que ce mail vous convient mieux ?";
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
       displayMessage(message, ai_icon);
@@ -1326,8 +1292,8 @@ async function WriteBetter() {
 const router = useRouter();
 
 
-// TODO: add translations
-// TODO: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
+
+// TODO for Théo & Jean: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
 async function scheduleSend() {
   const emailSubject = inputValue.value;
   const emailBody = quill.value.root.innerHTML;
@@ -1416,7 +1382,8 @@ async function scheduleSend() {
 
       const message = t('constants.sendEmailConstants.emailRecipientRequest');
       const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-      //const ai_icon = happy_icon;
+
+      
       displayMessage(message, ai_icon);
     } else {
       // Show the pop-up
@@ -1573,15 +1540,6 @@ onMounted(() => {
     }
   });
 
-  // TODO: add a checkbox to add the summary of email in the body 
-  // Prepare the answer email
-  // let answerMessage = '';
-  // answerMessage += 'Résumé de l\'email:\n';
-  // details.forEach(detail => {
-  //   answerMessage += `- ${detail.text}\n`;
-  // });
-  // quill.value.setText(answerMessage);
-
   window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
   var toolbarOptions = [
@@ -1593,15 +1551,6 @@ onMounted(() => {
     [{ 'align': [] }],
     ['blockquote', 'code-block']
   ];
-
-  /*
-  quill.on('selection-change', function(range, oldRange, source) {
-  if (range === null && oldRange !== null) {
-      console.log('Selection changed');
-      var quillContent = quill.root.innerHTML;
-      handleInputUpdate3(quillContent);
-  }
-  });*/
 
   mail_to_answer.value = decoded_data;
 
@@ -1673,31 +1622,7 @@ onMounted(() => {
     }
   });
 
-  /*
-  const message2 = "Est-ce vous souhaitez de l'aide pour rédiger une réponse ?";
-
-  const messageHTML2 = `
-  <div class="flex pb-12">
-      <div class="mr-4 flex">
-          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-              <span class="text-lg font-medium leading-none text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-              </svg>
-              </span>
-          </span>   
-      </div>
-      <div>
-          <p ref="animatedText${counter_display}"></p>
-      </div>
-  </div>
-  `;
-
-  AIContainer.value.innerHTML += messageHTML2;
-  const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-  counter_display += 1;
-  animateText(message2, animatedParagraph);*/
-  //scrollToBottom(); => ACTIVATION OPTIONAL
+  
 
   if (email) {
     selectedPeople.value = parseEmails(email);
@@ -1731,24 +1656,22 @@ function animateText(text, target) {
 </script>
 
 <script>
-import Navbar from '@/pages/components/NavBarLarge.vue';
-import Navbar2 from '@/pages/components/NavBarSmall.vue';
+import NavBarLarge from '@/components/NavBarLarge.vue';
+import NavBarSmall from '@/components/NavBarSmall.vue';
 
 import {
-  //ChatBubbleOvalLeftEllipsisIcon,
   UserGroupIcon,
   Bars2Icon,
-  //Bars3BottomLeftIcon,
 } from '@heroicons/vue/24/outline'
+import { fetchWithToken } from '@/global/security';
+import { API_BASE_URL } from '@/global/const';
 
 export default {
   components: {
-    Navbar,
-    Navbar2,
-    //ChatBubbleOvalLeftEllipsisIcon,
+    NavBarLarge,
+    NavBarSmall,
     UserGroupIcon,
     Bars2Icon,
-    //Bars3BottomLeftIcon
   },
   methods: {
     adjustHeight(event) {
@@ -1772,3 +1695,16 @@ export default {
   }
 }
 </script>
+
+
+
+
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

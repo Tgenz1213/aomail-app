@@ -1,5 +1,5 @@
 <template>
-  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+  <NotificationTimer :NotificationTimer="NotificationTimer" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <!-- Update Category modal -->
   <transition name="modal-fade">
@@ -112,7 +112,7 @@
     </div>
   </transition>
   <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
-    <!--OLD VALUE TO SAVE : 27/01/2024 => 2xl:justify-center 2xl:items-center-->
+    
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
@@ -122,15 +122,16 @@
           </h2>
         </div>
 
-        <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]"><!-- 480px sm:max-w-[545px] -->
+        <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]">
+          
           <div class="flex flex-col rounded-lg ">
             <div class="">
               <div class="flex items-center justify-center h-[65px]">
                 <nav aria-label="Progress">
-                  <!--<div class="absolute right-4 left-4">-->
+                  
                   <ol role="list" class="flex items-center" v-if="step === 0">
                     <li class="relative pr-6 sm:pr-16">
-                      <!-- Current Step -->
+                      
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
@@ -141,7 +142,7 @@
                       </a>
                     </li>
                     <li class="relative pr-6 sm:pr-16">
-                      <!-- Upcoming Step -->
+                      
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
@@ -153,7 +154,7 @@
                       </a>
                     </li>
                     <li class="relative pr-6 sm:pr-16">
-                      <!-- Upcoming Step -->
+                      
                       <div class="absolute inset-0 flex items-center" aria-hidden="true">
                         <div class="h-0.5 w-full bg-gray-500"></div>
                       </div>
@@ -463,7 +464,7 @@
                       </a>
                     </li>
                   </ol>
-                  <!--</div>-->
+                  
                 </nav>
               </div>
               <div class="bg-white px-6 py-4">
@@ -595,7 +596,7 @@
                         <div class="relative items-stretch mt-2">
                           <language></language>
                         </div>
-                        <!-- <color @colorSelected="updateBgColor"></color> -->
+                        
                       </div>
 
                       <div class="relative">
@@ -696,12 +697,8 @@
                               <button @click="isModalOpen = !isModalOpen" type="button"
                                 class="flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
                                 {{ $t('signUpPart1Page.addAnotherCategory') }}</button>
-                              <!--<button @click="isModalOpen = !isModalOpen" type="button" class="h-[25px] w-full rounded-lg border-2 border-dashed border-gray-300 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-                                <span class="text-sm font-semibold text-gray-900">Ajouter une autre catégorie</span>
-                              </button>-->
-                              <!--
-                              <button @click="isModalOpen = !isModalOpen" type="button"  class="flex w-full justify-center rounded-md bg-gray-400 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500">Ajouter une autre catégorie</button>-->
-                            </div>
+                              
+                              </div>
                           </div>
                         </div>
                       </div>
@@ -738,16 +735,15 @@
 // TODO: rename all the functions that contains a number + use ONLY camelCase for functions and variables
 
 
-import Language from '../components/SettingsLanguageSignUp.vue';
-import TimeZone from '../components/SettingsTimeZoneSignUp.vue';
+import Language from './components/LanguageSelection.vue';
+import TimeZone from './components/TimeZoneSelection.vue';
+import Theme from './components/ThemeSelection.vue';
 import { ref, onMounted } from 'vue';
-import Theme from '../components/SettingsThemeSignUp.vue';
-import Color from '../components/SettingsColor.vue';
-import { API_BASE_URL } from '@/main.jts';
+
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import ShowNotification from '../components/NotificationTimer.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 
 // Use i18n
 const { t } = useI18n();
@@ -776,7 +772,7 @@ let errorMessage = ref('');
 let errorUpdateMessage = ref('');
 
 // Variables to display a notification
-let showNotification = ref(false);
+let NotificationTimer = ref(false);
 let notificationTitle = ref('');
 let notificationMessage = ref('');
 let backgroundColor = ref('');
@@ -899,12 +895,12 @@ function updateBgColor(newBgColor) {
   bgColor.value = newBgColor;
 }
 function dismissPopup() {
-  showNotification.value = false;
+  NotificationTimer.value = false;
   // Cancel the timer
   clearTimeout(timerId.value);
 }
 function displayPopup() {
-  showNotification.value = true;
+  NotificationTimer.value = true;
 
   timerId.value = setTimeout(() => {
     dismissPopup();
@@ -962,8 +958,7 @@ async function nextStep0() {
     return false;
   }
 
-  // Checks passwords requirements
-  // const passwordRegex = /^[a-zA-Z0-9!@#$%^&*()-=_+]+$/;
+  
   const minLength = 8;
   const maxLength = 32;
 
@@ -983,14 +978,7 @@ async function nextStep0() {
     credentialError.value = t('constants.popUpConstants.errorMessages.passwordsDoNotMatch');
     return false;
   }
-  // else if (password.value.includes(" ")) {
-  //   credentialError.value = 'Le mot de passe ne doit pas contenir d\'espaces';
-  //   return false;
-  // }
-  // else if (!passwordRegex.test(password.value)) {
-  //   credentialError.value = 'Le mot de passe contient des caractères invalides';
-  //   return false;
-  // }
+  
   
 
   sessionStorage.setItem('login', login.value);
@@ -1067,7 +1055,7 @@ export default {
     Theme,
     Language,
     TimeZone,
-    Color,
+    
     XMarkIcon
   },
   data() {
@@ -1077,3 +1065,13 @@ export default {
   }
 }
 </script>
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

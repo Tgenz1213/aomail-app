@@ -35,13 +35,9 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
-<<<<<<< Updated upstream
-import ShowNotification from "../components/ShowNotification.vue"
-import { API_BASE_URL } from "@/main"
-=======
-import ShowNotification from "../components/NotificationTimer.vue"
-import { API_BASE_URL } from "@/main.jts"
->>>>>>> Stashed changes
+import NotificationTimer from "@/components/NotificationTimer .vue"
+import { API_BASE_URL } from "@/global/const";
+
 
 const isModalOpen = ref(true)
 const email = ref("")
@@ -106,3 +102,15 @@ export default {
     name: "ModalComponent",
 }
 </script>
+
+
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

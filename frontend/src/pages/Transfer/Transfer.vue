@@ -8,17 +8,13 @@
                 <navbar></navbar>
             </div>
 
-            <!--If this code is needed add two closes div at the end of the template !!!!-->
-            <!-- <div class="col-span-11 2xl:col-span-6 xl:h-[93vh] xl:w-[86vw] 2xl:h-[825px] 2xl:w-[1450px]">
-                <div class="flex gap-4 w-full h-full">-->
+            
 
 
             <div id="firstMainColumn"
                 class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
-                <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
-
-
-                <!-- titre -->
+                
+                
                 <div class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
                     <div class="flex gap-x-3 items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
@@ -58,11 +54,12 @@
 
             <div id="secondMainColumn"
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
-                <!--xl:h-[695px] xl:w-[560px]-->
+        
+                
                 <div class="flex flex-col  h-full w-full">
                     <!--titre -->
                     <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
-                        <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+                        
                         <div class="flex gap-x-3 items-center ">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1"
                                 stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
@@ -218,7 +215,6 @@
                             <div class="flex flex-col flex-grow">
                                 <div class="flex-grow mb-20 h-[200px]">
                                     <div id="editor" class="w-full"></div>
-                                    <!-- TO DEBUG : Overflow Error => 26/12/2023 => FIXED BUT TO CHECK IN DIFFERENT WINDOWS SIZE -->
                                 </div>
                                 <div class="flex mb-4">
                                     <div class="inline-flex rounded-lg shadow-lg">
@@ -230,7 +226,8 @@
                                         <Menu as="div" class="relative -ml-px block">
                                             <MenuButton
                                                 class="relative inline-flex items-center rounded-r-lg  px-2 py-2 text-white border-l border-gray-300 bg-gray-600 hover:bg-gray-700 focus:z-10">
-                                                <!-- OLD : bg-gray-500 and hover:bg-gray-600 -->
+                                               
+                                                
                                                 <span class="sr-only">Open options</span>
                                                 <ChevronDownIcon class="h-9 w-5" aria-hidden="true" />
                                             </MenuButton>
@@ -269,10 +266,10 @@ import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import ShowNotification from '../components/NotificationTimer.vue';
-import { fetchWithToken, getBackgroundColor } from '../router/index.js';
+
 import { useRouter } from 'vue-router';
 import Quill from 'quill';
-import { API_BASE_URL } from '@/main.jts';
+
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import {
@@ -327,27 +324,12 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
 
 
 const emailReceiver = sessionStorage.getItem("emailReceiver");
-// let emailSelected = ref('');
-// emailSelected.value = localStorage.getItem("email");
 
-// if (!emailSelected.value) {
-//     fetchWithToken(`${API_BASE_URL}user/get_first_email/`, requestOptions)
-//         .then(response => {
-//             emailSelected.value = response.email;
-//             localStorage.setItem("email", emailSelected.value);
-//         })
-//         .catch(error => {
-//             backgroundColor = 'bg-red-300';
-//             notificationTitle.value = 'Erreur récupération du 1er email';
-//             notificationMessage.value = error;
-//             displayPopup();
-//         });
-// }
 
 const selectedPeople = ref([]);
 const selectedCC = ref([]);
 const selectedCCI = ref([]);
-const activeType = ref(null);  // null, 'CC', or 'CCI'
+const activeType = ref(null);  
 
 const query = ref('');
 const getFilteredPeople = (query, people) => {
@@ -375,11 +357,9 @@ const emit = defineEmits(['update:selectedPerson']);
 const selectedPerson = ref('');
 
 watch(selectedPerson, (newValue) => {
-    // console.log(selectedPerson.value);
-    hasValueEverBeenEntered.value = true; // to make the icon disappear
-    /*if (selectedPerson.value && selectedPerson.value.username) {
-        //handleInputUpdate(selectedPerson.value.username);
-    }  */
+    
+    hasValueEverBeenEntered.value = true; 
+    
     emit('update:selectedPerson', newValue);
 });
 
@@ -438,7 +418,7 @@ function handleBlur2(event) {
 
     if (inputValue && emailFormat.test(inputValue)) {
         // Add the input email to the list of recipients
-        // TODO: ask if we save it in DB or if we wait till the email is sent
+        
         if (!people.find(person => person.email === inputValue)) {
             const newPerson = { username: '', email: inputValue };
             people.push(newPerson);
@@ -627,7 +607,7 @@ async function handleAIClick() {
                     const result = await findUser(textareaValueSave.value);
 
                     hideLoading();
-                    //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
+                    
                     let noUsersAdded = true;
                     let WaitforUserChoice = false;
                     if (result.error != "Invalid input or query not about email recipients") { // To update to handle the main error
@@ -773,7 +753,6 @@ async function handleAIClick() {
         }
     }, 0);
 }
-const bgColor = ref(''); // Initialize a reactive variable
 
 onMounted(() => {
     localStorage.removeItem("uploadedFiles");
@@ -793,7 +772,7 @@ onMounted(() => {
     const bcc = sessionStorage.getItem("bcc");
     const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
     const email = JSON.parse(sessionStorage.getItem("email"));
-    //const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
+    
     const details = JSON.parse(sessionStorage.getItem("details"));
 
     const date = JSON.parse(sessionStorage.getItem("date"));
@@ -803,12 +782,12 @@ onMounted(() => {
     const formattedDateVar = new Date(date);
     const options = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
 
-    // TODO: use the selected timezone of the user
+    
     const formattedDate = formattedDateVar.toLocaleDateString('fr-FR', options);
 
     let forwardedMessage = '';
 
-    // TODO: use the var from JSON it's ready
+    
     forwardedMessage += 'Résumé de l\'email:\n';
     details.forEach(detail => {
         forwardedMessage += `- ${detail.text}\n`;
@@ -828,13 +807,12 @@ onMounted(() => {
 
     quill.value.setText(forwardedMessage);
 
-    getBackgroundColor();
-    bgColor.value = localStorage.getItem('bgColor');
-    //fetchEmailSenders();
-    loadFileMetadataFromLocalStorage(); // For uploaded file
-
-    window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
-
+    
+    
+    loadFileMetadataFromLocalStorage(); 
+    
+    window.addEventListener('resize', scrollToBottom); 
+    
     var toolbarOptions = [
         [{ 'font': [] }],
         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -1051,8 +1029,7 @@ function hideLoading() {
 
 
 
-// TODO: add translations
-// TODO: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
+
 async function scheduleSend() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
@@ -1141,7 +1118,8 @@ async function scheduleSend() {
 
             const message = t('constants.sendEmailConstants.emailRecipientRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-            //const ai_icon = happy_icon;
+           
+            
             displayMessage(message, ai_icon);
         } else {
             // Show the pop-up
@@ -1303,20 +1281,22 @@ function handleKeyDown(event) {
 </script>
 
 <script>
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '@/components/NavBarLarge.vue';
+import NavBarSmall from '@/components/NavBarSmall.vue';
 import {
     UserGroupIcon,
     Bars2Icon,
     ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 import { setTimeout } from 'core-js';
+import { fetchWithToken } from '@/global/security';
+import { API_BASE_URL } from '@/global/const';
 
 
 export default {
     components: {
-        Navbar,
-        Navbar2,
+        NavBarLarge,
+        NavBarSmall,
         UserGroupIcon,
         Bars2Icon,
         ChevronDownIcon
@@ -1340,3 +1320,13 @@ export default {
     }
 }
 </script>
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

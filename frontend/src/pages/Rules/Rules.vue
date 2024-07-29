@@ -1,37 +1,19 @@
 <template>
-  <!--
-    <div class="pb-1 lg:pl-20 bg-gray-100">
-        <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
-            <div class="col-span-3 h-full bg-red-500">
-                    
-                    <div class="flex">
-                        <div class="flex-shrink-0 self-center">
-                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-indigo-800">
-                                <span class="text-lg font-medium leading-none text-white">AO</span>
-                            </span>
-                        </div>
-                        <div>
-                            <p class="mt-1" id="animated-text" ref="animatedText"></p>
-                        </div>
-                    </div>
-                </div>
-            <div class="col-span-5 h-full bg-red-500">
-                <p>Test</p>
-            </div>
-        </div>
-    </div>-->
+  
   <div class="flex flex-col justify-center items-center h-screen">
     <div class="flex h-full w-full">
       <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
         <navbar></navbar>
       </div>
       <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-        <!-- OLD VALUE w : 1400px or 1424px h : 825px -->
-        <div class="flex flex-col h-full relative"> <!-- ADDED relative -->
+        
+        <div class="flex flex-col h-full relative">
+          
           <div class="divide-y divide-gray-200">
             <div
               class="flex items-center justify-center h-[70px] 2xl:h-[80px] lg:ring-1 lg:ring-black lg:ring-opacity-5 rounded-t-xl bg-gray-50">
-              <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+              
+              
               <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('rulesPage.assistantRules') }}
               </h1>
             </div>
@@ -69,14 +51,14 @@
                           <ExclamationCircleIcon class="w-4 h-4" />
                           <p class="font-semibold text-sm">{{ $t('rulesPage.priorityField') }}</p>
                         </div>
-                        <!-- TODO: update with good values (export them as constants) -->
-                        <span v-if="rule.priority === 'Important'"
+                        
+                        <span v-if="rule.priority === IMPORTANT"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{
                             rule.priority }}</span>
-                        <span v-if="rule.priority === 'Informatif'"
+                        <span v-if="rule.priority === INFORMATIVE"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{
                             rule.priority }}</span>
-                        <span v-if="rule.priority === 'Inutile'"
+                        <span v-if="rule.priority === USELESS"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20">{{
                             rule.priority }}</span>
                       </div>
@@ -122,9 +104,9 @@
       </div>
     </div>
   </div>
-  <ModalSeeRule :isOpen="showModal" @update:isOpen="updateModalStatus" :emailSenders="emailSenders"
+  <NewRuleModal :isOpen="showModal" @update:isOpen="updateModalStatus" :emailSenders="emailSenders"
     :categories="categories" :sender="senderSelected" @fetch-rules="fetchRules" />
-  <UpdateRule :isOpen="showUpdateModal" :rule="ruleSelected" :categories="categories" :emailSenders="emailSenders"
+  <UpdateRuleModal :isOpen="showUpdateModal" :rule="ruleSelected" :categories="categories" :emailSenders="emailSenders"
     @update:isOpen="updateModalUpdateStatus" @fetch-rules="fetchRules" />
 </template>
 
@@ -132,31 +114,33 @@
 // TODO: use script setup for consistency
 
 
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
-import SearchbarV2 from '../components/SearchbarV2.vue'
-import ModalSeeRule from '../components/SeeRule.vue';
-import UpdateRule from '../components/UpdateRule.vue';
-import { fetchWithToken } from '../router/index.js';
-import { API_BASE_URL } from '@/main.jts';
+import NavBarLarge from '@/components/NavBarLarge.vue';
+import NavBarSmall from '@/components/NavBarSmall.vue';
+import SearchbarV2 from './components/SearchbarV2.vue'
+import NewRuleModal from './components/NewRuleModal.vue';
+import UpdateRuleModal from './components/UpdateRuleModal.vue';
+
+
 import {
   ArchiveBoxIcon,
   ExclamationCircleIcon,
   ShieldCheckIcon,
   PencilSquareIcon
 } from '@heroicons/vue/24/outline'
+import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from '@/global/const';
+import { fetchWithToken } from '@/global/security';
 
 export default {
   components: {
-    Navbar,
-    Navbar2,
+    NavBarSmall,
+    NavBarLarge,
     SearchbarV2,
     ArchiveBoxIcon,
     ExclamationCircleIcon,
     ShieldCheckIcon,
     PencilSquareIcon,
-    ModalSeeRule,
-    UpdateRule
+    NewRuleModal,
+    UpdateRuleModal
   },
   methods: {
     handleKeyDown(event) {
@@ -192,7 +176,7 @@ export default {
         });
 
         console.log('Rules', rulesData);
-        //console.log('Rules name', rulesData[0].category_name);
+        
 
         this.rules = rulesData.map(rule => ({
           id: rule.id,
@@ -273,7 +257,7 @@ export default {
   },
   mounted() {
     document.addEventListener("keydown", this.handleKeyDown);
-    this.bgColor = localStorage.getItem('bgColor');
+    
     this.fetchRules();
     this.fetchEmailSenders();
     this.fetchCategories();
@@ -297,7 +281,7 @@ export default {
       });
     } else if (editRule === 'false' && name_sender && email_sender) {
       this.senderSelected = { username: name_sender, email: email_sender };
-      console.log("DEBUG New Rule Auto -------------------->", this.senderSelected);
+      
       this.updateModalStatus(true);
       // Remove query parameters from URL
       const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
@@ -306,7 +290,7 @@ export default {
   },
   computed: {
     filteredRules() {
-      //console.log("DEBUG =>", this.searchQuery);
+      
       if (this.searchQuery == '') return this.rules;
       return this.rules.filter(rule =>
         rule.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
@@ -334,3 +318,15 @@ export default {
   }
 }
 </script>
+
+
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

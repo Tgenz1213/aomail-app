@@ -778,8 +778,8 @@
 
 
 import { onMounted, ref } from 'vue';
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
 import { API_BASE_URL } from '@/main.jts';
@@ -830,7 +830,7 @@ export default {
     }
 
     onMounted(() => {
-      getBackgroundColor();
+      
       bgColor.value = localStorage.getItem('bgColor');
       fetchAnswerLaterEmails();
     });

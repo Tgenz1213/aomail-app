@@ -828,7 +828,7 @@ onMounted(() => {
 
     quill.value.setText(forwardedMessage);
 
-    getBackgroundColor();
+    
     bgColor.value = localStorage.getItem('bgColor');
     //fetchEmailSenders();
     loadFileMetadataFromLocalStorage(); // For uploaded file
@@ -1303,8 +1303,8 @@ function handleKeyDown(event) {
 </script>
 
 <script>
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import {
     UserGroupIcon,
     Bars2Icon,

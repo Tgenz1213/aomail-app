@@ -1697,7 +1697,7 @@ const getIconComponent = (fileName) => {
 
 onMounted(async () => {
     document.addEventListener("keydown", handleKeyDown);
-    getBackgroundColor();
+    
 
     // Wait for fetchData completion
     await new Promise(resolve => {
@@ -2595,8 +2595,8 @@ async function Hide_filtres() {
 import ShowNotification from '../components/ShowNotification.vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeMail from '../components/SeeMailV2.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';

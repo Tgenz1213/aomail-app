@@ -9,10 +9,7 @@
                 <span class="font-bold">{{ countdown }}</span>
                 seconds
             </p>
-            <button
-                @click="redirectNow"
-                class="w-full py-2 bg-black text-white rounded hover:bg-gray-800 transition"
-            >
+            <button @click="redirectNow" class="w-full py-2 bg-black text-white rounded hover:bg-gray-800 transition">
                 Redirect Now
             </button>
         </div>
@@ -48,3 +45,12 @@ onUnmounted(() => {
     clearInterval(timer)
 })
 </script>
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

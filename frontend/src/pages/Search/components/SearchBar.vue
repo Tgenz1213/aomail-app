@@ -104,3 +104,7 @@ watch(searchQuery, (newValue) => {
   emits('updateSearchQuery', newValue);
 });
 </script>
+
+
+<!-- 
+TODO: clean this code after merging with Théo's code -->

@@ -82,9 +82,9 @@
             <select id="priority" name="priority" v-model="formData.priority"
               class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6">
               <option value="">{{ $t('constants.ruleModalConstants.noPriority') }}</option>
-              <option value="Important">{{ $t('constants.ruleModalConstants.important') }}</option>
-              <option value="Informatif">{{ $t('constants.ruleModalConstants.informative') }}</option>
-              <option value="Inutile">{{ $t('constants.ruleModalConstants.useless') }}</option>
+              <option value=${IMPORTANT}>{{ $t('constants.ruleModalConstants.important') }}</option>
+              <option value=INFORMATIVE>{{ $t('constants.ruleModalConstants.informative') }}</option>
+              <option value=USELESS>{{ $t('constants.ruleModalConstants.useless') }}</option>
             </select>
           </div>
           <SwitchGroup as="div" class="flex items-center pt-2">
@@ -96,7 +96,7 @@
             <SwitchLabel as="span" class="ml-3 text-sm">
               <span class="font-medium text-gray-900">{{ $t('constants.ruleModalConstants.blockTheEmails') }}</span>
               {{ ' ' }}
-              <!--<span class="text-gray-500"></span>-->
+              
             </SwitchLabel>
             <ShieldCheckIcon class="ml-1 w-4 h-4" />
           </SwitchGroup>
@@ -122,14 +122,11 @@
 </template>
 
 <script setup>
-import { fetchWithToken } from '../router/index.js';
+
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/vue/20/solid';
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
-<<<<<<< HEAD
-import { API_BASE_URL } from '@/main';
-=======
-import { API_BASE_URL } from '@/main.jts';
->>>>>>> d03fc83b (🔃 refactor: add tsconfig.json + fix packages dependencies)
+
+import { USELESS, IMPORTANT, INFORMATIVE, API_BASE_URL } from '@/global/const.js';
 import ShowNotification from '../components/ShowNotification.vue';
 import {
   Combobox,
@@ -150,6 +147,7 @@ import {
   ExclamationCircleIcon
 } from '@heroicons/vue/24/outline'
 import { useI18n } from 'vue-i18n';
+import { fetchWithToken } from '@/global/security';
 
 export default {
   components: {
@@ -340,13 +338,14 @@ export default {
 
       const senderData = {
         name: this.selectedPerson.username,
-        email: this.selectedPerson.email,  // Assuming username is the email
+        email: this.selectedPerson.email,  
+        
       };
 
       try {
         const url = `${API_BASE_URL}api/create_sender`;
 
-        // Use fetchWithToken for the POST request
+        
         const responseData = await fetchWithToken(url, {
           method: 'POST',
           headers: {
@@ -372,13 +371,13 @@ export default {
       }
       
       const senderData = {
-        email: this.selectedPerson.email, // username is the email => TO FIX : rename
+        email: this.selectedPerson.email, 
+        
       };
 
       try {
         const url = `${API_BASE_URL}api/check_sender`;
-
-        // Use fetchWithToken for the POST request
+        
         const response = await fetchWithToken(url, {
           method: 'POST',
           headers: {
@@ -387,7 +386,7 @@ export default {
           body: JSON.stringify(senderData),
         });
 
-        //console.log("DEBUG Check sender ------>", response); To debug
+        
         if (response.exists) {
           return {
             exists: response.exists,
@@ -409,8 +408,7 @@ export default {
     },
     async updateUserRule() {
       try {
-        console.log("CATEGORY", this.formData.category); // To debug
-        console.log("FORMDATA", this.formData); // To debug
+        
         var ruleData = {};
 
         // Assuming the ID of the rule is stored in this.formData
@@ -511,3 +509,15 @@ export default {
   }
 }
 </script>
+
+
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

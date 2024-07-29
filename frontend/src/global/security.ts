@@ -4,7 +4,7 @@
 // it will allow to check the status code instead of if response.message == "aLongStringThatMayChange"
 // EDIT: done => must change everywhere we use the function fetchWithToken
 
-EXPORT redirection function after 5sec
+EXPORT redirection function after 5sec for 401 & 404 (if possible)
 */
 
 import router from "@/router/router"
@@ -32,10 +32,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
             },
         }
 
-        const response = await fetchWithToken(
-            `${API_BASE_URL}api/is_authenticated/`,
-            requestOptions
-        )
+        const response = await fetchWithToken(`${API_BASE_URL}api/is_authenticated/`, requestOptions)
         if (!response) {
             return false
         }
@@ -47,10 +44,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
     }
 }
 
-export async function fetchWithToken(
-    url: string,
-    options: RequestInit = {}
-): Promise<Response | void> {
+export async function fetchWithToken(url: string, options: RequestInit = {}): Promise<Response | void> {
     const accessToken = localStorage.getItem("access_token")
 
     if (!options.headers) {
@@ -80,9 +74,7 @@ export async function fetchWithToken(
                 const refreshData: RefreshTokenResponse = await refreshResponse.json()
                 const newAccessToken = refreshData.access_token
                 localStorage.setItem("access_token", newAccessToken)
-                ;(options.headers as Record<string, string>)[
-                    "Authorization"
-                ] = `Bearer ${newAccessToken}`
+                ;(options.headers as Record<string, string>)["Authorization"] = `Bearer ${newAccessToken}`
                 response = await fetch(url, options)
             } else {
                 router.push({ name: "not-authorized" })

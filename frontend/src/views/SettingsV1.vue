@@ -755,7 +755,7 @@ onMounted(() => {
     // TODO: fetch ONLY if the var bgColor is empty
     // Vérifier si bgColor est vide, et si c'est le cas, récupérer la couleur de fond
     if (!bgColor.value) {
-        getBackgroundColor();
+        
     }
 })
 
@@ -1328,8 +1328,8 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import ShowNotification from '../components/ShowNotification.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { ref, onMounted } from 'vue';
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import Theme from '../components/SettingsTheme.vue';
 import LanguageChange from '../components/LanguageChange';
 import Color from '../components/SettingsColor.vue';

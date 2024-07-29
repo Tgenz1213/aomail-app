@@ -67,3 +67,11 @@ watch(selectedTimeZone, (newTimeZone) => {
     updateTimeZoneSelection(newTimeZone);
 });
 </script>
+
+
+<!-- 
+// todo:
+// remove all comments
+// optimize the code
+// use strictly camelCase
+// we are using TypeScript so migrate everything where its needed using interfaces or types -->

@@ -4,17 +4,17 @@
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="flex h-full w-full">
 
-      <!-- navbar-->
+      
+
       <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
         <navbar></navbar>
       </div>
 
-      <!--first coloumn -->
+      
       <div id="firstMainColumn"
         class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]">
-        <!--xl:h-[750px] xl:w-[625px] => 26/12/2023 DATA SAVE : xl:h-[95vh] xl:w-[43vw] 2xl:h-[825px] 2xl:w-[700px] -->
+    
         
-       <!-- titre --> 
         <div
           class="flex items-center justify-center h-[65px] 2xl:h-[80px]">
           <div class="flex gap-x-3 items-center">
@@ -51,15 +51,13 @@
 
       </div>
 
-      <!--Secondes Colonnes -->
+      
       <div id="secondMainColumn" 
       class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-y-auto">
 
-        <!--xl:h-[695px] xl:w-[560px]-->
-
-        <!--titre -->
+      
         <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
-          <!-- bg-gray-200 bg-opacity-50 bg-gray-400 bg-opacity-10-->
+          
           <div class="flex gap-x-3 items-center ">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                 stroke-width="1" stroke="currentColor" class="w-6 h-6 2xl:w-7 2xl:h-7">
@@ -73,34 +71,11 @@
         <div class="flex-1 flex flex-col w-full px-6 pt-2 mb-4">
 
             
-              <!--??? -->
-              <div class="flex space-x-1 items-center mb-4">
-              <!--  <magnifying-glass-icon class="w-4 h-4" />
-                <label for="email" class="block text-sm font-medium leading-6 text-gray-900">{{
-                  $t('Search_vue.manual_Search') }}</label>-->
-              </div>
-
-               <!-- searchbar and buttons -->
+          
+          
                <div class="flex space-x-2 items-stretch pr-2 w-full mb-4">
 
-                <!-- searchbar and buttons old version. If picke has to be fixed !!!-->
-                <!--<div class="relative flex-grow">
-                  <SearchbarV2 @input="updateSearchQuery" class="h-[5px]"></SearchbarV2>
-                </div>-->
-
-                <!-- searchbar and buttons old version. If picke has to be fixed !!!-->
-                <!-- <div class="relative w-full">
-                    <div class="absolute inset-y-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 ml-2 2xl:ml-3 items-center">
-                    <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
-                    <label for="search" class="block text-sm font-medium leading-6 text-gray-900 pointer-events-none 2xl:text-base">
-                    {{ $t('searchPage.searchPlaceholder') }}
-                    </label>
-                    </div>
-                  <Combobox as="div">
-                  <ComboboxInput id="search" 
-                  class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-10 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-14 2xl:pr-14 2xl:text-base text-center" />
-                  </Combobox>
-                </div>-->
+                
 
                 <div class="relative w-full">
                                                 
@@ -124,22 +99,8 @@
                             @keydown.enter="handleEnterKey" />
                     </Combobox>
                 </div>                
-                            
-
-                <!--<div class="flex-grow w-full h-full">
-                  <div class="relative flex flex-grow items-stretch h-full">
-                    <input v-model="query"
-                      type="text"
-                      :placeholder="$t('searchPage.searchPlaceholder')"
-                      autocomplete="given-name"
-                      class="block w-full h-full rounded-md border-0 bg-white pl-10 py-2 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-14 2xl:pr-14 2xl:text-base"
-                      style="vertical-align: middle;">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <magnifying-glass-icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
-                    </div>
-                  </div>
-                </div>-->
-
+                           
+                
              
 
                 <div class="flex-grow h-full">
@@ -167,7 +128,7 @@
 
                 <div class="flex gap-4 gap-y-2 w-full flex-wrap">
 
-                     <!-- Premier input Combobox toAddressesSelected -->
+                  
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
                           <div class="relative flex items-center w-full">
@@ -208,7 +169,7 @@
                         </Combobox>
                       </div>
 
-                       <!-- Deuxième input Listbox  TODO : Type de pièce jointe-->
+                      
                        <div class="flex-1 min-w-[150px] mt-2">
                           <Listbox as="div" v-model="attachmentSelected">
                               <div class="relative">
@@ -282,7 +243,8 @@
                         </Combobox>
                       </div>
 
-                      <!-- Quatrième input Combobox -->
+                      
+
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
                           <div class="relative flex items-center w-full">
@@ -302,7 +264,7 @@
                         </Combobox>
                       </div>
 
-                      <!-- Cinquième input Listbox emails Linked for search -->
+                      
                       <div class="flex-1 min-w-[150px] mt-2">
                           <Listbox as="div" v-model="attachmentSelected">
                               <div class="relative">
@@ -354,7 +316,7 @@
                         </Combobox>
                       </div>
 
-                      <!-- Septième input Combobox body -->
+                      
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
                           <div class="relative flex items-center w-full">
@@ -375,7 +337,7 @@
                       </div>
 
 
-                      <!-- Huitième input Combobox date_from -->
+                      
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
                           <div class="relative flex items-center w-full">
@@ -396,7 +358,7 @@
                       </div>
 
 
-                      <!-- neuxième input Listbox  1month, 2 weeks, 90days A REVOIR --> 
+                      
                       <div class="flex-1 min-w-[150px] mt-2">
                           <Listbox as="div" v-model="attachmentSelected">
                             <div class="relative">
@@ -513,63 +475,13 @@
                 </div>
 
 
-                     <!-- <div class="relative items-stretch mt-2">
-                      <Combobox as="div" v-model="selectedPerson">
-                        <div class="relative">
-                          <ComboboxInput
-                            class="flex items-center rounded-md border-0 bg-white py-3 pl-10 pr-3 text-gray-900 shadow-sm ring-1 ring-inset
-                            ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
-                            @input="query = $event.target.value"
-                            :display-value="(person) => person?.username"
-                            placeholder="1month, 2 weeks, 90days"/>
-                          Date range TODO: custom list of choices:
-                            
-                            Gmail choices (you can add more or less if its relevant)
-                            1 day
-                            3 days
-                            1 week
-                            2 weeks
-                            1 month
-                            2 months
-                            6 months
-                            1 year
-                           
-                          <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <ComboboxButton
-                            class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
-                            <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                          </ComboboxButton>
-                        </div>
-                      </Combobox>
-                    </div>  -->
-
-
-                      <!-- <div class="col-span-1">
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Tout les fields doivent
-                    être ds advanced à part recherche</label>
-
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INT FIELD:
-                    max_results</label>
-
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">BOOL FIELD:
-                    advanced</label>
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">LIST FIELD: emails
-                    Linked for search</label>
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
-                    subject</label>
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
-                    body</label>
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
-                    date_from</label>
-                  <label for="email" class="block text-sm font-medium leading-6 text-gray-900">INPUT FIELD:
-                    search_in</label>
-                </div>-->
+                
 
               </div>
               </div>
 
           
-              <!-- email List -->
+              
               <div class="flex-1 flex flex-col pr-2 py-4" id="liste_email">
                 <div class="h-full overflow-y-auto pr-4">
                   <template v-if="emailList.length > 0">
@@ -633,8 +545,8 @@
 
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue';
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { API_BASE_URL } from '@/main.jts';
@@ -840,7 +752,7 @@ function handleEnterKey(event) {
 
 // Mounted lifecycle hook
 onMounted(async () => {
-  getBackgroundColor();
+  
   fetchEmailLinked();
   bgColor.value = localStorage.getItem('bgColor');
 
@@ -1209,3 +1121,6 @@ export default {
     }
 }
 </script>
+
+<!-- 
+TODO: clean this code after merging with Théo's code -->

@@ -1,11 +1,6 @@
 <template>
     <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
-    <div v-if="loading">
-        <Loading class=""></Loading>
-    </div>
-
-    <div v-else>
         <!-- Modal for Warning Category (rules linked) -->
         <transition name="modal-fade">
             <div @click.self="closeWarningCategoryModal"
@@ -59,21 +54,18 @@
             </div>
         </transition>
 
-        <div class="flex flex-col justify-center items-center h-screen"><!-- DO NOT DELETE : 'bg-gray-900'-->
+        <div class="flex flex-col justify-center items-center h-screen">
 
             <div class="flex h-full w-full">
-
-                <!--NAVBAR verticale-->
+                
                 <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
                     <navbar></navbar>
                 </div>
 
-                 <!--Colonne 1-->
+                
                 <div class="flex-1">
-                    <!-- <div class="flex flex-col xl:h-[calc(93vh)] xl:w-[86vw] 2xl:h-[6/7*100vh] 2xl:w-[calc(80vw)]"> WORKS FOR 1920*1200px screens-->
                     <div class="flex flex-col h-full w-full">
-
-                         <!--ligne 1 : navbar horizontale -->
+                        
                         <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 border-b border-black shadow-sm border-opacity-10">
                             <div class="w-full py-2 2xl:py-3 px-4 2xl:px-8 lg:px-2">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
@@ -137,7 +129,7 @@
 
                                                              <!--categories Autres,Others-->
                                                             <div v-else class="flex pr-7">
-                                                                <!-- TODO: var language and retrieve the good translation -->
+                                                                
                                                                 <span class="px-3 py-2 cursor-pointer"
                                                                     @click="selectCategory(category)"
                                                                     :class="{ 'bg-gray-500 bg-opacity-10 text-gray-800': selectedTopic === category.name, 'group-hover:bg-gray-500 rounded-l-md group-hover:bg-opacity-10': selectedTopic !== category.name, 'rounded-md': totalEmailsInCategoryNotRead(category.name) === 0, 'rounded-l-md': totalEmailsInCategoryNotRead(category.name) > 0 }">
@@ -171,7 +163,7 @@
                                                 </nav>
                                             </div>
 
-                                            <!--bouton pour l'onglet à droite-->
+                                            
                                             <div class="flex justify-end h-full">
                                                 <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
                                                     <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -209,32 +201,10 @@
                             />
                         </div>
 
-                        <!--<div class="w-full bg-white flex flex-col sm:flex-row items-center">
-                            <div class="w-full sm:flex-grow sm:mr-4 mb-4 sm:mb-0">
-                                <SearchbarV2 @input="updateSearchQuery" height="3rem" class="w-full"></SearchbarV2>
-                            </div>
-
-                            <div class="flex items-center">
-                                <div class="hidden sm:block w-px h-8 bg-gray-400 mr-4"></div>
-                                <select 
-                                    @change="applyFilter"
-                                    class="border-none text-gray-900 text-sm focus:ring-0 focus:outline-none"
-                                >
-                                    <option disabled value="">Aucun filtre</option>
-                                    <option value="important">Important</option>
-                                    <option value="informatif">Informatif</option>
-                                    <option value="inutile">Inutile</option>
-                                </select>
-                            </div>
-                        </div>-->
-
-                        <!-- HIDE 
-                        <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5">
-                            <p>En cours de dev</p>
-                        </div>--><!-- DO NOT DELETE bg-opacity-90 -->
+                        
                         <!--L'utilisateur n'a pas de nouveau mail-->
                         <div v-if="isEmptyTopic()" class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
-                            <!-- Content goes here -->
+                            
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div
                                     class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -257,7 +227,7 @@
 
                             <!--Liste emails-->
                             <ul role="list" class="flex mx-2 flex-col w-auto h-full rounded-xl">
-                                <!--DO NOT DELETE : old value reference : without mx-autout and w-[]-->
+                                
                                 <div class="pt-6">
 
                                     <!--emails importants-->
@@ -269,7 +239,7 @@
                                                 <div class="flex px-3 py-2">
                                                     <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
                                                         {{ $t('constants.ruleModalConstants.important') }}</p>
-                                                    <!-- ring-1 ring-red-700 ring-opacity-20 -->
+                                                        
                                                     <div class="ml-auto">
                                                         <exclamation-triangle-icon class="w-6 h-6 text-orange-500" />
                                                     </div>
@@ -297,7 +267,7 @@
                                                                     d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                             </svg>
                                                         </span>
-                                                        <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
+                                                        
                                                     </div>
                                                     <div class="ml-6 flex-grow">
                                                         <div class="overflow-hidden border-l-4 border-orange-300  hover:rounded-l-xl" style="overflow: visible;">
@@ -334,7 +304,7 @@
                                                                             <ul v-show="showHiddenParagraphs[item.id]"
                                                                                 role="list" class="text-black text-sm/6 pt-2"
                                                                                 :ref="el => setParentRef(el, item.id)">
-                                                                                <!-- Potential design update : bg-white shadow rounded-xl -->
+                                                                                
                                                                                 <li v-for="detail in item.details"
                                                                                     :key="detail.id" class="pl-8"
                                                                                     :ref="'hiddenText' + item.id"
@@ -588,13 +558,14 @@
                                                                     d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                             </svg>
                                                         </span>
-                                                        <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-blue-800" />-->
+                                                        
                                                     </div>
                                                     <div class="ml-6 flex-grow">
                                                         <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300" style="overflow: visible;">
                                                             <ul role="list" class="divide-y divide-gray-200">
                                                                 <li v-for="item in emailsByDate" :key="item.id" class="px-6 py-4 2xl:py-5 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                                                                    <!-- Your content -->
+                                                                  
+                                                                    
                                                                     <div class="col-span-8 cursor-pointer">
                                                                         <div @click="toggleHiddenParagraph(item.id)">
                                                                             <div class="flex-auto group">
@@ -626,7 +597,7 @@
                                                                             <ul v-show="showHiddenParagraphs[item.id]"
                                                                                 role="list" class="text-black text-sm/6 pt-2"
                                                                                 :ref="el => setParentRef(el, item.id)">
-                                                                                <!-- Potential design update : bg-white shadow rounded-xl -->
+                                                                                
                                                                                 <li v-for="detail in item.details"
                                                                                     :key="detail.id" class="pl-8"
                                                                                     :ref="'hiddenText' + item.id"
@@ -844,7 +815,7 @@
                                     </li>
 
                                     <!--email inutiles-->
-                                    <!-- add @click="toggleEmailVisibility"-->
+                                    
                                     <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'].filter(email => !email.answer_later) && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
                                         class="group/main">
                                         <li class="">
@@ -853,13 +824,13 @@
                                                     <div class="flex px-2 py-2">
                                                         <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
                                                             {{ $t('constants.ruleModalConstants.useless') }}</p>
-                                                        <!-- ring-1 ring-red-700 ring-opacity-20 -->
+                                                            
                                                         <div class="ml-auto">
                                                             <trash-icon class="w-6 h-6 text-gray-500" />
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <!-- Your content -->
+                                                
                                                 <div class="flex px-4 pt-4">
                                                     <div class="flex">
                                                         <span
@@ -871,7 +842,7 @@
                                                                     d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                             </svg>
                                                         </span>
-                                                        <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
+                                                        
                                                     </div>
                                                     <div class="ml-6 w-full">
                                                         <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-gray-400 w-full"
@@ -881,7 +852,7 @@
                                                                 <li
                                                                     class="px-6 py-5 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
                                                                     <div class="flex gap-x-2">
-                                                                        <!-- remove @click="toggleEmailVisibility"-->
+                                                                        
                                                                         <p @click="toggleEmailVisibility"
                                                                             class="cursor-pointer"> {{ $t('homePage.youReceived') }}
                                                                             <span
@@ -910,7 +881,7 @@
                                                                                         stroke-linejoin="round"
                                                                                         d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
                                                                                 </svg>
-                                                                                <!-- remove @click="toggleEmailVisibility"-->
+                                                                                
                                                                                 <p @click="toggleEmailVisibility"
                                                                                     class="cursor-pointer">{{ $t('homePage.clickToSeeTheEmail') }}</p>
                                                                             </div>
@@ -1159,20 +1130,21 @@
                                     <!--Actions sur les mails open,read,answer,more -->
                                     <div v-if="readEmailsInSelectedTopic().length > 0" class="group/main">
                                         <li class="">
-                                            <div class="px-6 pb-6"><!--bg-emerald-50 bg-opacity-60-->
+                                            <div class="px-6 pb-6">
+                                                
                                                 <div class="bg-stone-200 bg-opacity-90 rounded-md">
                                                     <div class="flex px-2 py-2">
                                                         <p
                                                             class="flex-1 text-sm font-semibold leading-6 text-stone-600 px-4">
                                                             Lu</p>
-                                                        <!-- ring-1 ring-red-700 ring-opacity-20 -->
+                                                            
                                                         <div class="ml-auto">
                                                             <CheckIcon class="w-6 h-6 text-stone-500" />
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <!-- Your content -->
+                                                
                                                 <div class="flex px-4 pt-4">
                                                     <div class="flex">
                                                         <span
@@ -1184,11 +1156,9 @@
                                                                     d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
                                                             </svg>
                                                         </span>
-                                                        <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
                                                     </div>
 
                                                     <div class="ml-6 w-full">
-                                                        <!-- To check : strange w-full not necessary in grey but it must be here to have the correct space for readEmailsInSelectedTopic -->
                                                         <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-stone-400 w-full"
                                                             style="overflow: visible;">
                                                             <ul role="list"
@@ -1276,7 +1246,7 @@
                                                                                     role="list"
                                                                                     class="text-black text-sm/6 pt-2"
                                                                                     :ref="el => setParentRef(el, item.id)">
-                                                                                    <!-- Potential design update : bg-white shadow rounded-xl -->
+                                                                                    
                                                                                     <li v-for="detail in item.details"
                                                                                         :key="detail.id" class="pl-8"
                                                                                         :ref="'hiddenText' + item.id"
@@ -1513,41 +1483,9 @@
                     </div>
                 </div>
                 
-                <!-- UNCOMMENT TO SEPARATE BUTTON FROM DIV TO FOLD/UNFOLD -->
+                
                <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col relative"> 
-               <!--<div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col"> -->
-                        
-                            <!--Bouton de transition style 1 -->
-                    <!--    <div class="p-4 flex justify-end">
-                                <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
-                                    <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
-                                    </svg>
-                                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-                                    </svg>
-                                </button>
-                            </div> -->
-
-                        <!--Bouton de transition style 2 -->
-                        
-                        <!-- <div class="p-4 flex w-full">
-                                <button @click="toggleVisibility"
-                                    class="bg-gray-200 text-gray-500 px-4 py-2 rounded w-full items-center inline-flex pr-10">
-                                    <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
-                                    </svg>
-                                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
-                                    </svg>
-                                </button>
-                            </div> -->
-
-                    <!--<transition name="slide">-->
+                
                         <div v-show="!isHidden" class="w-[325px] 2xl:w-[525px] flex-grow">
                             <div class="flex flex-col h-full">
                                 <div class="flex-grow">
@@ -1579,7 +1517,7 @@
                                 </div>
                             </div>
                         </div>
-                    <!--</transition>-->
+                        
                 </div>
 
             </div>
@@ -1593,11 +1531,9 @@
             @deleteCategory="handleCategoryDelete" />
         <ModalSeeMail :isOpen="isModalSeeOpen" :email="selectedEmail" @closeSeeModal="closeSeeModal"
             @openAnswer="openAnswer" @openRuleEditor="openRuleEditor" @openNewRule="openNewRule" @markEmailAsRead="markEmailAsRead" @markEmailReplyLater="markEmailReplyLater" @transferEmail="transferEmail" />
-    </div>
 </template>
 
 <script setup>
-import { API_BASE_URL } from '@/main.jts';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
@@ -1642,7 +1578,7 @@ let scrollableDiv = ref(null);
 let selectedTopic = ref('');
 let animationTriggered = ref([false, false, false]);
 let bgColor = ref('');
-bgColor = localStorage.getItem('bgColor');
+
 let parentElementRefs = ref({});
 let totalUnread = ref(0);
 let initialAnimationDone = ref(false);
@@ -1667,7 +1603,8 @@ const downloadAttachment = async (emailId, attachmentName) => {
             }
         });
 
-        const attachmentData = await response.blob(); // Use response.blob() for binary data
+        const attachmentData = await response.blob();
+        
         const url = window.URL.createObjectURL(attachmentData);
         const link = document.createElement('a');
         link.href = url;
@@ -1691,20 +1628,21 @@ const getIconComponent = (fileName) => {
   } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx'].includes(extension)) {
     return DocumentIcon;
   } else {
-    return DocumentIcon; // Default icon for other file types
+    return DocumentIcon; 
+    
   }
 };
 
 onMounted(async () => {
     document.addEventListener("keydown", handleKeyDown);
-    getBackgroundColor();
+    
 
-    // Wait for fetchData completion
+    
     await new Promise(resolve => {
         fetchData().then(() => {
             resolve();
         });
-        //animateText("Calcul des mails non lus en cours");
+        
     });
 
     setInterval(async () => {
@@ -1752,7 +1690,7 @@ function getTextNumberUnreadMail(totalUnread) {
 
 
 function animateText(text) {
-    // Clear text
+    
     try {
         animatedText.value.textContent = '';
         let target = animatedText.value;
@@ -1810,7 +1748,7 @@ function openNewRule(ruleName, ruleEmail) {
 
 function setHoveredItem(id) {
     hoveredItemId.value = id;
-    //scrollToBottom();
+    
 }
 
 function clearHoveredItem() {
@@ -1959,8 +1897,7 @@ async function transferEmail(email) {
         sessionStorage.setItem("date", JSON.stringify(data.email.date));
 
 
-        console.log("_____________data.email.cc______________", data.email.cc)
-        console.log("_____________data.email.bcc______________", data.email.bcc)
+        
 
         router.push({
             name: 'transfer'
@@ -2107,9 +2044,7 @@ async function openAnswer(email) {
         sessionStorage.setItem("details", JSON.stringify(email.details));
         sessionStorage.setItem("emailReceiver", data.email.email_receiver);
 
-        console.log("_____________data.email.cc______________", data.email.cc)
-        console.log("_____________data.email.bcc______________", data.email.bcc)
-
+        
         router.push({
             name: 'answer'
         });
@@ -2141,7 +2076,7 @@ function closeModal() {
     isModalOpen.value = false;
 }
 function openUpdateModal(category) {
-    //console.log("CATEGORY TO UPDATE : ", category);
+    
     oldCategoryName.value = category.name;
     categoryToUpdate.value = category;
     isModalUpdateOpen.value = true;
@@ -2402,17 +2337,14 @@ function scrollAlmostToBottom() {
 }
 
 function toggleHiddenParagraph(index) {
-    // console.log("Item ID:", index)
-    // console.log("All refs:", parentElementRefs.value)
-    // console.log('parentElement: ', parentElementRefs.value[index])
-    // console.log("Test: ", parentElementRefs.value[index].children)
+    
 
     showHiddenParagraphs.value[index] = !showHiddenParagraphs.value[index];
     nextTick(() => {
         if (showHiddenParagraphs.value[index] && !animationTriggered.value[index]) {
             const parentElement = parentElementRefs.value[index];
             const elements = parentElement.children;
-            //console.log("Elements:", elements)
+            
 
             const delays = [0];
             for (let i = 0; i < elements.length; i++) {
@@ -2444,7 +2376,7 @@ function animateHiddenText(element, delay = 0) {
 function selectCategory(category) {
     selectedTopic.value = category.name;
     localStorage.setItem('selectedTopic', category.name);
-    //console.log("CHANGE CATEGORY");
+    
 }
 function countEmailsInCategoryAndPriority(categoryName, priority) {
     let count = 0;
@@ -2460,10 +2392,11 @@ function countEmailsInCategoryAndPriority(categoryName, priority) {
 
 // To check if there is emails or not in the category
 function isEmptyTopic() {
-    //console.log("----> DEBUG isEmpty", selectedTopic.value);
+    
     if (totalEmailsInCategory(selectedTopic.value) == 0) {
-        //console.log("Topic not found for selectedTopic:", selectedTopic.value); // Debugging log
-        return true; // or true, based on how you want to handle this case
+        
+        return true;
+        
     }
     else {
         return false;
@@ -2531,7 +2464,7 @@ async function fetchEmails() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            // JUST for information send ONLY subject if the user has ONLY used the search bar
+            
             subject: "",
             resultPerPage: 25,
             category: "Others"
@@ -2548,15 +2481,14 @@ async function fetchData() {
     try {
         // Fetch the categories
         const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`);
-        //console.log("VERY IMPORTANT: =======> CategoryData", categoryData);
+        
 
         for (let i = 0; i < categoryData.length; i++) {
             categories.value.push(categoryData[i]);
         }
-        //console.log("Assigned categories:", categories.value);
-
+        
         const storedTopic = localStorage.getItem('selectedTopic');
-        //console.log("selectedTopic", storedTopic)
+        
         if (storedTopic) {
             selectedTopic.value = storedTopic;
         } else if (categories.value.length > 0) {
@@ -2595,17 +2527,16 @@ async function Hide_filtres() {
 import ShowNotification from '../components/NotificationTimer.vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeMail from '../components/SeeMailV2.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
 import { ref, nextTick, onMounted } from 'vue';
-import { fetchWithToken, fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
-//ChatBubbleOvalLeftEllipsisIcon,
+    
 ExclamationTriangleIcon,
 InformationCircleIcon,
 TrashIcon,
@@ -2618,13 +2549,14 @@ DocumentIcon,
 DocumentTextIcon,
 CameraIcon,
 } from '@heroicons/vue/24/outline'
+import { API_BASE_URL } from '@/global/const';
 
 export default {
 name: 'UserHome',
 components: {
-Navbar,
-Navbar2,
-//ChatBubbleOvalLeftEllipsisIcon,
+    NavBarLarge,
+NavBarSmall,
+
 ExclamationTriangleIcon,
 InformationCircleIcon,
 TrashIcon,
@@ -2653,3 +2585,14 @@ this.searchQuery = event.target.value;
 }
 }
 </script>
+
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

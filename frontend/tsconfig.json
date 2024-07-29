@@ -19,6 +19,6 @@
         "checkJs": true,
         "resolveJsonModule": true
     },
-    "include": ["src/**/*", "shims-png.d.ts"],
+    "include": ["src/**/*", "src/shims-png.d.ts"],
     "exclude": ["node_modules"]
 }

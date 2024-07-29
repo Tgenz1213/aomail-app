@@ -132,8 +132,8 @@
 // TODO: use script setup for consistency
 
 
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeRule from '../components/SeeRule.vue';
 import UpdateRule from '../components/UpdateRule.vue';

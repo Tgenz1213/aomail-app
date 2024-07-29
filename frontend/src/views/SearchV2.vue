@@ -633,8 +633,8 @@
 
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue';
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '../components/NavBarLarge.vue';
+import NavBarSmall from '../components/NavBarSmall.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { API_BASE_URL } from '@/main.jts';
@@ -840,7 +840,7 @@ function handleEnterKey(event) {
 
 // Mounted lifecycle hook
 onMounted(async () => {
-  getBackgroundColor();
+  
   fetchEmailLinked();
   bgColor.value = localStorage.getItem('bgColor');
 

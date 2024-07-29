@@ -62,11 +62,7 @@ export const initializePreferences = async (i18n: I18n) => {
         currentUrl !== `${BASE_URL}/signup` &&
         currentUrl !== `${BASE_URL}/signup_part2`
     ) {
-        const language = await fetchUserPreference(
-            "user/preferences/language/",
-            "language",
-            allowedLanguages
-        )
+        const language = await fetchUserPreference("user/preferences/language/", "language", allowedLanguages)
         if (language) {
             languageSelected.value = language
             i18n.global.locale = language

@@ -15,7 +15,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
                         </svg>
-                        <!--old classes if fixes are needed : class="font-poppins font-medium text-base 2xl:text-lg"-->
+                        
                         <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500;">{{ $t('constants.aiAssistant') }}
                         </h1>
                     </div>
@@ -49,7 +49,7 @@
                                     <select id="formalitySelect"
                                         class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
                                         <option value="very informal">{{ $t('newPage.informal') }}</option>
-                                        <!--<option value="informal">Peu formel</option>-->
+                                        
                                         <option value="formal" selected>{{ $t('newPage.formal') }}</option>
                                         <option value="very formal">{{ $t('newPage.veryFormal') }}</option>
                                     </select>
@@ -71,7 +71,7 @@
                 </div>
             </div>
 
-            <!-- Seconde Colonne -->
+            
             <div id="secondMainColumn"
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]">
                 <div class="flex flex-col h-full w-full">
@@ -328,37 +328,17 @@
             </div>
         </div>
     </div>
-    <!--
-    <div class="pb-1 lg:pl-20 bg-gray-100">
-        <div class="grid grid-cols-8 gap-6 h-72 items-center divide-x-8 divide-indigo-900 bg-blue-400">
-            <div class="col-span-3 h-full bg-red-500">
-                    
-                    <div class="flex">
-                        <div class="flex-shrink-0 self-center">
-                            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-indigo-800">
-                                <span class="text-lg font-medium leading-none text-white">AO</span>
-                            </span>
-                        </div>
-                        <div>
-                            <p class="mt-1" id="animated-text" ref="animatedText"></p>
-                        </div>
-                    </div>
-                </div>
-            <div class="col-span-5 h-full bg-red-500">
-                <p>Test</p>
-            </div>
-        </div>
-    </div>-->
+    
 </template>
 
 <script setup>
 import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
-import ShowNotification from '../components/NotificationTimer.vue';
-import { fetchWithToken, getBackgroundColor } from '../router/index.js';
+import ShowNotification from '@/components/NotificationTimer.vue';
 import Quill from 'quill';
-import { API_BASE_URL } from '@/main.jts';
+import { API_BASE_URL, MICROSOFT } from '@/global/const';
+
 import {
     Combobox,
     ComboboxButton,
@@ -388,11 +368,7 @@ let timerId = ref(null);
 
 let history = ref({});
 
-// TODO: translate
-// fr: Envoyer à une heure
-const items = [
-    { name: 'Schedule send', href: '#' },
-]
+
 
 
 
@@ -452,11 +428,9 @@ const emit = defineEmits(['update:selectedPerson']);
 const selectedPerson = ref('');
 
 watch(selectedPerson, (newValue) => {
-    // console.log(selectedPerson.value);
-    hasValueEverBeenEntered.value = true; // to make the icon disappear
-    /*if (selectedPerson.value && selectedPerson.value.username) {
-        //handleInputUpdate(selectedPerson.value.username);
-    }  */
+    
+    hasValueEverBeenEntered.value = true; 
+    
     emit('update:selectedPerson', newValue);
 });
 
@@ -546,12 +520,10 @@ const AIContainer = ref(null);
 let stepcontainer = 0;
 const objectInput = ref(null);
 const mailInput = ref(null);
-//const new_idea_icon = ref(require('@/assets/ao-new-idea.png'));
-const prompt_error_icon = ref(require('@/assets/ao-prompt-error.png'));
-const happy_icon = ref(require('@/assets/ao-happy.png'));
-const neutral_icon = ref(require('@/assets/ao-neutral.png'));
 
-let counter_display = 0; // to create the animation of the text displayed
+
+
+let counter_display = 0; 
 
 // Quill editor
 const quill = ref(null);
@@ -761,7 +733,6 @@ async function handleAIClick() {
             if (textareaValueSave.value == '') {
                 const message = t('constants.sendEmailConstants.noRecipientsEntered');
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
-                //const ai_icon = neutral_icon;
                 displayMessage(message, ai_icon);
             } else {
                 try {
@@ -771,15 +742,15 @@ async function handleAIClick() {
                     const result = await findUser(textareaValueSave.value);
 
                     hideLoading();
-                    //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
+                    
                     let noUsersAdded = true;
                     let WaitforUserChoice = false;
-                    if (result.error != "Invalid input or query not about email recipients") { // To update to handle the main error
-
+                    if (result.error != "Invalid input or query not about email recipients") { 
+                        
                         const main_recipients = userSearchResult.value.main_recipients;
                         const cc_recipients = userSearchResult.value.cc_recipients;
                         const bcc_recipients = userSearchResult.value.bcc_recipients;
-                        console.log("debug", main_recipients, cc_recipients, bcc_recipients);
+                        
 
                         for (let i = 0; i < main_recipients.length; i++) {
                             const user = main_recipients[i];
@@ -824,10 +795,7 @@ async function handleAIClick() {
                         // This condition is used to display the diffrent mail possibilities
                         if (main_recipients.length > 0 || cc_recipients.length > 0 || bcc_recipients.length > 0) {
 
-                            /* The animation does not work => TO FIX
-                            const message = "J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent";
-                            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />`
-                            await displayMessage(message, ai_icon);*/
+                            
 
 
                             const messageHTML = `
@@ -844,21 +812,7 @@ async function handleAIClick() {
                                     </div>
                                 </div>
                             `;
-                            /*
-                            const ai_icon = new_idea_icon;
-                            const messageHTML = `
-                                <div class="flex pb-2">
-                                    <div class="mr-4 flex">
-                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-                                            <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
-                                        </span>   
-                                    </div>
-                                    <div>
-                                        <p>J'ai trouvé plusieurs mails pour certains destinataires, sélectionez les mails qui correspondent</p>
-                                    </div>
-                                </div>
-                            `;
-                            */
+                            
                             AIContainer.value.innerHTML += messageHTML;
 
                             if (main_recipients.length > 0) {
@@ -922,7 +876,8 @@ async function handleAIClick() {
                             console.log("DEBUG");
                             const message = t('constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually');
                             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                            //const ai_icon = neutral_icon;
+                    
+                            
                             displayMessage(message, ai_icon);
                         } else if (!WaitforUserChoice) {
                             stepcontainer = 1;
@@ -931,15 +886,17 @@ async function handleAIClick() {
                     } else {
                         const message = t('constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually');
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                        //const ai_icon = neutral_icon;
+                 
+                        
                         displayMessage(message, ai_icon);
                     }
                 } catch (error) {
                     const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                    //const ai_icon = prompt_error_icon;
+              
+                    
                     displayMessage(message, ai_icon);
-                    console.error("Error finding user", error)
+                    
                 }
             }
         } else if (stepcontainer == 1) {
@@ -947,7 +904,8 @@ async function handleAIClick() {
             if (textareaValueSave.value == '') {
                 const message = t('constants.sendEmailConstants.noDraftsEnteredPleaseTryAgain');
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
-                //const ai_icon = neutral_icon;
+            
+                
                 displayMessage(message, ai_icon);
             } else {
 
@@ -975,7 +933,7 @@ async function handleAIClick() {
                     console.log(result);
                     if (result.subject && result.mail) {
                         stepcontainer = 2;
-                        // TO FINISH => animation
+                        
                         const formattedMail = result.mail.replace(/\n/g, '<br>');
                         const messageHTML = `
                       <div class="flex pb-12">
@@ -995,24 +953,21 @@ async function handleAIClick() {
                         AIContainer.value.innerHTML += messageHTML;
                         inputValue.value = result.subject;
                         MailCreatedByAI.value = true;
-                        //quill.value.clipboard.dangerouslyPasteHTML(formattedMail); OLD WAY : works but impossible to manuallty delete on quill
-                        //const delta = quill.value.clipboard.convert(formattedMail); OLD 2
-                        //console.log(delta); // Check the structure of the delta OLD 2
+                        
                         const quillEditorContainer = quill.value.root;
-                        let modified_email_body = result.mail.replace(/<\/p>/g, "</p><p></p>"); //DO NOT DELETE
+                        let modified_email_body = result.mail.replace(/<\/p>/g, "</p><p></p>");
                         quillEditorContainer.innerHTML = modified_email_body;
-                        //quill.value.update();
-
-                        // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
                         const message = t('constants.sendEmailConstants.emailFeedbackRequest');
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-                        //const ai_icon = new_idea_icon;
+                        
+                        
                         displayMessage_old(message, ai_icon);
                     } else {
                         hideLoading();
                         const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                        //const ai_icon = prompt_error_icon;
+                       
+                        
                         displayMessage(message, ai_icon);
                         console.log('Subject or Email is missing in the response');
                     }
@@ -1020,7 +975,8 @@ async function handleAIClick() {
                     hideLoading();
                     const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                    //const ai_icon = prompt_error_icon;
+                    
+                    
                     displayMessage(message, ai_icon);
                     console.error('There was a problem with the fetch operation: ', error);
                 }
@@ -1030,7 +986,8 @@ async function handleAIClick() {
             if (textareaValueSave.value == '') {
                 const message = t('constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain');
                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`
-                //const ai_icon = neutral_icon;
+               
+                
                 displayMessage(message, ai_icon);
             } else {
                 try {
@@ -1061,7 +1018,7 @@ async function handleAIClick() {
                     history.value = result.history;
                     console.log(result);
                     if (result.subject && result.email_body) {
-                        // TO FINISH => animation
+                        
                         hideLoading();
                         const formattedMail = result.email_body.replace(/\n/g, '<br>');
                         const messageHTML = `
@@ -1086,35 +1043,36 @@ async function handleAIClick() {
                         quillEditorContainer.style.cssText = 'p { margin-bottom: 20px; }';
 
 
-                        // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
                         const message = t('constants.sendEmailConstants.betterEmailFeedbackRequest');
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-                        //const ai_icon = new_idea_icon;
+                        
+                        
                         displayMessage_old(message, ai_icon);
                     } else {
                         hideLoading();
                         const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                        //const ai_icon = prompt_error_icon;
+                       
+                        
                         displayMessage(message, ai_icon);
                         console.log('Subject or Email is missing in the response');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
+                    
                     hideLoading();
                     const message = t('constants.sendEmailConstants.processingErrorTryAgain')
                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-                    //const ai_icon = prompt_error_icon;
+                    
+                    
                     displayMessage(message, ai_icon);
-                    console.error('There was a problem with the fetch operation: ', error);
+                    
                 }
             }
         }
     }, 0);
 }
-const bgColor = ref(''); // Initialize a reactive variable
+const bgColor = ref(''); 
 
-/* DOES NOT WORK => TO CHECK */
 const userSearchResult = ref(null);
 
 async function findUser(searchQuery) {
@@ -1136,97 +1094,16 @@ async function findUser(searchQuery) {
     }
 }
 
-/*
-function levenshteinDistance(a, b) {
-const matrix = [];
- 
-for (let i = 0; i <= b.length; i++) {
-  matrix[i] = [i];
-}
- 
-for (let j = 0; j <= a.length; j++) {
-  matrix[0][j] = j;
-}
- 
-for (let i = 1; i <= b.length; i++) {
-  for (let j = 1; j <= a.length; j++) {
-    if (b.charAt(i - 1) === a.charAt(j - 1)) {
-      matrix[i][j] = matrix[i - 1][j - 1];
-    } else {
-      matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
-    }
-  }
-}
- 
-return matrix[b.length][a.length];
-}
- 
-function transformUsersDict(usersDict) {
-return Object.entries(usersDict).map(([email, username]) => ({
-  email: email,
-  username: username || email 
-}));
-}
- 
-function findUser(userInput, usersDict) {
-const usersList = transformUsersDict(usersDict);
-console.log("userInput", userInput);
-console.log("usersList", usersList);
-let bestMatch = null;
-let lowestDistance = Infinity;
- 
-for (const user of usersList) {
-  let emailDistance = levenshteinDistance(userInput.toLowerCase(), user.email.toLowerCase());
-  let usernameDistance = levenshteinDistance(userInput.toLowerCase(), user.username.toLowerCase());
- 
-  if (emailDistance < lowestDistance) {
-    lowestDistance = emailDistance;
-    bestMatch = user;
-  }
- 
-  if (usernameDistance < lowestDistance) {
-    lowestDistance = usernameDistance;
-    bestMatch = user;
-  }
-}
- 
-return bestMatch ? { email: bestMatch.email, username: bestMatch.username } : "No matching user found";
-}
- 
-const emailSenders = ref(null);
- 
-function fetchEmailSenders() {
-fetch(`${API_BASE_URL}api/get_unique_email_senders', {
-  method: 'GET',
-  headers: {
-    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-    'Content-Type': 'application/json'
-  }
-})
-.then(response => {
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-  return response.json();
-})
-.then(data => {
-  console.log("email senders", data);
-  emailSenders.value = data;
-})
-.catch(error => {
-  console.error('Error fetching email senders:', error);
-});
-} */
+
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
     localStorage.removeItem("uploadedFiles");
 
-    getBackgroundColor();
+    
     bgColor.value = localStorage.getItem('bgColor');
-    //fetchEmailSenders();
-    loadFileMetadataFromLocalStorage(); // For uploaded file
-
+    
+    loadFileMetadataFromLocalStorage(); 
     window.addEventListener('resize', scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
     var toolbarOptions = [
@@ -1247,28 +1124,22 @@ onMounted(() => {
         }
     });
 
-    /*
-    quill.on('selection-change', function(range, oldRange, source) {
-    if (range === null && oldRange !== null) {
-        console.log('Selection changed');
-        var quillContent = quill.root.innerHTML;
-        handleInputUpdate3(quillContent);
-    }
-    });*/
+    
 
     // DOM-related code
     AIContainer.value = document.getElementById('AIContainer');
 
     const message = t('constants.sendEmailConstants.emailRecipientRequest');
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-    //const ai_icon = happy_icon;
+  
+    
     displayMessage(message, ai_icon);
     objectInput.value = document.getElementById('objectInput');
 
     quill.value.on('text-change', function () {
         mailInput.value = quill.value.root.innerHTML;
-        // console.log("MAIL", MailCreatedByAI.value);
-        // console.log("First", isFirstTimeEmail.value);
+        
+        
         if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
             const quillContent = quill.value.root.innerHTML;
             if (quillContent.trim() !== '<p><br></p>') {
@@ -1280,29 +1151,7 @@ onMounted(() => {
         MailCreatedByAI.value = false;
     });
 
-    /* OLD TO DELETE
-    let quillContainer = document.querySelector('#editor');
-  
-    quillContainer.addEventListener('mouseleave', function() {
-        console.log('Mouse has left the Quill editor area');
-  
-        // Call the function to handle the input on mouseleave
-        console.log(quill.value.root.innerHTML)
-        const quillContent = quill.value.root.innerHTML;
-  
-        if (quillContent.trim() !== '<p><br></p>') {
-          handleInputUpdateMailContent(quill.value.root.innerHTML);
-        }
-    });*/
-
-    // Event Listeners
-    /*
-    objectInput.value.addEventListener('blur', handleInputUpdateObject);
-    objectInput.value.addEventListener('keyup', function(e) {
-        if (e.keyCode === 13) {
-            handleInputUpdateObject();
-        }
-    });*/
+    
 
     const form = objectInput.value.closest('form');
     if (form) {
@@ -1349,65 +1198,20 @@ function personSelected(person) {
         default:
             if (!selectedPeople.value.includes(person)) {
                 selectedPeople.value.push(person);
-                // console.log("DEBUG People -->", selectedPeople.value);
+                
             }
     }
 
     if (isFirstTimeDestinary.value) {
-        // askContent(); OLD
+        
         stepcontainer = 1;
-        askContent(); // NEW (move the 2 buttons len + formality)
+        askContent(); 
+        
         isFirstTimeDestinary.value = false;
     }
 
     selectedPerson.value = null;
-
-    // To display AI (value entered by the user)
-    // OPTIONAL : DEACTIVATED BY DEFAULT => UX DESIGN => TO VALIDATE
-    /*
-    if (selectedPeople.value.length > 0) {
-      const peopleNames = selectedPeople.value.map(person => person.name);
-      displayText += peopleNames.join(', ');
-    }
     
-    if (selectedCC.value.length > 0) {
-        if (displayText.length > 0) displayText += ', ';
-        const ccNames = selectedCC.value.map(person => person.name);
-        displayText += 'CC : '
-        displayText += ccNames.join(', ');
-    }
-    
-    if (selectedCCI.value.length > 0) {
-        if (displayText.length > 0) displayText += ', ';
-        const cciNames = selectedCCI.value.map(person => person.name);
-        displayText += 'CCI : '
-        displayText += cciNames.join(', ');
-    }
-    
-    
-    let messageContainer = document.getElementById('object_input_user');
-    
-    const messageHTML = `
-        <div id='object_input_user' class="flex pb-12">
-            <div class="mr-4 flex">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                  <span class="text-lg font-medium leading-none text-white">TH</span>
-                </span>   
-            </div>
-            <div>
-                <p class="font-serif">${displayText}</p>
-            </div>
-        </div>
-      `;
-    
-    if (messageContainer) {
-        messageContainer.outerHTML = messageHTML;
-    } else {
-        AIContainer.value.innerHTML += messageHTML;
-        display("N'hésitez pas à m'indiquer un autre destinataire", counter_display); // MAYBE TO DELETE
-        counter_display += 1; // MAYBE TO DELETE
-    }*/
-
 }
 
 function toggleCC() {
@@ -1431,55 +1235,8 @@ function removePersonFromCCI(personToRemove) {
 }
 
 
-/* INPUT to handle SELECT => NOT USED
-function handleInputUpdate(selectedUsername) {
-const newMessage = selectedUsername.trim();
- 
-if (newMessage !== '') {
-    // Ask the user to enter a content
-    console.log(askContentContainer.value.innerHTML);
-    setTimeout(() => {
-      if (askContentContainer.value.innerHTML == ''){
-        askContent();
-      }
-    }, 400);
-    // Ask the user to enter a content
-    //askContent(); 
-    // Clear the container
-    messagesContainer.value.innerHTML = '';
- 
-    // Insert the full structure
-    const messageHTML = `
-        <div class="flex pb-12">
-            <div class="mr-4 flex">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                    <span class="text-lg font-medium leading-none text-white">TH</span>
-                </span>   
-            </div>
-            <div>
-                <p class="font-serif" ref="">${newMessage}</p>
-            </div>
-        </div>
-    `;
- 
-    messagesContainer.value.innerHTML = messageHTML;
- 
-    //const targetParagraph = messagesContainer.value.querySelector('p[ref="animatedText2"]');
-    //animateText(newMessage, targetParagraph);
-}
-}*/
 
-function handleInputUpdateObject() {
 
-    /* OLD OPTIONAL => 
-    if ((selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0)) {
-      if (isFirstTimeObject.value && stepcontainer == 0) {
-        askContent();
-        stepcontainer = 1;
-        isFirstTimeObject.value = false;
-      }
-    } */
-}
 
 function handleInputUpdateMailContent(newMessage) {
 
@@ -1488,117 +1245,23 @@ function handleInputUpdateMailContent(newMessage) {
 
             askContentAdvice();
             stepcontainer = 2;
+            
 
-            // console.log("TEST STEP", stepcontainer);
-
-            // Insert the full structure
-            // OPTION : Check UX Before activate (desactivated for UX reasons)
-            /*
-            const messageHTML = `
-                <div class="flex pb-12">
-                    <div class="mr-4 flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-500">
-                            <span class="text-lg font-medium leading-none text-white">TH</span>
-                        </span>   
-                    </div>
-                    <div class="font-serif">
-                        ${newMessage}
-                    </div>
-                </div>
-            `;
-            AIContainer.value.innerHTML += messageHTML;*/
-
-            scrollToBottom(); // To scroll to the bottom
+            scrollToBottom(); 
+            
         }
     }
 }
 
-/*
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', scrollToBottom);
-});*/
 
+const happy_icon = ref(require('@/assets/ao-happy.png'));
 
 function askContent() {
-    // Your previous code to display the message when the component is mounted
-    const message = t('constants.sendEmailConstants.draftEmailRequest'); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?
-    /*
-    const messageHTML = `
-      <div class="pb-12">
-        <div class="flex">
-            <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                  </svg>
-                </span>
-            </div>
-            <div>
-                <div class="flex flex-col">
-                  <p ref="animatedText${counter_display}"></p>
-                  <div class="flex mt-4">
-                    <div class="mr-4">
-                        <select id="lengthSelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
-                            <option value="very short">Très bref</option>
-                            <option value="short" selected>Bref</option>
-                            <option value="long">Long</option>
-                        </select>
-                    </div>
-                    <div>
-                        <select id="formalitySelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
-                            <option value="very informal">Informel</option>
-                            <!--<option value="informal">Peu formel</option>-->
-                            <option value="formal" selected>Formel</option>
-                            <option value="very formal">Très formel</option>
-                        </select>
-                    </div>
-                  </div>
-                </div>
-            </div>
-        </div>
-      </div>
-    `;
-    */
+    
+    const message = t('constants.sendEmailConstants.draftEmailRequest'); 
+    
     const ai_icon = happy_icon;
-    // const messageHTML = `
-    //   <div class="pb-12">
-    //     <div class="flex">
-    //         <div class="mr-4">
-    //             <!--
-    //             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-    //                 <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
-    //             </span>-->
-    //             <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-    //               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-    //                 <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-    //               </svg>
-    //             </span>
-    //         </div>
-    //         <div>
-    //             <div class="flex flex-col">
-    //               <p ref="animatedText${counter_display}"></p>
-    //               <div class="flex mt-4">
-    //                 <div class="mr-4">
-    //                     <select id="lengthSelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
-    //                         <option value="very short">Très bref</option>
-    //                         <option value="short" selected>Bref</option>
-    //                         <option value="long">Long</option>
-    //                     </select>
-    //                 </div>
-    //                 <div>
-    //                     <select id="formalitySelect" class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900"> <!-- OLD : focus:ring-2 focus:ring-gray-600 focus:ring-inset focus:border-gray-600 -->
-    //                         <option value="very informal">Informel</option>
-    //                         <!--<option value="informal">Peu formel</option>-->
-    //                         <option value="formal" selected>Formel</option>
-    //                         <option value="very formal">Très formel</option>
-    //                     </select>
-    //                 </div>
-    //               </div>
-    //             </div>
-    //         </div>
-    //     </div>
-    //   </div>
-    // `;
+    
     const messageHTML = `
       <div class="pb-12">
         <div class="flex">
@@ -1630,65 +1293,13 @@ function askContent() {
     animateText(message, animatedParagraph);
 
     scrollToBottom();
-
-    // const lengthSelect = document.getElementById('lengthSelect');
-    // const formalitySelect = document.getElementById('formalitySelect');
-
-    // lengthSelect.addEventListener('change', () => {
-    //     lengthValue.value = lengthSelect.value;
-    //     console.log('Length:', lengthValue);
-    // });
-
-    // formalitySelect.addEventListener('change', () => {
-    //     formalityValue.value = formalitySelect.value;
-    //     console.log('Formality:', formalityValue);
-    // });
+    
 }
 
 function askContentAdvice() {
-    // TODO: check if subject has been entered => if no => answer please enter it
-    // Your previous code to display the message when the component is mounted
-    const message = t('constants.sendEmailConstants.emailCompositionAssistance'); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
+     const message = t('constants.sendEmailConstants.emailCompositionAssistance'); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
-    /*
-    const messageHTML = `
-      <div class="pb-12">
-        <div class="flex">
-            <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                  </svg>
-                </span>
-            </div>
-            <div>
-                <div class="flex flex-col">
-                  <p ref="animatedText${counter_display}"></p>
-                  <div class="flex mt-4">
-                    <div class="mr-4">
-                      <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Corrige l'orthographe
-                      </button>
-                    </div>
-                    <div>
-                      <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Vérifie le copywriting
-                      </button>
-                    </div>
-                  </div>
-                  <div class="flex mt-4">
-                    <div class="mr-4">
-                      <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                        Améliore l'écriture
-                      </button>
-                    </div>
-                  </div>
-                </div>
-            </div>
-        </div>
-      </div>
-    `;
-    */
+     
     const ai_icon = happy_icon;
     const messageHTML = `
       <div class="pb-12">
@@ -1901,12 +1512,11 @@ async function checkSpelling() {
         const result = await fetchWithToken(`${API_BASE_URL}api/correct_email_language/`, requestOptions);
 
         hideLoading();
-        //subject.value = result.corrected_subject; TO DELETE ?
-        //mail.value = result.corrected_body; TO DELETE ?
+        
         // retrieve num of corrections
         console.log(result);
         if (result.corrected_subject && result.corrected_body) {
-            // TO FINISH => animation
+            
             const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
             const messageHTML = `
               <div class="flex pb-12">
@@ -1928,26 +1538,28 @@ async function checkSpelling() {
             const quillEditorContainer = quill.value.root;
             quillEditorContainer.innerHTML = result.corrected_body;
 
-            // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = t('constants.sendEmailConstants.spellingCorrectionRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-            //const ai_icon = happy_icon;
+           
+            
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
             const message = t('constants.sendEmailConstants.processingErrorApology')
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-            //const ai_icon = prompt_error_icon;
+       
+            
             displayMessage(message, ai_icon);
             console.log('Subject or Email is missing in the response');
         }
 
     } catch (error) {
-        console.error('Error:', error);
+        
         hideLoading();
         const message = t('constants.sendEmailConstants.processingErrorApology')
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-        //const ai_icon = prompt_error_icon;
+      
+        
         displayMessage(message, ai_icon);
     }
 }
@@ -1971,12 +1583,11 @@ async function checkCopyWriting() {
         const result = await fetchWithToken(`${API_BASE_URL}api/check_email_copywriting/`, requestOptions);
 
         hideLoading();
-        //subject.value = result.corrected_subject; TO DELETE ?
-        //mail.value = result.corrected_body; TO DELETE ?
+        
         // retrieve num of corrections
         console.log(result);
         if (result.feedback_copywriting) {
-            // TO FINISH => animation
+            
             const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
 
             const messageHTML = `
@@ -1995,26 +1606,28 @@ async function checkCopyWriting() {
           `;
             AIContainer.value.innerHTML += messageHTML;
 
-            // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = t('constants.sendEmailConstants.copywritingCheckRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-            //const ai_icon = happy_icon;
+          
+            
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
             const message = t('constants.sendEmailConstants.processingErrorApology')
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-            //const ai_icon = prompt_error_icon;
+        
+            
             displayMessage(message, ai_icon);
             console.log('Subject or Email is missing in the response');
         }
 
     } catch (error) {
-        console.error('Error:', error);
+        
         hideLoading();
         const message = t('constants.sendEmailConstants.processingErrorApology')
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-        //const ai_icon = prompt_error_icon;
+     
+        
         displayMessage(message, ai_icon);
     }
 }
@@ -2046,7 +1659,7 @@ async function WriteBetter() {
         mail.value = result.email_body;
         history.value = result.history;
         if (result.subject && result.email_body) {
-            // TO FINISH => animation
+            
             const messageHTML = `
             <div class="flex pb-12">
                 <div class="mr-4 flex">
@@ -2067,26 +1680,28 @@ async function WriteBetter() {
             const quillEditorContainer = quill.value.root;
             quillEditorContainer.innerHTML = result.email_body;
 
-            // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
             const message = t('constants.sendEmailConstants.betterEmailFeedbackRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
-            //const ai_icon = happy_icon;
+           
+            
             displayMessage(message, ai_icon);
         } else {
             hideLoading();
             const message = t('constants.sendEmailConstants.processingErrorTryAgain')
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-            //const ai_icon = prompt_error_icon;
+
+            
             displayMessage(message, ai_icon);
             console.log('Subject or Email is missing in the response');
         }
     } catch (error) {
         console.error('Error:', error);
         hideLoading();
-        // Handling error => TO PUT IN A FUNCTION
+        
         const message = t('constants.sendEmailConstants.processingErrorTryAgain')
         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
-        //const ai_icon = prompt_error_icon;
+       
+        
         displayMessage(message, ai_icon);
         console.error('There was a problem with the fetch operation: ', error);
     }
@@ -2123,8 +1738,7 @@ function hideLoading() {
     }
 }
 
-// TODO: add translations
-// TODO: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
+
 async function scheduleSend() {
     const emailSubject = inputValue.value;
     const emailBody = quill.value.root.innerHTML;
@@ -2213,7 +1827,8 @@ async function scheduleSend() {
 
             const message = t('constants.sendEmailConstants.emailRecipientRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-            //const ai_icon = happy_icon;
+           
+            
             displayMessage(message, ai_icon);
         } else {
             // Show the pop-up
@@ -2307,7 +1922,8 @@ async function sendEmail() {
 
             const message = t('constants.sendEmailConstants.emailRecipientRequest');
             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-            //const ai_icon = happy_icon;
+          
+            
             displayMessage(message, ai_icon);
         } else {
             // Show the pop-up
@@ -2376,19 +1992,19 @@ function handleKeyDown(event) {
 </script>
 
 <script>
-import Navbar from '../components/AppNavbar7.vue';
-import Navbar2 from '../components/AppNavbar8.vue';
+import NavBarLarge from '@/components/NavBarLarge.vue';
+import NavBarSmall from '@/components/NavBarSmall.vue';
 import {
     UserGroupIcon,
     Bars2Icon,
-    //Bars3BottomLeftIcon,
-    //ChatBubbleOvalLeftEllipsisIcon,
+    
     ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 
 import {
     PaperAirplaneIcon
 } from '@heroicons/vue/24/solid'
+import { fetchWithToken } from '@/global/security';
 
 
 export default {
@@ -2399,8 +2015,7 @@ export default {
         Bars2Icon,
         ChevronDownIcon,
         PaperAirplaneIcon
-        // ChatBubbleOvalLeftEllipsisIcon,
-        // Bars3BottomLeftIcon
+        
     },
     methods: {
         adjustHeight(event) {
@@ -2421,3 +2036,14 @@ export default {
     }
 }
 </script>
+
+
+<!-- TODO: FOLLOW these guidelines anyway
+the import of constants and function are correct. You must do the following operations:
+
+create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
+if possible put everything under script setup if its more optimal and easier to manage
+remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
+optimize the code
+use strictly camelCase
+we are using TypeScript so migrate everything where its needed using interfaces or types -->

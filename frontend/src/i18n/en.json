@@ -228,6 +228,7 @@
       "seeEmailModal": {
         "moreActions": "More actions",
         "read": "Read",
+        "manageRules": "Manage rules",
         "selectTab": "Select a tab",
         "emailResume": "Email summary",
         "fullEmail": "Full email"

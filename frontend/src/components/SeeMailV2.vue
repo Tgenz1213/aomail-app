@@ -48,7 +48,7 @@
                             <div class="relative group">
                                 <!-- Adjusted tooltip positioning -->
                                 <div
-                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
+                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-[-10px] translate-y-2">
                                     {{ $t('homePage.modals.seeEmailModal.read') }}  
                                 </div>
                                 <button
@@ -64,7 +64,7 @@
                           <div class="relative group">
                               <!-- Updated tooltip positioning -->
                               <div
-                                  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
+                                  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-[-30px] translate-y-2">
                                   {{ $t('homePage.answer') }}  
                               </div>
                               <button @click="openAnswer(email)"
@@ -79,8 +79,8 @@
                           <div class="relative group">
                               <!-- Updated tooltip positioning -->
                               <div
-                                  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2">
-                                  {{ $t('homePage.answer') }} 
+                                  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-[-25px] w-[90px] translate-y-2">
+                                  {{ $t('homePage.modals.seeEmailModal.manageRules') }} 
                               </div>
                               <button @click="openRuleEditor"
                                   type="button"
@@ -93,7 +93,7 @@
                           <div class="group action-buttons">
                               <div class="relative group">
                                   <div
-                                    class="absolute hidden group-hover:block px-2 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-0 translate-y-2 -translate-x-3">
+                                    class="absolute hidden group-hover:block px-2 py-2 bg-black text-white text-sm rounded shadow-lg top-full left-[-5px] translate-y-2 -translate-x-3">
                                     {{ $t('homePage.modals.seeEmailModal.moreActions') }} 
                                 </div>
                                   <Menu as="div"

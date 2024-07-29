@@ -91,6 +91,7 @@ def get_emails_data(request: HttpRequest) -> Response:
                     for bcc in email.bcc_senders.all()
                 ],
                 "read": email.read,
+                "answerLater": email.answer_later,
                 "rule": {
                     "hasRule": email.has_rule,
                     "ruleId": email.rule_id,

@@ -925,18 +925,16 @@ async function markEmailAsRead(emailId) {
     }
 }
 async function markEmailReplyLater(email) {
-    lockEmailsAccess.value = true;
     const emailId = email.id
-    email.answer_later = true;
-    isMenuOpen.value = false;
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply-later/`, {
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply_later/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             }
         });
+        console.log("RESPONSE", response)
         if (response.answer_later) {
             console.log("Email marked for reply later successfully");
         } else {
@@ -953,7 +951,6 @@ async function markEmailReplyLater(email) {
         notificationMessage = error.message;
         displayPopup();
     }
-    lockEmailsAccess.value = false;
 }
 async function transferEmail(email) {
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;

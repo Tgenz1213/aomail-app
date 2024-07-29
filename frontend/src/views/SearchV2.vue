@@ -855,7 +855,7 @@ function closeSeeModal() {
     isModalSeeOpen.value = false;
 }
 async function openAnswer(email) {
-    // THIS IS NOT NEEDED => TO UPDATE
+    // THIS IS NOT NEEDED => TO UPDATE (wee do not need to fetch here => but a solution must be found for emailReceiver)
     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`;
 
     try {

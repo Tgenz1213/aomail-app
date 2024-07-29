@@ -216,10 +216,10 @@ const openAnswer = () => {
 }
 
 const openRuleEditor = () => {
-  if (props.email.rule) {
+  if (props.email.rule.hasRule) {
     emits('openRuleEditor', props.email.rule_id)
   } else {
-    emits('openNewRule', props.email.name, props.email.email)
+    emits('openNewRule', props.email.sender.name, props.email.sender.email)
   }
 }
 

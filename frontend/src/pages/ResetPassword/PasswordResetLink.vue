@@ -1,8 +1,5 @@
 <template>
-    <div
-        v-if="isModalOpen"
-        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-    >
+    <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
             <ShowNotification
                 :showNotification="showNotification"
@@ -12,9 +9,7 @@
                 @dismiss-popup="dismissPopup"
             />
             <h2 class="text-xl font-semibold mb-4">Reset Password</h2>
-            <p class="mb-4">
-                Please enter your email address below to receive a link to reset your password.
-            </p>
+            <p class="mb-4">Please enter your email address below to receive a link to reset your password.</p>
             <input
                 type="email"
                 v-model="email"
@@ -32,34 +27,38 @@
     </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
-import NotificationTimer from "@/components/NotificationTimer .vue"
-import { API_BASE_URL } from "@/global/const";
-
+import ShowNotification from "@/components/NotificationTimer.vue"
+import { API_BASE_URL } from "@/global/const"
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
 
 const isModalOpen = ref(true)
 const email = ref("")
-const router = useRouter()
 
-// Variables to display a notification
 const showNotification = ref(false)
 const notificationTitle = ref("")
 const notificationMessage = ref("")
 const backgroundColor = ref("")
-let timerId = ref(null)
+const timerId = ref<NodeJS.Timeout | null>(null)
+
+const router = useRouter()
 
 function dismissPopup() {
     showNotification.value = false
-    clearTimeout(timerId.value)
+    if (timerId.value !== null) {
+        clearTimeout(timerId.value)
+    }
 }
 
-function displayPopup() {
-    showNotification.value = true
-    timerId.value = setTimeout(() => {
-        dismissPopup()
-    }, 4000)
+function displayPopup(type: "success" | "error", title: string, message: string) {
+    if (type === "error") {
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+    } else {
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+    }
+    timerId.value = setTimeout(dismissPopup, 4000)
 }
 
 async function generateResetLink() {
@@ -72,45 +71,17 @@ async function generateResetLink() {
             body: JSON.stringify({ email: email.value }),
         })
 
-        if (response.status === 200) {
-            backgroundColor.value = "bg-green-200/[.89] border border-green-400"
-            notificationTitle.value = "Check your mailbox!"
-            notificationMessage.value = "Redirecting..."
-            displayPopup()
-
-            setTimeout(() => {
+        if (response.ok) {
+            displayPopup("success", "Check your mailbox!", "Redirecting...")
+            timerId.value = setTimeout(() => {
                 router.push({ name: "login" })
             }, 3000)
         } else {
             const data = await response.json()
-            backgroundColor.value = "bg-red-200/[.89] border border-red-400"
-            notificationTitle.value = "Error sending password reset email"
-            notificationMessage.value = data.error
-            displayPopup()
+            displayPopup("error", "Error sending password reset email", data.error)
         }
     } catch (error) {
-        backgroundColor.value = "bg-red-200/[.89] border border-red-400"
-        notificationTitle.value = "Error sending password reset email"
-        notificationMessage.value = error.message
-        displayPopup()
+        displayPopup("error", "Error sending password reset email", (error as Error).message)
     }
 }
 </script>
-
-<script>
-export default {
-    name: "ModalComponent",
-}
-</script>
-
-
-
-<!-- TODO: FOLLOW these guidelines anyway
-the import of constants and function are correct. You must do the following operations:
-
-create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
-if possible put everything under script setup if its more optimal and easier to manage
-remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
-optimize the code
-use strictly camelCase
-we are using TypeScript so migrate everything where its needed using interfaces or types -->

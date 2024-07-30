@@ -16,15 +16,15 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue"
 import { useRouter } from "vue-router"
 
 const router = useRouter()
-const countdown = ref(5)
-let timer
+const countdown = ref<number>(5)
+let timer: ReturnType<typeof setInterval>
 
-const updateCountdown = () => {
+const updateCountdown = (): void => {
     countdown.value--
 
     if (countdown.value <= 0) {
@@ -32,8 +32,10 @@ const updateCountdown = () => {
     }
 }
 
-const redirectNow = () => {
-    clearInterval(timer)
+const redirectNow = (): void => {
+    if (timer !== undefined) {
+        clearInterval(timer)
+    }
     router.push({ name: "login" })
 }
 
@@ -42,15 +44,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    clearInterval(timer)
+    if (timer !== undefined) {
+        clearInterval(timer)
+    }
 })
 </script>
-
-<!-- TODO: FOLLOW these guidelines anyway
-the import of constants and function are correct. You must do the following operations:
-
-if possible put everything under script setup if its more optimal and easier to manage
-remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
-optimize the code
-use strictly camelCase
-we are using TypeScript so migrate everything where its needed using interfaces or types -->

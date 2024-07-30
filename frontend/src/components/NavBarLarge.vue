@@ -115,15 +115,13 @@
 import { ref } from "vue"
 import { useRoute } from "vue-router"
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue"
-import {
-    EnvelopeIcon,
-    PencilSquareIcon,
-    XMarkIcon,
-    CogIcon,
-    MagnifyingGlassIcon,
-    ArrowUturnLeftIcon,
-    BeakerIcon,
-} from "@heroicons/vue/24/outline"
+import EnvelopeIcon from "@heroicons/vue/24/outline/EnvelopeIcon"
+import PencilSquareIcon from "@heroicons/vue/24/outline/PencilSquareIcon"
+import XMarkIcon from "@heroicons/vue/24/outline/XMarkIcon"
+import CogIcon from "@heroicons/vue/24/outline/CogIcon"
+import MagnifyingGlassIcon from "@heroicons/vue/24/outline/MagnifyingGlassIcon"
+import ArrowUturnLeftIcon from "@heroicons/vue/24/outline/ArrowUturnLeftIcon"
+import BeakerIcon from "@heroicons/vue/24/outline/BeakerIcon"
 import { i18n } from "@/global/Settings/preferences"
 import logo from "@/assets/logo-aomail.png"
 

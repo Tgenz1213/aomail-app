@@ -56,7 +56,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue"
-import { CheckCircleIcon, XMarkIcon } from "@heroicons/vue/20/solid"
+import CheckCircleIcon from "@heroicons/vue/20/solid/CheckCircleIcon"
+import XMarkIcon from "@heroicons/vue/20/solid/XMarkIcon"
 
 export default defineComponent({
     props: {

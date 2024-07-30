@@ -1,3 +1,38 @@
-// TODO: export the functions related to display a pop-up
-// must create 1 function to display an error popup and 1 to display a success popup
-// REMEMBER to put the constants in const.ts
+import { Ref } from "vue"
+import { POP_UP_ERROR_COLOR, POP_UP_SUCCESS_COLOR } from "./const"
+
+export function displayErrorPopup(
+    showNotification: Ref<boolean>,
+    notificationTitle: Ref<string>,
+    notificationMessage: Ref<string>,
+    backgroundColor: Ref<string>,
+    title: string,
+    message: string
+) {
+    backgroundColor.value = POP_UP_ERROR_COLOR
+    notificationTitle.value = title
+    notificationMessage.value = message
+    showNotification.value = true
+
+    setTimeout(() => {
+        showNotification.value = false
+    }, 4000)
+}
+
+export function displaySuccessPopup(
+    showNotification: Ref<boolean>,
+    notificationTitle: Ref<string>,
+    notificationMessage: Ref<string>,
+    backgroundColor: Ref<string>,
+    title: string,
+    message: string
+) {
+    backgroundColor.value = POP_UP_SUCCESS_COLOR
+    notificationTitle.value = title
+    notificationMessage.value = message
+    showNotification.value = true
+
+    setTimeout(() => {
+        showNotification.value = false
+    }, 4000)
+}

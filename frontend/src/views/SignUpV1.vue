@@ -116,7 +116,7 @@
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
         <div class="flex flex-col 2xl:mt-0 gap-y-1">
-          <img class="mx-auto h-10 w-auto" :src="logo" alt="Your Company">
+          <img class="mx-auto h-10 w-auto" :src="logo" alt="Aomail logo">
           <h2 class="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">{{
             $t('signUpPart1Page.signUp') }}
           </h2>

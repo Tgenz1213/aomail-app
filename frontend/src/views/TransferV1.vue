@@ -1,5 +1,5 @@
 <template>
-    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
         <div class="flex h-full w-full">
@@ -268,7 +268,7 @@
 import { computed, ref, onMounted, nextTick } from 'vue';
 import { watch } from 'vue';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
-import ShowNotification from '../components/ShowNotification.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { useRouter } from 'vue-router';
 import Quill from 'quill';

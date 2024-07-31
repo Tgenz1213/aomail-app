@@ -1,5 +1,5 @@
 <template>
-    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
     <div v-if="loading">
         <Loading class=""></Loading>
@@ -2592,7 +2592,7 @@ async function Hide_filtres() {
 </script>
 
 <script>
-import ShowNotification from '../components/ShowNotification.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import NavBarLarge from '../components/NavBarLarge.vue';

@@ -4,7 +4,7 @@
         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
     >
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-            <ShowNotification
+            <NotificationTimer
                 :showNotification="showNotification"
                 :notificationTitle="notificationTitle"
                 :notificationMessage="notificationMessage"
@@ -35,7 +35,7 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
-import ShowNotification from "../components/ShowNotification.vue"
+import NotificationTimer from "../components/NotificationTimer.vue"
 import { API_BASE_URL } from "@/main.jts"
 
 const isModalOpen = ref(true)

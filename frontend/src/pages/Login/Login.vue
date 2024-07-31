@@ -1,5 +1,5 @@
 <template>
-    <ShowNotification
+    <NotificationTimer
         :showNotification="showNotification"
         :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage"
@@ -113,7 +113,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue"
-import ShowNotification from "@/components/NotificationTimer.vue"
+import NotificationTimer from "@/components/NotificationTimer.vue"
 import { useRouter } from "vue-router"
 import { API_BASE_URL } from "@/global/const"
 import logo from "@/assets/logo-aomail.png"

@@ -9,8 +9,13 @@ declare module "@heroicons/vue/*" {
     export default component
 }
 
-declare module "@heroicons/vue/24/outline/EnvelopeIcon" {
+declare module "@heroicons/vue/24/outline/*" {
     import { DefineComponent } from "vue"
     const component: DefineComponent<{}, {}, any>
     export default component
+}
+
+declare module "moment-timezone" {
+    import moment from "moment"
+    export = moment
 }

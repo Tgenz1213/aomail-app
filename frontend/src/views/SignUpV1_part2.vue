@@ -1,7 +1,7 @@
 <!-- V1 -->
 
 <template>
-  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+  <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
     <div class="flex-grow flex flex-col justify-center py-4">
@@ -553,7 +553,7 @@
 
 
 import { ref, onMounted } from 'vue';
-import ShowNotification from '../components/ShowNotification.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '@/main.jts';
 import { useI18n } from 'vue-i18n';

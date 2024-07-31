@@ -1,5 +1,5 @@
 <template>
-  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+  <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
     <div class="flex h-full w-full">
@@ -275,7 +275,7 @@ import { useRouter } from 'vue-router';
 import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main.jts';
 import Quill from 'quill';
-import ShowNotification from '../components/ShowNotification.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 import {
   Combobox,
   ComboboxButton,

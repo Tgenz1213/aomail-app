@@ -1,5 +1,5 @@
 <template>
-  <ShowNotification :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
+  <NotificationTimer :showNotification="this.showNotification" :notificationTitle="this.notificationTitle"
     :notificationMessage="this.notificationMessage" :backgroundColor="this.backgroundColor"
     @dismiss-popup="dismissPopup" />
   <div class="flex flex-col justify-center bg-white items-center h-screen">

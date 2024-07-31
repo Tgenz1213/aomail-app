@@ -1,5 +1,5 @@
 <template>
-    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <!--
     <div class="pb-1 lg:pl-20 bg-gray-100">
@@ -1295,7 +1295,7 @@ async function deleteAccount() {
 
 <script>
 import '@fortawesome/fontawesome-free/css/all.css';
-import ShowNotification from '../components/NotificationTimer.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
 import { ref, onMounted } from 'vue';
 import NavBarLarge from '../components/NavBarLarge.vue';

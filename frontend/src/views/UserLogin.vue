@@ -1,5 +1,5 @@
 <template>
-    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
     <div class="h-screen bg-white flex min-h-full flex-col justify-center items-center px-6 py-12 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -70,7 +70,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import ShowNotification from '../components/ShowNotification.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { API_BASE_URL } from '@/main.jts';

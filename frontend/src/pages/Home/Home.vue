@@ -1,5 +1,5 @@
 <template>
-    <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+    <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
         <!-- Modal for Warning Category (rules linked) -->
         <transition name="modal-fade">
@@ -2524,7 +2524,7 @@ async function Hide_filtres() {
 </script>
 
 <script>
-import ShowNotification from '../components/NotificationTimer.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import NavBarLarge from '../components/NavBarLarge.vue';

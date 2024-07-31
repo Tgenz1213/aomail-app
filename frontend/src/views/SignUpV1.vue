@@ -1,5 +1,5 @@
 <template>
-  <ShowNotification :showNotification="showNotification" :notificationTitle="notificationTitle"
+  <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
   <!-- Update Category modal -->
   <transition name="modal-fade">
@@ -747,7 +747,7 @@ import { API_BASE_URL } from '@/main.jts';
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import ShowNotification from '../components/ShowNotification.vue';
+import NotificationTimer from '@/components/NotificationTimer.vue';
 
 // Use i18n
 const { t } = useI18n();

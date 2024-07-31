@@ -37,34 +37,30 @@
     </Listbox>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from "vue"
-import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from "@headlessui/vue"
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue"
+import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon"
+import CheckIcon from "@heroicons/vue/24/outline/CheckIcon"
 import { i18n } from "@/global/Settings/preferences"
 
-// Theme options with translated values
-const themes = ref([
+interface Theme {
+    key: string
+    value: string
+}
+
+const themes = ref<Theme[]>([
     { key: "light", value: i18n.global.t("constants.themeList.lightTheme") },
     { key: "dark", value: i18n.global.t("constants.themeList.darkTheme") },
 ])
 
-if (!localStorage.getItem("theme")) {
-    localStorage.setItem("theme", "light")
-}
-const storedThemeKey = localStorage.getItem("theme")
-const selectedTheme = ref(themes.value.find((theme) => theme.key === storedThemeKey))
+const storedThemeKey = localStorage.getItem("theme") || "light"
+const initialTheme = themes.value.find((theme) => theme.key === storedThemeKey) || themes.value[0]
+const selectedTheme = ref<Theme>(initialTheme)
 
-const updateThemeSelection = (newTheme) => {
+const updateThemeSelection = (newTheme: Theme) => {
     localStorage.setItem("theme", newTheme.key)
 }
 
 watch(selectedTheme, updateThemeSelection)
 </script>
-
-
-<!-- 
-// todo:
-// remove all comments
-// optimize the code
-// use strictly camelCase
-// we are using TypeScript so migrate everything where its needed using interfaces or types -->

@@ -51,18 +51,19 @@
     </div>
 </template>
 
-<script setup>
-// todo:
-// remove all comments
-// optimize the code
-// use strictly camelCase
-// we are using TypeScript so migrate everything where its needed using interfaces or types
+<script setup lang="ts">
 import { ref, watch } from "vue"
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue"
+import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon"
+import CheckIcon from "@heroicons/vue/24/outline/CheckIcon"
 import { i18n } from "@/global/Settings/preferences"
-import { Listbox, ListboxButton, ListboxOptions, ListboxOption, ChevronUpDownIcon, CheckIcon } from "@headlessui/vue"
 
-// Language options
-const languages = ref([
+interface Language {
+    key: string
+    value: string
+}
+
+const languages = ref<Language[]>([
     { key: "french", value: i18n.global.t("constants.languagesList.french") },
     { key: "american", value: i18n.global.t("constants.languagesList.american") },
     { key: "german", value: i18n.global.t("constants.languagesList.german") },
@@ -72,24 +73,19 @@ const languages = ref([
     { key: "indian", value: i18n.global.t("constants.languagesList.indian") },
 ])
 
-// Selected language
-if (!localStorage.getItem("language")) {
-    localStorage.setItem("language", "american")
-}
-const storedLanguageKey = localStorage.getItem("language")
-const languageIndex = languages.value.findIndex((lang) => lang.key === storedLanguageKey)
-const selectedLanguage = ref(languages.value[languageIndex] || languages.value[1])
+const storedLanguageKey = localStorage.getItem("language") || "american"
+const initialLanguage = languages.value.find((lang) => lang.key === storedLanguageKey) || languages.value[1]
+const selectedLanguage = ref<Language>(initialLanguage)
 
-const updateLanguageSelection = async (newLanguage) => {
+const updateLanguageSelection = async (newLanguage: Language) => {
     selectedLanguage.value = newLanguage
     const newLanguageKey = newLanguage.key
     const currentLanguage = localStorage.getItem("language")
 
-    if (newLanguageKey === currentLanguage) return
-
-    localStorage.setItem("language", newLanguageKey)
+    if (newLanguageKey !== currentLanguage) {
+        localStorage.setItem("language", newLanguageKey)
+    }
 }
 
-// Watchers
 watch(selectedLanguage, updateLanguageSelection)
 </script>

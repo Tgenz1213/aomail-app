@@ -201,7 +201,7 @@
                             <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <ComboboxInput
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                              @input="query = $event.target.value"
+                              @input="queryGetContacts = $event.target.value"
                               :display-value="(person) => person?.username"
                               placeholder="À"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
@@ -1060,13 +1060,15 @@ onMounted(() => {
   document.addEventListener('click', closeDropdown);
 });
 
-const filteredPeople = computed(() =>
-  queryGetContacts.value === ''
-    ? contacts
-    : contacts.filter((person) => {
-      return person.username.toLowerCase().includes(queryGetContacts.value.toLowerCase())
-    })
-)
+const filteredPeople = computed(() => {
+  if (!contacts || queryGetContacts.value === '') {
+    return contacts || [];
+  }
+  return contacts.filter((person) => {
+    const username = person?.username || '';
+    return username.toLowerCase().includes(queryGetContacts.value.toLowerCase())
+  });
+})
 
 
 const toggleSelection = (person) => {

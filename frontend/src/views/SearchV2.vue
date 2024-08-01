@@ -777,6 +777,7 @@ let isAIWriting = ref(false);
 let isEmailhere = ref(false);
 let searchResult = ref({});
 const textareaValue = ref('');
+let lockEmailsAccess = ref(false);
 
 
 const attachmentTypes = [
@@ -910,6 +911,7 @@ function openNewRule(ruleName, ruleEmail) {
 }
 async function markEmailAsRead(emailId) {
     try {
+        lockEmailsAccess.value = true;
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_read/`, {
             method: 'POST',
             headers: {
@@ -933,6 +935,7 @@ async function markEmailAsRead(emailId) {
     }
 }
 async function markEmailReplyLater(email) {
+    lockEmailsAccess.value = true;
     const emailId = email.id
 
     try {

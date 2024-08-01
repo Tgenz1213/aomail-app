@@ -430,7 +430,7 @@
                                                     <li v-for="email in emailsLinked" :key="email.email"
                                                         class="border border-black w-full overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative">
                                                         <div class="flex items-center justify-center w-full">
-                                                            <svg v-if="email.type_api === 'microsoft'"
+                                                            <svg v-if="email.typeApi === 'microsoft'"
                                                                 xmlns="http://www.w3.org/2000/svg" width="21"
                                                                 height="21" viewBox="0 0 21 21">
                                                                 <rect x="1" y="1" width="9" height="9" fill="#f25022" />
@@ -441,7 +441,7 @@
                                                                 <rect x="11" y="11" width="9" height="9"
                                                                     fill="#ffb900" />
                                                             </svg>
-                                                            <svg v-if="email.type_api === 'google'"
+                                                            <svg v-if="email.typeApi === 'google'"
                                                                 class="-ml-0.5 h-5 w-5" aria-hidden="true"
                                                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                                                                 fill="currentColor">
@@ -813,12 +813,12 @@ async function unLinkAccount() {
     closeUnlinkModal();
 }
 function linkNewEmail() {
-    const type_api = sessionStorage.getItem("type_api");
+    const typeApi = sessionStorage.getItem("typeApi");
 
-    if (type_api == "google") {
+    if (typeApi == "google") {
         caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))))
         window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
-    } else if (type_api == "microsoft") {
+    } else if (typeApi == "microsoft") {
         window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
     }
 }
@@ -830,8 +830,8 @@ function authorize_microsoft() {
     saveVariables("microsoft");
     isModalAddUserDescriptionOpen.value = true;
 }
-function saveVariables(type_api) {
-    sessionStorage.setItem("type_api", type_api);
+function saveVariables(typeApi) {
+    sessionStorage.setItem("typeApi", typeApi);
     sessionStorage.setItem("userDescription", userEmailDescription.value);
 }
 function checkAuthorizationCode() {
@@ -851,7 +851,7 @@ async function linkEmail(authorizationCode) {
         },
         body: JSON.stringify({
             code: authorizationCode,
-            type_api: sessionStorage.getItem("type_api"),
+            typeApi: sessionStorage.getItem("typeApi"),
             user_description: sessionStorage.getItem("userDescription")
         })
     };

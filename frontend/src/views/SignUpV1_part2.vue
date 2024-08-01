@@ -588,14 +588,14 @@ function handleKeyDown(event) {
 }
 function authorize_google(event) {
   event.preventDefault();
-  sessionStorage.setItem("type_api", "google");
+  sessionStorage.setItem("typeApi", "google");
 
   // Redirect the user to the authorization URL
   window.location.replace(`${API_BASE_URL}google/auth_url/`);
 }
 function authorize_microsoft(event) {
   event.preventDefault();
-  sessionStorage.setItem("type_api", "microsoft");
+  sessionStorage.setItem("typeApi", "microsoft");
 
   // Redirect the user to the authorization URL
   window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
@@ -685,7 +685,7 @@ async function submitSignupData(event) {
         color: localStorage.getItem('bgColor'),
         categories: localStorage.getItem('categories'),
         code: sessionStorage.getItem('code'),
-        type_api: sessionStorage.getItem("type_api"),
+        typeApi: sessionStorage.getItem("typeApi"),
         userDescription: sessionStorage.getItem('userDescription')
       })
     };

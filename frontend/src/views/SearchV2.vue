@@ -652,6 +652,14 @@
                               <!-- Category flag (always gray) -->
                               <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">{{ email.category }}</span>
                               
+                              <!-- Read flag -->
+                              <span v-if="email.read" class="inline-flex items-center rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-600 ring-1 ring-inset ring-stone-500/10">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 mr-1">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Lu
+                              </span>
+
                               <!-- Optional hover UX info -->
                               <span
                                 v-bind:class="{

@@ -67,20 +67,16 @@ import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon"
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon"
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
 import { i18n } from "@/global/Settings/preferences"
+import { KeyValuePair } from "@/global/types"
 
-interface Theme {
-    key: string
-    value: string
-}
-
-const themes = ref<Theme[]>([
+const themes = ref<KeyValuePair[]>([
     { key: "light", value: "constants.themeList.lightTheme" },
     { key: "dark", value: "constants.themeList.darkTheme" },
 ])
 
 const storedThemeKey = localStorage.getItem("theme")
 const themeIndex = themes.value.findIndex((theme) => theme.key === storedThemeKey)
-const selectedTheme = ref<Theme>(themes.value[themeIndex] || themes.value[0])
+const selectedTheme = ref<KeyValuePair>(themes.value[themeIndex] || themes.value[0])
 
 const showNotification = ref(false)
 const notificationTitle = ref("")
@@ -88,7 +84,7 @@ const notificationMessage = ref("")
 const backgroundColor = ref("")
 const timerId = ref<number | null>(null)
 
-const updateThemeSelection = async (newTheme: Theme) => {
+const updateThemeSelection = async (newTheme: KeyValuePair) => {
     selectedTheme.value = newTheme
     const newThemeKey = newTheme.key
     const currentTheme = localStorage.getItem("theme")

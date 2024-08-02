@@ -68,15 +68,11 @@ import { API_BASE_URL } from "@/global/const"
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon"
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon"
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
-
-interface Language {
-    key: string
-    value: string
-}
+import { KeyValuePair } from "@/global/types"
 
 const { t, locale } = useI18n()
 
-const languages: Language[] = [
+const languages: KeyValuePair[] = [
     { key: "french", value: t("constants.languagesList.french") },
     { key: "american", value: t("constants.languagesList.american") },
     { key: "german", value: t("constants.languagesList.german") },
@@ -88,7 +84,7 @@ const languages: Language[] = [
 
 const storedLanguageKey = localStorage.getItem("language")
 const initialLanguage = languages.find((lang) => lang.key === storedLanguageKey) || languages[1]
-const selectedLanguage = ref<Language>(initialLanguage)
+const selectedLanguage = ref<KeyValuePair>(initialLanguage)
 
 const showNotification = ref(false)
 const notificationTitle = ref("")
@@ -112,7 +108,7 @@ const displayPopup = (type: "success" | "error", title: string, message: string)
     timerId.value = window.setTimeout(dismissPopup, 4000)
 }
 
-const updateLanguageSelection = async (newLanguage: Language) => {
+const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
     selectedLanguage.value = newLanguage
     const newLanguageKey = newLanguage.key
     const currentLanguage = localStorage.getItem("language")

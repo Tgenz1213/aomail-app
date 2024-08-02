@@ -187,12 +187,7 @@ import NewRuleModal from "./components/NewRuleModal.vue"
 import UpdateRuleModal from "./components/UpdateRuleModal.vue"
 import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const"
 import { fetchWithToken } from "@/global/security"
-
-interface EmailSender {
-    id?: number
-    username: string
-    email: string
-}
+import { EmailSender } from "@/global/types"
 
 const showModal = ref(false)
 const showUpdateModal = ref(false)

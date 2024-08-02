@@ -45,14 +45,7 @@
                                 id="inputField"
                                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                 @change="query = $event.target.value"
-                                :display-value="
-                                    (person) =>
-                                        person
-                                            ? person.username
-                                                ? `${person.username} <${person.email || ''}>`
-                                                : `<${person.email || ''}>`
-                                            : ''
-                                "
+                                :display-value="displayEmailSender"
                                 @blur="handleBlur($event)"
                                 @click="handleInputClick"
                                 @keydown="handleKeyDown($event)"
@@ -179,7 +172,7 @@
                         <button
                             type="button"
                             class="inline-flex w-full justify-center items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
-                            @click="deleteRuleHandler"
+                            @click="deleteRule"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -204,7 +197,8 @@
     </transition>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from "vue"
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid"
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
 import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const.js"
@@ -217,380 +211,396 @@ import {
     ComboboxOption,
     ComboboxOptions,
 } from "@headlessui/vue"
-</script>
-
-<script>
 import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline"
-import { useI18n } from "vue-i18n"
 import { fetchWithToken } from "@/global/security"
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
+import { i18n } from "@/global/Settings/preferences"
+import { EmailSender } from "@/global/types"
 
-export default {
-    components: {
-        NotificationTimer,
-        XMarkIcon,
-        UserIcon,
-        ArchiveBoxIcon,
-        ShieldCheckIcon,
-        ExclamationCircleIcon,
-    },
-    props: {
-        isOpen: {
-            type: Boolean,
-            required: true,
-        },
-        emailSenders: {
-            type: Array,
-            default: () => [],
-        },
-        rule: Object,
-        categories: Array,
-    },
-    data() {
-        const { t } = useI18n()
-
-        return {
-            query: "",
-            selectedPerson: null,
-            currentSelectedPersonUsername: "",
-            t: t,
-            formData: {
-                id: 0,
-                info_AI: "",
-                priority: "",
-                block: false,
-                category: "",
-                errorMessage: "",
-                showNotification: false,
-                notificationTitle: "",
-                notificationMessage: "",
-                backgroundColor: "",
-                timerId: null,
-            },
-        }
-    },
-    computed: {
-        filteredPeople() {
-            const sendersArray = this.emailSenders.map((sender) => ({
-                email: sender.email,
-                username: sender.username,
-            }))
-
-            if (this.query === "") {
-                return sendersArray
-            } else {
-                return sendersArray.filter(
-                    (person) =>
-                        person.username.toLowerCase().includes(this.query.toLowerCase()) ||
-                        person.email.toLowerCase().includes(this.query.toLowerCase())
-                )
-            }
-        },
-    },
-    mounted() {
-        console.log("FilteredPeople", this.filteredPeople)
-        document.addEventListener("keydown", this.handleKeyDown)
-    },
-    watch: {
-        rule: {
-            immediate: true,
-            handler(newVal) {
-                if (newVal) {
-                    console.log("RULE CHANGED", newVal)
-                    this.formData = {
-                        id: newVal.id,
-                        category: newVal.category,
-                        priority: newVal.priority,
-                        block: newVal.mail_stop,
-                    }
-                    if (!newVal.category) {
-                        this.formData.category = ""
-                    }
-                    console.log("NEW FORM DATA", this.formData)
-                    this.selectedPerson = {
-                        username: newVal.name,
-                        email: newVal.email,
-                    }
-                }
-            },
-        },
-    },
-    methods: {
-        dismissPopup() {
-            this.showNotification = false
-            // Cancel the timer
-            clearTimeout(this.timerId)
-        },
-        displayPopup() {
-            this.showNotification = true
-
-            this.timerId = setTimeout(() => {
-                this.dismissPopup()
-            }, 4000)
-        },
-        handleKeyDown(event) {
-            if (event.key === "Escape") {
-                this.closeModal()
-            } else if (event.key === "Enter") {
-                event.preventDefault()
-                if (event.target.id === "inputField" && !this.selectedPerson) {
-                    this.handleBlur2(event)
-                } else {
-                    this.updateUserRule()
-                }
-            } else if (event.key === "Delete") {
-                this.deleteRuleHandler()
-            }
-        },
-        handleInputClick() {
-            this.currentSelectedPersonUsername = this.selectedPerson
-            this.selectedPerson = null
-        },
-        handleBlur2(event) {
-            // Checks for a valid input email and adds it to the recipients list
-            if (event.target.value == "") {
-                this.selectedPerson = this.currentSelectedPersonUsername
-                return
-            } else if (this.filteredPeople.length > 0) {
-                return
-            }
-            const inputValue = event.target.value.trim().toLowerCase()
-            const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-            if (inputValue && emailFormat.test(inputValue)) {
-                this.selectedPerson = {
-                    email: inputValue,
-                    username: inputValue
-                        .split("@")[0] // Get the first part of the email
-                        .split(/\.|-/) // Split by "." or "-"
-                        .map((p) => p.charAt(0).toUpperCase() + p.slice(1)) // Uppercase first letter of each word
-                        .join(" "), // Join with spaces
-                }
-            } else {
-                this.errorMessage = this.t("rulesPage.popUpConstants.errorMessages.emailFormatIncorrect")
-            }
-        },
-        async deleteRuleHandler() {
-            try {
-                if (!this.formData.id) {
-                    throw new Error("Rule ID is required for deletion.")
-                }
-
-                const deleteUrl = `${API_BASE_URL}user/delete_rules/${this.formData.id}`
-
-                const deleteResponse = await fetchWithToken(deleteUrl, {
-                    method: "DELETE",
-                })
-
-                if (deleteResponse.message) {
-                    console.log("Rule deleted successfully")
-                    this.selectedPerson = null
-                    this.backgroundColor = "bg-green-200/[.89] border border-green-400"
-                    this.notificationTitle = this.t("constants.popUpConstants.successMessages.success")
-                    this.notificationMessage = this.t(
-                        "rulesPage.popUpConstants.successMessages.ruleDeletedSuccessfully"
-                    )
-                    this.displayPopup()
-                    this.closeModal()
-                    this.$emit("fetch-rules")
-                } else {
-                    console.error("Failed to delete the rule:", deleteResponse.error)
-                    this.backgroundColor = "bg-red-200/[.89] border border-red-400"
-                    this.notificationTitle = this.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError")
-                    this.notificationMessage = deleteResponse.error
-                    this.displayPopup()
-                }
-            } catch (error) {
-                console.error("Error in deleting rule:", error)
-                this.backgroundColor = "bg-red-200/[.89] border border-red-400"
-                this.notificationTitle = this.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError")
-                this.notificationMessage = error
-                this.displayPopup()
-            }
-        },
-        async postSender() {
-            if (!this.selectedPerson) {
-                this.errorMessage = this.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress")
-                return
-            }
-
-            const senderData = {
-                name: this.selectedPerson.username,
-                email: this.selectedPerson.email,
-            }
-
-            try {
-                const url = `${API_BASE_URL}api/create_sender`
-
-                const responseData = await fetchWithToken(url, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(senderData),
-                })
-
-                return responseData.id
-            } catch (error) {
-                console.error(`Error in postSender: ${error}`)
-                this.backgroundColor = "bg-red-200/[.89] border border-red-400"
-                this.notificationTitle = this.t("rulesPage.popUpConstants.errorMessages.senderCreationError")
-                this.notificationMessage = error
-                this.displayPopup()
-                this.closeModal()
-            }
-        },
-        async checkSenderExists() {
-            if (!this.selectedPerson) {
-                this.errorMessage = this.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress")
-                return
-            }
-
-            const senderData = {
-                email: this.selectedPerson.email,
-            }
-
-            try {
-                const url = `${API_BASE_URL}api/check_sender`
-
-                const response = await fetchWithToken(url, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(senderData),
-                })
-
-                if (response.exists) {
-                    return {
-                        exists: response.exists,
-                        senderId: response.sender_id,
-                    }
-                } else {
-                    return {
-                        exists: false,
-                    }
-                }
-            } catch (error) {
-                console.error(`Error in checkSenderExists: ${error}`)
-                this.backgroundColor = "bg-red-200/[.89] border border-red-400"
-                this.notificationTitle = this.t("rulesPage.popUpConstants.errorMessages.senderExistenceCheckError")
-                this.notificationMessage = error
-                this.displayPopup()
-                this.closeModal()
-            }
-        },
-        async updateUserRule() {
-            try {
-                var ruleData = {}
-
-                // Assuming the ID of the rule is stored in this.formData
-                if (!this.formData.id) {
-                    this.backgroundColor = "bg-red-200/[.89] border border-red-400"
-                    this.notificationTitle = this.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError")
-                    this.notificationMessage = this.t("rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate")
-                    this.displayPopup()
-                    this.closeModal()
-                    return
-                }
-
-                // First, check if the sender already exists
-                let { exists, senderId } = await this.checkSenderExists()
-
-                if (!exists) {
-                    // If the sender does not exist, POST the sender and get the ID
-                    senderId = await this.postSender()
-                    console.log("New SenderId", senderId)
-                } else {
-                    // If the sender already exists, use the existing senderId
-                    console.log("Existing SenderId", senderId)
-                }
-
-                console.log("SenderId", senderId)
-
-                if (this.formData.category) {
-                    // Fetch the category ID using fetchWithToken
-                    const categoryUrl = `${API_BASE_URL}api/get_category_id/`
-                    const categoryData = await fetchWithToken(categoryUrl, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            categoryName: this.formData.category,
-                        }),
-                    })
-                    const categoryId = categoryData.id
-                    console.log("CategoryId", categoryId)
-
-                    // Now, prepare the rule data with the sender's ID and category ID
-                    ruleData = {
-                        ...this.formData,
-                        sender: senderId, // Replace sender object with sender ID
-                        category: categoryId, // Use the fetched category ID
-                        info_AI: "",
-                    }
-                } else {
-                    ruleData = {
-                        ...this.formData,
-                        sender: senderId,
-                    }
-                }
-                console.log("RuleData", ruleData)
-
-                const ruleResponseData = await fetchWithToken(`${API_BASE_URL}user/update_rule/`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(ruleData),
-                })
-
-                if ("error" in ruleResponseData) {
-                    if (ruleResponseData.error === "A rule already exists for that sender") {
-                        this.notificationMessage = this.t(
-                            "rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender"
-                        )
-                    } else {
-                        this.notificationMessage = ruleResponseData.error
-                    }
-                    this.backgroundColor = "bg-red-200/[.89] border border-red-400"
-                    this.notificationTitle = this.t("rulesPage.popUpConstants.errorMessages.ruleCreationError")
-                    this.displayPopup()
-                    this.closeModal()
-                } else {
-                    this.selectedPerson = null
-                    this.backgroundColor = "bg-green-200/[.89] border border-green-400"
-                    this.notificationTitle = this.t("constants.popUpConstants.successMessages.success")
-                    this.notificationMessage = this.t(
-                        "rulesPage.popUpConstants.successMessages.ruleUpdatedSuccessfully"
-                    )
-                    this.displayPopup()
-                    this.closeModal()
-                    this.$emit("fetch-rules")
-                    return
-                }
-            } catch (error) {
-                console.error("Error in updating rule:", error)
-                this.backgroundColor = "bg-red-200/[.89] border border-red-400"
-                this.notificationTitle = this.t("rulesPage.popUpConstants.errorMessages.ruleCreationError")
-                this.notificationMessage = error
-                this.displayPopup()
-                this.closeModal()
-            }
-        },
-        closeModal() {
-            this.errorMessage = ""
-            this.$emit("update:isOpen", false)
-        },
-    },
+interface FormData {
+    id: number
+    infoAI: string
+    priority: string
+    block: boolean
+    category: string
+    errorMessage: string
 }
 
-const showNotification = ref < boolean > false
-const notificationTitle = ref < string > ""
-const notificationMessage = ref < string > ""
-const backgroundColor = ref < string > ""
-const timerId = (ref < NodeJS.Timeout) | (null > null)
+interface Props {
+    isOpen: boolean
+    emailSenders: EmailSender[]
+    rule: any
+    categories: { name: string }[]
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    emailSenders: () => [],
+})
+
+const emit = defineEmits(["update:isOpen", "fetchRules"])
+
+const query = ref("")
+const errorMessage = ref("")
+const selectedPerson = ref<EmailSender | null>(null)
+const currentSelectedPersonUsername = ref("")
+const formData = ref<FormData>({
+    id: 0,
+    infoAI: "",
+    priority: "",
+    block: false,
+    category: "",
+    errorMessage: "",
+})
+
+const filteredPeople = computed(() => {
+    const sendersArray = props.emailSenders.map((sender) => ({
+        email: sender.email,
+        username: sender.username,
+    }))
+
+    if (query.value === "") {
+        return sendersArray
+    } else {
+        return sendersArray.filter(
+            (person) =>
+                person.username.toLowerCase().includes(query.value.toLowerCase()) ||
+                person.email.toLowerCase().includes(query.value.toLowerCase())
+        )
+    }
+})
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown)
+})
+
+watch(
+    () => props.rule,
+    (newVal) => {
+        if (newVal) {
+            formData.value = {
+                id: newVal.id,
+                category: newVal.category || "",
+                priority: newVal.priority,
+                block: newVal.mail_stop,
+                infoAI: "",
+                errorMessage: "",
+            }
+            selectedPerson.value = {
+                username: newVal.name,
+                email: newVal.email,
+            }
+        }
+    },
+    { immediate: true }
+)
+
+function displayEmailSender(item: unknown): string {
+    const person = item as EmailSender | null
+    if (person) {
+        return person.username ? `${person.username} <${person.email || ""}>` : `<${person.email || ""}>`
+    }
+    return ""
+}
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+        closeModal()
+    } else if (event.key === "Enter") {
+        event.preventDefault()
+        if ((event.target as HTMLElement).id === "inputField" && !selectedPerson.value) {
+            handleBlur(event as unknown as FocusEvent)
+        } else {
+            updateUserRule()
+        }
+    } else if (event.key === "Delete") {
+        deleteRule()
+    }
+}
+
+function handleInputClick() {
+    currentSelectedPersonUsername.value = selectedPerson.value?.username || ""
+    selectedPerson.value = null
+}
+
+function handleBlur(event: FocusEvent) {
+    const inputValue = (event.target as HTMLInputElement).value.trim().toLowerCase()
+    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (inputValue === "") {
+        selectedPerson.value = {
+            email: currentSelectedPersonUsername.value,
+            username: currentSelectedPersonUsername.value,
+        }
+        return
+    } else if (filteredPeople.value.length > 0) {
+        return
+    }
+
+    if (inputValue && emailFormat.test(inputValue)) {
+        selectedPerson.value = {
+            email: inputValue,
+            username: inputValue
+                .split("@")[0]
+                .split(/\.|-/)
+                .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+                .join(" "),
+        }
+    } else {
+        formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.emailFormatIncorrect")
+    }
+}
+
+async function deleteRule() {
+    try {
+        if (!formData.value.id) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
+                "Rule ID is required for deletion."
+            )
+            return
+        }
+
+        const deleteUrl = `${API_BASE_URL}user/delete_rules/${formData.value.id}`
+        const response = await fetchWithToken(deleteUrl, { method: "DELETE" })
+
+        if (!response) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
+                "No response from server"
+            )
+            return
+        }
+
+        if (!response.ok) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
+                `HTTP error! status: ${response.status}`
+            )
+            return
+        }
+
+        const deleteResponse = await response.json()
+
+        if (deleteResponse.message) {
+            selectedPerson.value = null
+            displayPopup(
+                "success",
+                i18n.global.t("constants.popUpConstants.successMessages.success"),
+                i18n.global.t("rulesPage.popUpConstants.successMessages.ruleDeletedSuccessfully")
+            )
+            closeModal()
+            emit("fetchRules")
+        } else {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
+                deleteResponse.error || "Unknown error occurred while deleting the rule"
+            )
+        }
+    } catch (error) {
+        console.error("Error in deleting rule:", error)
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
+            error instanceof Error ? error.message : String(error)
+        )
+    }
+}
+
+async function postSender() {
+    if (!selectedPerson.value) {
+        formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress")
+        return null
+    }
+
+    const senderData = {
+        name: selectedPerson.value.username,
+        email: selectedPerson.value.email,
+    }
+
+    try {
+        const url = `${API_BASE_URL}api/create_sender`
+        const response = await fetchWithToken(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(senderData),
+        })
+
+        if (!response) {
+            displayPopup("error", "Failed to update category", "No response from server")
+            closeModal()
+            return
+        }
+
+        if (!response.ok) {
+            displayPopup("error", "Network error", response?.status.toString())
+            closeModal()
+            return
+        }
+
+        const responseData = await response.json()
+        return responseData.id
+    } catch (error) {
+        console.error(`Error in postSender: ${error}`)
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.senderCreationError"),
+            error instanceof Error ? error.message : String(error)
+        )
+        closeModal()
+        return
+    }
+}
+
+async function checkSenderExists() {
+    if (!selectedPerson.value) {
+        formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress")
+        return
+    }
+
+    const senderData = { email: selectedPerson.value.email }
+
+    try {
+        const url = `${API_BASE_URL}api/check_sender`
+        const response = await fetchWithToken(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(senderData),
+        })
+
+        if (!response) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.senderExistenceCheckError"),
+                "No response from server"
+            )
+            return { exists: false }
+        }
+
+        const data = await response.json()
+        return data.exists ? { exists: data.exists, senderId: data.sender_id } : { exists: false }
+    } catch (error) {
+        console.error(`Error in checkSenderExists: ${error}`)
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.senderExistenceCheckError"),
+            error instanceof Error ? error.message : String(error)
+        )
+        closeModal()
+        return { exists: false }
+    }
+}
+
+async function updateUserRule() {
+    try {
+        if (!formData.value.id) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate")
+            )
+            return
+        }
+
+        let { exists, senderId } = (await checkSenderExists()) || { exists: false, senderId: null }
+
+        if (!exists) {
+            senderId = await postSender()
+        }
+
+        if (!senderId) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+                "Failed to obtain sender ID"
+            )
+            return
+        }
+
+        let ruleData: any = { ...formData.value, sender: senderId, infoAI: "" }
+
+        if (formData.value.category) {
+            const categoryUrl = `${API_BASE_URL}api/get_category_id/`
+            const categoryResponse = await fetchWithToken(categoryUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ categoryName: formData.value.category }),
+            })
+
+            if (!categoryResponse || !categoryResponse.ok) {
+                displayPopup(
+                    "error",
+                    i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+                    "Failed to fetch category ID"
+                )
+                return
+            }
+
+            const categoryData = await categoryResponse.json()
+            ruleData.category = categoryData.id
+        }
+
+        const ruleResponse = await fetchWithToken(`${API_BASE_URL}user/update_rule/`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ruleData),
+        })
+
+        if (!ruleResponse || !ruleResponse.ok) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+                `HTTP error! status: ${ruleResponse?.status}`
+            )
+            return
+        }
+
+        const ruleResponseData = await ruleResponse.json()
+
+        if ("error" in ruleResponseData) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+                ruleResponseData.error === "A rule already exists for that sender"
+                    ? i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender")
+                    : ruleResponseData.error
+            )
+            return
+        }
+
+        selectedPerson.value = null
+        displayPopup(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.success"),
+            i18n.global.t("rulesPage.popUpConstants.successMessages.ruleUpdatedSuccessfully")
+        )
+        closeModal()
+        emit("fetchRules")
+    } catch (error) {
+        console.error("Error in updating rule:", error)
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+            error instanceof Error ? error.message : String(error)
+        )
+    } finally {
+        closeModal()
+    }
+}
+
+function closeModal() {
+    formData.value.errorMessage = ""
+    emit("update:isOpen", false)
+}
+
+const showNotification = ref(false)
+const notificationTitle = ref("")
+const notificationMessage = ref("")
+const backgroundColor = ref("")
+const timerId = ref<NodeJS.Timeout | null>(null)
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
@@ -608,11 +618,3 @@ function dismissPopup() {
     }
 }
 </script>
-
-<!-- TODO: FOLLOW these guidelines anyway
-the import of constants and function are correct. You must do the following operations:
-
-use only script setup for consistency (you must translate do NOT invent anything at all)
-remove all comments  
-use strictly camelCase
-we are using TypeScript so migrate everything where its needed using interfaces or types Hard code them-->

@@ -57,13 +57,9 @@ import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headless
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon"
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon"
 import { i18n } from "@/global/Settings/preferences"
+import { KeyValuePair } from "@/global/types"
 
-interface Language {
-    key: string
-    value: string
-}
-
-const languages = ref<Language[]>([
+const languages = ref<KeyValuePair[]>([
     { key: "french", value: i18n.global.t("constants.languagesList.french") },
     { key: "american", value: i18n.global.t("constants.languagesList.american") },
     { key: "german", value: i18n.global.t("constants.languagesList.german") },
@@ -75,9 +71,9 @@ const languages = ref<Language[]>([
 
 const storedLanguageKey = localStorage.getItem("language") || "american"
 const initialLanguage = languages.value.find((lang) => lang.key === storedLanguageKey) || languages.value[1]
-const selectedLanguage = ref<Language>(initialLanguage)
+const selectedLanguage = ref<KeyValuePair>(initialLanguage)
 
-const updateLanguageSelection = async (newLanguage: Language) => {
+const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
     selectedLanguage.value = newLanguage
     const newLanguageKey = newLanguage.key
     const currentLanguage = localStorage.getItem("language")

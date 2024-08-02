@@ -163,13 +163,14 @@ async function updateCategory() {
         try {
             const response = await fetchWithToken(`${API_BASE_URL}user/categories/`)
 
-            // todo: remove throw new Error and emit clean popups
             if (!response) {
-                throw new Error("No response from server")
+                errorMessage.value = "Failed to create category"
+                return
             }
 
             if (!response.ok) {
-                throw new Error("Network response was not ok")
+                errorMessage.value = "Network error"
+                return
             }
 
             const fetchedCategories: Category[] = await response.json()

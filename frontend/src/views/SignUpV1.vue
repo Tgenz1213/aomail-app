@@ -111,7 +111,7 @@
       </div>
     </div>
   </transition>
-  <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
+  <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" >
     <!--OLD VALUE TO SAVE : 27/01/2024 => 2xl:justify-center 2xl:items-center-->
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">

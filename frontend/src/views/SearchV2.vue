@@ -1,7 +1,7 @@
 <template>
   <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" />
-  <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
+  <div class="flex flex-col justify-center items-center h-screen" >
     <div class="flex h-full w-full">
 
       <!-- navbar-->

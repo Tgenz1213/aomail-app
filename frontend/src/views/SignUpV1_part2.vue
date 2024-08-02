@@ -3,7 +3,7 @@
 <template>
   <NotificationTimer :showNotification="showNotification" :notificationTitle="notificationTitle"
     :notificationMessage="notificationMessage" :backgroundColor="backgroundColor" @dismiss-popup="dismissPopup" />
-  <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" :class="bgColor">
+  <div class="h-screen flex flex-col px-6 2xl:py-12 lg:px-8 overflow-y-auto" >
     <div class="flex-grow flex flex-col justify-center py-4">
       <div class="w-full flex flex-col items-center">
 

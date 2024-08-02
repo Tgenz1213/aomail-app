@@ -9,7 +9,7 @@
                 <RadioGroupOption
                     as="template"
                     v-for="option in frequencies"
-                    :key="option.value"
+                    :key="option.key"
                     :value="option"
                     v-slot="{ checked }"
                 >
@@ -46,7 +46,7 @@
                 <p class="mt-4 text-sm leading-6 text-gray-600">{{ tier.description }}</p>
                 <p class="mt-6 flex items-baseline gap-x-1">
                     <span class="text-4xl font-bold tracking-tight text-gray-900">
-                        {{ tier.price[selectedFrequency.value] }}
+                        {{ tier.price[selectedFrequency.key] }}
                     </span>
                     <span class="text-sm font-semibold leading-6 text-gray-600">
                         {{ $t(selectedFrequency.priceSuffix) }}
@@ -82,7 +82,7 @@ import { CheckIcon } from "@heroicons/vue/20/solid"
 import { i18n } from "@/global/Settings/preferences"
 
 interface Frequency {
-    value: "monthly" | "yearly"
+    key: "monthly" | "yearly"
     label: string
     priceSuffix: string
 }
@@ -99,12 +99,12 @@ interface Tier {
 
 const frequencies: Frequency[] = [
     {
-        value: "monthly",
+        key: "monthly",
         label: "settingsPage.subscriptionPage.monthly",
         priceSuffix: i18n.global.t("settingsPage.subscriptionPage.perMonth"),
     },
     {
-        value: "yearly",
+        key: "yearly",
         label: "settingsPage.subscriptionPage.yearly",
         priceSuffix: i18n.global.t("settingsPage.subscriptionPage.perYear"),
     },

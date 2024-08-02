@@ -43,22 +43,18 @@ import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headless
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon"
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon"
 import { i18n } from "@/global/Settings/preferences"
+import { KeyValuePair } from "@/global/types"
 
-interface Theme {
-    key: string
-    value: string
-}
-
-const themes = ref<Theme[]>([
+const themes = ref<KeyValuePair[]>([
     { key: "light", value: i18n.global.t("constants.themeList.lightTheme") },
     { key: "dark", value: i18n.global.t("constants.themeList.darkTheme") },
 ])
 
 const storedThemeKey = localStorage.getItem("theme") || "light"
 const initialTheme = themes.value.find((theme) => theme.key === storedThemeKey) || themes.value[0]
-const selectedTheme = ref<Theme>(initialTheme)
+const selectedTheme = ref<KeyValuePair>(initialTheme)
 
-const updateThemeSelection = (newTheme: Theme) => {
+const updateThemeSelection = (newTheme: KeyValuePair) => {
     localStorage.setItem("theme", newTheme.key)
 }
 

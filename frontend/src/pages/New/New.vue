@@ -383,18 +383,18 @@ const requestOptions = {
 };
 
 // request to update the list of contacts (people array)
-fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
-    .then(response => {
-        people.push(...response);
-    })
-    .catch(error => {
-        console.error("Error fetching contacts:", error);
-        // Show the pop-up
-        backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle.value = t('constants.popUpConstants.errorMessages.contactFetchError');
-        notificationMessage.value = error;
-        displayPopup();
-    });
+// fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
+//     .then(response => {
+//         people.push(...response);
+//     })
+//     .catch(error => {
+//         console.error("Error fetching contacts:", error);
+//         // Show the pop-up
+//         backgroundColor = 'bg-red-200/[.89] border border-red-400';
+//         notificationTitle.value = t('constants.popUpConstants.errorMessages.contactFetchError');
+//         notificationMessage.value = error;
+//         displayPopup();
+//     });
 
 
 const selectedPeople = ref([]);
@@ -1493,219 +1493,219 @@ function NextStepRecipier() {
     }, 0);
 }
 
-async function checkSpelling() {
-    try {
-        loading();
-        scrollToBottom();
+// async function checkSpelling() {
+//     try {
+//         loading();
+//         scrollToBottom();
 
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email_subject: inputValue.value,
-                email_body: mailInput.value,
-            }),
-        };
+//         const requestOptions = {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 email_subject: inputValue.value,
+//                 email_body: mailInput.value,
+//             }),
+//         };
 
-        const result = await fetchWithToken(`${API_BASE_URL}api/correct_email_language/`, requestOptions);
+//         const result = await fetchWithToken(`${API_BASE_URL}api/correct_email_language/`, requestOptions);
 
-        hideLoading();
+//         hideLoading();
         
-        // retrieve num of corrections
-        console.log(result);
-        if (result.corrected_subject && result.corrected_body) {
+//         // retrieve num of corrections
+//         console.log(result);
+//         if (result.corrected_subject && result.corrected_body) {
             
-            const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
-            const messageHTML = `
-              <div class="flex pb-12">
-                  <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                        </svg>
-                      </span>   
-                  </div>
-                  <div>
-                      <p><strong>${t('newPage.subject')}</strong> ${result.corrected_subject}</p>
-                      <p><strong>${t('newPage.emailContent')}</strong> ${formattedMail}</p>
-                  </div>
-              </div>
-          `;
-            AIContainer.value.innerHTML += messageHTML;
-            inputValue.value = result.corrected_subject;
-            const quillEditorContainer = quill.value.root;
-            quillEditorContainer.innerHTML = result.corrected_body;
+//             const formattedMail = result.corrected_body.replace(/\n/g, '<br>');
+//             const messageHTML = `
+//               <div class="flex pb-12">
+//                   <div class="mr-4 flex">
+//                       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+//                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+//                           <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+//                         </svg>
+//                       </span>   
+//                   </div>
+//                   <div>
+//                       <p><strong>${t('newPage.subject')}</strong> ${result.corrected_subject}</p>
+//                       <p><strong>${t('newPage.emailContent')}</strong> ${formattedMail}</p>
+//                   </div>
+//               </div>
+//           `;
+//             AIContainer.value.innerHTML += messageHTML;
+//             inputValue.value = result.corrected_subject;
+//             const quillEditorContainer = quill.value.root;
+//             quillEditorContainer.innerHTML = result.corrected_body;
 
-            const message = t('constants.sendEmailConstants.spellingCorrectionRequest');
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+//             const message = t('constants.sendEmailConstants.spellingCorrectionRequest');
+//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
            
             
-            displayMessage(message, ai_icon);
-        } else {
-            hideLoading();
-            const message = t('constants.sendEmailConstants.processingErrorApology')
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+//             displayMessage(message, ai_icon);
+//         } else {
+//             hideLoading();
+//             const message = t('constants.sendEmailConstants.processingErrorApology')
+//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
        
             
-            displayMessage(message, ai_icon);
-            console.log('Subject or Email is missing in the response');
-        }
+//             displayMessage(message, ai_icon);
+//             console.log('Subject or Email is missing in the response');
+//         }
 
-    } catch (error) {
+//     } catch (error) {
         
-        hideLoading();
-        const message = t('constants.sendEmailConstants.processingErrorApology')
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+//         hideLoading();
+//         const message = t('constants.sendEmailConstants.processingErrorApology')
+//         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
       
         
-        displayMessage(message, ai_icon);
-    }
-}
+//         displayMessage(message, ai_icon);
+//     }
+// }
 
-async function checkCopyWriting() {
-    try {
-        loading();
-        scrollToBottom();
+// async function checkCopyWriting() {
+//     try {
+//         loading();
+//         scrollToBottom();
 
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email_subject: inputValue.value,
-                email_body: mailInput.value,
-            }),
-        };
+//         const requestOptions = {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 email_subject: inputValue.value,
+//                 email_body: mailInput.value,
+//             }),
+//         };
 
-        const result = await fetchWithToken(`${API_BASE_URL}api/check_email_copywriting/`, requestOptions);
+//         const result = await fetchWithToken(`${API_BASE_URL}api/check_email_copywriting/`, requestOptions);
 
-        hideLoading();
+//         hideLoading();
         
-        // retrieve num of corrections
-        console.log(result);
-        if (result.feedback_copywriting) {
+//         // retrieve num of corrections
+//         console.log(result);
+//         if (result.feedback_copywriting) {
             
-            const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
+//             const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, '<br>');
 
-            const messageHTML = `
-              <div class="flex pb-12">
-                  <div class="mr-4 flex">
-                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                        </svg>
-                      </span>   
-                  </div>
-                  <div>
-                      <p>${formattedCopWritingOutput}</p>
-                  </div>
-              </div>
-          `;
-            AIContainer.value.innerHTML += messageHTML;
+//             const messageHTML = `
+//               <div class="flex pb-12">
+//                   <div class="mr-4 flex">
+//                       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+//                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+//                           <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+//                         </svg>
+//                       </span>   
+//                   </div>
+//                   <div>
+//                       <p>${formattedCopWritingOutput}</p>
+//                   </div>
+//               </div>
+//           `;
+//             AIContainer.value.innerHTML += messageHTML;
 
-            const message = t('constants.sendEmailConstants.copywritingCheckRequest');
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+//             const message = t('constants.sendEmailConstants.copywritingCheckRequest');
+//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
           
             
-            displayMessage(message, ai_icon);
-        } else {
-            hideLoading();
-            const message = t('constants.sendEmailConstants.processingErrorApology')
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+//             displayMessage(message, ai_icon);
+//         } else {
+//             hideLoading();
+//             const message = t('constants.sendEmailConstants.processingErrorApology')
+//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
         
             
-            displayMessage(message, ai_icon);
-            console.log('Subject or Email is missing in the response');
-        }
+//             displayMessage(message, ai_icon);
+//             console.log('Subject or Email is missing in the response');
+//         }
 
-    } catch (error) {
+//     } catch (error) {
         
-        hideLoading();
-        const message = t('constants.sendEmailConstants.processingErrorApology')
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+//         hideLoading();
+//         const message = t('constants.sendEmailConstants.processingErrorApology')
+//         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
      
         
-        displayMessage(message, ai_icon);
-    }
-}
+//         displayMessage(message, ai_icon);
+//     }
+// }
 
-async function WriteBetter() {
-    try {
-        loading();
-        scrollToBottom();
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userInput: textareaValueSave.value,
-                length: lengthValue.value,
-                formality: formalityValue.value,
-                subject: inputValue.value,
-                body: mail.value,
-                history: history.value
-            }),
-        };
+// async function WriteBetter() {
+//     try {
+//         loading();
+//         scrollToBottom();
+//         const requestOptions = {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({
+//                 userInput: textareaValueSave.value,
+//                 length: lengthValue.value,
+//                 formality: formalityValue.value,
+//                 subject: inputValue.value,
+//                 body: mail.value,
+//                 history: history.value
+//             }),
+//         };
 
-        const result = await fetchWithToken(`${API_BASE_URL}api/improve_draft/`, requestOptions);
+//         const result = await fetchWithToken(`${API_BASE_URL}api/improve_draft/`, requestOptions);
 
-        hideLoading();
-        console.log(result);
-        subject.value = result.subject;
-        mail.value = result.email_body;
-        history.value = result.history;
-        if (result.subject && result.email_body) {
+//         hideLoading();
+//         console.log(result);
+//         subject.value = result.subject;
+//         mail.value = result.email_body;
+//         history.value = result.history;
+//         if (result.subject && result.email_body) {
             
-            const messageHTML = `
-            <div class="flex pb-12">
-                <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                      </svg>
-                    </span>   
-                </div>
-                <div>
-                    <p><strong>${t('newPage.subject')}</strong> ${result.subject}</p>
-                    <p><strong>${t('newPage.emailContent')}</strong> ${result.email_body}</p>
-                </div>
-            </div>
-        `;
-            AIContainer.value.innerHTML += messageHTML;
-            inputValue.value = result.subject;
-            const quillEditorContainer = quill.value.root;
-            quillEditorContainer.innerHTML = result.email_body;
+//             const messageHTML = `
+//             <div class="flex pb-12">
+//                 <div class="mr-4 flex">
+//                     <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+//                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+//                         <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+//                       </svg>
+//                     </span>   
+//                 </div>
+//                 <div>
+//                     <p><strong>${t('newPage.subject')}</strong> ${result.subject}</p>
+//                     <p><strong>${t('newPage.emailContent')}</strong> ${result.email_body}</p>
+//                 </div>
+//             </div>
+//         `;
+//             AIContainer.value.innerHTML += messageHTML;
+//             inputValue.value = result.subject;
+//             const quillEditorContainer = quill.value.root;
+//             quillEditorContainer.innerHTML = result.email_body;
 
-            const message = t('constants.sendEmailConstants.betterEmailFeedbackRequest');
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
+//             const message = t('constants.sendEmailConstants.betterEmailFeedbackRequest');
+//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`
            
             
-            displayMessage(message, ai_icon);
-        } else {
-            hideLoading();
-            const message = t('constants.sendEmailConstants.processingErrorTryAgain')
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+//             displayMessage(message, ai_icon);
+//         } else {
+//             hideLoading();
+//             const message = t('constants.sendEmailConstants.processingErrorTryAgain')
+//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
 
             
-            displayMessage(message, ai_icon);
-            console.log('Subject or Email is missing in the response');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        hideLoading();
+//             displayMessage(message, ai_icon);
+//             console.log('Subject or Email is missing in the response');
+//         }
+//     } catch (error) {
+//         console.error('Error:', error);
+//         hideLoading();
         
-        const message = t('constants.sendEmailConstants.processingErrorTryAgain')
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
+//         const message = t('constants.sendEmailConstants.processingErrorTryAgain')
+//         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`
        
         
-        displayMessage(message, ai_icon);
-        console.error('There was a problem with the fetch operation: ', error);
-    }
-}
+//         displayMessage(message, ai_icon);
+//         console.error('There was a problem with the fetch operation: ', error);
+//     }
+// }
 
 function loading() {
     // Use `nbr` in the template literal to set the reference dynamically

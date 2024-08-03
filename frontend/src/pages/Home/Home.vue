@@ -6,7 +6,7 @@
         :backgroundColor="backgroundColor"
     />
     <!-- Modal for Warning Category (rules linked) -->
-    <transition name="modal-fade">
+    <!-- <transition name="modal-fade">
         <div
             @click.self="closeWarningCategoryModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
@@ -79,7 +79,7 @@
                 </div>
             </div>
         </div>
-    </transition>
+    </transition> -->
 
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
@@ -668,7 +668,7 @@
                                                                                                 />
                                                                                             </MenuButton>
                                                                                         </div>
-                                                                                        <transition
+                                                                                        <!-- <transition
                                                                                             enter-active-class="transition ease-out duration-100"
                                                                                             enter-from-class="transform opacity-0 scale-95"
                                                                                             enter-to-class="transform opacity-100 scale-100"
@@ -912,7 +912,7 @@
                                                                                                     </MenuItem>
                                                                                                 </div>
                                                                                             </MenuItems>
-                                                                                        </transition>
+                                                                                        </transition> -->
                                                                                     </Menu>
                                                                                 </div>
                                                                             </div>
@@ -1201,7 +1201,7 @@
                                                                                                 />
                                                                                             </MenuButton>
                                                                                         </div>
-                                                                                        <transition
+                                                                                        <!-- <transition
                                                                                             enter-active-class="transition ease-out duration-100"
                                                                                             enter-from-class="transform opacity-0 scale-95"
                                                                                             enter-to-class="transform opacity-100 scale-100"
@@ -1445,7 +1445,7 @@
                                                                                                     </MenuItem>
                                                                                                 </div>
                                                                                             </MenuItems>
-                                                                                        </transition>
+                                                                                        </transition> -->
                                                                                     </Menu>
                                                                                 </div>
                                                                             </div>
@@ -1766,7 +1766,7 @@
                                                                                                         />
                                                                                                     </MenuButton>
                                                                                                 </div>
-                                                                                                <transition
+                                                                                                <!-- <transition
                                                                                                     enter-active-class="transition ease-out duration-100"
                                                                                                     enter-from-class="transform opacity-0 scale-95"
                                                                                                     enter-to-class="transform opacity-100 scale-100"
@@ -2021,7 +2021,7 @@
                                                                                                             </MenuItem>
                                                                                                         </div>
                                                                                                     </MenuItems>
-                                                                                                </transition>
+                                                                                                </transition> -->
                                                                                             </Menu>
                                                                                         </div>
                                                                                     </div>
@@ -2392,7 +2392,7 @@
                                                                                                         />
                                                                                                     </MenuButton>
                                                                                                 </div>
-                                                                                                <transition
+                                                                                                <!-- <transition
                                                                                                     enter-active-class="transition ease-out duration-100"
                                                                                                     enter-from-class="transform opacity-0 scale-95"
                                                                                                     enter-to-class="transform opacity-100 scale-100"
@@ -2646,7 +2646,7 @@
                                                                                                             </MenuItem>
                                                                                                         </div>
                                                                                                     </MenuItems>
-                                                                                                </transition>
+                                                                                                </transition> -->
                                                                                             </Menu>
                                                                                         </div>
                                                                                     </div>
@@ -3758,12 +3758,4 @@ export default {
 }
 </script>
 
-<!-- TODO: FOLLOW these guidelines anyway
-the import of constants and function are correct. You must do the following operations:
-
-create functions: displaySuccessPopUp & displayErrorPpUp instead of hardcodin everywhere
-if possible put everything under script setup if its more optimal and easier to manage
-remove all comments (unless those who mentionned Théo & Jean) you DELETE the rest no execption
-optimize the code
-use strictly camelCase
-we are using TypeScript so migrate everything where its needed using interfaces or types -->
+<!--   TODO: remove the commented lines AFTER coding the component EmailActionButtons.vue -->

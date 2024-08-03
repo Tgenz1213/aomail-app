@@ -19,7 +19,7 @@
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">
                             {{ $t("homePage.modals.warningRulesLinkedModal.deleteCategory") }}
-                            {{ categoryToUpdate.name }}
+                            {{ category }}
                         </p>
                     </div>
                 </div>
@@ -49,8 +49,8 @@
                         </button>
                         <button
                             type="button"
-                            class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
-                            @click="deleteCategory(categoryToUpdate.name)"
+                            class="inline-flex w-full justify-center items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
+                            @click="deleteCategory"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -76,25 +76,35 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue"
-import CheckCircleIcon from "@heroicons/vue/20/solid/CheckCircleIcon"
+import { defineComponent, PropType } from "vue"
 import XMarkIcon from "@heroicons/vue/20/solid/XMarkIcon"
 
 export default defineComponent({
+    components: {
+        XMarkIcon,
+    },
     props: {
         nbRulesAssociated: {
-            type: number,
+            type: Number as PropType<number>,
             required: true,
         },
         category: {
-            type: string,
+            type: String as PropType<string>,
             required: true,
+        },
+        isOpen: {
+            type: Boolean as PropType<boolean>,
+            required: true,
+        },
+    },
+    emits: ["close", "delete"],
+    methods: {
+        closeModal() {
+            this.$emit("close")
+        },
+        deleteCategory() {
+            this.$emit("delete")
         },
     },
 })
 </script>
-
-<!-- 
-todo: all backend operations must be handled in the parent component (ex: deleteCategory)
-clean for TypeScript
-defined props of the component -->

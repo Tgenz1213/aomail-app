@@ -549,7 +549,7 @@ import NavBarLarge from '../components/NavBarLarge.vue';
 import NavBarSmall from '../components/NavBarSmall.vue';
 import SearchbarV2 from '../components/SearchbarV2.vue'
 import { fetchWithToken, getBackgroundColor } from '../router/index.js';
-import { API_BASE_URL } from '@/main.jts';
+import { API_BASE_URL } from '@/main.ts';
 import {
   Combobox,
   ComboboxButton,

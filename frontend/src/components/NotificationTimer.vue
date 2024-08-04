@@ -55,9 +55,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue"
-import CheckCircleIcon from "@heroicons/vue/20/solid/CheckCircleIcon"
-import XMarkIcon from "@heroicons/vue/20/solid/XMarkIcon"
+import { defineComponent, ref, watch } from "vue";
+import CheckCircleIcon from "@heroicons/vue/20/solid/CheckCircleIcon";
+import XMarkIcon from "@heroicons/vue/20/solid/XMarkIcon";
 
 export default defineComponent({
     props: {
@@ -79,38 +79,38 @@ export default defineComponent({
         },
     },
     setup(props, { emit }) {
-        const showNotificationInternal = ref(props.showNotification)
-        let timerId: ReturnType<typeof setTimeout>
+        const showNotificationInternal = ref(props.showNotification);
+        let timerId: ReturnType<typeof setTimeout>;
 
         const showPopupWithTimer = () => {
-            showNotificationInternal.value = true
+            showNotificationInternal.value = true;
             timerId = setTimeout(() => {
-                dismissPopup()
-            }, 4000)
-        }
+                dismissPopup();
+            }, 4000);
+        };
 
         const dismissPopup = () => {
-            showNotificationInternal.value = false
-            emit("dismiss-popup")
-            clearTimeout(timerId)
-        }
+            showNotificationInternal.value = false;
+            emit("dismiss-popup");
+            clearTimeout(timerId);
+        };
 
         watch(
             () => props.showNotification,
             (newVal) => {
-                showNotificationInternal.value = newVal
+                showNotificationInternal.value = newVal;
                 if (newVal) {
-                    showPopupWithTimer()
+                    showPopupWithTimer();
                 }
             }
-        )
+        );
 
         return {
             showNotificationInternal,
             dismissPopup,
             CheckCircleIcon,
             XMarkIcon,
-        }
+        };
     },
-})
+});
 </script>

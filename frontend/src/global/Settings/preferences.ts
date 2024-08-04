@@ -1,84 +1,84 @@
-import { API_BASE_URL, BASE_URL } from "../const"
-import { fetchWithToken } from "../security"
-import { ref } from "vue"
-import { createI18n, I18n } from "vue-i18n"
-import messages from "@/i18n"
-import { allowedLanguages, allowedthemes } from "./const"
+import { API_BASE_URL, BASE_URL } from "../const";
+import { fetchWithToken } from "../security";
+import { ref } from "vue";
+import { createI18n, I18n } from "vue-i18n";
+import messages from "@/i18n";
+import { allowedLanguages, allowedthemes } from "./const";
 
-interface UserPreferenceResponse {
-    language?: string
-    theme?: string
-    error?: string
-}
+type UserPreferenceResponse = {
+    language?: string;
+    theme?: string;
+    error?: string;
+};
 
 const fetchUserPreference = async (
     endpoint: string,
     key: keyof UserPreferenceResponse,
     allowedValues: string[]
 ): Promise<string | null> => {
-    const storedValue = localStorage.getItem(key)
+    const storedValue = localStorage.getItem(key);
 
     if (storedValue && allowedValues.includes(storedValue)) {
-        return storedValue
+        return storedValue;
     }
 
     const requestOptions: RequestInit = {
         headers: { "Content-Type": "application/json" },
         method: "GET",
-    }
+    };
 
     try {
-        const url = `${API_BASE_URL}${endpoint}`
-        const response = await fetchWithToken(url, requestOptions)
+        const url = `${API_BASE_URL}${endpoint}`;
+        const response = await fetchWithToken(url, requestOptions);
 
         if (!response || !(response instanceof Response)) {
-            return null
+            return null;
         }
 
-        const data: UserPreferenceResponse = await response.json()
+        const data: UserPreferenceResponse = await response.json();
 
         if (data.error) {
-            console.error("Error in response:", data.error)
-            return null
+            console.error("Error in response:", data.error);
+            return null;
         } else if (data[key]) {
-            localStorage.setItem(key, data[key])
-            return data[key]
+            localStorage.setItem(key, data[key]);
+            return data[key];
         }
 
-        return null
+        return null;
     } catch (error) {
         if (error instanceof Error) {
-            console.error("An error occurred:", error.message)
+            console.error("An error occurred:", error.message);
         }
-        return null
+        return null;
     }
-}
+};
 
 export const initializePreferences = async (i18n: I18n) => {
-    const currentUrl = window.location.href
+    const currentUrl = window.location.href;
 
     if (
         currentUrl !== `${BASE_URL}` &&
         currentUrl !== `${BASE_URL}/signup` &&
         currentUrl !== `${BASE_URL}/signup_part2`
     ) {
-        const language = await fetchUserPreference("user/preferences/language/", "language", allowedLanguages)
+        const language = await fetchUserPreference("user/preferences/language/", "language", allowedLanguages);
         if (language) {
-            languageSelected.value = language
-            i18n.global.locale = language
+            languageSelected.value = language;
+            i18n.global.locale = language;
         }
-        const theme = await fetchUserPreference("user/preferences/theme/", "theme", allowedthemes)
+        const theme = await fetchUserPreference("user/preferences/theme/", "theme", allowedthemes);
         if (theme) {
-            themeSelected.value = theme
+            themeSelected.value = theme;
         }
     }
-}
+};
 
-export const languageSelected = ref("english")
-export const themeSelected = ref("light")
+export const languageSelected = ref("english");
+export const themeSelected = ref("light");
 
 export const i18n = createI18n({
     locale: languageSelected.value,
     fallbackLocale: "english",
     messages,
-})
+});

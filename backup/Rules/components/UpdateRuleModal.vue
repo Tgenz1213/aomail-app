@@ -201,7 +201,7 @@
 import { ref, computed, onMounted, watch } from "vue"
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid"
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue"
-import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const.js"
+import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const"
 import NotificationTimer from "@/components/NotificationTimer.vue"
 import {
     Combobox,

@@ -10,7 +10,6 @@ type UserPreferenceResponse = {
     theme?: string;
     error?: string;
 };
-
 const fetchUserPreference = async (
     endpoint: string,
     key: keyof UserPreferenceResponse,
@@ -40,9 +39,12 @@ const fetchUserPreference = async (
         if (data.error) {
             console.error("Error in response:", data.error);
             return null;
-        } else if (data[key]) {
-            localStorage.setItem(key, data[key]);
-            return data[key];
+        } else if (data[key] !== undefined) {  
+            const value = data[key];
+            if (typeof value === 'string') { 
+                localStorage.setItem(key, value);
+                return value;
+            }
         }
 
         return null;

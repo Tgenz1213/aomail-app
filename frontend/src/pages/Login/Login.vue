@@ -112,67 +112,67 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue"
-import NotificationTimer from "@/components/NotificationTimer.vue"
-import { useRouter } from "vue-router"
-import { API_BASE_URL } from "@/global/const"
-import logo from "@/assets/logo-aomail.png"
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
+import { ref, onMounted } from "vue";
+import NotificationTimer from "@/components/NotificationTimer.vue";
+import { useRouter } from "vue-router";
+import { API_BASE_URL } from "@/global/const";
+import logo from "@/assets/logo-aomail.png";
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 
-const router = useRouter()
+const router = useRouter();
 
-const username = ref<string>("")
-const password = ref<string>("")
-const showPassword = ref<boolean>(false)
-const showNotification = ref<boolean>(false)
-const notificationTitle = ref<string>("")
-const notificationMessage = ref<string>("")
-const backgroundColor = ref<string>("")
-const timerId = ref<NodeJS.Timeout | null>(null)
+const username = ref<string>("");
+const password = ref<string>("");
+const showPassword = ref<boolean>(false);
+const showNotification = ref<boolean>(false);
+const notificationTitle = ref<string>("");
+const notificationMessage = ref<string>("");
+const backgroundColor = ref<string>("");
+const timerId = ref<number | null>(null);
 
 onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown)
-})
+    document.addEventListener("keydown", handleKeyDown);
+});
 
 function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Tab") {
-        event.preventDefault()
-        const target = document.activeElement as HTMLElement
+        event.preventDefault();
+        const target = document.activeElement as HTMLElement;
         if (target.id === "username") {
-            ;(document.getElementById("password") as HTMLElement).focus()
+            (document.getElementById("password") as HTMLElement).focus();
         } else {
-            ;(document.getElementById("username") as HTMLElement).focus()
+            (document.getElementById("username") as HTMLElement).focus();
         }
     } else if (event.key === "Enter") {
-        event.preventDefault()
-        login()
+        event.preventDefault();
+        login();
     }
 }
 
 function togglePasswordVisibility() {
-    showPassword.value = !showPassword.value
+    showPassword.value = !showPassword.value;
 }
 
 function dismissPopup() {
-    showNotification.value = false
+    showNotification.value = false;
     if (timerId.value !== null) {
-        clearTimeout(timerId.value)
+        clearTimeout(timerId.value);
     }
 }
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
     } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
     }
-    timerId.value = setTimeout(dismissPopup, 4000)
+    timerId.value = setTimeout(dismissPopup, 4000);
 }
 
 async function login() {
     if (username.value.length > 150) {
-        displayPopup("error", "userLoginPage.loginError", "userLoginPage.maxUsernameLength")
-        return
+        displayPopup("error", "userLoginPage.loginError", "userLoginPage.maxUsernameLength");
+        return;
     }
 
     try {
@@ -185,17 +185,17 @@ async function login() {
                 username: username.value,
                 password: password.value,
             }),
-        })
+        });
 
         if (response.ok) {
-            const { access_token } = await response.json()
-            localStorage.setItem("access_token", access_token)
-            router.push({ name: "home" })
+            const { access_token } = await response.json();
+            localStorage.setItem("access_token", access_token);
+            router.push({ name: "home" });
         } else {
-            displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials")
+            displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
         }
     } catch {
-        displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials")
+        displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
     }
 }
 </script>

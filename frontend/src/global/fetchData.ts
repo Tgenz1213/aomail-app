@@ -1,6 +1,3 @@
-I have these 2 funtions to get and post data to my API. Use them to refactor the script setup code.
-
-
 import { API_BASE_URL } from "./const"
 import { fetchWithToken } from "./security"
 

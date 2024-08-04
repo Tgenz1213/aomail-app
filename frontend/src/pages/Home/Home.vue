@@ -3523,4 +3523,8 @@ function updateSearchQuery(event: Event) {
 }
 </script>
 
-<!--   TODO: remove the commented lines AFTER coding the component EmailActionButtons.vue -->
+<!-- 
+TODO: 
+- remove the commented lines AFTER coding the component EmailActionButtons.vue
+- remove functions that are handled in the component (including api calls)
+ -->

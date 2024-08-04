@@ -104,7 +104,7 @@ def signup(request: HttpRequest) -> Response:
     LOGGER.info(f"Signup request received from IP: {ip}")
 
     parameters: dict = json.loads(request.body)
-    type_api: str = parameters.get("type_api", "")
+    type_api: str = parameters.get("typeApi", "")
     code: str = parameters.get("code", "")
     username: str = parameters.get("login", "")
     password: str = parameters.get("password", "")
@@ -117,8 +117,7 @@ def signup(request: HttpRequest) -> Response:
 
     validation_result: dict = validate_signup_data(username, password, code)
     if "error" in validation_result:
-        LOGGER.error(
-            f"Validation failed for signup data: {validation_result['error']}")
+        LOGGER.error(f"Validation failed for signup data: {validation_result['error']}")
         return Response(validation_result, status=status.HTTP_400_BAD_REQUEST)
 
     LOGGER.info("User signup data validated successfully")
@@ -130,8 +129,7 @@ def signup(request: HttpRequest) -> Response:
             {"error": authorization_result["error"]}, status=status.HTTP_400_BAD_REQUEST
         )
 
-    LOGGER.info(
-        f"Successfully validated authorization code for {type_api} API")
+    LOGGER.info(f"Successfully validated authorization code for {type_api} API")
 
     access_token = authorization_result.get("access_token", "")
     refresh_token = authorization_result.get("refresh_token", "")
@@ -197,8 +195,7 @@ def signup(request: HttpRequest) -> Response:
         elif type_api == MICROSOFT:
             if profile_microsoft.verify_license(access_token):
                 threading.Thread(
-                    target=profile_microsoft.set_all_contacts, args=(
-                        access_token, user)
+                    target=profile_microsoft.set_all_contacts, args=(access_token, user)
                 ).start()
             else:
                 LOGGER.error("No license associated with the account")
@@ -256,8 +253,7 @@ def subscribe_listeners(type_api: str, user: str, email: str) -> bool:
         bool: True if subscription was successful, False otherwise.
     """
     if type_api == GOOGLE:
-        subscribed = webhook_google.subscribe_to_email_notifications(
-            user, email)
+        subscribed = webhook_google.subscribe_to_email_notifications(user, email)
         if subscribed:
             social_api = auth_google.get_social_api(user, email)
             GoogleListener.objects.create(
@@ -322,8 +318,7 @@ def unsubscribe_listeners(user: User, email: str = None):
 
     # Unsubscribe from Microsoft listeners
     if email:
-        microsoft_listeners = MicrosoftListener.objects.filter(
-            user=user, email=email)
+        microsoft_listeners = MicrosoftListener.objects.filter(user=user, email=email)
     else:
         microsoft_listeners = MicrosoftListener.objects.filter(user=user)
 
@@ -345,8 +340,7 @@ def unsubscribe_listeners(user: User, email: str = None):
                         "email_provider": MICROSOFT,
                         "user": user,
                     }
-                    email_html = render_to_string(
-                        "unsubscribe_failure.html", context)
+                    email_html = render_to_string("unsubscribe_failure.html", context)
                     send_mail(
                         subject="Critical Alert: Microsoft Unsubscription Failure",
                         message="",
@@ -372,23 +366,20 @@ def validate_authorization_code(type_api: str, code: str) -> dict:
     """
     try:
         if type_api == GOOGLE:
-            access_token, refresh_token = auth_google.exchange_code_for_tokens(
-                code)
+            access_token, refresh_token = auth_google.exchange_code_for_tokens(code)
             if not access_token or not refresh_token:
                 return {
                     "error": "Failed to obtain access or refresh token from Google API"
                 }
 
-            result_get_email = profile_google.get_email(
-                access_token, refresh_token)
+            result_get_email = profile_google.get_email(access_token, refresh_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
                 email = result_get_email["email"]
 
         elif type_api == MICROSOFT:
-            access_token, refresh_token = auth_microsoft.exchange_code_for_tokens(
-                code)
+            access_token, refresh_token = auth_microsoft.exchange_code_for_tokens(code)
             if not access_token or not refresh_token:
                 return {
                     "error": "Failed to obtain access or refresh token from Microsoft API"
@@ -434,16 +425,14 @@ def validate_code_link_email(type_api: str, code: str) -> dict:
                     "error": "Failed to obtain access or refresh token from Google API"
                 }
 
-            result_get_email = profile_google.get_email(
-                access_token, refresh_token)
+            result_get_email = profile_google.get_email(access_token, refresh_token)
             if "error" in result_get_email:
                 return {"error": result_get_email["error"]}
             else:
                 email = result_get_email["email"]
 
         elif type_api == MICROSOFT:
-            access_token, refresh_token = auth_microsoft.link_email_tokens(
-                code)
+            access_token, refresh_token = auth_microsoft.link_email_tokens(code)
             if not access_token:
                 return {"error": "Failed to obtain access token from Microsoft API"}
 
@@ -464,8 +453,7 @@ def validate_code_link_email(type_api: str, code: str) -> dict:
         }
 
     except Exception as e:
-        LOGGER.error(
-            f"Unexpected error during validation for {type_api} API: {str(e)}")
+        LOGGER.error(f"Unexpected error during validation for {type_api} API: {str(e)}")
         return {"error": str(e)}
 
 
@@ -673,8 +661,7 @@ def delete_account(request: HttpRequest) -> Response:
 
     try:
         ip = security.get_ip_with_port(request)
-        LOGGER.info(
-            f"Deletion request received from IP: {ip} for user ID: {user.id}")
+        LOGGER.info(f"Deletion request received from IP: {ip} for user ID: {user.id}")
 
         unsubscribe_listeners(user)
         user.delete()
@@ -746,8 +733,7 @@ def link_email(request: HttpRequest) -> Response:
     user_description = parameters.get("user_description")
 
     ip = security.get_ip_with_port(request)
-    LOGGER.info(
-        f"Link email request received from IP: {ip} and user ID: {user.id}")
+    LOGGER.info(f"Link email request received from IP: {ip} and user ID: {user.id}")
 
     authorization_result = validate_code_link_email(type_api, code)
     if "error" in authorization_result:
@@ -785,16 +771,14 @@ def link_email(request: HttpRequest) -> Response:
             ).start()
         elif type_api == MICROSOFT:
             threading.Thread(
-                target=profile_microsoft.set_all_contacts, args=(
-                    access_token, user)
+                target=profile_microsoft.set_all_contacts, args=(access_token, user)
             ).start()
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     subscribed = subscribe_listeners(type_api, user, email)
     if subscribed:
-        LOGGER.info(
-            f"Email account linked successfully for user ID: {user.id}")
+        LOGGER.info(f"Email account linked successfully for user ID: {user.id}")
         return Response(
             {"message": "Email linked to account successfully!"},
             status=status.HTTP_201_CREATED,
@@ -862,8 +846,7 @@ def generate_reset_token(request: HttpRequest) -> Response:
     try:
         parameters: dict = json.loads(request.body)
         email = parameters.get("email")
-        LOGGER.info(
-            f"Attempting to generate reset password token for email: {email}")
+        LOGGER.info(f"Attempting to generate reset password token for email: {email}")
 
         social_api = SocialAPI.objects.get(email=email)
         token = PasswordResetTokenGenerator().make_token(social_api.user)

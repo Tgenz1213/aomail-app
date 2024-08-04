@@ -1397,7 +1397,7 @@ function addCategory() {
 async function submitSignupData() {
     try {
         localStorage.setItem("categories", JSON.stringify(categories.value));
-        router.push({ name: "signup_part2" });
+        router.push({ name: "signupLink" });
     } catch (error) {
         displayPopup(
             "error",

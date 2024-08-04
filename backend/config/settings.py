@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    "MailAssistant",
+    "aomail",
     "aomail.ai_providers",
     "aomail.controllers",
     "rest_framework",

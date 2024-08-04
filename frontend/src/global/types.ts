@@ -8,3 +8,8 @@ export interface EmailSender {
     username: string
     email: string
 }
+
+export interface Category {
+    name: string
+    description: string
+}

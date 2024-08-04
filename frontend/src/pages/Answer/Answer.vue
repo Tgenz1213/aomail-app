@@ -1522,9 +1522,9 @@ onMounted(() => {
   const subject = JSON.parse(sessionStorage.getItem("subject"));
   const cc = sessionStorage.getItem("cc");
   const bcc = sessionStorage.getItem("bcc");
-  const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
+  const decoded_data = JSON.parse(sessionStorage.getItem("decodedData"));
   const email = JSON.parse(sessionStorage.getItem("email"));
-  //const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
+  //const idProvider = JSON.parse(sessionStorage.getItem("idProvider"));
   const details = JSON.parse(sessionStorage.getItem("details"));
 
   console.log("DEBUG CC------------------")

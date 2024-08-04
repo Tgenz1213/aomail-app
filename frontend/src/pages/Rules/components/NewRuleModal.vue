@@ -197,18 +197,13 @@ import {
     ComboboxOption,
 } from "@headlessui/vue"
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
-import { EmailSender } from "@/global/types"
+import { Category, EmailSender } from "@/global/types"
 
 const showNotification = ref<boolean>(false)
 const notificationTitle = ref<string>("")
 const notificationMessage = ref<string>("")
 const backgroundColor = ref<string>("")
 const timerId = ref<NodeJS.Timeout | null>(null)
-
-interface Category {
-    name: string
-    description: string
-}
 
 const props = defineProps<{
     isOpen: boolean

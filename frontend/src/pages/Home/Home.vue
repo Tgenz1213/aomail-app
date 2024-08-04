@@ -1466,7 +1466,7 @@
                                 <div
                                     v-if="
                                         emails[selectedTopic] &&
-                                        emails[selectedTopic]['Useless'].filter((email) => !email.answer_later) &&
+                                        emails[selectedTopic]['Useless'].filter((email) => !email.answerLater) &&
                                         countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0
                                     "
                                     class="group/main"
@@ -1529,14 +1529,14 @@
                                                                         >
                                                                             {{
                                                                                 emails[selectedTopic]["Useless"].filter(
-                                                                                    (e) => !e.answer_later
+                                                                                    (e) => !e.answerLater
                                                                                 ).length
                                                                             }}
                                                                         </span>
                                                                         <span
                                                                             v-if="
                                                                                 emails[selectedTopic]['Useless'].filter(
-                                                                                    (email) => !email.answer_later
+                                                                                    (email) => !email.answerLater
                                                                                 ).length === 1
                                                                             "
                                                                         >
@@ -1582,7 +1582,7 @@
                                                                         class="py-5 grid grid-cols-10 w-full"
                                                                         v-for="item in emails[selectedTopic][
                                                                             'Useless'
-                                                                        ].filter((email) => !email.answer_later)"
+                                                                        ].filter((email) => !email.answerLater)"
                                                                         :key="item.id"
                                                                         @mouseover="setHoveredItem(item.id)"
                                                                         @mouseleave="clearHoveredItem"
@@ -2736,7 +2736,7 @@
         @updateCategory="handleUpdateCategory"
         @deleteCategory="handleCategoryDelete"
     />
-    <ModalSeeMail
+    <SeeMailModal
         :isOpen="isModalSeeOpen"
         :email="selectedEmail"
         @closeSeeModal="closeSeeModal"
@@ -2749,964 +2749,17 @@
     />
 </template>
 
-<script setup>
-import { computed } from "vue"
-import { useI18n } from "vue-i18n"
-import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue"
-
-// Use i18n
-const { t } = useI18n()
-
-// Variables to display a notification
-let showNotification = ref(false)
-let selectedEmailId = ref("")
-let notificationTitle = ref("")
-let notificationMessage = ref("")
-let backgroundColor = ref("")
-let timerId = ref(null)
-
-const router = useRouter()
-let animatedText = ref("")
-let showHiddenParagraphs = ref({})
-let showModal = ref(false)
-let isModalOpen = ref(false)
-let isModalSeeOpen = ref(false)
-let isModalUpdateOpen = ref(false)
-let modalErrorMessage = ref("")
-let modalUpdateErrorMessage = ref("")
-let categoryToUpdate = ref(null)
-let categories = ref([])
-let selectedEmail = ref(null)
-let hoveredItemId = ref(null)
-let oldCategoryName = ref("")
-let showEmailDescriptions = ref(false)
-let showEmailReadDescriptions = ref(false)
-let isMenuOpen = ref(true)
-let emails = ref({})
-let scrollableDiv = ref(null)
-let selectedTopic = ref("")
-let animationTriggered = ref([false, false, false])
-let bgColor = ref("")
-
-let parentElementRefs = ref({})
-let totalUnread = ref(0)
-let initialAnimationDone = ref(false)
-let isModalWarningCategoryOpen = ref(false)
-let nbRulesAssociated = ref(null)
-const happy_icon = ref(require("@/assets/ao-happy.png"))
-let lockEmailsAccess = ref(false)
-
-let isHidden = ref(false)
-
-const toggleVisibility = () => {
-    isHidden.value = !isHidden.value
-}
-
-const downloadAttachment = async (emailId, attachmentName) => {
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/attachments/${attachmentName}/`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-
-        const attachmentData = await response.blob()
-
-        const url = window.URL.createObjectURL(attachmentData)
-        const link = document.createElement("a")
-        link.href = url
-        link.setAttribute("download", attachmentName)
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-    } catch (error) {
-        console.error("Failed to download attachment:", error.message)
-        backgroundColor.value = "bg-red-300"
-        notificationTitle.value = "Échec de téléchargement de la pièce jointe"
-        notificationMessage.value = error.message
-        displayPopup()
-    }
-}
-
-const getIconComponent = (fileName) => {
-    const extension = fileName.split(".").pop().toLowerCase()
-    if (["png", "jpg", "jpeg", "gif"].includes(extension)) {
-        return CameraIcon
-    } else if (["pdf", "doc", "docx", "xls", "xlsx"].includes(extension)) {
-        return DocumentIcon
-    } else {
-        return DocumentIcon
-    }
-}
-
-onMounted(async () => {
-    document.addEventListener("keydown", handleKeyDown)
-
-    await new Promise((resolve) => {
-        fetchData().then(() => {
-            resolve()
-        })
-    })
-
-    setInterval(async () => {
-        try {
-            fetchEmails()
-        } catch (error) {
-            console.log("An error occured", error)
-        }
-    }, 15000)
-})
-
-function handleKeyDown(event) {
-    if (event.key === "Escape" && isModalWarningCategoryOpen.value) {
-        closeWarningCategoryModal()
-    }
-}
-
-function getNumberUnreadMail(emailData) {
-    let totalUnread = 0
-
-    for (const category in emailData) {
-        for (const subcategory in emailData[category]) {
-            const emailsInSubcategory = emailData[category][subcategory]
-            if (subcategory != "Useless") {
-                for (const email of emailsInSubcategory) {
-                    if (!email.read && !email.answer_later) {
-                        totalUnread++
-                    }
-                }
-            }
-        }
-    }
-    return totalUnread
-}
-
-function getTextNumberUnreadMail(totalUnread) {
-    if (totalUnread === 0) {
-        return `${t("homePage.youDidNotReceiveNewEmail")}`
-    } else if (totalUnread === 1) {
-        return `${t("homePage.youReceived")} ${totalUnread} ${t("homePage.newEmail")}`
-    } else {
-        return `${t("homePage.youReceived")} ${totalUnread} ${t("homePage.newEmails")}`
-    }
-}
-
-function animateText(text) {
-    try {
-        animatedText.value.textContent = ""
-        let target = animatedText.value
-        let characters = text.split("")
-        let currentIndex = 0
-
-        // Used to create an animation
-        const interval = setInterval(() => {
-            if (currentIndex < characters.length) {
-                target.textContent += characters[currentIndex]
-                currentIndex++
-            } else {
-                clearInterval(interval)
-            }
-        }, 30)
-    } catch (error) {
-        // TODO: Remove this try-catch with a cleaner method
-        console.error("An error occurred:", error)
-    }
-}
-
-function dismissPopup() {
-    showNotification = false
-    // Cancel the timer
-    clearTimeout(timerId)
-}
-
-function displayPopup() {
-    showNotification = true
-
-    timerId = setTimeout(() => {
-        dismissPopup()
-    }, 4000)
-}
-
-function setParentRef(el, itemId) {
-    // Ensure the object exists before trying to set a property
-    if (el) {
-        parentElementRefs.value[itemId] = el
-    }
-}
-
-// To redirect to the page rules to edit a rule
-function openRuleEditor(ruleId) {
-    if (ruleId) {
-        router.push({ name: "rules", query: { id_rule: ruleId, edit_rule: true } })
-    }
-}
-
-function openNewRule(ruleName, ruleEmail) {
-    if (ruleName && ruleEmail) {
-        router.push({ name: "rules", query: { rule_name: ruleName, rule_email: ruleEmail, edit_rule: false } })
-    }
-}
-
-function setHoveredItem(id) {
-    hoveredItemId.value = id
-}
-
-function clearHoveredItem() {
-    hoveredItemId.value = null
-}
-
-function toggleTooltip() {
-    isMenuOpen.value = true
-}
-
-async function markEmailAsUnread(emailId) {
-    lockEmailsAccess.value = true
-    updateEmailUnreadStatus(emailId)
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_unread/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-
-        if (response.read != false) {
-            console.log("RESPONSE markEmailAsUnread", response)
-            backgroundColor = "bg-red-200/[.89] border border-red-400"
-            notificationTitle = t("homePage.markEmailUnreadFailure")
-            notificationMessage = response
-            displayPopup()
-        }
-    } catch (error) {
-        console.error("Error in markEmailAsUnread:", error.message)
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("homePage.markEmailUnreadFailure")
-        notificationMessage = error.message
-        displayPopup()
-    }
-    lockEmailsAccess.value = false
-}
-async function markEmailAsRead(emailId) {
-    lockEmailsAccess.value = true
-    updateEmailReadStatus(emailId)
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_read/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-
-        if (response.read != true) {
-            console.log("RESPONSE", response)
-            backgroundColor = "bg-red-200/[.89] border border-red-400"
-            notificationTitle = t("homepage.markEmailReadFailure")
-            notificationMessage = response
-            displayPopup()
-        }
-    } catch (error) {
-        console.error("Error in markEmailAsRead:", error.message)
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("homepage.markEmailReadFailure")
-        notificationMessage = error.message
-        displayPopup()
-    }
-    lockEmailsAccess.value = false
-}
-
-function updateEmailReadStatus(emailId) {
-    // Iterate over each category in the emails object
-    for (const category in emails.value) {
-        if (Object.hasOwnProperty.call(emails.value, category)) {
-            // Iterate over each subcategory within the category
-            for (const subcategory in emails.value[category]) {
-                if (Array.isArray(emails.value[category][subcategory])) {
-                    // Find the index of the email with the given ID in the current subcategory's array
-                    const emailIndex = emails.value[category][subcategory].findIndex((email) => email.id === emailId)
-                    if (emailIndex !== -1) {
-                        // Email found, update its read status
-                        emails.value[category][subcategory][emailIndex].read = true
-                        updateNumberUnreadEmails()
-                        return // Stop the function as we've found and updated the email
-                    }
-                }
-            }
-        }
-    }
-}
-
-function updateEmailUnreadStatus(emailId) {
-    for (const category in emails.value) {
-        if (Object.hasOwnProperty.call(emails.value, category)) {
-            for (const subcategory in emails.value[category]) {
-                if (Array.isArray(emails.value[category][subcategory])) {
-                    const emailIndex = emails.value[category][subcategory].findIndex((email) => email.id === emailId)
-                    if (emailIndex !== -1) {
-                        emails.value[category][subcategory][emailIndex].read = false
-                        updateNumberUnreadEmails()
-                        return
-                    }
-                }
-            }
-        }
-    }
-}
-
-function updateNumberUnreadEmails() {
-    const newTotalUnread = getNumberUnreadMail(emails.value)
-
-    if (initialAnimationDone.value === false) {
-        animateText(getTextNumberUnreadMail(newTotalUnread))
-        totalUnread.value = newTotalUnread
-        initialAnimationDone.value = true
-    } else if (newTotalUnread !== totalUnread.value) {
-        totalUnread.value = newTotalUnread
-
-        if (totalUnread.value > 0 && totalUnread.value <= 2) {
-            animateText(getTextNumberUnreadMail(totalUnread.value))
-        } else {
-            animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value)
-        }
-    }
-}
-
-async function transferEmail(email) {
-    const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`
-
-    try {
-        const data = await fetchWithToken(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-
-        sessionStorage.setItem("subject", JSON.stringify(data.email.subject))
-        sessionStorage.setItem("cc", data.email.cc)
-        sessionStorage.setItem("bcc", data.email.bcc)
-        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data))
-        sessionStorage.setItem("email", JSON.stringify(email.email))
-        sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider))
-        sessionStorage.setItem("details", JSON.stringify(email.details))
-        sessionStorage.setItem("emailReceiver", data.email.email_receiver)
-        sessionStorage.setItem("date", JSON.stringify(data.email.date))
-
-        router.push({
-            name: "transfer",
-        })
-    } catch (error) {
-        console.error("There was a problem with the fetch operation:", error.message)
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("homepage.transferEmailFailure")
-        notificationMessage = error.message
-        displayPopup()
-    }
-}
-
-async function markEmailReplyLater(email) {
-    lockEmailsAccess.value = true
-    const emailId = email.id
-    email.answer_later = true
-    isMenuOpen.value = false
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply-later/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-        if (response.answer_later) {
-            console.log("Email marked for reply later successfully")
-        } else {
-            console.error("Failed to mark email for reply later", response)
-            backgroundColor = "bg-red-200/[.89] border border-red-400"
-            notificationTitle = t("homepage.markEmailReplyLaterFailure")
-            notificationMessage = response
-            displayPopup()
-        }
-    } catch (error) {
-        console.error("Error in markEmailReplyLater:", error.message)
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("homepage.markEmailReplyLaterFailure")
-        notificationMessage = error.message
-        displayPopup()
-    }
-    lockEmailsAccess.value = false
-}
-
-function deleteEmailFromState(emailId) {
-    // Iterate over each category in the emails object
-    for (const category in emails.value) {
-        if (Object.prototype.hasOwnProperty.call(emails.value, category)) {
-            // Iterate over each subcategory within the category
-            for (const subcategory in emails.value[category]) {
-                if (Array.isArray(emails.value[category][subcategory])) {
-                    // Find the index of the email with the given ID in the current subcategory's array
-                    const emailIndex = emails.value[category][subcategory].findIndex((email) => email.id === emailId)
-                    if (emailIndex !== -1) {
-                        // Email found, delete it from the array
-                        emails.value[category][subcategory].splice(emailIndex, 1)
-                        return // Stop the function as we've found and deleted the email
-                    }
-                }
-            }
-        }
-    }
-}
-
-async function setRuleBlockForSender(email) {
-    lockEmailsAccess.value = true
-    const emailId = email.id
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/block_sender/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-
-        if (response.block) {
-            deleteEmail(emailId)
-        } else {
-            console.error("Failed to set block rule for sender", response)
-            backgroundColor = "bg-red-200/[.89] border border-red-400"
-            notificationTitle = t("homepage.blockEmailAddressFailure")
-            notificationMessage = response
-            displayPopup()
-        }
-    } catch (error) {
-        console.error("Error in setRuleBlockForSender:", error.message)
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("homepage.blockEmailAddressFailure")
-        notificationMessage = error.message
-        displayPopup()
-    }
-    lockEmailsAccess.value = false
-}
-
-async function deleteEmail(emailId) {
-    lockEmailsAccess.value = true
-    deleteEmailFromState(emailId)
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/delete/`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-
-        if (!response.message) {
-            backgroundColor = "bg-red-200/[.89] border border-red-400"
-            notificationTitle = t("constants.popUpConstants.deleteEmailFailure")
-            notificationMessage = response.error
-            displayPopup()
-        }
-    } catch (error) {
-        console.error("Error in deleteEmail:", error.message)
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.deleteEmailFailure")
-        notificationMessage = error.message
-        displayPopup()
-    }
-    lockEmailsAccess.value = false
-}
-
-async function openAnswer(email) {
-    const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`
-
-    try {
-        const data = await fetchWithToken(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-
-        sessionStorage.setItem("subject", JSON.stringify(data.email.subject))
-        sessionStorage.setItem("cc", data.email.cc)
-        sessionStorage.setItem("bcc", data.email.bcc)
-        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data))
-        sessionStorage.setItem("email", JSON.stringify(email.email))
-        sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider))
-        sessionStorage.setItem("details", JSON.stringify(email.details))
-        sessionStorage.setItem("emailReceiver", data.email.email_receiver)
-
-        router.push({
-            name: "answer",
-        })
-    } catch (error) {
-        console.error("There was a problem with the fetch operation:", error.message)
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.openReplyPageFailure")
-        notificationMessage = error.message
-        displayPopup()
-    }
-}
-
-function updateModalStatus(status) {
-    showModal.value = status
-}
-
-function openSeeModal(emailItem) {
-    selectedEmail.value = emailItem
-    isModalSeeOpen.value = true
-}
-function closeSeeModal() {
-    isModalSeeOpen.value = false
-}
-
-function openModal() {
-    isModalOpen.value = true
-}
-function closeModal() {
-    isModalOpen.value = false
-}
-function openUpdateModal(category) {
-    oldCategoryName.value = category.name
-    categoryToUpdate.value = category
-    isModalUpdateOpen.value = true
-}
-function closeUpdateModal() {
-    isModalUpdateOpen.value = false
-}
-function openWarningCategoryModal(nb_rules) {
-    isModalWarningCategoryOpen.value = true
-    nbRulesAssociated.value = nb_rules
-}
-function closeWarningCategoryModal() {
-    isModalWarningCategoryOpen.value = false
-}
-
-async function handleAddCategory(categoryData) {
-    if (Object.hasOwnProperty.call(categoryData, "error")) {
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = categoryData.error
-        notificationMessage = categoryData.description
-        displayPopup()
-
-        closeModal()
-        return
-    }
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}api/create_category/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: categoryData.name,
-                description: categoryData.description,
-            }),
-        })
-
-        if ("error" in response) {
-            // Show the pop-up
-            backgroundColor = "bg-red-200/[.89] border border-red-400"
-            notificationTitle = t("constants.popUpConstants.addCategoryError")
-            notificationMessage = response.error
-            displayPopup()
-
-            closeModal()
-        } else if (response) {
-            // Show the pop-up
-            backgroundColor = "bg-green-200/[.89] border border-green-400"
-            notificationTitle = t("constants.popUpConstants.successMessages.success")
-            notificationMessage = t("constants.popUpConstants.successMessages.categoryAddedSuccess")
-            displayPopup()
-
-            closeModal()
-            const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`)
-
-            categories.value = fetchedCategories.map((category) => ({
-                name: category.name,
-                description: category.description,
-            }))
-        }
-    } catch (error) {
-        // Show the pop-up
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.errorMessages.addCategoryError")
-        notificationMessage = error.message
-        displayPopup()
-
-        closeModal()
-    }
-}
-
-async function handleUpdateCategory(updatedCategory) {
-    if (Object.hasOwnProperty.call(updatedCategory, "error")) {
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = updatedCategory.error
-        notificationMessage = updatedCategory.description
-        displayPopup()
-
-        closeUpdateModal()
-        return
-    }
-
-    if (!updatedCategory.name.trim()) {
-        // Show the pop-up
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.errorMessages.updateCategoryError")
-        notificationMessage = t("constants.popUpConstants.errorMessages.emptyCategoryNameError")
-        displayPopup()
-
-        closeUpdateModal()
-        return
-    }
-    const updateData = {
-        name: updatedCategory.name,
-        description: updatedCategory.description,
-        categoryName: oldCategoryName.value,
-    }
-    try {
-        const url = `${API_BASE_URL}api/update_category/`
-        const options = {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(updateData),
-        }
-        const response = await fetchWithToken(url, options)
-
-        if (response) {
-            // Show the pop-up
-            backgroundColor = "bg-green-200/[.89] border border-green-400"
-            notificationTitle = t("constants.popUpConstants.successMessages.success")
-            notificationMessage = t("constants.popUpConstants.successMessages.updateCategorySuccess")
-            displayPopup()
-
-            closeUpdateModal()
-            const fetchedCategories = await fetchWithToken(`${API_BASE_URL}user/categories/`)
-            console.log("CategoryData", fetchedCategories)
-            categories.value = fetchedCategories.map((category) => ({
-                name: category.name,
-                description: category.description,
-            }))
-            console.log("Assigned categories:", categories.value)
-        }
-    } catch (error) {
-        // Show the pop-up
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.errorMessages.updateCategoryError")
-        notificationMessage = error.message
-        displayPopup()
-
-        closeUpdateModal()
-    }
-}
-async function handleCategoryDelete(categoryNameToDelete) {
-    if (!categoryNameToDelete.trim()) {
-        // Show the pop-up
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.errorMessages.openTransferPageFailure")
-        notificationMessage = t("constants.popUpConstants.errorMessages.emptyCategoryNameError")
-        displayPopup()
-        return
-    }
-
-    try {
-        const url = `${API_BASE_URL}api/get_rules_linked/`
-
-        const options = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                categoryName: categoryNameToDelete,
-            }),
-        }
-
-        const response = await fetchWithToken(url, options)
-
-        if (response.nb_rules > 0) {
-            closeUpdateModal()
-            openWarningCategoryModal(response.nb_rules)
-        } else {
-            deleteCategory(categoryNameToDelete)
-        }
-    } catch (error) {
-        // Show the pop-up
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.errorMessages.recuperationRules")
-        notificationMessage = error.message
-        displayPopup()
-
-        closeUpdateModal()
-    }
-}
-
-async function deleteCategory(categoryNameToDelete) {
-    try {
-        const url = `${API_BASE_URL}api/delete_category/`
-
-        const options = {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                categoryName: categoryNameToDelete,
-            }),
-        }
-
-        const response = await fetchWithToken(url, options)
-
-        if (response) {
-            // Show the pop-up
-            backgroundColor = "bg-green-200/[.89] border border-green-400"
-            notificationTitle = t("constants.popUpConstants.successMessages.success")
-            notificationMessage = t("constants.popUpConstants.successMessages.deleteCategorySuccess")
-            displayPopup()
-
-            // Fetch the categories
-            const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`)
-            categories.value = categoryData.map((category) => ({
-                name: category.name,
-                description: category.description,
-            }))
-        }
-    } catch (error) {
-        // Show the pop-up
-        backgroundColor = "bg-red-200/[.89] border border-red-400"
-        notificationTitle = t("constants.popUpConstants.errorMessages.deleteCategoryError")
-        notificationMessage = error.message
-        displayPopup()
-    }
-    closeUpdateModal()
-    closeWarningCategoryModal()
-}
-
-function readEmailsInSelectedTopic() {
-    let combinedEmails = []
-    for (let category in emails.value[selectedTopic.value]) {
-        combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category])
-    }
-
-    return combinedEmails.filter((email) => email.answer_later == false && email.read)
-}
-
-function toggleReadEmailVisibility() {
-    showEmailReadDescriptions.value = !showEmailReadDescriptions.value
-    scrollToBottom()
-}
-
-function toggleEmailVisibility() {
-    showEmailDescriptions.value = !showEmailDescriptions.value
-    if (readEmailsInSelectedTopic() == 0) {
-        scrollToBottom()
-    } else {
-        scrollAlmostToBottom()
-    }
-}
-
-function scrollToBottom() {
-    nextTick(() => {
-        const element = scrollableDiv.value
-        element.scrollTop = element.scrollHeight
-    })
-}
-
-function scrollAlmostToBottom() {
-    nextTick(() => {
-        const element = scrollableDiv.value
-        const offset = 100 // Adjust this value as needed
-        element.scrollTop = element.scrollHeight - offset
-    })
-}
-
-function toggleHiddenParagraph(index) {
-    showHiddenParagraphs.value[index] = !showHiddenParagraphs.value[index]
-    nextTick(() => {
-        if (showHiddenParagraphs.value[index] && !animationTriggered.value[index]) {
-            const parentElement = parentElementRefs.value[index]
-            const elements = parentElement.children
-
-            const delays = [0]
-            for (let i = 0; i < elements.length; i++) {
-                const duration = animateHiddenText(elements[i], delays[i])
-                delays.push(delays[i] + duration + 20)
-            }
-            animationTriggered.value[index] = true
-        }
-    })
-}
-
-function animateHiddenText(element, delay = 0) {
-    const characters = element.dataset.text.split("")
-    const duration = characters.length * 5
-    setTimeout(() => {
-        element.textContent = ""
-        let currentIndex = 0
-        const interval = setInterval(() => {
-            if (currentIndex < characters.length) {
-                element.textContent += characters[currentIndex]
-                currentIndex++
-            } else {
-                clearInterval(interval)
-            }
-        }, 5)
-    }, delay)
-    return duration
-}
-function selectCategory(category) {
-    selectedTopic.value = category.name
-    localStorage.setItem("selectedTopic", category.name)
-}
-function countEmailsInCategoryAndPriority(categoryName, priority) {
-    let count = 0
-    if (emails.value[categoryName] && emails.value[categoryName][priority]) {
-        for (let email of emails.value[categoryName][priority]) {
-            if (!email.read && !email.answer_later) {
-                count++
-            }
-        }
-    }
-    return count
-}
-
-// To check if there is emails or not in the category
-function isEmptyTopic() {
-    if (totalEmailsInCategory(selectedTopic.value) == 0) {
-        return true
-    } else {
-        return false
-    }
-}
-
-// Updated to work only with the the email not red by the user
-function totalEmailsInCategory(categoryName) {
-    let totalCount = 0
-    const category = emails.value[categoryName]
-
-    if (category) {
-        for (const subcategory of Object.values(category)) {
-            totalCount += subcategory.filter((email) => !email.answer_later).length
-        }
-    }
-
-    return totalCount
-}
-
-function totalEmailsInCategoryNotRead(categoryName) {
-    let totalCount = 0
-    const category = emails.value[categoryName]
-
-    if (category) {
-        for (const subcategory of Object.values(category)) {
-            totalCount += subcategory.filter((email) => !email.read && !email.answer_later).length
-        }
-    }
-
-    return totalCount
-}
-
-const groupedEmailsByCategoryAndDate = (category) => {
-    const grouped = {}
-    if (emails.value[selectedTopic.value] && emails.value[selectedTopic.value][category]) {
-        emails.value[selectedTopic.value][category].forEach((email) => {
-            if (!email.read && !email.answer_later) {
-                if (!grouped[email.date]) {
-                    grouped[email.date] = []
-                }
-                grouped[email.date].push(email)
-            }
-        })
-    }
-
-    // Sort the grouped object by date keys in descending order
-    const sortedGrouped = Object.keys(grouped)
-        .sort((a, b) => new Date(b) - new Date(a))
-        .reduce((acc, key) => {
-            // Sort emails by time in descending order for each date
-            acc[key] = grouped[key].sort((a, b) => new Date(`1970/01/01 ${b.time}`) - new Date(`1970/01/01 ${a.time}`))
-            return acc
-        }, {})
-
-    return sortedGrouped
-}
-
-async function fetchEmails() {
-    const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            subject: "",
-            resultPerPage: 25,
-            category: "Others",
-        }),
-    })
-    console.log(emailData)
-    if (lockEmailsAccess.value == false) {
-        emails.value = emailData
-    }
-    updateNumberUnreadEmails()
-}
-
-async function fetchData() {
-    try {
-        // Fetch the categories
-        const categoryData = await fetchWithToken(`${API_BASE_URL}user/categories/`)
-
-        for (let i = 0; i < categoryData.length; i++) {
-            categories.value.push(categoryData[i])
-        }
-
-        const storedTopic = localStorage.getItem("selectedTopic")
-
-        if (storedTopic) {
-            selectedTopic.value = storedTopic
-        } else if (categories.value.length > 0) {
-            selectedTopic.value = categories.value[0].name
-        }
-
-        fetchEmails()
-    } catch (error) {
-        console.error("Failed to fetch data:", error)
-    }
-}
-
-async function Hide_filtres() {
-    var toggleDiv = document.getElementById("filtres")
-
-    if (toggleDiv.classList.contains("hidden")) {
-        toggleDiv.classList.remove("hidden")
-        setTimeout(function () {
-            toggleDiv.classList.remove("opacity-0")
-            toggleDiv.classList.add("opacity-100")
-        }, 10)
-    } else {
-        toggleDiv.classList.remove("opacity-100")
-        toggleDiv.classList.add("opacity-0")
-        setTimeout(function () {
-            toggleDiv.classList.add("hidden")
-        }, 250)
-    }
-}
-</script>
-
-<script>
-import NotificationTimer from "@/components/NotificationTimer.vue"
-import { XMarkIcon } from "@heroicons/vue/20/solid"
-import { useRouter } from "vue-router"
-import NavBarLarge from "../components/NavBarLarge.vue"
-import NavBarSmall from "../components/NavBarSmall.vue"
-import SearchbarV2 from "../components/SearchbarV2.vue"
-import ModalSeeMail from "../components/SeeMailV2.vue"
-import NewCategoryModal from "../components/NewCategoryModal.vue"
-import UpdateCategoryModal from "../components/UpdateCategoryModal.vue"
+<script setup lang="ts">
 import { ref, nextTick, onMounted } from "vue"
+import { useI18n } from "vue-i18n"
+import { useRouter } from "vue-router"
+import NotificationTimer from "@/components/NotificationTimer.vue"
+import NavBarLarge from "@/components/NavBarLarge.vue"
+import NavBarSmall from "@/components/NavBarSmall.vue"
+import SearchbarV2 from "../components/SearchbarV2.vue"
+import SeeMailModal from "./components/SeeMailModal.vue"
+import NewCategoryModal from "./components/NewCategoryModal.vue"
+import UpdateCategoryModal from "./components/UpdateCategoryModal.vue"
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import {
     ExclamationTriangleIcon,
@@ -3722,39 +2775,751 @@ import {
     CameraIcon,
 } from "@heroicons/vue/24/outline"
 import { API_BASE_URL } from "@/global/const"
+import { getData, postData } from "@/global/fetchData"
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
+import { Category } from "@/global/types"
 
-export default {
-    name: "UserHome",
-    components: {
-        NavBarLarge,
-        NavBarSmall,
+interface Email {
+    id: number
+    answerLater: boolean
+    read: boolean
+    date: string
+    time: string
 
-        ExclamationTriangleIcon,
-        InformationCircleIcon,
-        TrashIcon,
-        ArrowUturnLeftIcon,
-        CheckIcon,
-        EllipsisHorizontalIcon,
-        HandRaisedIcon,
-        EyeIcon,
-        SearchbarV2,
-        Menu,
-        MenuButton,
-        MenuItem,
-        MenuItems,
-        ModalSeeMail,
-        NewCategoryModal,
-        UpdateCategoryModal,
-        DocumentIcon,
-        DocumentTextIcon,
-        CameraIcon,
-    },
+    id_provider: string
+    email: any
+    details: any
+}
 
-    methods: {
-        updateSearchQuery(event) {
-            this.searchQuery = event.target.value
-        },
-    },
+const { t } = useI18n()
+
+const showNotification = ref<boolean>(false)
+const notificationTitle = ref<string>("")
+const notificationMessage = ref<string>("")
+const backgroundColor = ref<string>("")
+const timerId = ref<NodeJS.Timeout | null>(null)
+
+const router = useRouter()
+const animatedText = ref<HTMLElement | null>(null)
+const showHiddenParagraphs = ref<Record<string, boolean>>({})
+const isModalOpen = ref(false)
+const isModalSeeOpen = ref(false)
+const isModalUpdateOpen = ref(false)
+const modalErrorMessage = ref("")
+const modalUpdateErrorMessage = ref("")
+const categoryToUpdate = ref<Category | null>(null)
+const categories = ref<Category[]>([])
+const selectedEmail = ref<Email | null>(null)
+const hoveredItemId = ref<number | null>(null)
+const oldCategoryName = ref("")
+const showEmailDescriptions = ref(false)
+const showEmailReadDescriptions = ref(false)
+const isMenuOpen = ref(true)
+const emails = ref<Record<string, any>>({})
+const scrollableDiv = ref<HTMLElement | null>(null)
+const selectedTopic = ref("")
+const animationTriggered = ref([false, false, false])
+const searchQuery = ref("")
+
+const parentElementRefs = ref<Record<string, HTMLElement>>({})
+const totalUnread = ref(0)
+const initialAnimationDone = ref(false)
+const isModalWarningCategoryOpen = ref(false)
+const nbRulesAssociated = ref<number>(0)
+const lockEmailsAccess = ref(false)
+
+const isHidden = ref(false)
+
+function displayPopup(type: "success" | "error", title: string, message: string) {
+    if (type === "error") {
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+    } else {
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+    }
+    timerId.value = setTimeout(dismissPopup, 4000)
+}
+
+function dismissPopup() {
+    showNotification.value = false
+    if (timerId.value !== null) {
+        clearTimeout(timerId.value)
+    }
+}
+
+const toggleVisibility = () => {
+    isHidden.value = !isHidden.value
+}
+
+const downloadAttachment = async (emailId: string, attachmentName: string) => {
+    try {
+        const response = await getData(`user/emails/${emailId}/attachments/${attachmentName}/`)
+
+        if (response.success && response.data) {
+            const attachmentData = await response.data.blob()
+
+            const url = window.URL.createObjectURL(attachmentData)
+            const link = document.createElement("a")
+            link.href = url
+            link.setAttribute("download", attachmentName)
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+        } else {
+            throw new Error("Failed to download attachment")
+        }
+    } catch (error: unknown) {
+        displayPopup("success", "Échec de téléchargement de la pièce jointe", (error as Error).message)
+    }
+}
+
+function getIconComponent(fileName: string): typeof CameraIcon | typeof DocumentIcon {
+    const extension = fileName.split(".").pop()?.toLowerCase() || ""
+
+    if (["png", "jpg", "jpeg", "gif"].includes(extension)) {
+        return CameraIcon
+    } else if (["pdf", "doc", "docx", "xls", "xlsx"].includes(extension)) {
+        return DocumentIcon
+    } else {
+        return DocumentIcon
+    }
+}
+onMounted(async () => {
+    document.addEventListener("keydown", handleKeyDown)
+
+    await new Promise<void>((resolve) => {
+        fetchData().then(() => {
+            resolve()
+        })
+    })
+
+    setInterval(async () => {
+        try {
+            await fetchEmails()
+        } catch (error) {
+            console.log("An error occurred", error)
+        }
+    }, 15000)
+})
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Escape" && isModalWarningCategoryOpen.value) {
+        closeWarningCategoryModal()
+    }
+}
+
+function getNumberUnreadMail(emailData: Record<string, any>): number {
+    let totalUnread = 0
+
+    for (const category in emailData) {
+        for (const subcategory in emailData[category]) {
+            const emailsInSubcategory = emailData[category][subcategory]
+            if (subcategory !== "Useless") {
+                for (const email of emailsInSubcategory) {
+                    if (!email.read && !email.answerLater) {
+                        totalUnread++
+                    }
+                }
+            }
+        }
+    }
+    return totalUnread
+}
+
+function getTextNumberUnreadMail(totalUnread: number): string {
+    if (totalUnread === 0) {
+        return t("homePage.youDidNotReceiveNewEmail")
+    } else if (totalUnread === 1) {
+        return `${t("homePage.youReceived")} ${totalUnread} ${t("homePage.newEmail")}`
+    } else {
+        return `${t("homePage.youReceived")} ${totalUnread} ${t("homePage.newEmails")}`
+    }
+}
+
+function animateText(text: string): void {
+    try {
+        const target = animatedText.value
+
+        if (target) {
+            target.textContent = ""
+            const characters = text.split("")
+            let currentIndex = 0
+
+            const interval = setInterval(() => {
+                if (currentIndex < characters.length) {
+                    target.textContent += characters[currentIndex]
+                    currentIndex++
+                } else {
+                    clearInterval(interval)
+                }
+            }, 30)
+        }
+    } catch (error) {
+        console.error("An error occurred during text animation:", error)
+    }
+}
+
+function setParentRef(el: HTMLElement | null, itemId: string): void {
+    if (el) {
+        parentElementRefs.value[itemId] = el
+    }
+}
+
+function openRuleEditor(ruleId: string): void {
+    if (ruleId) {
+        router.push({ name: "rules", query: { idRule: ruleId, editRule: "true" } })
+    }
+}
+
+function openNewRule(ruleName: string, ruleEmail: string): void {
+    if (ruleName && ruleEmail) {
+        router.push({ name: "rules", query: { ruleName, ruleEmail, editRule: "false" } })
+    }
+}
+
+function setHoveredItem(id: number | null): void {
+    hoveredItemId.value = id
+}
+
+function clearHoveredItem(): void {
+    hoveredItemId.value = null
+}
+
+function toggleTooltip(): void {
+    isMenuOpen.value = true
+}
+
+async function markEmailAsUnread(emailId: number): Promise<void> {
+    lockEmailsAccess.value = true
+    updateEmailStatus(emailId, false)
+
+    const path = `user/emails/${emailId}/mark_unread/`
+    const response = await postData(path, {})
+
+    if (response.success) {
+        const data = response.data
+
+        if (data.read !== false) {
+            displayPopup("error", t("homePage.markEmailUnreadFailure"), "Failed to mark email as unread.")
+        }
+    } else {
+        displayPopup("error", t("homePage.markEmailUnreadFailure"), "Failed to communicate with the server.")
+    }
+
+    lockEmailsAccess.value = false
+}
+
+async function markEmailAsRead(emailId: number): Promise<void> {
+    lockEmailsAccess.value = true
+    updateEmailStatus(emailId, true)
+
+    const path = `user/emails/${emailId}/mark_read/`
+    const response = await postData(path, {})
+
+    if (response.success) {
+        const data = response.data
+
+        if (data.read !== true) {
+            displayPopup("error", t("homepage.markEmailReadFailure"), "Failed to mark email as read.")
+        }
+    } else {
+        displayPopup("error", t("homepage.markEmailReadFailure"), "Failed to communicate with the server.")
+    }
+
+    lockEmailsAccess.value = false
+}
+
+function updateEmailStatus(emailId: number, readStatus: boolean): void {
+    for (const category in emails.value) {
+        if (Object.prototype.hasOwnProperty.call(emails.value, category)) {
+            for (const subcategory in emails.value[category]) {
+                if (Array.isArray(emails.value[category][subcategory])) {
+                    const emailIndex = emails.value[category][subcategory].findIndex(
+                        (email: Email) => email.id === emailId
+                    )
+                    if (emailIndex !== -1) {
+                        emails.value[category][subcategory][emailIndex].read = readStatus
+                        updateNumberUnreadEmails()
+                        return
+                    }
+                }
+            }
+        }
+    }
+}
+
+function updateNumberUnreadEmails(): void {
+    const newTotalUnread = getNumberUnreadMail(emails.value)
+
+    if (!initialAnimationDone.value) {
+        animateText(getTextNumberUnreadMail(newTotalUnread))
+        totalUnread.value = newTotalUnread
+        initialAnimationDone.value = true
+    } else if (newTotalUnread !== totalUnread.value) {
+        totalUnread.value = newTotalUnread
+
+        if (totalUnread.value > 0 && totalUnread.value <= 2) {
+            animateText(getTextNumberUnreadMail(totalUnread.value))
+        } else {
+            if (animatedText.value) {
+                animatedText.value.textContent = getTextNumberUnreadMail(totalUnread.value)
+            }
+        }
+    }
+}
+
+async function transferEmail(email: Email): Promise<void> {
+    try {
+        const response = await getData(`api/get_mail_by_id?email_id=${email.id_provider}`)
+        if (response.success && response.data) {
+            const data = response.data
+            sessionStorage.setItem("subject", JSON.stringify(data.subject))
+            sessionStorage.setItem("cc", data.cc)
+            sessionStorage.setItem("bcc", data.bcc)
+            sessionStorage.setItem("decoded_data", JSON.stringify(data.decoded_data))
+            sessionStorage.setItem("email", JSON.stringify(email.email))
+            sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider))
+            sessionStorage.setItem("details", JSON.stringify(email.details))
+            sessionStorage.setItem("emailReceiver", data.email_receiver)
+            sessionStorage.setItem("date", JSON.stringify(data.date))
+
+            router.push({ name: "transfer" })
+        } else {
+            displayPopup("error", t("homepage.transferEmailFailure"), "Failed to transfer email.")
+        }
+    } catch (error: any) {
+        displayPopup("error", t("homepage.transferEmailFailure"), error.message)
+    }
+}
+
+async function markEmailReplyLater(email: Email): Promise<void> {
+    lockEmailsAccess.value = true
+    email.answerLater = true
+    isMenuOpen.value = false
+
+    try {
+        const response = await postData(`user/emails/${email.id}/mark_reply-later/`, {})
+        if (!response.success) {
+            displayPopup("error", t("homepage.markEmailReplyLaterFailure"), "Failed to mark email for reply later.")
+        }
+    } catch (error: any) {
+        displayPopup("error", t("homepage.markEmailReplyLaterFailure"), error.message)
+    } finally {
+        lockEmailsAccess.value = false
+    }
+}
+
+function deleteEmailFromState(emailId: number): void {
+    for (const category in emails.value) {
+        if (Object.prototype.hasOwnProperty.call(emails.value, category)) {
+            for (const subcategory in emails.value[category]) {
+                if (Array.isArray(emails.value[category][subcategory])) {
+                    const emailIndex = emails.value[category][subcategory].findIndex(
+                        (email: Email) => email.id === emailId
+                    )
+                    if (emailIndex !== -1) {
+                        emails.value[category][subcategory].splice(emailIndex, 1)
+                        return
+                    }
+                }
+            }
+        }
+    }
+}
+
+async function setRuleBlockForSender(email: Email) {
+    lockEmailsAccess.value = true
+    const emailId = email.id
+
+    try {
+        const response = await postData(`user/emails/${emailId}/block_sender/`, {})
+        if (response.success && response.data.block) {
+            await deleteEmail(emailId)
+        } else {
+            displayPopup("error", t("homepage.blockEmailAddressFailure"), response.data)
+        }
+    } catch (error: any) {
+        displayPopup("error", t("homepage.blockEmailAddressFailure"), error.message)
+    } finally {
+        lockEmailsAccess.value = false
+    }
+}
+
+async function deleteEmail(emailId: number) {
+    lockEmailsAccess.value = true
+    deleteEmailFromState(emailId)
+
+    try {
+        const response = await postData(`user/emails/${emailId}/delete/`, {})
+        if (!response.success) {
+            displayPopup("error", t("constants.popUpConstants.deleteEmailFailure"), response.data?.error)
+        }
+    } catch (error: any) {
+        displayPopup("error", t("constants.popUpConstants.deleteEmailFailure"), error.message)
+    } finally {
+        lockEmailsAccess.value = false
+    }
+}
+
+async function openAnswer(email: Email) {
+    try {
+        const response = await getData(`api/get_mail_by_id?email_id=${email.id_provider}`)
+        if (response.success) {
+            const data = response.data
+            sessionStorage.setItem("subject", JSON.stringify(data.email.subject))
+            sessionStorage.setItem("cc", data.email.cc)
+            sessionStorage.setItem("bcc", data.email.bcc)
+            sessionStorage.setItem("decodedData", JSON.stringify(data.email.decoded_data))
+            sessionStorage.setItem("email", JSON.stringify(email.email))
+            sessionStorage.setItem("idProvider", JSON.stringify(email.id_provider))
+            sessionStorage.setItem("details", JSON.stringify(email.details))
+            sessionStorage.setItem("emailReceiver", data.email.email_receiver)
+
+            router.push({ name: "answer" })
+        } else {
+            displayPopup("error", t("constants.popUpConstants.openReplyPageFailure"), "Failed to retrieve email data")
+        }
+    } catch (error: any) {
+        displayPopup("error", t("constants.popUpConstants.openReplyPageFailure"), error.message)
+    }
+}
+
+function openSeeModal(emailItem: Email): void {
+    selectedEmail.value = emailItem
+    isModalSeeOpen.value = true
+}
+
+function closeSeeModal(): void {
+    isModalSeeOpen.value = false
+}
+
+function openModal(): void {
+    isModalOpen.value = true
+}
+
+function closeModal(): void {
+    isModalOpen.value = false
+}
+
+function openUpdateModal(category: Category): void {
+    oldCategoryName.value = category.name
+    categoryToUpdate.value = category
+    isModalUpdateOpen.value = true
+}
+
+function closeUpdateModal(): void {
+    isModalUpdateOpen.value = false
+}
+
+function openWarningCategoryModal(nbRules: number): void {
+    isModalWarningCategoryOpen.value = true
+    nbRulesAssociated.value = nbRules
+}
+
+function closeWarningCategoryModal(): void {
+    isModalWarningCategoryOpen.value = false
+}
+
+async function handleAddCategory(
+    categoryData: { name: string; description: string } & Partial<{ error: string; description: string }>
+) {
+    if (categoryData.error) {
+        displayPopup("error", categoryData.error, categoryData.description || "Error occurred")
+        closeModal()
+        return
+    }
+
+    try {
+        const response = await postData("api/create_category/", categoryData)
+        if (!response.success || "error" in response.data) {
+            displayPopup(
+                "error",
+                t("constants.popUpConstants.addCategoryError"),
+                response.data?.error || "Unknown error"
+            )
+            closeModal()
+        } else {
+            displayPopup(
+                "success",
+                t("constants.popUpConstants.successMessages.success"),
+                t("constants.popUpConstants.successMessages.categoryAddedSuccess")
+            )
+            closeModal()
+
+            const fetchedCategories = await getData("user/categories/")
+            if (fetchedCategories.success) {
+                categories.value = fetchedCategories.data.map((category: { name: string; description: string }) => ({
+                    name: category.name,
+                    description: category.description,
+                }))
+            }
+        }
+    } catch (error) {
+        displayPopup("error", t("constants.popUpConstants.errorMessages.addCategoryError"), (error as Error).message)
+        closeModal()
+    }
+}
+
+async function handleUpdateCategory(
+    updatedCategory: { name: string; description: string } & Partial<{ error: string; description: string }>
+) {
+    if (updatedCategory.error) {
+        displayPopup("error", updatedCategory.error, updatedCategory.description || "Error occurred")
+        closeUpdateModal()
+        return
+    }
+
+    if (!updatedCategory.name.trim()) {
+        displayPopup(
+            "error",
+            t("constants.popUpConstants.errorMessages.updateCategoryError"),
+            t("constants.popUpConstants.errorMessages.emptyCategoryNameError")
+        )
+        closeUpdateModal()
+        return
+    }
+
+    const updateData = {
+        name: updatedCategory.name,
+        description: updatedCategory.description,
+        categoryName: oldCategoryName.value,
+    }
+
+    try {
+        const response = await postData("api/update_category/", updateData)
+        if (response.success) {
+            displayPopup(
+                "success",
+                t("constants.popUpConstants.successMessages.success"),
+                t("constants.popUpConstants.successMessages.updateCategorySuccess")
+            )
+            closeUpdateModal()
+
+            const fetchedCategories = await getData("user/categories/")
+            if (fetchedCategories.success) {
+                categories.value = fetchedCategories.data.map((category: { name: string; description: string }) => ({
+                    name: category.name,
+                    description: category.description,
+                }))
+            }
+        }
+    } catch (error: unknown) {
+        displayPopup("error", t("constants.popUpConstants.errorMessages.updateCategoryError"), (error as Error).message)
+        closeUpdateModal()
+    }
+}
+
+async function handleCategoryDelete(categoryNameToDelete: string) {
+    if (!categoryNameToDelete.trim()) {
+        displayPopup(
+            "error",
+            t("constants.popUpConstants.errorMessages.openTransferPageFailure"),
+            t("constants.popUpConstants.errorMessages.emptyCategoryNameError")
+        )
+        return
+    }
+
+    try {
+        const response = await postData("api/get_rules_linked/", { categoryName: categoryNameToDelete })
+        if (response.success && response.data.nb_rules > 0) {
+            closeUpdateModal()
+            openWarningCategoryModal(response.data.nb_rules)
+        } else {
+            await deleteCategory(categoryNameToDelete)
+        }
+    } catch (error: unknown) {
+        displayPopup("error", t("constants.popUpConstants.errorMessages.recuperationRules"), (error as Error).message)
+        closeUpdateModal()
+    }
+}
+
+async function deleteCategory(categoryNameToDelete: string) {
+    try {
+        const response = await postData("api/delete_category/", { categoryName: categoryNameToDelete })
+        if (response.success) {
+            displayPopup(
+                "success",
+                t("constants.popUpConstants.successMessages.success"),
+                t("constants.popUpConstants.successMessages.deleteCategorySuccess")
+            )
+
+            const categoryData = await getData("user/categories/")
+            if (categoryData.success) {
+                categories.value = categoryData.data.map((category: { name: string; description: string }) => ({
+                    name: category.name,
+                    description: category.description,
+                }))
+            }
+        }
+    } catch (error: unknown) {
+        displayPopup("error", t("constants.popUpConstants.errorMessages.deleteCategoryError"), (error as Error).message)
+    }
+    closeUpdateModal()
+    closeWarningCategoryModal()
+}
+
+function readEmailsInSelectedTopic(): Email[] {
+    return (Object.values(emails.value[selectedTopic.value] || {}) as Email[][])
+        .flat()
+        .filter((email): email is Email => !email.answerLater && email.read)
+}
+
+function toggleReadEmailVisibility(): void {
+    showEmailReadDescriptions.value = !showEmailReadDescriptions.value
+    scrollToBottom()
+}
+
+function toggleEmailVisibility(): void {
+    showEmailDescriptions.value = !showEmailDescriptions.value
+    readEmailsInSelectedTopic().length === 0 ? scrollToBottom() : scrollAlmostToBottom()
+}
+
+function scrollToBottom(): void {
+    nextTick(() => {
+        if (scrollableDiv.value) {
+            scrollableDiv.value.scrollTop = scrollableDiv.value.scrollHeight
+        }
+    })
+}
+
+function scrollAlmostToBottom(): void {
+    nextTick(() => {
+        if (scrollableDiv.value) {
+            const offset = 100
+            scrollableDiv.value.scrollTop = scrollableDiv.value.scrollHeight - offset
+        }
+    })
+}
+
+function toggleHiddenParagraph(index: number): void {
+    showHiddenParagraphs.value[index] = !showHiddenParagraphs.value[index]
+    nextTick(() => {
+        if (showHiddenParagraphs.value[index] && !animationTriggered.value[index]) {
+            const parentElement = parentElementRefs.value[index]
+            if (parentElement) {
+                const elements = Array.from(parentElement.children)
+                let delay = 0
+                elements.forEach((element) => {
+                    const duration = animateHiddenText(element as HTMLElement, delay)
+                    delay += duration + 20
+                })
+                animationTriggered.value[index] = true
+            }
+        }
+    })
+}
+
+function animateHiddenText(element: HTMLElement, delay = 0): number {
+    const characters = element.dataset.text?.split("") || []
+    const duration = characters.length * 5
+    setTimeout(() => {
+        element.textContent = ""
+        let currentIndex = 0
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                element.textContent += characters[currentIndex]
+                currentIndex++
+            } else {
+                clearInterval(interval)
+            }
+        }, 5)
+    }, delay)
+    return duration
+}
+
+function selectCategory(category: { name: string }): void {
+    selectedTopic.value = category.name
+    localStorage.setItem("selectedTopic", category.name)
+}
+
+function countEmailsInCategoryAndPriority(categoryName: string, priority: string): number {
+    return (
+        emails.value[categoryName]?.[priority]?.filter(
+            (email: { read: any; answerLater: any }) =>
+                "read" in email && "answerLater" in email && !email.read && !email.answerLater
+        ).length || 0
+    )
+}
+
+function isEmptyTopic(): boolean {
+    return totalEmailsInCategory(selectedTopic.value) === 0
+}
+
+function totalEmailsInCategory(categoryName: string): number {
+    return (Object.values(emails.value[categoryName] || {}) as Email[][])
+        .flat()
+        .filter((email): email is Email => !("answerLater" in email) || !email.answerLater).length
+}
+
+function totalEmailsInCategoryNotRead(categoryName: string): number {
+    return (Object.values(emails.value[categoryName] || {}) as Email[][])
+        .flat()
+        .filter(
+            (email): email is Email => "read" in email && "answerLater" in email && !email.read && !email.answerLater
+        ).length
+}
+
+function groupedEmailsByCategoryAndDate(category: string): Record<string, Email[]> {
+    const emailsInCategory: Email[] = (emails.value[selectedTopic.value]?.[category] || []) as Email[]
+
+    const grouped = emailsInCategory
+        .filter((email: Email) => !email.read && !email.answerLater)
+        .reduce((acc: Record<string, Email[]>, email: Email) => {
+            if (!acc[email.date]) {
+                acc[email.date] = []
+            }
+            acc[email.date].push(email)
+            return acc
+        }, {} as Record<string, Email[]>)
+
+    return Object.entries(grouped)
+        .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+        .reduce((acc, [date, emailsForDate]) => {
+            acc[date] = emailsForDate.sort(
+                (a: Email, b: Email) =>
+                    new Date(`1970/01/01 ${b.time}`).getTime() - new Date(`1970/01/01 ${a.time}`).getTime()
+            )
+            return acc
+        }, {} as Record<string, Email[]>)
+}
+
+async function fetchEmails(): Promise<void> {
+    const response = await postData("user/emails/", {
+        subject: "",
+        resultPerPage: 25,
+        category: "Others",
+    })
+
+    if (response.success && !lockEmailsAccess.value) {
+        emails.value = response.data
+    }
+    updateNumberUnreadEmails()
+}
+
+async function fetchData(): Promise<void> {
+    try {
+        const categoryResponse = await getData("user/categories/")
+
+        if (categoryResponse.success) {
+            categories.value = categoryResponse.data as Category[]
+        }
+
+        const storedTopic = localStorage.getItem("selectedTopic")
+
+        if (storedTopic) {
+            selectedTopic.value = storedTopic
+        } else if (categories.value.length > 0) {
+            selectedTopic.value = categories.value[0].name
+        }
+
+        await fetchEmails()
+    } catch (error) {
+        console.error("Failed to fetch data:", error)
+    }
+}
+
+function updateSearchQuery(event: Event) {
+    const target = event.target as HTMLInputElement
+    searchQuery.value = target.value
 }
 </script>
 

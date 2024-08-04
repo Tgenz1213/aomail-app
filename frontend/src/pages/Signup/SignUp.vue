@@ -1123,11 +1123,7 @@ import { i18n } from "@/global/Settings/preferences"
 import logo from "@/assets/logo-aomail.png"
 import { API_BASE_URL } from "@/global/const"
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
-
-interface Category {
-    name: string
-    description: string
-}
+import { Category } from "@/global/types"
 
 const router = useRouter()
 

@@ -330,10 +330,10 @@ onMounted(() => {
     fetchCategories()
 
     const urlParams = new URLSearchParams(window.location.search)
-    const editRule = urlParams.get("edit_rule")
-    const ruleId = urlParams.get("id_rule")
-    const nameSender = urlParams.get("rule_name")
-    const emailSender = urlParams.get("rule_email")
+    const editRule = urlParams.get("editRule")
+    const ruleId = urlParams.get("idRule")
+    const nameSender = urlParams.get("ruleName")
+    const emailSender = urlParams.get("ruleEmail")
 
     if (editRule === "true" && ruleId) {
         fetchRuleById(ruleId)

@@ -102,11 +102,7 @@ import { useI18n } from "vue-i18n"
 import XMarkIcon from "@heroicons/vue/20/solid"
 import { API_BASE_URL } from "@/global/const"
 import { fetchWithToken } from "@/global/security"
-
-interface Category {
-    name: string
-    description: string
-}
+import { Category } from "@/global/types"
 
 interface Props {
     isOpen: boolean

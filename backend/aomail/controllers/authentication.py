@@ -595,7 +595,7 @@ def login(request: HttpRequest) -> Response:
     if user:
         refresh: RefreshToken = RefreshToken.for_user(user)
         access_token = str(refresh.access_token)
-        return Response({"access_token": access_token}, status=status.HTTP_200_OK)
+        return Response({"accessToken": access_token}, status=status.HTTP_200_OK)
     else:
         return Response(
             {"error": "Invalid username or password."},
@@ -618,7 +618,7 @@ def refresh_token(request: HttpRequest) -> Response:
                       or an error message on failure.
     """
     parameters: dict = json.loads(request.body)
-    access_token: str = parameters.get("access_token")
+    access_token: str = parameters.get("accessToken")
 
     if not access_token:
         return Response(
@@ -636,7 +636,7 @@ def refresh_token(request: HttpRequest) -> Response:
         refresh_token: RefreshToken = RefreshToken.for_user(user)
         new_access_token = str(refresh_token.access_token)
 
-        return Response({"access_token": new_access_token}, status=status.HTTP_200_OK)
+        return Response({"accessToken": new_access_token}, status=status.HTTP_200_OK)
     except Exception as e:
         LOGGER.error(
             f"Unexpected error occured when refreshing Django access token: {str(e)}"

@@ -39,9 +39,9 @@ const fetchUserPreference = async (
         if (data.error) {
             console.error("Error in response:", data.error);
             return null;
-        } else if (data[key] !== undefined) {  
+        } else if (data[key] !== undefined) {
             const value = data[key];
-            if (typeof value === 'string') { 
+            if (typeof value === "string") {
                 localStorage.setItem(key, value);
                 return value;
             }
@@ -57,6 +57,7 @@ const fetchUserPreference = async (
 };
 
 export const initializePreferences = async (i18n: I18n) => {
+    console.log("initializePreferences");
     const currentUrl = window.location.href;
 
     if (

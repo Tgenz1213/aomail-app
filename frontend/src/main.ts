@@ -11,6 +11,7 @@ app.use(i18n);
 
 initializePreferences(i18n as I18n)
     .then(() => {
+        console.log("APP is mounting");
         app.mount("#app");
     })
     .catch((error) => {

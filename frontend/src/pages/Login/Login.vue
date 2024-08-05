@@ -188,8 +188,8 @@ async function login() {
         });
 
         if (response.ok) {
-            const { access_token } = await response.json();
-            localStorage.setItem("access_token", access_token);
+            const { accessToken } = await response.json();
+            localStorage.setItem("accessToken", accessToken);
             router.push({ name: "home" });
         } else {
             displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");

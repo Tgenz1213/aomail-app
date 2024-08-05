@@ -743,7 +743,7 @@ async function submitSignupData(event: Event) {
         const data = await response.json();
 
         if (response.status === 201) {
-            localStorage.setItem("accessToken", data.access_token);
+            localStorage.setItem("accessToken", data.accessToken);
             sessionStorage.clear();
             localStorage.removeItem("categories");
             router.push({ name: "home" });

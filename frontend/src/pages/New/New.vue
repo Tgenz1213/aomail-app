@@ -491,7 +491,6 @@
 <script setup>
 /* eslint-disable */
 import { computed, ref, onMounted, nextTick } from "vue";
-import { defineEmits } from "vue";
 import { watch } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import NotificationTimer from "@/components/NotificationTimer.vue";

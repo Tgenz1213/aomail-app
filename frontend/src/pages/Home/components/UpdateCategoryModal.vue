@@ -97,7 +97,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch, onMounted, defineEmits, defineProps } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import XMarkIcon from "@heroicons/vue/20/solid";
 import { API_BASE_URL } from "@/global/const";

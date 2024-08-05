@@ -8,7 +8,9 @@ module.exports = {
         ecmaVersion: 2020,
     },
     globals: {
-        NodeJS: true,
+        defineProps: "readonly",
+        defineEmits: "readonly",
+        withDefaults: "readonly",
     },
     rules: {
         "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",

@@ -257,7 +257,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, defineEmits, defineProps } from "vue";
+import { onMounted, ref } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import EllipsisHorizontalIcon from "@heroicons/vue/24/outline/EllipsisHorizontalIcon";
 import EnvelopeOpenIcon from "@heroicons/vue/24/outline/EnvelopeOpenIcon";

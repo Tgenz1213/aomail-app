@@ -387,6 +387,7 @@
     "attachmentSelectedInfos": "Select the attachments contained in the email",
     "fromAddressesSelectedPlaceholder": "From",
     "fromAddressesSelectedInfos": "Select the email address from which you received the email",
+    "subjectSelectedPlaceholder": "Subject",
     "keywordsPlaceholder": "Keywords",
     "keywordsInfos": "Type keywords contained in the email",
     "dateFromPlaceholder": "Date from",
@@ -408,6 +409,16 @@
       "successMessages": {
         "smartSearchError": "Smart search error"
       }
+    },
+    "dateIntervals": {
+      "oneDay": "1 day",
+      "threeDays": "3 days",
+      "oneWeek": "1 week",
+      "twoWeeks": "2 weeks",
+      "oneMonth": "1 month",
+      "twoMonths": "2 months",
+      "sixMonths": "6 months",
+      "oneYear": "1 year"
     }
   },
   "newPage": {

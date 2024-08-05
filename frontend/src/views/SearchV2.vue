@@ -194,7 +194,7 @@
 
                 <div class="flex gap-4 gap-y-2 w-full flex-wrap">
 
-                     <!-- Premier input Combobox toAddressesSelected -->
+                     <!-- First input Combobox toAddressesSelected -->
                       <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Combobox as="div" v-model="selectedPerson">
                           <div class="relative flex items-center w-full">
@@ -203,7 +203,7 @@
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
                               @input="queryGetContacts = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="À"
+                              :placeholder="$t('searchPage.toAddressesSelectedPlaceholder')"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -235,7 +235,7 @@
                         </Combobox>
                       </div>
 
-                       <!-- Deuxième input Listbox  TODO : Type de pièce jointe-->
+                       <!-- Second input Listbox attachment type-->
                        <div class="flex-1 min-w-[150px] mt-2">
                           <Listbox as="div" v-model="attachmentSelected">
                               <div class="relative">
@@ -268,16 +268,16 @@
                           </Listbox>
                       </div>
 
-                      <!-- Troisième input Combobox  fromAddressesSelected -->
+                      <!-- Third input Combobox  fromAddressesSelected -->
                       <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Combobox as="div" v-model="selectedPerson">
+                        <Combobox as="div" v-model="fromselectedPerson">
                           <div class="relative flex items-center w-full">
                             <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <ComboboxInput
                               class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                              @input="query = $event.target.value"
+                              @input="queryGetContacts = $event.target.value"
                               :display-value="(person) => person?.username"
-                              placeholder="De"
+                              :placeholder="$t('searchPage.fromAddressesSelectedPlaceholder')"
                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
                             />
                             <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
@@ -285,7 +285,7 @@
                             </ComboboxButton>
                           </div>
                           <ComboboxOptions v-if="filteredPeople.length > 0"
-                            class="absolute z-10 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
+                            class="absolute z-10 max-h-60  w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm left-0 right-0">
                             <ComboboxOption v-for="person in filteredPeople" :value="person" :key="person" as="template"
                               v-slot="{ active, selected }">
                               <li @click="toggleSelection(person)"
@@ -295,7 +295,7 @@
                                     {{ person.username }}
                                   </span>
                                   <span
-                                    :class="['ml-2 truncate text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
+                                    :class="['ml-2 truncate hidden text-gray-500', active ? 'text-indigo-200' : 'text-gray-500']">
                                     &lt;{{ person.email }}&gt;
                                   </span>
                                 </div>
@@ -309,76 +309,42 @@
                         </Combobox>
                       </div>
 
-                      <!-- Quatrième input Combobox -->
+                      <!-- Fourth input Combobox -->
                       <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Combobox as="div" v-model="selectedPerson">
-                          <div class="relative flex items-center w-full">
-                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <ComboboxInput
-                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                              @input="query = $event.target.value"
-                              :display-value="(person) => person?.username"
-                              placeholder="Résultats maximums"
-                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
-                            />
-                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
-                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                            </ComboboxButton>
-                          </div>
-                        
-                        </Combobox>
+                        <div class="relative flex items-center w-full">
+                          <EnvelopeIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                            :placeholder="$t('searchPage.subjectSelectedPlaceholder')"
+                          />
+                        </div>
                       </div>
 
-                      <!-- Cinquième input Listbox emails Linked for search -->
-                      <div class="flex-1 min-w-[150px] mt-2">
-                          <Listbox as="div" v-model="attachmentSelected">
-                              <div class="relative">
-                                  <ListboxButton
-                                      class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
-                                      <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
-                                      <span class="block truncate text-gray-700">
-                                          {{ attachmentSelected ? attachmentSelected.name : 'Email lié' }}
-                                      </span>
-                                      <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                          <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
-                                      </span>
-                                  </ListboxButton>
-                                  <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-                                      <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                          <ListboxOption as="template" v-for="type in attachmentTypes" :key="type.extension" :value="type" v-slot="{ active, attachmentSelected }">
-                                              <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                                  <span :class="[attachmentSelected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                                      {{ type.name }} {{ type.extension }}
-                                                  </span>
-                                                  <span v-if="attachmentSelected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                                  </span>
-                                              </li>
-                                          </ListboxOption>
-                                      </ListboxOptions>
-                                  </transition>
-                              </div>
-                          </Listbox>
+                      <!-- Fifth input Combobox keywords -->
+                      <div class="flex-1 min-w-[150px] mt-2 relative">
+                        <div class="relative flex items-center w-full">
+                          <HashtagIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                            :placeholder="$t('searchPage.keywordsPlaceholder')"
+                          />
+                        </div>
                       </div>
 
-                      <!-- Sixième input Combobox subject-->
+                      <!-- Sixth input dateFrom -->
                       <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Combobox as="div" v-model="selectedPerson">
-                          <div class="relative flex items-center w-full">
-                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <ComboboxInput
-                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                              @input="query = $event.target.value"
-                              :display-value="(person) => person?.username"
-                              placeholder="Sujet"
-                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
-                            />
-                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
-                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                            </ComboboxButton>
-                          </div>
-                        
-                        </Combobox>
+                        <div class="relative flex items-center w-full">
+                          <CalendarIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                          <input
+                            type="date"
+                            :value="startDate"
+                            @input="updateDate"
+                            class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 appearance-none"
+                            :placeholder="$t('searchPage.dateFromPlaceholder')"
+                          />
+                        </div>
                       </div>
 
                       <!-- Septième input Combobox body -->
@@ -423,117 +389,37 @@
                       </div>
 
 
-                      <!-- neuxième input Listbox  1month, 2 weeks, 90days A REVOIR --> 
+                      <!-- Ninth input Listbox  1month, 2 weeks, 90days --> 
                       <div class="flex-1 min-w-[150px] mt-2">
-                          <Listbox as="div" v-model="attachmentSelected">
-                            <div class="relative">
+                        <Listbox as="div" v-model="selectedInterval">
+                          <div class="relative">
+                            <ListboxButton
+                              class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                              <CalendarIcon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
+                              <span class="block truncate text-gray-700">
+                                {{ selectedInterval ? $t(`searchPage.dateIntervals.${selectedInterval.key}`) : $t('searchPage.dateRangePlaceholder') }}
+                              </span>
+                              <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
+                              </span>
+                            </ListboxButton>
 
-                              <ListboxButton
-                                class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
-                                <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
-                                <span class="block truncate text-gray-700">
-                                  {{ attachmentSelected ? attachmentSelected.name : 'Plage de dates' }}
-                                </span>
-                                <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                                  <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
-                                </span>
-                              </ListboxButton>
-
-                              <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-                                <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                                  
-                                  <ListboxOption as="template" :value="{ name: '1 day', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        1 day
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                  <ListboxOption as="template" :value="{ name: '3 days', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        3 days
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                  <ListboxOption as="template" :value="{ name: '1 week', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        1 week
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                  <ListboxOption as="template" :value="{ name: '2 weeks', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        2 weeks
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                  <ListboxOption as="template" :value="{ name: '1 month', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        1 month
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                  <ListboxOption as="template" :value="{ name: '2 months', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        2 months
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                  <ListboxOption as="template" :value="{ name: '6 months', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        6 months
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                  <ListboxOption as="template" :value="{ name: '1 year', extension: '' }" v-slot="{ active, selected }">
-                                    <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
-                                      <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
-                                        1 year
-                                      </span>
-                                      <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
-                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
-                                      </span>
-                                    </li>
-                                  </ListboxOption>
-
-                                </ListboxOptions>
-                              </transition>
-                            </div>
-                          </Listbox>
+                            <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                              <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                <ListboxOption v-for="interval in dateIntervals" :key="interval.key" :value="interval" v-slot="{ active, selected }">
+                                  <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                      {{ $t(`searchPage.dateIntervals.${interval.key}`) }}
+                                    </span>
+                                    <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                  </li>
+                                </ListboxOption>
+                              </ListboxOptions>
+                            </transition>
+                          </div>
+                        </Listbox>
                       </div>
 
 
@@ -744,8 +630,25 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
-import { CheckIcon, ChevronUpDownIcon, ChevronDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon } from '@heroicons/vue/24/outline';
+import { CheckIcon, ChevronUpDownIcon, ChevronDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon, EnvelopeIcon, HashtagIcon, CalendarIcon } from '@heroicons/vue/24/outline';
 import { useI18n } from 'vue-i18n';
+
+// Date range
+const startDate = ref('')
+
+const updateDate = (event) => {
+  startDate.value = event.target.value
+}
+
+const formattedDate = computed(() => {
+  if (!startDate.value) return ''
+  const date = new Date(startDate.value)
+  return new Intl.DateTimeFormat('fr-FR', { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric' 
+  }).format(date)
+})
 
 // Use i18n
 const { t } = useI18n();
@@ -796,6 +699,18 @@ const attachmentTypes = [
   { extension: null, name: "Aucune" },
 ]
 
+// Date Interval
+const dateIntervals = [
+  { key: 'oneDay' },
+  { key: 'threeDays' },
+  { key: 'oneWeek' },
+  { key: 'twoWeeks' },
+  { key: 'oneMonth' },
+  { key: 'twoMonths' },
+  { key: 'sixMonths' },
+  { key: 'oneYear' },
+]
+
 const attachmentSelected = ref(null)
 
 let emailsLinked = ref('');
@@ -806,6 +721,7 @@ const isFocused2 = ref(false);
 const isFocused = ref(false);
 const queryGetContacts = ref('')
 const selectedPerson = ref(null)
+const fromselectedPerson = ref(null)
 const selectedRecipients = ref([])
 const emailList = ref([]);
 
@@ -1578,3 +1494,15 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+</style>

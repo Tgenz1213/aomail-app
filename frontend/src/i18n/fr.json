@@ -387,6 +387,7 @@
     "attachmentSelectedInfos": "Sélectionnez les pièces jointes que l'e-mail contient",
     "fromAddressesSelectedPlaceholder": "De",
     "fromAddressesSelectedInfos": "Sélectionnez l'adresse e-mail qui vous a envoyé l'e-mail",
+    "subjectSelectedPlaceholder": "Objet",
     "keywordsPlaceholder": "Mots-clés",
     "keywordsInfos": "Tapez des mots-clés que l'e-mail contient",
     "dateFromPlaceholder": "Date depuis",
@@ -408,6 +409,16 @@
       "successMessages": {
         "smartSearchError": "Erreur recherche intelligente"
       }
+    },
+    "dateIntervals": {
+      "oneDay": "1 jour",
+      "threeDays": "3 jours",
+      "oneWeek": "1 semaine",
+      "twoWeeks": "2 semaines",
+      "oneMonth": "1 mois",
+      "twoMonths": "2 mois",
+      "sixMonths": "6 mois",
+      "oneYear": "1 an"
     }
   },
   "newPage": {

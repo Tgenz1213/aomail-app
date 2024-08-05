@@ -396,6 +396,7 @@
     "dateRangeInfos": "Select the time interval since receiving",
     "searchInSelectedPlaceholder": "Search in",
     "searchInSelectedInfos": "Select the folders to search within",
+    "doesntContainPlaceholder": "Doesn't contain",
     "searchButton": "Search",
     "searchPlaceholder": "Email search",
     "notEnoughDataToAnswer": "You do not have enough data to answer the question",
@@ -419,6 +420,12 @@
       "twoMonths": "2 months",
       "sixMonths": "6 months",
       "oneYear": "1 year"
+    },
+    "searchIn": {
+      "all": "All",
+      "read": "Read",
+      "notRead": "Unread",
+      "replyLater": "Reply Later"
     }
   },
   "newPage": {

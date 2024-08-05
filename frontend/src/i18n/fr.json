@@ -396,6 +396,7 @@
     "dateRangeInfos": "Sélectionnez l'intervalle de temps depuis la réception",
     "searchInSelectedPlaceholder": "Rechercher dans",
     "searchInSelectedInfos": "Sélectionnez les dossiers dans lesquels effectuer la recherche",
+    "doesntContainPlaceholder": "Ne contient pas",
     "searchButton": "Rechercher",
     "searchPlaceholder": "Recherche d'email",
     "notEnoughDataToAnswer": "Vous n'avez pas suffisamment de données pour répondre à la question",
@@ -419,6 +420,12 @@
       "twoMonths": "2 mois",
       "sixMonths": "6 mois",
       "oneYear": "1 an"
+    },
+    "searchIn": {
+      "all": "Tous",
+      "read": "Lu",
+      "notRead": "Non lu",
+      "replyLater": "Plus tard"
     }
   },
   "newPage": {

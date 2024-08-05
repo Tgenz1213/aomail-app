@@ -347,50 +347,42 @@
                         </div>
                       </div>
 
-                      <!-- Septième input Combobox body -->
-                      <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Combobox as="div" v-model="selectedPerson">
-                          <div class="relative flex items-center w-full">
-                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <ComboboxInput
-                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                              @input="query = $event.target.value"
-                              :display-value="(person) => person?.username"
-                              placeholder="Objet"
-                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
-                            />
-                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
-                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                            </ComboboxButton>
-                          </div>
-                        
-                        </Combobox>
-                      </div>
 
-
-                      <!-- Huitième input Combobox date_from -->
                       <div class="flex-1 min-w-[150px] mt-2 relative">
-                        <Combobox as="div" v-model="selectedPerson">
-                          <div class="relative flex items-center w-full">
-                            <user-icon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <ComboboxInput
-                              class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                              @input="query = $event.target.value"
-                              :display-value="(person) => person?.username"
-                              placeholder="Tailles"
-                              style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
-                            />
-                            <ComboboxButton class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center focus:outline-none">
-                              <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
-                            </ComboboxButton>
+                        <Listbox as="div" v-model="selectedSearchIn">
+                          <div class="relative">
+                            <ListboxButton
+                              class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-12 text-left flex items-center text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6">
+                              <MagnifyingGlassIcon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
+                              <span class="block truncate text-gray-700">
+                                {{ selectedSearchIn ? $t(`searchPage.searchIn.${selectedSearchIn.key}`) : $t('searchPage.searchInSelectedPlaceholder') }}
+                              </span>
+                              <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                                <ChevronUpDownIcon class="h-5 w-5 text-gray-400 mt-2 mb-2" aria-hidden="true" />
+                              </span>
+                            </ListboxButton>
+
+                            <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                              <ListboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                <ListboxOption v-for="option in searchIn" :key="option.key" :value="option" v-slot="{ active, selected }">
+                                  <li :class="[active ? 'bg-gray-500 text-white' : 'text-gray-900', 'relative cursor-default select-none py-2 pl-3 pr-9']">
+                                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate ml-7 mr-2']">
+                                      {{ $t(`searchPage.searchIn.${option.key}`) }}
+                                    </span>
+                                    <span v-if="selected" :class="[active ? 'text-white' : 'text-gray-500', 'absolute inset-y-0 right-0 flex items-center pr-4']">
+                                      <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                  </li>
+                                </ListboxOption>
+                              </ListboxOptions>
+                            </transition>
                           </div>
-                        
-                        </Combobox>
+                        </Listbox>
                       </div>
 
 
                       <!-- Ninth input Listbox  1month, 2 weeks, 90days --> 
-                      <div class="flex-1 min-w-[150px] mt-2">
+                      <div class="flex-1 min-w-[150px] mt-2 relative">
                         <Listbox as="div" v-model="selectedInterval">
                           <div class="relative">
                             <ListboxButton
@@ -420,6 +412,18 @@
                             </transition>
                           </div>
                         </Listbox>
+                      </div>
+
+                      <!-- Fourth input Combobox -->
+                      <div class="flex-1 min-w-[150px] mt-2 relative">
+                        <div class="relative flex items-center w-full">
+                          <HandRaisedIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
+                            :placeholder="$t('searchPage.doesntContainPlaceholder')"
+                          />
+                        </div>
                       </div>
 
 
@@ -630,7 +634,7 @@ import {
   ComboboxOptions,
 } from '@headlessui/vue';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue';
-import { CheckIcon, ChevronUpDownIcon, ChevronDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon, EnvelopeIcon, HashtagIcon, CalendarIcon } from '@heroicons/vue/24/outline';
+import { CheckIcon, ChevronUpDownIcon, ChevronDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, UserIcon, AdjustmentsHorizontalIcon, EnvelopeIcon, HashtagIcon, CalendarIcon, HandRaisedIcon } from '@heroicons/vue/24/outline';
 import { useI18n } from 'vue-i18n';
 
 // Date range
@@ -710,6 +714,16 @@ const dateIntervals = [
   { key: 'sixMonths' },
   { key: 'oneYear' },
 ]
+
+// Select advanced parameters
+const searchIn = [
+  { key: 'all' },
+  { key: 'read' },
+  { key: 'notRead' },
+  { key: 'replyLater' },
+]
+
+const selectedSearchIn = ref(null)
 
 const attachmentSelected = ref(null)
 

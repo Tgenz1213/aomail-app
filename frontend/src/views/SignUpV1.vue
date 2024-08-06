@@ -93,7 +93,7 @@
           </div>
           <div>
             <label for="about" class="block text-sm font-medium leading-6 text-gray-900">{{
-              $t('constants.categoryModalConstants.addCategory') }}</label>
+              $t('constants.categoryModalConstants.categoryDescription') }}</label>
             <div class="mt-2">
               <textarea v-model="categoryDescription" id="categoryDescription" name="about" rows="3"
                 style="min-height: 60px"
@@ -707,7 +707,7 @@
                       </div>
                     </div>
                     <div>
-                      <div class="pt-2">
+                      <div class="pt-4">
                         <button @click.prevent="submitSignupData"
                           class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800">
                           {{ $t('signUpPart1Page.continue') }}</button>
@@ -735,6 +735,9 @@
 </template>
 
 <script setup>
+// TODO: rename all the functions that contains a number + use ONLY camelCase for functions and variables
+
+
 import Language from '../components/SettingsLanguageSignUp.vue';
 import TimeZone from '../components/SettingsTimeZoneSignUp.vue';
 import { ref, onMounted } from 'vue';
@@ -1069,7 +1072,7 @@ export default {
   },
   data() {
     return {
-      logo: require('@/assets/LogoAugmentAI_export4.png')
+      logo: require('@/assets/logo-Aomail.png')
     };
   }
 }

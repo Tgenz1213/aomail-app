@@ -1,7 +1,7 @@
 import { fetchWithToken } from '../router/index.js';
 import { API_BASE_URL } from '@/main';
 
-
+// TODO: remove this file and folder (its in security.ts now)
 export async function isUserAuthenticated() {
     // Checks if the user is authenticated. Returns true if authenticated, false otherwise.
 

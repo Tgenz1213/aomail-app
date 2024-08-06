@@ -22,7 +22,7 @@
                         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">{{
                             $t('constants.password') }}</label>
                         <div class="text-sm">
-                            <a :href="`reset_password_form/`" class="font-semibold text-gray-900 hover:text-gray-600">{{
+                            <a :href="`/password-reset-link`" class="font-semibold text-gray-900 hover:text-gray-600">{{
                                 $t('userLoginPage.forgottenPassword') }}</a>
                         </div>
                     </div>
@@ -137,6 +137,7 @@ async function login() {
     }
 
     try {
+        // TODO: use fetch not axios for consistency
         const response = await axios.post(`${API_BASE_URL}api/login/`, {
             username: username.value,
             password: password.value
@@ -171,7 +172,7 @@ async function login() {
 export default {
     data() {
         return {
-            logo: require('@/assets/LogoAugmentAI_export4.png')
+            logo: require('@/assets/logo-Aomail.png')
         };
     }
 }

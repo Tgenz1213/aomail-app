@@ -549,6 +549,9 @@
 </template>  
 
 <script setup>
+// TODO: rename all the functions that contains a number + use ONLY camelCase for functions and variables
+
+
 import { ref, onMounted } from 'vue';
 import ShowNotification from '../components/ShowNotification.vue';
 import { useRouter } from 'vue-router';
@@ -727,7 +730,7 @@ export default {
   data() {
     return {
       isOpen: false,
-      logo: require('@/assets/LogoAugmentAI_export4.png')
+      logo: require('@/assets/logo-Aomail.png')
     }
   },
   methods: {

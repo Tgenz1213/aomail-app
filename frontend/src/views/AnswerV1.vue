@@ -395,7 +395,6 @@ function handleBlur2(event) {
 
   if (inputValue && emailFormat.test(inputValue)) {
     // Add the input email to the list of recipients
-    // TODO: ask if we save it in DB or if we wait till the email is sent
     if (!people.find(person => person.email === inputValue)) {
       const newPerson = { username: '', email: inputValue };
       people.push(newPerson);

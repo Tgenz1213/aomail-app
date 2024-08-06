@@ -74,7 +74,7 @@
                     <div class="flex flex-col h-full w-full">
 
                          <!--ligne 1 : navbar horizontale -->
-                        <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5">
+                        <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 border-b border-black shadow-sm border-opacity-10">
                             <div class="w-full py-2 2xl:py-3 px-4 2xl:px-8 lg:px-2">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
                                     <div class="pl-4 col-span-11 h-full flex items-center">
@@ -189,9 +189,45 @@
                             </div>
                         </main>
 
+                        <div class="w-full relative">
+                            <SearchbarV2 
+                            @input="updateSearchQuery" 
+                            height="3rem"
+                            :showFilterButton="true"
+                            :filterFields="[
+                                { name: 'from', label: 'De', type: 'text', placeholder: 'De' },
+                                { name: 'to', label: 'À', type: 'text', placeholder: 'À' },
+                                { name: 'subject', label: 'Objet', type: 'text', placeholder: 'Objet' },
+                                { name: 'contains', label: 'Contient les mots', type: 'text', placeholder: 'Contient les mots' },
+                                { name: 'doesNotContain', label: 'Ne contient pas', type: 'text', placeholder: 'Ne contient pas' },
+                                { name: 'size', label: 'Taille', type: 'select', options: [{ value: 'greater', label: 'supérieure à' }, { value: 'less', label: 'inférieure à' }] },
+                                { name: 'dateRange', label: 'Plage de dates', type: 'select', options: [{ value: '1day', label: '1 jour' }, { value: '1week', label: '1 semaine' }, { value: '1month', label: '1 mois' }, { value: '1year', label: '1 an' }] },
+                                { name: 'searchIn', label: 'Rechercher', type: 'select', options: [{ value: 'all', label: 'Tous les messages' }, { value: 'read', label: 'Messages lus' }, { value: 'unread', label: 'Messages non lus' }] },
+                                { name: 'hasAttachment', label: 'Contenant une pièce jointe', type: 'checkbox' },
+                                { name: 'excludeChats', label: 'Ne pas inclure les chats', type: 'checkbox' }
+                            ]"
+                            />
+                        </div>
 
+                        <!--<div class="w-full bg-white flex flex-col sm:flex-row items-center">
+                            <div class="w-full sm:flex-grow sm:mr-4 mb-4 sm:mb-0">
+                                <SearchbarV2 @input="updateSearchQuery" height="3rem" class="w-full"></SearchbarV2>
+                            </div>
 
-                        
+                            <div class="flex items-center">
+                                <div class="hidden sm:block w-px h-8 bg-gray-400 mr-4"></div>
+                                <select 
+                                    @change="applyFilter"
+                                    class="border-none text-gray-900 text-sm focus:ring-0 focus:outline-none"
+                                >
+                                    <option disabled value="">Aucun filtre</option>
+                                    <option value="important">Important</option>
+                                    <option value="informatif">Informatif</option>
+                                    <option value="inutile">Inutile</option>
+                                </select>
+                            </div>
+                        </div>-->
+
                         <!-- HIDE 
                         <div class="rounded-t-xl lg:mt-4 bg-gray-100 py-3 px-2 ring-1 shadow-sm ring-black ring-opacity-5">
                             <p>En cours de dev</p>
@@ -211,6 +247,7 @@
                                         }}</span>
                                 </div>
                             </div>
+                            
                         </div>
 
                         <!--L'utilisateur a des nouveaux mails-->
@@ -413,7 +450,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span>{{ $t('homePage.changeTheRule') }}</span>
+                                                                                                                    <span>{{ $t('constants.userAction.changeTheRule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -704,7 +741,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span> {{ $t('homePage.changeTheRule') }}</span>
+                                                                                                                    <span> {{ $t('constants.userAction.changeTheRule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -1011,7 +1048,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('homePage.changeTheRule') }}</span>
+                                                                                                                            <span>{{ $t('constants.userAction.changeTheRule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1364,7 +1401,7 @@
                                                                                                                                     stroke-linejoin="round"
                                                                                                                                     d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                             </svg>
-                                                                                                                            <span>{{ $t('homePage.changeTheRule') }}</span>
+                                                                                                                            <span>{{ $t('constants.userAction.changeTheRule') }}</span>
                                                                                                                         </span>
                                                                                                                     </a>
                                                                                                                     </MenuItem>
@@ -1563,6 +1600,13 @@
 import { API_BASE_URL } from '@/main';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import {
+  Combobox,
+  ComboboxButton,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from '@headlessui/vue';
 
 // Use i18n
 const { t } = useI18n();
@@ -1792,14 +1836,14 @@ async function markEmailAsUnread(emailId) {
         if (response.read != false) {
             console.log("RESPONSE markEmailAsUnread", response);
             backgroundColor = 'bg-red-200/[.89] border border-red-400';
-            notificationTitle =  t('homepage.markEmailUnreadFailure');
+            notificationTitle =  t('homePage.markEmailUnreadFailure');
             notificationMessage = response;
             displayPopup();
         }
     } catch (error) {
         console.error('Error in markEmailAsUnread:', error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';
-        notificationTitle = t('homepage.markEmailUnreadFailure');
+        notificationTitle = t('homePage.markEmailUnreadFailure');
         notificationMessage = error.message;
         displayPopup();
     }
@@ -2478,11 +2522,21 @@ const groupedEmailsByCategoryAndDate = (category) => {
 };
 
 async function fetchEmails() {
-    const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`);
+    const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            // JUST for information send ONLY subject if the user has ONLY used the search bar
+            subject: "",
+            resultPerPage: 25,
+            category: "Others"
+        }),
+    });
+    console.log(emailData);
     if (lockEmailsAccess.value == false) {
         emails.value = emailData;
-        console.log("LOG DATA ---------------------------");
-        console.log(emailData);
     }
     updateNumberUnreadEmails();
 }
@@ -2511,6 +2565,27 @@ async function fetchData() {
         console.error('Failed to fetch data:', error);
     }
 }
+
+
+async function Hide_filtres() {
+    var toggleDiv = document.getElementById('filtres');
+    
+    if (toggleDiv.classList.contains('hidden')) {
+        toggleDiv.classList.remove('hidden');
+        setTimeout(function () {
+            toggleDiv.classList.remove('opacity-0');
+            toggleDiv.classList.add('opacity-100');
+        }, 10);
+        
+    } else {
+        toggleDiv.classList.remove('opacity-100');
+        toggleDiv.classList.add('opacity-0');
+        setTimeout(function () {
+            toggleDiv.classList.add('hidden');
+        }, 250);
+        
+    }
+}
 </script>
 
 <script>
@@ -2519,6 +2594,7 @@ import { XMarkIcon } from '@heroicons/vue/20/solid';
 import { useRouter } from 'vue-router';
 import Navbar from '../components/AppNavbar7.vue';
 import Navbar2 from '../components/AppNavbar8.vue';
+import SearchbarV2 from '../components/SearchbarV2.vue'
 import ModalSeeMail from '../components/SeeMailV2.vue';
 import NewCategoryModal from '../components/NewCategoryModal.vue';
 import UpdateCategoryModal from '../components/UpdateCategoryModal.vue';
@@ -2526,44 +2602,51 @@ import { ref, nextTick, onMounted } from 'vue';
 import { fetchWithToken, fetchWithTokenv2, getBackgroundColor } from '../router/index.js';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
-    //ChatBubbleOvalLeftEllipsisIcon,
-    ExclamationTriangleIcon,
-    InformationCircleIcon,
-    TrashIcon,
-    ArrowUturnLeftIcon,
-    CheckIcon,
-    EllipsisHorizontalIcon,
-    HandRaisedIcon,
-    EyeIcon,
-    DocumentIcon,
-    DocumentTextIcon,
-    CameraIcon,
+//ChatBubbleOvalLeftEllipsisIcon,
+ExclamationTriangleIcon,
+InformationCircleIcon,
+TrashIcon,
+ArrowUturnLeftIcon,
+CheckIcon,
+EllipsisHorizontalIcon,
+HandRaisedIcon,
+EyeIcon,
+DocumentIcon,
+DocumentTextIcon,
+CameraIcon,
 } from '@heroicons/vue/24/outline'
 
 export default {
-    name: 'UserHome',
-    components: {
-        Navbar,
-        Navbar2,
-        //ChatBubbleOvalLeftEllipsisIcon,
-        ExclamationTriangleIcon,
-        InformationCircleIcon,
-        TrashIcon,
-        ArrowUturnLeftIcon,
-        CheckIcon,
-        EllipsisHorizontalIcon,
-        HandRaisedIcon,
-        EyeIcon,
-        Menu,
-        MenuButton,
-        MenuItem,
-        MenuItems,
-        ModalSeeMail,
-        NewCategoryModal,
-        UpdateCategoryModal,
-        DocumentIcon,
-        DocumentTextIcon,
-        CameraIcon,
-    }
+name: 'UserHome',
+components: {
+Navbar,
+Navbar2,
+//ChatBubbleOvalLeftEllipsisIcon,
+ExclamationTriangleIcon,
+InformationCircleIcon,
+TrashIcon,
+ArrowUturnLeftIcon,
+CheckIcon,
+EllipsisHorizontalIcon,
+HandRaisedIcon,
+EyeIcon,
+SearchbarV2,
+Menu,
+MenuButton,
+MenuItem,
+MenuItems,
+ModalSeeMail,
+NewCategoryModal,
+UpdateCategoryModal,
+DocumentIcon,
+DocumentTextIcon,
+CameraIcon,
+},
+
+methods: {
+updateSearchQuery(event) {
+this.searchQuery = event.target.value;
+},
+}
 }
 </script>

@@ -107,7 +107,7 @@ const navigation = [
   { name: i18n.global.t('Global.Settings'), href: '/settings', icon: CogIcon },
 ]
 
-const logo = ref(require('@/assets/LogoAugmentAI_export4.png'));
+const logo = ref(require('@/assets/logo-Aomail.png'));
 
 const sidebarOpen = ref(false)
 </script>

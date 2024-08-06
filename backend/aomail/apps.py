@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-
-class MailassistantConfig(AppConfig):
+class AomailConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'MailAssistant'
+    name = 'aomail'

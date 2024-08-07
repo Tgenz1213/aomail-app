@@ -303,7 +303,7 @@
 
                                     <!--emails importants-->
                                     <!-- To check if there is one class allow the whitespace at the bottom -->
-                                    <li v-if="emails[selectedTopic] && emails[selectedTopic]['Important'] && countEmailsInCategoryAndPriority(selectedTopic, 'Important') > 0"
+                                    <li v-if="emails[selectedTopic] && emails[selectedTopic]['important'] && countEmailsInCategoryAndPriority(selectedTopic, 'important') > 0"
                                         class="">
                                         <div class="px-6 pb-6">
                                             <div class="bg-orange-100 bg-opacity-90 rounded-md">
@@ -316,7 +316,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div v-for="(emailsByDate, date) in groupedEmailsByCategoryAndDate('Important')" :key="date">
+                                            <div v-for="(emailsByDate, date) in groupedEmailsByCategoryAndDate('important')" :key="date">
                                                 <div class="pt-3 px-4">
                                                     <div class="relative">
                                                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -349,8 +349,8 @@
                                                                             <div class="flex-auto group">
                                                                                 <div class="flex gap-x-4">
                                                                                     <div class="flex items-center">
-                                                                                        <p class="text-sm font-semibold leading-6 text-orange-700 mr-2">{{ item.name }}</p>
-                                                                                        <p class="text-sm leading-6 text-orange-700">{{ item.time }}</p>   
+                                                                                        <p class="text-sm font-semibold leading-6 text-orange-700 mr-2">{{ item.sender.name }}</p>
+                                                                                        <p class="text-sm leading-6 text-orange-700">{{ item.sentTime }}</p>   
                                                                                     </div> 
                                                                                     <div
                                                                                         class="hidden group-hover:block px-2 py-0.5 bg-orange-300 text-white text-sm shadow rounded-xl">
@@ -370,7 +370,7 @@
                                                                                 </div>
                                                                                 <p
                                                                                     class="mt-1 text-md text-gray-700 leading-relaxed">
-                                                                                    {{ item.description }}</p>
+                                                                                    {{ item.oneLineSummary }}</p>
                                                                             </div>
                                                                             <ul v-show="showHiddenParagraphs[item.id]"
                                                                                 role="list" class="text-black text-sm/6 pt-2"
@@ -383,7 +383,7 @@
                                                                                 </li>
                                                                             </ul>
                                                                         </div>
-                                                                        <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
+                                                                        <div v-if="item.hasAttachments" class="flex pt-2.5 gap-x-2">
                                                                             <div
                                                                                 v-for="attachment in item.attachments"
                                                                                 :key="attachment.attachmentId"
@@ -473,10 +473,10 @@
                                                                                                     class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                                                                                                     <div class="py-1">
                                                                                                         <div
-                                                                                                            v-if="item.rule">
+                                                                                                            v-if="item.rule.hasRule">
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
-                                                                                                            <a @click.prevent="openRuleEditor(item.rule_id)"
+                                                                                                            <a @click.prevent="openRuleEditor(item.rule.ruleId)"
                                                                                                                 :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                 <span
                                                                                                                     class="flex gap-x-2 items-center">
@@ -499,7 +499,7 @@
                                                                                                         <div v-else>
                                                                                                             <MenuItem
                                                                                                                 v-slot="{ active }">
-                                                                                                            <a @click.prevent="openNewRule(item.name, item.email)"
+                                                                                                            <a @click.prevent="openNewRule(item.sender.name, item.sender.email)"
                                                                                                                 :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
                                                                                                                 <span
                                                                                                                     class="flex gap-x-2 items-center">
@@ -593,961 +593,7 @@
                                         </div>
                                     </li>
 
-                                    <!--email informatif-->
-                                    <li v-if="emails[selectedTopic] && emails[selectedTopic]['Information'] && countEmailsInCategoryAndPriority(selectedTopic, 'Information') > 0" class="">
-                                        <div class="px-6 pb-6">
-                                            <div class="bg-blue-100 bg-opacity-90 rounded-md">
-                                                <div class="flex px-2 py-2">
-                                                    <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
-                                                        {{ $t('constants.ruleModalConstants.informative') }}
-                                                    </p>
-                                                    <div class="ml-auto">
-                                                    <information-circle-icon class="w-6 h-6 text-blue-500" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- Emails grouped by date -->
-                                            <div v-for="(emailsByDate, date) in groupedEmailsByCategoryAndDate('Information')" :key="date">
-                                                <div class="pt-3 px-4">
-                                                    <div class="relative">
-                                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                                            <div class="w-full border-t border-gray-200"></div>
-                                                        </div>
-                                                        <div class="relative flex justify-center">
-                                                            <span class="bg-white px-2 text-xs text-gray-500">{{ date }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="flex px-4 pt-4">
-                                                    <div class="flex">
-                                                        <span
-                                                            class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-blue-400 dark:bg-blue-200">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                                class="w-6 h-6 text-white">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
-                                                            </svg>
-                                                        </span>
-                                                        <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-blue-800" />-->
-                                                    </div>
-                                                    <div class="ml-6 flex-grow">
-                                                        <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300" style="overflow: visible;">
-                                                            <ul role="list" class="divide-y divide-gray-200">
-                                                                <li v-for="item in emailsByDate" :key="item.id" class="px-6 py-4 2xl:py-5 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
-                                                                    <!-- Your content -->
-                                                                    <div class="col-span-8 cursor-pointer">
-                                                                        <div @click="toggleHiddenParagraph(item.id)">
-                                                                            <div class="flex-auto group">
-                                                                                <div class="flex gap-x-4">
-                                                                                    <div class="flex items-center">
-                                                                                        <p class="text-sm font-semibold leading-6 text-blue-800 dark:text-white mr-2">{{ item.name }}</p>
-                                                                                        <p class="text-sm leading-6 text-blue-800 dark:text-white">{{ item.time }}</p>   
-                                                                                    </div> 
-                                                                                    <div
-                                                                                        class="hidden group-hover:block px-2 py-0.5 bg-blue-300 text-white text-sm shadow rounded-xl">
-                                                                                        <div class="flex gap-x-1 items-center">
-                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                fill="none" viewBox="0 0 24 24"
-                                                                                                stroke-width="1.5"
-                                                                                                stroke="currentColor"
-                                                                                                class="w-4 h-4">
-                                                                                                <path stroke-linecap="round"
-                                                                                                    stroke-linejoin="round"
-                                                                                                    d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-                                                                                            </svg>
-                                                                                            <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <p
-                                                                                    class="mt-1 text-md text-gray-700 leading-relaxed dark:text-blue-50">
-                                                                                    {{ item.description }}</p>
-                                                                            </div>
-                                                                            <ul v-show="showHiddenParagraphs[item.id]"
-                                                                                role="list" class="text-black text-sm/6 pt-2"
-                                                                                :ref="el => setParentRef(el, item.id)">
-                                                                                <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                                <li v-for="detail in item.details"
-                                                                                    :key="detail.id" class="pl-8"
-                                                                                    :ref="'hiddenText' + item.id"
-                                                                                    :data-text="detail.text">
-                                                                                </li>
-                                                                            </ul>
-                                                                        </div>
-                                                                        <div v-if="item.has_attachments" class="flex pt-2.5 gap-x-2">
-                                                                            <div
-                                                                                v-for="attachment in item.attachments"
-                                                                                :key="attachment.attachmentId"
-                                                                                class="group flex items-center gap-x-1 bg-gray-100 px-2 py-2 rounded-md hover:bg-gray-600"
-                                                                                @click.prevent="() => downloadAttachment(item.id, attachment.attachmentId, attachment.attachmentName)"
-                                                                            >
-                                                                                <component :is="getIconComponent(attachment.attachmentName)" class="w-5 h-5 text-gray-600 group-hover:text-white" />
-                                                                                <p class="text-sm text-gray-600 group-hover:text-white">{{ attachment.attachmentName }}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-span-2">
-                                                                        <div class="flex justify-center">
-                                                                            <span class="isolate inline-flex rounded-2xl">
-                                                                                <div v-show="hoveredItemId === item.id"
-                                                                                    class="group action-buttons">
-                                                                                    <div class="relative group">
-                                                                                        <div
-                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4 z-40">
-                                                                                            {{ $t('constants.userActions.open') }}
-                                                                                        </div>
-                                                                                        <button @click="openSeeModal(item)"
-                                                                                            type="button"
-                                                                                            class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                                            <eye-icon
-                                                                                                class="w-5 h-5 text-blue-400 group-hover:text-white" />
-                                                                                        </button>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div v-show="hoveredItemId === item.id"
-                                                                                    class="group action-buttons">
-                                                                                    <div class="relative group">
-                                                                                        <div
-                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
-                                                                                            {{ $t('homePage.read') }}
-                                                                                        </div>
-                                                                                        <button type="button"
-                                                                                            class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                                            <check-icon
-                                                                                                @click="markEmailAsRead(item.id)"
-                                                                                                class="w-5 h-5 text-blue-400 group-hover:text-white" />
-                                                                                        </button>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div v-show="hoveredItemId === item.id"
-                                                                                    class="group action-buttons">
-                                                                                    <div class="relative group">
-                                                                                        <div
-                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                            {{ $t('homePage.answer') }}
-                                                                                        </div>
-                                                                                        <button @click="openAnswer(item)"
-                                                                                            type="button"
-                                                                                            class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                                            <arrow-uturn-left-icon
-                                                                                                class="w-5 h-5 text-blue-400 group-hover:text-white" />
-                                                                                        </button>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div v-show="hoveredItemId === item.id"
-                                                                                    class="group action-buttons">
-                                                                                    <div class="relative group">
-                                                                                        <div
-                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-center text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                            {{ $t('constants.additionalActions') }}
-                                                                                        </div>
-                                                                                        <Menu as="div"
-                                                                                            class="relative inline-block text-left">
-                                                                                            <div>
-                                                                                                <MenuButton
-                                                                                                    @click="toggleTooltip"
-                                                                                                    class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-blue-400 ring-1 ring-inset ring-blue-300 hover:bg-blue-300 focus:z-10">
-                                                                                                    <ellipsis-horizontal-icon
-                                                                                                        class="w-5 h-5 group-hover:text-white text-blue-400 group-active:text-blue-400 group-focus:text-red focus:text-blue-400" />
-                                                                                                </MenuButton>
-                                                                                            </div>
-                                                                                            <transition
-                                                                                                enter-active-class="transition ease-out duration-100"
-                                                                                                enter-from-class="transform opacity-0 scale-95"
-                                                                                                enter-to-class="transform opacity-100 scale-100"
-                                                                                                leave-active-class="transition ease-in duration-75"
-                                                                                                leave-from-class="transform opacity-100 scale-100"
-                                                                                                leave-to-class="transform opacity-0 scale-95">
-                                                                                                <MenuItems
-                                                                                                    v-show="isMenuOpen"
-                                                                                                    class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
-                                                                                                    <div class="py-1">
-                                                                                                        <div
-                                                                                                            v-if="item.rule">
-                                                                                                            <MenuItem
-                                                                                                                v-slot="{ active }">
-                                                                                                            <a @click.prevent="openRuleEditor(item.rule_id)"
-                                                                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                <span
-                                                                                                                    class="flex gap-x-2 items-center">
-                                                                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                        fill="none"
-                                                                                                                        viewBox="0 0 24 24"
-                                                                                                                        stroke-width="1.5"
-                                                                                                                        stroke="currentColor"
-                                                                                                                        class="w-4 h-4">
-                                                                                                                        <path
-                                                                                                                            stroke-linecap="round"
-                                                                                                                            stroke-linejoin="round"
-                                                                                                                            d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-                                                                                                                    </svg>
-                                                                                                                    <span> {{ $t('constants.userAction.changeTheRule') }}</span>
-                                                                                                                </span>
-                                                                                                            </a>
-                                                                                                            </MenuItem>
-                                                                                                        </div>
-                                                                                                        <div v-else>
-                                                                                                            <MenuItem
-                                                                                                                v-slot="{ active }">
-                                                                                                            <a @click.prevent="openNewRule(item.name, item.email)"
-                                                                                                                :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                <span
-                                                                                                                    class="flex gap-x-2 items-center">
-                                                                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                        fill="none"
-                                                                                                                        viewBox="0 0 24 24"
-                                                                                                                        stroke-width="1.5"
-                                                                                                                        stroke="currentColor"
-                                                                                                                        class="w-4 h-4">
-                                                                                                                        <path
-                                                                                                                            stroke-linecap="round"
-                                                                                                                            stroke-linejoin="round"
-                                                                                                                            d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-                                                                                                                    </svg>
-                                                                                                                    <span>{{ $t('constants.userActions.createARule') }}</span>
-                                                                                                                </span>
-                                                                                                            </a>
-                                                                                                            </MenuItem>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div class="py-1">
-                                                                                                        <MenuItem
-                                                                                                            v-slot="{ active }">
-                                                                                                        <a @click.prevent="markEmailReplyLater(item)"
-                                                                                                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                            <span
-                                                                                                                class="flex gap-x-2 items-center">
-                                                                                                                <svg class="w-4 h-4"
-                                                                                                                    viewBox="0 0 28 28"
-                                                                                                                    version="1.1"
-                                                                                                                    stroke="currentColor"
-                                                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                                                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                                                                    xml:space="preserve"
-                                                                                                                    xmlns:serif="http://www.serif.com/"
-                                                                                                                    style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-                                                                                                                    <path
-                                                                                                                        d="M13.435,17.391l-6.783,-6.782m0,0l6.783,-6.783m-6.783,6.783l13.565,0c3.721,0 6.783,3.061 6.783,6.782c0,3.721 -3.062,6.783 -6.783,6.783l-3.391,0"
-                                                                                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                    <path
-                                                                                                                        d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
-                                                                                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                </svg>
-                                                                                                                <span>{{ $t('constants.userActions.replyLater') }}</span>
-                                                                                                            </span>
-                                                                                                        </a>
-                                                                                                        </MenuItem>
-                                                                                                    </div>
-                                                                                                    <div class="py-1">
-                                                                                                        <MenuItem
-                                                                                                            v-slot="{ active }">
-                                                                                                        <a @click.prevent="transferEmail(item)"
-                                                                                                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                            <span
-                                                                                                                class="flex gap-x-2 items-center">
-                                                                                                                <svg class="w-4 h-4"
-                                                                                                                    viewBox="0 0 28 28"
-                                                                                                                    version="1.1"
-                                                                                                                    stroke="currentColor"
-                                                                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                                                                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                                                                    xml:space="preserve"
-                                                                                                                    xmlns:serif="http://www.serif.com/"
-                                                                                                                    style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-                                                                                                                    <path
-                                                                                                                        d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
-                                                                                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                    <path
-                                                                                                                        d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
-                                                                                                                        style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                </svg>
-                                                                                                                <span>{{ $t('constants.userActions.transfer') }}</span>
-                                                                                                            </span>
-                                                                                                        </a>
-                                                                                                        </MenuItem>
-                                                                                                    </div>
-                                                                                                </MenuItems>
-                                                                                            </transition>
-                                                                                        </Menu>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </li>
 
-                                    <!--email inutiles-->
-                                    <!-- add @click="toggleEmailVisibility"-->
-                                    <div v-if="emails[selectedTopic] && emails[selectedTopic]['Useless'].filter(email => !email.answer_later) && countEmailsInCategoryAndPriority(selectedTopic, 'Useless') > 0"
-                                        class="group/main">
-                                        <li class="">
-                                            <div class="px-6 pb-6">
-                                                <div class="bg-gray-200 bg-opacity-90 rounded-md">
-                                                    <div class="flex px-2 py-2">
-                                                        <p class="flex-1 text-sm font-semibold leading-6 text-gray-600">
-                                                            {{ $t('constants.ruleModalConstants.useless') }}</p>
-                                                        <!-- ring-1 ring-red-700 ring-opacity-20 -->
-                                                        <div class="ml-auto">
-                                                            <trash-icon class="w-6 h-6 text-gray-500" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- Your content -->
-                                                <div class="flex px-4 pt-4">
-                                                    <div class="flex">
-                                                        <span
-                                                            class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-400">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5"
-                                                                stroke="currentColor" class="w-6 h-6 text-white">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
-                                                            </svg>
-                                                        </span>
-                                                        <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
-                                                    </div>
-                                                    <div class="ml-6 w-full">
-                                                        <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-gray-400 w-full"
-                                                            style="overflow: visible;">
-                                                            <ul role="list"
-                                                                class="divide-y divide-gray-200 dark:divide-white w-full">
-                                                                <li
-                                                                    class="px-6 py-5 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
-                                                                    <div class="flex gap-x-2">
-                                                                        <!-- remove @click="toggleEmailVisibility"-->
-                                                                        <p @click="toggleEmailVisibility"
-                                                                            class="cursor-pointer"> {{ $t('homePage.youReceived') }}
-                                                                            <span
-                                                                                class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                                                                                {{
-                                                                                    emails[selectedTopic]['Useless'].filter(e =>
-                                                                                        !e.answer_later).length }}
-                                                                            </span>
-                                                                            <span
-                                                                                v-if="emails[selectedTopic]['Useless'].filter(email => !email.answer_later).length === 1">
-                                                                                {{ $t('homePage.uselessEmail') }}
-                                                                            </span>
-                                                                            <span v-else>
-                                                                                {{ $t('homePage.uselessEmails') }}
-                                                                            </span>
-                                                                        </p>
-                                                                        <div
-                                                                            class="hidden group-hover/main:block px-2 py-0.5 bg-gray-400 text-white text-sm shadow rounded-xl">
-                                                                            <div class="flex gap-x-1 items-center">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke-width="1.5"
-                                                                                    stroke="currentColor"
-                                                                                    class="w-4 h-4">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-                                                                                </svg>
-                                                                                <!-- remove @click="toggleEmailVisibility"-->
-                                                                                <p @click="toggleEmailVisibility"
-                                                                                    class="cursor-pointer">{{ $t('homePage.clickToSeeTheEmail') }}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <ul v-if="showEmailDescriptions"
-                                                                        class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-200">
-                                                                        <li class="py-5 grid grid-cols-10 w-full"
-                                                                            v-for="item in emails[selectedTopic]['Useless'].filter(email => !email.answer_later)"
-                                                                            :key="item.id"
-                                                                            @mouseover="setHoveredItem(item.id)"
-                                                                            @mouseleave="clearHoveredItem">
-                                                                            <div class="col-span-8 flex-auto">
-                                                                                <div
-                                                                                    class="flex items-baseline justify-between gap-x-4">
-                                                                                    <div class="flex items-center">
-                                                                                        <p class="text-sm font-semibold leading-6 text-gray-800 mr-2">{{ item.name }}</p>
-                                                                                        <p class="text-sm leading-6 text-gray-800 mr-2">{{ item.time }}</p>
-                                                                                        <p class="text-xs leading-6 text-gray-800 mr-2">{{ item.date }}</p>   
-                                                                                    </div>
-                                                                                </div>
-                                                                                <p>{{ item.description }}</p>
-                                                                            </div>
-                                                                            <div class="col-span-2 pt-2">
-                                                                                <div class="flex justify-center">
-                                                                                    <span
-                                                                                        class="isolate inline-flex rounded-2xl">
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    {{ $t('constants.userActions.open') }}
-                                                                                                </div>
-                                                                                                <button
-                                                                                                    @click.stop="openSeeModal(item)"
-                                                                                                    type="button"
-                                                                                                    class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-gray-400 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                                                                                    <eye-icon
-                                                                                                        class="w-5 h-5 text-gray-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('homePage.block') }}
-                                                                                                </div>
-                                                                                                <button type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                                                                                    <HandRaisedIcon
-                                                                                                        @click.stop="setRuleBlockForSender(item)"
-                                                                                                        class="w-5 h-5 text-gray-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('constants.userActions.archive') }}
-                                                                                                </div>
-                                                                                                <button type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                                                                                    <TrashIcon
-                                                                                                        @click.stop="deleteEmail(item.id)"
-                                                                                                        class="w-5 h-5 text-gray-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                                    {{ $t('homePage.answer') }}
-                                                                                                </div>
-                                                                                                <button
-                                                                                                    @click.stop="openAnswer(item)"
-                                                                                                    type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                                                                                    <arrow-uturn-left-icon
-                                                                                                        class="w-5 h-5 text-gray-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons cursor-pointer">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    {{ $t('constants.additionalActions') }}
-                                                                                                </div>
-                                                                                                <Menu as="div"
-                                                                                                    class="relative inline-block text-left">
-                                                                                                    <div>
-                                                                                                        <MenuButton
-                                                                                                            @click="toggleTooltip"
-                                                                                                            class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-500 ring-1 ring-inset ring-gray-400 hover:bg-gray-400 focus:z-10">
-                                                                                                            <ellipsis-horizontal-icon
-                                                                                                                class="w-5 h-5 group-hover:text-white text-gray-500 group-active:text-gray-500 group-focus:text-red focus:text-gray-500" />
-                                                                                                        </MenuButton>
-                                                                                                    </div>
-                                                                                                    <transition
-                                                                                                        enter-active-class="transition ease-out duration-100"
-                                                                                                        enter-from-class="transform opacity-0 scale-95"
-                                                                                                        enter-to-class="transform opacity-100 scale-100"
-                                                                                                        leave-active-class="transition ease-in duration-75"
-                                                                                                        leave-from-class="transform opacity-100 scale-100"
-                                                                                                        leave-to-class="transform opacity-0 scale-95">
-                                                                                                        <MenuItems
-                                                                                                            v-show="isMenuOpen"
-                                                                                                            class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                                                                            <div
-                                                                                                                class="py-1">
-                                                                                                                <div
-                                                                                                                    v-if="item.rule">
-                                                                                                                    <MenuItem
-                                                                                                                        v-slot="{ active }">
-                                                                                                                    <a @click.prevent="openRuleEditor(item.rule_id)"
-                                                                                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                        <span
-                                                                                                                            class="flex gap-x-2 items-center">
-                                                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                                fill="none"
-                                                                                                                                viewBox="0 0 24 24"
-                                                                                                                                stroke-width="1.5"
-                                                                                                                                stroke="currentColor"
-                                                                                                                                class="w-4 h-4">
-                                                                                                                                <path
-                                                                                                                                    stroke-linecap="round"
-                                                                                                                                    stroke-linejoin="round"
-                                                                                                                                    d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-                                                                                                                            </svg>
-                                                                                                                            <span>{{ $t('constants.userAction.changeTheRule') }}</span>
-                                                                                                                        </span>
-                                                                                                                    </a>
-                                                                                                                    </MenuItem>
-                                                                                                                </div>
-                                                                                                                <div
-                                                                                                                    v-else>
-                                                                                                                    <MenuItem
-                                                                                                                        v-slot="{ active }">
-                                                                                                                    <a @click.prevent="openNewRule(item.name, item.email)"
-                                                                                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                        <span
-                                                                                                                            class="flex gap-x-2 items-center">
-                                                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                                fill="none"
-                                                                                                                                viewBox="0 0 24 24"
-                                                                                                                                stroke-width="1.5"
-                                                                                                                                stroke="currentColor"
-                                                                                                                                class="w-4 h-4">
-                                                                                                                                <path
-                                                                                                                                    stroke-linecap="round"
-                                                                                                                                    stroke-linejoin="round"
-                                                                                                                                    d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-                                                                                                                            </svg>
-                                                                                                                            <span>{{ $t('constants.userActions.createARule') }}</span>
-                                                                                                                        </span>
-                                                                                                                    </a>
-                                                                                                                    </MenuItem>
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                class="py-1">
-                                                                                                                <MenuItem
-                                                                                                                    v-slot="{ active }">
-                                                                                                                <a @click.prevent="markEmailReplyLater(item)"
-                                                                                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                    <span
-                                                                                                                        class="flex gap-x-2 items-center">
-                                                                                                                        <svg class="w-4 h-4"
-                                                                                                                            viewBox="0 0 28 28"
-                                                                                                                            version="1.1"
-                                                                                                                            stroke="currentColor"
-                                                                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                                                                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                                                                            xml:space="preserve"
-                                                                                                                            xmlns:serif="http://www.serif.com/"
-                                                                                                                            style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-                                                                                                                            <path
-                                                                                                                                d="M13.435,17.391l-6.783,-6.782m0,0l6.783,-6.783m-6.783,6.783l13.565,0c3.721,0 6.783,3.061 6.783,6.782c0,3.721 -3.062,6.783 -6.783,6.783l-3.391,0"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                            <path
-                                                                                                                                d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                        </svg>
-                                                                                                                        <span>{{ $t('constants.userActions.replyLater') }}</span>
-                                                                                                                    </span>
-                                                                                                                </a>
-                                                                                                                </MenuItem>
-                                                                                                            </div>
-
-                                                                                                            <div
-                                                                                                                class="py-1">
-                                                                                                                <MenuItem
-                                                                                                                    v-slot="{ active }">
-                                                                                                                <a @click.prevent="transferEmail(item)"
-                                                                                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                    <span
-                                                                                                                        class="flex gap-x-2 items-center">
-                                                                                                                        <svg class="w-4 h-4"
-                                                                                                                            viewBox="0 0 28 28"
-                                                                                                                            version="1.1"
-                                                                                                                            stroke="currentColor"
-                                                                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                                                                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                                                                            xml:space="preserve"
-                                                                                                                            xmlns:serif="http://www.serif.com/"
-                                                                                                                            style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-                                                                                                                            <path
-                                                                                                                                d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                            <path
-                                                                                                                                d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                        </svg>
-                                                                                                                        <span>{{ $t('constants.userActions.transfer') }}</span>
-                                                                                                                    </span>
-                                                                                                                </a>
-                                                                                                                </MenuItem>
-                                                                                                            </div>
-                                                                                                        </MenuItems>
-                                                                                                    </transition>
-                                                                                                </Menu>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </li>
-                                                                    </ul>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </div>
-
-                                    <!--Actions sur les mails open,read,answer,more -->
-                                    <div v-if="readEmailsInSelectedTopic().length > 0" class="group/main">
-                                        <li class="">
-                                            <div class="px-6 pb-6"><!--bg-emerald-50 bg-opacity-60-->
-                                                <div class="bg-stone-200 bg-opacity-90 rounded-md">
-                                                    <div class="flex px-2 py-2">
-                                                        <p
-                                                            class="flex-1 text-sm font-semibold leading-6 text-stone-600 px-4">
-                                                            Lu</p>
-                                                        <!-- ring-1 ring-red-700 ring-opacity-20 -->
-                                                        <div class="ml-auto">
-                                                            <CheckIcon class="w-6 h-6 text-stone-500" />
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Your content -->
-                                                <div class="flex px-4 pt-4">
-                                                    <div class="flex">
-                                                        <span
-                                                            class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-stone-400">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                viewBox="0 0 24 24" stroke-width="1.5"
-                                                                stroke="currentColor" class="w-6 h-6 text-white">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
-                                                            </svg>
-                                                        </span>
-                                                        <!--<ChatBubbleOvalLeftEllipsisIcon class="w-6 h-6 text-red-500" />-->
-                                                    </div>
-
-                                                    <div class="ml-6 w-full">
-                                                        <!-- To check : strange w-full not necessary in grey but it must be here to have the correct space for readEmailsInSelectedTopic -->
-                                                        <div class="overflow-hidden border-l-4 group-hover/main:rounded-l-xl border-stone-400 w-full"
-                                                            style="overflow: visible;">
-                                                            <ul role="list"
-                                                                class="divide-y divide-gray-200 dark:divide-white w-full">
-                                                                <li
-                                                                    class="px-6 py-5 hover:bg-opacity-70 dark:hover:bg-opacity-100 w-full">
-
-                                                                    <div class="flex group gap-x-2">
-
-                                                                        <p @click="toggleReadEmailVisibility"
-                                                                            class="cursor-pointer">
-                                                                            {{ $t('homePage.youReadRecently') }}
-                                                                            <span
-                                                                                class="font-semibold text-gray-900 dark:text-white hover:text-gray-700">
-                                                                                {{ readEmailsInSelectedTopic().length }}
-                                                                            </span>
-                                                                            <span
-                                                                                v-if="readEmailsInSelectedTopic().length === 1">
-                                                                                {{ $t('homePage.email') }}
-                                                                            </span>
-                                                                            <span v-else>{{ $t('homePage.emails') }}</span> {{ $t('homePage.iAm') }}
-                                                                            <span class="font-medium">{{ $t('homePage.goingToCleanAutomatically') }}</span> {{ $t('homePage.theEmailsYouHaveRead') }}
-                                                                        </p>
-
-                                                                        <div
-                                                                            class="hidden group-hover/main:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">
-                                                                            <div class="flex gap-x-1 items-center">
-                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                    fill="none" viewBox="0 0 24 24"
-                                                                                    stroke-width="1.5"
-                                                                                    stroke="currentColor"
-                                                                                    class="w-4 h-4">
-                                                                                    <path stroke-linecap="round"
-                                                                                        stroke-linejoin="round"
-                                                                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-                                                                                </svg>
-                                                                                <p @click="toggleReadEmailVisibility"
-                                                                                    class="cursor-pointer">{{ $t('homePage.clickToSeeTheEmail') }}</p>
-                                                                            </div>
-                                                                        </div>
-
-                                                                    </div>
-                                                                    
-                                                                    <ul v-if="showEmailReadDescriptions"
-                                                                        class="text-gray-900 text-sm/6 pl-8 divide-y divide-gray-300 w-full">
-                                                                        <li class="py-5 grid grid-cols-10 w-full"
-                                                                            v-for="item in readEmailsInSelectedTopic()"
-                                                                            :key="item.id"
-                                                                            @mouseover="setHoveredItem(item.id)"
-                                                                            @mouseleave="clearHoveredItem">
-
-                                                                            <div class="col-span-8 cursor-pointer"
-                                                                                @click="toggleHiddenParagraph(item.id)">
-                                                                                <div class="flex-auto group">
-                                                                                    <div class="flex gap-x-4">
-                                                                                        <div class="flex items-center">
-                                                                                            <p class="text-sm font-semibold leading-6 text-stone-700 mr-2">{{ item.name }}</p>
-                                                                                            <p class="text-sm leading-6 text-stone-700 mr-2">{{ item.time }}</p>   
-                                                                                            <p class="text-xs leading-6 text-stone-700">{{ item.date }}</p> 
-                                                                                        </div>
-                                                                                        <div
-                                                                                            class="hidden group-hover:block px-2 py-0.5 bg-stone-400 text-white text-sm shadow rounded-xl">
-                                                                                            <div
-                                                                                                class="flex gap-x-1 items-center">
-                                                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                    fill="none"
-                                                                                                    viewBox="0 0 24 24"
-                                                                                                    stroke-width="1.5"
-                                                                                                    stroke="currentColor"
-                                                                                                    class="w-4 h-4">
-                                                                                                    <path
-                                                                                                        stroke-linecap="round"
-                                                                                                        stroke-linejoin="round"
-                                                                                                        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-                                                                                                </svg>
-                                                                                                <p>{{ $t('constants.userActions.clickToSeeTheSummary') }}</p>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <p
-                                                                                        class="mt-1 text-md text-gray-700 leading-relaxed">
-                                                                                        {{ item.description }}</p>
-                                                                                </div>
-                                                                                <ul v-show="showHiddenParagraphs[item.id]"
-                                                                                    role="list"
-                                                                                    class="text-black text-sm/6 pt-2"
-                                                                                    :ref="el => setParentRef(el, item.id)">
-                                                                                    <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                                    <li v-for="detail in item.details"
-                                                                                        :key="detail.id" class="pl-8"
-                                                                                        :ref="'hiddenText' + item.id"
-                                                                                        :data-text="detail.text">
-                                                                                    </li>
-                                                                                </ul>
-                                                                            </div>
-
-                                                                            <div class="col-span-2 pt-2">
-                                                                                <div class="flex justify-center">
-                                                                                    <span
-                                                                                        class="isolate inline-flex rounded-2xl">
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block bg-black text-white text-sm py-2 px-4 rounded shadow-lg mt-[-45px] -ml-4">
-                                                                                                    {{ $t('constants.userActions.open') }}
-                                                                                                </div>
-                                                                                                <button
-                                                                                                    @click.stop="openSeeModal(item)"
-                                                                                                    type="button"
-                                                                                                    class="inline-flex items-center px-2 py-1.5 rounded-l-2xl text-stone-400 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
-                                                                                                    <eye-icon
-                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-25 w-[80px]">
-                                                                                                    {{ $t('homePage.unread') }}
-                                                                                                </div>
-                                                                                                <button
-                                                                                                    @click="markEmailAsUnread(item.id)"
-                                                                                                    type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
-                                                                                                    <check-icon
-                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
-                                                                                                    {{ $t('constants.userActions.archive') }}
-                                                                                                </div>
-                                                                                                <button type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
-                                                                                                    <TrashIcon
-                                                                                                        @click.stop="deleteEmail(item.id)"
-                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div class="relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-7">
-                                                                                                    {{ $t('homePage.answer') }}
-                                                                                                </div>
-                                                                                                <button
-                                                                                                    @click.stop="openAnswer(item)"
-                                                                                                    type="button"
-                                                                                                    class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
-                                                                                                    <arrow-uturn-left-icon
-                                                                                                        class="w-5 h-5 text-stone-500 group-hover:text-white" />
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div v-show="hoveredItemId === item.id"
-                                                                                            class="group action-buttons">
-                                                                                            <div
-                                                                                                class="cursor-pointer relative group">
-                                                                                                <div
-                                                                                                    class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
-                                                                                                    {{ $t('constants.additionalActions') }}
-                                                                                                </div>
-                                                                                                <Menu as="div"
-                                                                                                    class="relative inline-block text-left">
-                                                                                                    <div>
-                                                                                                        <MenuButton
-                                                                                                            @click="toggleTooltip"
-                                                                                                            class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-stone-500 ring-1 ring-inset ring-stone-400 hover:bg-stone-400 focus:z-10">
-                                                                                                            <ellipsis-horizontal-icon
-                                                                                                                class="w-5 h-5 group-hover:text-white text-stone-500 group-active:text-stone-500 group-focus:text-red focus:text-stone-500" />
-                                                                                                        </MenuButton>
-                                                                                                    </div>
-                                                                                                    <transition
-                                                                                                        enter-active-class="transition ease-out duration-100"
-                                                                                                        enter-from-class="transform opacity-0 scale-95"
-                                                                                                        enter-to-class="transform opacity-100 scale-100"
-                                                                                                        leave-active-class="transition ease-in duration-75"
-                                                                                                        leave-from-class="transform opacity-100 scale-100"
-                                                                                                        leave-to-class="transform opacity-0 scale-95">
-                                                                                                        <MenuItems
-                                                                                                            v-show="isMenuOpen"
-                                                                                                            class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                                                                                            <div
-                                                                                                                class="py-1">
-                                                                                                                <div
-                                                                                                                    v-if="item.rule">
-                                                                                                                    <MenuItem
-                                                                                                                        v-slot="{ active }">
-                                                                                                                    <a @click.prevent="openRuleEditor(item.rule_id)"
-                                                                                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                        <span
-                                                                                                                            class="flex gap-x-2 items-center">
-                                                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                                fill="none"
-                                                                                                                                viewBox="0 0 24 24"
-                                                                                                                                stroke-width="1.5"
-                                                                                                                                stroke="currentColor"
-                                                                                                                                class="w-4 h-4">
-                                                                                                                                <path
-                                                                                                                                    stroke-linecap="round"
-                                                                                                                                    stroke-linejoin="round"
-                                                                                                                                    d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-                                                                                                                            </svg>
-                                                                                                                            <span>{{ $t('constants.userAction.changeTheRule') }}</span>
-                                                                                                                        </span>
-                                                                                                                    </a>
-                                                                                                                    </MenuItem>
-                                                                                                                </div>
-                                                                                                                <div
-                                                                                                                    v-else>
-                                                                                                                    <MenuItem
-                                                                                                                        v-slot="{ active }">
-                                                                                                                    <a @click.prevent="openNewRule(item.name, item.email)"
-                                                                                                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                        <span
-                                                                                                                            class="flex gap-x-2 items-center">
-                                                                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                                                                fill="none"
-                                                                                                                                viewBox="0 0 24 24"
-                                                                                                                                stroke-width="1.5"
-                                                                                                                                stroke="currentColor"
-                                                                                                                                class="w-4 h-4">
-                                                                                                                                <path
-                                                                                                                                    stroke-linecap="round"
-                                                                                                                                    stroke-linejoin="round"
-                                                                                                                                    d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-                                                                                                                            </svg>
-                                                                                                                            <span>{{ $t('constants.userActions.createARule') }}</span>
-                                                                                                                        </span>
-                                                                                                                    </a>
-                                                                                                                    </MenuItem>
-                                                                                                                </div>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                class="py-1">
-                                                                                                                <MenuItem
-                                                                                                                    v-slot="{ active }">
-                                                                                                                <a @click.prevent="markEmailReplyLater(item)"
-                                                                                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                    <span
-                                                                                                                        class="flex gap-x-2 items-center">
-                                                                                                                        <svg class="w-4 h-4"
-                                                                                                                            viewBox="0 0 28 28"
-                                                                                                                            version="1.1"
-                                                                                                                            stroke="currentColor"
-                                                                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                                                                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                                                                            xml:space="preserve"
-                                                                                                                            xmlns:serif="http://www.serif.com/"
-                                                                                                                            style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-                                                                                                                            <path
-                                                                                                                                d="M13.435,17.391l-6.783,-6.782m0,0l6.783,-6.783m-6.783,6.783l13.565,0c3.721,0 6.783,3.061 6.783,6.782c0,3.721 -3.062,6.783 -6.783,6.783l-3.391,0"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                            <path
-                                                                                                                                d="M7.783,17.391l-6.783,-6.782m0,0l6.783,-6.783"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                        </svg>
-                                                                                                                        <span>{{ $t('constants.userActions.replyLater') }}</span>
-                                                                                                                    </span>
-                                                                                                                </a>
-                                                                                                                </MenuItem>
-                                                                                                            </div>
-                                                                                                            <div
-                                                                                                                class="py-1">
-                                                                                                                <MenuItem
-                                                                                                                    v-slot="{ active }">
-                                                                                                                <a @click.prevent="transferEmail(item)"
-                                                                                                                    :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
-                                                                                                                    <span
-                                                                                                                        class="flex gap-x-2 items-center">
-                                                                                                                        <svg class="w-4 h-4"
-                                                                                                                            viewBox="0 0 28 28"
-                                                                                                                            version="1.1"
-                                                                                                                            stroke="currentColor"
-                                                                                                                            xmlns="http://www.w3.org/2000/svg"
-                                                                                                                            xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                                                                            xml:space="preserve"
-                                                                                                                            xmlns:serif="http://www.serif.com/"
-                                                                                                                            style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;">
-                                                                                                                            <path
-                                                                                                                                d="M13.435,10.609l6.783,6.782m0,0l-6.783,6.783m6.783-6.783L6.85,17.391c-3.721,0-6.783-3.061-6.783-6.782c0-3.721,3.062-6.783,6.783-6.783l3.391,0"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                            <path
-                                                                                                                                d="M21.197,10.609l6.783,6.782m0,0l-6.783,6.783"
-                                                                                                                                style="fill:none;stroke:#000;stroke-width:1.7px;" />
-                                                                                                                        </svg>
-                                                                                                                        <span>{{ $t('constants.userActions.transfer') }}</span>
-                                                                                                                    </span>
-                                                                                                                </a>
-                                                                                                                </MenuItem>
-                                                                                                            </div>
-                                                                                                        </MenuItems>
-                                                                                                    </transition>
-                                                                                                </Menu>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </li>
-                                                                    </ul>
-                                                                </li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </div>
                                 </div>
                             </ul>
                         </div>
@@ -2528,6 +1574,7 @@ function totalEmailsInCategory(categoryName) {
 
 function totalEmailsInCategoryNotRead(categoryName) {
     let totalCount = 0;
+    console.log("CHECK", emails.value);
     const category = emails.value[categoryName];
     console.log("CATEGORY : ",category);
 
@@ -2542,16 +1589,15 @@ function totalEmailsInCategoryNotRead(categoryName) {
     return totalCount;
 }
 
-
 const groupedEmailsByCategoryAndDate = (category) => {
     const grouped = {};
     if (emails.value[selectedTopic.value] && emails.value[selectedTopic.value][category]) {
         emails.value[selectedTopic.value][category].forEach(email => {
-            if (!email.read && !email.answer_later) {
-                if (!grouped[email.date]) {
-                grouped[email.date] = [];
+            if (!email.read && !email.answerLater) {
+                if (!grouped[email.sentDate]) {
+                grouped[email.sentDate] = [];
                 }
-                grouped[email.date].push(email);
+                grouped[email.sentDate].push(email);
             }
         });
     }
@@ -2565,6 +1611,8 @@ const groupedEmailsByCategoryAndDate = (category) => {
       return acc;
     }, {});
   
+ console.log("DEBUG : ", sortedGrouped)
+
   return sortedGrouped;
 };
 
@@ -2582,10 +1630,23 @@ async function fetchEmailDetails(emailIds) {
   try {
     const result = await fetchWithToken(`${API_BASE_URL}user/get_emails_data/`, requestOptions);
     console.log("RESULT :", result);
+    
+    // Transform the result to match the previous format
+    /*
+    const transformedResult = {};
+    for (const category in result.data) {
+      for (const priority in result.data[category]) {
+        if (!transformedResult[priority]) {
+          transformedResult[priority] = [];
+        }
+        transformedResult[priority].push(...result.data[category][priority]);
+      }
+    }*/
+    
     return result;
   } catch (error) {
     console.error('Error fetching email details:', error);
-    return [];
+    return {};
   }
 }
 
@@ -2596,7 +1657,6 @@ async function fetchEmails() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            // JUST for information send ONLY subject if the user has ONLY used the search bar
             subject: "",
             resultPerPage: 25,
             category: "Others"

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative ">
+  <div class="relative">
     <div
       class="sticky top-0 z-40 flex shrink-0 items-center gap-x-4 border-b border-black shadow-sm border-opacity-10 bg-white px-4 sm:gap-x-6 sm:px-6 lg:px-8"
       :style="{ height: height }"

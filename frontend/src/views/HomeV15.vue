@@ -150,8 +150,7 @@
                                                                         v-if="totalEmailsInCategoryNotRead(category.name) > 0"
                                                                         class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
                                                                         :class="{ 'text-gray-800': selectedTopic === category.name, 'text-white bg-gray-800': selectedTopic !== category.name }">
-                                                                        {{ totalEmailsInCategoryNotRead(category.name)
-                                                                        }}
+                                                                        {{ totalEmailsInCategoryNotRead(category.name) }}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -2409,6 +2408,8 @@ function readEmailsInSelectedTopic() {
         combinedEmails = combinedEmails.concat(emails.value[selectedTopic.value][category]);
     }
 
+    console.log("COMBINED EMAILS", combinedEmails)
+
     return combinedEmails.filter(email => email.answer_later == false && email.read);
 }
 
@@ -2528,12 +2529,15 @@ function totalEmailsInCategory(categoryName) {
 function totalEmailsInCategoryNotRead(categoryName) {
     let totalCount = 0;
     const category = emails.value[categoryName];
+    console.log("CATEGORY : ",category);
 
     if (category) {
         for (const subcategory of Object.values(category)) {
             totalCount += subcategory.filter(email => !email.read && !email.answer_later).length;
         }
     }
+
+    console.log("TOTALCOUNT", totalCount);
 
     return totalCount;
 }
@@ -2564,6 +2568,27 @@ const groupedEmailsByCategoryAndDate = (category) => {
   return sortedGrouped;
 };
 
+async function fetchEmailDetails(emailIds) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      ids: emailIds
+    }),
+  };
+
+  try {
+    const result = await fetchWithToken(`${API_BASE_URL}user/get_emails_data/`, requestOptions);
+    console.log("RESULT :", result);
+    return result;
+  } catch (error) {
+    console.error('Error fetching email details:', error);
+    return [];
+  }
+}
+
 async function fetchEmails() {
     const emailData = await fetchWithToken(`${API_BASE_URL}user/emails/`, {
         method: 'POST',
@@ -2579,7 +2604,9 @@ async function fetchEmails() {
     });
     console.log(emailData);
     if (lockEmailsAccess.value == false) {
-        emails.value = emailData;
+        const result = await fetchEmailDetails(emailData.ids);
+        emails.value = result.data;
+        console.log("EMAIL VALUE : ", emails.value);
     }
     updateNumberUnreadEmails();
 }

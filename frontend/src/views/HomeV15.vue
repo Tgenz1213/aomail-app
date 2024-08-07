@@ -1725,6 +1725,7 @@ function handleKeyDown(event) {
 function getNumberUnreadMail(emailData) {
     let totalUnread = 0;
 
+    /* TO FIX
     for (const category in emailData) {
         for (const subcategory in emailData[category]) {
             const emailsInSubcategory = emailData[category][subcategory];
@@ -1736,7 +1737,7 @@ function getNumberUnreadMail(emailData) {
                 }
             }
         }
-    }
+    }*/
     return totalUnread;
 }
 

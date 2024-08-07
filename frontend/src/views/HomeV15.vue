@@ -64,7 +64,7 @@
             <div class="flex h-full w-full">
 
                 <!--NAVBAR verticale-->
-                <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+                <div class="w-[90px] bg-white ring-1 ring-black ring-opacity-5 2xl:w-[100px] z-20">
                     <navbar></navbar>
                 </div>
 
@@ -74,7 +74,7 @@
                     <div class="flex flex-col h-full w-full">
 
                          <!--ligne 1 : navbar horizontale -->
-                        <main class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 border-b border-black shadow-sm border-opacity-10">
+                        <main class="bg-gray-50 border-b border-black shadow-sm border-opacity-10">
                             <div class="w-full py-2 2xl:py-3 px-4 2xl:px-8 lg:px-2">
                                 <div class="grid grid-cols-11 gap-4 items-center divide-x divide-gray-300">
                                     <div class="pl-4 col-span-11 h-full flex items-center">
@@ -171,7 +171,7 @@
                                                 </nav>
                                             </div>
 
-                                            <!--bouton pour l'onglet à droite-->
+                                            <!--button to open ask AI -->
                                             <div class="flex justify-end h-full">
                                                 <button @click="toggleVisibility" class="bg-gray-200 text-gray-500 p-2 rounded-full items-center inline-flex">
                                                     <svg v-if="isHidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -189,24 +189,63 @@
                             </div>
                         </main>
 
-                        <div class="w-full relative">
-                            <SearchbarV2 
-                            @input="updateSearchQuery" 
-                            height="3rem"
-                            :showFilterButton="true"
-                            :filterFields="[
-                                { name: 'from', label: 'De', type: 'text', placeholder: 'De' },
-                                { name: 'to', label: 'À', type: 'text', placeholder: 'À' },
-                                { name: 'subject', label: 'Objet', type: 'text', placeholder: 'Objet' },
-                                { name: 'contains', label: 'Contient les mots', type: 'text', placeholder: 'Contient les mots' },
-                                { name: 'doesNotContain', label: 'Ne contient pas', type: 'text', placeholder: 'Ne contient pas' },
-                                { name: 'size', label: 'Taille', type: 'select', options: [{ value: 'greater', label: 'supérieure à' }, { value: 'less', label: 'inférieure à' }] },
-                                { name: 'dateRange', label: 'Plage de dates', type: 'select', options: [{ value: '1day', label: '1 jour' }, { value: '1week', label: '1 semaine' }, { value: '1month', label: '1 mois' }, { value: '1year', label: '1 an' }] },
-                                { name: 'searchIn', label: 'Rechercher', type: 'select', options: [{ value: 'all', label: 'Tous les messages' }, { value: 'read', label: 'Messages lus' }, { value: 'unread', label: 'Messages non lus' }] },
-                                { name: 'hasAttachment', label: 'Contenant une pièce jointe', type: 'checkbox' },
-                                { name: 'excludeChats', label: 'Ne pas inclure les chats', type: 'checkbox' }
-                            ]"
-                            />
+                        <!--searchbar and filters-->
+                        <div class="w-full flex">
+                            <!-- Search bar -->
+
+                            <!-- Filter activation button (to the right of the search bar) -->
+                            <button @click="toggleFilterSection" class="p-2 rounded-md hover:bg-gray-100 focus:outline-none mr-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                            </button>
+
+                            <!-- Filters section -->
+                            <div v-show="showFilters" class="flex items-stretch space-x-2 pr-4">
+                                <button 
+                                v-for="(tab, index) in visibleTabs" 
+                                :key="index"
+                                @click="setActiveTab(tab.id)"
+                                :class="[
+                                    'px-3 py-1 focus:outline-none flex items-center relative',
+                                    activeTab === tab.id ? 'text-black' : 'text-gray-600 hover:bg-gray-100'
+                                ]"
+                                >
+                                {{ tab.name }}
+                                <div v-if="activeTab === tab.id" class="absolute bottom-0 left-0 w-full h-0.5 bg-black"></div>
+                                </button>
+                                <div class="relative flex items-center">
+                                <button 
+                                    v-if="hiddenTabsCount > 0"
+                                    @click="toggleMoreFilters" 
+                                    class="px-2 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none"
+                                    data-more-filters
+                                >
+                                    {{ hiddenTabsCount }} more...
+                                </button>
+                                <!-- Modal to display all tabs -->
+                                <div 
+                                    v-if="showAllTabsModal" 
+                                    ref="moreFiltersModal"
+                                    class="absolute top-full right-0 mt-1 z-50 w-64"
+                                >
+                                    <div class="p-2">
+                                    <h2 class="text-sm font-bold mb-2">All tabs</h2>
+                                    <div class="space-y-1 h-full overflow-y-auto">
+                                        <button 
+                                        v-for="tab in allTabs" 
+                                        :key="tab.id"
+                                        @click="setActiveTab(tab.id)"
+                                        class="w-full text-left px-2 py-1 text-sm hover:bg-gray-100 focus:outline-none rounded"
+                                        >
+                                        {{ tab.name }}
+                                        </button>
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                                <button @click="showAddFilterPopup" class="px-2 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none">+</button>
+                            </div>
                         </div>
 
                         <!--<div class="w-full bg-white flex flex-col sm:flex-row items-center">
@@ -233,7 +272,7 @@
                             <p>En cours de dev</p>
                         </div>--><!-- DO NOT DELETE bg-opacity-90 -->
                         <!--L'utilisateur n'a pas de nouveau mail-->
-                        <div v-if="isEmptyTopic()" class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
+                        <div v-if="isEmptyTopic()" class="flex-1">
                             <!-- Content goes here -->
                             <div v-if="isEmptyTopic()" class="flex flex-col w-full h-full rounded-xl">
                                 <div

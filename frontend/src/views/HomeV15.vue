@@ -345,7 +345,7 @@
                                                             <ul role="list" class="divide-y divide-gray-200">
                                                                 <li v-for="item in emailsByDate" :key="item.id" class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(item.id)" @mouseleave="clearHoveredItem">
                                                                     <div class="col-span-8 cursor-pointer">
-                                                                        <div @click="toggleHiddenParagraph(item.id)">
+                                                                        <div @click="toggleHiddenParagraph('important', item.id)">
                                                                             <div class="flex-auto group">
                                                                                 <div class="flex gap-x-4">
                                                                                     <div class="flex items-center">
@@ -372,16 +372,9 @@
                                                                                     class="mt-1 text-md text-gray-700 leading-relaxed">
                                                                                     {{ item.oneLineSummary }}</p>
                                                                             </div>
-                                                                            <ul v-show="showHiddenParagraphs[item.id]"
-                                                                                role="list" class="text-black text-sm/6 pt-2"
-                                                                                :ref="el => setParentRef(el, item.id)">
-                                                                                <!-- Potential design update : bg-white shadow rounded-xl -->
-                                                                                <li v-for="detail in item.details"
-                                                                                    :key="detail.id" class="pl-8"
-                                                                                    :ref="'hiddenText' + item.id"
-                                                                                    :data-text="detail.text">
-                                                                                </li>
-                                                                            </ul>
+                                                                            <div v-show="item.showSummary">
+                                                                                <p class="text-black text-sm/6 pt-2">{{ item.shortSummary }}</p>
+                                                                            </div>
                                                                         </div>
                                                                         <div v-if="item.hasAttachments" class="flex pt-2.5 gap-x-2">
                                                                             <div
@@ -1488,29 +1481,21 @@ function scrollAlmostToBottom() {
     });
 }
 
-function toggleHiddenParagraph(index) {
-    // console.log("Item ID:", index)
-    // console.log("All refs:", parentElementRefs.value)
-    // console.log('parentElement: ', parentElementRefs.value[index])
-    // console.log("Test: ", parentElementRefs.value[index].children)
 
-    showHiddenParagraphs.value[index] = !showHiddenParagraphs.value[index];
-    nextTick(() => {
-        if (showHiddenParagraphs.value[index] && !animationTriggered.value[index]) {
-            const parentElement = parentElementRefs.value[index];
-            const elements = parentElement.children;
-            //console.log("Elements:", elements)
+// User click on short summary
+function toggleHiddenParagraph(priority, id) {
+  const emailList = emails.value[selectedTopic.value][priority];
+  const emailItem = emailList.find(item => item.id === id);
 
-            const delays = [0];
-            for (let i = 0; i < elements.length; i++) {
-                const duration = animateHiddenText(elements[i], delays[i]);
-                delays.push(delays[i] + duration + 20);
-            }
-            animationTriggered.value[index] = true;
-        }
-    });
+  if (emailItem) {
+    // Toggle the showSummary property
+    emailItem.showSummary = !emailItem.showSummary;
+  } else {
+    console.error(`Email with id ${id} not found in ${selectedTopic.value}/${priority}`);
+  }
 }
 
+/* OLD NOT NECESSARY NOW
 function animateHiddenText(element, delay = 0) {
     const characters = element.dataset.text.split('');
     const duration = characters.length * 5;
@@ -1527,7 +1512,7 @@ function animateHiddenText(element, delay = 0) {
         }, 5);
     }, delay);
     return duration;
-}
+}*/
 function selectCategory(category) {
     selectedTopic.value = category.name;
     localStorage.setItem('selectedTopic', category.name);

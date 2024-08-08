@@ -428,7 +428,7 @@
                                                                                             {{ $t('homePage.read') }}
                                                                                         </div>
                                                                                         <button
-                                                                                            @click="markEmailAsRead(item.id)"
+                                                                                            @click="markEmailAsRead('important', item.id)"
                                                                                             type="button"
                                                                                             class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
                                                                                             <check-icon
@@ -944,9 +944,9 @@ async function markEmailAsUnread(emailId) {
     }
     lockEmailsAccess.value = false;
 }
-async function markEmailAsRead(emailId) {
+async function markEmailAsRead(priority, emailId) {
     lockEmailsAccess.value = true;
-    updateEmailReadStatus(emailId);
+    updateEmailReadStatus(priority, emailId);
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_read/`, {
@@ -973,25 +973,11 @@ async function markEmailAsRead(emailId) {
     lockEmailsAccess.value = false;
 }
 
-function updateEmailReadStatus(emailId) {
-    // Iterate over each category in the emails object
-    for (const category in emails.value) {
-        if (Object.hasOwnProperty.call(emails.value, category)) {
-            // Iterate over each subcategory within the category
-            for (const subcategory in emails.value[category]) {
-                if (Array.isArray(emails.value[category][subcategory])) {
-                    // Find the index of the email with the given ID in the current subcategory's array
-                    const emailIndex = emails.value[category][subcategory].findIndex(email => email.id === emailId);
-                    if (emailIndex !== -1) {
-                        // Email found, update its read status
-                        emails.value[category][subcategory][emailIndex].read = true;
-                        updateNumberUnreadEmails();
-                        return; // Stop the function as we've found and updated the email
-                    }
-                }
-            }
-        }
-    }
+function updateEmailReadStatus(priority, emailId) {
+
+    const emailIndex = emails.value[selectedTopic.value][priority].findIndex(email => email.id === emailId);
+    emails.value[selectedTopic.value][priority][emailIndex].read = true;
+    return
 }
 
 function updateEmailUnreadStatus(emailId) {

@@ -618,7 +618,7 @@
                                             <div v-for="(emailsByDate, date) in groupedEmailsByCategoryAndDate('informative')" :key="date">
                                                 <div class="pt-3 px-4">
                                                     <div class="relative">
-                                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                        <div class="absolute inset-0 z-0 flex items-center" aria-hidden="true">
                                                             <div class="w-full border-t border-gray-200"></div>
                                                         </div>
                                                         <div class="relative flex justify-center">
@@ -705,7 +705,7 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-span-2">
+                                                                    <div class="col-span-2 z-10">
                                                                         <div class="flex justify-center">
                                                                             <span class="isolate inline-flex rounded-2xl">
                                                                                 <div v-show="hoveredItemId === item.id"

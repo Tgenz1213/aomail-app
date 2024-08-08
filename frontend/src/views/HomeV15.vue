@@ -498,7 +498,7 @@
                                                                                                                             stroke-linejoin="round"
                                                                                                                             d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
                                                                                                                     </svg>
-                                                                                                                    <span>{{ $t('constants.userAction.changeTheRule') }}</span>
+                                                                                                                    <span>{{ $t('constants.userActions.changeTheRule') }}</span>
                                                                                                                 </span>
                                                                                                             </a>
                                                                                                             </MenuItem>
@@ -1182,15 +1182,16 @@ async function openAnswer(email) {
         sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
         sessionStorage.setItem("email", JSON.stringify(email.email));
         sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
-        sessionStorage.setItem("details", JSON.stringify(email.details));
+        sessionStorage.setItem("details", JSON.stringify(email.shortSummary));
         sessionStorage.setItem("emailReceiver", data.email.email_receiver);
 
         console.log("_____________data.email.cc______________", data.email.cc)
         console.log("_____________data.email.bcc______________", data.email.bcc)
 
+        /*
         router.push({
             name: 'answer'
-        });
+        });*/
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';

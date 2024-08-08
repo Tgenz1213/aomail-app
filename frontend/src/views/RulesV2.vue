@@ -71,7 +71,7 @@
                         </div>
                         <!-- TODO: update with good values (export them as constants) -->
                         <span v-if="rule.priority === 'Important'"
-                          class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">{{
+                          class="inline-flex flex-shrink-0 items-center rounded-full bg-orange-50 px-1.5 py-0.5 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">{{
                             rule.priority }}</span>
                         <span v-if="rule.priority === 'Informatif'"
                           class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">{{

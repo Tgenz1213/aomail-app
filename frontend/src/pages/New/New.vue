@@ -512,7 +512,7 @@ import {
 import { useI18n } from "vue-i18n";
 
 // Use i18n
-const { t } = useI18n();
+//const { t } = useI18n();
 
 // Variable to prevent the user from starting a prompt if AI is writing
 let isAIWriting = ref(false);

@@ -117,7 +117,7 @@ const emit = defineEmits<{
     (event: "deleteCategory", payload: string): void;
 }>();
 
-const { t } = useI18n();
+//const { t } = useI18n();
 
 const categoryName = ref(props.category.name || "");
 const categoryDescription = ref(props.category.description || "");

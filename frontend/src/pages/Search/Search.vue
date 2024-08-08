@@ -562,7 +562,7 @@ import { CheckIcon, ChevronUpDownIcon,PaperAirplaneIcon, MagnifyingGlassIcon, Us
 import { useI18n } from 'vue-i18n';
 
 // Use i18n
-const { t } = useI18n();
+//const { t } = useI18n();
 
 let showNotification = ref(false);
 let notificationTitle = ref('');

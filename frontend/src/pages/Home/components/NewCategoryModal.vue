@@ -96,7 +96,7 @@ interface Emits {
 const props = defineProps<Props>();
 const emits = defineEmits<Emits>();
 
-const { t } = useI18n();
+//const { t } = useI18n();
 
 const categoryName = ref("");
 const categoryDescription = ref("");

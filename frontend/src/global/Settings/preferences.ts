@@ -10,6 +10,7 @@ type UserPreferenceResponse = {
     theme?: string;
     error?: string;
 };
+
 const fetchUserPreference = async (
     endpoint: string,
     key: keyof UserPreferenceResponse,
@@ -57,7 +58,6 @@ const fetchUserPreference = async (
 };
 
 export const initializePreferences = async (i18n: I18n) => {
-    console.log("initializePreferences");
     const currentUrl = window.location.href;
 
     if (
@@ -79,9 +79,4 @@ export const initializePreferences = async (i18n: I18n) => {
 
 export const languageSelected = ref("english");
 export const themeSelected = ref("light");
-
-export const i18n = createI18n({
-    locale: languageSelected.value,
-    fallbackLocale: "english",
-    messages,
-});
+export const i18n = createI18n({ legacy: true, locale: languageSelected.value, fallbackLocale: "english", messages });

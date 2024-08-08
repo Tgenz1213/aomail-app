@@ -61,7 +61,6 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
-import { useI18n } from "vue-i18n";
 import NotificationTimer from "@/components/NotificationTimer.vue";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
@@ -69,17 +68,16 @@ import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { KeyValuePair } from "@/global/types";
-
-const { t, locale } = useI18n();
+import { i18n } from "@/global/Settings/preferences";
 
 const languages: KeyValuePair[] = [
-    { key: "french", value: t("constants.languagesList.french") },
-    { key: "american", value: t("constants.languagesList.american") },
-    { key: "german", value: t("constants.languagesList.german") },
-    { key: "russian", value: t("constants.languagesList.russian") },
-    { key: "spanish", value: t("constants.languagesList.spanish") },
-    { key: "chinese", value: t("constants.languagesList.chinese") },
-    { key: "indian", value: t("constants.languagesList.indian") },
+    { key: "french", value: i18n.global.t("constants.languagesList.french") },
+    { key: "american", value: i18n.global.t("constants.languagesList.american") },
+    { key: "german", value: i18n.global.t("constants.languagesList.german") },
+    { key: "russian", value: i18n.global.t("constants.languagesList.russian") },
+    { key: "spanish", value: i18n.global.t("constants.languagesList.spanish") },
+    { key: "chinese", value: i18n.global.t("constants.languagesList.chinese") },
+    { key: "indian", value: i18n.global.t("constants.languagesList.indian") },
 ];
 
 const storedLanguageKey = localStorage.getItem("language");
@@ -129,15 +127,18 @@ const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
             if (data.error) {
                 displayPopup(
                     "error",
-                    t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
+                    i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
                     data.error
                 );
             } else if (data.message === "Language updated successfully") {
-                locale.value = newLanguageKey;
+                (i18n.global.locale as string) = newLanguageKey;
+
                 displayPopup(
                     "success",
-                    t("settingsPage.preferencesPage.popUpConstants.successMessages.languageUpdatedSuccessfully"),
-                    ""
+                    i18n.global.t("constants.popUpConstants.successMessages.success"),
+                    i18n.global.t(
+                        "settingsPage.preferencesPage.popUpConstants.successMessages.languageUpdatedSuccessfully"
+                    )
                 );
             }
         }
@@ -145,7 +146,7 @@ const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
         if (error instanceof Error) {
             displayPopup(
                 "error",
-                t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
+                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
                 error.message
             );
         }

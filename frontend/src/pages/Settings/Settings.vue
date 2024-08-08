@@ -961,7 +961,7 @@
                                             </div>
                                         </div>
                                         <div class="pt-10 pb-10">
-                                            <LanguageSelection></LanguageSelection>
+                                            <LanguageSelection />
                                         </div>
                                     </div>
 
@@ -978,7 +978,7 @@
                                         </div>
                                         <div class="pt-10 pb-10">
                                             <div class="relative items-stretch dark:bg-gray-800">
-                                                <theme></theme>
+                                                <ThemeSelection />
                                             </div>
                                         </div>
                                     </div>
@@ -1036,18 +1036,17 @@
 
 <script setup lang="ts">
 /* eslint-disable */
-import { ref, onMounted } from "vue"
-import { useRouter } from "vue-router"
-import { useI18n } from "vue-i18n"
-import { API_BASE_URL } from "@/global/const"
-import { fetchWithToken } from "@/global/security"
-import "@fortawesome/fontawesome-free/css/all.css"
-import NotificationTimer from "@/components/NotificationTimer.vue"
-import LanguageSelection from "@/pages/Settings/components/LanguageSelection.vue"
-import { XMarkIcon } from "@heroicons/vue/24/outline"
-// import ThemeSelection from "@/pages/Settings/components/ThemeSelection.vue"
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { API_BASE_URL } from "@/global/const";
+import { fetchWithToken } from "@/global/security";
+import "@fortawesome/fontawesome-free/css/all.css";
+import NotificationTimer from "@/components/NotificationTimer.vue";
+import LanguageSelection from "@/pages/Settings/components/LanguageSelection.vue";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
+import ThemeSelection from "@/pages/Settings/components/ThemeSelection.vue";
 // import SubscriptionSelection from "@/pages/Settings/components/SubscriptionSelection.vue"
-import TimeZoneSelection from "@/pages/Settings/components/TimeZoneSelection.vue"
+import TimeZoneSelection from "@/pages/Settings/components/TimeZoneSelection.vue";
 import {
     AdjustmentsVerticalIcon,
     UserIcon,
@@ -1055,62 +1054,61 @@ import {
     KeyIcon,
     CreditCardIcon,
     CircleStackIcon,
-} from "@heroicons/vue/24/outline"
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp"
+} from "@heroicons/vue/24/outline";
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 
-const { t } = useI18n()
-const router = useRouter()
+const router = useRouter();
 
-const activeSection = ref("account")
-const userData = ref("")
+const activeSection = ref("account");
+const userData = ref("");
 // const userEmailDescription = ref("")
-const emailsLinked = ref<string[]>([])
-const newPassword = ref("")
-const confirmPassword = ref("")
-const isModalOpen = ref(false)
-const isModalUserDescriptionOpen = ref(false)
-const isUnlinkModalOpen = ref(false)
-const isModalAddUserDescriptionOpen = ref(false)
-const emailSelected = ref("")
-const userDescription = ref("")
-const showPassword = ref(false)
-const showConfirmPassword = ref(false)
+const emailsLinked = ref<string[]>([]);
+const newPassword = ref("");
+const confirmPassword = ref("");
+const isModalOpen = ref(false);
+const isModalUserDescriptionOpen = ref(false);
+const isUnlinkModalOpen = ref(false);
+const isModalAddUserDescriptionOpen = ref(false);
+const emailSelected = ref("");
+const userDescription = ref("");
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
-const showNotification = ref(false)
-const notificationTitle = ref("")
-const notificationMessage = ref("")
-const backgroundColor = ref("")
-const timerId = ref<number | null>(null)
+const showNotification = ref(false);
+const notificationTitle = ref("");
+const notificationMessage = ref("");
+const backgroundColor = ref("");
+const timerId = ref<number | null>(null);
 
-const intervalId = setInterval(checkAuthorizationCode, 1000)
+const intervalId = setInterval(checkAuthorizationCode, 1000);
 
 onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown)
-    fetchEmailLinked()
-    fetchUserData()
-})
+    document.addEventListener("keydown", handleKeyDown);
+    fetchEmailLinked();
+    fetchUserData();
+});
 
 function togglePasswordVisibility(event: Event) {
-    event.preventDefault()
-    showPassword.value = !showPassword.value
+    event.preventDefault();
+    showPassword.value = !showPassword.value;
 }
 
 function toggleConfirmPasswordVisibility() {
-    showConfirmPassword.value = !showConfirmPassword.value
+    showConfirmPassword.value = !showConfirmPassword.value;
 }
 
 async function openUnLinkModal(email: string) {
-    emailSelected.value = email
-    isUnlinkModalOpen.value = true
+    emailSelected.value = email;
+    isUnlinkModalOpen.value = true;
 
     if (emailsLinked.value.length === 1) {
         displayPopup(
             "error",
             t("settingsPage.accountPage.unableToDeletePrimaryEmail"),
             t("settingsPage.accountPage.deleteAccountInstruction")
-        )
-        closeUnlinkModal()
-        return
+        );
+        closeUnlinkModal();
+        return;
     }
 }
 
@@ -1119,67 +1117,67 @@ async function unLinkAccount() {
         headers: { "Content-Type": "application/json" },
         method: "POST",
         body: JSON.stringify({ email: emailSelected.value }),
-    }
+    };
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/unlink/`, requestOptions)
+        const response = await fetchWithToken(`${API_BASE_URL}user/social_api/unlink/`, requestOptions);
 
         if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection")
-            return
+            displayPopup("error", "No response from server", "Verify your internet connection");
+            return;
         }
 
         if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-            return
+            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+            return;
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if ("error" in data) {
-            displayPopup("error", t("settingsPage.accountPage.errorUnlinkingEmailAddress"), data.error)
+            displayPopup("error", t("settingsPage.accountPage.errorUnlinkingEmailAddress"), data.error);
         } else if (data.message === "Email unlinked successfully!") {
-            fetchEmailLinked()
+            fetchEmailLinked();
             displayPopup(
                 "success",
                 t("constants.popUpConstants.successMessages.success"),
                 t("settingsPage.accountPage.emailUnlinkedSuccess")
-            )
+            );
         }
     } catch (error) {
-        displayPopup("error", t("settingsPage.accountPage.errorUnlinkingEmailAddress"), (error as Error).message)
+        displayPopup("error", t("settingsPage.accountPage.errorUnlinkingEmailAddress"), (error as Error).message);
     }
-    closeUnlinkModal()
+    closeUnlinkModal();
 }
 
 function linkNewEmail() {
-    const typeApi = sessionStorage.getItem("typeApi")
+    const typeApi = sessionStorage.getItem("typeApi");
 
     if (typeApi === "google") {
-        caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))))
-        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`)
+        caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
     } else if (typeApi === "microsoft") {
-        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`)
+        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
     }
 }
 
-// function authorize(type: "google" | "microsoft") {
-//     saveVariables(type)
-//     isModalAddUserDescriptionOpen.value = true
-// }
+function authorize(type: "google" | "microsoft") {
+    saveVariables(type)
+    isModalAddUserDescriptionOpen.value = true
+}
 
-// function saveVariables(typeApi: string) {
-//     sessionStorage.setItem("typeApi", typeApi)
-//     sessionStorage.setItem("userDescription", userEmailDescription.value)
-// }
+function saveVariables(typeApi: string) {
+    sessionStorage.setItem("typeApi", typeApi)
+    sessionStorage.setItem("userDescription", userEmailDescription.value)
+}
 
 function checkAuthorizationCode() {
-    const urlParams = new URLSearchParams(window.location.search)
-    const authorizationCode = urlParams.get("code")
+    const urlParams = new URLSearchParams(window.location.search);
+    const authorizationCode = urlParams.get("code");
 
     if (authorizationCode) {
-        clearInterval(intervalId)
-        linkEmail(authorizationCode)
+        clearInterval(intervalId);
+        linkEmail(authorizationCode);
     }
 }
 
@@ -1192,121 +1190,121 @@ async function linkEmail(authorizationCode: string) {
             typeApi: sessionStorage.getItem("typeApi"),
             user_description: sessionStorage.getItem("userDescription"),
         }),
-    }
-    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/link/`, requestOptions)
+    };
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/link/`, requestOptions);
 
     if (!response) {
-        displayPopup("error", "No response from server", "Verify your internet connection")
-        return
+        displayPopup("error", "No response from server", "Verify your internet connection");
+        return;
     }
 
     if (!response.ok) {
-        displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-        return
+        displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+        return;
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (data.message === "Email linked to account successfully!") {
-        fetchEmailLinked()
+        fetchEmailLinked();
         displayPopup(
             "success",
             t("constants.popUpConstants.successMessages.success"),
             t("settingsPage.accountPage.emailLinkedSuccess")
-        )
+        );
     } else {
-        displayPopup("error", t("settingsPage.accountPage.emailLinkingFailure"), data.error)
+        displayPopup("error", t("settingsPage.accountPage.emailLinkingFailure"), data.error);
     }
-    sessionStorage.clear()
-    const currentUrl = window.location.href
-    const modifiedUrl = currentUrl.replace(/(\?)code=.*(&|$)/, "?").replace(/(\?)state=.*(&|$)/, "?")
-    window.history.replaceState({}, document.title, modifiedUrl)
+    sessionStorage.clear();
+    const currentUrl = window.location.href;
+    const modifiedUrl = currentUrl.replace(/(\?)code=.*(&|$)/, "?").replace(/(\?)state=.*(&|$)/, "?");
+    window.history.replaceState({}, document.title, modifiedUrl);
 }
 
 async function fetchEmailLinked() {
     const requestOptions = {
         headers: { "Content-Type": "application/json" },
-    }
+    };
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions)
+        const response = await fetchWithToken(`${API_BASE_URL}user/emails_linked/`, requestOptions);
 
         if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection")
-            return
+            displayPopup("error", "No response from server", "Verify your internet connection");
+            return;
         }
 
         if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-            return
+            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+            return;
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if ("error" in data) {
-            displayPopup("error", t("constants.popUpConstants.primaryEmailFetchError"), data.error)
+            displayPopup("error", t("constants.popUpConstants.primaryEmailFetchError"), data.error);
         } else {
-            emailsLinked.value = data
+            emailsLinked.value = data;
         }
     } catch (error) {
-        displayPopup("error", t("constants.popUpConstants.primaryEmailFetchError"), (error as Error).message)
+        displayPopup("error", t("constants.popUpConstants.primaryEmailFetchError"), (error as Error).message);
     }
 }
 
 function openModal() {
-    const isChecked = document.querySelector('input[name="choice"]:checked')
+    const isChecked = document.querySelector('input[name="choice"]:checked');
 
     if (isChecked) {
-        isModalOpen.value = true
+        isModalOpen.value = true;
     } else {
         displayPopup(
             "error",
             t("settingsPage.accountPage.confirmationRequired"),
             t("settingsPage.accountPage.checkBoxApprovalDeletion")
-        )
+        );
     }
 }
 
 function closeAddUserDescriptionModal() {
-    isModalAddUserDescriptionOpen.value = false
+    isModalAddUserDescriptionOpen.value = false;
 }
 
 function closeUnlinkModal() {
-    isUnlinkModalOpen.value = false
+    isUnlinkModalOpen.value = false;
 }
 
 function closeUserDescriptionModal() {
-    isModalUserDescriptionOpen.value = false
+    isModalUserDescriptionOpen.value = false;
 }
 
 async function openUserDescriptionModal(email: string) {
-    emailSelected.value = email
+    emailSelected.value = email;
 
     const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email }),
-    }
+    };
 
-    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/get_user_description/`, requestOptions)
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/get_user_description/`, requestOptions);
 
     if (!response) {
-        displayPopup("error", "No response from server", "Verify your internet connection")
-        return
+        displayPopup("error", "No response from server", "Verify your internet connection");
+        return;
     }
 
     if (!response.ok) {
-        displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-        return
+        displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+        return;
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (data.data || !data.data.trim()) {
-        isModalUserDescriptionOpen.value = true
-        userDescription.value = data.data
+        isModalUserDescriptionOpen.value = true;
+        userDescription.value = data.data;
     } else {
-        displayPopup("error", t("settingsPage.accountPage.errorUnlinkingEmailAddress"), data.error)
+        displayPopup("error", t("settingsPage.accountPage.errorUnlinkingEmailAddress"), data.error);
     }
 }
 
@@ -1318,53 +1316,53 @@ async function updateUserDescription() {
             email: emailSelected.value,
             user_description: userDescription.value.trim() ? userDescription.value.trim() : "",
         }),
-    }
+    };
 
-    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/update_user_description/`, requestOptions)
+    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/update_user_description/`, requestOptions);
 
     if (!response) {
-        displayPopup("error", "No response from server", "Verify your internet connection")
-        return
+        displayPopup("error", "No response from server", "Verify your internet connection");
+        return;
     }
 
     if (!response.ok) {
-        displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-        return
+        displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+        return;
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (data.message === "User description updated") {
         displayPopup(
             "success",
             t("constants.popUpConstants.successMessages.success"),
             t("settingsPage.accountPage.emailDescriptionUpdated")
-        )
+        );
     } else {
-        displayPopup("error", t("settingsPage.accountPage.errorUpdatingDescription"), data.error)
+        displayPopup("error", t("settingsPage.accountPage.errorUpdatingDescription"), data.error);
     }
-    closeUserDescriptionModal()
+    closeUserDescriptionModal();
 }
 
 function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Tab" && !isModalOpen.value) {
-        event.preventDefault()
-        switchActiveSection()
+        event.preventDefault();
+        switchActiveSection();
     } else if (event.key === "Escape") {
         if (isModalOpen.value) {
-            closeModal()
+            closeModal();
         } else if (isModalUserDescriptionOpen.value) {
-            closeUserDescriptionModal()
+            closeUserDescriptionModal();
         } else if (isUnlinkModalOpen.value) {
-            closeUnlinkModal()
+            closeUnlinkModal();
         } else if (isModalAddUserDescriptionOpen.value) {
-            closeAddUserDescriptionModal()
+            closeAddUserDescriptionModal();
         }
     } else if (event.key === "Enter") {
         if (isModalUserDescriptionOpen.value) {
-            updateUserDescription()
+            updateUserDescription();
         } else if (isModalAddUserDescriptionOpen.value) {
-            linkNewEmail()
+            linkNewEmail();
         }
     }
 }
@@ -1375,67 +1373,67 @@ function switchActiveSection() {
         preferences: "subscription",
         subscription: "data",
         data: "account",
-    }
+    };
 
-    setActiveSection(nextSection[activeSection.value])
+    setActiveSection(nextSection[activeSection.value]);
 }
 
 function setActiveSection(section: string) {
     if (section === "account") {
-        fetchUserData()
+        fetchUserData();
     }
-    activeSection.value = section
+    activeSection.value = section;
 }
 
 async function fetchUserData() {
     const requestOptions = {
         headers: { "Content-Type": "application/json" },
-    }
+    };
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions)
+        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions);
 
         if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection")
-            return
+            displayPopup("error", "No response from server", "Verify your internet connection");
+            return;
         }
 
         if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-            return
+            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+            return;
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
-        userData.value = data.username
+        userData.value = data.username;
     } catch (error) {
-        displayPopup("error", t("settingsPage.accountPage.errorRetrievingUsername"), (error as Error).message)
+        displayPopup("error", t("settingsPage.accountPage.errorRetrievingUsername"), (error as Error).message);
     }
 }
 
 async function getUsername(): Promise<string | undefined> {
     const requestOptions = {
         headers: { "Content-Type": "application/json" },
-    }
+    };
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions)
+        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions);
 
         if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection")
-            return
+            displayPopup("error", "No response from server", "Verify your internet connection");
+            return;
         }
 
         if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-            return
+            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+            return;
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
-        return data.username
+        return data.username;
     } catch (error) {
-        displayPopup("error", t("settingsPage.accountPage.errorRetrievingUsername"), (error as Error).message)
+        displayPopup("error", t("settingsPage.accountPage.errorRetrievingUsername"), (error as Error).message);
     }
 }
 
@@ -1443,37 +1441,37 @@ async function handleSubmit() {
     const requestOptions = {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-    }
+    };
 
     try {
-        const response = await fetchWithToken(`${API_BASE_URL}check_username/`, requestOptions)
+        const response = await fetchWithToken(`${API_BASE_URL}check_username/`, requestOptions);
 
         if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection")
-            return
+            displayPopup("error", "No response from server", "Verify your internet connection");
+            return;
         }
 
         if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-            return
+            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+            return;
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.available === false) {
             displayPopup(
                 "error",
                 t("settingsPage.accountPage.usernameAlreadyExists"),
                 t("settingsPage.accountPage.pleaseChooseDifferentUsername")
-            )
-            return
+            );
+            return;
         }
 
-        const currentUsername = await getUsername()
+        const currentUsername = await getUsername();
 
         if (userData.value !== currentUsername) {
             if (userData.value.length <= 150 && !/\s/.test(userData.value)) {
-                await updateUsername()
+                await updateUsername();
             } else {
                 if (userData.value.length > 150) {
                     displayPopup(
@@ -1482,13 +1480,13 @@ async function handleSubmit() {
                             "settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotExceed150Characters"
                         ),
                         t("settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAShorterUsername")
-                    )
+                    );
                 } else if (/\s/.test(userData.value)) {
                     displayPopup(
                         "error",
                         t("settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotContainSpaces"),
                         t("settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAUsernameWithoutSpaces")
-                    )
+                    );
                 }
             }
         }
@@ -1499,14 +1497,14 @@ async function handleSubmit() {
             newPassword.value.length >= 8 &&
             newPassword.value.length <= 32
         ) {
-            await updatePassword()
+            await updatePassword();
         } else {
             if (!newPassword.value || newPassword.value !== confirmPassword.value) {
                 displayPopup(
                     "error",
                     t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorPasswordDontCorrespond"),
                     t("settingsPage.preferencesPage.popUpConstants.errorMessages.checkPassword")
-                )
+                );
             } else if (newPassword.value.length < 8 || newPassword.value.length > 32) {
                 displayPopup(
                     "error",
@@ -1516,11 +1514,11 @@ async function handleSubmit() {
                     t(
                         "settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAPasswordWithTheAppropriateLength"
                     )
-                )
+                );
             }
         }
     } catch (error) {
-        displayPopup("error", t("settingsPage.accountPage.usernameCheckError"), (error as Error).message)
+        displayPopup("error", t("settingsPage.accountPage.usernameCheckError"), (error as Error).message);
     }
 }
 
@@ -1529,17 +1527,17 @@ async function updatePassword() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password: newPassword.value }),
-    }
+    };
 
     try {
-        await fetchWithToken(`${API_BASE_URL}user/preferences/update_password/`, requestOptions)
+        await fetchWithToken(`${API_BASE_URL}user/preferences/update_password/`, requestOptions);
         displayPopup(
             "success",
             t("constants.popUpConstants.successMessages.success"),
             t("settingsPage.accountPage.passwordUpdatedSuccess")
-        )
+        );
     } catch (error) {
-        displayPopup("error", t("settingsPage.accountPage.errorUpdatingPassword"), (error as Error).message)
+        displayPopup("error", t("settingsPage.accountPage.errorUpdatingPassword"), (error as Error).message);
     }
 }
 
@@ -1550,85 +1548,85 @@ async function updateUsername() {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({ username: userData.value }),
-    }
+    };
 
     try {
-        await fetchWithToken(`${API_BASE_URL}user/preferences/update_username/`, requestOptions)
+        await fetchWithToken(`${API_BASE_URL}user/preferences/update_username/`, requestOptions);
         displayPopup(
             "success",
             t("constants.popUpConstants.successMessages.success"),
             t("settingsPage.accountPage.usernameUpdatedSuccess")
-        )
+        );
     } catch (error) {
-        displayPopup("error", t("settingsPage.accountPage.errorUpdatingUsername"), (error as Error).message)
+        displayPopup("error", t("settingsPage.accountPage.errorUpdatingUsername"), (error as Error).message);
     }
 }
 
 async function deleteAccount() {
     try {
-        const url = `${API_BASE_URL}api/delete_account/`
+        const url = `${API_BASE_URL}api/delete_account/`;
         const requestOptions = {
             method: "DELETE",
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
-        }
+        };
 
-        const response = await fetchWithToken(url, requestOptions)
+        const response = await fetchWithToken(url, requestOptions);
 
         if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection")
-            return
+            displayPopup("error", "No response from server", "Verify your internet connection");
+            return;
         }
 
         if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`)
-            return
+            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+            return;
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data && data.message === "User successfully deleted") {
-            localStorage.clear()
-            closeModal()
+            localStorage.clear();
+            closeModal();
             displayPopup(
                 "success",
                 t("settingsPage.accountPage.redirectionInProgress"),
                 t("settingsPage.accountPage.accountDeletedSuccess")
-            )
+            );
 
             setTimeout(() => {
-                router.push({ name: "login" })
-            }, 4000)
+                router.push({ name: "login" });
+            }, 4000);
         } else {
-            displayPopup("error", t("settingsPage.accountPage.errorDeletingAccount"), data.error)
+            displayPopup("error", t("settingsPage.accountPage.errorDeletingAccount"), data.error);
         }
     } catch (error) {
-        displayPopup("error", t("settingsPage.accountPage.errorDeletingAccount"), (error as Error).message)
+        displayPopup("error", t("settingsPage.accountPage.errorDeletingAccount"), (error as Error).message);
     }
 }
 
 function closeModal() {
-    isModalOpen.value = false
-    const checkbox = document.querySelector('input[name="choice"]') as HTMLInputElement
+    isModalOpen.value = false;
+    const checkbox = document.querySelector('input[name="choice"]') as HTMLInputElement;
     if (checkbox) {
-        checkbox.checked = false
+        checkbox.checked = false;
     }
 }
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
     } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message)
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
     }
-    timerId.value = setTimeout(dismissPopup, 4000)
+    timerId.value = setTimeout(dismissPopup, 4000);
 }
 
 function dismissPopup() {
-    showNotification.value = false
+    showNotification.value = false;
     if (timerId.value !== null) {
-        clearTimeout(timerId.value)
+        clearTimeout(timerId.value);
     }
 }
 </script>

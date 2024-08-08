@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copy 'package.json' and 'package-lock.json' (if available)
 COPY package*.json ./
+COPY .eslintrc.js ./
 
 # Install the project dependencies
 RUN npm install

@@ -209,6 +209,13 @@
     "markEmailReplyLaterFailure": "Échec de marquage d'email pour répondre pour plus tard",
     "transferEmailFailure": "Échec de transfert d'email",
     "blockEmailAddressFailure": "Échec du bloquage de l'addresse email",
+    "flag": {
+      "meeting": "Réunion",
+      "newsletter": "Newsletter",
+      "notification": "Notification",
+      "scam": "Arnaque",
+      "spam": "Spam"
+    },
     "modals": {
       "pleaseFillAllFields": "Veuillez remplir tous les champs",
       "newCategoryModal": {

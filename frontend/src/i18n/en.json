@@ -209,6 +209,13 @@
     "markEmailReplyLaterFailure": "Failed to mark email for reply later",
     "transferEmailFailure": "Failed to transfer email",
     "blockEmailAddressFailure": "Failed to block email address",
+    "flag": {
+      "meeting": "Meeting",
+      "newsletter": "Newsletter",
+      "notification": "Notification",
+      "scam": "Scam",
+      "spam": "Spam"
+    },
     "modals": {
       "pleaseFillAllFields": "Please fill in all fields",
       "newCategoryModal": {

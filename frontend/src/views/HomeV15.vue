@@ -284,8 +284,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                                     </svg>
-                                    <span class="mt-2 block text-md font-semibold text-gray-900">{{ $t('homePage.noNewEmail')
-                                        }}</span>
+                                    <span class="mt-2 block text-md font-semibold text-gray-900">{{ $t('homePage.noNewEmail') }}</span>
                                 </div>
                             </div>
                             
@@ -350,7 +349,22 @@
                                                                                 <div class="flex gap-x-4">
                                                                                     <div class="flex items-center">
                                                                                         <p class="text-sm font-semibold leading-6 text-orange-700 mr-2">{{ item.sender.name }}</p>
-                                                                                        <p class="text-sm leading-6 text-orange-700">{{ item.sentTime }}</p>   
+                                                                                        <p class="text-sm leading-6 text-orange-700 mr-2">{{ item.sentTime }}</p>
+                                                                                        <span v-if="item.flags.meeting" class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+                                                                                            {{ $t('homePage.flag.meeting') }}
+                                                                                        </span>
+                                                                                        <span v-if="item.flags.newsletter" class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+                                                                                            {{ $t('homePage.flag.newsletter') }}
+                                                                                        </span>
+                                                                                        <span v-if="item.flags.notification" class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+                                                                                            {{ $t('homePage.flag.notification') }}
+                                                                                        </span>
+                                                                                        <span v-if="item.flags.scam" class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                                                                            {{ $t('homePage.flag.scam') }}
+                                                                                        </span>
+                                                                                        <span v-if="item.flags.spam" class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                                                                            {{ $t('homePage.flag.spam') }}
+                                                                                        </span>   
                                                                                     </div> 
                                                                                     <div
                                                                                         class="hidden group-hover:block px-2 py-0.5 bg-orange-300 text-white text-sm shadow rounded-xl">

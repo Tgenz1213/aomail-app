@@ -457,7 +457,7 @@
                                                                                     class="group action-buttons">
                                                                                     <div class="relative group">
                                                                                         <div
-                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[90px] w-[185px]">
+                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-[115px] w-[185px]">
                                                                                             {{ $t('constants.additionalActions') }}
                                                                                         </div>
                                                                                         <Menu as="div"
@@ -757,7 +757,7 @@
                                                                                     class="group action-buttons">
                                                                                     <div class="relative group">
                                                                                         <div
-                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-center text-sm rounded shadow-lg mt-[-45px] -ml-[125px] w-[185px]">
+                                                                                            class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-center text-sm rounded shadow-lg mt-[-45px] -ml-[115px] w-[185px]">
                                                                                             {{ $t('constants.additionalActions') }}
                                                                                         </div>
                                                                                         <Menu as="div"

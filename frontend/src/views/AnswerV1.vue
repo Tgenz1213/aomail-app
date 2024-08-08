@@ -452,7 +452,7 @@ function handleKeyDown(event) {
 
 // TO parse Email => TO CHECK
 function parseEmails(emailData) {
-  console.log("parsing emails", emailData)
+  console.log("parsing emails", emailData);
   if (!emailData) {
     return [];
   }
@@ -462,22 +462,23 @@ function parseEmails(emailData) {
   } else if (Array.isArray(emailData)) {
     // Handle the case where emailData is an array of emails
     return emailData.map(data => {
-      return {
-        email: data,
-        username: ''
-      };
+      if (typeof data === 'string') {
+        return {
+          email: data,
+          username: data.split('@')[0]
+        };
+      } else if (Array.isArray(data)) {
+        // Handle the case where emailData is an array of tuples
+        const [name, email] = data;
+        return {
+          email: email || '',
+          username: name || (email.split('@')[0] || '')
+        };
+      }
     });
-    // TODO: Handle the case where emailData is an array of tuples
-    // return emailData.map(data => {
-    //     const [name, email] = data;
-    //     return {
-    //         email: email || '',
-    //         username: name || (email.split('@')[0] || '')
-    //     };
-    // });
   } else if (typeof emailData === 'object') {
-    // Handle the case where emailData is a single tuple
-    const [name, email] = emailData;
+    // Handle the case where emailData is an object with email and name properties
+    const { email, name } = emailData;
     return [{
       email: email || '',
       username: name || email.split('@')[0]
@@ -939,9 +940,10 @@ function askContentAdvice() {
   animateText(message, animatedParagraph);
 
   // TODO: add buttons and remove this question
+  /*
   const message2 = "Quelle longueur de mail et formalité souhaitez vous ?";
   const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-  displayMessage(message2, ai_icon);
+  displayMessage(message2, ai_icon);*/
 }
 
 async function handleButtonClick(keyword) {
@@ -1558,7 +1560,7 @@ onMounted(() => {
   const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
   const email = JSON.parse(sessionStorage.getItem("email"));
   //const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
-  const details = JSON.parse(sessionStorage.getItem("details"));
+  const short_summary = JSON.parse(sessionStorage.getItem("short_summary"));
 
   console.log("DEBUG CC------------------")
   console.log(cc)
@@ -1627,7 +1629,7 @@ onMounted(() => {
 `;
 
   // Append the email HTML to the container
-  AIContainer.value.innerHTML += emailHTML;
+  //AIContainer.value.innerHTML += emailHTML;
 
   const message = "Résumé de l'email : ";
 
@@ -1642,27 +1644,17 @@ onMounted(() => {
             </span>   
         </div>
         <div>
+            <p>${subject}</p>
             <p class="font-bold">${message}</p>
-            <ul>
-    `;
-
-  // Add each bullet point to the HTML
-  details.forEach(detail => {
-    messageHTML += `<li class="pt-2">
-                        <p><span class="font-bold text-2xl">-</span> ${detail.text}</p>
-                    </li>`;
-  });
-
-  // Close the HTML structure
-  messageHTML += `
-            </ul>
+            <p>${short_summary}</p>
         </div>
     </div>
     `;
 
   AIContainer.value.innerHTML += messageHTML;
 
-  emailContent.value = details.map(item => item.text).join(' '); // USELESS => To Optimize
+  //emailContent.value = details.map(item => item.text).join(' '); // USELESS => To Optimize
+  emailContent.value = decoded_data;
   fetchResponseKeywords(subject);
 
   quill.value.on('text-change', function () {
@@ -1700,7 +1692,8 @@ onMounted(() => {
   //scrollToBottom(); => ACTIVATION OPTIONAL
 
   if (email) {
-    selectedPeople.value = parseEmails(email);
+    console.log("email SENDER ====> ", email.sender);
+    selectedPeople.value = parseEmails(email.sender);
     console.log("SELECTED PEOPLE", selectedPeople.value);
   }
   if (cc) {

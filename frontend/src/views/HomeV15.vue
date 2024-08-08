@@ -318,7 +318,7 @@
                                             <div v-for="(emailsByDate, date) in groupedEmailsByCategoryAndDate('important')" :key="date">
                                                 <div class="pt-3 px-4">
                                                     <div class="relative">
-                                                        <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                                        <div class="absolute inset-0 z-0 flex items-center" aria-hidden="true">
                                                             <div class="w-full border-t border-gray-200"></div>
                                                         </div>
                                                         <div class="relative flex justify-center">
@@ -404,7 +404,7 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-span-2">
+                                                                    <div class="col-span-2 z-10">
                                                                         <div class="flex justify-center">
                                                                             <span class="isolate inline-flex rounded-2xl">
                                                                                 <div v-show="hoveredItemId === item.id"
@@ -1481,18 +1481,26 @@ async function openAnswer(email) {
         sessionStorage.setItem("cc", data.email.cc);
         sessionStorage.setItem("bcc", data.email.bcc);
         sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
-        sessionStorage.setItem("email", JSON.stringify(email.email));
+        sessionStorage.setItem("email", JSON.stringify(email));
         sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
-        sessionStorage.setItem("details", JSON.stringify(email.shortSummary));
+        sessionStorage.setItem("short_summary", JSON.stringify(email.shortSummary));
         sessionStorage.setItem("emailReceiver", data.email.email_receiver);
 
+        /*
         console.log("_____________data.email.cc______________", data.email.cc)
         console.log("_____________data.email.bcc______________", data.email.bcc)
+        console.log("SUBJECT :",sessionStorage.getItem("subject"));
+        console.log("CC :",sessionStorage.getItem("cc"));
+        console.log("BCC :",sessionStorage.getItem("bcc"));
+        console.log("DECODED DATA :",sessionStorage.getItem("decoded_data"));
+        console.log("ID PROVIDER :",sessionStorage.getItem("id_provider"));
+        console.log("SHORT SUMMARY :",sessionStorage.getItem("short_summary"));
+        console.log("EMAIL RECEIVER :",sessionStorage.getItem("emailReceiver"));
+        console.log("EMAIL :",sessionStorage.getItem("email"));*/
 
-        /*
         router.push({
             name: 'answer'
-        });*/
+        });
     } catch (error) {
         console.error("There was a problem with the fetch operation:", error.message);
         backgroundColor = 'bg-red-200/[.89] border border-red-400';

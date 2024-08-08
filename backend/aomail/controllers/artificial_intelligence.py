@@ -652,7 +652,7 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         update_tokens_stats(request.user, result)
 
         return Response(
-            {"response_keywords": result["response_keywords"]},
+            {"response_keywords": result["keywords_list"]},
             status=status.HTTP_200_OK,
         )
     else:

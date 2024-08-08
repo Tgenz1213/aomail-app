@@ -412,7 +412,7 @@
                                                                                             class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4">
                                                                                             {{ $t('constants.userActions.open') }}
                                                                                         </div>
-                                                                                        <button @click="openSeeModal(item)"
+                                                                                        <button @click="openMail('important', item.id)"
                                                                                             type="button"
                                                                                             class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-orange-300 hover:bg-orange-300 focus:z-10">
                                                                                             <eye-icon
@@ -1218,10 +1218,51 @@ function updateModalStatus(status) {
     showModal.value = status;
 }
 
-function openSeeModal(emailItem) {
-    selectedEmail.value = emailItem;
-    isModalSeeOpen.value = true;
+/* To fetch the HTML content */
+async function fetchEmailContent(emailId) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      id: emailId
+    }),
+  };
+
+  try {
+    const result = await fetchWithToken(`${API_BASE_URL}user/get_email_content/`, requestOptions);
+    console.log("RESULT :", result);
+    return result.content;
+  } catch (error) {
+    console.error('Error fetching email HTML content:', error);
+    return [];
+  }
 }
+
+async function openMail(priority, emailId) {
+  try {
+    const htmlContent = await fetchEmailContent(emailId);
+    const emailIndex = emails.value[selectedTopic.value][priority].findIndex(email => email.id === emailId);
+    
+    if (emailIndex !== -1) {
+      emails.value[selectedTopic.value][priority][emailIndex] = {
+        ...emails.value[selectedTopic.value][priority][emailIndex],
+        html_content: htmlContent,
+        category: selectedTopic.value
+      };
+      
+      selectedEmail.value = emails.value[selectedTopic.value][priority][emailIndex];
+      console.log("EMAIL", selectedEmail.value)
+      isModalSeeOpen.value = true;
+    } else {
+      console.error(`Email with id ${emailId} not found.`);
+    }
+  } catch (error) {
+    console.error(`Error fetching email content: ${error}`);
+  }
+}
+
 function closeSeeModal() {
     isModalSeeOpen.value = false;
 }

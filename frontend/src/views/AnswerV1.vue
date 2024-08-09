@@ -881,7 +881,7 @@ function askContentAdvice() {
     // Start a new row for every two buttons
     if (index % 2 === 0) {
       buttonsHTML += index > 0 ? '</div>' : ''; // Close the previous row except for the first time
-      buttonsHTML += '<div class="flex mt-4">'; // Start a new row
+      buttonsHTML += index > 0 ? '<div class="flex mt-4">' : '<div class="flex">'; // Start a new row
     }
 
     // Add the button to the current row
@@ -901,19 +901,19 @@ function askContentAdvice() {
 
   const messageHTML = `
       <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-                <span class="text-lg font-medium leading-none text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                </svg>
-                </span>
-            </span>   
+        <div class="mr-4 flex-shrink-0">
+          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+            <span class="text-lg font-medium leading-none text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+              </svg>
+            </span>
+          </span>   
         </div>
-        <div>
-          <p ref="animatedText${counter_display}"></p>
-          <div class="flex flex-col mt-4">
-              ${buttonsHTML}
+        <div class="flex flex-col">
+          <p ref="animatedText${counter_display}" class="mt-0"></p>
+          <div class="flex flex-col mt-2">
+            ${buttonsHTML}
           </div>
         </div>
       </div>

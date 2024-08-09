@@ -201,10 +201,13 @@ export default {
       if (this.query === '') {
         return sendersArray;
       } else {
-        return sendersArray.filter(person =>
-          person.username.toLowerCase().includes(this.query.toLowerCase()) ||
-          person.email.toLowerCase().includes(this.query.toLowerCase())
-        );
+        return sendersArray.filter(person => {
+          const username = person.username || '';
+          const email = person.email || '';
+
+          return username.toLowerCase().includes(this.query.toLowerCase()) ||
+                email.toLowerCase().includes(this.query.toLowerCase());
+        });
       }
     },
   },

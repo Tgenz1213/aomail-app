@@ -1641,8 +1641,6 @@ onMounted(() => {
   // Append the email HTML to the container
   //AIContainer.value.innerHTML += emailHTML;
 
-  const message = "Résumé de l'email : ";
-
   // Start with the initial HTML structure
   const messageHTML = () => `
   <div class="flex pb-12">
@@ -1655,11 +1653,11 @@ onMounted(() => {
     </div>
     <div>
       <p>${subject}</p>
-      <p class="font-bold">${message}</p>
+      <p class="font-bold">${t('answerPage.chatSummarize')}</p>
       <p>${short_summary}</p>
       <div class="mr-4 mt-4">
         <button type="button" class="show-email-btn px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-          Voir le mail
+          ${t('answerPage.seeMail')}
         </button>
       </div>
       <div class="email-content" style="display:none;" class="mt-4 border-t pt-4">${html_content}</div>

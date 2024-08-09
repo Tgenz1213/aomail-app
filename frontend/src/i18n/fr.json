@@ -457,7 +457,9 @@
     "moveToNextStep": "Passez à la suite"
   },
   "answerPage": {
-    "responseSentTitle": "Réponse envoyée !"
+    "responseSentTitle": "Réponse envoyée !",
+    "chatSummarize": "Résumé du mail :",
+    "seeMail": "Voir le mail"
   },
   "errorWebPagesTemplates": {
     "error401Page": {

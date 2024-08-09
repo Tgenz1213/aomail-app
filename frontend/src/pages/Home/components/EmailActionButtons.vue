@@ -89,7 +89,7 @@ import ToolTipActionButtons from "./ToolTipActionButtons.vue";
 interface Props {
     hoveredItemId: string | null;
     item: any; // Replace with the actual type of your item
-    color: "blue" | "orange" | "stone"; // Add more color options as needed
+    color: string
     isMenuOpen: boolean;
     showRuleOptions: boolean;
     ruleActionText: string;

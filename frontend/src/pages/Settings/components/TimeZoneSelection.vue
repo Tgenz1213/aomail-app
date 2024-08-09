@@ -60,6 +60,10 @@
 </template>
 
 <script setup lang="ts">
+
+// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
+
+
 import { ref, watch } from "vue";
 import NotificationTimer from "@/components/NotificationTimer.vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";

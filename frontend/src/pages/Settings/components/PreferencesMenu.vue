@@ -94,6 +94,8 @@
 // - use strictly camelCase ONLY
 // - copy functions from Settings and fix issues with TS
 
+// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
+
 import { ref, onMounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";

@@ -155,3 +155,6 @@ const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
 
 watch(selectedLanguage, updateLanguageSelection);
 </script>
+
+
+<!-- // todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file -->

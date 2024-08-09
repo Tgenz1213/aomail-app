@@ -17,8 +17,7 @@
                         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                             <div class="flex items-center">
                                 <div class="w-full flex items-center justify-center py-6 2xl:py-7">
-                                    <div class="sm:hidden">
-                                    </div>
+                                    <div class="sm:hidden"></div>
                                     <div class="hidden sm:block w-full">
                                         <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
                                             <!-- Current: "bg-gray-200 text-gray-800", Default: "text-gray-600 hover:text-gray-800" -->
@@ -125,12 +124,12 @@
                         </div>
                     </main>
 
-                    <div v-if="activeSection === 'account'" >
-                        <MyAccountMenu/>
+                    <div v-if="activeSection === 'account'">
+                        <MyAccountMenu />
                     </div>
 
                     <div v-if="activeSection === 'subscription'" class="flex-1 section mx-8 my-8 2xl:mx-12 2xl:my-12">
-                        <SubscriptionMenu/>
+                        <SubscriptionMenu />
                     </div>
 
                     <div v-if="activeSection === 'data'" class="flex flex-col h-full section">
@@ -168,7 +167,7 @@ import PreferencesMenu from "@/pages/Settings/components/PreferencesMenu.vue";
 import MyDataMenu from "@/pages/Settings/components/MyDataMenu.vue";
 import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
-import NavBarSmall from "@/components/NavBarSmall.vue"
+import NavBarSmall from "@/components/NavBarSmall.vue";
 
 // const router = useRouter();
 

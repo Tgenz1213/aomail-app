@@ -59,4 +59,6 @@
 rename variables to be local => closeUnlinkModal => closeModal & isUnlinkModalOpen => isModalOpen 
 copy functions to ensure functionnality
 fix issues with TS
-add a script setup -->
+add a script setup
+
+// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file -->

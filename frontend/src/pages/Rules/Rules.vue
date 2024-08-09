@@ -181,6 +181,10 @@
 
 <script lang="ts" setup>
 /* eslint-disable */
+
+
+// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
+
 import { ref, onMounted, computed } from "vue"
 import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline"
 import NavBarSmall from "@/components/NavBarSmall.vue"

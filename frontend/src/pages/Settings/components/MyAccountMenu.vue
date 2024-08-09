@@ -489,6 +489,11 @@
 </template>
 
 <script lang="ts" setup>
+// todo:
+// - use strictly camelCase ONLY
+// - copy functions from Settings and fix issues with TS
+// - import modals: AddUserDescriptionModal, UpdateUserDescriptionModal, UnlinkEmailModal
+
 import { ref, onMounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
@@ -506,8 +511,8 @@ const timerId = ref<number | null>(null);
 const emailsLinked = ref([]);
 
 onMounted(() => {
-    checkAuthorizationCode();
-    fetchEmailLinked();
+    // checkAuthorizationCode();
+    // fetchEmailLinked();
 });
 
 function authorize(type: "google" | "microsoft") {
@@ -532,8 +537,10 @@ function linkNewEmail() {
 
 function checkAuthorizationCode() {
     const urlParams = new URLSearchParams(window.location.search);
-    const authorizationCode = urlParams.gei18n.global.t("code");
+    const authorizationCode = urlParams.get("code");
+
     if (authorizationCode) {
+        // clearInterval(intervalId);
         linkEmail(authorizationCode);
     }
 }

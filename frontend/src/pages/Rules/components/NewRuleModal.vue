@@ -217,7 +217,7 @@ const emit = defineEmits<{
     (event: "update:emailSenders", emailSenders: EmailSender[]): void;
 }>();
 
-//const { t } = useI18n();
+const { t } = useI18n();
 const isOpen = ref(props.isOpen);
 const selectedPerson = ref<EmailSender | null>(props.sender);
 const query = ref("");

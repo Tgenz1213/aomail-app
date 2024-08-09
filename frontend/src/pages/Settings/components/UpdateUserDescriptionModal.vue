@@ -120,3 +120,10 @@ async function updateUserDescription() {
     closeModal();
 }
 </script>
+
+
+<!-- todo:
+rename variables to be local => closeUnlinkModal => closeModal & isUnlinkModalOpen => isModalOpen 
+copy functions to ensure functionnality
+fix issues with TS
+add a script setup -->

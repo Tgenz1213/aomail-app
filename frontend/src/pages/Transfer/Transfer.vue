@@ -399,7 +399,7 @@ import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 
-//const { t } = useI18n();
+const { t } = useI18n();
 const router = useRouter();
 
 const isAiWriting = ref(false);

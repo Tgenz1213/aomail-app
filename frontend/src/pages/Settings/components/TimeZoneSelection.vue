@@ -73,7 +73,7 @@ import moment from "moment-timezone";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 
 const timezones = ref(moment.tz.names());
 const initialLoadCount = Math.ceil(timezones.value.length * 0.25);

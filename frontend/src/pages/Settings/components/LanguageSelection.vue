@@ -68,7 +68,7 @@ import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { KeyValuePair } from "@/global/types";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 
 const languages: KeyValuePair[] = [
     { key: "french", value: i18n.global.t("constants.languagesList.french") },

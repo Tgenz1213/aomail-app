@@ -70,7 +70,7 @@ import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headless
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 import { KeyValuePair } from "@/global/types";
 
 const themes = ref<KeyValuePair[]>([

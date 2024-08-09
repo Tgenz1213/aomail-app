@@ -42,7 +42,7 @@ import { ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 import { KeyValuePair } from "@/global/types";
 
 const themes = ref<KeyValuePair[]>([

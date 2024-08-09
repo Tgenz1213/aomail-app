@@ -499,7 +499,7 @@ import { getData, postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { API_BASE_URL } from "@/global/const";
 import NotificationTimer from "@/components/NotificationTimer.vue";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 
 const userEmailDescription = ref("");
 const showNotification = ref(false);

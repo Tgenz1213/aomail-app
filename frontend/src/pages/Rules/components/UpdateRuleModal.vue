@@ -214,7 +214,7 @@ import {
 import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 import { fetchWithToken } from "@/global/security";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 import { EmailSender } from "@/global/types";
 
 interface FormData {

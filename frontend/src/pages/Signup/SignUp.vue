@@ -1119,7 +1119,7 @@ import NotificationTimer from "@/components/NotificationTimer.vue";
 import Language from "./components/LanguageSelection.vue";
 import TimeZone from "./components/TimeZoneSelection.vue";
 import Theme from "./components/ThemeSelection.vue";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 import logo from "@/assets/logo-aomail.png";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";

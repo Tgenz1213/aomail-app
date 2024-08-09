@@ -1,5 +1,5 @@
-import { API_BASE_URL, BASE_URL } from "../const";
-import { fetchWithToken } from "../security";
+import { API_BASE_URL, BASE_URL } from "../../../global/const";
+import { fetchWithToken } from "../../../global/security";
 import { ref } from "vue";
 import { createI18n, I18n } from "vue-i18n";
 import messages from "@/i18n";

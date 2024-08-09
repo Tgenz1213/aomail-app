@@ -118,7 +118,7 @@ import CogIcon from "@heroicons/vue/24/outline/CogIcon";
 import MagnifyingGlassIcon from "@heroicons/vue/24/outline/MagnifyingGlassIcon";
 import ArrowUturnLeftIcon from "@heroicons/vue/24/outline/ArrowUturnLeftIcon";
 import BeakerIcon from "@heroicons/vue/24/outline/BeakerIcon";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 import logo from "@/assets/logo-aomail.png";
 import { NavigationPage } from "@/global/types";
 

@@ -69,7 +69,7 @@
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { fetchWithToken } from "@/global/security";
-import { i18n } from "@/global/Settings/preferences";
+import { i18n } from "@/pages/Settings/utils/preferences";
 import router from "@/router/router";
 import { ref, defineProps, defineEmits } from "vue";
 

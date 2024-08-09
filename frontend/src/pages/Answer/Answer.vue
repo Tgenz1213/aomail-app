@@ -1657,8 +1657,8 @@ function animateText(text, target) {
 </script>
 
 <script>
-import NavBarLarge from '@/components/NavBarLarge.vue';
-import NavBarSmall from '@/components/NavBarSmall.vue';
+import NavBarLarge from '@/global/components/NavBarLarge.vue';
+import NavBarSmall from '@/global/components/NavBarSmall.vue';
 
 import {
   UserGroupIcon,

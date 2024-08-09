@@ -1,1 +1,0 @@
-// TODO: put the function of Home.vue here

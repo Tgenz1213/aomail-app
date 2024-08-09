@@ -32,7 +32,7 @@
               class="overflow-y-hidden pt-4 pl-6 flex-1 w-full border-transparent bg-transparent text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 focus:border-transparent focus:bg-transparent focus:ring-0 2xl:pt-5 2xl:pl-7 2xl:text-base"
               placeholder="Instruction">
             </textarea>
-            <div v-if="stepcontainer == 1" class="flex justify-end m-3 2xl:m-5">
+            <div v-if="stepcontainer == 0" class="flex justify-end m-3 2xl:m-5">
               <div class="flex mt-4 space-x-4 items-center">
                 <div>
                   <select id="lengthSelect"
@@ -46,7 +46,6 @@
                   <select id="formalitySelect"
                     class="h-10 px-8 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
                     <option value="very informal">{{ $t('newPage.informal') }}</option>
-                    <!--<option value="informal">Peu formel</option>-->
                     <option value="formal" selected>{{ $t('newPage.formal') }}</option>
                     <option value="very formal">{{ $t('newPage.veryFormal') }}</option>
                   </select>
@@ -864,7 +863,7 @@ function askContentAdvice() {
 
   isAIWriting.value = true;
 
-  const message = "TODO Comment puis-je vous aider à rédiger une réponse à cet email ?";
+  const message = t('answerPage.chatKeyWordIntroduction');
 
   let buttonsHTML = '';
   /*

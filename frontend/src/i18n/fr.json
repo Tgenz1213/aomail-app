@@ -459,6 +459,7 @@
   "answerPage": {
     "responseSentTitle": "Réponse envoyée !",
     "chatSummarize": "Résumé du mail :",
+    "chatKeyWordIntroduction" : "Voici des suggestions de réponses, comment souhaitez vous répondre ?",
     "seeMail": "Voir le mail"
   },
   "errorWebPagesTemplates": {

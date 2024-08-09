@@ -1477,14 +1477,21 @@ async function openAnswer(email) {
         });
 
 
-        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
-        sessionStorage.setItem("cc", data.email.cc);
-        sessionStorage.setItem("bcc", data.email.bcc);
-        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
-        sessionStorage.setItem("email", JSON.stringify(email));
-        sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider));
-        sessionStorage.setItem("short_summary", JSON.stringify(email.shortSummary));
-        sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+        //sessionStorage.setItem("subject", JSON.stringify(data.email.subject)); // TO DELETE
+        //sessionStorage.setItem("cc", data.email.cc); // TO DELETE
+        //sessionStorage.setItem("bcc", data.email.bcc); // TO DELETE
+        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data)); // TO DESACTIVATE LATER
+        sessionStorage.setItem("email", JSON.stringify(email)); // TO DESACTIVATE LATER
+        //sessionStorage.setItem("id_provider", JSON.stringify(email.id_provider)); // TO DELETE
+        //sessionStorage.setItem("short_summary", JSON.stringify(email.shortSummary)); // TO DELETE
+        sessionStorage.setItem("emailReceiver", data.email.email_receiver); // ONLY THING TO ADD WHEN RECEIVING THE MAIL IN THE DB
+
+        if (email.html_content) {
+            sessionStorage.setItem("html_content", email.html_content);
+        } else {
+            email.html_content = await fetchEmailContent(email.id);
+            sessionStorage.setItem("html_content", email.html_content);
+        }
 
         /*
         console.log("_____________data.email.cc______________", data.email.cc)

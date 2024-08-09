@@ -1554,13 +1554,23 @@ onMounted(() => {
   bgColor.value = localStorage.getItem('bgColor');
   loadFileMetadataFromLocalStorage(); // For uploaded file
 
-  const subject = JSON.parse(sessionStorage.getItem("subject"));
-  const cc = sessionStorage.getItem("cc");
-  const bcc = sessionStorage.getItem("bcc");
+  //const subject = JSON.parse(sessionStorage.getItem("subject"));
+  //const cc = sessionStorage.getItem("cc");
+  //const bcc = sessionStorage.getItem("bcc");
   const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
+  const html_content = sessionStorage.getItem("html_content");
   const email = JSON.parse(sessionStorage.getItem("email"));
   //const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
-  const short_summary = JSON.parse(sessionStorage.getItem("short_summary"));
+  const short_summary = email.shortSummary;
+  const subject = email.subject;
+  const cc = email.cc;
+  const bcc = email.bcc;
+
+  // To display html_content
+  const showEmail = ref(false);
+  const toggleEmail = () => {
+    showEmail.value = true;
+  };
 
   console.log("DEBUG CC------------------")
   console.log(cc)
@@ -1634,24 +1644,38 @@ onMounted(() => {
   const message = "Résumé de l'email : ";
 
   // Start with the initial HTML structure
-  let messageHTML = `
-    <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
-            </svg>
-            </span>   
-        </div>
-        <div>
-            <p>${subject}</p>
-            <p class="font-bold">${message}</p>
-            <p>${short_summary}</p>
-        </div>
+  const messageHTML = () => `
+  <div class="flex pb-12">
+    <div class="mr-4 flex">
+      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
+        </svg>
+      </span>   
     </div>
-    `;
+    <div>
+      <p>${subject}</p>
+      <p class="font-bold">${message}</p>
+      <p>${short_summary}</p>
+      <div class="mr-4 mt-4">
+        <button type="button" class="show-email-btn px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+          Voir le mail
+        </button>
+      </div>
+      <div class="email-content" style="display:none;" class="mt-4 border-t pt-4">${html_content}</div>
+    </div>
+  </div>
+`;
 
-  AIContainer.value.innerHTML += messageHTML;
+  // To handle hide and display html email
+  document.addEventListener('click', (event) => {
+      if (event.target.classList.contains('show-email-btn')) {
+        event.target.style.display = 'none';
+        event.target.closest('.flex').querySelector('.email-content').style.display = 'block';
+      }
+  });
+
+  AIContainer.value.innerHTML += messageHTML();
 
   //emailContent.value = details.map(item => item.text).join(' '); // USELESS => To Optimize
   emailContent.value = decoded_data;

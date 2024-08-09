@@ -41,67 +41,7 @@
                                     :key="rule.email"
                                     class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative"
                                 >
-                                    <div class="absolute right-4 top-4">
-                                        <PencilSquareIcon
-                                            @click="editRule(rule)"
-                                            class="w-6 h-6 text-gray-300 hover:text-gray-800 cursor-pointer"
-                                        />
-                                    </div>
-                                    <div class="flex w-full items-center justify-between space-x-6 p-6">
-                                        <div class="flex-1 truncate">
-                                            <div class="flex items-center space-x-3">
-                                                <h3 class="truncate text-sm font-medium text-gray-900">
-                                                    {{ rule.name }}
-                                                </h3>
-                                            </div>
-                                            <p class="mt-1 mb-4 truncate text-sm text-gray-500">{{ rule.email }}</p>
-                                            <div v-if="rule.category" class="flex gap-1">
-                                                <div class="flex space-x-1 items-center">
-                                                    <ArchiveBoxIcon class="w-4 h-4" />
-                                                    <p class="font-semibold text-sm">{{ $t("constants.category") }}</p>
-                                                </div>
-                                                <span
-                                                    class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/20"
-                                                >
-                                                    {{ rule.category }}
-                                                </span>
-                                            </div>
-                                            <div v-if="rule.priority !== ''" class="flex gap-1 mt-2">
-                                                <div class="flex space-x-1 items-center">
-                                                    <ExclamationCircleIcon class="w-4 h-4" />
-                                                    <p class="font-semibold text-sm">
-                                                        {{ $t("rulesPage.priorityField") }}
-                                                    </p>
-                                                </div>
-                                                <span
-                                                    v-if="rule.priority === IMPORTANT"
-                                                    class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20"
-                                                >
-                                                    {{ rule.priority }}
-                                                </span>
-                                                <span
-                                                    v-if="rule.priority === INFORMATIVE"
-                                                    class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20"
-                                                >
-                                                    {{ rule.priority }}
-                                                </span>
-                                                <span
-                                                    v-if="rule.priority === USELESS"
-                                                    class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20"
-                                                >
-                                                    {{ rule.priority }}
-                                                </span>
-                                            </div>
-                                            <div v-if="rule.mailStop" class="flex gap-1 mt-2">
-                                                <div class="flex space-x-1 items-center">
-                                                    <ShieldCheckIcon class="w-4 h-4" />
-                                                    <p class="font-semibold text-sm">
-                                                        {{ $t("rulesPage.blockedEmail") }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <Rule :rule="rule" />
                                 </li>
                             </ul>
                         </div>
@@ -182,73 +122,73 @@
 <script lang="ts" setup>
 /* eslint-disable */
 
-
 // todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
 
-import { ref, onMounted, computed } from "vue"
-import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline"
-import NavBarSmall from "@/components/NavBarSmall.vue"
-import NewRuleModal from "./components/NewRuleModal.vue"
-import UpdateRuleModal from "./components/UpdateRuleModal.vue"
-import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const"
-import { fetchWithToken } from "@/global/security"
-import { EmailSender } from "@/global/types"
+import { ref, onMounted, computed } from "vue";
+import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
+import NavBarSmall from "@/components/NavBarSmall.vue";
+import NewRuleModal from "./components/NewRuleModal.vue";
+import UpdateRuleModal from "./components/UpdateRuleModal.vue";
+import Rule from "./components/Rule.vue";
+import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
+import { fetchWithToken } from "@/global/security";
+import { EmailSender } from "@/global/types";
 
-const showModal = ref(false)
-const showUpdateModal = ref(false)
-const rules = ref<any[]>([])
-const categories = ref<any[]>([])
-const emailSenders = ref<any[]>([])
-const senderSelected = ref<EmailSender | null>(null)
-const ruleSelected = ref<any>(null)
-const searchQuery = ref("")
+const showModal = ref(false);
+const showUpdateModal = ref(false);
+const rules = ref<any[]>([]);
+const categories = ref<any[]>([]);
+const emailSenders = ref<any[]>([]);
+const senderSelected = ref<EmailSender | null>(null);
+const ruleSelected = ref<any>(null);
+const searchQuery = ref("");
 
 const filteredRules = computed(() => {
-    if (!searchQuery.value) return rules.value
+    if (!searchQuery.value) return rules.value;
     return rules.value.filter(
         (rule) =>
             rule.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
             rule.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
             (rule.category && rule.category.toLowerCase().includes(searchQuery.value.toLowerCase()))
-    )
-})
+    );
+});
 
 function handleKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey && event.key === "k") {
-        ;(document.getElementById("search-field") as HTMLInputElement).focus()
-        event.preventDefault()
+        (document.getElementById("search-field") as HTMLInputElement).focus();
+        event.preventDefault();
     }
 }
 
 function updateSearchQuery(event: Event) {
-    searchQuery.value = (event.target as HTMLInputElement).value
+    searchQuery.value = (event.target as HTMLInputElement).value;
 }
 
 function updateModalStatus(status: boolean) {
-    showModal.value = status
+    showModal.value = status;
 }
 
 function updateModalUpdateStatus(status: boolean) {
-    showUpdateModal.value = status
+    showUpdateModal.value = status;
 }
 
 function editRule(rule: any) {
-    ruleSelected.value = rule
-    showUpdateModal.value = true
+    ruleSelected.value = rule;
+    showUpdateModal.value = true;
 }
 
 async function fetchRules() {
     try {
-        const url = `${API_BASE_URL}user/rules/`
+        const url = `${API_BASE_URL}user/rules/`;
         const response = await fetchWithToken(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
+        });
 
         if (response) {
-            const rulesData = await response.json()
+            const rulesData = await response.json();
             rules.value = rulesData.map((rule: any) => ({
                 id: rule.id,
                 name: rule.sender_name,
@@ -256,25 +196,25 @@ async function fetchRules() {
                 category: rule.category_name,
                 priority: rule.priority,
                 mailStop: rule.block,
-            }))
+            }));
         }
     } catch (error) {
-        console.error("Error fetching rules:", error)
+        console.error("Error fetching rules:", error);
     }
 }
 
 async function fetchRuleById(idRule: string) {
     try {
-        const url = `${API_BASE_URL}user/rules/${idRule}/`
+        const url = `${API_BASE_URL}user/rules/${idRule}/`;
         const response = await fetchWithToken(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
+        });
 
         if (response) {
-            const ruleData = await response.json()
+            const ruleData = await response.json();
             ruleSelected.value = {
                 id: ruleData.id,
                 name: ruleData.sender_name,
@@ -282,79 +222,79 @@ async function fetchRuleById(idRule: string) {
                 category: ruleData.category_name,
                 priority: ruleData.priority,
                 mailStop: ruleData.block,
-            }
+            };
         }
     } catch (error) {
-        console.error("Error fetching rule:", error)
+        console.error("Error fetching rule:", error);
     }
 }
 
 async function fetchCategories() {
     try {
-        const url = `${API_BASE_URL}user/categories/`
+        const url = `${API_BASE_URL}user/categories/`;
         const response = await fetchWithToken(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
+        });
 
         if (response) {
-            const data = await response.json()
-            categories.value = data
+            const data = await response.json();
+            categories.value = data;
         }
     } catch (error) {
-        console.error("Error fetching categories:", error)
+        console.error("Error fetching categories:", error);
     }
 }
 
 async function fetchEmailSenders() {
     try {
-        const url = `${API_BASE_URL}user/contacts/`
+        const url = `${API_BASE_URL}user/contacts/`;
         const response = await fetchWithToken(url, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
             },
-        })
+        });
 
         if (response) {
-            const data = await response.json()
-            emailSenders.value = data
+            const data = await response.json();
+            emailSenders.value = data;
         }
     } catch (error) {
-        console.error("Error fetching email senders:", error)
+        console.error("Error fetching email senders:", error);
     }
 }
 
 onMounted(() => {
-    document.addEventListener("keydown", handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown);
 
-    fetchRules()
-    fetchEmailSenders()
-    fetchCategories()
+    fetchRules();
+    fetchEmailSenders();
+    fetchCategories();
 
-    const urlParams = new URLSearchParams(window.location.search)
-    const editRule = urlParams.get("editRule")
-    const ruleId = urlParams.get("idRule")
-    const nameSender = urlParams.get("ruleName")
-    const emailSender = urlParams.get("ruleEmail")
+    const urlParams = new URLSearchParams(window.location.search);
+    const editRule = urlParams.get("editRule");
+    const ruleId = urlParams.get("idRule");
+    const nameSender = urlParams.get("ruleName");
+    const emailSender = urlParams.get("ruleEmail");
 
     if (editRule === "true" && ruleId) {
         fetchRuleById(ruleId)
             .then(() => {
-                updateModalUpdateStatus(true)
-                const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
-                window.history.replaceState({}, document.title, newUrl)
+                updateModalUpdateStatus(true);
+                const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+                window.history.replaceState({}, document.title, newUrl);
             })
             .catch((error) => {
-                console.error("Error in fetching rule by ID:", error)
-            })
+                console.error("Error in fetching rule by ID:", error);
+            });
     } else if (editRule === "false" && nameSender && emailSender) {
-        senderSelected.value = { username: nameSender, email: emailSender }
-        updateModalStatus(true)
-        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`
-        window.history.replaceState({}, document.title, newUrl)
+        senderSelected.value = { username: nameSender, email: emailSender };
+        updateModalStatus(true);
+        const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+        window.history.replaceState({}, document.title, newUrl);
     }
-})
+});
 </script>

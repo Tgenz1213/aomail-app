@@ -10,11 +10,9 @@
         <div class="flex h-full w-full">
             <NavBarSmall class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]" />
             <AIEmail
-                id="firstMainColumn"
                 class="flex flex-col bg-gray-50 lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px]"
             />
             <ManualEmail
-                id="secondMainColumn"
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
             />
         </div>

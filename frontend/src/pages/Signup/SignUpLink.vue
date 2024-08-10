@@ -639,7 +639,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/pages/Settings/utils/preferences";
 import logo from "@/assets/logo-aomail.png";
 

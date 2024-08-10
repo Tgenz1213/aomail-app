@@ -100,7 +100,7 @@ import { ref, onMounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { API_BASE_URL } from "@/global/const";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/pages/Settings/utils/preferences";
 import TimeZoneSelection from "@/pages/Settings/components/TimeZoneSelection.vue";
 import LanguageSelection from "@/pages/Settings/components/LanguageSelection.vue";

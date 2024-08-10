@@ -178,7 +178,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { useI18n } from "vue-i18n";
 import {
     ChevronUpDownIcon,

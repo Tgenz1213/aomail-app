@@ -42,7 +42,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 

@@ -1115,7 +1115,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Language from "./components/LanguageSelection.vue";
 import TimeZone from "./components/TimeZoneSelection.vue";
 import Theme from "./components/ThemeSelection.vue";

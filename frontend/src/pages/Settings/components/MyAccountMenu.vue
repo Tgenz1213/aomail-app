@@ -498,7 +498,7 @@ import { ref, onMounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { API_BASE_URL } from "@/global/const";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/pages/Settings/utils/preferences";
 
 const userEmailDescription = ref("");
@@ -547,13 +547,13 @@ function checkAuthorizationCode() {
 
 async function linkEmail(authorizationCode: string) {
     try {
-        const response = await postData("user/social_api/link/", {
+        const result = await postData("user/social_api/link/", {
             code: authorizationCode,
             typeApi: sessionStorage.getItem("typeApi"),
             user_description: sessionStorage.getItem("userDescription"),
         });
 
-        if (response.message === "Email linked to account successfully!") {
+        if (result.data.message === "Email linked to account successfully!") {
             await fetchEmailLinked();
             displayPopup(
                 "success",

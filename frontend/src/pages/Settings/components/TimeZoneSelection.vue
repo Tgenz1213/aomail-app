@@ -65,7 +65,7 @@
 
 
 import { ref, watch } from "vue";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";

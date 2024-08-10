@@ -248,7 +248,7 @@ import {
     InformationCircleIcon,
     ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
-import NavBarSmall from "@/components/NavBarSmall.vue";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { useRouter } from "vue-router";

@@ -34,12 +34,12 @@
 import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { useRouter } from "vue-router";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userDefaultImg from "@/assets/user.png";
 import Quill from "quill";
 import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
-import NavBarLarge from "@/components/NavBarLarge.vue";
-import NavBarSmall from "@/components/NavBarSmall.vue";
+import NavBarLarge from "@/global/components/NavBarLarge.vue";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { UserGroupIcon, Bars2Icon, ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";

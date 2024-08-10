@@ -126,7 +126,7 @@
 
 import { ref, onMounted, computed } from "vue";
 import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
-import NavBarSmall from "@/components/NavBarSmall.vue";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewRuleModal from "./components/NewRuleModal.vue";
 import UpdateRuleModal from "./components/UpdateRuleModal.vue";
 import Rule from "./components/Rule.vue";

@@ -61,7 +61,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";

@@ -24,7 +24,7 @@
 import { computed, ref, onMounted, nextTick } from "vue";
 import { watch } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import Quill from "quill";
 import { API_BASE_URL, MICROSOFT } from "@/global/const";
 
@@ -1625,8 +1625,8 @@ function handleKeyDown(event) {
 </script>
 
 <script>
-import NavBarLarge from "@/components/NavBarLarge.vue";
-import NavBarSmall from "@/components/NavBarSmall.vue";
+import NavBarLarge from "@/global/components/NavBarLarge.vue";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { UserGroupIcon, Bars2Icon, ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { PaperAirplaneIcon } from "@heroicons/vue/24/solid";
 import { fetchWithToken } from "@/global/security";

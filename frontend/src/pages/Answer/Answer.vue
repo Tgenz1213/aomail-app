@@ -35,7 +35,7 @@ import { ChevronDownIcon } from "@heroicons/vue/20/solid";
 import { useRoute } from "vue-router";
 import { useRouter } from "vue-router";
 import Quill from "quill";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
 
 // Variable to prevent the user from starting a prompt if AI is writing
@@ -1185,8 +1185,7 @@ import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { UserGroupIcon, Bars2Icon } from "@heroicons/vue/24/outline";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
-import ManualEmail from "./components/ManualEmail.vue";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import ManualEmail from "./components/ManualEmail.vue"; 
 
 export default {
     components: {

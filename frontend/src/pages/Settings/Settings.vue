@@ -151,7 +151,7 @@ import { ref, onMounted } from "vue";
 import { API_BASE_URL } from "@/global/const";
 import { fetchWithToken } from "@/global/security";
 import "@fortawesome/fontawesome-free/css/all.css";
-import NotificationTimer from "@/components/NotificationTimer.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 // import SubscriptionSelection from "@/pages/Settings/components/SubscriptionSelection.vue"
 import {
@@ -167,7 +167,7 @@ import PreferencesMenu from "@/pages/Settings/components/PreferencesMenu.vue";
 import MyDataMenu from "@/pages/Settings/components/MyDataMenu.vue";
 import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
-import NavBarSmall from "@/components/NavBarSmall.vue";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
 
 // const router = useRouter();
 

@@ -1013,9 +1013,9 @@
 /* eslint-disable */
 import { ref, nextTick, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import NotificationTimer from "@/components/NotificationTimer.vue";
-import NavBarLarge from "@/components/NavBarLarge.vue";
-import NavBarSmall from "@/components/NavBarSmall.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import NavBarLarge from "@/global/components/NavBarLarge.vue";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
 // import SearchbarV2 from "../components/SearchbarV2.vue"
 import SeeMailModal from "./components/SeeMailModal.vue";
 import NewCategoryModal from "./components/NewCategoryModal.vue";

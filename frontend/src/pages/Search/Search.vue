@@ -1519,4 +1519,5 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 100%;
   cursor: pointer;
 }
+/* eslint-disable */
 </style>

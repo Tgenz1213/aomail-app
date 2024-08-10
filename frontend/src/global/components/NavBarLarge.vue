@@ -111,16 +111,20 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
-import EnvelopeIcon from "@heroicons/vue/24/outline/EnvelopeIcon";
-import PencilSquareIcon from "@heroicons/vue/24/outline/PencilSquareIcon";
-import XMarkIcon from "@heroicons/vue/24/outline/XMarkIcon";
-import CogIcon from "@heroicons/vue/24/outline/CogIcon";
-import MagnifyingGlassIcon from "@heroicons/vue/24/outline/MagnifyingGlassIcon";
-import ArrowUturnLeftIcon from "@heroicons/vue/24/outline/ArrowUturnLeftIcon";
-import BeakerIcon from "@heroicons/vue/24/outline/BeakerIcon";
+import {
+    EnvelopeIcon,
+    PencilSquareIcon,
+    XMarkIcon,
+    CogIcon,
+    MagnifyingGlassIcon,
+    ArrowUturnLeftIcon,
+    BeakerIcon,
+} from "@heroicons/vue/24/outline";
 import { i18n } from "@/pages/Settings/utils/preferences";
 import logo from "@/assets/logo-aomail.png";
 import { NavigationPage } from "@/global/types";
+
+const sidebarOpen = ref(false);
 
 const navigation: NavigationPage[] = [
     { name: i18n.global.t("constants.homeNavbar"), href: "/home", icon: EnvelopeIcon },
@@ -130,6 +134,4 @@ const navigation: NavigationPage[] = [
     { name: i18n.global.t("constants.replyLaterNavbar"), href: "/reply-later", icon: ArrowUturnLeftIcon },
     { name: i18n.global.t("constants.settingsNavbar"), href: "/settings", icon: CogIcon },
 ];
-
-const sidebarOpen = ref(false);
 </script>

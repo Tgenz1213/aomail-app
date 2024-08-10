@@ -45,6 +45,13 @@
                             <div
                                 class="flex grow flex-col gap-y-5 overflow-y-auto bg-indigo-500 px-6 pb-2 ring-1 ring-white/10"
                             >
+                                <div class="flex h-16 shrink-0 items-center">
+                                    <img
+                                        class="h-8 w-auto"
+                                        src="https://tailwindui.com/img/logos/mark.svg?color=white"
+                                        alt="Your Company"
+                                    />
+                                </div>
                                 <nav class="flex flex-1 flex-col">
                                     <ul role="list" class="-mx-2 flex-1 space-y-1">
                                         <li v-for="item in navigation" :key="item.name">
@@ -73,15 +80,12 @@
                 </div>
             </Dialog>
         </TransitionRoot>
-
         <div class="flex flex-col items-center justify-center h-full">
-            <div class="flex h-16 shrink-0 items-center justify-center">
-                <a href="/" class="button">
-                    <button type="button" class="h-8 w-auto">
-                        <img class="h-8 w-auto" :src="logo" alt="Aomail logo" />
-                    </button>
-                </a>
-            </div>
+            <a href="/" class="button">
+                <button type="button" class="h-8 w-auto">
+                    <img class="h-8 w-auto" :src="logo" alt="LOGO Mail Assistant" />
+                </button>
+            </a>
             <nav class="h-5/6 flex items-center justify-center">
                 <ul role="list" class="flex flex-col space-y-1">
                     <li v-for="item in navigation" :key="item.name">
@@ -89,18 +93,18 @@
                             :href="item.href"
                             :class="[
                                 useRoute().path === item.href
-                                    ? 'bg-white text-gray-900 lg:ring-1 lg:ring-black lg:ring-opacity-5 shadow-sm'
-                                    : 'text-gray-900 hover:text-black hover:shadow-sm hover:bg-white hover:ring-1 lg:ring-black lg:ring-opacity-5',
+                                    ? 'bg-gray-100 text-gray-900 lg:ring-1 lg:ring-black lg:ring-opacity-5'
+                                    : 'text-gray-500 hover:text-black hover:bg-gray-100',
                                 'group flex gap-x-3 rounded-lg p-3 text-sm leading-6 font-semibold',
                             ]"
                         >
                             <component :is="item.icon" class="h-6 w-6 shrink-0" aria-hidden="true" />
-                            <span>{{ item.name }}</span>
+                            <span class="sr-only">{{ item.name }}</span>
                         </a>
                     </li>
                 </ul>
             </nav>
-            <div class="flex items-center justify-center">
+            <div class="flex justify-center">
                 <p class="text-gray-900 font-semibold">v 1.0.0</p>
             </div>
         </div>
@@ -111,16 +115,20 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import { Dialog, DialogPanel, TransitionChild, TransitionRoot } from "@headlessui/vue";
-import EnvelopeIcon from "@heroicons/vue/24/outline/EnvelopeIcon";
-import PencilSquareIcon from "@heroicons/vue/24/outline/PencilSquareIcon";
-import XMarkIcon from "@heroicons/vue/24/outline/XMarkIcon";
-import CogIcon from "@heroicons/vue/24/outline/CogIcon";
-import MagnifyingGlassIcon from "@heroicons/vue/24/outline/MagnifyingGlassIcon";
-import ArrowUturnLeftIcon from "@heroicons/vue/24/outline/ArrowUturnLeftIcon";
-import BeakerIcon from "@heroicons/vue/24/outline/BeakerIcon";
-import { i18n } from "@/pages/Settings/utils/preferences";
-import logo from "@/assets/logo-aomail.png";
+import {
+    EnvelopeIcon,
+    PencilSquareIcon,
+    XMarkIcon,
+    CogIcon,
+    MagnifyingGlassIcon,
+    ArrowUturnLeftIcon,
+    BeakerIcon,
+} from "@heroicons/vue/24/outline";
 import { NavigationPage } from "@/global/types";
+import logo from "@/assets/logo-aomail.png";
+import { i18n } from "@/pages/Settings/utils/preferences";
+
+const sidebarOpen = ref(false);
 
 const navigation: NavigationPage[] = [
     { name: i18n.global.t("constants.homeNavbar"), href: "/home", icon: EnvelopeIcon },
@@ -130,6 +138,4 @@ const navigation: NavigationPage[] = [
     { name: i18n.global.t("constants.replyLaterNavbar"), href: "/reply-later", icon: ArrowUturnLeftIcon },
     { name: i18n.global.t("constants.settingsNavbar"), href: "/settings", icon: CogIcon },
 ];
-
-const sidebarOpen = ref(false);
 </script>

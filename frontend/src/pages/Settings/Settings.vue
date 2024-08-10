@@ -168,6 +168,7 @@ import MyDataMenu from "@/pages/Settings/components/MyDataMenu.vue";
 import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import NavBarLarge from "@/global/components/NavBarSmall.vue";
 
 // const router = useRouter();
 

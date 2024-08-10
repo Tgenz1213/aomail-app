@@ -38,7 +38,7 @@ import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import userDefaultImg from "@/assets/user.png";
 import Quill from "quill";
 import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
-import NavBarLarge from "@/global/components/NavBarLarge.vue";
+import NavBarLarge from "@/global/components/NavBarSmall.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { UserGroupIcon, Bars2Icon, ChevronDownIcon } from "@heroicons/vue/24/outline";
 import { fetchWithToken } from "@/global/security";

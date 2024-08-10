@@ -65,6 +65,7 @@ from aomail.models import (
     SocialAPI,
     Preference,
     Contact,
+    Email,
     Statistics,
 )
 from aomail.utils.serializers import (
@@ -400,19 +401,16 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
 
         language = Preference.objects.get(user=user).language
         answer = search.get_answer(keypoints, language)
-        answer = update_tokens_stats(user, answer)
-        emails = []
+        emails_ids = []
 
         for category in keypoints:
             for organization in keypoints[category]:
                 for topic in keypoints[category][organization]:
-                    emails.extend(
-                        search.knowledge_tree[category]["organizations"][organization][
-                            "topics"
-                        ][topic]["emails"]
-                    )
+                    provider_ids = search.knowledge_tree[category]["organizations"][organization]["topics"][topic]["emails"]
+                    ids = Email.objects.filter(provider_id__in=provider_ids).values_list('id', flat=True)
+                    emails_ids.extend(ids)
 
-        answer["emails"] = emails
+        answer["ids"] = emails_ids
 
         return Response({"answer": answer}, status=status.HTTP_200_OK)
 
@@ -654,7 +652,7 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
         update_tokens_stats(request.user, result)
 
         return Response(
-            {"response_keywords": result["response_keywords"]},
+            {"response_keywords": result["keywords_list"]},
             status=status.HTTP_200_OK,
         )
     else:

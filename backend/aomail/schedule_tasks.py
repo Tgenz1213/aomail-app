@@ -7,7 +7,7 @@ import time
 from django.utils import timezone
 from datetime import timedelta
 from aomail.models import GoogleListener
-from aomail.email_providers import google_api
+from backend.aomail.email_providers.google import webhook as google_webhook
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -41,7 +41,7 @@ def renew_gmail_subscriptions():
         user = social_api.user
         email = social_api.email
 
-        subscribed = google_api.subscribe_to_email_notifications(user, email)
+        subscribed = google_webhook.subscribe_to_email_notifications(user, email)
         if not subscribed:
             LOGGER.critical(
                 f"Failed to renew the subscription for user: {user}, email: {email}"

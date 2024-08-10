@@ -91,7 +91,7 @@ def get_mail_by_id(request: HttpRequest) -> Response:
     if mail_id:
         if type_api == GOOGLE:
             services = auth_google.authenticate_service(user, email_user)
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
+            subject, from_name, decoded_data, cc, bcc, email_id, date = (
                 email_operations_google.get_mail(services, None, mail_id)
             )
         elif type_api == MICROSOFT:
@@ -143,24 +143,28 @@ def set_email_read(request: HttpRequest, email_id: int) -> Response:
                   status=status.HTTP_200_OK if successful.
     """
     user = request.user
+    try:
+        email = get_object_or_404(Email, user=user, id=email_id)
+        email.read = True
+        email.read_date = timezone.now()
+        email.save()
 
-    email = get_object_or_404(Email, user=user, id=email_id)
-    email.read = True
-    email.read_date = timezone.now()
-    email.save()
+        social_api = email.social_api
+        if social_api:
+            if social_api.type_api == GOOGLE:
+                email_operations_google.set_email_read(
+                    user, social_api.email, email.provider_id
+                )
+            elif social_api.type_api == MICROSOFT:
+                email_operations_microsoft.set_email_read(social_api, email.provider_id)
 
-    social_api = email.social_api
-    if social_api:
-        if social_api.type_api == GOOGLE:
-            email_operations_google.set_email_read(
-                user, social_api.email, email.provider_id
-            )
-        elif social_api.type_api == MICROSOFT:
-            email_operations_microsoft.set_email_read(social_api, email.provider_id)
-
-    serializer = EmailReadUpdateSerializer(email)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
+        serializer = EmailReadUpdateSerializer(email)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
 
 @api_view(["POST"])
 @subscription([FREE_PLAN])
@@ -177,26 +181,25 @@ def set_email_unread(request: HttpRequest, email_id: int) -> Response:
                       status=status.HTTP_200_OK if successful.
     """
     user = request.user
+    try:
+        email = get_object_or_404(Email, user=user, id=email_id)
+        email.read = False
+        email.read_date = None
+        email.save()
 
-    email = get_object_or_404(Email, user=user, id=email_id)
-    email.read = False
-    email.read_date = None
-    email.save()
+        social_api = email.social_api
+        if social_api.type_api == GOOGLE:
+            email_operations_google.set_email_unread(
+                user, social_api.email, email.provider_id
+            )
+        elif social_api.type_api == MICROSOFT:
+            email_operations_microsoft.set_email_unread(social_api, email.provider_id)
 
-    social_api = email.social_api
-    if social_api.type_api == GOOGLE:
-        email_operations_google.set_email_unread(
-            user, social_api.email, email.provider_id
-        )
-    elif social_api.type_api == MICROSOFT:
-        email_operations_microsoft.set_email_unread(social_api, email.provider_id)
-
-    serializer = EmailReadUpdateSerializer(email)
-    if serializer.is_valid():
+        serializer = EmailReadUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
+    except Exception as e:
         return Response(
-            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -215,16 +218,16 @@ def set_email_reply_later(request: HttpRequest, email_id: int) -> Response:
                       status=status.HTTP_200_OK if successful.
     """
     user = request.user
-    email = get_object_or_404(Email, user=user, id=email_id)
-    email.answer_later = True
-    email.save()
+    try:
+        email = get_object_or_404(Email, user=user, id=email_id)
+        email.answer_later = True
+        email.save()
 
-    serializer = EmailReplyLaterUpdateSerializer(email)
-    if serializer.is_valid():
+        serializer = EmailReplyLaterUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
+    except Exception as e:
         return Response(
-            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
@@ -243,18 +246,17 @@ def set_email_not_reply_later(request: HttpRequest, email_id: int) -> Response:
                       status=status.HTTP_200_OK if successful.
     """
     user = request.user
-    email = get_object_or_404(Email, user=user, id=email_id)
-    email.answer_later = False
-    email.save()
+    try:
+        email = get_object_or_404(Email, user=user, id=email_id)
+        email.answer_later = False
+        email.save()
 
-    serializer = EmailReplyLaterUpdateSerializer(email)
-    if serializer.is_valid():
+        serializer = EmailReplyLaterUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    else:
+    except Exception as e:
         return Response(
-            {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
 
 # TODO: delete this comment after front-end implementation
 # ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS

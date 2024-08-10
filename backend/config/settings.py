@@ -66,8 +66,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "aomail",
-    "aomail.ai_providers",
-    "aomail.controllers",
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt",

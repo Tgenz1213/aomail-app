@@ -408,6 +408,7 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
             str: Preprocessed email content (cleaned and summarized).
             str: Safe HTML version of the email content.
             str: ID of the email message.
+            str: Snippet with first few words of the email.
             datetime.datetime: Sent date and time of the email.
             bool: Flag indicating whether the email has attachments.
             bool: Flag indicating whether the email is a reply.
@@ -535,6 +536,7 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
 
     # Replace CID references in HTML with local paths
     soup = BeautifulSoup(email_html, "html.parser")
+    snippet = " ".join(soup.get_text().split()[:20])  # Extract first 20 words
     for img in soup.find_all("img"):
         cid_ref = img["src"].lstrip("cid:")
         for image_file in image_files:
@@ -550,6 +552,7 @@ def get_mail_to_db(social_api: SocialAPI) -> dict:
         "from_info": from_info,
         "preprocessed_data": preprocessed_data,
         "safe_html": safe_html,
+        "snippet": snippet,
         "email_id": email_id,
         "sent_date": sent_date,
         "has_attachments": has_attachments,

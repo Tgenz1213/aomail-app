@@ -85,26 +85,28 @@ const activeType = ref(null); // null, 'CC', or 'CCI'
 const query = ref("");
 const getFilteredPeople = (query, people) => {
     return computed(() => {
-        if (query.value === "") {
+        if (query.value === '') {
             return people;
         } else {
             return people.filter((person) => {
-                if (person.username === "") {
-                    person.username = person.email
-                        .split("@")[0]
-                        .split(/\.|-/)
-                        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-                        .join(" ");
-                }
-                // VERY IMPORTANT: this line checks if the input matches either the username or the email
-                return (
-                    person.username.toLowerCase().includes(query.value.toLowerCase()) ||
-                    person.email.toLowerCase().includes(query.value.toLowerCase())
-                );
+                if (!person.username) {
+                    if (person.email) {
+                        person.username = person.email
+                            .split('@')[0]
+                            .split(/\.|-/)
+                            .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+                            .join(' ');
+                    } else {
+                        person.username = '';
+                    }
+                }  
+                const usernameLower = person.username ? person.username.toLowerCase() : '';
+                const emailLower = person.email ? person.email.toLowerCase() : '';
+                return usernameLower.includes(query.value.toLowerCase()) || emailLower.includes(query.value.toLowerCase());
             });
         }
     });
-};
+}
 
 const filteredPeople = getFilteredPeople(query, people);
 const emit = defineEmits(["update:selectedPerson"]);

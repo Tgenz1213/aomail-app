@@ -209,6 +209,13 @@
     "markEmailReplyLaterFailure": "Failed to mark email for reply later",
     "transferEmailFailure": "Failed to transfer email",
     "blockEmailAddressFailure": "Failed to block email address",
+    "flag": {
+      "meeting": "Meeting",
+      "newsletter": "Newsletter",
+      "notification": "Notification",
+      "scam": "Scam",
+      "spam": "Spam"
+    },
     "modals": {
       "pleaseFillAllFields": "Please fill in all fields",
       "newCategoryModal": {
@@ -228,6 +235,7 @@
       "seeEmailModal": {
         "moreActions": "More actions",
         "read": "Read",
+        "manageRules": "Manage rules",
         "selectTab": "Select a tab",
         "emailResume": "Email summary",
         "fullEmail": "Full email"
@@ -373,6 +381,11 @@
     "emailTransferred": "Email transferred!"
   },
   "searchPage": {
+    "choiceAomail":"aomail",
+    "choiceOldMail":"old mail",
+    "choiceOldMailDisplay":"old",
+    "oldChoiceSelected": "Ok, I'm going to search for the information in all of your emails, including the old ones",
+    "aomailChoiceSelected": "Ok, I'm going to search for the information in Aomail's emails",
     "anErrorOccuredDuringSmartSearch": "An error occurred while searching the response. Please try again",
     "noResults": "No results",
     "toAddressesSelectedPlaceholder": "To",
@@ -381,6 +394,7 @@
     "attachmentSelectedInfos": "Select the attachments contained in the email",
     "fromAddressesSelectedPlaceholder": "From",
     "fromAddressesSelectedInfos": "Select the email address from which you received the email",
+    "subjectSelectedPlaceholder": "Subject",
     "keywordsPlaceholder": "Keywords",
     "keywordsInfos": "Type keywords contained in the email",
     "dateFromPlaceholder": "Date from",
@@ -389,9 +403,13 @@
     "dateRangeInfos": "Select the time interval since receiving",
     "searchInSelectedPlaceholder": "Search in",
     "searchInSelectedInfos": "Select the folders to search within",
+    "doesntContainPlaceholder": "Doesn't contain",
     "searchButton": "Search",
     "searchPlaceholder": "Email search",
     "notEnoughDataToAnswer": "You do not have enough data to answer the question",
+    "onedataFound": "found",
+    "severalDataFound": "found",
+    "noDataFound": "No results found, please provide more information",
     "emailsToCheckList": "Here are the emails for you to check by yourself: ",
     "emailSearchPrompt": "Hello, what email are you looking for? Can you provide me with information about the email?",
     "searchInfoPrompt": "Hello, what information would you like to search for?",
@@ -399,6 +417,22 @@
       "successMessages": {
         "smartSearchError": "Smart search error"
       }
+    },
+    "dateIntervals": {
+      "oneDay": "1 day",
+      "threeDays": "3 days",
+      "oneWeek": "1 week",
+      "twoWeeks": "2 weeks",
+      "oneMonth": "1 month",
+      "twoMonths": "2 months",
+      "sixMonths": "6 months",
+      "oneYear": "1 year"
+    },
+    "searchIn": {
+      "all": "All",
+      "read": "Read",
+      "notRead": "Unread",
+      "replyLater": "Reply Later"
     }
   },
   "newPage": {
@@ -423,7 +457,10 @@
     "moveToNextStep": "Move to next step"
   },
   "answerPage": {
-    "responseSentTitle": "Response sent!"
+    "responseSentTitle": "Response sent!",
+    "chatSummarize": "Summary of the email :",
+    "chatKeyWordIntroduction" : "Here are suggested answer, how would you like to respond?",
+    "seeMail": "See email"
   },
   "errorWebPagesTemplates": {
     "error401Page": {

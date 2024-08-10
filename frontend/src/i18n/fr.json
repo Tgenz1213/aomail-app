@@ -209,6 +209,13 @@
     "markEmailReplyLaterFailure": "Échec de marquage d'email pour répondre pour plus tard",
     "transferEmailFailure": "Échec de transfert d'email",
     "blockEmailAddressFailure": "Échec du bloquage de l'addresse email",
+    "flag": {
+      "meeting": "Réunion",
+      "newsletter": "Newsletter",
+      "notification": "Notification",
+      "scam": "Arnaque",
+      "spam": "Spam"
+    },
     "modals": {
       "pleaseFillAllFields": "Veuillez remplir tous les champs",
       "newCategoryModal": {
@@ -228,6 +235,7 @@
       "seeEmailModal": {
         "moreActions": "Plus d'actions",
         "read": "Lire",
+        "manageRules": "Gérer les règles",
         "selectTab": "Sélectionner un onglet",
         "emailResume": "Résumé de l'e-mail",
         "fullEmail": "E-mail complet"
@@ -373,6 +381,11 @@
     "emailTransferred": "Email transféré !"
   },
   "searchPage": {
+    "choiceAomail":"aomail",
+    "choiceOldMail":"anciens mails",
+    "choiceOldMailDisplay":"anciens",
+    "oldChoiceSelected":"Ok je vais rechercher l'information dans tous vos mails y compris les anciens",
+    "aomailChoiceSelected":"Ok je vais rechercher l'information dans les mails d'aomail",
     "anErrorOccuredDuringSmartSearch": "Une erreur s'est produite lors de la recherche de la réponse. Veuillez réessayer",
     "noResults": "Aucun résultat",
     "toAddressesSelectedPlaceholder": "À",
@@ -381,6 +394,7 @@
     "attachmentSelectedInfos": "Sélectionnez les pièces jointes que l'e-mail contient",
     "fromAddressesSelectedPlaceholder": "De",
     "fromAddressesSelectedInfos": "Sélectionnez l'adresse e-mail qui vous a envoyé l'e-mail",
+    "subjectSelectedPlaceholder": "Objet",
     "keywordsPlaceholder": "Mots-clés",
     "keywordsInfos": "Tapez des mots-clés que l'e-mail contient",
     "dateFromPlaceholder": "Date depuis",
@@ -389,9 +403,13 @@
     "dateRangeInfos": "Sélectionnez l'intervalle de temps depuis la réception",
     "searchInSelectedPlaceholder": "Rechercher dans",
     "searchInSelectedInfos": "Sélectionnez les dossiers dans lesquels effectuer la recherche",
+    "doesntContainPlaceholder": "Ne contient pas",
     "searchButton": "Rechercher",
     "searchPlaceholder": "Recherche d'email",
     "notEnoughDataToAnswer": "Vous n'avez pas suffisamment de données pour répondre à la question",
+    "oneDataFound": "trouvé",
+    "severalDataFound": "trouvés",
+    "noDataFound": "Aucun résultat trouvé, veuillez fournir plus d'informations",
     "emailsToCheckList": "Voici les emails pour que vous vérifier par vous-même: ",
     "emailSearchPrompt": "Bonjour, quel email recherchez-vous ? Pouvez-vous me donner des informations sur l'email ?",
     "searchInfoPrompt": "Bonjour, quelle information souhaitez vous chercher ?",
@@ -399,6 +417,22 @@
       "successMessages": {
         "smartSearchError": "Erreur recherche intelligente"
       }
+    },
+    "dateIntervals": {
+      "oneDay": "1 jour",
+      "threeDays": "3 jours",
+      "oneWeek": "1 semaine",
+      "twoWeeks": "2 semaines",
+      "oneMonth": "1 mois",
+      "twoMonths": "2 mois",
+      "sixMonths": "6 mois",
+      "oneYear": "1 an"
+    },
+    "searchIn": {
+      "all": "Tous",
+      "read": "Lu",
+      "notRead": "Non lu",
+      "replyLater": "Plus tard"
     }
   },
   "newPage": {
@@ -423,7 +457,10 @@
     "moveToNextStep": "Passez à la suite"
   },
   "answerPage": {
-    "responseSentTitle": "Réponse envoyée !"
+    "responseSentTitle": "Réponse envoyée !",
+    "chatSummarize": "Résumé du mail :",
+    "chatKeyWordIntroduction" : "Voici des suggestions de réponses, comment souhaitez vous répondre ?",
+    "seeMail": "Voir le mail"
   },
   "errorWebPagesTemplates": {
     "error401Page": {

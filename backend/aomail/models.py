@@ -170,7 +170,7 @@ class Email(models.Model):
     newsletter = models.BooleanField(default=False)
     notification = models.BooleanField(default=False)
     meeting = models.BooleanField(default=False)
-
+    
 
 class Attachment(models.Model):
     mail_id = models.ForeignKey(

@@ -70,12 +70,12 @@ const props = defineProps({
     },
 });
 
-const emits = defineEmits(["close-modal"]);
+const emits = defineEmits(["closeModal"]);
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 function closeModal() {
-    emits("close-modal");
+    emits("closeModal");
 }
 
 async function updateUserDescription() {

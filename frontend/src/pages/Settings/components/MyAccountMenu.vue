@@ -1,6 +1,6 @@
 <template>
-    <AddUserDescriptionModal :isOpen="isAddUserDescriptionModalOpen" @close-modal="closeAddUserDescriptionModal" />
-    <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @close-modal="closeAccountDeletionModal" />
+    <AddUserDescriptionModal :isOpen="isAddUserDescriptionModalOpen" @closeModal="closeAddUserDescriptionModal" />
+    <AccountDeletionModal :isOpen="isAccountDeletionModalOpen" @closeModal="closeAccountDeletionModal" />
     <div class="flex-1 h-full">
         <div class="h-full w-full flex items-center justify-center">
             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">
@@ -405,7 +405,6 @@ import { EmailLinked } from "../utils/types";
 const username = ref("");
 const emailsLinked = ref<EmailLinked[]>([]);
 const emailSelected = ref("");
-const isUnlinkModalOpen = ref(false);
 const isAddUserDescriptionModalOpen = ref(false);
 const isAccountDeletionModalOpen = ref(false);
 const newPassword = ref("");
@@ -417,7 +416,6 @@ const isDeleteRadioButtonChecked = ref(false);
 
 provide("emailSelected", emailSelected);
 provide("typeApi", typeApi);
-provide("isUnlinkModalOpen", isUnlinkModalOpen);
 provide("emailsLinked", emailsLinked);
 provide("fetchEmailLinked", fetchEmailLinked);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");

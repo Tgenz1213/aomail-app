@@ -1,4 +1,5 @@
 <template>
+    <UnlinkEmailModal :isOpen="isUnlinkEmailModalOpen" @closeModal="closeUnlinkEmailModal" />
     <div class="flex items-center justify-center w-full">
         <svg
             v-if="email.typeApi === 'microsoft'"
@@ -94,8 +95,9 @@ import { inject, Ref, ref } from "vue";
 import { EmailLinked } from "../utils/types";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
+import UnlinkEmailModal from "./UnlinkEmailModal.vue";
 
-const isUnlinkModalOpen = inject<Ref<boolean>>("isUnlinkModalOpen", ref(false));
+const isUnlinkEmailModalOpen = ref(false);
 const emailSelected = inject<Ref<string>>("emailSelected", ref(""));
 const emailsLinked = inject<Ref<string>>("emailsLinked", ref(""));
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
@@ -106,9 +108,12 @@ defineProps<{
     email: EmailLinked;
 }>();
 
+function closeUnlinkEmailModal() {
+    isUnlinkEmailModalOpen.value = false;
+}
+
 async function openUnLinkModal(email: string) {
     emailSelected.value = email;
-    isUnlinkModalOpen.value = true;
 
     if (emailsLinked.value.length === 1) {
         displayPopup?.(
@@ -116,13 +121,9 @@ async function openUnLinkModal(email: string) {
             i18n.global.t("settingsPage.accountPage.unableToDeletePrimaryEmail"),
             i18n.global.t("settingsPage.accountPage.deleteAccountInstruction")
         );
-        closeUnlinkModal();
         return;
     }
-}
-
-function closeUnlinkModal() {
-    isUnlinkModalOpen.value = false;
+    isUnlinkEmailModalOpen.value = true;
 }
 
 async function openUserDescriptionModal(email: string) {

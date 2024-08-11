@@ -728,7 +728,7 @@ def link_email(request: HttpRequest) -> Response:
     """
     parameters: dict = json.loads(request.body)
     user = request.user
-    type_api = parameters.get("type_api")
+    type_api = parameters.get("typeApi")
     code = parameters.get("code")
     user_description = parameters.get("user_description")
 

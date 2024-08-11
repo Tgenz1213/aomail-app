@@ -70,14 +70,21 @@ import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { inject, Ref, defineProps } from "vue";
 
-const props = defineProps<{
-    isOpen: boolean;
-    closeModal: () => void;
-}>();
-
 const emailSelected = inject<Ref<string>>("emailSelected");
 const fetchEmailLinked = inject<() => void>("fetchEmailLinked");
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+
+defineProps<{
+    isOpen: boolean;
+}>();
+
+const emit = defineEmits<{
+    (e: "closeModal"): void;
+}>();
+
+const closeModal = () => {
+    emit("closeModal");
+};
 
 async function unLinkAccount() {
     const result = await postData(`user/social_api/unlink/`, { email: emailSelected?.value });
@@ -98,6 +105,6 @@ async function unLinkAccount() {
         i18n.global.t("constants.popUpConstants.successMessages.success"),
         i18n.global.t("settingsPage.accountPage.emailUnlinkedSuccess")
     );
-    props.closeModal();
+    closeModal();
 }
 </script>

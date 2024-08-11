@@ -201,7 +201,8 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
-import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
+import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
+import { postData } from "@/global/fetchData";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import {
     Combobox,
@@ -212,44 +213,46 @@ import {
     ComboboxOptions,
 } from "@headlessui/vue";
 import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline";
-import { fetchWithToken } from "@/global/security";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { i18n } from "@/global/preferences";
-import { EmailSender } from "@/global/types";
+import { EmailSender, Category, RuleData } from "@/global/types";
 
 interface FormData {
-    id: number;
-    infoAI: string;
-    priority: string;
-    block: boolean;
-    category: string;
-    errorMessage: string;
+  id?: string;
+  category: string;
+  priority: string;
+  block: boolean;
+  infoAI: string;
+  errorMessage: string;
 }
 
 interface Props {
-    isOpen: boolean;
-    emailSenders: EmailSender[];
-    rule: any;
-    categories: { name: string }[];
+  isOpen: boolean;
+  rule: RuleData | null;
+  categories: Category[];
+  emailSenders: EmailSender[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    emailSenders: () => [],
+  emailSenders: () => [],
+  rule: null,
 });
 
-const emit = defineEmits(["update:isOpen", "fetchRules"]);
+const emit = defineEmits<{
+  (e: "update:isOpen", value: boolean): void;
+  (e: "fetch-rules"): void;
+}>();
 
 const query = ref("");
 const errorMessage = ref("");
-const selectedPerson = ref<EmailSender | null>(null);
 const currentSelectedPersonUsername = ref("");
+const selectedPerson = ref<EmailSender | null>(null);
 const formData = ref<FormData>({
-    id: 0,
-    infoAI: "",
-    priority: "",
-    block: false,
-    category: "",
-    errorMessage: "",
+  category: "",
+  priority: "",
+  block: false,
+  infoAI: "",
+  errorMessage: "",
 });
 
 const filteredPeople = computed(() => {
@@ -258,15 +261,13 @@ const filteredPeople = computed(() => {
         username: sender.username,
     }));
 
-    if (query.value === "") {
-        return sendersArray;
-    } else {
-        return sendersArray.filter(
+    return query.value === "" 
+        ? sendersArray 
+        : sendersArray.filter(
             (person) =>
                 person.username.toLowerCase().includes(query.value.toLowerCase()) ||
                 person.email.toLowerCase().includes(query.value.toLowerCase())
         );
-    }
 });
 
 onMounted(() => {
@@ -281,12 +282,12 @@ watch(
                 id: newVal.id,
                 category: newVal.category || "",
                 priority: newVal.priority,
-                block: newVal.mail_stop,
+                block: newVal.mailStop,
                 infoAI: "",
                 errorMessage: "",
             };
             selectedPerson.value = {
-                username: newVal.name,
+                username: newVal.username,
                 email: newVal.email,
             };
         }
@@ -296,10 +297,11 @@ watch(
 
 function displayEmailSender(item: unknown): string {
     const person = item as EmailSender | null;
-    if (person) {
-        return person.username ? `${person.username} <${person.email || ""}>` : `<${person.email || ""}>`;
-    }
-    return "";
+    return person
+        ? person.username 
+            ? `${person.username} <${person.email || ""}>`
+            : `<${person.email || ""}>`
+        : "";
 }
 
 function handleKeyDown(event: KeyboardEvent) {
@@ -351,66 +353,37 @@ function handleBlur(event: FocusEvent) {
 }
 
 async function deleteRule() {
-    try {
-        if (!formData.value.id) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
-                "Rule ID is required for deletion."
-            );
-            return;
-        }
-
-        const deleteUrl = `${API_BASE_URL}user/delete_rules/${formData.value.id}`;
-        const response = await fetchWithToken(deleteUrl, { method: "DELETE" });
-
-        if (!response) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
-                "No response from server"
-            );
-            return;
-        }
-
-        if (!response.ok) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
-                `HTTP error! status: ${response.status}`
-            );
-            return;
-        }
-
-        const deleteResponse = await response.json();
-
-        if (deleteResponse.message) {
-            selectedPerson.value = null;
-            displayPopup(
-                "success",
-                i18n.global.t("constants.popUpConstants.successMessages.success"),
-                i18n.global.t("rulesPage.popUpConstants.successMessages.ruleDeletedSuccessfully")
-            );
-            closeModal();
-            emit("fetchRules");
-        } else {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
-                deleteResponse.error || "Unknown error occurred while deleting the rule"
-            );
-        }
-    } catch (error) {
-        console.error("Error in deleting rule:", error);
+    if (!formData.value.id) {
         displayPopup(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
-            error instanceof Error ? error.message : String(error)
+            "Rule ID is required for deletion."
         );
+        return;
     }
+
+    const result = await postData(`user/delete_rules/${formData.value.id}`, {});
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
+            result.error as string
+        );
+        return;
+    }
+
+    selectedPerson.value = null;
+    displayPopup(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("rulesPage.popUpConstants.successMessages.ruleDeletedSuccessfully")
+    );
+    closeModal();
+    emit("fetch-rules");
 }
 
-async function postSender() {
+async function postSender(): Promise<number | null> {
     if (!selectedPerson.value) {
         formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
         return null;
@@ -421,174 +394,115 @@ async function postSender() {
         email: selectedPerson.value.email,
     };
 
-    try {
-        const url = `${API_BASE_URL}api/create_sender`;
-        const response = await fetchWithToken(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(senderData),
-        });
+    const result = await postData(`api/create_sender`, senderData);
 
-        if (!response) {
-            displayPopup("error", "Failed to update category", "No response from server");
-            closeModal();
-            return;
-        }
-
-        if (!response.ok) {
-            displayPopup("error", "Network error", response?.status.toString());
-            closeModal();
-            return;
-        }
-
-        const responseData = await response.json();
-        return responseData.id;
-    } catch (error) {
-        console.error(`Error in postSender: ${error}`);
+    if (!result.success) {
         displayPopup(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.senderCreationError"),
-            error instanceof Error ? error.message : String(error)
+            result.error as string
         );
         closeModal();
-        return;
+        return null;
     }
+
+    return result.data.id;
 }
 
-async function checkSenderExists() {
+async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number }> {
     if (!selectedPerson.value) {
         formData.value.errorMessage = i18n.global.t("rulesPage.popUpConstants.errorMessages.noSelectedEmailAddress");
-        return;
+        return { exists: false };
     }
 
     const senderData = { email: selectedPerson.value.email };
 
-    try {
-        const url = `${API_BASE_URL}api/check_sender`;
-        const response = await fetchWithToken(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(senderData),
-        });
+    const result = await postData(`api/check_sender`, senderData);
 
-        if (!response) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.senderExistenceCheckError"),
-                "No response from server"
-            );
-            return { exists: false };
-        }
-
-        const data = await response.json();
-        return data.exists ? { exists: data.exists, senderId: data.sender_id } : { exists: false };
-    } catch (error) {
-        console.error(`Error in checkSenderExists: ${error}`);
+    if (!result.success) {
         displayPopup(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.senderExistenceCheckError"),
-            error instanceof Error ? error.message : String(error)
+            result.error as string
         );
-        closeModal();
         return { exists: false };
     }
+
+    return result.data.exists ? { exists: result.data.exists, senderId: result.data.sender_id } : { exists: false };
 }
 
 async function updateUserRule() {
-    try {
-        if (!formData.value.id) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate")
-            );
-            return;
-        }
-
-        let { exists, senderId } = (await checkSenderExists()) || { exists: false, senderId: null };
-
-        if (!exists) {
-            senderId = await postSender();
-        }
-
-        if (!senderId) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-                "Failed to obtain sender ID"
-            );
-            return;
-        }
-
-        let ruleData: any = { ...formData.value, sender: senderId, infoAI: "" };
-
-        if (formData.value.category) {
-            const categoryUrl = `${API_BASE_URL}api/get_category_id/`;
-            const categoryResponse = await fetchWithToken(categoryUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ categoryName: formData.value.category }),
-            });
-
-            if (!categoryResponse || !categoryResponse.ok) {
-                displayPopup(
-                    "error",
-                    i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-                    "Failed to fetch category ID"
-                );
-                return;
-            }
-
-            const categoryData = await categoryResponse.json();
-            ruleData.category = categoryData.id;
-        }
-
-        const ruleResponse = await fetchWithToken(`${API_BASE_URL}user/update_rule/`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(ruleData),
-        });
-
-        if (!ruleResponse || !ruleResponse.ok) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-                `HTTP error! status: ${ruleResponse?.status}`
-            );
-            return;
-        }
-
-        const ruleResponseData = await ruleResponse.json();
-
-        if ("error" in ruleResponseData) {
-            displayPopup(
-                "error",
-                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-                ruleResponseData.error === "A rule already exists for that sender"
-                    ? i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender")
-                    : ruleResponseData.error
-            );
-            return;
-        }
-
-        selectedPerson.value = null;
-        displayPopup(
-            "success",
-            i18n.global.t("constants.popUpConstants.successMessages.success"),
-            i18n.global.t("rulesPage.popUpConstants.successMessages.ruleUpdatedSuccessfully")
-        );
-        closeModal();
-        emit("fetchRules");
-    } catch (error) {
-        console.error("Error in updating rule:", error);
+    if (!formData.value.id) {
         displayPopup(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
-            error instanceof Error ? error.message : String(error)
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate")
         );
-    } finally {
-        closeModal();
+        return;
     }
+
+    let { exists, senderId } = await checkSenderExists();
+
+    if (!exists) {
+        const newSenderId = await postSender();
+        if (newSenderId === null) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+                "Failed to create new sender"
+            );
+            return;
+        }
+        senderId = newSenderId;
+    }
+
+    if (senderId === undefined) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+            "Failed to obtain sender ID"
+        );
+        return;
+    }
+
+    let ruleData: any = { ...formData.value, sender: senderId, infoAI: "" };
+
+    if (formData.value.category) {
+        const categoryResult = await postData(`api/get_category_id/`, { categoryName: formData.value.category });
+
+        if (!categoryResult.success) {
+            displayPopup(
+                "error",
+                i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+                "Failed to fetch category ID"
+            );
+            return;
+        }
+
+        ruleData.category = categoryResult.data.id;
+    }
+
+    const ruleResult = await postData(`user/update_rule/`, ruleData);
+
+    if (!ruleResult.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
+            ruleResult.error === "A rule already exists for that sender"
+                ? i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender")
+                : ruleResult.error as string
+        );
+        return;
+    }
+
+    selectedPerson.value = null;
+    displayPopup(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("rulesPage.popUpConstants.successMessages.ruleUpdatedSuccessfully")
+    );
+    closeModal();
+    emit("fetch-rules");
 }
 
 function closeModal() {

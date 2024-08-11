@@ -1,12 +1,12 @@
 <template>
     <div class="absolute right-4 top-4">
-        <PencilSquareIcon @click="editRule(rule)" class="w-6 h-6 text-gray-300 hover:text-gray-800 cursor-pointer" />
+        <PencilSquareIcon @click="editRule()" class="w-6 h-6 text-gray-300 hover:text-gray-800 cursor-pointer" />
     </div>
     <div class="flex w-full items-center justify-between space-x-6 p-6">
         <div class="flex-1 truncate">
             <div class="flex items-center space-x-3">
                 <h3 class="truncate text-sm font-medium text-gray-900">
-                    {{ rule.name }}
+                    {{ rule.username }}
                 </h3>
             </div>
             <p class="mt-1 mb-4 truncate text-sm text-gray-500">{{ rule.email }}</p>
@@ -62,5 +62,20 @@
 
 <script setup lang="ts">
 // todo: setup properties and imports
-// copy the functions from Rules.vue and fix issues with TS
+import { defineProps, defineEmits } from 'vue';
+import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
+import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
+import { RuleData } from "@/global/types";
+
+const props = defineProps<{
+  rule: RuleData;
+}>();
+
+const emit = defineEmits<{
+  (e: 'edit', rule: RuleData): void;
+}>();
+
+function editRule() {
+  emit('edit', props.rule);
+}
 </script>

@@ -46,7 +46,6 @@
                                 class="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6"
                                 @change="query = $event.target.value"
                                 :display-value="getDisplayValue"
-                                @blur="handleBlur"
                                 @keydown="handleKeyDown"
                                 @click="handleInputClick"
                             />
@@ -179,7 +178,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { useI18n } from "vue-i18n";
+import { i18n } from "@/global/preferences";
 import {
     ChevronUpDownIcon,
     ArchiveBoxIcon,
@@ -197,7 +196,15 @@ import {
     ComboboxOption,
 } from "@headlessui/vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { Category, EmailSender } from "@/global/types";
+import { postData } from "@/global/fetchData";
+import { Category, EmailSender, RuleData } from "@/global/types";
+
+interface Props {
+  isOpen: boolean;
+  emailSenders: EmailSender[];
+  categories: Category[];
+  sender: EmailSender | null;
+}
 
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");
@@ -205,19 +212,17 @@ const notificationMessage = ref<string>("");
 const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
 
-const props = defineProps<{
-    isOpen: boolean;
-    emailSenders: EmailSender[];
-    categories: Category[];
-    sender: EmailSender | null;
-}>();
+const props = withDefaults(defineProps<Props>(), {
+  emailSenders: () => [],
+  sender: null,
+});
 
 const emit = defineEmits<{
-    (event: "dismiss-popup"): void;
-    (event: "update:emailSenders", emailSenders: EmailSender[]): void;
+  (e: "update:isOpen", value: boolean): void;
+  (e: "fetch-rules"): void;
+  (e: "update:emailSenders", value: EmailSender[]): void;
 }>();
 
-const { t } = useI18n();
 const isOpen = ref(props.isOpen);
 const selectedPerson = ref<EmailSender | null>(props.sender);
 const query = ref("");
@@ -227,12 +232,14 @@ const formData = ref({
     block: false,
 });
 const filteredPeople = computed(() => {
-    const normalizedQuery = query.value.toLowerCase();
-    return props.emailSenders.filter((person) => person.username.toLowerCase().includes(normalizedQuery));
+    const normalizedQuery = query.value?.toLowerCase() ?? '';
+    return props.emailSenders.filter((person) => 
+        person.username?.toLowerCase()?.includes(normalizedQuery) ?? false
+    );
 });
 
 const errorMessage = computed(() =>
-    filteredPeople.value.length === 0 && query.value ? t("rulesPage.contactField.errorMessage") : ""
+    filteredPeople.value.length === 0 && query.value ? i18n.global.t("rulesPage.contactField.errorMessage") : ""
 );
 
 watch(
@@ -251,13 +258,7 @@ watch(isOpen, (newValue) => {
 
 const closeModal = () => {
     isOpen.value = false;
-    emit("dismiss-popup");
-};
-
-const handleBlur = (e: FocusEvent) => {
-    if (!(e.relatedTarget as HTMLElement)?.classList.contains("combobox-button")) {
-        closeModal();
-    }
+    emit('update:isOpen', false);
 };
 
 const handleKeyDown = (e: KeyboardEvent) => {
@@ -270,25 +271,99 @@ const handleInputClick = (e: MouseEvent) => {
     e.stopPropagation();
 };
 
-const createEmailSenderRule = () => {
-    if (!selectedPerson.value) {
-        displayPopup("error", i18n.global.t("rulesPage.contactField.errorMessage"), "");
-        return;
-    }
-    const userRule = {
-        userId: selectedPerson.value.id,
-        category: formData.value.category,
-        priority: formData.value.priority,
-        block: formData.value.block,
-    };
-    emit("update:emailSenders", [...props.emailSenders, selectedPerson.value]);
-    closeModal();
-    displayPopup("success", i18n.global.t("rulesPage.ruleCreated"), "");
-};
+const createEmailSenderRule = async () => {
+  if (!selectedPerson.value) {
+    displayPopup('error', i18n.global.t('rulesPage.contactField.errorMessage'), '');
+    return;
+  }
 
-const getDisplayValue = (item: unknown) => {
+  try {
+    // Check if sender exists
+    const senderCheckResult = await postData('api/check_sender', {
+      email: selectedPerson.value.email,
+    });
+
+    console.log("FIRST CHECK ", senderCheckResult);
+
+    let senderId: number;
+    if (!senderCheckResult.success) {
+      // Create new sender
+      const senderData = {
+        username: selectedPerson.value.username || selectedPerson.value.email.split('@')[0],
+        email: selectedPerson.value.email,
+      };
+      const newSenderResult = await postData('api/create_sender', senderData);
+      if (!newSenderResult.success) {
+        throw new Error(newSenderResult.error as string);
+      }
+      senderId = newSenderResult.data.id;
+    } else {
+      senderId = senderCheckResult.data.sender_id;
+    }
+
+    // Get category ID if category is selected
+    let categoryId: number | undefined;
+    if (formData.value.category) {
+      const categoryResult = await postData('api/get_category_id/', {
+        categoryName: formData.value.category,
+      });
+      if (!categoryResult.success) {
+        throw new Error(categoryResult.error as string);
+      }
+      categoryId = categoryResult.data.id;
+    }
+
+    // Create rule
+    const ruleData = {
+      id: selectedPerson.value,
+      username: selectedPerson.value.username,
+      email: selectedPerson.value.email,
+      category: categoryId,
+      priority: formData.value.priority,
+      block: formData.value.block,
+      sender: senderId.toString(),
+    };
+
+    console.log("RULE CHECK ", ruleData);
+
+    const ruleResult = await postData('user/create_rule/', ruleData);
+
+    console.log("RULE RESULT ", ruleResult);
+
+    if (!ruleResult.success) {
+      throw new Error(ruleResult.error as string);
+    } else {
+        displayPopup(
+        'success',
+        i18n.global.t('constants.popUpConstants.successMessages.success'),
+        i18n.global.t('rulesPage.popUpConstants.successMessages.ruleCreatedSuccessfully')
+        );
+        emit('update:isOpen', false);
+        emit('fetch-rules');
+    }
+  } catch (error) {
+    console.error('Error in creating rule:', error);
+    displayPopup(
+      'error',
+      i18n.global.t('rulesPage.popUpConstants.errorMessages.ruleCreationError'),
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+}
+
+const getDisplayValue = (item: unknown): string => {
+    if (item === null || item === undefined) {
+        return 'N/A'; // or any other default value you prefer
+    }
+
     const person = item as EmailSender;
-    return person.username;
+    console.log("PERSON", person);
+
+    if (typeof person === 'object' && 'username' in person && typeof person.username === 'string') {
+        return person.username;
+    }
+
+    return 'Unknown'; // fallback for cases where username is not available
 };
 
 function displayPopup(type: "success" | "error", title: string, message: string) {

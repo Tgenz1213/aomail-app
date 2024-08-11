@@ -145,10 +145,7 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 import { ref, onMounted, provide } from "vue";
-import { API_BASE_URL } from "@/global/const";
-import { fetchWithToken } from "@/global/security";
 import "@fortawesome/fontawesome-free/css/all.css";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { AdjustmentsVerticalIcon, UserIcon, CreditCardIcon, CircleStackIcon } from "@heroicons/vue/24/outline";
@@ -159,78 +156,140 @@ import SubscriptionMenu from "@/pages/Settings/components/SubscriptionMenu.vue";
 import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { i18n } from "@/global/preferences";
+import { postData } from "@/global/fetchData";
+import { EmailLinked } from "./utils/types";
 
 const activeSection = ref("account");
-const emailSelected = ref("");
-
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
+const isAddUserDescriptionModalOpen = ref(false);
+const isAccountDeletionModalOpen = ref(false);
+const isUnlinkEmailModalOpen = ref(false);
+const isUpdateUserDescriptionModalOpen = ref(false);
+const isDeleteRadioButtonChecked = ref(false);
+const emailSelected = ref("");
+const userDescription = ref("");
+const emailsLinked = ref<EmailLinked[]>([]);
+
 provide("displayPopup", displayPopup);
+provide("closeAddUserDescriptionModal", closeAddUserDescriptionModal);
+provide("closeAccountDeletionModal", closeAccountDeletionModal);
+provide("closeUnlinkEmailModal", closeUnlinkEmailModal);
+provide("closeUpdateUserDescriptionModal", closeUpdateUserDescriptionModal);
+provide("openAddUserDescriptionModal", openAddUserDescriptionModal);
+provide("openAccountDeletionModal", openAccountDeletionModal);
+provide("openUnLinkModal", openUnLinkModal);
+provide("openUserDescriptionModal", openUserDescriptionModal);
+provide("isDeleteRadioButtonChecked", isDeleteRadioButtonChecked);
+provide("isUpdateUserDescriptionModalOpen", isUpdateUserDescriptionModalOpen);
+provide("isAccountDeletionModalOpen", isAccountDeletionModalOpen);
+provide("isAddUserDescriptionModalOpen", isAddUserDescriptionModalOpen);
+provide("isUnlinkEmailModalOpen", isUnlinkEmailModalOpen);
+provide("emailSelected", emailSelected);
+provide("emailsLinked", emailsLinked);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
 });
 
-function closeUserDescriptionModal() {
-    isModalUserDescriptionOpen.value = false;
+function closeUnlinkEmailModal() {
+    isUnlinkEmailModalOpen.value = false;
 }
 
-async function updateUserDescription() {
-    const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            email: emailSelected.value,
-            user_description: userDescription.value.trim() ? userDescription.value.trim() : "",
-        }),
-    };
+function closeUpdateUserDescriptionModal() {
+    console.log("got an emit @closeModal")
+    isUpdateUserDescriptionModalOpen.value = false;
+}
 
-    const response = await fetchWithToken(`${API_BASE_URL}user/social_api/update_user_description/`, requestOptions);
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
 
-    if (!response) {
-        displayPopup("error", "No response from server", "Verify your internet connection");
-        return;
-    }
+async function openUnLinkModal(email: string) {
+    emailSelected.value = email;
 
-    if (!response.ok) {
-        displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
-        return;
-    }
-
-    const data = await response.json();
-
-    if (data.message === "User description updated") {
-        displayPopup(
-            "success",
-            t("constants.popUpConstants.successMessages.success"),
-            t("settingsPage.accountPage.emailDescriptionUpdated")
+    if (emailsLinked.value.length === 1) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.unableToDeletePrimaryEmail"),
+            i18n.global.t("settingsPage.accountPage.deleteAccountInstruction")
         );
-    } else {
-        displayPopup("error", i18n.global.t("settingsPage.accountPage.errorUpdatingDescription"), data.error);
+        return;
     }
-    closeUserDescriptionModal();
+    isUnlinkEmailModalOpen.value = true;
+}
+
+async function openUserDescriptionModal(email: string) {
+    emailSelected.value = email;
+
+    const result = await postData(`user/social_api/get_user_description/`, { email: email });
+
+    if (!result.success) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.errorUnlinkingEmailAddress"),
+            result.error as string
+        );
+        return;
+    }
+
+    isUpdateUserDescriptionModalOpen.value = true;
+    userDescription.value = result.data.description;
+}
+
+function isAModalOpen() {
+    return (
+        isUpdateUserDescriptionModalOpen.value ||
+        isAddUserDescriptionModalOpen.value ||
+        isAccountDeletionModalOpen.value ||
+        isUnlinkEmailModalOpen.value
+    );
 }
 
 function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Tab" && !isModalOpen.value) {
+    if (event.key === "Tab" && !isAModalOpen()) {
         event.preventDefault();
         switchActiveSection();
-    } else if (event.key === "Escape") {
-        if (isModalOpen.value) {
-            closeModal();
-        } else if (isModalUserDescriptionOpen.value) {
-            closeUserDescriptionModal();
-        } else if (isUnlinkModalOpen.value) {
-            closeUnlinkModal();
+    }
+
+    if (event.key === "Escape") {
+        if (isUpdateUserDescriptionModalOpen.value) {
+            closeUpdateUserDescriptionModal();
+        } else if (isAddUserDescriptionModalOpen?.value) {
+            closeAddUserDescriptionModal();
+        } else if (isAccountDeletionModalOpen?.value) {
+            closeAccountDeletionModal();
+        } else if (isUnlinkEmailModalOpen.value) {
+            closeUnlinkEmailModal();
         }
-    } else if (event.key === "Enter") {
-        if (isModalUserDescriptionOpen.value) {
-            updateUserDescription();
-        }
+    }
+}
+
+function openAddUserDescriptionModal() {
+    isAddUserDescriptionModalOpen.value = true;
+}
+
+function closeAddUserDescriptionModal() {
+    isAddUserDescriptionModalOpen.value = false;
+}
+
+function closeAccountDeletionModal() {
+    isAccountDeletionModalOpen.value = false;
+}
+
+function openAccountDeletionModal() {
+    if (isDeleteRadioButtonChecked?.value) {
+        isAccountDeletionModalOpen.value = true;
+    } else {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.confirmationRequired"),
+            i18n.global.t("settingsPage.accountPage.checkBoxApprovalDeletion")
+        );
     }
 }
 
@@ -247,14 +306,6 @@ function switchActiveSection() {
 
 function setActiveSection(section: string) {
     activeSection.value = section;
-}
-
-function closeModal() {
-    isModalOpen.value = false;
-    const checkbox = document.querySelector('input[name="choice"]') as HTMLInputElement;
-    if (checkbox) {
-        checkbox.checked = false;
-    }
 }
 
 function displayPopup(type: "success" | "error", title: string, message: string) {

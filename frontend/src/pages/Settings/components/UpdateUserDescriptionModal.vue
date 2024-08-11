@@ -3,7 +3,7 @@
         <div
             @click.self="closeModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-            v-if="isModalOpen"
+            v-if="isOpen"
         >
             <div class="bg-white rounded-lg relative w-[450px]">
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
@@ -18,7 +18,7 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">
-                            {{ $ i18n.global.t("settingsPage.accountPage.updateMyDescription") }}
+                            {{ $t("settingsPage.accountPage.updateMyDescription") }}
                         </p>
                     </div>
                 </div>
@@ -43,7 +43,7 @@
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                             @click="updateUserDescription"
                         >
-                            {{ $ i18n.global.t("constants.userActions.update") }}
+                            {{ $t("constants.userActions.update") }}
                         </button>
                     </div>
                 </div>
@@ -53,35 +53,43 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, defineEmits, inject } from "vue";
+import { ref, defineProps, defineEmits, inject, Ref, onMounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 
 const userDescription = ref("");
-
-const props = defineProps({
-    emailSelected: {
-        type: String,
-        required: true,
-    },
-    isModalOpen: {
-        type: Boolean,
-        required: true,
-    },
-});
-
-const emits = defineEmits(["close-modal"]);
-
+const emailSelected = inject<Ref<string>>("emailSelected");
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-function closeModal() {
-    emits("close-modal");
+const props = defineProps<{
+    isOpen: boolean;
+}>();
+
+const emit = defineEmits<{
+    (e: "closeModal"): void;
+}>();
+
+const closeModal = () => {
+    emit("closeModal");
+    console.log("CLOSING THE update userdesc modal");
+};
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+        if (props.isOpen) {
+            updateUserDescription();
+        }
+    }
 }
 
 async function updateUserDescription() {
     const result = await postData("user/social_api/update_user_description/", {
-        email: props.emailSelected,
-        user_description: userDescription.value.trim() ? userDescription.value.trim() : "",
+        email: emailSelected?.value,
+        userDescription: userDescription.value,
     });
 
     if (result.success) {

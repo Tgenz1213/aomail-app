@@ -3,7 +3,7 @@
         <div
             @click.self="closeModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-            v-if="props.isModalOpen"
+            v-if="isOpen"
         >
             <div class="bg-white rounded-lg relative w-[450px]">
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
@@ -18,14 +18,14 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">
-                            {{ $ i18n.global.t("settingsPage.accountPage.deleteAccount") }}
+                            {{ $t("settingsPage.accountPage.deleteAccount") }}
                         </p>
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
                     <div>
                         <label class="block text-sm font-medium leading-6 text-gray-900">
-                            {{ $ i18n.global.t("settingsPage.accountPage.confirmDeleteAccount") }}
+                            {{ $t("settingsPage.accountPage.confirmDeleteAccount") }}
                         </label>
                     </div>
                     <div class="mt-2 sm:mt-2 sm:flex sm:flex-row justify-between">
@@ -34,7 +34,7 @@
                             class="ml-auto rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                             @click="closeModal"
                         >
-                            {{ $ i18n.global.t("constants.userActions.cancel") }}
+                            {{ $t("constants.userActions.cancel") }}
                         </button>
                         <div class="flex-grow"></div>
                         <button
@@ -56,7 +56,7 @@
                                     d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
                                 />
                             </svg>
-                            {{ $ i18n.global.t("settingsPage.accountPage.deleteAccount") }}
+                            {{ $t("settingsPage.accountPage.deleteAccount") }}
                         </button>
                     </div>
                 </div>
@@ -67,75 +67,51 @@
 
 <script lang="ts" setup>
 import { API_BASE_URL } from "@/global/const";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { fetchWithToken } from "@/global/security";
 import { i18n } from "@/global/preferences";
 import router from "@/router/router";
-import { ref, defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, inject } from "vue";
 
-const props = defineProps({
-    isModalOpen: {
-        type: Boolean,
-        required: true,
-    },
-});
+defineProps<{
+    isOpen: boolean;
+}>();
 
-const emits = defineEmits(["close-modal"]);
+const emit = defineEmits<{
+    (e: "closeModal"): void;
+}>();
 
-const showNotification = ref<boolean>(false);
-const notificationTitle = ref<string>("");
-const notificationMessage = ref<string>("");
-const backgroundColor = ref<string>("");
-const timerId = ref<number | null>(null);
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
-
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
-}
-
-function closeModal() {
-    emits("close-modal");
-}
+const closeModal = () => {
+    emit("closeModal");
+};
 
 async function deleteAccount() {
     try {
+        // todo: replace with deleteData
         const url = `${API_BASE_URL}api/delete_account/`;
         const requestOptions = {
             method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
         };
 
         const response = await fetchWithToken(url, requestOptions);
 
         if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection");
+            displayPopup?.("error", "No response from server", "Verify your internet connection");
             return;
         }
 
         if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
+            displayPopup?.("error", "Error in response", `HTTP error! status: ${response.status}`);
             return;
         }
 
         const data = await response.json();
 
-        if (data && data.message === "User successfully deleted") {
+        if (response.status === 200) {
             localStorage.clear();
             closeModal();
-            displayPopup(
+            displayPopup?.(
                 "success",
                 i18n.global.t("settingsPage.accountPage.redirectionInProgress"),
                 i18n.global.t("settingsPage.accountPage.accountDeletedSuccess")
@@ -145,10 +121,14 @@ async function deleteAccount() {
                 router.push({ name: "login" });
             }, 4000);
         } else {
-            displayPopup("error", i18n.global.t("settingsPage.accountPage.errorDeletingAccount"), data.error);
+            displayPopup?.("error", i18n.global.t("settingsPage.accountPage.errorDeletingAccount"), data.error);
         }
     } catch (error) {
-        displayPopup("error", i18n.global.t("settingsPage.accountPage.errorDeletingAccount"), (error as Error).message);
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.errorDeletingAccount"),
+            (error as Error).message
+        );
     }
 }
 </script>

@@ -58,6 +58,8 @@
 import { API_BASE_URL } from "@/global/const";
 import { inject, Ref, ref, defineEmits, onMounted } from "vue";
 
+const typeApi = inject<Ref<string>>("typeApi", ref(""));
+const userDescription = ref("");
 const props = defineProps<{
     isOpen: boolean;
 }>();
@@ -65,6 +67,10 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "closeModal"): void;
 }>();
+
+const closeModal = () => {
+    emit("closeModal");
+};
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -77,13 +83,6 @@ function handleKeyDown(event: KeyboardEvent) {
         }
     }
 }
-
-const typeApi = inject<Ref<string>>("typeApi", ref(""));
-const userDescription = ref("");
-
-const closeModal = () => {
-    emit("closeModal");
-};
 
 function linkNewEmail() {
     saveVariables();

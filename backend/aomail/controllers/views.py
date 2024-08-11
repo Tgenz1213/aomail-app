@@ -360,7 +360,7 @@ def update_user_description(request: HttpRequest) -> Response:
     data: dict = json.loads(request.body)
     user = request.user
     email = data.get("email")
-    user_description = data.get("user_description", "")
+    user_description = data.get("userDescription", "")
 
     if email:
         try:

@@ -1,14 +1,14 @@
 <template>
     <transition name="modal-fade">
         <div
-            @click.self="closeUnlinkModal"
+            @click.self="closeModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-            v-if="isUnlinkModalOpen"
+            v-if="isOpen"
         >
             <div class="bg-white rounded-lg relative w-[450px]">
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button
-                        @click="closeUnlinkModal"
+                        @click="closeModal"
                         type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                     >
@@ -32,7 +32,7 @@
                         <button
                             type="button"
                             class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto"
-                            @click="closeUnlinkModal"
+                            @click="closeModal"
                         >
                             {{ $t("constants.userActions.cancel") }}
                         </button>
@@ -65,27 +65,25 @@
     </transition>
 </template>
 
-<!-- todo: put this as a prop: emailSelected (its a string variable) -->
-
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { ref, inject, Ref } from "vue";
+import { inject, Ref, defineProps } from "vue";
+
+const props = defineProps<{
+    isOpen: boolean;
+    closeModal: () => void;
+}>();
 
 const emailSelected = inject<Ref<string>>("emailSelected");
-const fetchEmailLinked = inject<Promise<void>>("fetchEmailLinked");
-
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
+const fetchEmailLinked = inject<() => void>("fetchEmailLinked");
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 async function unLinkAccount() {
-    const result = await postData(`user/social_api/unlink/`, { email: emailSelected });
+    const result = await postData(`user/social_api/unlink/`, { email: emailSelected?.value });
 
     if (!result.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("settingsPage.accountPage.errorUnlinkingEmailAddress"),
             result.error as string
@@ -93,28 +91,13 @@ async function unLinkAccount() {
         return;
     }
 
-    fetchEmailLinked();
-    displayPopup(
+    fetchEmailLinked?.();
+
+    displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
         i18n.global.t("settingsPage.accountPage.emailUnlinkedSuccess")
     );
-    closeModal();
-}
-
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
-
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
+    props.closeModal();
 }
 </script>

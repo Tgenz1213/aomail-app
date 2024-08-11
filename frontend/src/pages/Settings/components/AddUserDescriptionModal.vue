@@ -1,14 +1,14 @@
 <template>
     <transition name="modal-fade">
         <div
-            @click.self="closeAddUserDescriptionModal"
+            @click.self="closeModal"
             class="fixed z-50 top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
-            v-if="isModalAddUserDescriptionOpen"
+            v-if="isOpen"
         >
             <div class="bg-white rounded-lg relative w-[450px]">
                 <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block p-8">
                     <button
-                        @click="closeAddUserDescriptionModal"
+                        @click="closeModal"
                         type="button"
                         class="rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                     >
@@ -54,11 +54,51 @@
     </transition>
 </template>
 
+<script setup lang="ts">
+import { API_BASE_URL } from "@/global/const";
+import { inject, Ref, ref, defineEmits, onMounted } from "vue";
 
-<!-- todo:
-rename variables to be local => closeUnlinkModal => closeModal & isUnlinkModalOpen => isModalOpen 
-copy functions to ensure functionnality
-fix issues with TS
-add a script setup
+const props = defineProps<{
+    isOpen: boolean;
+}>();
 
-// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file -->
+const emit = defineEmits<{
+    (e: "closeModal"): void;
+}>();
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+        if (props.isOpen) {
+            linkNewEmail();
+        }
+    }
+}
+
+const typeApi = inject<Ref<string>>("typeApi", ref(""));
+const userDescription = ref("");
+
+const closeModal = () => {
+    emit("closeModal");
+};
+
+function linkNewEmail() {
+    saveVariables();
+
+    const currentTypeApi = sessionStorage.getItem("typeApi");
+    if (currentTypeApi === "google") {
+        caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
+    } else if (currentTypeApi === "microsoft") {
+        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
+    }
+}
+
+function saveVariables() {
+    sessionStorage.setItem("typeApi", typeApi?.value || "");
+    sessionStorage.setItem("userDescription", userDescription.value);
+}
+</script>

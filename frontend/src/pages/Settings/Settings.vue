@@ -19,7 +19,7 @@
                                 <div class="w-full flex items-center justify-center py-6 2xl:py-7">
                                     <div class="sm:hidden"></div>
                                     <div class="hidden sm:block w-full">
-                                        <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs"> 
+                                        <nav class="flex justify-center space-x-4 w-full" aria-label="Tabs">
                                             <div
                                                 class="text-sm font-medium cursor-pointer"
                                                 :class="[
@@ -151,12 +151,7 @@ import { API_BASE_URL } from "@/global/const";
 import { fetchWithToken } from "@/global/security";
 import "@fortawesome/fontawesome-free/css/all.css";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import {
-    AdjustmentsVerticalIcon,
-    UserIcon,
-    CreditCardIcon,
-    CircleStackIcon,
-} from "@heroicons/vue/24/outline";
+import { AdjustmentsVerticalIcon, UserIcon, CreditCardIcon, CircleStackIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import PreferencesMenu from "@/pages/Settings/components/PreferencesMenu.vue";
 import MyDataMenu from "@/pages/Settings/components/MyDataMenu.vue";
@@ -166,9 +161,6 @@ import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { i18n } from "@/global/preferences";
 
 const activeSection = ref("account");
-const userData = ref("");
-const emailsLinked = ref<string[]>([]);
-const isModalAddUserDescriptionOpen = ref(false);
 const emailSelected = ref("");
 
 const showNotification = ref(false);
@@ -177,42 +169,15 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
-
-provide('displayPopup', displayPopup);
-
-// const intervalId = setInterval(checkAuthorizationCode, 1000);
+provide("displayPopup", displayPopup);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
-    // fetchEmailLinked(); 
 });
-
-
-
-
-
-function linkNewEmail() {
-    const typeApi = sessionStorage.getItem("typeApi");
-
-    if (typeApi === "google") {
-        caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
-        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
-    } else if (typeApi === "microsoft") {
-        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
-    }
-}
-
-
-
-
-function closeAddUserDescriptionModal() {
-    isModalAddUserDescriptionOpen.value = false;
-}
 
 function closeUserDescriptionModal() {
     isModalUserDescriptionOpen.value = false;
 }
-
 
 async function updateUserDescription() {
     const requestOptions = {
@@ -261,14 +226,10 @@ function handleKeyDown(event: KeyboardEvent) {
             closeUserDescriptionModal();
         } else if (isUnlinkModalOpen.value) {
             closeUnlinkModal();
-        } else if (isModalAddUserDescriptionOpen.value) {
-            closeAddUserDescriptionModal();
         }
     } else if (event.key === "Enter") {
         if (isModalUserDescriptionOpen.value) {
             updateUserDescription();
-        } else if (isModalAddUserDescriptionOpen.value) {
-            linkNewEmail();
         }
     }
 }
@@ -284,37 +245,9 @@ function switchActiveSection() {
     setActiveSection(nextSection[activeSection.value]);
 }
 
-function setActiveSection(section: string) { 
+function setActiveSection(section: string) {
     activeSection.value = section;
 }
-
-
-async function getUsername(): Promise<string | undefined> {
-    const requestOptions = {
-        headers: { "Content-Type": "application/json" },
-    };
-
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/username/`, requestOptions);
-
-        if (!response) {
-            displayPopup("error", "No response from server", "Verify your internet connection");
-            return;
-        }
-
-        if (!response.ok) {
-            displayPopup("error", "Error in response", `HTTP error! status: ${response.status}`);
-            return;
-        }
-
-        const data = await response.json();
-
-        return data.username;
-    } catch (error) {
-        displayPopup("error", i18n.global.t("settingsPage.accountPage.errorRetrievingUsername"), (error as Error).message);
-    }
-}
-
 
 function closeModal() {
     isModalOpen.value = false;

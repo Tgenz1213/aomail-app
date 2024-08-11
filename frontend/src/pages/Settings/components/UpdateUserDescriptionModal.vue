@@ -53,10 +53,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits, inject } from "vue";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
+
+const userDescription = ref("");
 
 const props = defineProps({
     emailSelected: {
@@ -71,28 +72,7 @@ const props = defineProps({
 
 const emits = defineEmits(["close-modal"]);
 
-const userDescription = ref("");
-const showNotification = ref<boolean>(false);
-const notificationTitle = ref<string>("");
-const notificationMessage = ref<string>("");
-const backgroundColor = ref<string>("");
-const timerId = ref<number | null>(null);
-
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
-
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
-}
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 function closeModal() {
     emits("close-modal");
@@ -105,13 +85,13 @@ async function updateUserDescription() {
     });
 
     if (result.success) {
-        displayPopup(
+        displayPopup?.(
             "success",
             i18n.global.t("constants.popUpConstants.successMessages.success"),
             i18n.global.t("settingsPage.accountPage.emailDescriptionUpdated")
         );
     } else {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("settingsPage.accountPage.errorUpdatingDescription"),
             result.error as string
@@ -120,12 +100,3 @@ async function updateUserDescription() {
     closeModal();
 }
 </script>
-
-
-<!-- todo:
-rename variables to be local => closeUnlinkModal => closeModal & isUnlinkModalOpen => isModalOpen 
-copy functions to ensure functionnality
-fix issues with TS
-add a script setup 
-
-// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file-->

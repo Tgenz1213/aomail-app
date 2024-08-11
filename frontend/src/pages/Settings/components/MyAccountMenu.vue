@@ -1,4 +1,5 @@
 <template>
+    <AddUserDescriptionModal :isOpen="isAddUserDescriptionModalOpen" @close-modal="closeAddUserDescriptionModal" />
     <div class="flex-1 h-full">
         <div class="h-full w-full flex items-center justify-center">
             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">
@@ -485,22 +486,25 @@
 import { ref, onMounted, provide, inject } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { API_BASE_URL, YAHOO, GOOGLE, MICROSOFT, APPLE } from "@/global/const";
+import AddUserDescriptionModal from "./AddUserDescriptionModal.vue";
 import { i18n } from "@/global/preferences";
 
 const username = ref("");
-const userEmailDescription = ref("");
 const emailsLinked = ref<EmailLinked[]>([]);
 const emailSelected = ref("");
 const isUnlinkModalOpen = ref(false);
-const isModalUserDescriptionOpen = ref(false);
-const userDescription = ref("");
+const isAddUserDescriptionModalOpen = ref(false);
+const isUpdateUserDescriptionModalOpen = ref(false);
 const isAccountDeletionModalOpen = ref(false);
+const userDescription = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
+const typeApi = ref("");
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
 
 provide("emailSelected", emailSelected);
+provide("typeApi", typeApi);
 provide("fetchEmailLinked", fetchEmailLinked);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
@@ -513,11 +517,33 @@ onMounted(() => {
     checkAuthorizationCode();
     fetchEmailLinked();
     fetchUsername();
+    document.addEventListener("keydown", handleKeyDown);
 });
 
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+        if (isAddUserDescriptionModalOpen.value) {
+            closeAddUserDescriptionModal();
+        }
+    }
+}
+
 function authorize(provider: string) {
-    saveVariables(provider);
-    linkNewEmail();
+    typeApi.value = provider;
+
+    if (provider === MICROSOFT || provider === GOOGLE) {
+        openAddUserDescriptionModal();
+    }
+
+    return;
+}
+
+function openAddUserDescriptionModal() {
+    isAddUserDescriptionModalOpen.value = true;
+}
+
+function closeAddUserDescriptionModal() {
+    isAddUserDescriptionModalOpen.value = false;
 }
 
 function togglePasswordVisibility(event: Event) {
@@ -527,11 +553,6 @@ function togglePasswordVisibility(event: Event) {
 
 function toggleConfirmPasswordVisibility() {
     showConfirmPassword.value = !showConfirmPassword.value;
-}
-
-function saveVariables(typeApi: string) {
-    sessionStorage.setItem("typeApi", typeApi);
-    sessionStorage.setItem("userDescription", userEmailDescription.value);
 }
 
 async function handleSubmit() {
@@ -665,18 +686,8 @@ async function openUserDescriptionModal(email: string) {
         return;
     }
 
-    isModalUserDescriptionOpen.value = true;
+    isUpdateUserDescriptionModalOpen.value = true;
     userDescription.value = result.data.description;
-}
-
-function linkNewEmail() {
-    const typeApi = sessionStorage.getItem("typeApi");
-    if (typeApi === "google") {
-        caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
-        window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
-    } else if (typeApi === "microsoft") {
-        window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);
-    }
 }
 
 async function openUnLinkModal(email: string) {
@@ -738,7 +749,7 @@ async function fetchEmailLinked() {
     const result = await getData("user/emails_linked/");
     if (!result) return;
 
-    emailsLinked.value = result?.data?.emails;
+    emailsLinked.value = result.data;
 }
 
 async function fetchUsername() {

@@ -290,7 +290,7 @@ const createEmailSenderRule = async () => {
     if (!senderCheckResult.data.exists) {
       // Create new sender
       const senderData = {
-        username: selectedPerson.value.username || selectedPerson.value.email.split('@')[0],
+        name: selectedPerson.value.username || selectedPerson.value.email.split('@')[0],
         email: selectedPerson.value.email,
       };
       const newSenderResult = await postData('api/create_sender', senderData);

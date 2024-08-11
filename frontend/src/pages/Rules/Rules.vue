@@ -14,16 +14,7 @@
                                 {{ $t("rulesPage.assistantRules") }}
                             </h1>
                         </div>
-                        <div class="flex items-center p-4">
-                            <input
-                                type="text"
-                                id="search-field"
-                                placeholder="Search..."
-                                v-model="searchQuery"
-                                @input="updateSearchQuery"
-                                class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
+                        <SearchBar @input="updateSearchQuery"></SearchBar>
                     </div>
                     <div
                         v-if="rules.length > 0"
@@ -41,7 +32,7 @@
                                     :key="rule.email"
                                     class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative"
                                 >
-                                    <Rule :rule="rule" @edit="handleEditRule" />
+                                    <Rule :rule="rule" />
                                 </li>
                             </ul>
                         </div>
@@ -123,34 +114,34 @@
 /* eslint-disable */
 
 // todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
+
 import { ref, onMounted, computed } from "vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewRuleModal from "./components/NewRuleModal.vue";
 import UpdateRuleModal from "./components/UpdateRuleModal.vue";
 import Rule from "./components/Rule.vue";
-import { getData } from "@/global/fetchData";
-import { EmailSender, Category} from "@/global/types";
-import { RuleData } from "./utils/types";
+import SearchBar from "./components/SearchBar.vue";
+import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
+import { fetchWithToken } from "@/global/security";
+import { EmailSender } from "@/global/types";
 
 const showModal = ref(false);
-const showUpdateModal = ref(false);;
+const showUpdateModal = ref(false);
+const rules = ref<any[]>([]);
+const categories = ref<any[]>([]);
+const emailSenders = ref<any[]>([]);
 const senderSelected = ref<EmailSender | null>(null);
+const ruleSelected = ref<any>(null);
 const searchQuery = ref("");
-const rules = ref<RuleData[]>([]);
-const ruleSelected = ref<RuleData | null>(null);
-const categories = ref<Category[]>([]);
-const emailSenders = ref<EmailSender[]>([]);
 
 const filteredRules = computed(() => {
     if (!searchQuery.value) return rules.value;
-    const query = searchQuery.value?.toLowerCase() ?? '';
-    return rules.value.filter((rule) => {
-        return (
-            (rule.username?.toLowerCase()?.includes(query) ?? false) ||
-            (rule.email?.toLowerCase()?.includes(query) ?? false) ||
-            (rule.category?.toLowerCase()?.includes(query) ?? false)
-        );
-    });
+    return rules.value.filter(
+        (rule) =>
+            rule.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            rule.email.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+            (rule.category && rule.category.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    );
 });
 
 function handleKeyDown(event: KeyboardEvent) {
@@ -172,62 +163,99 @@ function updateModalUpdateStatus(status: boolean) {
     showUpdateModal.value = status;
 }
 
-function handleEditRule(rule: RuleData) {
-  ruleSelected.value = rule;
-  showUpdateModal.value = true;
+function editRule(rule: any) {
+    ruleSelected.value = rule;
+    showUpdateModal.value = true;
 }
 
 async function fetchRules() {
-  try {
-    const result = await getData(`user/rules/`);
+    try {
+        const url = `${API_BASE_URL}user/rules/`;
+        const response = await fetchWithToken(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
-    if (!result.success) {
-      console.error("Error fetching rules:", result.error);
-      return;
+        if (response) {
+            const rulesData = await response.json();
+            rules.value = rulesData.map((rule: any) => ({
+                id: rule.id,
+                name: rule.sender_name,
+                email: rule.sender_email,
+                category: rule.category_name,
+                priority: rule.priority,
+                mailStop: rule.block,
+            }));
+        }
+    } catch (error) {
+        console.error("Error fetching rules:", error);
     }
+}
 
-    rules.value = result.data.map((rule: any): RuleData => ({
-      id: rule.id,
-      username: rule.sender_name,
-      email: rule.sender_email,
-      category: rule.category_name,
-      priority: rule.priority,
-      mailStop: rule.block,
-    }));
-  } catch (error) {
-    console.error("Error fetching rules:", error);
-  }
+async function fetchRuleById(idRule: string) {
+    try {
+        const url = `${API_BASE_URL}user/rules/${idRule}/`;
+        const response = await fetchWithToken(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (response) {
+            const ruleData = await response.json();
+            ruleSelected.value = {
+                id: ruleData.id,
+                name: ruleData.sender_name,
+                email: ruleData.sender_email,
+                category: ruleData.category_name,
+                priority: ruleData.priority,
+                mailStop: ruleData.block,
+            };
+        }
+    } catch (error) {
+        console.error("Error fetching rule:", error);
+    }
 }
 
 async function fetchCategories() {
-  try {
-    const result = await getData(`user/categories/`);
+    try {
+        const url = `${API_BASE_URL}user/categories/`;
+        const response = await fetchWithToken(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
-    if (!result.success) {
-      console.error("Error fetching categories:", result.error);
-      return;
+        if (response) {
+            const data = await response.json();
+            categories.value = data;
+        }
+    } catch (error) {
+        console.error("Error fetching categories:", error);
     }
-
-    categories.value = result.data;
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-  }
 }
 
 async function fetchEmailSenders() {
-  try {
-    const result = await getData(`user/contacts/`);
+    try {
+        const url = `${API_BASE_URL}user/contacts/`;
+        const response = await fetchWithToken(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
 
-    if (!result.success) {
-      console.error("Error fetching email senders:", result.error);
-      return;
+        if (response) {
+            const data = await response.json();
+            emailSenders.value = data;
+        }
+    } catch (error) {
+        console.error("Error fetching email senders:", error);
     }
-
-    emailSenders.value = result.data;
-    console.log("DEBUG", emailSenders.value);
-  } catch (error) {
-    console.error("Error fetching email senders:", error);
-  }
 }
 
 onMounted(() => {
@@ -237,8 +265,6 @@ onMounted(() => {
     fetchEmailSenders();
     fetchCategories();
 
-    console.log("RULES", rules)
-
     const urlParams = new URLSearchParams(window.location.search);
     const editRule = urlParams.get("editRule");
     const ruleId = urlParams.get("idRule");
@@ -246,17 +272,14 @@ onMounted(() => {
     const emailSender = urlParams.get("ruleEmail");
 
     if (editRule === "true" && ruleId) {
-        fetchRules()
+        fetchRuleById(ruleId)
             .then(() => {
-                const rule = rules.value.find(r => r.id === ruleId);
-                if (rule) {
-                    handleEditRule(rule);
-                }
+                updateModalUpdateStatus(true);
                 const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
                 window.history.replaceState({}, document.title, newUrl);
             })
             .catch((error) => {
-                console.error("Error in fetching rules:", error);
+                console.error("Error in fetching rule by ID:", error);
             });
     } else if (editRule === "false" && nameSender && emailSender) {
         senderSelected.value = { username: nameSender, email: emailSender };

@@ -69,6 +69,7 @@ import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { KeyValuePair } from "@/global/types";
 import { i18n } from "@/global/preferences";
+import { postData } from "@/global/fetchData";
 
 const languages: KeyValuePair[] = [
     { key: "french", value: i18n.global.t("constants.languagesList.french") },
@@ -115,46 +116,22 @@ const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
 
     localStorage.setItem("language", newLanguageKey);
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/set_language/`, {
-            headers: { "Content-Type": "application/json" },
-            method: "POST",
-            body: JSON.stringify({ language: newLanguageKey }),
-        });
+    const result = await postData(`user/preferences/set_language/`, { language: newLanguageKey });
 
-        if (response && response instanceof Response) {
-            const data = await response.json();
-            if (data.error) {
-                displayPopup(
-                    "error",
-                    i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
-                    data.error
-                );
-            } else if (data.message === "Language updated successfully") {
-                (i18n.global.locale as string) = newLanguageKey;
-
-                displayPopup(
-                    "success",
-                    i18n.global.t("constants.popUpConstants.successMessages.success"),
-                    i18n.global.t(
-                        "settingsPage.preferencesPage.popUpConstants.successMessages.languageUpdatedSuccessfully"
-                    )
-                );
-            }
-        }
-    } catch (error) {
-        if (error instanceof Error) {
-            displayPopup(
-                "error",
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
-                error.message
-            );
-        }
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
+            result.error as string
+        );
     }
+
+    displayPopup(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("settingsPage.preferencesPage.popUpConstants.successMessages.languageUpdatedSuccessfully")
+    );
 };
 
 watch(selectedLanguage, updateLanguageSelection);
 </script>
-
-
-<!-- // todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file -->

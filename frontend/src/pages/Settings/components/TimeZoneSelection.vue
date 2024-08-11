@@ -60,20 +60,15 @@
 </template>
 
 <script setup lang="ts">
-
-// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
-
-
 import { ref, watch } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import moment from "moment-timezone";
-import { fetchWithToken } from "@/global/security";
-import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { i18n } from "@/global/preferences";
+import { postData } from "@/global/fetchData";
 
 const timezones = ref(moment.tz.names());
 const initialLoadCount = Math.ceil(timezones.value.length * 0.25);
@@ -112,40 +107,22 @@ const updateTimezoneSelection = async (newTimeZone: string) => {
 
     localStorage.setItem("timezone", newTimeZone);
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/set_timezone/`, {
-            headers: { "Content-Type": "application/json" },
-            method: "POST",
-            body: JSON.stringify({ timezone: newTimeZone }),
-        });
-        if (response instanceof Response) {
-            const data = await response.json();
+    const result = await postData(`user/preferences/set_timezone/`, { timezone: newTimeZone });
 
-            if (data.error) {
-                displayPopup(
-                    "error",
-                    i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTimezone"),
-                    data.error
-                );
-            } else if (data.message === "Timezone updated successfully") {
-                displayPopup(
-                    "success",
-                    i18n.global.t("constants.popUpConstants.successMessages.success"),
-                    i18n.global.t(
-                        "settingsPage.preferencesPage.popUpConstants.successMessages.timezoneUpdatedSuccessfully"
-                    )
-                );
-            }
-        }
-    } catch (error) {
-        if (error instanceof Error) {
-            displayPopup(
-                "error",
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTimezone"),
-                error.message
-            );
-        }
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTimezone"),
+            result.error as string
+        );
+        return;
     }
+
+    displayPopup(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("settingsPage.preferencesPage.popUpConstants.successMessages.timezoneUpdatedSuccessfully")
+    );
 };
 
 const loadMoreTimezones = () => {

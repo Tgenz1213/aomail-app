@@ -58,20 +58,15 @@
 </template>
 
 <script setup lang="ts">
-
-// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
-
-
 import { ref, watch } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { fetchWithToken } from "@/global/security";
-import { API_BASE_URL } from "@/global/const";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { i18n } from "@/global/preferences";
 import { KeyValuePair } from "@/global/types";
+import { postData } from "@/global/fetchData";
 
 const themes = ref<KeyValuePair[]>([
     { key: "light", value: "constants.themeList.lightTheme" },
@@ -97,46 +92,22 @@ const updateThemeSelection = async (newTheme: KeyValuePair) => {
 
     localStorage.setItem("theme", newThemeKey);
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/preferences/set_theme/`, {
-            headers: { "Content-Type": "application/json" },
-            method: "POST",
-            body: JSON.stringify({ theme: newThemeKey }),
-        });
+    const result = await postData(`user/preferences/set_theme/`, { theme: newThemeKey });
 
-        if (response && response.ok) {
-            const responseData = await response.json();
-            if (responseData.message === "Theme updated successfully") {
-                displayPopup(
-                    "success",
-                    i18n.global.t("constants.popUpConstants.successMessages.success"),
-                    i18n.global.t(
-                        "settingsPage.preferencesPage.popUpConstants.successMessages.themeUpdatedSuccessfully"
-                    )
-                );
-            } else {
-                displayPopup(
-                    "error",
-                    i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTheme"),
-                    responseData.error
-                );
-            }
-        } else {
-            displayPopup(
-                "error",
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTheme"),
-                response?.statusText || "Unknown error"
-            );
-        }
-    } catch (error) {
-        if (error instanceof Error) {
-            displayPopup(
-                "error",
-                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTheme"),
-                error.message
-            );
-        }
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTheme"),
+            result.error as string
+        );
+        return;
     }
+
+    displayPopup(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("settingsPage.preferencesPage.popUpConstants.successMessages.themeUpdatedSuccessfully")
+    );
 };
 
 const displayPopup = (type: "success" | "error", title: string, message: string) => {

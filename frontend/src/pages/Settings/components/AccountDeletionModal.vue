@@ -88,6 +88,7 @@ const closeModal = () => {
 
 async function deleteAccount() {
     try {
+        // todo: replace with deleteData
         const url = `${API_BASE_URL}api/delete_account/`;
         const requestOptions = {
             method: "DELETE",

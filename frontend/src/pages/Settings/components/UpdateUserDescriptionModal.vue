@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, defineEmits, inject, Ref } from "vue";
+import { ref, defineProps, defineEmits, inject, Ref, onMounted } from "vue";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 
@@ -61,7 +61,7 @@ const userDescription = ref("");
 const emailSelected = inject<Ref<string>>("emailSelected");
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-defineProps<{
+const props = defineProps<{
     isOpen: boolean;
 }>();
 
@@ -71,7 +71,20 @@ const emit = defineEmits<{
 
 const closeModal = () => {
     emit("closeModal");
+    console.log("CLOSING THE update userdesc modal");
 };
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+});
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Enter") {
+        if (props.isOpen) {
+            updateUserDescription();
+        }
+    }
+}
 
 async function updateUserDescription() {
     const result = await postData("user/social_api/update_user_description/", {

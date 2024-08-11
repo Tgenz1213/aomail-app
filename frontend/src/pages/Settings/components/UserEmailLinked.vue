@@ -53,7 +53,7 @@
             <button
                 type="button"
                 class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-800 hover:text-black"
-                @click.stop="openUserDescriptionModal(email.email)"
+                @click.stop="openUserDescriptionModal?.(email.email)"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -73,7 +73,7 @@
             <button
                 type="button"
                 class="inline-flex justify-center items-center rounded-md px-3 py-2 text-sm font-semibold text-red-600 hover:text-red-700 hover:bg-transparent"
-                @click="openUnLinkModal(email.email)"
+                @click="openUnLinkModal?.(email.email)"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -97,59 +97,17 @@
 <script setup lang="ts">
 import { inject, Ref, ref } from "vue";
 import { EmailLinked } from "../utils/types";
-import { i18n } from "@/global/preferences";
-import { postData } from "@/global/fetchData";
 import UnlinkEmailModal from "./UnlinkEmailModal.vue";
 import UpdateUserDescriptionModal from "./UpdateUserDescriptionModal.vue";
 
-const isUnlinkEmailModalOpen = ref(false);
-const isUpdateUserDescriptionModalOpen = ref(false);
-const emailSelected = inject<Ref<string>>("emailSelected", ref(""));
-const emailsLinked = inject<Ref<string>>("emailsLinked", ref(""));
-const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-const userDescription = ref("");
+const isUnlinkEmailModalOpen = inject<Ref<boolean>>("isUnlinkEmailModalOpen", ref(false));
+const isUpdateUserDescriptionModalOpen = inject<Ref<boolean>>("isUpdateUserDescriptionModalOpen", ref(false));
+const openUnLinkModal = inject<(email: string) => void>("openUnLinkModal");
+const openUserDescriptionModal = inject<(email: string) => void>("openUserDescriptionModal");
+const closeUnlinkEmailModal = inject<() => void>("closeUnlinkEmailModal");
+const closeUpdateUserDescriptionModal = inject<() => void>("closeUpdateUserDescriptionModal");
 
 defineProps<{
     email: EmailLinked;
 }>();
-
-function closeUnlinkEmailModal() {
-    isUnlinkEmailModalOpen.value = false;
-}
-
-function closeUpdateUserDescriptionModal() {
-    isUpdateUserDescriptionModalOpen.value = false;
-}
-
-async function openUnLinkModal(email: string) {
-    emailSelected.value = email;
-
-    if (emailsLinked.value.length === 1) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("settingsPage.accountPage.unableToDeletePrimaryEmail"),
-            i18n.global.t("settingsPage.accountPage.deleteAccountInstruction")
-        );
-        return;
-    }
-    isUnlinkEmailModalOpen.value = true;
-}
-
-async function openUserDescriptionModal(email: string) {
-    emailSelected.value = email;
-
-    const result = await postData(`user/social_api/get_user_description/`, { email: email });
-
-    if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("settingsPage.accountPage.errorUnlinkingEmailAddress"),
-            result.error as string
-        );
-        return;
-    }
-
-    isUpdateUserDescriptionModalOpen.value = true;
-    userDescription.value = result.data.description;
-}
 </script>

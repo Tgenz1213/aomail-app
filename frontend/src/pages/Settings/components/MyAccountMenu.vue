@@ -25,11 +25,8 @@
                             </div>
                             <div class="relative items-stretch mt-2">
                                 <input
-                                    v-model="username"
+                                    v-model="usernameInput"
                                     type="text"
-                                    name="username"
-                                    id="username"
-                                    autocomplete="username"
                                     class="block w-full rounded-md border-0 pl-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-800 sm:text-sm sm:leading-6"
                                 />
                             </div>
@@ -239,7 +236,7 @@
                                 <ul role="list" class="space-y-1 w-full">
                                     <li
                                         v-for="email in emailsLinked"
-                                        :key="email.email"
+                                        :key="email?.email"
                                         class="border border-black w-full overflow-hidden font-semibold rounded-md bg-gray-10 px-6 py-0 shadow hover:shadow-md text-gray-700 relative"
                                     >
                                         <UserEmailLinked :email="email" />
@@ -393,7 +390,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, provide, inject } from "vue";
+import { ref, onMounted, provide, inject, Ref } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { YAHOO, GOOGLE, MICROSOFT, APPLE } from "@/global/const";
 import AddUserDescriptionModal from "./AddUserDescriptionModal.vue";
@@ -403,60 +400,40 @@ import { i18n } from "@/global/preferences";
 import { EmailLinked } from "../utils/types";
 
 const username = ref("");
-const emailsLinked = ref<EmailLinked[]>([]);
-const emailSelected = ref("");
-const isAddUserDescriptionModalOpen = ref(false);
-const isAccountDeletionModalOpen = ref(false);
+const usernameInput = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
 const typeApi = ref("");
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
-const isDeleteRadioButtonChecked = ref(false);
+const isDeleteRadioButtonChecked = inject<Ref<boolean>>("isDeleteRadioButtonChecked", ref(false));
+const isAddUserDescriptionModalOpen = inject<Ref<boolean>>("isAddUserDescriptionModalOpen", ref(false));
+const isAccountDeletionModalOpen = inject<Ref<boolean>>("isAccountDeletionModalOpen", ref(false));
+const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
+const intervalId = setInterval(checkAuthorizationCode, 1000);
 
-provide("emailSelected", emailSelected);
 provide("typeApi", typeApi);
-provide("emailsLinked", emailsLinked);
 provide("fetchEmailLinked", fetchEmailLinked);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const closeAddUserDescriptionModal = inject<() => void>("closeAddUserDescriptionModal");
+const closeAccountDeletionModal = inject<() => void>("closeAccountDeletionModal");
+const openAddUserDescriptionModal = inject<() => void>("openAddUserDescriptionModal");
+const openAccountDeletionModal = inject<() => void>("openAccountDeletionModal");
 
 onMounted(() => {
     checkAuthorizationCode();
     fetchEmailLinked();
     fetchUsername();
-    document.addEventListener("keydown", handleKeyDown);
 });
-
-function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === "Escape") {
-        if (isAddUserDescriptionModalOpen.value) {
-            closeAddUserDescriptionModal();
-        } else if (isAccountDeletionModalOpen.value) {
-            closeAccountDeletionModal();
-        }
-    }
-}
 
 function authorize(provider: string) {
     typeApi.value = provider;
 
     if (provider === MICROSOFT || provider === GOOGLE) {
-        openAddUserDescriptionModal();
+        openAddUserDescriptionModal?.();
     }
 
     return;
-}
-
-function openAddUserDescriptionModal() {
-    isAddUserDescriptionModalOpen.value = true;
-}
-
-function closeAddUserDescriptionModal() {
-    isAddUserDescriptionModalOpen.value = false;
-}
-
-function closeAccountDeletionModal() {
-    isAccountDeletionModalOpen.value = false;
 }
 
 function togglePasswordVisibility(event: Event) {
@@ -485,7 +462,7 @@ async function handleSubmit() {
         return;
     }
 
-    if (username.value.length <= 150 && !/\s/.test(username.value)) {
+    if (username.value.length <= 150 && !/\s/.test(username.value) && usernameInput.value !== username.value) {
         await updateUsername();
     } else {
         if (username.value.length > 150) {
@@ -513,7 +490,7 @@ async function handleSubmit() {
     ) {
         await updatePassword();
     } else {
-        if (!newPassword.value || newPassword.value !== confirmPassword.value) {
+        if (newPassword.value !== confirmPassword.value) {
             displayPopup?.(
                 "error",
                 i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorPasswordDontCorrespond"),
@@ -561,7 +538,6 @@ async function updateUsername() {
             i18n.global.t("settingsPage.accountPage.errorUpdatingUsername"),
             result.error as string
         );
-        return;
     }
 
     displayPopup?.(
@@ -570,20 +546,6 @@ async function updateUsername() {
         i18n.global.t("settingsPage.accountPage.usernameUpdatedSuccess")
     );
 }
-
-function openAccountDeletionModal() {
-    if (isDeleteRadioButtonChecked.value) {
-        isAccountDeletionModalOpen.value = true;
-    } else {
-        displayPopup?.(
-            "error",
-            i18n.global.t("settingsPage.accountPage.confirmationRequired"),
-            i18n.global.t("settingsPage.accountPage.checkBoxApprovalDeletion")
-        );
-    }
-}
-
-const intervalId = setInterval(checkAuthorizationCode, 1000);
 
 function checkAuthorizationCode() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -634,6 +596,7 @@ async function fetchUsername() {
         return;
     }
 
+    usernameInput.value = result.data.username;
     username.value = result.data.username;
 }
 </script>

@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import "./assets/css/tailwind.css";
 import { I18n } from "vue-i18n";
-import { i18n, initializePreferences } from "./pages/Settings/utils/preferences";
+import { i18n, initializePreferences } from "./global/preferences";
 import router from "./router/router";
 
 const app = createApp(App);

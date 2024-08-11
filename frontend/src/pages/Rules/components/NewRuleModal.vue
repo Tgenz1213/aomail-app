@@ -272,7 +272,7 @@ const handleInputClick = (e: MouseEvent) => {
 
 const createEmailSenderRule = () => {
     if (!selectedPerson.value) {
-        displayPopup("error", t("rulesPage.contactField.errorMessage"), "");
+        displayPopup("error", i18n.global.t("rulesPage.contactField.errorMessage"), "");
         return;
     }
     const userRule = {
@@ -283,7 +283,7 @@ const createEmailSenderRule = () => {
     };
     emit("update:emailSenders", [...props.emailSenders, selectedPerson.value]);
     closeModal();
-    displayPopup("success", t("rulesPage.ruleCreated"), "");
+    displayPopup("success", i18n.global.t("rulesPage.ruleCreated"), "");
 };
 
 const getDisplayValue = (item: unknown) => {

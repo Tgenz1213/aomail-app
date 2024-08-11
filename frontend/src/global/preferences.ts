@@ -1,9 +1,8 @@
-import { API_BASE_URL, BASE_URL } from "../../../global/const";
-import { fetchWithToken } from "../../../global/security";
+import { ALLOWED_LANGUAGES, ALLOWED_THEMES, API_BASE_URL, BASE_URL } from "./const";
+import { fetchWithToken } from "./security";
 import { ref } from "vue";
 import { createI18n, I18n } from "vue-i18n";
 import messages from "@/i18n";
-import { allowedLanguages, allowedthemes } from "./const";
 
 type UserPreferenceResponse = {
     language?: string;
@@ -65,12 +64,12 @@ export const initializePreferences = async (i18n: I18n) => {
         currentUrl !== `${BASE_URL}/signup` &&
         currentUrl !== `${BASE_URL}/signup_part2`
     ) {
-        const language = await fetchUserPreference("user/preferences/language/", "language", allowedLanguages);
+        const language = await fetchUserPreference("user/preferences/language/", "language", ALLOWED_LANGUAGES);
         if (language) {
             languageSelected.value = language;
             i18n.global.locale = language;
         }
-        const theme = await fetchUserPreference("user/preferences/theme/", "theme", allowedthemes);
+        const theme = await fetchUserPreference("user/preferences/theme/", "theme", ALLOWED_THEMES);
         if (theme) {
             themeSelected.value = theme;
         }

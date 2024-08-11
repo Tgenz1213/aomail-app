@@ -120,7 +120,7 @@ import {
     ArrowUturnLeftIcon,
     BeakerIcon,
 } from "@heroicons/vue/24/outline";
-import { i18n } from "@/pages/Settings/utils/preferences";
+import { i18n } from "@/global/preferences";
 import logo from "@/assets/logo-aomail.png";
 import { NavigationPage } from "@/global/types";
 

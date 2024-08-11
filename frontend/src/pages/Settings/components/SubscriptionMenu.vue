@@ -79,7 +79,7 @@
 import { ref } from "vue";
 import { RadioGroup, RadioGroupLabel, RadioGroupOption } from "@headlessui/vue";
 import { CheckIcon } from "@heroicons/vue/20/solid";
-import { i18n } from "@/pages/Settings/utils/preferences";
+import { i18n } from "@/global/preferences";
 
 interface Frequency {
     key: "monthly" | "yearly";

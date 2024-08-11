@@ -252,7 +252,7 @@ import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { useRouter } from "vue-router";
-import { i18n } from "@/pages/Settings/utils/preferences";
+import { i18n } from "@/global/preferences";
 
 // const router = useRouter()
 

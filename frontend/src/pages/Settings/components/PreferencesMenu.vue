@@ -101,7 +101,7 @@ import { getData, postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { API_BASE_URL } from "@/global/const";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { i18n } from "@/pages/Settings/utils/preferences";
+import { i18n } from "@/global/preferences";
 import TimeZoneSelection from "@/pages/Settings/components/TimeZoneSelection.vue";
 import LanguageSelection from "@/pages/Settings/components/LanguageSelection.vue";
 import ThemeSelection from "@/pages/Settings/components/ThemeSelection.vue";

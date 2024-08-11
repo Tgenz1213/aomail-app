@@ -126,7 +126,7 @@ import {
 } from "@heroicons/vue/24/outline";
 import { NavigationPage } from "@/global/types";
 import logo from "@/assets/logo-aomail.png";
-import { i18n } from "@/pages/Settings/utils/preferences";
+import { i18n } from "@/global/preferences";
 
 const sidebarOpen = ref(false);
 

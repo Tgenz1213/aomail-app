@@ -1,11 +1,4 @@
 <template>
-    <NotificationTimer
-        :showNotification="showNotification"
-        :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage"
-        :backgroundColor="backgroundColor"
-        @dismiss-popup="dismissPopup"
-    />
     <div class="flex-1 h-full">
         <div class="h-full w-full flex items-center justify-center">
             <div class="flex gap-x-10 h-full w-full py-10 px-8 2xl:py-14 2xl:px-12">
@@ -30,7 +23,7 @@
                             </div>
                             <div class="relative items-stretch mt-2">
                                 <input
-                                    v-model="userData"
+                                    v-model="username"
                                     type="text"
                                     name="username"
                                     id="username"
@@ -202,7 +195,7 @@
                                     </label>
                                 </div>
                                 <button
-                                    @click="openModal"
+                                    @click="openAccountDeletionModal"
                                     type="submit"
                                     class="inline-flex w-full justify-cente items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
                                 >
@@ -356,7 +349,7 @@
                                 <button
                                     type="button"
                                     class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                    @click="authorize_microsoft"
+                                    @click="authorize(MICROSOFT)"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
                                         <rect x="1" y="1" width="9" height="9" fill="#f25022" />
@@ -377,7 +370,7 @@
                                 <button
                                     type="button"
                                     class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                    @click="authorize_google"
+                                    @click="authorize(GOOGLE)"
                                 >
                                     <svg
                                         class="-ml-0.5 h-5 w-5"
@@ -422,7 +415,7 @@
                                 <button
                                     type="button"
                                     class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                    @click="authorize_apple"
+                                    @click="authorize(APPLE)"
                                 >
                                     <svg
                                         class="css-10aieaf eu4oa1w0"
@@ -456,7 +449,7 @@
                                 <button
                                     type="button"
                                     class="relative group inline-flex items-center gap-x-2 rounded-md bg-gray-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                    @click="authorize_yahoo"
+                                    @click="authorize(YAHOO)"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -489,40 +482,191 @@
 </template>
 
 <script lang="ts" setup>
-// todo:
-// - use strictly camelCase ONLY
-// - copy functions from Settings and fix issues with TS
-// - import modals: AddUserDescriptionModal, UpdateUserDescriptionModal, UnlinkEmailModal
-
-import { ref, onMounted } from "vue";
+import { ref, onMounted, provide, inject } from "vue";
 import { getData, postData } from "@/global/fetchData";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { API_BASE_URL } from "@/global/const";
-import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { i18n } from "@/pages/Settings/utils/preferences";
+import { API_BASE_URL, YAHOO, GOOGLE, MICROSOFT, APPLE } from "@/global/const";
+import { i18n } from "@/global/preferences";
 
+const username = ref("");
 const userEmailDescription = ref("");
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
+const emailsLinked = ref<EmailLinked[]>([]);
+const emailSelected = ref("");
+const isUnlinkModalOpen = ref(false);
+const isModalUserDescriptionOpen = ref(false);
+const userDescription = ref("");
+const isAccountDeletionModalOpen = ref(false);
+const newPassword = ref("");
+const confirmPassword = ref("");
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
 
-const emailsLinked = ref([]);
+provide("emailSelected", emailSelected);
+provide("fetchEmailLinked", fetchEmailLinked);
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+
+interface EmailLinked {
+    email: string;
+    typeApi: string;
+}
 
 onMounted(() => {
-    // checkAuthorizationCode();
-    // fetchEmailLinked();
+    checkAuthorizationCode();
+    fetchEmailLinked();
+    fetchUsername();
 });
 
-function authorize(type: "google" | "microsoft") {
-    saveVariables(type);
+function authorize(provider: string) {
+    saveVariables(provider);
     linkNewEmail();
+}
+
+function togglePasswordVisibility(event: Event) {
+    event.preventDefault();
+    showPassword.value = !showPassword.value;
+}
+
+function toggleConfirmPasswordVisibility() {
+    showConfirmPassword.value = !showConfirmPassword.value;
 }
 
 function saveVariables(typeApi: string) {
     sessionStorage.setItem("typeApi", typeApi);
     sessionStorage.setItem("userDescription", userEmailDescription.value);
+}
+
+async function handleSubmit() {
+    const result = await getData(`${API_BASE_URL}check_username/`);
+
+    if (!result.success) {
+        displayPopup?.("error", "Failed to submit data", result.error as string);
+        return;
+    }
+
+    if (result.data.available === false) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.usernameAlreadyExists"),
+            i18n.global.t("settingsPage.accountPage.pleaseChooseDifferentUsername")
+        );
+        return;
+    }
+
+    if (username.value.length <= 150 && !/\s/.test(username.value)) {
+        await updateUsername();
+    } else {
+        if (username.value.length > 150) {
+            displayPopup?.(
+                "error",
+                i18n.global.t(
+                    "settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotExceed150Characters"
+                ),
+                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAShorterUsername")
+            );
+        } else if (/\s/.test(username.value)) {
+            displayPopup?.(
+                "error",
+                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.usernameMustNotContainSpaces"),
+                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAUsernameWithoutSpaces")
+            );
+        }
+    }
+
+    if (
+        newPassword.value &&
+        newPassword.value === confirmPassword.value &&
+        newPassword.value.length >= 8 &&
+        newPassword.value.length <= 32
+    ) {
+        await updatePassword();
+    } else {
+        if (!newPassword.value || newPassword.value !== confirmPassword.value) {
+            displayPopup?.(
+                "error",
+                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorPasswordDontCorrespond"),
+                i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.checkPassword")
+            );
+        } else if (newPassword.value.length < 8 || newPassword.value.length > 32) {
+            displayPopup?.(
+                "error",
+                i18n.global.t(
+                    "settingsPage.preferencesPage.popUpConstants.errorMessages.passwordMustBeBetween8And32Characters"
+                ),
+                i18n.global.t(
+                    "settingsPage.preferencesPage.popUpConstants.errorMessages.chooseAPasswordWithTheAppropriateLength"
+                )
+            );
+        }
+    }
+}
+
+async function updatePassword() {
+    const result = await postData(`user/preferences/update_password/`, { password: newPassword.value });
+
+    if (!result.success) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.errorUpdatingPassword"),
+            result.error as string
+        );
+        return;
+    }
+
+    displayPopup?.(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("settingsPage.accountPage.passwordUpdatedSuccess")
+    );
+}
+
+async function updateUsername() {
+    const result = await postData(`user/preferences/update_username/`, { username: username.value });
+
+    if (!result.success) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.errorUpdatingUsername"),
+            result.error as string
+        );
+        return;
+    }
+
+    displayPopup?.(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("settingsPage.accountPage.usernameUpdatedSuccess")
+    );
+}
+
+function openAccountDeletionModal() {
+    const isChecked = document.querySelector('input[name="choice"]:checked');
+
+    if (isChecked) {
+        isAccountDeletionModalOpen.value = true;
+    } else {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.confirmationRequired"),
+            i18n.global.t("settingsPage.accountPage.checkBoxApprovalDeletion")
+        );
+    }
+}
+
+async function openUserDescriptionModal(email: string) {
+    emailSelected.value = email;
+
+    const result = await postData(`user/social_api/get_user_description/`, { email: email });
+
+    if (!result.success) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.errorUnlinkingEmailAddress"),
+            result.error as string
+        );
+        return;
+    }
+
+    isModalUserDescriptionOpen.value = true;
+    userDescription.value = result.data.description;
 }
 
 function linkNewEmail() {
@@ -535,66 +679,76 @@ function linkNewEmail() {
     }
 }
 
+async function openUnLinkModal(email: string) {
+    emailSelected.value = email;
+    isUnlinkModalOpen.value = true;
+
+    if (emailsLinked.value.length === 1) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("settingsPage.accountPage.unableToDeletePrimaryEmail"),
+            i18n.global.t("settingsPage.accountPage.deleteAccountInstruction")
+        );
+        closeUnlinkModal();
+        return;
+    }
+}
+
+const intervalId = setInterval(checkAuthorizationCode, 1000);
+
 function checkAuthorizationCode() {
     const urlParams = new URLSearchParams(window.location.search);
     const authorizationCode = urlParams.get("code");
 
     if (authorizationCode) {
-        // clearInterval(intervalId);
+        clearInterval(intervalId);
         linkEmail(authorizationCode);
     }
 }
 
-async function linkEmail(authorizationCode: string) {
-    try {
-        const result = await postData("user/social_api/link/", {
-            code: authorizationCode,
-            typeApi: sessionStorage.getItem("typeApi"),
-            user_description: sessionStorage.getItem("userDescription"),
-        });
+function closeUnlinkModal() {
+    isUnlinkModalOpen.value = false;
+}
 
-        if (result.data.message === "Email linked to account successfully!") {
-            await fetchEmailLinked();
-            displayPopup(
-                "success",
-                i18n.global.t("constants.popUpConstants.successMessages.success"),
-                i18n.global.t("settingsPage.accountPage.emailLinkedSuccess")
-            );
-        } else {
-            displayPopup("error", i18n.global.t("settingsPage.accountPage.emailLinkingFailure"), response.error);
-        }
-    } catch (error) {
-        displayPopup("error", "Error", error.message);
-    } finally {
-        sessionStorage.clear();
-        const currentUrl = window.location.href;
-        const modifiedUrl = currentUrl.replace(/(\?)code=.*(&|$)/, "?").replace(/(\?)state=.*(&|$)/, "?");
-        window.history.replaceState({}, document.title, modifiedUrl);
+async function linkEmail(authorizationCode: string) {
+    const result = await postData("user/social_api/link/", {
+        code: authorizationCode,
+        typeApi: sessionStorage.getItem("typeApi"),
+        user_description: sessionStorage.getItem("userDescription"),
+    });
+
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("settingsPage.accountPage.emailLinkingFailure"), result.error as string);
+    } else {
+        await fetchEmailLinked();
+        displayPopup?.(
+            "success",
+            i18n.global.t("constants.popUpConstants.successMessages.success"),
+            i18n.global.t("settingsPage.accountPage.emailLinkedSuccess")
+        );
     }
+
+    sessionStorage.clear();
+    const currentUrl = window.location.href;
+    const modifiedUrl = currentUrl.replace(/(\?)code=.*(&|$)/, "?").replace(/(\?)state=.*(&|$)/, "?");
+    window.history.replaceState({}, document.title, modifiedUrl);
 }
 
 async function fetchEmailLinked() {
-    try {
-        const response = await getData("user/emails_linked/");
-        emailsLinked.value = response.emails;
-    } catch (error) {
-        displayPopup("error", "Error fetching linked emails", error.message);
-    }
+    const result = await getData("user/emails_linked/");
+    if (!result) return;
+
+    emailsLinked.value = result?.data?.emails;
 }
 
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
+async function fetchUsername() {
+    const result = await getData(`user/preferences/username/`);
 
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch username", result.error as string);
+        return;
     }
+
+    username.value = result.data.username;
 }
 </script>

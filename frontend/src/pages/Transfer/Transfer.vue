@@ -726,10 +726,10 @@ async function scheduleSend(): Promise<void> {
 
             displayMessage(message, ai_icon);
         } else {
-            displayPopup("error", t("constants.popUpConstants.errorMessages.emailSendError"), response.error);
+            displayPopup("error", i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"), response.error);
         }
     } catch (error) {
-        displayPopup("error", t("constants.popUpConstants.errorMessages.emailSendError"), (error as Error).message);
+        displayPopup("error", i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"), (error as Error).message);
     }
 }
 
@@ -785,7 +785,7 @@ async function sendEmail(): Promise<void> {
         });
 
         if (response.message === "Email sent successfully!") {
-            displayPopup("success", t("transferPage.emailTransferred"), t("constants.redirectionInProgress"));
+            displayPopup("success", i18n.global.t("transferPage.emailTransferred"), i18n.global.t("constants.redirectionInProgress"));
             emailTransfered.value = true;
             localStorage.removeItem("uploadedFiles");
             uploadedFiles.value = [];
@@ -801,10 +801,10 @@ async function sendEmail(): Promise<void> {
             } else if (response.error === "subject is missing") {
                 errorMessage = t("constants.popUpConstants.errorMessages.emailSendErrorNoObject");
             }
-            displayPopup("error", t("constants.popUpConstants.errorMessages.emailSendError"), errorMessage);
+            displayPopup("error", i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"), errorMessage);
         }
     } catch (error) {
-        displayPopup("error", t("constants.popUpConstants.errorMessages.emailSendError"), error as string);
+        displayPopup("error", i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"), error as string);
     }
 }
 

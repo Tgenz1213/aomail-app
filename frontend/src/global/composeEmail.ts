@@ -1,6 +1,6 @@
 import { API_BASE_URL, MICROSOFT } from "./const"
 import { fetchWithToken } from "./security"
-import { i18n } from "../pages/Settings/utils/preferences"
+import { i18n } from "./preferences"
 
 interface Person {
     email: string

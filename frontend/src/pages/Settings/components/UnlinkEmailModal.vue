@@ -65,12 +65,56 @@
     </transition>
 </template>
 
+<!-- todo: put this as a prop: emailSelected (its a string variable) -->
 
-<!-- todo:
-rename variables to be local => closeUnlinkModal => closeModal & isUnlinkModalOpen => isModalOpen 
-copy functions to ensure functionnality
-fix issues with TS
-add a script setup 
+<script setup lang="ts">
+import { postData } from "@/global/fetchData";
+import { i18n } from "@/global/preferences";
+import { ref, inject, Ref } from "vue";
 
-// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file-->
+const emailSelected = inject<Ref<string>>("emailSelected");
+const fetchEmailLinked = inject<Promise<void>>("fetchEmailLinked");
 
+const showNotification = ref(false);
+const notificationTitle = ref("");
+const notificationMessage = ref("");
+const backgroundColor = ref("");
+const timerId = ref<number | null>(null);
+
+async function unLinkAccount() {
+    const result = await postData(`user/social_api/unlink/`, { email: emailSelected });
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("settingsPage.accountPage.errorUnlinkingEmailAddress"),
+            result.error as string
+        );
+        return;
+    }
+
+    fetchEmailLinked();
+    displayPopup(
+        "success",
+        i18n.global.t("constants.popUpConstants.successMessages.success"),
+        i18n.global.t("settingsPage.accountPage.emailUnlinkedSuccess")
+    );
+    closeModal();
+}
+
+function displayPopup(type: "success" | "error", title: string, message: string) {
+    if (type === "error") {
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    } else {
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    }
+    timerId.value = setTimeout(dismissPopup, 4000);
+}
+
+function dismissPopup() {
+    showNotification.value = false;
+    if (timerId.value !== null) {
+        clearTimeout(timerId.value);
+    }
+}
+</script>

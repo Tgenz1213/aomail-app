@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { ref, defineProps, defineEmits } from "vue";
-import { i18n } from "@/pages/Settings/utils/preferences";
+import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 

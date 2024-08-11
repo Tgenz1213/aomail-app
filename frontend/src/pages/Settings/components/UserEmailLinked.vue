@@ -1,5 +1,9 @@
 <template>
     <UnlinkEmailModal :isOpen="isUnlinkEmailModalOpen" @closeModal="closeUnlinkEmailModal" />
+    <UpdateUserDescriptionModal
+        :isOpen="isUpdateUserDescriptionModalOpen"
+        @closeModal="closeUpdateUserDescriptionModal"
+    />
     <div class="flex items-center justify-center w-full">
         <svg
             v-if="email.typeApi === 'microsoft'"
@@ -96,12 +100,13 @@ import { EmailLinked } from "../utils/types";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 import UnlinkEmailModal from "./UnlinkEmailModal.vue";
+import UpdateUserDescriptionModal from "./UpdateUserDescriptionModal.vue";
 
 const isUnlinkEmailModalOpen = ref(false);
+const isUpdateUserDescriptionModalOpen = ref(false);
 const emailSelected = inject<Ref<string>>("emailSelected", ref(""));
 const emailsLinked = inject<Ref<string>>("emailsLinked", ref(""));
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-const isUpdateUserDescriptionModalOpen = ref(false);
 const userDescription = ref("");
 
 defineProps<{
@@ -110,6 +115,10 @@ defineProps<{
 
 function closeUnlinkEmailModal() {
     isUnlinkEmailModalOpen.value = false;
+}
+
+function closeUpdateUserDescriptionModal() {
+    isUpdateUserDescriptionModalOpen.value = false;
 }
 
 async function openUnLinkModal(email: string) {

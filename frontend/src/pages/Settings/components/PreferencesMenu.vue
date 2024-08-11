@@ -1,11 +1,4 @@
 <template>
-    <NotificationTimer
-        :showNotification="showNotification"
-        :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage"
-        :backgroundColor="backgroundColor"
-        @dismiss-popup="dismissPopup"
-    />
     <div class="mx-auto w-full h-full px-8 2xl:px-12 pt-10">
         <div class="flex flex-col h-full pb-6">
             <div class="flex gap-x-10 w-full">
@@ -24,7 +17,6 @@
                         <LanguageSelection />
                     </div>
                 </div>
-
                 <div class="flex-1 flex flex-col">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center" aria-hidden="true">
@@ -43,7 +35,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="flex gap-x-10 w-full">
                 <div class="flex-1 flex flex-col">
                     <div class="relative">
@@ -61,7 +52,6 @@
                     </div>
                 </div>
             </div>
-
             <div
                 class="flex-1 w-full h-full rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 text-center"
             >
@@ -90,42 +80,7 @@
 </template>
 
 <script lang="ts" setup>
-// todo:
-// - use strictly camelCase ONLY
-// - copy functions from Settings and fix issues with TS
-
-// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
-
-import { ref, onMounted } from "vue";
-import { getData, postData } from "@/global/fetchData";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { API_BASE_URL } from "@/global/const";
-import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { i18n } from "@/global/preferences";
 import TimeZoneSelection from "@/pages/Settings/components/TimeZoneSelection.vue";
 import LanguageSelection from "@/pages/Settings/components/LanguageSelection.vue";
 import ThemeSelection from "@/pages/Settings/components/ThemeSelection.vue";
-
-const userEmailDescription = ref("");
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
-
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
-
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
-}
 </script>

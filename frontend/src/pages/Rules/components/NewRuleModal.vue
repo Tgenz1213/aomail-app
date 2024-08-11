@@ -131,9 +131,9 @@
                             class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-gray-500 sm:text-sm sm:leading-6"
                         >
                             <option value="">{{ $t("constants.ruleModalConstants.noPriority") }}</option>
-                            <option value="IMPORTANT">{{ $t("constants.ruleModalConstants.important") }}</option>
-                            <option value="INFORMATIVE">{{ $t("constants.ruleModalConstants.informative") }}</option>
-                            <option value="USELESS">{{ $t("constants.ruleModalConstants.useless") }}</option>
+                            <option :value=IMPORTANT>{{ $t("constants.ruleModalConstants.important") }}</option>
+                            <option :value=INFORMATIVE>{{ $t("constants.ruleModalConstants.informative") }}</option>
+                            <option :value=USELESS>{{ $t("constants.ruleModalConstants.useless") }}</option>
                         </select>
                     </div>
                     <SwitchGroup as="div" class="flex items-center pt-2">
@@ -198,6 +198,7 @@ import {
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { postData } from "@/global/fetchData";
 import { Category, EmailSender, RuleData } from "@/global/types";
+import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 
 interface Props {
   isOpen: boolean;
@@ -286,7 +287,7 @@ const createEmailSenderRule = async () => {
     console.log("FIRST CHECK ", senderCheckResult);
 
     let senderId: number;
-    if (!senderCheckResult.success) {
+    if (!senderCheckResult.data.exists) {
       // Create new sender
       const senderData = {
         username: selectedPerson.value.username || selectedPerson.value.email.split('@')[0],
@@ -300,6 +301,8 @@ const createEmailSenderRule = async () => {
     } else {
       senderId = senderCheckResult.data.sender_id;
     }
+
+    console.log("SENDER ID", senderId);
 
     // Get category ID if category is selected
     let categoryId: number | undefined;

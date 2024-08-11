@@ -7,17 +7,18 @@ import messages from "@/i18n";
 type UserPreferenceResponse = {
     language?: string;
     theme?: string;
+    timezone?: string;
     error?: string;
 };
 
 const fetchUserPreference = async (
     endpoint: string,
     key: keyof UserPreferenceResponse,
-    allowedValues: string[]
+    allowedValues?: string[]
 ): Promise<string | null> => {
     const storedValue = localStorage.getItem(key);
 
-    if (storedValue && allowedValues.includes(storedValue)) {
+    if (storedValue && allowedValues?.includes(storedValue)) {
         return storedValue;
     }
 
@@ -73,9 +74,14 @@ export const initializePreferences = async (i18n: I18n) => {
         if (theme) {
             themeSelected.value = theme;
         }
+        const timezone = await fetchUserPreference("user/preferences/timezone/", "timezone");
+        if (timezone) {
+            timezoneSelected.value = timezone;
+        }
     }
 };
 
 export const languageSelected = ref("english");
 export const themeSelected = ref("light");
+export const timezoneSelected = ref("UTC");
 export const i18n = createI18n({ legacy: true, locale: languageSelected.value, fallbackLocale: "english", messages });

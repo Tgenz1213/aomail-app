@@ -197,7 +197,7 @@ import {
 } from "@headlessui/vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { postData } from "@/global/fetchData";
-import { Category, EmailSender, RuleData } from "@/global/types";
+import { Category, EmailSender } from "@/global/types";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 
 interface Props {

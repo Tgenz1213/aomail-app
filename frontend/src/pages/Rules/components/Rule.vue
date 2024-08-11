@@ -65,7 +65,7 @@
 import { defineProps, defineEmits } from 'vue';
 import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
-import { RuleData } from "@/global/types";
+import { RuleData } from "../utils/types";
 
 const props = defineProps<{
   rule: RuleData;

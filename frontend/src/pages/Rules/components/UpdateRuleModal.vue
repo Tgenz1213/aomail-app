@@ -215,7 +215,8 @@ import {
 import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { i18n } from "@/global/preferences";
-import { EmailSender, Category, RuleData } from "@/global/types";
+import { EmailSender, Category } from "@/global/types";
+import { RuleData } from "../utils/types";
 
 interface FormData {
   id?: string;
@@ -362,7 +363,9 @@ async function deleteRule() {
         return;
     }
 
-    const result = await postData(`user/delete_rules/${formData.value.id}`, {});
+    console.log("ID DELETE", formData.value.id);
+
+    const result = await postData(`user/delete_rules/${formData.value.id}/`, {});
 
     if (!result.success) {
         displayPopup(

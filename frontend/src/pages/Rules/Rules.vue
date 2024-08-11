@@ -129,7 +129,8 @@ import NewRuleModal from "./components/NewRuleModal.vue";
 import UpdateRuleModal from "./components/UpdateRuleModal.vue";
 import Rule from "./components/Rule.vue";
 import { getData } from "@/global/fetchData";
-import { EmailSender, Category, RuleData } from "@/global/types";
+import { EmailSender, Category} from "@/global/types";
+import { RuleData } from "./utils/types";
 
 const showModal = ref(false);
 const showUpdateModal = ref(false);;

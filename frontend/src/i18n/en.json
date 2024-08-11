@@ -343,6 +343,11 @@
     "priorityField": "Priority",
     "blockedEmail": "Blocked email",
     "createRule": "Click to create a rule",
+    "priorityRule":{
+      "important": "Important",
+      "informative": "Informative",
+      "useless": "Useless"
+    },
     "modals": {
       "createRule": {
         "newRule": "New rule"

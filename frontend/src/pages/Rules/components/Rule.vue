@@ -32,19 +32,19 @@
                     v-if="rule.priority === IMPORTANT"
                     class="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20"
                 >
-                    {{ rule.priority }}
+                    {{ $t("rulesPage.priorityRule.important") }}
                 </span>
                 <span
                     v-if="rule.priority === INFORMATIVE"
                     class="inline-flex flex-shrink-0 items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20"
                 >
-                    {{ rule.priority }}
+                    {{ $t("rulesPage.priorityRule.informative") }}
                 </span>
                 <span
                     v-if="rule.priority === USELESS"
                     class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/20"
                 >
-                    {{ rule.priority }}
+                    {{ $t("rulesPage.priorityRule.useless") }}
                 </span>
             </div>
             <div v-if="rule.mailStop" class="flex gap-1 mt-2">

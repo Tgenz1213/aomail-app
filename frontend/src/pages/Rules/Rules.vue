@@ -32,7 +32,7 @@
                                     :key="rule.email"
                                     class="col-span-1 rounded-lg bg-white border-2 border-gray-100 hover:border-3 hover:border-gray-800 hover:shadow-sm relative"
                                 >
-                                    <Rule :rule="rule" />
+                                    <Rule :rule="rule" @edit="handleEditRule" />
                                 </li>
                             </ul>
                         </div>
@@ -163,9 +163,9 @@ function updateModalUpdateStatus(status: boolean) {
     showUpdateModal.value = status;
 }
 
-function editRule(rule: any) {
-    ruleSelected.value = rule;
-    showUpdateModal.value = true;
+function handleEditRule(rule: any) {
+  ruleSelected.value = rule;
+  showUpdateModal.value = true;
 }
 
 async function fetchRules() {

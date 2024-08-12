@@ -179,6 +179,7 @@
 import { ref, computed, watch } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/global/preferences";
+import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 import {

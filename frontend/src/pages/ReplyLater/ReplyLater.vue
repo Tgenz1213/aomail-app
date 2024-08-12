@@ -259,7 +259,7 @@ import { i18n } from "@/global/preferences";
 // interface Email {
 //     id: string
 //     email: string
-//     id_provider: string
+//     providerId: string
 //     details: string
 // }
 
@@ -406,7 +406,7 @@ import { i18n } from "@/global/preferences";
 // }
 
 // async function openAnswer(email: Email) {
-//     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`
+//     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.providerId}`
 
 //     try {
 //         const response = await fetchWithToken(url, {
@@ -441,7 +441,7 @@ import { i18n } from "@/global/preferences";
 //                 bcc: JSON.stringify(data.email.bcc),
 //                 decoded_data: JSON.stringify(data.email.decoded_data),
 //                 email: JSON.stringify(email.email),
-//                 id_provider: JSON.stringify(email.id_provider),
+//                 providerId: JSON.stringify(email.providerId),
 //                 details: JSON.stringify(email.details),
 //             },
 //         })
@@ -455,7 +455,7 @@ import { i18n } from "@/global/preferences";
 // }
 
 // async function transferEmail(email: Email) {
-//     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.id_provider}`
+//     const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.providerId}`
 
 //     try {
 //         const response = await fetchWithToken(url, {

@@ -193,7 +193,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
-import { postData } from "@/global/fetchData";
+import { postData, putData, deleteData } from "@/global/fetchData";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import {
     Combobox,
@@ -354,9 +354,7 @@ async function deleteRule() {
         return;
     }
 
-    console.log("ID DELETE", formData.value.id);
-
-    const result = await postData(`user/delete_rules/${formData.value.id}/`, {});
+    const result = await deleteData(`user/delete_rules/${formData.value.id}/`);
 
     if (!result.success) {
         displayPopup(
@@ -476,7 +474,7 @@ async function updateUserRule() {
         ruleData.category = categoryResult.data.id;
     }
 
-    const ruleResult = await postData(`user/update_rule/`, ruleData);
+    const ruleResult = await putData(`user/update_rule/`, ruleData);
 
     if (!ruleResult.success) {
         displayPopup(

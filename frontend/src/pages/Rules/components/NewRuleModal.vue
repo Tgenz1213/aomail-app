@@ -27,7 +27,7 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-1">
                         <p class="block font-semibold leading-6 text-gray-900">
-                            {{ $t("rulesPage.modals.updateRule.modifyTheRule") }}
+                            {{ $t("rulesPage.modals.createRule.newRule") }}
                         </p>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                     <Combobox as="div" v-model="selectedPerson">
                         <p class="text-red-500">{{ errorMessage }}</p>
                         <div class="flex space-x-1 items-center">
-                            <EmailSenderIcon class="w-4 h-4" />
+                            <UserIcon class="w-4 h-4" />
                             <ComboboxLabel class="block text-sm font-medium leading-6 text-gray-900">
                                 {{ $t("rulesPage.contactField") }}
                             </ComboboxLabel>
@@ -179,14 +179,8 @@
 import { ref, computed, watch } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/global/preferences";
-import {
-    ChevronUpDownIcon,
-    ArchiveBoxIcon,
-    ShieldCheckIcon,
-    ExclamationCircleIcon,
-    XMarkIcon,
-    CheckIcon,
-} from "@heroicons/vue/20/solid";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
+import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline";
 import {
     Combobox,
     ComboboxButton,

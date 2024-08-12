@@ -4,7 +4,7 @@
         :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage"
         :backgroundColor="backgroundColor"
-        @dismiss-popup="dismissPopup"
+        @dismissPopup="dismissPopup"
     />
     <transition name="modal-fade">
         <div

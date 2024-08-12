@@ -4,7 +4,7 @@
         :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage"
         :backgroundColor="backgroundColor"
-        @dismiss-popup="dismissPopup"
+        @dismissPopup="dismissPopup"
     />
     <!-- Update Category modal -->
     <transition name="modal-fade">

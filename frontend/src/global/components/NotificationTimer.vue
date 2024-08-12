@@ -91,7 +91,7 @@ export default defineComponent({
 
         const dismissPopup = () => {
             showNotificationInternal.value = false;
-            emit("dismiss-popup");
+            emit("dismissPopup");
             clearTimeout(timerId);
         };
 

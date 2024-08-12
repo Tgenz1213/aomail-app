@@ -6,7 +6,7 @@
                 :notificationTitle="notificationTitle"
                 :notificationMessage="notificationMessage"
                 :backgroundColor="backgroundColor"
-                @dismiss-popup="dismissPopup"
+                @dismissPopup="dismissPopup"
             />
             <h1 class="text-2xl mb-6">Reset Password</h1>
             <p class="text-lg mb-6">Please enter your new password below.</p>

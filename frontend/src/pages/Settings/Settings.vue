@@ -4,7 +4,7 @@
         :notificationTitle="notificationTitle"
         :notificationMessage="notificationMessage"
         :backgroundColor="backgroundColor"
-        @dismiss-popup="dismissPopup"
+        @dismissPopup="dismissPopup"
     />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">

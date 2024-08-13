@@ -455,24 +455,24 @@ class MicrosoftEmailNotification(View):
                                 LOGGER.critical(
                                     f"[Attempt n°{i+1}] Failed to process email with AI for email: {subscription.first().email} and email ID: {email_id}"
                                 )
-                                context = {
-                                    "error": result,
-                                    "attempt_number": i + 1,
-                                    "email": subscription.first().email,
-                                    "email_provider": MICROSOFT,
-                                    "user": subscription.first().user,
-                                }
-                                email_html = render_to_string(
-                                    "ai_failed_email.html", context
-                                )
-                                send_mail(
-                                    subject="Critical Alert: Email Processing Failure",
-                                    message="",
-                                    recipient_list=ADMIN_EMAIL_LIST,
-                                    from_email=EMAIL_NO_REPLY,
-                                    html_message=email_html,
-                                    fail_silently=False,
-                                )
+                                # context = {
+                                #     "error": result,
+                                #     "attempt_number": i + 1,
+                                #     "email": subscription.first().email,
+                                #     "email_provider": MICROSOFT,
+                                #     "user": subscription.first().user,
+                                # }
+                                # email_html = render_to_string(
+                                #     "ai_failed_email.html", context
+                                # )
+                                # send_mail(
+                                #     subject="Critical Alert: Email Processing Failure",
+                                #     message="",
+                                #     recipient_list=ADMIN_EMAIL_LIST,
+                                #     from_email=EMAIL_NO_REPLY,
+                                #     html_message=email_html,
+                                #     fail_silently=False,
+                                # )
 
                     threading.Thread(target=process_email).start()
 

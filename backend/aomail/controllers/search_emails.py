@@ -79,7 +79,7 @@ def get_emails_data(request: HttpRequest) -> Response:
                     "email": email.sender.email,
                     "name": email.sender.name,
                 },
-                "id_provider": email.provider_id,
+                "providerId": email.provider_id,
                 "shortSummary": email.short_summary,
                 "oneLineSummary": email.one_line_summary,
                 "cc": [
@@ -278,8 +278,8 @@ def construct_filters(user: User, parameters: dict) -> dict:
             filters["cc_senders__name__in"] = parameters["CCNames"]
 
     else:
-        #category_obj = Category.objects.get(name=parameters["category"])
-        #filters["category"] = category_obj
+        # category_obj = Category.objects.get(name=parameters["category"])
+        # filters["category"] = category_obj
         subject = parameters["subject"]
         filters["subject__icontains"] = subject
         filters["sender__email__icontains"] = subject
@@ -312,9 +312,7 @@ def get_sorted_queryset(
             if key != "user":
                 query |= Q(**{key: value})
 
-        queryset = Email.objects.filter(
-            query, user=filters["user"]
-        )
+        queryset = Email.objects.filter(query, user=filters["user"])
 
     rule_id_subquery = Rule.objects.filter(
         sender=OuterRef("sender"), user=filters["user"]
@@ -344,7 +342,7 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
             email_ids (list): List of email IDs from the queryset.
     """
     email_count = queryset.count()
-    email_ids = list(queryset.values_list('id', flat=True)[:result_per_page])
+    email_ids = list(queryset.values_list("id", flat=True)[:result_per_page])
     return email_count, email_ids
 
 

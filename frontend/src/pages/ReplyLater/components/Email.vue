@@ -64,7 +64,7 @@
                             {{ $t("constants.userActions.open") }}
                         </div>
                         <button
-                            @click="openInNewWindow(email.id_provider)"
+                            @click="openInNewWindow(email.providerId)"
                             type="button"
                             :class="`relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`"
                         >

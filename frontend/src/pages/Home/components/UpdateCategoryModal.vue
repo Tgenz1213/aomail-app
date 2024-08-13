@@ -58,10 +58,8 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { i18n } from "@/global/preferences";
 import { Category } from '@/global/types';
-
-const { t } = useI18n();
 
 const props = defineProps<{
   isOpen: boolean;
@@ -98,17 +96,17 @@ const resetForm = () => {
 
 const updateCategory = () => {
   if (!categoryName.value.trim() || !categoryDescription.value.trim()) {
-    errorMessage.value = t('homePage.modals.pleaseFillAllFields');
+    errorMessage.value = i18n.global.t('homePage.modals.pleaseFillAllFields');
     return;
   }
 
   if (categoryName.value.length > 50) {
-    errorMessage.value = t('homePage.modals.newCategoryModal.maxNameCharacters');
+    errorMessage.value = i18n.global.t('homePage.modals.newCategoryModal.maxNameCharacters');
     return;
   }
 
   if (categoryDescription.value.length > 300) {
-    errorMessage.value = t('homePage.modals.newCategoryModal.maxDescriptionCharacters');
+    errorMessage.value = i18n.global.t('homePage.modals.newCategoryModal.maxDescriptionCharacters');
     return;
   }
 

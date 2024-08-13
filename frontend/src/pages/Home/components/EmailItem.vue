@@ -142,14 +142,11 @@
   
   <script setup lang="ts">
   import { ref, computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
   import { EyeIcon, CheckIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, DocumentIcon, CameraIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import { postData } from '@/global/fetchData';
-  
-  const { t } = useI18n();
-  
+    
   const props = defineProps<{
     email: Email;
   }>();

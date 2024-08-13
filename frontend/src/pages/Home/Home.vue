@@ -39,7 +39,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { getData, postData, deleteData } from '@/global/fetchData';
 import { Email, Category } from '@/global/types';
 import NavBarSmall from "@/global/components/NavBarSmall.vue";

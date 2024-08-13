@@ -68,3 +68,4 @@ export interface Email {
     flags: EmailFlags;
     category: Category;
 }
+

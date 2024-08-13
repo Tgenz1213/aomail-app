@@ -63,7 +63,7 @@ export interface Email {
     attachments: EmailAttachment[];
     sentDate: string | null;
     sentTime: string | null;
-    answer: string;
+    answer: boolean;
     relevance: string;
     priority: string;
     flags: EmailFlags;

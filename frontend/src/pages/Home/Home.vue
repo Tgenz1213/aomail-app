@@ -9,13 +9,13 @@
           <Categories 
             :categories="categories"
             :selected-category="selectedCategory"
-            :get-total-emails-in-category="getTotalEmailsInCategory"
+            :category-totals="categoryTotals"
             @select-category="selectCategory"
             @open-new-category-modal="openNewCategoryModal"
             @open-update-category-modal="openUpdateCategoryModal"
           />
           <!--<SearchBar @input="updateSearchQuery" />-->
-          <div v-if="getTotalEmailsInCategory(selectedCategory) === 0" class="flex-1">
+          <div v-if="categoryTotals[selectedCategory] === 0" class="flex-1">
             <div class="flex flex-col w-full h-full rounded-xl">
               <div class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -27,7 +27,7 @@
               </div>
             </div>
           </div>
-          <div v-else>
+          <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
             <ImportantEmail 
               :emails="importantEmails" 
             />
@@ -60,6 +60,7 @@
 </template>
 
 <script setup lang="ts">
+import { categories, categoryTotals, isLoading } from './utils/categoriesStore';
 import { ref, computed, onMounted } from 'vue';
 import { getData, postData, deleteData } from '@/global/fetchData';
 import { Email, Category } from '@/global/types';
@@ -74,7 +75,6 @@ import AssistantChat from "./components/AssistantChat.vue";
 import Categories from './components/Categories.vue';
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
-const categories = ref<Category[]>([]);
 const selectedCategory = ref<string>('');
 const isNewCategoryModalOpen = ref(false);
 const isUpdateCategoryModalOpen = ref(false);
@@ -108,15 +108,23 @@ const redEmails = computed(() => {
     return categoryEmails.filter(email => email.flags.scam || email.flags.spam);
 });
 
-
-const fetchEmails = async () => {
+const fetchEmailsData = async (categoryName: string) => {
   try {
-    const response = await postData('user/emails/', { subject: "", resultPerPage: 25, category:'Others', advanced:true });
+    const response = await postData('user/emails/', { subject: "", category:categoryName, advanced:true });
     const emails_details = await postData('user/get_emails_data/', {ids:response.data.ids});
     emails.value = emails_details.data.data;
     console.log("CHECK EMAILS", emails.value);
   } catch (error) {
     console.error('Error fetching emails:', error);
+  }
+};
+
+const fetchCategories = async () => {
+  try {
+    const response = await getData('user/categories');
+    categories.value = response.data;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
   }
 };
 
@@ -152,16 +160,8 @@ const closeUpdateModal = () => {
 
 const selectCategory = (category: Category) => {
   selectedCategory.value = category.name;
-};
-
-const getTotalEmailsInCategory = (category: string): number => {
-    if (!emails.value || !emails.value[category]) return 0;
-    const categoryEmails = [
-        ...(emails.value[category]?.important || []),
-        ...(emails.value[category]?.informative || []),
-        ...(emails.value[category]?.useless || [])
-    ];
-    return categoryEmails.length;
+  fetchEmailsData(selectedCategory.value);
+  localStorage.setItem('selectedCategory', category.name);
 };
 
 const openNewCategoryModal = () => {
@@ -209,17 +209,13 @@ const handleCategoryDelete = async (categoryName: string) => {
   }
 };
 
-const fetchCategories = async () => {
-  try {
-    const response = await getData('user/categories');
-    categories.value = response.data;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-  }
-};
-
 onMounted(async () => {
-  await fetchEmails();
-  await fetchCategories();
+  const storedTopic = localStorage.getItem('selectedCategory');
+  if (storedTopic) {
+    selectedCategory.value = storedTopic;
+  } else {
+    selectedCategory.value = 'Others';
+  }
+  fetchEmailsData(selectedCategory.value);
 });
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="emails.length > 0" class="px-6 pb-6">
+    <div v-if="emails.length > 0" class="px-6 py-6 ">
       <div class="bg-orange-100 bg-opacity-90 rounded-md">
         <div class="flex px-3 py-2">
           <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">
@@ -67,14 +67,16 @@
   
   const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
-    /*props.emails.forEach(email => {
-      if (!grouped[email.sentDate]) {
-        grouped[email.sentDate] = [];
+    props.emails.forEach(email => {
+      const sentDate = email.sentDate || 'Unknown Date';
+      if (!grouped[sentDate]) {
+        grouped[sentDate] = [];
       }
-      grouped[email.sentDate].push(email);
-    });*/
+      grouped[sentDate].push(email);
+    });
     return grouped;
   });
+
   
   const setHoveredItem = (id: number) => {
     hoveredItemId.value = id;

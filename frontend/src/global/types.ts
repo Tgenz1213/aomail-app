@@ -66,4 +66,5 @@ export interface Email {
     relevance: string;
     priority: string;
     flags: EmailFlags;
+    category: Category;
 }

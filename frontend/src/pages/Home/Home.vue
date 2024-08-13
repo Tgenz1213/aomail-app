@@ -6,6 +6,14 @@
       </div>
       <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
         <div class="flex flex-col h-full relative">
+          <Categories 
+            :categories="categories"
+            :selected-category="selectedCategory"
+            :get-total-emails-in-category="getTotalEmailsInCategory"
+            @select-category="selectCategory"
+            @open-new-category-modal="openNewCategoryModal"
+            @open-update-category-modal="openUpdateCategoryModal"
+          />
           <!--<SearchBar @input="updateSearchQuery" />-->
           <ImportantEmail 
             :emails="importantEmails" 
@@ -49,12 +57,16 @@ import InformativeEmail from "./components/InformativeEmails.vue";
 import UselessEmail from "./components/UselessEmails.vue";
 import RedEmail from "./components/RedEmails.vue";
 import AssistantChat from "./components/AssistantChat.vue";
+import Categories from './components/Categories.vue';
 
 const emails = ref<Email[]>([]);
 const categories = ref<Category[]>([]);
+const selectedCategory = ref<string>('');
+const isNewCategoryModalOpen = ref(false);
+const isUpdateCategoryModalOpen = ref(false);
+const categoryToUpdate = ref<Category | null>(null);
 const isModalOpen = ref(false);
 const isModalUpdateOpen = ref(false);
-const categoryToUpdate = ref<Category | null>(null);
 const isHidden = ref(false);
 
 const importantEmails = computed(() => emails.value?.filter(email => email.priority === 'important') || []);
@@ -124,6 +136,32 @@ const closeModal = () => {
 
 const closeUpdateModal = () => {
   isModalUpdateOpen.value = false;
+};
+
+const selectCategory = (category: Category) => {
+  selectedCategory.value = category.name;
+};
+
+const getTotalEmailsInCategory = (categoryName: string) => {
+  return emails.value?.filter(email => email.category.name === categoryName && !email.read).length;
+};
+
+const openNewCategoryModal = () => {
+  isNewCategoryModalOpen.value = true;
+};
+
+const closeNewCategoryModal = () => {
+  isNewCategoryModalOpen.value = false;
+};
+
+const openUpdateCategoryModal = (category: Category) => {
+  categoryToUpdate.value = category;
+  isUpdateCategoryModalOpen.value = true;
+};
+
+const closeUpdateCategoryModal = () => {
+  isUpdateCategoryModalOpen.value = false;
+  categoryToUpdate.value = null;
 };
 
 const handleAddCategory = async (category: Category) => {

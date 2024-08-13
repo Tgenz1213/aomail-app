@@ -160,21 +160,21 @@ def get_new_email_response(request: HttpRequest) -> Response:
             LOGGER.critical(
                 f"[Attempt n°{i+1}] failed to generate a new body response: {str(e)}"
             )
-            context = {
-                "attempt_number": i,
-                "error": str(e),
-                "user": user,
-                "title": "Critical Alert: Failed to generate a new body response with AI.",
-            }
-            email_html = render_to_string("ai_failed_conv.html", context)
-            send_mail(
-                subject="Critical Alert: Failed to generate a new body response",
-                message="",
-                recipient_list=ADMIN_EMAIL_LIST,
-                from_email=EMAIL_NO_REPLY,
-                html_message=email_html,
-                fail_silently=False,
-            )
+            # context = {
+            #     "attempt_number": i,
+            #     "error": str(e),
+            #     "user": user,
+            #     "title": "Critical Alert: Failed to generate a new body response with AI.",
+            # }
+            # email_html = render_to_string("ai_failed_conv.html", context)
+            # send_mail(
+            #     subject="Critical Alert: Failed to generate a new body response",
+            #     message="",
+            #     recipient_list=ADMIN_EMAIL_LIST,
+            #     from_email=EMAIL_NO_REPLY,
+            #     html_message=email_html,
+            #     fail_silently=False,
+            # )
 
     return Response(
         {
@@ -232,21 +232,21 @@ def improve_draft(request: HttpRequest) -> Response:
             )
         except Exception as e:
             LOGGER.critical(f"[Attempt n°{i+1}] Failed to generate a draft: {str(e)}")
-            context = {
-                "attempt_number": i,
-                "error": str(e),
-                "user": user,
-                "title": "Critical Alert: Failed to generate a draft.",
-            }
-            email_html = render_to_string("ai_failed_conv.html", context)
-            send_mail(
-                subject="Critical Alert: Failed to generate a draft",
-                message="",
-                recipient_list=ADMIN_EMAIL_LIST,
-                from_email=EMAIL_NO_REPLY,
-                html_message=email_html,
-                fail_silently=False,
-            )
+            # context = {
+            #     "attempt_number": i,
+            #     "error": str(e),
+            #     "user": user,
+            #     "title": "Critical Alert: Failed to generate a draft.",
+            # }
+            # email_html = render_to_string("ai_failed_conv.html", context)
+            # send_mail(
+            #     subject="Critical Alert: Failed to generate a draft",
+            #     message="",
+            #     recipient_list=ADMIN_EMAIL_LIST,
+            #     from_email=EMAIL_NO_REPLY,
+            #     html_message=email_html,
+            #     fail_silently=False,
+            # )
 
     return Response(
         {

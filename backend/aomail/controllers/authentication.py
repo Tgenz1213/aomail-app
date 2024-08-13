@@ -297,24 +297,24 @@ def unsubscribe_listeners(user: User, email: str = None):
                         LOGGER.critical(
                             f"[Attempt {i+1}] Failed to unsubscribe from Google: {social_api.email}"
                         )
-                        context = {
-                            "title": "Critical Alert: Google Unsubscription Failure",
-                            "attempt_number": i + 1,
-                            "subscription_id": social_api.email,
-                            "email_provider": GOOGLE,
-                            "user": user,
-                        }
-                        email_html = render_to_string(
-                            "unsubscribe_failure.html", context
-                        )
-                        send_mail(
-                            subject="Critical Alert: Google Unsubscription Failure",
-                            message="",
-                            recipient_list=ADMIN_EMAIL_LIST,
-                            from_email=EMAIL_NO_REPLY,
-                            html_message=email_html,
-                            fail_silently=False,
-                        )
+                        # context = {
+                        #     "title": "Critical Alert: Google Unsubscription Failure",
+                        #     "attempt_number": i + 1,
+                        #     "subscription_id": social_api.email,
+                        #     "email_provider": GOOGLE,
+                        #     "user": user,
+                        # }
+                        # email_html = render_to_string(
+                        #     "unsubscribe_failure.html", context
+                        # )
+                        # send_mail(
+                        #     subject="Critical Alert: Google Unsubscription Failure",
+                        #     message="",
+                        #     recipient_list=ADMIN_EMAIL_LIST,
+                        #     from_email=EMAIL_NO_REPLY,
+                        #     html_message=email_html,
+                        #     fail_silently=False,
+                        # )
 
     # Unsubscribe from Microsoft listeners
     if email:
@@ -333,22 +333,22 @@ def unsubscribe_listeners(user: User, email: str = None):
                     LOGGER.critical(
                         f"[Attempt {i+1}] Failed to unsubscribe from Microsoft: {listener.subscription_id}"
                     )
-                    context = {
-                        "title": "Critical Alert: Microsoft Unsubscription Failure",
-                        "attempt_number": i + 1,
-                        "subscription_id": listener.subscription_id,
-                        "email_provider": MICROSOFT,
-                        "user": user,
-                    }
-                    email_html = render_to_string("unsubscribe_failure.html", context)
-                    send_mail(
-                        subject="Critical Alert: Microsoft Unsubscription Failure",
-                        message="",
-                        recipient_list=ADMIN_EMAIL_LIST,
-                        from_email=EMAIL_NO_REPLY,
-                        html_message=email_html,
-                        fail_silently=False,
-                    )
+                    # context = {
+                    #     "title": "Critical Alert: Microsoft Unsubscription Failure",
+                    #     "attempt_number": i + 1,
+                    #     "subscription_id": listener.subscription_id,
+                    #     "email_provider": MICROSOFT,
+                    #     "user": user,
+                    # }
+                    # email_html = render_to_string("unsubscribe_failure.html", context)
+                    # send_mail(
+                    #     subject="Critical Alert: Microsoft Unsubscription Failure",
+                    #     message="",
+                    #     recipient_list=ADMIN_EMAIL_LIST,
+                    #     from_email=EMAIL_NO_REPLY,
+                    #     html_message=email_html,
+                    #     fail_silently=False,
+                    # )
 
 
 def validate_authorization_code(type_api: str, code: str) -> dict:
@@ -857,7 +857,7 @@ def generate_reset_token(request: HttpRequest) -> Response:
         email_html = render_to_string("password_reset_email.html", context)
 
         send_mail(
-            subject="Password Reset for MailAssistant",
+            subject="Password Reset for Aomail",
             message="",
             recipient_list=[email],
             from_email=EMAIL_NO_REPLY,

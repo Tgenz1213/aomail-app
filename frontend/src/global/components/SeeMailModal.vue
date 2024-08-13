@@ -19,7 +19,7 @@
                 <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
                     <div class="ml-8 flex items-center space-x-2">
                         <EnvelopeOpenIcon class="w-6 h-6" />
-                        <p class="block font-semibold leading-6 text-gray-900">{{ email.subject }}</p>
+                        <p class="block font-semibold leading-6 text-gray-900">{{ email?.subject }}</p>
                     </div>
                 </div>
                 <div class="overflow-auto h-[535px] 2xl:h-[736px]">
@@ -28,8 +28,8 @@
                             <div class="flex">
                                 <div class="flex flex-col gap-y-0">
                                     <div class="flex items-center gap-x-2">
-                                        <p class="text-gray-600 font-semibold">{{ email.sender.name }}</p>
-                                        <p class="text-gray-600 text-sm">&lt;{{ email.sender.email }}&gt;</p>
+                                        <p class="text-gray-600 font-semibold">{{ email?.sender.name }}</p>
+                                        <p class="text-gray-600 text-sm">&lt;{{ email?.sender.email }}&gt;</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center ml-auto">
@@ -40,13 +40,13 @@
                                     </div>
                                     <div class="flex gap-x-1 justify-center">
                                         <span
-                                            v-if="email.priority === 'important'"
+                                            v-if="email?.priority === 'important'"
                                             class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
                                         >
                                             Important
                                         </span>
                                         <span
-                                            v-else-if="email.priority === 'informative'"
+                                            v-else-if="email?.priority === 'informative'"
                                             class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
                                         >
                                             Informative
@@ -63,7 +63,7 @@
                                             {{ category }}
                                         </span>
                                         <span
-                                            v-if="email.read"
+                                            v-if="email?.read"
                                             class="inline-flex items-center rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-600 ring-1 ring-inset ring-stone-500/10"
                                         >
                                             <svg
@@ -91,7 +91,7 @@
                                                         {{ $t("homePage.modals.seeEmailModal.read") }}
                                                     </div>
                                                     <button
-                                                        @click="markEmailAsRead(email.id)"
+                                                        @click="markEmailAsRead(email?.id as number)"
                                                         type="button"
                                                         class="relative inline-flex items-center rounded-l-md px-1.5 py-1 text-sm font-semibold text-gray-400 border border-gray-600 hover:bg-gray-600 focus:z-10"
                                                     >
@@ -109,7 +109,7 @@
                                                         {{ $t("homePage.answer") }}
                                                     </div>
                                                     <button
-                                                        @click="openAnswer(email)"
+                                                        @click="openAnswer(email as Email)"
                                                         type="button"
                                                         class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 border-r border-t border-b border-gray-600 hover:bg-gray-600 focus:z-10"
                                                     >
@@ -316,7 +316,7 @@ const isMenuOpen = ref(false);
 
 const props = defineProps<{
     isOpen: boolean;
-    email: Email;
+    email: Email | undefined;
     category: string;
     htmlContent: string;
 }>();
@@ -359,10 +359,10 @@ const markEmailReplyLater = () => {
 };
 
 const openRuleEditor = () => {
-    if (props.email.rule.hasRule) {
-        emits("openRuleEditor", props.email.rule.ruleId);
+    if (props.email?.rule.hasRule) {
+        emits("openRuleEditor", props.email?.rule.ruleId);
     } else {
-        emits("openNewRule", props.email.sender.name, props.email.sender.email);
+        emits("openNewRule", props.email?.sender.name, props.email?.sender.email);
     }
 };
 

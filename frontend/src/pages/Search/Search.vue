@@ -10,6 +10,8 @@
     <SeeMailModal
         :isOpen="isModalSeeOpen"
         :email="selectedEmail"
+        :category="category"
+        :htmlContent="htmlContent"
         @closeSeeModal="closeSeeModal"
         @openAnswer="openAnswer"
         @openRuleEditor="openRuleEditor"
@@ -18,7 +20,7 @@
         @markEmailReplyLater="markEmailReplyLater"
         @transferEmail="transferEmail"
     />
-    <div class="flex flex-col justify-center items-center h-screen" :class="bgColor">
+    <div class="flex flex-col justify-center items-center h-screen" >
         <div class="flex h-full w-full">
             <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
                 <NavBarSmall />
@@ -520,13 +522,25 @@ import {
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { EyeIcon } from "@heroicons/vue/24/outline";
 import { fetchWithToken } from "@/global/security";
-import { API_BASE_URL } from "@/global/const";
+import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
+import { Email } from "@/global/types";
+import { i18n } from "@/global/preferences";
+import { getData, postData } from "@/global/fetchData";
  
-const startDate = ref("");
 
-const updateDate = (event) => {
+
+interface Contact  {
+    id: number;     
+    email: string;       
+    username: string;    
+    provider_id: string; 
+}
+
+
+
+const updateDate = (event: { target: { value: string; }; }) => {
     startDate.value = event.target.value;
 };
 
@@ -541,8 +555,8 @@ const formattedDate = computed(() => {
 });
  
  
-let selectedEmailId = ref("");
-const activeSection = ref("account");
+const startDate = ref("");
+ 
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
@@ -554,16 +568,15 @@ let counter_display = 0;
 let query = ref("");
 let stepcontainer = 0;
 const scrollableDiv = ref(null);
-const scrollToBottom = async () => {
-    await nextTick();
-    const element = scrollableDiv.value;
-    element.scrollTop = element.scrollHeight;
-};
+
 let isAIWriting = ref(false);
-let isEmailhere = ref(false);
-let searchResult = ref({});
+let isEmailhere = ref(false); 
+let htmlContent = ref("");
+let category = ref("");
 const textareaValue = ref("");
 let lockEmailsAccess = ref(false);
+
+
 
 const attachmentTypes = [
     { extension: ".docx", name: "Word Document" },
@@ -595,32 +608,42 @@ const dateIntervals = [
 const searchIn = [{ key: "all" }, { key: "read" }, { key: "notRead" }, { key: "replyLater" }];
 
 const selectedSearchIn = ref(null);
-
 const attachmentSelected = ref(null);
-
 let emailsLinked = ref("");
 
-const contacts = [];
+
+let isModalSeeOpen = ref(false);
+let selectedEmail = ref<Email>( );
+
+const contacts:Contact[] = [];
 const isFocused2 = ref(false);
 const isFocused = ref(false);
 const queryGetContacts = ref("");
 const selectedPerson = ref(null);
 const fromselectedPerson = ref(null);
 const selectedRecipients = ref([]);
-const emailList = ref([]);
-
-const selectedFromPerson = ref(null);
-const selectedFromAddresses = ref([]);
+const emailList = ref<Email[]>([]);
  
+  
+
 const sortedEmailList = computed(() => {
+    const priorityOrder: Record<string, number> = {
+        [IMPORTANT]: 0,
+        [INFORMATIVE]: 1,
+        [USELESS]: 2,
+    };
+ 
     return [...emailList.value].sort((a, b) => {
-        const priorityOrder = { important: 0, informative: 1, useless: 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
 });
+
+const scrollToBottom = async () => {
+    await nextTick();
+    const element = scrollableDiv.value;
+    element.scrollTop = element.scrollHeight; // 'element' is possibly 'null'.
+};
  
-let isModalSeeOpen = ref(false);
-let selectedEmail = ref(null);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
@@ -640,8 +663,9 @@ function dismissPopup() {
 
 async function openMail(emailId) {
     try {
-        const htmlContent = await fetchEmailContent(emailId);
-        const emailIndex = emailList.value.findIndex((email) => email.id === emailId);
+        htmlContent = await fetchEmailContent(emailId);
+        // todo: find the category and update the variable category
+        const emailIndex = emailList.value.findIndex((email: Email) => email.id === emailId);
 
         if (emailIndex !== -1) {
             emailList.value[emailIndex] = {
@@ -661,7 +685,8 @@ async function openMail(emailId) {
 function closeSeeModal() {
     isModalSeeOpen.value = false;
 }
-async function openAnswer(email) { const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.providerId}`;
+
+async function openAnswer(email: Email) { const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.providerId}`;
 
     try {
         const data = await fetchWithToken(url, {
@@ -691,144 +716,84 @@ async function openAnswer(email) { const url = `${API_BASE_URL}api/get_mail_by_i
         displayPopup();
     }
 }
+
 function openRuleEditor(ruleId) {
     if (ruleId) {
-        router.push({ name: "rules", query: { id_rule: ruleId, edit_rule: true } });
+        router.push({ name: "rules", query: { idRule: ruleId, editRule: "true" } });
     }
 }
+
 function openNewRule(ruleName, ruleEmail) {
     if (ruleName && ruleEmail) {
-        router.push({ name: "rules", query: { rule_name: ruleName, rule_email: ruleEmail, edit_rule: false } });
+        router.push({ name: "rules", query: { ruleName: ruleName, ruleEmail: ruleEmail, editRule: "false" } });
     }
 }
-async function markEmailAsRead(emailId) {
-    try {
+
+async function markEmailAsRead(emailId: number) { 
         lockEmailsAccess.value = true;
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_read/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+        const result = await postData(`user/emails/${emailId}/mark_read/`, { });
 
-        if (response.read != true) { 
-            backgroundColor = "bg-red-200/[.89] border border-red-400";
-            notificationTitle = t("homepage.markEmailReadFailure");
-            notificationMessage = response;
-            displayPopup();
+
+ 
+
+        if (!result.success) {
+
+            displayPopup('error', i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
         }
-    } catch (error) {
-        console.error("Error in markEmailAsRead:", error.message);
-        backgroundColor = "bg-red-200/[.89] border border-red-400";
-        notificationTitle = t("homepage.markEmailReadFailure");
-        notificationMessage = error.message;
-        displayPopup();
-    }
+   
 }
-async function markEmailReplyLater(email) {
-    lockEmailsAccess.value = true;
-    const emailId = email.id;
 
-    try {
-        const response = await fetchWithToken(`${API_BASE_URL}user/emails/${emailId}/mark_reply_later/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }); 
-        if (response.answer_later) { 
-        } else {
-            console.error("Failed to mark email for reply later", response);
-            backgroundColor = "bg-red-200/[.89] border border-red-400";
-            notificationTitle = t("homepage.markEmailReplyLaterFailure");
-            notificationMessage = response;
-            displayPopup();
-        }
-    } catch (error) {
-        console.error("Error in markEmailReplyLater:", error.message);
-        backgroundColor = "bg-red-200/[.89] border border-red-400";
-        notificationTitle = t("homepage.markEmailReplyLaterFailure");
-        notificationMessage = error.message;
-        displayPopup();
-    }
+async function markEmailReplyLater(emailId: number) {
+    lockEmailsAccess.value = true; 
+
+
+    const result = await postData(`user/emails/${emailId}/mark_reply_later/`, { });
+    
+
+    if (!result.success) {
+
+            displayPopup('error', i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
+    } 
 }
-async function transferEmail(email) {
-    const url = `${API_BASE_URL}api/get_mail_by_id?email_id=${email.providerId}`;
 
-    try {
-        const data = await fetchWithToken(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+async function transferEmail(email: Email) { 
 
-        sessionStorage.setItem("subject", JSON.stringify(data.email.subject));
-        sessionStorage.setItem("cc", data.email.cc);
-        sessionStorage.setItem("bcc", data.email.bcc);
-        sessionStorage.setItem("decoded_data", JSON.stringify(data.email.decoded_data));
-        sessionStorage.setItem("email", JSON.stringify(email.email));
+
+    const result =await  getData(`api/get_mail_by_id?email_id=${email.providerId}`)
+
+    if (!result.success) {
+
+    displayPopup('error', i18n.global.t("homepage.transferEmailFailure"), result.error as string);
+    return
+    } 
+ 
+
+
+        sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
+        sessionStorage.setItem("cc", result.data.email.cc);
+        sessionStorage.setItem("bcc", result.data.email.bcc);
+        sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
+        sessionStorage.setItem("emailReceiver", result.data.email.email_receiver);
+        sessionStorage.setItem("date", JSON.stringify(result.data.email.date));
         sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
-        sessionStorage.setItem("details", JSON.stringify(email.details));
-        sessionStorage.setItem("emailReceiver", data.email.email_receiver);
-        sessionStorage.setItem("date", JSON.stringify(data.email.date));
+        sessionStorage.setItem("email", JSON.stringify(email.sender.email)); 
  
 
         router.push({
             name: "transfer",
-        });
-    } catch (error) {
-        console.error("There was a problem with the fetch operation:", error.message);
-        backgroundColor = "bg-red-200/[.89] border border-red-400";
-        notificationTitle = t("homepage.transferEmailFailure");
-        notificationMessage = error.message;
-        displayPopup();
-    }
+        });   
 }
 
-/************************************* For dropdown button next to manual search input **************************************/
-const isOpen = ref(false);
-const selectedOption = ref("aomail");
-
-const toggleDropdown = () => {
-    isOpen.value = !isOpen.value;
-};
-
-const selectOption = (option) => {
-    selectedOption.value = option;
-    isOpen.value = false;
-    if (option == t("searchPage.choiceOldMailDisplay")) {
-        displayMessage(t("searchPage.oldChoiceSelected"), aiIcon);
-    } else {
-        displayMessage(t("searchPage.aomailChoiceSelected"), aiIcon);
-    }
-};
-
-const updateOption = (event) => {
-    selectedOption.value = event.target.value;
-    isOpen.value = false;
-    if (selectedOption.value == t("searchPage.choiceOldMailDisplay")) {
-        displayMessage(t("searchPage.oldChoiceSelected"), aiIcon);
-    } else {
-        displayMessage(t("searchPage.aomailChoiceSelected"), aiIcon);
-    }
-};
+const isOpen = ref(false); 
+ 
+  
 
 const closeDropdown = (event) => {
     if (isOpen.value && !event.target.closest(".dropdown-container")) {
         isOpen.value = false;
     }
 };
-
-/*****************************************************************************************************************************/
-
-const filteredFromPeople = computed(() =>
-    queryGetContacts.value === ""
-        ? contacts
-        : contacts.filter((person) => {
-              return person.username.toLowerCase().includes(queryGetContacts.value.toLowerCase());
-          })
-);
+ 
 
 const checkLoginStatus = () => {
     const emailList = document.getElementById("liste_email");
@@ -860,28 +825,7 @@ const toggleSelection = (person) => {
     }
 };
 
-const removeRecipient = (recipient) => {
-    const index = selectedRecipients.value.findIndex((r) => r.email === recipient.email);
-    if (index !== -1) {
-        selectedRecipients.value.splice(index, 1);
-    }
-};
 
-const toggleSelectionFromAddress = (person) => {
-    const index = selectedFromAddresses.value.findIndex((recipient) => recipient.email === person.email);
-    if (index === -1) {
-        selectedFromAddresses.value.push(person);
-    } else {
-        selectedFromAddresses.value.splice(index, 1);
-    }
-};
-
-const removeRecipientFromAddress = (recipient) => {
-    const index = selectedFromAddresses.value.findIndex((r) => r.email === recipient.email);
-    if (index !== -1) {
-        selectedFromAddresses.value.splice(index, 1);
-    }
-};
 
 const requestOptions = {
     method: "GET",
@@ -903,9 +847,6 @@ fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
 // User pressed the object input
 function handleFocusSearch() {
     isFocused.value = true;
-}
-function handleBlurSearch() {
-    isFocused.value = false;
 }
 
 // User click on short summary
@@ -934,19 +875,7 @@ function handleBlur2(event) {
     }
 }
 
-// function linked to ENTER key listeners
-function handleEnterKey(event) {
-    // Allow pressing Enter with Shift to create a line break
-    if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        handleAIClick();
-    } else if (isFocused2.value) {
-        event.preventDefault();
-        handleBlur2(event);
-        // the user is still on the input
-        handleFocusDestinary();
-    }
-}
+
  
 onMounted(async () => { 
     fetchEmailLinked();  
@@ -1095,10 +1024,7 @@ async function searchEmails() {
             fileExt = attachmentSelected.value[key];
         }
     }
- 
-    const toAddressesSelected = selectedRecipients.value.map((recipient) => recipient.email);
-    const fromAddressesSelected = selectedFromAddresses.value.map((recipient) => recipient.email);
-    const emailsLinkedSelected = emailsLinked.value.map((e) => e.email);
+
 
     loading();
     scrollToBottom();
@@ -1224,13 +1150,12 @@ async function animateText(text, target) {
 }
 
 async function askQueryUser() {
-    // const message = "Bonjour, quel email recherchez vous. Pouvez vous me donner des informations sur l'email ?"; THIS IS FOR AI SEARCH NOT TREE KNOWLEDGE
-    const message = t("searchPage.searchInfoPrompt"); // THIS IS FOR TREE KNOWLEDGE
+    const message = t("searchPage.searchInfoPrompt");
     const ai_icon =
         '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />';
     await displayMessage(message, ai_icon);
 
-    // Wait for isAIWriting to become false
+    
     await waitForAIWriting();
 }
 

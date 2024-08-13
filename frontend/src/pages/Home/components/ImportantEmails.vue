@@ -63,20 +63,20 @@
     }
   };
   
-  const hoveredItemId = ref<string | null>(null);
+  const hoveredItemId = ref<number | null>(null);
   
   const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
-    props.emails.forEach(email => {
+    /*props.emails.forEach(email => {
       if (!grouped[email.sentDate]) {
         grouped[email.sentDate] = [];
       }
       grouped[email.sentDate].push(email);
-    });
+    });*/
     return grouped;
   });
   
-  const setHoveredItem = (id: string) => {
+  const setHoveredItem = (id: number) => {
     hoveredItemId.value = id;
   };
   

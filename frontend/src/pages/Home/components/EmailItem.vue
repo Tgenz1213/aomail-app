@@ -18,11 +18,11 @@
           </div>
           <p class="mt-1 text-md text-gray-700 leading-relaxed">{{ email.oneLineSummary }}</p>
         </div>
-        <div v-show="email.showSummary">
+        <div v-show="email.shortSummary">
           <p class="text-black text-sm/6 pt-1.5">{{ email.shortSummary }}</p>
         </div>
         <div class="flex gap-x-2 pt-1.5">
-          <span v-for="(flag, key) in email.flags" :key="key" v-if="flag" :class="getFlagClass(key)">
+          <span v-for="(flag, key) in email.flags" :key="key" v-if="email.flags" :class="getFlagClass(key)">
             {{ $t(`homePage.flag.${key}`) }}
           </span>
         </div>
@@ -183,7 +183,7 @@
   const markReplyLater = async () => {
     try {
       await postData(`user/emails/${props.email.id}/mark_reply_later`, {});
-      emit('emailUpdated', { ...props.email, answer_later: true });
+      emit('emailUpdated', { ...props.email, answer: true });
     } catch (error) {
       console.error('Error marking email for reply later:', error);
     }
@@ -191,7 +191,6 @@
   
   const transferEmail = () => {
     console.log('Transferring email:', props.email);
-    emit('emailUpdated', { ...props.email, transferred: true });
   };
   
   const toggleMenu = () => {
@@ -222,7 +221,7 @@
     }
   };
   
-  const downloadAttachment = (emailId: string, attachmentName: string) => {
+  const downloadAttachment = (emailId: number, attachmentName: string) => {
     console.log(`Downloading attachment ${attachmentName} from email ${emailId}`);
   };
   </script>

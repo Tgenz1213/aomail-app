@@ -72,7 +72,7 @@ const fetchEmails = async () => {
   }
 };
 
-const markEmailAsRead = async (emailId: string) => {
+const markEmailAsRead = async (emailId: number) => {
   try {
     await postData(`user/emails/${emailId}/mark_read`, {});
     const emailIndex = emails.value.findIndex(email => email.id === emailId);
@@ -99,7 +99,7 @@ const markEmailReplyLater = async (email: Email) => {
     // Update local state
     const emailIndex = emails.value.findIndex(e => e.id === email.id);
     if (emailIndex !== -1) {
-      emails.value[emailIndex].answer_later = true;
+      emails.value[emailIndex].answer = true;
     }
   } catch (error) {
     console.error('Error marking email for reply later:', error);

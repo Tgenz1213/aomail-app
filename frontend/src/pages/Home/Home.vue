@@ -111,7 +111,7 @@ const redEmails = computed(() => {
 
 const fetchEmails = async () => {
   try {
-    const response = await postData('user/emails/', { subject: "", resultPerPage: 25, selectedCategory:'Others' });
+    const response = await postData('user/emails/', { subject: "", resultPerPage: 25, category:'Others', advanced:true });
     const emails_details = await postData('user/get_emails_data/', {ids:response.data.ids});
     emails.value = emails_details.data.data;
     console.log("CHECK EMAILS", emails.value);

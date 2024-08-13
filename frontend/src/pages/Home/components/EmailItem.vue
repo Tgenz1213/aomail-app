@@ -22,8 +22,20 @@
           <p class="text-black text-sm/6 pt-1.5">{{ email.shortSummary }}</p>
         </div>
         <div class="flex gap-x-2 pt-1.5">
-          <span v-for="(flag, key) in email.flags" :key="key" v-if="email.flags" :class="getFlagClass(key)">
-            {{ $t(`homePage.flag.${key}`) }}
+          <span v-if="email.flags.meeting" class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+              {{ $t('homePage.flag.meeting') }}
+          </span>
+          <span v-if="email.flags.newsletter" class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+              {{ $t('homePage.flag.newsletter') }}
+          </span>
+          <span v-if="email.flags.notification" class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-inset ring-gray-600/10">
+              {{ $t('homePage.flag.notification') }}
+          </span>
+          <span v-if="email.flags.scam" class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+              {{ $t('homePage.flag.scam') }}
+          </span>
+          <span v-if="email.flags.spam" class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+              {{ $t('homePage.flag.spam') }}
           </span>
         </div>
       </div>
@@ -193,22 +205,7 @@
   const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
   };
-  
-  const getFlagClass = (flag: string) => {
-    const baseClasses = 'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset';
-    switch (flag) {
-      case 'meeting':
-      case 'newsletter':
-      case 'notification':
-        return `${baseClasses} bg-gray-50 text-gray-700 ring-gray-600/10`;
-      case 'scam':
-      case 'spam':
-        return `${baseClasses} bg-red-50 text-red-700 ring-red-600/10`;
-      default:
-        return baseClasses;
-    }
-  };
-  
+    
   const getIconComponent = (fileName: string) => {
     const extension = fileName.split('.').pop()?.toLowerCase();
     if (['png', 'jpg', 'jpeg', 'gif'].includes(extension || '')) {

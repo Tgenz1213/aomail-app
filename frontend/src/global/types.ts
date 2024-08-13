@@ -22,3 +22,38 @@ export interface NavigationPage {
     icon: VueComponent;
     current?: boolean;
 }
+
+
+export interface Email {
+    id: string;
+    subject: string;
+    sender: {
+        name: string;
+        email: string;
+    };
+    sentDate: string;
+    sentTime: string;
+    priority: 'important' | 'informative' | 'useless';
+    category: string;
+    read: boolean;
+    answer_later: boolean;
+    oneLineSummary: string;
+    shortSummary: string;
+    html_content?: string;
+    flags: {
+        meeting: boolean;
+        newsletter: boolean;
+        notification: boolean;
+        scam: boolean;
+        spam: boolean;
+    };
+    hasAttachments: boolean;
+    attachments?: Array<{
+        attachmentId: string;
+        attachmentName: string;
+    }>;
+    rule: {
+        hasRule: boolean;
+        ruleId?: string;
+    };
+}

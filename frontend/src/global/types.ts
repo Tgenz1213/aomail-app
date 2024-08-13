@@ -46,6 +46,7 @@ interface EmailFlags {
     meeting: boolean;
 }
 
+// (Augustin) under dev
 export interface Email {
     id: number;
     subject: string;
@@ -66,6 +67,8 @@ export interface Email {
     relevance: string;
     priority: string;
     flags: EmailFlags;
-    category: Category;
+    // to delete after Search.vue is finished
+    category?: string;
+    htmlContent?: string;
 }
 

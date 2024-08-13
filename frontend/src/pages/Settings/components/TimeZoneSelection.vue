@@ -1,11 +1,4 @@
 <template>
-    <NotificationTimer
-        :showNotification="showNotification"
-        :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage"
-        :backgroundColor="backgroundColor"
-        @dismissPopup="dismissPopup"
-    />
     <div class="relative">
         <Listbox as="div" v-model="selectedTimeZone">
             <div class="mb-2">
@@ -74,13 +67,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import { ref, computed, watch, inject } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import moment from "moment-timezone";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
 
@@ -91,27 +82,7 @@ const visibleTimezones = ref(timezones.value.slice(0, initialLoadCount));
 const storedTimeZone = localStorage.getItem("timezone");
 const selectedTimeZone = ref(storedTimeZone || "");
 
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
-
-const dismissPopup = () => {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
-};
-
-const displayPopup = (type: "success" | "error", title: string, message: string) => {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = window.setTimeout(dismissPopup, 4000);
-};
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const updateTimezoneSelection = async (newTimeZone: string) => {
     selectedTimeZone.value = newTimeZone;
@@ -124,7 +95,7 @@ const updateTimezoneSelection = async (newTimeZone: string) => {
     const result = await postData(`user/preferences/set_timezone/`, { timezone: newTimeZone });
 
     if (!result.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTimezone"),
             result.error as string
@@ -132,7 +103,7 @@ const updateTimezoneSelection = async (newTimeZone: string) => {
         return;
     }
 
-    displayPopup(
+    displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
         i18n.global.t("settingsPage.preferencesPage.popUpConstants.successMessages.timezoneUpdatedSuccessfully")

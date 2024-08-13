@@ -1,11 +1,4 @@
 <template>
-    <NotificationTimer
-        :showNotification="showNotification"
-        :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage"
-        :backgroundColor="backgroundColor"
-        @dismissPopup="dismissPopup"
-    />
     <div class="relative">
         <Listbox v-model="selectedLanguage">
             <ListboxButton
@@ -59,14 +52,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { inject, ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
-import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { fetchWithToken } from "@/global/security";
-import { API_BASE_URL } from "@/global/const";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { KeyValuePair } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
@@ -80,32 +69,11 @@ const languages: KeyValuePair[] = [
     { key: "chinese", value: i18n.global.t("constants.languagesList.chinese") },
     { key: "indian", value: i18n.global.t("constants.languagesList.indian") },
 ];
-
 const storedLanguageKey = localStorage.getItem("language");
 const initialLanguage = languages.find((lang) => lang.key === storedLanguageKey) || languages[1];
 const selectedLanguage = ref<KeyValuePair>(initialLanguage);
 
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
-
-const dismissPopup = () => {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
-};
-
-const displayPopup = (type: "success" | "error", title: string, message: string) => {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = window.setTimeout(dismissPopup, 4000);
-};
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
     selectedLanguage.value = newLanguage;
@@ -119,14 +87,14 @@ const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
     const result = await postData(`user/preferences/set_language/`, { language: newLanguageKey });
 
     if (!result.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorGettingLanguage"),
             result.error as string
         );
     }
 
-    displayPopup(
+    displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
         i18n.global.t("settingsPage.preferencesPage.popUpConstants.successMessages.languageUpdatedSuccessfully")

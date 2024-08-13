@@ -1,11 +1,4 @@
 <template>
-    <NotificationTimer
-        :showNotification="showNotification"
-        :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage"
-        :backgroundColor="backgroundColor"
-        @dismissPopup="dismissPopup"
-    />
     <div class="relative">
         <Listbox as="div" v-model="selectedTheme">
             <ListboxButton
@@ -58,12 +51,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import { inject, ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { i18n } from "@/global/preferences";
 import { KeyValuePair } from "@/global/types";
 import { postData } from "@/global/fetchData";
@@ -72,16 +63,11 @@ const themes = ref<KeyValuePair[]>([
     { key: "light", value: "constants.themeList.lightTheme" },
     { key: "dark", value: "constants.themeList.darkTheme" },
 ]);
-
 const storedThemeKey = localStorage.getItem("theme");
 const themeIndex = themes.value.findIndex((theme) => theme.key === storedThemeKey);
 const selectedTheme = ref<KeyValuePair>(themes.value[themeIndex] || themes.value[0]);
 
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const updateThemeSelection = async (newTheme: KeyValuePair) => {
     selectedTheme.value = newTheme;
@@ -95,7 +81,7 @@ const updateThemeSelection = async (newTheme: KeyValuePair) => {
     const result = await postData(`user/preferences/set_theme/`, { theme: newThemeKey });
 
     if (!result.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("settingsPage.preferencesPage.popUpConstants.errorMessages.errorUpdatingTheme"),
             result.error as string
@@ -103,27 +89,11 @@ const updateThemeSelection = async (newTheme: KeyValuePair) => {
         return;
     }
 
-    displayPopup(
+    displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
         i18n.global.t("settingsPage.preferencesPage.popUpConstants.successMessages.themeUpdatedSuccessfully")
     );
-};
-
-const displayPopup = (type: "success" | "error", title: string, message: string) => {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = window.setTimeout(dismissPopup, 4000);
-};
-
-const dismissPopup = () => {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
 };
 
 watch(selectedTheme, updateThemeSelection);

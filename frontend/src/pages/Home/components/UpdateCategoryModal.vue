@@ -1,5 +1,5 @@
 <template>
-    <Modal :show="isOpen" @close="closeModal">
+    <Modal v-if="props.isOpen" @close="closeModal">
       <div class="bg-white rounded-lg relative w-[450px]">
         <div class="flex items-center w-full h-16 bg-gray-50 ring-1 ring-black ring-opacity-5 rounded-t-lg">
           <div class="ml-8 flex items-center space-x-1">

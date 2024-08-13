@@ -24,11 +24,11 @@
       <AssistantChat v-if="!isHidden" @toggle-visibility="toggleVisibility" />
     </div>
     <NewCategoryModal
-      :is-open="isModalOpen"
+      :isOpen="isModalOpen"
       @close-modal="closeModal"
     />
     <UpdateCategoryModal
-      :is-open="isModalUpdateOpen"
+      :isOpen="isModalUpdateOpen"
       :category="categoryToUpdate"
       @close-modal="closeUpdateModal"
       @update-category="handleUpdateCategory"
@@ -57,10 +57,10 @@ const isModalUpdateOpen = ref(false);
 const categoryToUpdate = ref<Category | null>(null);
 const isHidden = ref(false);
 
-const importantEmails = computed(() => emails.value.filter(email => email.priority === 'important'));
-const informativeEmails = computed(() => emails.value.filter(email => email.priority === 'informative'));
-const uselessEmails = computed(() => emails.value.filter(email => email.priority === 'useless'));
-const redEmails = computed(() => emails.value.filter(email => email.flags.scam || email.flags.spam));
+const importantEmails = computed(() => emails.value?.filter(email => email.priority === 'important') || []);
+const informativeEmails = computed(() => emails.value?.filter(email => email.priority === 'informative') || []);
+const uselessEmails = computed(() => emails.value?.filter(email => email.priority === 'useless') || []);
+const redEmails = computed(() => emails.value?.filter(email => email.flags.scam || email.flags.spam) || []);
 
 const fetchEmails = async () => {
   try {

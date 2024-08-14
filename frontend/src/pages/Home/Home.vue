@@ -149,8 +149,18 @@ const fetchCategories = async () => {
 const markEmailAsRead = async (email: Email) => {
   try {
     await postData(`user/emails/${email.id}/mark_read/`, {});
-    email.read = true;
-    fetchEmailsData(selectedCategory.value);
+
+    const categoryEmails = emails.value[selectedCategory.value];
+    if (categoryEmails) {
+      ['important', 'informative', 'useless'].forEach((type) => {
+        if (categoryEmails[type]) {
+          const emailIndex = categoryEmails[type].findIndex(e => e.id === email.id);
+          if (emailIndex !== -1) {
+            categoryEmails[type][emailIndex].read = true;
+          }
+        }
+      });
+    }
   } catch (error) {
     console.error('Error marking email as read:', error);
   }
@@ -158,10 +168,21 @@ const markEmailAsRead = async (email: Email) => {
 
 const markEmailReplyLater = async (email: Email) => {
   try {
+    await postData(`user/emails/${email.id}/mark_read/`, {});
     await postData(`user/emails/${email.id}/mark_reply_later`, {});
-    email.read = true;
-    email.answerLater = true;
-    fetchEmailsData(selectedCategory.value);
+
+    const categoryEmails = emails.value[selectedCategory.value];
+    if (categoryEmails) {
+      ['important', 'informative', 'useless'].forEach((type) => {
+        if (categoryEmails[type]) {
+          const emailIndex = categoryEmails[type].findIndex(e => e.id === email.id);
+          if (emailIndex !== -1) {
+            categoryEmails[type][emailIndex].read = true;
+            categoryEmails[type][emailIndex].answerLater = true; 
+          }
+        }
+      });
+    }
   } catch (error) {
     console.error('Error marking email for reply later:', error);
   }

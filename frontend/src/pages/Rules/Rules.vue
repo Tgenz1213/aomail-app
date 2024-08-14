@@ -271,6 +271,9 @@ onMounted(() => {
     const nameSender = urlParams.get("ruleName");
     const emailSender = urlParams.get("ruleEmail");
 
+    console.log("EDIT RULE", editRule);
+    console.log("ID RULE", ruleId);
+
     if (editRule === "true" && ruleId) {
         fetchRuleById(ruleId)
             .then(() => {
@@ -281,8 +284,10 @@ onMounted(() => {
             .catch((error) => {
                 console.error("Error in fetching rule by ID:", error);
             });
-    } else if (editRule === "false" && nameSender && emailSender) {
-        senderSelected.value = { username: nameSender, email: emailSender };
+    } else if (editRule === 'false' && nameSender && emailSender) {
+        console.log("ENTERED HERE !");
+        senderSelected.value = { username: nameSender as string, email: emailSender as string };
+        console.log("SENDER", senderSelected.value);
         updateModalStatus(true);
         const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
         window.history.replaceState({}, document.title, newUrl);

@@ -104,6 +104,54 @@
                   <MenuItems v-show="isMenuOpen"
                     class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                     <div class="py-1">
+                      <div v-if="email.rule.hasRule">
+                        <MenuItem
+                            v-slot="{ active }">
+                        <a @click.prevent="openRuleEditor(email.rule.ruleId)"
+                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                            <span
+                                class="flex gap-x-2 items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-4 h-4">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                </svg>
+                                <span> {{ $t('homePage.changeTheRule') }}</span>
+                            </span>
+                        </a>
+                        </MenuItem>
+                      </div>
+                      <div v-else>
+                          <MenuItem
+                              v-slot="{ active }">
+                          <a @click.prevent="openNewRule(email.sender.name, email.sender.email)"
+                              :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                              <span
+                                  class="flex gap-x-2 items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke-width="1.5"
+                                      stroke="currentColor"
+                                      class="w-4 h-4">
+                                      <path
+                                          stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+                                  </svg>
+                                  <span>{{ $t('constants.userActions.createARule') }}</span>
+                              </span>
+                          </a>
+                          </MenuItem>
+                      </div>
+                    </div>
+                    <div class="py-1">
                       <MenuItem v-slot="{ active }">
                         <a @click.prevent="emitMarkAsReplyLater"
                           :class="[active ? `bg-gray-100 text-gray-900` : `text-gray-700`, 'block px-4 py-1 text-sm']">
@@ -166,12 +214,13 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, toRefs } from 'vue';
+  import { ref } from 'vue';
   import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
   import { EyeIcon, CheckIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, DocumentIcon, CameraIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import { postData } from '@/global/fetchData';
   import SeeMailModal from './SeeMailModal.vue';
+  import router from '../../router/router';
     
   const props = withDefaults(defineProps<{
     email: Email;
@@ -219,6 +268,18 @@
       console.error("Error retrieving the html content of the mail", error);
     }
   };
+
+  function openRuleEditor(ruleId: number) {
+    if (ruleId) {
+        router.push({ name: 'rules', query: { id_rule: ruleId, editRule: 'true' } });
+    }
+  }
+
+  function openNewRule(ruleName: string, ruleEmail: string) {
+    if (ruleName && ruleEmail) {
+        router.push({ name: 'rules', query: { ruleName: ruleName, ruleEmail: ruleEmail, editRule: 'false' } });
+    }
+  }
 
   const closeSeeMailModal = () => {
     isSeeMailModalVisible.value = false;

@@ -246,10 +246,12 @@ watch(
 );
 
 watch(isOpen, (newValue) => {
-    if (!newValue) {
-        selectedPerson.value = null;
-        query.value = "";
-    }
+  if (!newValue) {
+    selectedPerson.value = null;
+    query.value = "";
+  } else {
+    selectedPerson.value = props.sender;
+  }
 });
 
 const closeModal = () => {

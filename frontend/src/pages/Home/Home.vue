@@ -34,7 +34,9 @@
               @markReplyLater="markEmailReplyLater"
             />
             <InformativeEmail 
-              :emails="informativeEmails" 
+              :emails="informativeEmails"
+              @markRead="markEmailAsRead"
+              @markReplyLater="markEmailReplyLater" 
             />
             <UselessEmail 
               :emails="uselessEmails" 

@@ -155,17 +155,19 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue';
+  import { ref } from 'vue';
   import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
   import { EyeIcon, CheckIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, DocumentIcon, CameraIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import { postData } from '@/global/fetchData';
     
-  const props = defineProps<{
+  const props = withDefaults(defineProps<{
     email: Email;
-    color: string;
-  }>();
-  
+    color?: string;
+  }>(), {
+    color: 'gray'
+  });
+    
   const emit = defineEmits<{
     (e: 'emailUpdated', email: Email): void;
   }>();

@@ -1,11 +1,6 @@
 import { API_BASE_URL } from "./const";
 import { fetchWithToken } from "./security";
-
-interface FetchDataResult {
-    success: boolean;
-    data?: any;
-    error?: string;
-}
+import { FetchDataResult } from "./types";
 
 export async function getData(path: string): Promise<FetchDataResult> {
     const requestOptions = {

@@ -16,21 +16,18 @@
                         </label>
                     </div>
                     <input
-                        id="searchInput"
                         v-model="inputValue"
                         type="text"
                         class="block rounded-l-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:pl-4 2xl:text-base"
                         @focus="handleFocusSearch"
                         @blur="handleBlur"
-                        @input="handleInputUpdateSearch"
-                        @change="query = $event.target.value"
                     />
                 </div>
                 <div class="relative">
                     <button
                         type="button"
                         class="group w-full h-full bg-gray-100 rounded-r-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3 ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm"
-                        @click="hideFilters()"
+                        @click="toggleFilters()"
                     >
                         <svg
                             class="w-6 h-5 text-gray-400 group-hover:text-white"
@@ -48,7 +45,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex-grow h-full">
+        <div>
             <button
                 type="button"
                 @click="searchEmails"
@@ -58,46 +55,121 @@
                 <magnifying-glass-icon class="w-4 2xl:w-5" />
             </button>
         </div>
+        <div class="flex-grow h-full">
+            <Listbox v-model="selectedSearchMode">
+                <div class="relative h-full">
+                    <ListboxButton
+                        class="relative w-full h-full cursor-default rounded-md bg-white px-3 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-800 sm:text-sm sm:leading-6 flex items-center"
+                    >
+                        <span class="block truncate flex-grow">{{ selectedSearchMode.value }}</span>
+                        <span class="pointer-events-none flex items-center">
+                            <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </span>
+                    </ListboxButton>
+                    <transition
+                        leave-active-class="transition ease-in duration-100"
+                        leave-from-class="opacity-100"
+                        leave-to-class="opacity-0"
+                    >
+                        <ListboxOptions
+                            class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+                        >
+                            <ListboxOption
+                                v-for="searchMode in searchModes"
+                                :key="searchMode.key"
+                                :value="searchMode"
+                                v-slot="{ active, selected }"
+                            >
+                                <li
+                                    :class="[
+                                        active ? 'bg-gray-800 text-white' : 'text-gray-900',
+                                        'relative cursor-default select-none py-2 pl-3 pr-9',
+                                    ]"
+                                >
+                                    <span :class="[selected ? 'font-semibold' : 'font-normal', 'block truncate']">
+                                        {{ searchMode.value }}
+                                    </span>
+                                    <span
+                                        v-if="selected"
+                                        :class="[
+                                            active ? 'text-white' : 'text-gray-500',
+                                            'absolute inset-y-0 right-0 flex items-center pr-4',
+                                        ]"
+                                    >
+                                        <CheckIcon class="h-5 w-5" aria-hidden="true" />
+                                    </span>
+                                </li>
+                            </ListboxOption>
+                        </ListboxOptions>
+                    </transition>
+                </div>
+            </Listbox>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
+import { postData } from "@/global/fetchData";
+import { i18n } from "@/global/preferences";
+import { Contact, FetchDataResult, KeyValuePair, Recipient } from "@/global/types";
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
+import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { ComputedRef, inject, ref, Ref } from "vue";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const loading = inject<() => void>("loading");
+const scrollToBottom = inject<() => void>("scrollToBottom");
+const hideLoading = inject<() => void>("hideLoading");
+const fetchEmailDetails = inject<(emailIds: number[]) => Promise<FetchDataResult>>("fetchEmailDetails");
+const displayMessage = inject<(message: string, aiIcon: string) => Promise<void>>("displayMessage");
+const filteredPeople = inject<ComputedRef<Contact[]>>("filteredPeople");
 
-async function hideFilters() {
-    const toggleDiv = document.getElementById("filtres");
-    const emailListDiv = document.getElementById("emailList");
+const aiIcon = inject<string>("aiIcon") || "";
+const people = inject<Ref<Recipient[]>>("people") || ref([]);
+const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
+let query = ref("");
+const inputValue = ref("");
+const isFocused = ref(false);
 
-    if (!toggleDiv || !emailListDiv) return;
+const searchModes: KeyValuePair[] = [
+    { key: "aomail", value: "Aomail" },
+    { key: "api", value: "API" },
+];
+const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
 
-    const isHidden = toggleDiv.classList.contains("hidden");
+async function toggleFilters() {
+    // todo: implement expand filters with Z index
+}
 
-    if (isHidden) {
-        toggleDiv.classList.remove("hidden");
-        await delay(10);
-        toggleDiv.classList.replace("opacity-0", "opacity-100");
-        adjustHeight2(emailListDiv, -185);
-    } else {
-        toggleDiv.classList.replace("opacity-100", "opacity-0");
+function handleFocusSearch() {
+    isFocused.value = true;
+}
 
-        await delay(250);
-        toggleDiv.classList.add("hidden");
-        adjustHeight2(emailListDiv, 185);
+function handleBlur(event: FocusEvent) {
+    isFocused.value = false;
+
+    const target = event.target as HTMLInputElement;
+    const inputValue = target.value.trim().toLowerCase();
+    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (inputValue && emailFormat.test(inputValue)) {
+        if (!people.value.find((person: Recipient) => person.email === inputValue)) {
+            const newPerson: Recipient = { email: inputValue };
+            people.value.push(newPerson);
+            selectedPeople.value.push(newPerson);
+        }
+    } else if (!filteredPeople?.value.length && inputValue) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.invalidEmail"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailFormatIncorrect")
+        );
     }
 }
 
 async function searchEmails() {
-    let fileExt = "";
-    // for (const key in attachmentSelected.value) {
-    //     if (key === "extension") {
-    //         fileExt = attachmentSelected.value[key];
-    //     }
-    // }
-
-    loading();
-    scrollToBottom();
+    loading?.();
+    scrollToBottom?.();
 
     const result = await postData(`user/emails/`, {
         resultPerPage: 25,
@@ -108,13 +180,13 @@ async function searchEmails() {
     });
 
     if (!result.success) {
-        displayPopup("error", "Failed to fetch emails", result.error as string);
+        displayPopup?.("error", "Failed to fetch emails", result.error as string);
         return;
     }
 
     if (result.data.count > 0) {
         const limitedEmails = result.data.ids.slice(0, 25);
-        const emailDetails = await fetchEmailDetails(limitedEmails);
+        const emailDetails = await fetchEmailDetails?.(limitedEmails);
         // emailList.value = Object.entries(emailDetails.data).flatMap(([category, priorities]) =>
         //     Object.entries(priorities).flatMap(([priority, emails]) =>
         //         emails.map((email) => ({
@@ -125,15 +197,18 @@ async function searchEmails() {
         //     )
         // );
 
-        hideLoading();
+        hideLoading?.();
 
         if (result.data.count == 1) {
-            await displayMessage(result.data.count + " email " + i18n.global.t("searchPage.oneDataFound"), aiIcon);
+            await displayMessage?.(result.data.count + " email " + i18n.global.t("searchPage.oneDataFound"), aiIcon);
         } else if (result.data.count > 1) {
-            await displayMessage(result.data.count + " emails " + i18n.global.t("searchPage.severalDataFound"), aiIcon);
+            await displayMessage?.(
+                result.data.count + " emails " + i18n.global.t("searchPage.severalDataFound"),
+                aiIcon
+            );
         }
     } else {
-        await displayMessage(i18n.global.t("searchPage.noDataFound"), aiIcon);
+        await displayMessage?.(i18n.global.t("searchPage.noDataFound"), aiIcon);
     }
 }
 </script>

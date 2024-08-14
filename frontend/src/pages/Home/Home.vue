@@ -9,24 +9,38 @@
           <Categories 
             :categories="categories"
             :selected-category="selectedCategory"
-            :get-total-emails-in-category="getTotalEmailsInCategory"
+            :category-totals="categoryTotals"
             @select-category="selectCategory"
             @open-new-category-modal="openNewCategoryModal"
             @open-update-category-modal="openUpdateCategoryModal"
           />
           <!--<SearchBar @input="updateSearchQuery" />-->
-          <ImportantEmail 
-            :emails="importantEmails" 
-          />
-          <InformativeEmail 
-            :emails="informativeEmails" 
-          />
-          <UselessEmail 
-            :emails="uselessEmails" 
-          />
-          <RedEmail 
-            :emails="redEmails" 
-          />
+          <div v-if="categoryTotals[selectedCategory] === 0" class="flex-1">
+            <div class="flex flex-col w-full h-full rounded-xl">
+              <div class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1" stroke="currentColor" class="mx-auto h-14 w-14 text-gray-400">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                </svg>
+                <span class="mt-2 block text-md font-semibold text-gray-900">{{ $t('homePage.noNewEmail') }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
+            <ImportantEmail 
+              :emails="importantEmails" 
+            />
+            <InformativeEmail 
+              :emails="informativeEmails" 
+            />
+            <UselessEmail 
+              :emails="uselessEmails" 
+            />
+            <RedEmail 
+              :emails="redEmails" 
+            />
+          </div>
         </div>
       </div>
       <AssistantChat v-if="!isHidden" @toggle-visibility="toggleVisibility" />
@@ -46,21 +60,21 @@
 </template>
 
 <script setup lang="ts">
+import { categories, categoryTotals, isLoading } from './utils/categoriesStore';
 import { ref, computed, onMounted } from 'vue';
 import { getData, postData, deleteData } from '@/global/fetchData';
 import { Email, Category } from '@/global/types';
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewCategoryModal from "./components/NewCategoryModal.vue";
 import UpdateCategoryModal from "./components/UpdateCategoryModal.vue";
-import ImportantEmail from "./components/ImportantEmails.vue";
-import InformativeEmail from "./components/InformativeEmails.vue";
-import UselessEmail from "./components/UselessEmails.vue";
+import ImportantEmail from "@/global/components/ImportantEmails.vue";
+import InformativeEmail from "@/global/components/InformativeEmails.vue";
+import UselessEmail from "@/global/components/UselessEmails.vue";
 import RedEmail from "./components/RedEmails.vue";
 import AssistantChat from "./components/AssistantChat.vue";
 import Categories from './components/Categories.vue';
 
-const emails = ref<Email[]>([]);
-const categories = ref<Category[]>([]);
+const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>('');
 const isNewCategoryModalOpen = ref(false);
 const isUpdateCategoryModalOpen = ref(false);
@@ -69,29 +83,59 @@ const isModalOpen = ref(false);
 const isModalUpdateOpen = ref(false);
 const isHidden = ref(false);
 
-const importantEmails = computed(() => emails.value?.filter(email => email.priority === 'important') || []);
-const informativeEmails = computed(() => emails.value?.filter(email => email.priority === 'informative') || []);
-const uselessEmails = computed(() => emails.value?.filter(email => email.priority === 'useless') || []);
-const redEmails = computed(() => emails.value?.filter(email => email.flags.scam || email.flags.spam) || []);
+const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
+  return emailList.map(email => ({
+    ...email,
+    category: category
+  }));
+};
 
-const fetchEmails = async () => {
+const importantEmails = computed(() => {
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = emails.value[selectedCategory.value]?.important || [];
+  return addCategoryToEmails(categoryEmails, selectedCategory.value);
+});
+
+const informativeEmails = computed(() => {
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = emails.value[selectedCategory.value]?.informative || [];
+  return addCategoryToEmails(categoryEmails, selectedCategory.value);
+});
+
+const uselessEmails = computed(() => {
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = emails.value[selectedCategory.value]?.useless || [];
+  return addCategoryToEmails(categoryEmails, selectedCategory.value);
+});
+
+const redEmails = computed(() => {
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = [
+    ...(emails.value[selectedCategory.value]?.important || []),
+    ...(emails.value[selectedCategory.value]?.informative || []),
+    ...(emails.value[selectedCategory.value]?.useless || [])
+  ];
+  const filteredEmails = categoryEmails.filter(email => email.flags.scam || email.flags.spam);
+  return addCategoryToEmails(filteredEmails, selectedCategory.value);
+});
+
+const fetchEmailsData = async (categoryName: string) => {
   try {
-    const response = await getData('user/emails');
-    emails.value = response.data;
+    const response = await postData('user/emails/', { subject: "", category:categoryName, advanced:true });
+    const emails_details = await postData('user/get_emails_data/', {ids:response.data.ids});
+    emails.value = emails_details.data.data;
+    console.log("CHECK EMAILS", emails.value);
   } catch (error) {
     console.error('Error fetching emails:', error);
   }
 };
 
-const markEmailAsRead = async (emailId: number) => {
+const fetchCategories = async () => {
   try {
-    await postData(`user/emails/${emailId}/mark_read`, {});
-    const emailIndex = emails.value.findIndex(email => email.id === emailId);
-    if (emailIndex !== -1) {
-      emails.value[emailIndex].read = true;
-    }
+    const response = await getData('user/categories');
+    categories.value = response.data;
   } catch (error) {
-    console.error('Error marking email as read:', error);
+    console.error('Error fetching categories:', error);
   }
 };
 
@@ -102,19 +146,6 @@ const openEmail = (email: Email) => {
 const openAnswer = (email: Email) => {
   // Implement answer opening logic
   console.log('Opening answer for email:', email);
-};
-
-const markEmailReplyLater = async (email: Email) => {
-  try {
-    await postData(`user/emails/${email.id}/mark_reply_later`, {});
-    // Update local state
-    const emailIndex = emails.value.findIndex(e => e.id === email.id);
-    if (emailIndex !== -1) {
-      emails.value[emailIndex].answer = true;
-    }
-  } catch (error) {
-    console.error('Error marking email for reply later:', error);
-  }
 };
 
 const transferEmail = (email: Email) => {
@@ -140,10 +171,8 @@ const closeUpdateModal = () => {
 
 const selectCategory = (category: Category) => {
   selectedCategory.value = category.name;
-};
-
-const getTotalEmailsInCategory = (categoryName: string) => {
-  return emails.value?.filter(email => email.category.name === categoryName && !email.read).length;
+  fetchEmailsData(selectedCategory.value);
+  localStorage.setItem('selectedCategory', category.name);
 };
 
 const openNewCategoryModal = () => {
@@ -191,17 +220,13 @@ const handleCategoryDelete = async (categoryName: string) => {
   }
 };
 
-const fetchCategories = async () => {
-  try {
-    const response = await getData('user/categories');
-    categories.value = response.data;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
-  }
-};
-
 onMounted(async () => {
-  await fetchEmails();
-  await fetchCategories();
+  const storedTopic = localStorage.getItem('selectedCategory');
+  if (storedTopic) {
+    selectedCategory.value = storedTopic;
+  } else {
+    selectedCategory.value = 'Others';
+  }
+  fetchEmailsData(selectedCategory.value);
 });
 </script>

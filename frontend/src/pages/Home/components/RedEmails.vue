@@ -50,7 +50,7 @@
 import { computed, ref } from 'vue';
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
 import { Email } from '@/global/types';
-import EmailItem from './EmailItem.vue';
+import EmailItem from '@/global/components/EmailItem.vue';
 
 const props = defineProps<{
   emails: Email[];

@@ -15,10 +15,10 @@
                       </span>
                       <div class="group-hover:bg-gray-500 group-hover:rounded-r-none group-hover:bg-opacity-10 flex items-center"
                         :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedCategory === category.name }">
-                        <span v-if="getTotalEmailsInCategory(category.name) > 0"
+                        <span v-if="categoryTotals[category.name] > 0"
                           class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
                           :class="{ 'text-gray-800': selectedCategory === category.name, 'text-white bg-gray-800': selectedCategory !== category.name }">
-                          {{ getTotalEmailsInCategory(category.name) }}
+                          {{ categoryTotals[category.name] }}
                         </span>
                       </div>
                       <span class="opacity-0 group-hover:opacity-100 pr-2 py-2 group-hover:bg-gray-500 rounded-r-md group-hover:bg-opacity-10">
@@ -37,10 +37,10 @@
                       <div @click="selectCategory(category)"
                         class="group-hover:bg-gray-500 group-hover:rounded-r group-hover:bg-opacity-10 flex items-center cursor-pointer"
                         :class="{ 'bg-gray-500 bg-opacity-10 rounded-r-md': selectedCategory === category.name }">
-                        <span v-if="getTotalEmailsInCategory(category.name) > 0"
+                        <span v-if="categoryTotals[category.name] > 0"
                           class="group-hover:bg-transparent group-hover:text-gray-800 rounded-full py-0.5 px-2.5 text-xs font-medium"
                           :class="{ 'text-gray-800': selectedCategory === category.name, 'text-white bg-gray-800': selectedCategory !== category.name }">
-                          {{ getTotalEmailsInCategory(category.name) }}
+                          {{ categoryTotals[category.name] }}
                         </span>
                       </div>
                     </div>
@@ -69,7 +69,7 @@ import { Category } from '@/global/types';
 const props = defineProps<{
   categories: Category[];
   selectedCategory: string;
-  getTotalEmailsInCategory: (categoryName: string) => number;
+  categoryTotals: { [key: string]: number };
 }>();
 
 const emit = defineEmits<{
@@ -95,8 +95,8 @@ const getCategoryClass = (category: Category) => {
   return {
     [baseClass]: true,
     'bg-gray-500 bg-opacity-10 text-gray-800': props.selectedCategory === category.name,
-    'rounded-md': props.getTotalEmailsInCategory(category.name) === 0,
-    'rounded-l-md': props.getTotalEmailsInCategory(category.name) > 0
+    'rounded-md': props.categoryTotals[category.name] === 0,
+    'rounded-l-md': props.categoryTotals[category.name] > 0
   };
 };
 </script>

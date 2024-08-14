@@ -195,21 +195,13 @@ def validate_and_parse_parameters(request: HttpRequest) -> dict:
     Returns:
         dict: A dictionary containing:
             parameters (dict): The parsed parameters.
-            result_per_page (int): The number of results per page.
             sort (str): The sort order.
     """
     parameters: dict = json.loads(request.body)
-    result_per_page = parameters["resultPerPage"]
     sort = parameters.get("sort", "asc")
-
-    if not 25 <= result_per_page <= 100:
-        raise ValueError(
-            "resultPerPage must be an integer between 25 and 100 inclusive"
-        )
 
     return {
         "parameters": parameters,
-        "result_per_page": result_per_page,
         "sort": sort,
     }
 
@@ -328,7 +320,7 @@ def get_sorted_queryset(
     return queryset
 
 
-def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tuple:
+def format_email_data(queryset: BaseManager[Email]) -> tuple:
     """
     Formats email data from the provided queryset and collects email IDs.
 
@@ -342,7 +334,7 @@ def format_email_data(queryset: BaseManager[Email], result_per_page: int) -> tup
             email_ids (list): List of email IDs from the queryset.
     """
     email_count = queryset.count()
-    email_ids = list(queryset.values_list("id", flat=True)[:result_per_page])
+    email_ids = list(queryset.values_list("id", flat=True))
     return email_count, email_ids
 
 
@@ -356,9 +348,6 @@ def get_user_emails(request: HttpRequest) -> Response:
         request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.
 
     JSON Body:
-        Mandatory params:
-            resultPerPage (int): Number of results per page (must be between 25 and 100)
-
         Optional filters:
             advanced (bool): True if specific filters have been used.
             sort (str): Sorting order ("asc" for ascending, "desc" for descending). Default is "asc".
@@ -396,12 +385,11 @@ def get_user_emails(request: HttpRequest) -> Response:
         user = request.user
         valid_data = validate_and_parse_parameters(request)
         parameters: dict = valid_data["parameters"]
-        result_per_page = valid_data["result_per_page"]
         sort = valid_data["sort"]
 
         filters = construct_filters(user, parameters)
         queryset = get_sorted_queryset(filters, sort, parameters.get("advanced"))
-        email_count, email_ids = format_email_data(queryset, result_per_page)
+        email_count, email_ids = format_email_data(queryset)
 
         return Response(
             {"count": email_count, "ids": email_ids},

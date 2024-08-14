@@ -30,6 +30,8 @@
           <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
             <ImportantEmail 
               :emails="importantEmails" 
+              @markRead="markEmailAsRead"
+              @markReplyLater="markEmailReplyLater"
             />
             <InformativeEmail 
               :emails="informativeEmails" 
@@ -93,19 +95,22 @@ const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
 const importantEmails = computed(() => {
   if (!emails.value || !selectedCategory.value) return [];
   const categoryEmails = emails.value[selectedCategory.value]?.important || [];
-  return addCategoryToEmails(categoryEmails, selectedCategory.value);
+  const unreadEmails = categoryEmails.filter(email => !email.read);
+  return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const informativeEmails = computed(() => {
   if (!emails.value || !selectedCategory.value) return [];
   const categoryEmails = emails.value[selectedCategory.value]?.informative || [];
-  return addCategoryToEmails(categoryEmails, selectedCategory.value);
+  const unreadEmails = categoryEmails.filter(email => !email.read);
+  return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const uselessEmails = computed(() => {
   if (!emails.value || !selectedCategory.value) return [];
   const categoryEmails = emails.value[selectedCategory.value]?.useless || [];
-  return addCategoryToEmails(categoryEmails, selectedCategory.value);
+  const unreadEmails = categoryEmails.filter(email => !email.read);
+  return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const redEmails = computed(() => {
@@ -139,22 +144,25 @@ const fetchCategories = async () => {
   }
 };
 
-const openEmail = (email: Email) => {
-  // Implement email opening logic
+const markEmailAsRead = async (email: Email) => {
+  try {
+    await postData(`user/emails/${email.id}/mark_read/`, {});
+    email.read = true;
+    fetchEmailsData(selectedCategory.value);
+  } catch (error) {
+    console.error('Error marking email as read:', error);
+  }
 };
 
-const openAnswer = (email: Email) => {
-  // Implement answer opening logic
-  console.log('Opening answer for email:', email);
-};
-
-const transferEmail = (email: Email) => {
-  // Implement email transfer logic
-  console.log('Transferring email:', email);
-};
-
-const updateSearchQuery = (query: string) => {
-  // Implement search logic
+const markEmailReplyLater = async (email: Email) => {
+  try {
+    await postData(`user/emails/${email.id}/mark_reply_later`, {});
+    email.read = true;
+    email.answerLater = true;
+    fetchEmailsData(selectedCategory.value);
+  } catch (error) {
+    console.error('Error marking email for reply later:', error);
+  }
 };
 
 const toggleVisibility = () => {

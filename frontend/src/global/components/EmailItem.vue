@@ -71,7 +71,7 @@
               <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
                 {{ $t('homePage.read') }}
               </div>
-              <button @click="markAsRead" type="button"
+              <button @click="emitMarkAsRead" type="button"
                 :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
                 <check-icon :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
               </button>
@@ -105,7 +105,7 @@
                     class="absolute right-0 z-10 mt-1 w-48 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
-                        <a @click.prevent="markReplyLater"
+                        <a @click.prevent="emitMarkAsReplyLater"
                           :class="[active ? `bg-gray-100 text-gray-900` : `text-gray-700`, 'block px-4 py-1 text-sm']">
                           <span class="flex gap-x-2 items-center">
                             <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1" stroke="currentColor"
@@ -182,7 +182,17 @@
     
   const emit = defineEmits<{
     (e: 'emailUpdated', email: Email): void;
+    (e: 'markRead', email: Email): void;
+    (e: 'markReplyLater', email: Email): void;
   }>();
+
+  const emitMarkAsRead = () => {
+    emit('markRead', props.email);
+  };
+
+  const emitMarkAsReplyLater = () => {
+    emit('markReplyLater', props.email);
+  };
   
   const isHovered = ref(false);
   const isMenuOpen = ref(false);
@@ -209,7 +219,6 @@
       console.error("Error retrieving the html content of the mail", error);
     }
   };
-
 
   const closeSeeMailModal = () => {
     isSeeMailModalVisible.value = false;
@@ -243,15 +252,6 @@
   const handleTransferEmail = (email: Email) => {
     // TODO
     console.log('Transfert de l\'email:', email);
-  };
-  
-  const markAsRead = async () => {
-    try {
-      await postData(`user/emails/${props.email.id}/mark_read`, {});
-      emit('emailUpdated', { ...props.email, read: true });
-    } catch (error) {
-      console.error('Error marking email as read:', error);
-    }
   };
   
   const openAnswer = () => {

@@ -32,11 +32,13 @@
           <div class="ml-6 flex-grow">
             <div class="overflow-hidden border-l-4 border-orange-300 hover:rounded-l-xl" style="overflow: visible;">
               <ul role="list" class="divide-y divide-gray-200">
-                <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
+                <li v-for="email in emailsByDate" :key="email.id"  class="px-6 md:py-5 2xl:py-6">
                     <EmailItem 
                         :email="email" 
                         color="orange"
                         @emailUpdated="updateEmail"
+                        @markRead="markRead"
+                        @markReplyLater="markReplyLater"
                     />
                 </li>
               </ul>
@@ -48,7 +50,7 @@
   </template>
   
   <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed, watch } from 'vue';
   import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import EmailItem from '@/global/components/EmailItem.vue';
@@ -56,6 +58,19 @@
   const props = defineProps<{
     emails: Email[];
   }>();
+
+  const emit = defineEmits<{
+    (e: 'markRead', email: Email): void;
+    (e: 'markReplyLater', email: Email): void;
+  }>();
+
+  const markRead = (email: Email) => {
+    emit('markRead', email);
+  };
+
+  const markReplyLater = (email: Email) => {
+    emit('markReplyLater', email);
+  };
 
   const updateEmail = (updatedEmail: Email) => {
     const index = props.emails.findIndex(e => e.id === updatedEmail.id);
@@ -67,14 +82,20 @@
   const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
     props.emails.forEach(email => {
-      const sentDate = email.sentDate || 'Unknown Date';
-      if (!grouped[sentDate]) {
-        grouped[sentDate] = [];
+      if (!email.read) {
+        const sentDate = email.sentDate || 'Unknown Date';
+        if (!grouped[sentDate]) {
+          grouped[sentDate] = [];
+        }
+        grouped[sentDate].push(email);
       }
-      grouped[sentDate].push(email);
     });
     return grouped;
   });
+
+  watch(() => props.emails, () => {
+  }, { deep: true });
+
   
   </script>
   

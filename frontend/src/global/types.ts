@@ -46,6 +46,23 @@ interface EmailFlags {
     meeting: boolean;
 }
 
+export interface FetchDataResult {
+    success: boolean;
+    data?: any;
+    error?: string;
+}
+
+export interface Contact {
+    id: number;
+    email: string;
+    username: string;
+    providerId: string;
+}
+
+export interface Recipient {
+    email: string;
+}
+
 // (Augustin) under dev
 export interface Email {
     id: number;

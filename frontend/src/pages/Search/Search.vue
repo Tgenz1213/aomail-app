@@ -272,19 +272,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, provide } from "vue";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
-import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import {
-    CheckIcon,
-    ChevronUpDownIcon,
-    MagnifyingGlassIcon,
-    UserIcon,
-    AdjustmentsHorizontalIcon,
-    EnvelopeIcon,
-    HashtagIcon,
-    CalendarIcon,
-    HandRaisedIcon,
-} from "@heroicons/vue/24/outline";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { EyeIcon } from "@heroicons/vue/24/outline";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
@@ -295,17 +282,7 @@ import { i18n } from "@/global/preferences";
 import { getData, postData } from "@/global/fetchData";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import SearchMenu from "./components/SearchMenu.vue";
-
-interface AttachmentType {
-    extension: string;
-    name: string;
-}
-
-const updateDate = (event: { target: { value: string } }) => {
-    startDate.value = event.target.value;
-};
-
-const startDate = ref("");
+import { AttachmentType } from "./utils/types";
 
 const people = ref<Recipient[]>([]);
 const selectedPeople = ref<Recipient[]>([]);
@@ -326,49 +303,14 @@ let isEmailhere = ref(false);
 const textareaValue = ref("");
 let lockEmailsAccess = ref(false);
 
-const attachmentTypes: AttachmentType[] = [
-    { extension: ".docx", name: "Word Document" },
-    { extension: ".xlsx", name: "Excel Spreadsheet" },
-    { extension: ".pptx", name: "PowerPoint Presentation" },
-    { extension: ".pdf", name: "PDF Document" },
-    { extension: ".jpg", name: "JPEG Image" },
-    { extension: ".png", name: "PNG Image" },
-    { extension: ".gif", name: "GIF Image" },
-    { extension: ".txt", name: "Text Document" },
-    { extension: ".zip", name: "ZIP Archive" },
-    { extension: ".mp3", name: "MP3 Audio" },
-    { extension: ".mp4", name: "MP4 Video" },
-    { extension: ".html", name: "HTML Document" },
-];
-
-const attachmentsSelected = ref<AttachmentType[]>([]);
-const isAttachmentDropdownOpen = ref(false);
-
-const toggleDropdown = () => {
-    isAttachmentDropdownOpen.value = !isAttachmentDropdownOpen.value;
-};
-
-const isSelected = (type: AttachmentType): boolean => {
-    console.log("attachmentsSelected", attachmentsSelected);
-    return attachmentsSelected.value.some((item: AttachmentType) => item.extension === type.extension);
-};
-
-const dateIntervals = [
-    { key: "oneDay" },
-    { key: "threeDays" },
-    { key: "oneWeek" },
-    { key: "twoWeeks" },
-    { key: "oneMonth" },
-    { key: "twoMonths" },
-    { key: "sixMonths" },
-    { key: "oneYear" },
-];
-
-const selectedInterval = ref("")
-
-const searchIn = [{ key: "all" }, { key: "read" }, { key: "notRead" }, { key: "replyLater" }];
-
+const startDate = ref("");
+const selectedInterval = ref("");
 const selectedSearchIn = ref(null);
+const selectedPerson = ref<Recipient[]>([]);
+const fromSelectedPerson = ref<Recipient[]>([]);
+const selectedRecipients = ref<Recipient[]>([]);
+const attachmentsSelected = ref<AttachmentType[]>([]);
+
 let emailsLinked = ref("");
 
 let isModalSeeOpen = ref(false);
@@ -376,9 +318,6 @@ let selectedEmail = ref<Email>();
 
 const contacts: Contact[] = [];
 const queryGetContacts = ref("");
-const selectedPerson = ref(null);
-const fromselectedPerson = ref(null);
-const selectedRecipients = ref<Recipient[]>([]);
 const emailList = ref<Email[]>([]);
 
 const aiIcon =
@@ -431,6 +370,12 @@ provide("filteredPeople", filteredPeople);
 provide("people", people);
 provide("selectedPeople", selectedPeople);
 provide("attachmentsSelected", attachmentsSelected);
+provide("startDate", startDate);
+provide("selectedInterval", selectedInterval);
+provide("selectedRecipients", selectedRecipients);
+provide("fromSelectedPerson", fromSelectedPerson);
+provide("selectedPerson", selectedPerson);
+provide("selectedSearchIn", selectedSearchIn);
 
 async function scrollToBottom() {
     await nextTick();
@@ -571,15 +516,6 @@ const checkLoginStatus = () => {
     }
     const hasEmails = emailList.getElementsByClassName("email-item").length > 0;
     isEmailhere.value = hasEmails;
-};
-
-const toggleSelection = (person: Recipient) => {
-    const index = selectedRecipients.value.findIndex((recipient) => recipient.email === person.email);
-    if (index === -1) {
-        selectedRecipients.value.push(person);
-    } else {
-        selectedRecipients.value.splice(index, 1);
-    }
 };
 
 async function fetchContacts() {
@@ -778,15 +714,3 @@ function hideLoading() {
     }
 }
 </script>
-
-<style scoped>
-input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 0;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-}
-</style>

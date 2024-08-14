@@ -76,9 +76,9 @@
                             <adjustments-horizontal-icon class="w-5 h-5 mr-2 mt-2 mb-2 text-gray-400" />
                             <span class="block truncate text-gray-700">
                                 {{
-                                                    attachmentsSelected.length > 0
-                                                        ? attachmentsSelected.map((item: any) => item.name).join(", ")
-                                                        : $t("searchPage.attachmentSelectedPlaceholder")
+                                    attachmentsSelected.length > 0
+                                        ? attachmentsSelected.map((item: any) => item.name).join(", ")
+                                        : $t("searchPage.attachmentSelectedPlaceholder")
                                 }}
                             </span>
                             <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -129,7 +129,7 @@
                     </div>
                 </div>
                 <div class="flex-1 min-w-[150px] mt-2 relative">
-                    <Combobox as="div" v-model="fromselectedPerson">
+                    <Combobox as="div" v-model="fromSelectedPerson">
                         <div class="relative flex items-center w-full">
                             <user-icon
                                 class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -368,3 +368,97 @@
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+import { ref, inject, Ref } from "vue";
+import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
+import {
+    CheckIcon,
+    ChevronUpDownIcon,
+    MagnifyingGlassIcon,
+    UserIcon,
+    AdjustmentsHorizontalIcon,
+    EnvelopeIcon,
+    HashtagIcon,
+    CalendarIcon,
+    HandRaisedIcon,
+} from "@heroicons/vue/24/outline";
+import { AttachmentType } from "../utils/types";
+import { KeyValuePair, Recipient } from "@/global/types";
+
+const attachmentsSelected = inject<Ref<AttachmentType[]>>("attachmentsSelected") || ref([]);
+const startDate = inject<Ref<string>>("startDate") || ref("");
+const selectedInterval = inject<Ref<string>>("selectedInterval") || ref("");
+const selectedRecipients = inject<Ref<Recipient[]>>("selectedRecipients") || ref([]);
+const fromSelectedPerson = inject<Ref<Recipient[]>>("fromSelectedPerson") || ref([]);
+const selectedPerson = inject<Ref<Recipient[]>>("selectedPerson") || ref([]);
+const selectedSearchIn = inject<Ref<KeyValuePair>>("selectedSearchIn") || ref({});
+const isAttachmentDropdownOpen = ref(false);
+
+const updateDate = (event: { target: { value: string } }) => {
+    startDate.value = event.target.value;
+};
+
+const dateIntervals = [
+    { key: "oneDay" },
+    { key: "threeDays" },
+    { key: "oneWeek" },
+    { key: "twoWeeks" },
+    { key: "oneMonth" },
+    { key: "twoMonths" },
+    { key: "sixMonths" },
+    { key: "oneYear" },
+];
+
+const searchIn: KeyValuePair[] = [
+    { key: "all", value: "All" },
+    { key: "read", value: "Read" },
+    { key: "notRead", value: "Not read" },
+];
+
+const attachmentTypes: AttachmentType[] = [
+    { extension: ".docx", name: "Word Document" },
+    { extension: ".xlsx", name: "Excel Spreadsheet" },
+    { extension: ".pptx", name: "PowerPoint Presentation" },
+    { extension: ".pdf", name: "PDF Document" },
+    { extension: ".jpg", name: "JPEG Image" },
+    { extension: ".png", name: "PNG Image" },
+    { extension: ".gif", name: "GIF Image" },
+    { extension: ".txt", name: "Text Document" },
+    { extension: ".zip", name: "ZIP Archive" },
+    { extension: ".mp3", name: "MP3 Audio" },
+    { extension: ".mp4", name: "MP4 Video" },
+    { extension: ".html", name: "HTML Document" },
+];
+
+const toggleDropdown = () => {
+    isAttachmentDropdownOpen.value = !isAttachmentDropdownOpen.value;
+};
+
+const isSelected = (type: AttachmentType): boolean => {
+    console.log("attachmentsSelected", attachmentsSelected.value);
+    return attachmentsSelected.value.some((item: AttachmentType) => item.extension === type.extension);
+};
+
+const toggleSelection = (person: Recipient) => {
+    const index = selectedRecipients.value.findIndex((recipient) => recipient.email === person.email);
+    if (index === -1) {
+        selectedRecipients.value.push(person);
+    } else {
+        selectedRecipients.value.splice(index, 1);
+    }
+};
+</script>
+
+<style scoped>
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+</style>

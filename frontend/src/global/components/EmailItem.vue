@@ -1,13 +1,14 @@
 <template>
+  <div class="grid grid-cols-10 gap-4 items-center" @mouseenter="isHovered = true" @mouseleave="isHovered = false">
     <div class="col-span-8 cursor-pointer">
-      <div @click="openEmail">
+      <div @click="toggleShortSummary">
         <div class="flex-auto group">
           <div class="flex gap-x-4">
             <div class="flex items-center">
-              <p class="text-sm font-semibold leading-6 text-gray-900 mr-2">{{ email.sender.name }}</p>
-              <p class="text-sm leading-6 text-gray-700 mr-2">{{ email.sentTime }}</p>
+              <p :class="`text-sm font-semibold leading-6 text-${color}-900 mr-2`">{{ email.sender.name }}</p>
+              <p :class="`text-sm leading-6 text-${color}-700 mr-2`">{{ email.sentTime }}</p>
             </div>
-            <div class="hidden group-hover:block px-2 py-0.5 bg-gray-300 text-white text-sm shadow rounded-xl">
+            <div :class="`hidden group-hover:block px-2 py-0.5 bg-${color}-300 text-white text-sm shadow rounded-xl`">
               <div class="flex gap-x-1 items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
@@ -18,7 +19,7 @@
           </div>
           <p class="mt-1 text-md text-gray-700 leading-relaxed">{{ email.oneLineSummary }}</p>
         </div>
-        <div v-show="email.shortSummary">
+        <div v-show="isShortSummaryVisible">
           <p class="text-black text-sm/6 pt-1.5">{{ email.shortSummary }}</p>
         </div>
         <div class="flex gap-x-2 pt-1.5">
@@ -60,8 +61,8 @@
                 {{ $t('constants.userActions.open') }}
               </div>
               <button @click="openEmail" type="button"
-                class="relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-300 focus:z-10">
-                <eye-icon class="w-5 h-5 text-gray-400 group-hover:text-white" />
+                :class="`relative inline-flex items-center rounded-l-2xl px-2 py-1.5 text-${color}-400 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
+                <eye-icon :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
               </button>
             </div>
           </div>
@@ -71,8 +72,8 @@
                 {{ $t('homePage.read') }}
               </div>
               <button @click="markAsRead" type="button"
-                class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-300 focus:z-10">
-                <check-icon class="w-5 h-5 text-gray-400 group-hover:text-white" />
+                :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
+                <check-icon :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
               </button>
             </div>
           </div>
@@ -82,8 +83,8 @@
                 {{ $t('homePage.answer') }}
               </div>
               <button @click="openAnswer" type="button"
-                class="relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-300 focus:z-10">
-                <arrow-uturn-left-icon class="w-5 h-5 text-gray-400 group-hover:text-white" />
+                :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
+                <arrow-uturn-left-icon :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
               </button>
             </div>
           </div>
@@ -94,8 +95,8 @@
               </div>
               <Menu as="div" class="relative inline-block text-left">
                 <MenuButton @click="toggleMenu"
-                  class="relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-300 focus:z-10">
-                  <ellipsis-horizontal-icon class="w-5 h-5 group-hover:text-white text-gray-400 group-active:text-gray-400 group-focus:text-gray focus:text-gray-400" />
+                  :class="`relative -ml-px inline-flex items-center rounded-r-2xl px-2 py-1.5 text-${color}-400 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
+                  <ellipsis-horizontal-icon :class="`w-5 h-5 group-hover:text-white text-${color}-400 group-active:text-${color}-400 group-focus:text-${color} focus:text-${color}-400`" />
                 </MenuButton>
                 <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95"
                   enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75"
@@ -105,7 +106,7 @@
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
                         <a @click.prevent="markReplyLater"
-                          :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                          :class="[active ? `bg-gray-100 text-gray-900` : `text-gray-700`, 'block px-4 py-1 text-sm']">
                           <span class="flex gap-x-2 items-center">
                             <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1" stroke="currentColor"
                               xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -125,7 +126,7 @@
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
                         <a @click.prevent="transferEmail"
-                          :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-1 text-sm']">
+                          :class="[active ? `bg-gray-100 text-gray-900` : `text-gray-700`, 'block px-4 py-1 text-sm']">
                           <span class="flex gap-x-2 items-center">
                             <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1" stroke="currentColor"
                               xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -150,6 +151,7 @@
         </span>
       </div>
     </div>
+  </div>
   </template>
   
   <script setup lang="ts">
@@ -161,6 +163,7 @@
     
   const props = defineProps<{
     email: Email;
+    color: string;
   }>();
   
   const emit = defineEmits<{
@@ -169,6 +172,11 @@
   
   const isHovered = ref(false);
   const isMenuOpen = ref(false);
+  const isShortSummaryVisible = ref(false);
+  
+  const toggleShortSummary = () => {
+    isShortSummaryVisible.value = !isShortSummaryVisible.value;
+  };
   
   const openEmail = () => {
     console.log('Opening email:', props.email);

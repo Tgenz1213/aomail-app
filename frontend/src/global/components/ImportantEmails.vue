@@ -32,9 +32,10 @@
           <div class="ml-6 flex-grow">
             <div class="overflow-hidden border-l-4 border-orange-300 hover:rounded-l-xl" style="overflow: visible;">
               <ul role="list" class="divide-y divide-gray-200">
-                <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(email.id)" @mouseleave="clearHoveredItem">
+                <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
                     <EmailItem 
                         :email="email" 
+                        color="orange"
                         @emailUpdated="updateEmail"
                     />
                 </li>
@@ -62,9 +63,7 @@
         props.emails[index] = updatedEmail;
     }
   };
-  
-  const hoveredItemId = ref<number | null>(null);
-  
+    
   const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
     props.emails.forEach(email => {
@@ -76,14 +75,6 @@
     });
     return grouped;
   });
-
   
-  const setHoveredItem = (id: number) => {
-    hoveredItemId.value = id;
-  };
-  
-  const clearHoveredItem = () => {
-    hoveredItemId.value = null;
-  };
   </script>
   

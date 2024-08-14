@@ -1,5 +1,5 @@
 <template>
-    <div v-if="emails.length > 0" class="px-6 py-6 ">
+    <div v-if="emails.length > 0" class="px-6 py-6">
       <div class="bg-orange-100 bg-opacity-90 rounded-md">
         <div class="flex px-3 py-2">
           <p class="flex-1 text-sm font-semibold leading-6 text-orange-600">

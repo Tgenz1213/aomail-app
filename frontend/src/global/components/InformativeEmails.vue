@@ -1,5 +1,5 @@
 <template>
-    <div v-if="emails.length > 0" class="px-6 pb-6">
+    <div v-if="emails.length > 0" class="px-6 py-6">
       <div class="bg-blue-100 bg-opacity-90 rounded-md">
         <div class="flex px-2 py-2">
           <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
@@ -32,10 +32,13 @@
           <div class="ml-6 flex-grow">
             <div class="overflow-hidden border-l-4 hover:rounded-l-xl border-blue-300" style="overflow: visible;">
               <ul role="list" class="divide-y divide-gray-200">
-                <li v-for="email in emailsByDate" :key="email.id" class="px-6 py-4 2xl:py-5 hover:bg-opacity-70 grid grid-cols-10 gap-4 items-center" @mouseover="setHoveredItem(email.id)" @mouseleave="clearHoveredItem">
+                <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
                     <EmailItem 
                         :email="email" 
+                        color="blue"
                         @emailUpdated="updateEmail"
+                        @markRead="markRead"
+                        @markReplyLater="markReplyLater"
                     />               
                 </li>
               </ul>
@@ -47,7 +50,7 @@
   </template>
   
   <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed, watch } from 'vue';
   import { InformationCircleIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import EmailItem from '@/global/components/EmailItem.vue';
@@ -56,6 +59,19 @@
     emails: Email[];
   }>();
 
+  const emit = defineEmits<{
+    (e: 'markRead', email: Email): void;
+    (e: 'markReplyLater', email: Email): void;
+  }>();
+
+  const markRead = (email: Email) => {
+    emit('markRead', email);
+  };
+
+  const markReplyLater = (email: Email) => {
+    emit('markReplyLater', email);
+  };
+
   const updateEmail = (updatedEmail: Email) => {
     const index = props.emails.findIndex(e => e.id === updatedEmail.id);
     if (index !== -1) {
@@ -63,25 +79,22 @@
     }
   };
   
-  const hoveredItemId = ref<number | null>(null);
-  
   const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
-    /*props.emails.forEach(email => {
-      if (!grouped[email.sentDate]) {
-        grouped[email.sentDate] = [];
+    props.emails.forEach(email => {
+      if (!email.read) {
+        const sentDate = email.sentDate || 'Unknown Date';
+        if (!grouped[sentDate]) {
+          grouped[sentDate] = [];
+        }
+        grouped[sentDate].push(email);
       }
-      grouped[email.sentDate].push(email);
-    });*/
+    });
     return grouped;
   });
-  
-  const setHoveredItem = (id: number) => {
-    hoveredItemId.value = id;
-  };
-  
-  const clearHoveredItem = () => {
-    hoveredItemId.value = null;
-  };
+
+  watch(() => props.emails, () => {
+  }, { deep: true });
+
   </script>
   

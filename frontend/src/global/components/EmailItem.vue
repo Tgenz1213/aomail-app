@@ -152,14 +152,26 @@
       </div>
     </div>
   </div>
+  <SeeMailModal 
+    :isOpen="isSeeMailModalVisible" 
+    :email="updatedEmail" 
+    @closeModal="closeSeeMailModal"
+    @openAnswer="handleOpenAnswer"
+    @markEmailAsRead="handleMarkEmailAsRead"
+    @openRuleEditor="handleOpenRuleEditor"
+    @openNewRule="handleOpenNewRule"
+    @markEmailReplyLater="handleMarkEmailReplyLater"
+    @transferEmail="handleTransferEmail"
+  />
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, toRefs } from 'vue';
   import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
   import { EyeIcon, CheckIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, DocumentIcon, CameraIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import { postData } from '@/global/fetchData';
+  import SeeMailModal from './SeeMailModal.vue';
     
   const props = withDefaults(defineProps<{
     email: Email;
@@ -175,14 +187,62 @@
   const isHovered = ref(false);
   const isMenuOpen = ref(false);
   const isShortSummaryVisible = ref(false);
+  const isSeeMailModalVisible = ref(false);
+  const updatedEmail = ref<Email | undefined>(undefined);
   
   const toggleShortSummary = () => {
     isShortSummaryVisible.value = !isShortSummaryVisible.value;
   };
-  
-  const openEmail = () => {
-    console.log('Opening email:', props.email);
-    emit('emailUpdated', { ...props.email, read: true });
+
+  const openEmail = async () => {
+    try {
+      const result = await postData(`user/get_email_content/`, { id: props.email.id });
+      
+      if (result.success && result.data.content) {
+        updatedEmail.value = { ...props.email, read: true, htmlContent: result.data.content };
+        emit('emailUpdated', updatedEmail.value);
+        isSeeMailModalVisible.value = true;
+      } else {
+        console.error("No HTML content received");
+      }
+    } catch (error) {
+      console.error("Error retrieving the html content of the mail", error);
+    }
+  };
+
+
+  const closeSeeMailModal = () => {
+    isSeeMailModalVisible.value = false;
+  };
+
+  const handleOpenAnswer = (email: Email) => {
+    // TODO
+    console.log('Ouverture de la réponse pour l\'email:', email);
+  };
+
+  const handleMarkEmailAsRead = (emailId: number) => {
+    // TODO
+    console.log('Marquer l\'email comme lu:', emailId);
+  };
+
+  const handleOpenRuleEditor = (ruleId: number) => {
+    // TODO
+    console.log('Ouverture de l\'éditeur de règles pour la règle:', ruleId);
+  };
+
+  const handleOpenNewRule = (senderName: string, senderEmail: string) => {
+    // TODO
+    console.log('Ouverture d\'une nouvelle règle pour l\'expéditeur:', senderName, senderEmail);
+  };
+
+  const handleMarkEmailReplyLater = (email: Email) => {
+    // TODO
+    console.log('Marquer l\'email pour répondre plus tard:', email);
+  };
+
+  const handleTransferEmail = (email: Email) => {
+    // TODO
+    console.log('Transfert de l\'email:', email);
   };
   
   const markAsRead = async () => {

@@ -60,7 +60,7 @@
                                         <span
                                             class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                                         >
-                                            {{ category }}
+                                            {{ email?.category }}
                                         </span>
                                         <span
                                             v-if="email?.read"
@@ -290,7 +290,7 @@
                             </div>
                         </div>
                         <div class="mb-4">
-                            <div v-html="htmlContent"></div>
+                            <div v-html="localEmail?.htmlContent"></div>
                         </div>
                     </div>
                 </div>
@@ -300,7 +300,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, toRef, watch } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import {
     ArrowUturnLeftIcon,
@@ -317,9 +317,15 @@ const isMenuOpen = ref(false);
 const props = defineProps<{
     isOpen: boolean;
     email: Email | undefined;
-    category: string;
-    htmlContent: string;
 }>();
+
+const localEmail = ref(props.email);
+
+watch(() => props.email, (newEmail) => {
+  if (newEmail) {
+    localEmail.value = { ...newEmail };
+  }
+}, { deep: true });
 
 const emits = defineEmits([
     "closeModal",

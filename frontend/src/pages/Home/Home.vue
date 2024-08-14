@@ -83,29 +83,40 @@ const isModalOpen = ref(false);
 const isModalUpdateOpen = ref(false);
 const isHidden = ref(false);
 
+const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
+  return emailList.map(email => ({
+    ...email,
+    category: category
+  }));
+};
+
 const importantEmails = computed(() => {
-    if (!emails.value || !selectedCategory.value) return [];
-    return emails.value[selectedCategory.value]?.important || [];
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = emails.value[selectedCategory.value]?.important || [];
+  return addCategoryToEmails(categoryEmails, selectedCategory.value);
 });
 
 const informativeEmails = computed(() => {
-    if (!emails.value || !selectedCategory.value) return [];
-    return emails.value[selectedCategory.value]?.informative || [];
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = emails.value[selectedCategory.value]?.informative || [];
+  return addCategoryToEmails(categoryEmails, selectedCategory.value);
 });
 
 const uselessEmails = computed(() => {
-    if (!emails.value || !selectedCategory.value) return [];
-    return emails.value[selectedCategory.value]?.useless || [];
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = emails.value[selectedCategory.value]?.useless || [];
+  return addCategoryToEmails(categoryEmails, selectedCategory.value);
 });
 
 const redEmails = computed(() => {
-    if (!emails.value || !selectedCategory.value) return [];
-    const categoryEmails = [
-        ...(emails.value[selectedCategory.value]?.important || []),
-        ...(emails.value[selectedCategory.value]?.informative || []),
-        ...(emails.value[selectedCategory.value]?.useless || [])
-    ];
-    return categoryEmails.filter(email => email.flags.scam || email.flags.spam);
+  if (!emails.value || !selectedCategory.value) return [];
+  const categoryEmails = [
+    ...(emails.value[selectedCategory.value]?.important || []),
+    ...(emails.value[selectedCategory.value]?.informative || []),
+    ...(emails.value[selectedCategory.value]?.useless || [])
+  ];
+  const filteredEmails = categoryEmails.filter(email => email.flags.scam || email.flags.spam);
+  return addCategoryToEmails(filteredEmails, selectedCategory.value);
 });
 
 const fetchEmailsData = async (categoryName: string) => {

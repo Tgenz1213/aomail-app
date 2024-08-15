@@ -12,7 +12,6 @@ from aomail.controllers import authentication as auth
 from aomail.controllers import preferences as prefs
 from aomail.controllers import categories, rules, emails, search_emails
 from aomail.controllers import statistics
-from aomail.tests.create_emails import create_emails # TODO: remove
 from .controllers import views
 
 app_name = 'MailAssistant'
@@ -56,7 +55,7 @@ urlpatterns = [
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
     path('user/emails/<int:email_id>/archive/', emails.archive_email, name='archive_email'), # waiting for implementation in FE
-    path('user/emails/', search_emails.get_user_emails, name='get_user_emails'), # waiting for implementation in FE 
+    path('user/emails_ids/', search_emails.get_user_emails_ids, name='get_user_emails'), # waiting for implementation in FE 
     path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'), # waiting for implementation in FE
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'), # waiting for implementation in FE
 
@@ -83,8 +82,7 @@ urlpatterns = [
     path('api/create_sender', views.create_sender, name='create_sender'), # ok
     path('api/check_sender', views.check_sender_for_user, name='check_sender_for_user'), # ok
     #----------------------- STATISTICS -----------------------#
-    path('user/statistics/', statistics.get_statistics , name='statistics'), # dev
-    path('user/create_emails/', create_emails , name='create_emails'), # ONLY for debug - delete in production to avoid HUGE problems
+    path('user/statistics/', statistics.get_statistics , name='statistics'), # ok
     #----------------------- ARTIFICIAL INTELLIGENCE -----------------------#
     path('api/search_emails_ai/', ai.search_emails_ai , name='search_emails_ai'), # ok
     path('api/search_tree_knowledge/', ai.search_tree_knowledge, name='search_tree_knowledge'), # ok
@@ -106,5 +104,5 @@ urlpatterns = [
     path('google/auth_url_link_email/', auth_google.auth_url_link_email, name='google_auth_url_link_email'), # ok
     path('google/receive_mail_notifications/', webhook_google.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
     #----------------------- PAYMENT PROVIDER API -----------------------#
-    path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
+    # path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
 ]

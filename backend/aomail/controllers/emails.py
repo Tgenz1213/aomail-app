@@ -12,10 +12,6 @@ Endpoints:
 - ✅ set_email_read: Mark email as read.
 - ✅ set_email_reply_later: Mark email for later reply.
 - ✅ set_email_unread: Mark email as unread.
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import json
@@ -161,10 +157,8 @@ def set_email_read(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReadUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-        
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(["POST"])
 @subscription([FREE_PLAN])
@@ -198,9 +192,7 @@ def set_email_unread(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReadUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -226,9 +218,7 @@ def set_email_reply_later(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReplyLaterUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -254,9 +244,8 @@ def set_email_not_reply_later(request: HttpRequest, email_id: int) -> Response:
         serializer = EmailReplyLaterUpdateSerializer(email)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response(
-            {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 # TODO: delete this comment after front-end implementation
 # ENDPOINTS TO DELETE ALL USELESS, INFORMATIVE, IMPORTANT EMAILS

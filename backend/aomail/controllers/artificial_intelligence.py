@@ -15,8 +15,6 @@ Endpoints:
 
 
 TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
-
 REMAINING functions to opti and clean:
 - def find_user_view_ai(request: HttpRequest) -> Response:
     - Log important messages/errors with user id, clear error name when possible

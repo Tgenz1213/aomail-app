@@ -5,10 +5,6 @@ Endpoints:
 - ✅ get_user_emails: Retrieves filtered and formatted user emails grouped by category and priority.
 - ✅ get_email_content: Retrieves HTML content of a specific email for display.
 - ✅ get_emails_data: Retrieves formatted email data to be displayed.
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import json
@@ -270,8 +266,9 @@ def construct_filters(user: User, parameters: dict) -> dict:
             filters["cc_senders__name__in"] = parameters["CCNames"]
 
     else:
-        # category_obj = Category.objects.get(name=parameters["category"])
-        # filters["category"] = category_obj
+        if "category" in parameters:
+            category_obj = Category.objects.get(name=parameters["category"])
+            filters["category"] = category_obj
         subject = parameters["subject"]
         filters["subject__icontains"] = subject
         filters["sender__email__icontains"] = subject
@@ -304,7 +301,12 @@ def get_sorted_queryset(
             if key != "user":
                 query |= Q(**{key: value})
 
-        queryset = Email.objects.filter(query, user=filters["user"])
+        if "category" in filters:
+            queryset = Email.objects.filter(
+                query, category=filters["category"], user=filters["user"]
+            )
+        else:
+            queryset = Email.objects.filter(query, user=filters["user"])
 
     rule_id_subquery = Rule.objects.filter(
         sender=OuterRef("sender"), user=filters["user"]
@@ -340,9 +342,9 @@ def format_email_data(queryset: BaseManager[Email]) -> tuple:
 
 @api_view(["POST"])
 @subscription([FREE_PLAN])
-def get_user_emails(request: HttpRequest) -> Response:
+def get_user_emails_ids(request: HttpRequest) -> Response:
     """
-    Retrieves filtered user emails based on provided criteria and formats them grouped by category and priority.
+    Retrieves filtered user emails ids based on provided criteria and formats them grouped by category and priority.
 
     Args:
         request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.

@@ -8,10 +8,6 @@ Endpoints:
 - ✅ delete_user_rule_by_id: Delete a specific rule.
 - ✅ create_user_rule: Create a new rule.
 - ✅ update_user_rule: Update an existing rule.
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import json

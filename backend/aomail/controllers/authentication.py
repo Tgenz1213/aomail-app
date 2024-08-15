@@ -12,10 +12,6 @@ Endpoints:
 - ✅ refresh_token: Refresh JWT access token and return a new one.
 - ✅ generate_reset_token: Send password reset email
 - ✅ reset_password: Handle password reset requests
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import datetime

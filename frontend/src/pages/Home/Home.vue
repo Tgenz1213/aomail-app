@@ -68,7 +68,6 @@
 </template>
 
 <script setup lang="ts">
-import { categories, categoryTotals } from './utils/categoriesStore';
 import { ref, computed, provide, onMounted } from 'vue';
 import { getData, postData } from '@/global/fetchData';
 import { Email, Category } from '@/global/types';
@@ -96,9 +95,39 @@ const categoryToUpdate = ref<Category | null>(null);
 const isModalNewCategoryOpen = ref(false);
 const isModalUpdateCategoryOpen = ref(false);
 const isHidden = ref(false);
+const categories = ref<Category[]>([]);
+const categoryTotals = ref<{ [key: string]: number }>({});
+
+const fetchEmailsData = async (categoryName: string) => {
+  try {
+    const response = await postData('user/emails/', { subject: "", category:categoryName, advanced:true });
+    const emails_details = await postData('user/get_emails_data/', {ids:response.data.ids});
+    emails.value = emails_details.data.data;
+    console.log("CHECK EMAILS", emails.value);
+  } catch (error) {
+    console.error('Error fetching emails:', error);
+  }
+};
+
+async function fetchCategoriesAndTotals() {
+  const categoriesResponse = await getData('user/categories');
+  categories.value = categoriesResponse.data;
+
+  const totalsPromises = categories.value.map(category => 
+    postData('user/emails/', { subject: "", category: category.name, read:false, advanced: true })
+  );
+  const totalsResponses = await Promise.all(totalsPromises);
+
+  categories.value.forEach((category, index) => {
+    categoryTotals.value[category.name] = totalsResponses[index].data.count;
+  });
+}
 
 provide("displayPopup", displayPopup);
+provide("fetchEmailsData", fetchEmailsData);
+provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("categories", categories);
+provide("selectedCategory", selectedCategory);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
   return emailList.map(email => ({
@@ -138,17 +167,6 @@ const redEmails = computed(() => {
   const filteredEmails = categoryEmails.filter(email => email.flags.scam || email.flags.spam);
   return addCategoryToEmails(filteredEmails, selectedCategory.value);
 });
-
-const fetchEmailsData = async (categoryName: string) => {
-  try {
-    const response = await postData('user/emails_ids/', { subject: "", category:categoryName, advanced:true });
-    const emails_details = await postData('user/get_emails_data/', {ids:response.data.ids});
-    emails.value = emails_details.data.data;
-    console.log("CHECK EMAILS", emails.value);
-  } catch (error) {
-    console.error('Error fetching emails:', error);
-  }
-};
 
 const markEmailAsRead = async (email: Email) => {
   try {
@@ -239,6 +257,7 @@ function dismissPopup() {
 }
 
 onMounted(async () => {
+  fetchCategoriesAndTotals();
   const storedTopic = localStorage.getItem('selectedCategory');
   if (storedTopic) {
     selectedCategory.value = storedTopic;

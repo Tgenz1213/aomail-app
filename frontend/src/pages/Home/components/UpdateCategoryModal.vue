@@ -81,7 +81,10 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
+const fetchCategoriesAndTotals = inject('fetchCategoriesAndTotals') as () => Promise<void>;
 const categories = inject('categories') as Ref<Category[]>;
+const selectedCategory = inject('selectedCategory') as Ref<string>;
 
 const categoryName = ref('');
 const categoryDescription = ref('');
@@ -121,53 +124,46 @@ const updateCategory = async () => {
     return;
   }
   
-  try {
-      console.log("DEBUG", categoryName.value, categoryDescription.value, props.category?.name);
-      console.log(categories.value);
-      const result = await putData(`api/update_category/`, { newCategoryName: categoryName.value, description: categoryDescription.value, categoryName: props.category?.name });
-      if (result.success) {
-        const updatedCategories = categories.value.map(category => {
-          if (category.name === props.category?.name) {
-            return {
-              name: categoryName.value,
-              description: categoryDescription.value
-            };
-          }
-          return category;
-        });
-        categories.value = updatedCategories;
-        closeModal();
-        displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.updateCategorySuccess'));
+  const result = await putData(`api/update_category/`, { newCategoryName: categoryName.value, description: categoryDescription.value, categoryName: props.category?.name });
+  if (result.success) {
+    const oldCategoryName = props.category?.name || '';
+    const newCategoryName = categoryName.value;
+    const updatedCategories = categories.value.map(category => {
+      if (category.name === props.category?.name) {
+        return {
+          name: categoryName.value,
+          description: categoryDescription.value
+        };
       }
-    } catch (error) {
-      console.error("Error trying to post the new category", error);
-      closeModal();
-      displayPopup?.("error", i18n.global.t('constants.popUpConstants.addCategoryError'), i18n.global.t('constants.popUpConstants.errorMessages.updateCategoryError'));
-    }
+      return category;
+    });
+    categories.value = updatedCategories;
+    fetchCategoriesAndTotals();
+    fetchEmailsData(selectedCategory.value);
+    closeModal();
+    displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.updateCategorySuccess'));
+  } else {
+    closeModal();
+    displayPopup?.("error", i18n.global.t('constants.popUpConstants.addCategoryError'), i18n.global.t('constants.popUpConstants.errorMessages.updateCategoryError'));
+  }
 
   closeModal();
 };
 
 const deleteCategory = async () => {
-  try {
-    const result = await postData(`api/get_rules_linked/`, { categoryName: categoryName.value });
-    // TO UPDATE with warning
-    if (result.data.nb_rules > 0) {
-      closeModal();
-      displayPopup?.("error", i18n.global.t('constants.popUpConstants.errorMessages.error'), i18n.global.t('constants.popUpConstants.errorMessages.deleteCategoryError'));  
-    } else {
-      await deleteData(`api/delete_category/`, { categoryName: categoryName.value });
-      const index = categories.value.findIndex(category => category.name === categoryName.value);
-      if (index !== -1) {
-        categories.value.splice(index, 1);
-      }
-      closeModal();
-      displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.deleteCategorySuccess'));
-    }
-  } catch (error) {
-    console.error('Error deleting category:', error);
+  const result = await postData(`api/get_rules_linked/`, { categoryName: categoryName.value });
+  // TO UPDATE with warning
+  if (!result.success || result.data.nb_rules > 0) {
     closeModal();
-    displayPopup?.("error", i18n.global.t('constants.popUpConstants.errorMessages.error'), i18n.global.t('constants.popUpConstants.errorMessages.deleteCategoryError'));
+    displayPopup?.("error", i18n.global.t('constants.popUpConstants.errorMessages.error'), i18n.global.t('constants.popUpConstants.errorMessages.deleteCategoryError'));  
+  } else {
+    await deleteData(`api/delete_category/`, { categoryName: categoryName.value });
+    const index = categories.value.findIndex(category => category.name === categoryName.value);
+    if (index !== -1) {
+      categories.value.splice(index, 1);
+    }
+    closeModal();
+    displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.deleteCategorySuccess'));
   }
 };
 </script>  

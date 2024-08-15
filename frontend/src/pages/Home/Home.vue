@@ -100,7 +100,7 @@ const categoryTotals = ref<{ [key: string]: number }>({});
 
 const fetchEmailsData = async (categoryName: string) => {
   try {
-    const response = await postData('user/emails/', { subject: "", category:categoryName, advanced:true });
+    const response = await postData('user/emails_ids/', { subject: "", category: categoryName });
     const emails_details = await postData('user/get_emails_data/', {ids:response.data.ids});
     emails.value = emails_details.data.data;
     console.log("CHECK EMAILS", emails.value);
@@ -114,9 +114,11 @@ async function fetchCategoriesAndTotals() {
   categories.value = categoriesResponse.data;
 
   const totalsPromises = categories.value.map(category => 
-    postData('user/emails/', { subject: "", category: category.name, read:false, advanced: true })
+    postData('user/emails_ids/', { subject: "", category: category.name, read:false, advanced: true })
   );
   const totalsResponses = await Promise.all(totalsPromises);
+
+  console.log("TOTAL", totalsResponses);
 
   categories.value.forEach((category, index) => {
     categoryTotals.value[category.name] = totalsResponses[index].data.count;

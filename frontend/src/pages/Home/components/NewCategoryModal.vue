@@ -54,10 +54,11 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, inject } from 'vue';
+  import { Ref, ref, inject } from 'vue';
   import { i18n } from "@/global/preferences";
   import { postData } from '@/global/fetchData';
   import { XMarkIcon } from '@heroicons/vue/20/solid';
+  import { Category } from '@/global/types';
     
   const props = defineProps<{
     isOpen: boolean;
@@ -67,6 +68,8 @@
     (e: 'close'): void;
     (e: 'categoryCreated'): void;
   }>();
+
+  const categories = inject('categories') as Ref<Category[]>;
 
   const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
   
@@ -103,12 +106,16 @@
 
     try {
       const result = await postData(`api/create_category/`, { name: categoryName.value, description: categoryDescription.value });
+      categories.value.push({
+        name: categoryName.value,
+        description: categoryDescription.value
+      });
       closeModal();
       displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.categoryAddedSuccess'));
     } catch (error) {
       console.error("Error trying to post the new category", error);
       closeModal();
-      displayPopup?.("error", i18n.global.t('constants.popUpConstants.errorMessages.error'), i18n.global.t('constants.popUpConstants.errorMessages.categoryAddFailed'));
+      displayPopup?.("error", i18n.global.t('constants.popUpConstants.addCategoryError'), i18n.global.t('constants.popUpConstants.errorMessages.addCategoryError'));
     }
   };
   </script>

@@ -80,13 +80,17 @@ export async function postData(path: string, body: Record<string, any>): Promise
     }
 }
 
-export async function deleteData(path: string): Promise<FetchDataResult> {
-    const requestOptions = {
+export async function deleteData(path: string, body?: any): Promise<FetchDataResult> {
+    const requestOptions: RequestInit = {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json",
         },
     };
+
+    if (body) {
+        requestOptions.body = JSON.stringify(body);
+    }
 
     try {
         const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);

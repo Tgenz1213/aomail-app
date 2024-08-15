@@ -64,10 +64,10 @@
 </template>
 
 <script setup lang="ts">
+import { Ref, inject } from 'vue';
 import { Category } from '@/global/types';
 
 const props = defineProps<{
-  categories: Category[];
   selectedCategory: string;
   categoryTotals: { [key: string]: number };
 }>();
@@ -77,6 +77,8 @@ const emit = defineEmits<{
   (e: 'open-new-category-modal'): void;
   (e: 'open-update-category-modal', category: Category): void;
 }>();
+
+const categories = inject('categories') as Ref<Category[]>;
 
 const selectCategory = (category: Category) => {
   emit('select-category', category);

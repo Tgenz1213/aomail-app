@@ -14,7 +14,6 @@
       <div class="flex-1 bg-white ring-1 shadow-sm ring-black ring-opacity-5">
         <div class="flex flex-col h-full relative">
           <Categories 
-            :categories="categories"
             :selected-category="selectedCategory"
             :category-totals="categoryTotals"
             @select-category="selectCategory"
@@ -64,19 +63,16 @@
       :isOpen="isModalUpdateCategoryOpen"
       :category="categoryToUpdate"
       @close="closeUpdateCategoryModal"
-      @update-category="handleUpdateCategory"
-      @delete-category="handleCategoryDelete"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { categories, categoryTotals, isLoading } from './utils/categoriesStore';
+import { categories, categoryTotals } from './utils/categoriesStore';
 import { ref, computed, provide, onMounted } from 'vue';
-import { getData, postData, deleteData } from '@/global/fetchData';
+import { getData, postData } from '@/global/fetchData';
 import { Email, Category } from '@/global/types';
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { i18n } from "@/global/preferences";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewCategoryModal from "./components/NewCategoryModal.vue";
@@ -88,7 +84,6 @@ import RedEmail from "./components/RedEmails.vue";
 import AssistantChat from "./components/AssistantChat.vue";
 import Categories from './components/Categories.vue';
 
-const activeSection = ref("home");
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
@@ -97,13 +92,13 @@ const timerId = ref<number | null>(null);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>('');
-const isUpdateCategoryModalOpen = ref(false);
 const categoryToUpdate = ref<Category | null>(null);
 const isModalNewCategoryOpen = ref(false);
 const isModalUpdateCategoryOpen = ref(false);
 const isHidden = ref(false);
 
 provide("displayPopup", displayPopup);
+provide("categories", categories);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
   return emailList.map(email => ({
@@ -152,15 +147,6 @@ const fetchEmailsData = async (categoryName: string) => {
     console.log("CHECK EMAILS", emails.value);
   } catch (error) {
     console.error('Error fetching emails:', error);
-  }
-};
-
-const fetchCategories = async () => {
-  try {
-    const response = await getData('user/categories');
-    categories.value = response.data;
-  } catch (error) {
-    console.error('Error fetching categories:', error);
   }
 };
 
@@ -228,37 +214,12 @@ const closeNewCategoryModal = () => {
 
 const openUpdateCategoryModal = (category: Category) => {
   categoryToUpdate.value = category;
-  isUpdateCategoryModalOpen.value = true;
+  isModalUpdateCategoryOpen.value = true;
 };
 
 const closeUpdateCategoryModal = () => {
-  isUpdateCategoryModalOpen.value = false;
+  isModalUpdateCategoryOpen.value = false;
   categoryToUpdate.value = null;
-};
-
-const handleCategoryCreated = async () => {
-  console.log("ENTERD !");
-  closeNewCategoryModal();
-  await fetchCategories();
-  displayPopup("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.categoryAddedSuccess'));
-};
-
-const handleUpdateCategory = async (category: Category) => {
-  try {
-    await postData(`user/categories/${category.name}`, category);
-    await fetchCategories();
-  } catch (error) {
-    console.error('Error updating category:', error);
-  }
-};
-
-const handleCategoryDelete = async (categoryName: string) => {
-  try {
-    await deleteData(`user/categories/${categoryName}`);
-    await fetchCategories();
-  } catch (error) {
-    console.error('Error deleting category:', error);
-  }
 };
 
 function displayPopup(type: "success" | "error", title: string, message: string) {

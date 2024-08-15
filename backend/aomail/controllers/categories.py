@@ -66,47 +66,56 @@ def update_category(request: HttpRequest) -> Response:
     Args:
         request (HttpRequest): The HTTP request object containing the following parameters in the body:
             categoryName (str): The current name of the category to update.
-            description (str): The updated description for the category.
+            newCategoryName (str, optional): The new name of the category to update.
+            description (str, optional): The updated description for the category.
 
     Returns:
         Response: JSON response containing the updated category data or error messages.
     """
     parameters: dict = json.loads(request.body)
     current_name = parameters.get("categoryName")
+    new_name = parameters.get("newCategoryName")
     description = parameters.get("description")
 
     if not current_name:
         return Response(
             {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
-    if not description:
-        return Response(
-            {"error": "No category description provided"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
     if current_name == DEFAULT_CATEGORY:
         return Response(
             {"error": f"Cannot modify default category: {DEFAULT_CATEGORY}"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if len(current_name) > 50:
+    if new_name and len(new_name) > 50:
         return Response(
-            {"error": "Category name length exceeds 50 characters"},
+            {"error": "New category name length exceeds 50 characters"},
             status=status.HTTP_400_BAD_REQUEST,
         )
-    if len(description) > 300:
+    if description and len(description) > 300:
         return Response(
             {"error": "Description length exceeds 300 characters"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+    
     try:
         category = Category.objects.get(name=current_name, user=request.user)
     except Category.DoesNotExist:
         return Response(
-            {"error": "Category not found"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
         )
 
-    serializer = CategoryNameSerializer(category, data=parameters)
+    update_data = {}
+    if new_name:
+        update_data['name'] = new_name
+    if description:
+        update_data['description'] = description
+
+    if not update_data:
+        return Response(
+            {"error": "No updates provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    serializer = CategoryNameSerializer(category, data=update_data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -11,10 +11,6 @@ Endpoints:
 - ✅ search_emails: Searches emails based on user-specified parameters.
 - ✅ send_email: Sends an email using the social API selected.
 - ✅ update_user_description: Updates the user description of the given email.
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import datetime

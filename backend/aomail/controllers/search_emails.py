@@ -5,10 +5,6 @@ Endpoints:
 - ✅ get_user_emails: Retrieves filtered and formatted user emails grouped by category and priority.
 - ✅ get_email_content: Retrieves HTML content of a specific email for display.
 - ✅ get_emails_data: Retrieves formatted email data to be displayed.
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import json

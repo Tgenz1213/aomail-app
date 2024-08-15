@@ -11,10 +11,6 @@ Endpoints:
 - ✅ set_user_timezone: Set the timezone.
 - ✅ update_password: Update the password.
 - ✅ update_username: Update the username.
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import json

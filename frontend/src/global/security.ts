@@ -1,12 +1,3 @@
-/* TODO:
-// VERY IMPORTANT: for opti and scalabilty
-// We MUST change fetchWithToken to return the complete result of the fetch
-// it will allow to check the status code instead of if response.message == "aLongStringThatMayChange"
-// EDIT: done => must change everywhere we use the function fetchWithToken
-
-EXPORT redirection function after 5sec for 401 & 404 (if possible)
-*/
-
 import router from "@/router/router";
 import { API_BASE_URL, BASE_URL } from "./const";
 

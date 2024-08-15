@@ -8,10 +8,6 @@ Endpoints:
 - ✅ get_rules_linked: Retrieve the number of rules linked to a specified category.
 - ✅ create_category: Create a new category.
 - ✅ get_category_id: Retrieve the ID of a category based on its name.
-
-
-TODO:
-- (ANTI scraping/reverse engineering): Add a system that counts the number of 400 erros per user and send warning + ban
 """
 
 import json

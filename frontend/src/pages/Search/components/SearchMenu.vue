@@ -138,7 +138,11 @@ const searchModes: KeyValuePair[] = [
 const selectedSearchMode = ref<KeyValuePair>(searchModes[0]);
 
 async function toggleFilters() {
-    // todo: implement expand filters with Z index
+    if (selectedSearchMode.value.key === "aomail") {
+        // todo: show aomail filters
+    } else {
+        // todo: show api filters
+    }
 }
 
 function handleFocusSearch() {

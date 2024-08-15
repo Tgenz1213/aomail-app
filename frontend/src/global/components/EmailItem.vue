@@ -271,7 +271,7 @@
 
   function openRuleEditor(ruleId: number) {
     if (ruleId) {
-        router.push({ name: 'rules', query: { id_rule: ruleId, editRule: 'true' } });
+        router.push({ name: 'rules', query: { idRule: ruleId, editRule: 'true' } });
     }
   }
 

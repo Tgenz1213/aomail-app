@@ -204,6 +204,8 @@ async function fetchRuleById(idRule: string) {
             },
         });
 
+        console.log("DEBUG", response);
+
         if (response) {
             const ruleData = await response.json();
             ruleSelected.value = {

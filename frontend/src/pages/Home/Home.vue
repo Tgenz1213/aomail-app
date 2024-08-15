@@ -157,6 +157,7 @@ const markEmailAsRead = async (email: Email) => {
           const emailIndex = categoryEmails[type].findIndex(e => e.id === email.id);
           if (emailIndex !== -1) {
             categoryEmails[type][emailIndex].read = true;
+            categoryTotals.value[selectedCategory.value] -= 1;
           }
         }
       });
@@ -179,6 +180,7 @@ const markEmailReplyLater = async (email: Email) => {
           if (emailIndex !== -1) {
             categoryEmails[type][emailIndex].read = true;
             categoryEmails[type][emailIndex].answerLater = true; 
+            categoryTotals.value[selectedCategory.value] -= 1;
           }
         }
       });

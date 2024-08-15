@@ -269,7 +269,7 @@ def construct_filters(user: User, parameters: dict) -> dict:
         if "category" in parameters:
             category_obj = Category.objects.get(name=parameters["category"])
             filters["category"] = category_obj
-        subject = parameters["subject"]
+        subject = parameters.get("subject")
         filters["subject__icontains"] = subject
         filters["sender__email__icontains"] = subject
         filters["sender__name__icontains"] = subject

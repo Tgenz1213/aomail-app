@@ -1,4 +1,11 @@
 <template>
+  <NotificationTimer
+    :showNotification="showNotification"
+    :notificationTitle="notificationTitle"
+    :notificationMessage="notificationMessage"
+    :backgroundColor="backgroundColor"
+    @dismissPopup="dismissPopup"
+    />
   <div class="flex flex-col justify-center items-center h-screen">
     <div class="flex h-full w-full">
       <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
@@ -50,13 +57,13 @@
       <AssistantChat v-if="!isHidden" @toggle-visibility="toggleVisibility" />
     </div>
     <NewCategoryModal
-      :isOpen="isModalOpen"
-      @close-modal="closeModal"
+      :isOpen="isModalNewCategoryOpen"
+      @close="closeNewCategoryModal"
     />
     <UpdateCategoryModal
-      :isOpen="isModalUpdateOpen"
+      :isOpen="isModalUpdateCategoryOpen"
       :category="categoryToUpdate"
-      @close-modal="closeUpdateModal"
+      @close="closeUpdateCategoryModal"
       @update-category="handleUpdateCategory"
       @delete-category="handleCategoryDelete"
     />
@@ -65,9 +72,12 @@
 
 <script setup lang="ts">
 import { categories, categoryTotals, isLoading } from './utils/categoriesStore';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, provide, onMounted } from 'vue';
 import { getData, postData, deleteData } from '@/global/fetchData';
 import { Email, Category } from '@/global/types';
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
+import { i18n } from "@/global/preferences";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewCategoryModal from "./components/NewCategoryModal.vue";
 import UpdateCategoryModal from "./components/UpdateCategoryModal.vue";
@@ -78,14 +88,22 @@ import RedEmail from "./components/RedEmails.vue";
 import AssistantChat from "./components/AssistantChat.vue";
 import Categories from './components/Categories.vue';
 
+const activeSection = ref("home");
+const showNotification = ref(false);
+const notificationTitle = ref("");
+const notificationMessage = ref("");
+const backgroundColor = ref("");
+const timerId = ref<number | null>(null);
+
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>('');
-const isNewCategoryModalOpen = ref(false);
 const isUpdateCategoryModalOpen = ref(false);
 const categoryToUpdate = ref<Category | null>(null);
-const isModalOpen = ref(false);
-const isModalUpdateOpen = ref(false);
+const isModalNewCategoryOpen = ref(false);
+const isModalUpdateCategoryOpen = ref(false);
 const isHidden = ref(false);
+
+provide("displayPopup", displayPopup);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
   return emailList.map(email => ({
@@ -194,14 +212,6 @@ const toggleVisibility = () => {
   isHidden.value = !isHidden.value;
 };
 
-const closeModal = () => {
-  isModalOpen.value = false;
-};
-
-const closeUpdateModal = () => {
-  isModalUpdateOpen.value = false;
-};
-
 const selectCategory = (category: Category) => {
   selectedCategory.value = category.name;
   fetchEmailsData(selectedCategory.value);
@@ -209,11 +219,11 @@ const selectCategory = (category: Category) => {
 };
 
 const openNewCategoryModal = () => {
-  isNewCategoryModalOpen.value = true;
+  isModalNewCategoryOpen.value = true;
 };
 
 const closeNewCategoryModal = () => {
-  isNewCategoryModalOpen.value = false;
+  isModalNewCategoryOpen.value = false;
 };
 
 const openUpdateCategoryModal = (category: Category) => {
@@ -226,13 +236,11 @@ const closeUpdateCategoryModal = () => {
   categoryToUpdate.value = null;
 };
 
-const handleAddCategory = async (category: Category) => {
-  try {
-    await postData('user/categories', category);
-    await fetchCategories();
-  } catch (error) {
-    console.error('Error adding category:', error);
-  }
+const handleCategoryCreated = async () => {
+  console.log("ENTERD !");
+  closeNewCategoryModal();
+  await fetchCategories();
+  displayPopup("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.categoryAddedSuccess'));
 };
 
 const handleUpdateCategory = async (category: Category) => {
@@ -252,6 +260,22 @@ const handleCategoryDelete = async (categoryName: string) => {
     console.error('Error deleting category:', error);
   }
 };
+
+function displayPopup(type: "success" | "error", title: string, message: string) {
+    if (type === "error") {
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    } else {
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    }
+    timerId.value = setTimeout(dismissPopup, 4000);
+}
+
+function dismissPopup() {
+    showNotification.value = false;
+    if (timerId.value !== null) {
+        clearTimeout(timerId.value);
+    }
+}
 
 onMounted(async () => {
   const storedTopic = localStorage.getItem('selectedCategory');

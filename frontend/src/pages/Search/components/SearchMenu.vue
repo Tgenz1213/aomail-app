@@ -175,20 +175,19 @@ async function searchEmails() {
     loading?.();
     scrollToBottom?.();
 
-    const result = await postData(`user/emails/`, {
-        resultPerPage: 25,
-        advanced: false,
+    const result = await postData(`user/emails_ids/`, {
         subject: query.value,
-        senderEmail: query.value,
-        senderName: query.value,
+        category: "Others"
     });
 
     if (!result.success) {
         displayPopup?.("error", "Failed to fetch emails", result.error as string);
         return;
     }
+    hideLoading?.();
 
     if (result.data.count > 0) {
+        console.log(result);
         const limitedEmails = result.data.ids.slice(0, 25);
         const emailDetails = await fetchEmailDetails?.(limitedEmails);
         // emailList.value = Object.entries(emailDetails.data).flatMap(([category, priorities]) =>
@@ -201,7 +200,6 @@ async function searchEmails() {
         //     )
         // );
 
-        hideLoading?.();
 
         if (result.data.count == 1) {
             await displayMessage?.(result.data.count + " email " + i18n.global.t("searchPage.oneDataFound"), aiIcon);

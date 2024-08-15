@@ -55,7 +55,7 @@ urlpatterns = [
     #----------------------- EMAILS -----------------------#
     path('user/emails/delete_emails', emails.delete_emails, name='delete_emails'), # waiting for implementation in FE
     path('user/emails/<int:email_id>/archive/', emails.archive_email, name='archive_email'), # waiting for implementation in FE
-    path('user/emails/', search_emails.get_user_emails, name='get_user_emails'), # waiting for implementation in FE 
+    path('user/emails_ids/', search_emails.get_user_emails_ids, name='get_user_emails'), # waiting for implementation in FE 
     path('user/get_email_content/', search_emails.get_email_content, name='get_email_content'), # waiting for implementation in FE
     path('user/get_emails_data/', search_emails.get_emails_data, name='get_emails_data'), # waiting for implementation in FE
 

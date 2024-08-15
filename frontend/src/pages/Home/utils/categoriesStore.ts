@@ -14,7 +14,7 @@ async function fetchCategoriesAndTotals() {
     categories.value = categoriesResponse.data;
 
     const totalsPromises = categories.value.map(category => 
-      postData('user/emails/', { subject: "", category: category.name, read:false, advanced: true })
+      postData('user/emails_ids/', { subject: "", category: category.name, read:false, advanced: true })
     );
     const totalsResponses = await Promise.all(totalsPromises);
 

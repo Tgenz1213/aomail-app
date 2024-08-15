@@ -117,152 +117,7 @@
                 </div>
                 <div class="flex-1 flex flex-col w-full px-6 pt-2 mb-4">
                     <SearchMenu />
-                    <div class="flex-1 flex flex-col py-2" id="emailList">
-                        <div class="h-full overflow-y-auto">
-                            <template v-if="sortedEmailList.length > 0">
-                                <ul class="space-y-4 pr-4">
-                                    <template v-for="(email, index) in sortedEmailList" :key="email.id">
-                                        <li
-                                            class="group flex justify-between items-center py-2 email-item"
-                                            @click="toggleHiddenParagraph(index)"
-                                        >
-                                            <div class="flex flex-col justify-center">
-                                                <span class="font-semibold text-sm leading-6">
-                                                    {{ email.sender.name }}
-                                                    - {{ email.sender.email }}
-                                                    <span class="font-normal ml-2 text-gray-600 text-xs">
-                                                        {{ email.sentDate }}
-                                                    </span>
-                                                </span>
-                                                <span class="text-sm gray-600">
-                                                    {{ email.subject }} - {{ email.oneLineSummary }}
-                                                </span>
-                                                <div v-if="showSummary" class="py-1">
-                                                    <p class="text-xs">{{ email.shortSummary }}</p>
-                                                </div>
-                                                <div class="mt-1 flex space-x-2">
-                                                    <span
-                                                        v-if="email.priority === 'important'"
-                                                        class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
-                                                    >
-                                                        Important
-                                                    </span>
-                                                    <span
-                                                        v-else-if="email.priority === 'informative'"
-                                                        class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
-                                                    >
-                                                        Informative
-                                                    </span>
-                                                    <span
-                                                        v-else
-                                                        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
-                                                    >
-                                                        Useless
-                                                    </span>
-
-                                                    <span
-                                                        class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
-                                                    >
-                                                        {{ email.category }}
-                                                    </span>
-
-                                                    <span
-                                                        v-if="email.read"
-                                                        class="inline-flex items-center rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-600 ring-1 ring-inset ring-stone-500/10"
-                                                    >
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke-width="1.5"
-                                                            stroke="currentColor"
-                                                            class="h-4 w-4 mr-1"
-                                                        >
-                                                            <path
-                                                                stroke-linecap="round"
-                                                                stroke-linejoin="round"
-                                                                d="M4.5 12.75l6 6 9-13.5"
-                                                            />
-                                                        </svg>
-                                                        Lu
-                                                    </span>
-                                                    <span
-                                                        v-bind:class="{
-                                                            'hidden group-hover:block px-1.5 text-white shadow rounded-xl inline-flex': true,
-                                                            'bg-orange-300': email.priority === 'important',
-                                                            'bg-blue-300': email.priority === 'informative',
-                                                            'bg-gray-300':
-                                                                email.priority !== 'important' &&
-                                                                email.priority !== 'informative',
-                                                        }"
-                                                    >
-                                                        <div class="flex gap-x-1 items-center justify-center h-full">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke-width="1.5"
-                                                                stroke="currentColor"
-                                                                class="w-4 h-4"
-                                                            >
-                                                                <path
-                                                                    stroke-linecap="round"
-                                                                    stroke-linejoin="round"
-                                                                    d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
-                                                                />
-                                                            </svg>
-                                                            <p class="text-xs">
-                                                                {{ $t("constants.userActions.clickToSeeTheSummary") }}
-                                                            </p>
-                                                        </div>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <span class="isolate inline-flex items-center rounded-2xl">
-                                                <div class="relative group">
-                                                    <button
-                                                        @click.stop="openMail(email.id)"
-                                                        class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center"
-                                                    >
-                                                        <EyeIcon class="w-5 h-5" />
-                                                        Voir
-                                                    </button>
-                                                </div>
-                                            </span>
-                                        </li>
-                                        <li v-if="index < sortedEmailList.length - 1" class="flex relative pt-2">
-                                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                                                <div class="w-full border-t border-gray-300"></div>
-                                            </div>
-                                        </li>
-                                    </template>
-                                </ul>
-                            </template>
-                            <template v-else>
-                                <div
-                                    class="flex flex-col items-center justify-center h-full rounded-lg border-2 border-dashed border-gray-300"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1"
-                                        stroke="currentColor"
-                                        class="w-12 h-12 mx-auto text-gray-400"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"
-                                        />
-                                    </svg>
-                                    <span class="mt-2 block text-sm font-semibold text-gray-900">
-                                        {{ $t("searchPage.noResults") }}
-                                    </span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
+                    <EmailList />
                 </div>
             </div>
         </div>
@@ -273,8 +128,6 @@
 import { ref, computed, nextTick, onMounted, provide } from "vue";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { EyeIcon } from "@heroicons/vue/24/outline";
-import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
 import { Contact, Email, Recipient } from "@/global/types";
@@ -283,6 +136,7 @@ import { getData, postData } from "@/global/fetchData";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import { AttachmentType } from "./utils/types";
+import EmailList from "./components/EmailList.vue";
 
 const people = ref<Recipient[]>([]);
 const selectedPeople = ref<Recipient[]>([]);
@@ -318,22 +172,11 @@ let selectedEmail = ref<Email>();
 
 const contacts: Contact[] = [];
 const queryGetContacts = ref("");
+const emailIds = ref<number[]>([]);
 const emailList = ref<Email[]>([]);
 
 const aiIcon =
     '<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /> ';
-
-const sortedEmailList = computed(() => {
-    const priorityOrder: Record<string, number> = {
-        [IMPORTANT]: 0,
-        [INFORMATIVE]: 1,
-        [USELESS]: 2,
-    };
-
-    return [...emailList.value].sort((a, b) => {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-    });
-});
 
 onMounted(() => {
     checkLoginStatus();
@@ -362,7 +205,6 @@ const filteredPeople = computed(() => {
 provide("displayPopup", displayPopup);
 provide("loading", loading);
 provide("scrollToBottom", scrollToBottom);
-provide("fetchEmailDetails", fetchEmailDetails);
 provide("hideLoading", hideLoading);
 provide("displayMessage", displayMessage);
 provide("aiIcon", aiIcon);
@@ -376,6 +218,8 @@ provide("selectedRecipients", selectedRecipients);
 provide("fromSelectedPerson", fromSelectedPerson);
 provide("selectedPerson", selectedPerson);
 provide("selectedSearchIn", selectedSearchIn);
+provide("emailIds", emailIds);
+provide("emailList", emailList);
 
 async function scrollToBottom() {
     await nextTick();
@@ -398,30 +242,6 @@ function dismissPopup() {
     showNotification.value = false;
     if (timerId.value !== null) {
         clearTimeout(timerId.value);
-    }
-}
-
-async function openMail(emailId: number) {
-    const result = await postData("user/get_email_content/", {
-        id: emailId,
-    });
-
-    if (!result.success) {
-        displayPopup("error", "Failed to open the email", result.error as string);
-    }
-
-    // todo: find the category and update the variable category
-    const emailIndex = emailList.value.findIndex((email: Email) => email.id === emailId);
-
-    if (emailIndex !== -1) {
-        emailList.value[emailIndex] = {
-            ...emailList.value[emailIndex],
-            htmlContent: result.data.htmlContent,
-            category: "",
-        };
-
-        selectedEmail.value = emailList.value[emailIndex];
-        isModalSeeOpen.value = true;
     }
 }
 
@@ -533,11 +353,6 @@ async function fetchContacts() {
     contacts.push(...result.data);
 }
 
-function toggleHiddenParagraph(index: any) {
-    // fixable if email displayed is scoped alone => create a var cosnt showSummary = ref(false)
-    // sortedEmailList.value[index].showSummary = !sortedEmailList.value[index].showSummary;
-}
-
 async function fetchEmailLinked() {
     const result = await getData(`user/emails_linked/`);
 
@@ -583,7 +398,7 @@ async function handleAIClick() {
 
         // Limit to 25 results
         const limitedEmails = ids.slice(0, 25);
-        const emailDetails = await fetchEmailDetails(limitedEmails);
+        // const emailDetails = await fetchEmailDetails(limitedEmails);
         // emailList.value = Object.entries(emailDetails.data).flatMap(([category, priorities]) =>
         //     Object.entries(priorities).flatMap(([priority, emails]) =>
         //         emails.map((email) => ({
@@ -598,18 +413,6 @@ async function handleAIClick() {
     await displayMessage(message, aiIcon);
     hideLoading();
     isAIWriting.value = false;
-}
-
-async function fetchEmailDetails(emailIds: number[]) {
-    const result = await postData(`user/get_emails_data/`, {
-        ids: emailIds,
-    });
-
-    if (!result.success) {
-        displayPopup("error", "Failed to fetch email details", result.error as string);
-        return [];
-    }
-    return result;
 }
 
 async function displayMessage(message: string, aiIcon: string) {

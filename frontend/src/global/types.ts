@@ -63,7 +63,6 @@ export interface Recipient {
     email: string;
 }
 
-// (Augustin) under dev
 export interface Email {
     id: number;
     subject: string;
@@ -84,8 +83,14 @@ export interface Email {
     relevance: string;
     priority: string;
     flags: EmailFlags;
-    // to delete after Search.vue is finished
     category?: string;
     htmlContent?: string;
 }
 
+export interface EmailDetails {
+    data: {
+        [category: string]: {
+            [priority: string]: Email[];
+        };
+    };
+}

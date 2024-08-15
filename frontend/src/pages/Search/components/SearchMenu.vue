@@ -111,7 +111,7 @@
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Contact, FetchDataResult, KeyValuePair, Recipient } from "@/global/types";
+import { Contact, Email, EmailDetails, KeyValuePair, Recipient } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { ComputedRef, inject, ref, Ref } from "vue";
@@ -120,14 +120,12 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 const loading = inject<() => void>("loading");
 const scrollToBottom = inject<() => void>("scrollToBottom");
 const hideLoading = inject<() => void>("hideLoading");
-const fetchEmailDetails = inject<(emailIds: number[]) => Promise<FetchDataResult>>("fetchEmailDetails");
-const displayMessage = inject<(message: string, aiIcon: string) => Promise<void>>("displayMessage");
 const filteredPeople = inject<ComputedRef<Contact[]>>("filteredPeople");
 
-const aiIcon = inject<string>("aiIcon") || "";
 const people = inject<Ref<Recipient[]>>("people") || ref([]);
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
-let query = ref("");
+const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
+const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const inputValue = ref("");
 const isFocused = ref(false);
 
@@ -176,41 +174,43 @@ async function searchEmails() {
     scrollToBottom?.();
 
     const result = await postData(`user/emails_ids/`, {
-        subject: query.value,
-        category: "Others"
+        subject: inputValue.value,
     });
 
     if (!result.success) {
         displayPopup?.("error", "Failed to fetch emails", result.error as string);
+        hideLoading?.();
+        return;
+    }
+
+    emailIds.value = result.data.ids;
+    const limitedEmails: number[] = result.data.ids.slice(0, 25);
+    const resultEmailsData = await postData(`user/get_emails_data/`, {
+        ids: limitedEmails,
+    });
+
+    if (!resultEmailsData.success) {
+        displayPopup?.("error", "Failed to fetch email details", resultEmailsData.error as string);
+        hideLoading?.();
         return;
     }
     hideLoading?.();
 
-    if (result.data.count > 0) {
-        console.log(result);
-        const limitedEmails = result.data.ids.slice(0, 25);
-        const emailDetails = await fetchEmailDetails?.(limitedEmails);
-        // emailList.value = Object.entries(emailDetails.data).flatMap(([category, priorities]) =>
-        //     Object.entries(priorities).flatMap(([priority, emails]) =>
-        //         emails.map((email) => ({
-        //             ...email,
-        //             category: category,
-        //             priority: priority,
-        //         }))
-        //     )
-        // );
+    const emailDetails: EmailDetails = resultEmailsData.data;
 
-
-        if (result.data.count == 1) {
-            await displayMessage?.(result.data.count + " email " + i18n.global.t("searchPage.oneDataFound"), aiIcon);
-        } else if (result.data.count > 1) {
-            await displayMessage?.(
-                result.data.count + " emails " + i18n.global.t("searchPage.severalDataFound"),
-                aiIcon
-            );
+    emailList.value = [];
+    for (const [category, priorities] of Object.entries(emailDetails.data)) {
+        for (const [priority, emails] of Object.entries(priorities)) {
+            if (Array.isArray(emails)) {
+                for (const email of emails) {
+                    emailList.value.push({
+                        ...email,
+                        category,
+                        priority,
+                    });
+                }
+            }
         }
-    } else {
-        await displayMessage?.(i18n.global.t("searchPage.noDataFound"), aiIcon);
     }
 }
 </script>

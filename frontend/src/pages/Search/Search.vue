@@ -130,12 +130,11 @@ import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import router from "@/router/router";
-import { Contact, Email, Recipient } from "@/global/types";
+import { AttachmentType, Contact, Email, Recipient } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { getData, postData } from "@/global/fetchData";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import SearchMenu from "./components/SearchMenu.vue";
-import { AttachmentType } from "./utils/types";
 import EmailList from "./components/EmailList.vue";
 
 const people = ref<Recipient[]>([]);

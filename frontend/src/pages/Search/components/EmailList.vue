@@ -4,7 +4,7 @@
             <template v-if="sortedEmailList.length > 0">
                 <ul class="space-y-4 pr-4">
                     <template v-for="(email, index) in sortedEmailList" :key="email.id">
-                        <Email />
+                        <EmailItem :email="email" />
                         <li v-if="index < sortedEmailList.length - 1" class="flex relative pt-2">
                             <div class="absolute inset-0 flex items-center" aria-hidden="true">
                                 <div class="w-full border-t border-gray-300"></div>
@@ -43,7 +43,8 @@
 <script setup lang="ts">
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { Email } from "@/global/types";
-import { computed, inject, Ref, ref } from "vue";
+import { computed, inject, Ref, ref, watch } from "vue";
+import EmailItem from "./EmailItem.vue";
 
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 
@@ -58,4 +59,12 @@ const sortedEmailList = computed(() => {
         return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
 });
+
+watch(
+    sortedEmailList,
+    (newValue) => {
+        console.log("sortedEmailList changed:", newValue);
+    },
+    { immediate: true }
+);
 </script>

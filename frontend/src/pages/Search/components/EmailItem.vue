@@ -1,5 +1,5 @@
 <template>
-    <li class="group flex justify-between items-center py-2 email-item" @click="toggleHiddenParagraph(index)">
+    <li class="group flex justify-between items-center py-2 email-item" @click="toggleShowShortSummary()">
         <div class="flex flex-col justify-center">
             <span class="font-semibold text-sm leading-6">
                 {{ email.sender.name }}
@@ -9,7 +9,7 @@
                 </span>
             </span>
             <span class="text-sm gray-600">{{ email.subject }} - {{ email.oneLineSummary }}</span>
-            <div v-if="showSummary" class="py-1">
+            <div v-if="showShortSummary" class="py-1">
                 <p class="text-xs">{{ email.shortSummary }}</p>
             </div>
             <div class="mt-1 flex space-x-2">
@@ -100,14 +100,19 @@
 
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
-import { inject } from "vue";
+import { inject, ref } from "vue";
 import { EyeIcon } from "@heroicons/vue/24/outline";
+import { Email } from "@/global/types";
 
+defineProps<{
+    email: Email;
+}>();
+
+const showShortSummary = ref(false);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-function toggleHiddenParagraph(index: any) {
-    // fixable if email displayed is scoped alone => create a var cosnt showSummary = ref(false)
-    // sortedEmailList.value[index].showSummary = !sortedEmailList.value[index].showSummary;
+function toggleShowShortSummary() {
+    showShortSummary.value = !showShortSummary.value;
 }
 
 async function openMail(emailId: number) {
@@ -119,18 +124,6 @@ async function openMail(emailId: number) {
         displayPopup?.("error", "Failed to open the email", result.error as string);
     }
 
-    // todo: find the category and update the variable category
-    // const emailIndex = emailList.value.findIndex((email: Email) => email.id === emailId);
-
-    // if (emailIndex !== -1) {
-    //     emailList.value[emailIndex] = {
-    //         ...emailList.value[emailIndex],
-    //         htmlContent: result.data.htmlContent,
-    //         category: "",
-    //     };
-
-    //     selectedEmail.value = emailList.value[emailIndex];
-    //     isModalSeeOpen.value = true;
-    // }
+    // todo: open the modal
 }
 </script>

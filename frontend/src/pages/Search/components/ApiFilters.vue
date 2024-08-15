@@ -384,8 +384,7 @@ import {
     CalendarIcon,
     HandRaisedIcon,
 } from "@heroicons/vue/24/outline";
-import { AttachmentType } from "../utils/types";
-import { KeyValuePair, Recipient } from "@/global/types";
+import { AttachmentType, KeyValuePair, Recipient } from "@/global/types";
 
 const attachmentsSelected = inject<Ref<AttachmentType[]>>("attachmentsSelected") || ref([]);
 const startDate = inject<Ref<string>>("startDate") || ref("");

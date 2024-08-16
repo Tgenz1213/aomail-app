@@ -408,7 +408,7 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
                         organization
                     ]["topics"][topic]["emails"]
                     ids = Email.objects.filter(
-                        provider_id__in=provider_ids
+                        provider_id__in=provider_ids, user=user
                     ).values_list("id", flat=True)
                     emails_ids.extend(ids)
 

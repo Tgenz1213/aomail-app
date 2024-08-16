@@ -404,11 +404,16 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
         for category in keypoints:
             for organization in keypoints[category]:
                 for topic in keypoints[category][organization]:
-                    provider_ids = search.knowledge_tree[category]["organizations"][organization]["topics"][topic]["emails"]
-                    ids = Email.objects.filter(provider_id__in=provider_ids).values_list('id', flat=True)
+                    provider_ids = search.knowledge_tree[category]["organizations"][
+                        organization
+                    ]["topics"][topic]["emails"]
+                    ids = Email.objects.filter(
+                        provider_id__in=provider_ids
+                    ).values_list("id", flat=True)
                     emails_ids.extend(ids)
 
         answer["ids"] = emails_ids
+        answer = update_tokens_stats(user, answer)
 
         return Response({"answer": answer}, status=status.HTTP_200_OK)
 

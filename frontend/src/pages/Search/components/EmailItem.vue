@@ -29,27 +29,25 @@
                     v-if="email.priority === 'important'"
                     class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
                 >
-                    Important
+                    {{ $t("constants.ruleModalConstants.important") }}
                 </span>
                 <span
                     v-else-if="email.priority === 'informative'"
                     class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
                 >
-                    Informative
+                    {{ $t("constants.ruleModalConstants.informative") }}
                 </span>
                 <span
                     v-else
                     class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                 >
-                    Useless
+                    {{ $t("constants.ruleModalConstants.useless") }}
                 </span>
-
                 <span
                     class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                 >
                     {{ email.category }}
                 </span>
-
                 <span
                     v-if="email.read"
                     class="inline-flex items-center rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-600 ring-1 ring-inset ring-stone-500/10"
@@ -64,7 +62,7 @@
                     >
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    Lu
+                    {{ $t("searchPage.searchIn.read") }}
                 </span>
                 <span
                     v-bind:class="{
@@ -103,7 +101,7 @@
                     class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center"
                 >
                     <EyeIcon class="w-5 h-5" />
-                    Voir
+                    {{ $t("constants.userActions.see") }}
                 </button>
             </div>
         </span>

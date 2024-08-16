@@ -54,7 +54,8 @@
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { inject, nextTick, onMounted, ref } from "vue";
+import { Email, EmailDetails } from "@/global/types";
+import { inject, nextTick, onMounted, Ref, ref } from "vue";
 
 const textareaValue = ref("");
 const isAIWriting = ref(false);
@@ -63,6 +64,8 @@ const AIContainer = ref<HTMLElement | null>(null);
 const scrollableDiv = ref<HTMLDivElement | null>(null);
 let counterDisplay = 0;
 
+const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
+const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const aiIcon =
@@ -75,7 +78,7 @@ onMounted(async () => {
         if (event.key === "Enter") {
             if (!event.shiftKey) {
                 event.preventDefault();
-                if (isFocus.value && textareaValue.value.trim()) {
+                if (isFocus.value && textareaValue.value.trim() && !isAIWriting.value) {
                     handleAIClick();
                 }
             }
@@ -101,14 +104,18 @@ async function handleAIClick() {
 
     if (!textareaValue.value.trim()) return;
 
+    const userMessage = textareaValue.value;
+    textareaValue.value = "";
+
+    await displayMessage(userMessage, aiIcon);
+
+    const result = await postData(`api/search_tree_knowledge/`, {
+        question: userMessage,
+    });
+
     loading();
     scrollToBottom();
 
-    const result = await postData(`api/search_tree_knowledge/`, {
-        question: textareaValue.value,
-    });
-
-    textareaValue.value = "";
     let message = "";
     if (!result.success) {
         displayPopup?.(
@@ -119,26 +126,42 @@ async function handleAIClick() {
     } else if (result.data.message) {
         message = i18n.global.t("searchPage.notEnoughDataToAnswer");
     } else {
-        const { sure, answer, ids } = result.data.answer;
+        const { answer, ids } = result.data.answer;
         message = answer;
 
-        // Limit to 25 results
-        const limitedEmails = ids.slice(0, 25);
-        // const emailDetails = await fetchEmailDetails(limitedEmails);
-        // emailList.value = Object.entries(emailDetails.data).flatMap(([category, priorities]) =>
-        //     Object.entries(priorities).flatMap(([priority, emails]) =>
-        //         emails.map((email) => ({
-        //             ...email,
-        //             category: category,
-        //             priority: priority,
-        //         }))
-        //     )
-        // );
+        emailIds.value = ids;
+        const limitedEmails: number[] = ids.slice(0, 25);
+        const resultEmailsData = await postData(`user/get_emails_data/`, {
+            ids: limitedEmails,
+        });
+
+        if (!resultEmailsData.success) {
+            displayPopup?.("error", "Failed to fetch email details", resultEmailsData.error as string);
+            hideLoading?.();
+            return;
+        }
+        hideLoading?.();
+
+        const emailDetails: EmailDetails = resultEmailsData.data;
+
+        emailList.value = [];
+        for (const [category, priorities] of Object.entries(emailDetails.data)) {
+            for (const [priority, emails] of Object.entries(priorities)) {
+                if (Array.isArray(emails)) {
+                    for (const email of emails) {
+                        emailList.value.push({
+                            ...email,
+                            category,
+                            priority,
+                        });
+                    }
+                }
+            }
+        }
     }
 
     await displayMessage(message, aiIcon);
     hideLoading();
-    isAIWriting.value = false;
 }
 
 async function scrollToBottom() {
@@ -218,6 +241,7 @@ async function displayMessage(message: string, aiIcon: string) {
     const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
     counterDisplay += 1;
     await animateText(message, animatedParagraph);
+    await waitForAIWriting();
     scrollToBottom();
 }
 

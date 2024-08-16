@@ -290,7 +290,7 @@
                             </div>
                         </div>
                         <div class="mb-4">
-                            <div v-html="localEmail?.htmlContent"></div>
+                            <div v-html="email?.htmlContent"></div>
                         </div>
                     </div>
                 </div>
@@ -300,7 +300,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, toRef, watch } from "vue";
+import { onMounted, ref } from "vue";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
 import {
     ArrowUturnLeftIcon,
@@ -318,14 +318,6 @@ const props = defineProps<{
     isOpen: boolean;
     email: Email | undefined;
 }>();
-
-const localEmail = ref(props.email);
-
-watch(() => props.email, (newEmail) => {
-  if (newEmail) {
-    localEmail.value = { ...newEmail };
-  }
-}, { deep: true });
 
 const emits = defineEmits([
     "closeModal",

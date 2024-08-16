@@ -726,7 +726,7 @@ def link_email(request: HttpRequest) -> Response:
     user = request.user
     type_api = parameters.get("typeApi")
     code = parameters.get("code")
-    user_description = parameters.get("user_description")
+    user_description = parameters.get("userDescription")
 
     ip = security.get_ip_with_port(request)
     LOGGER.info(f"Link email request received from IP: {ip} and user ID: {user.id}")

@@ -1,4 +1,16 @@
 <template>
+    <SeeMailModal
+        v-if="isSeeMailOpen"
+        :isOpen="isSeeMailOpen"
+        :email="email"
+        @closeModal="closeSeeMailModal"
+        @openAnswer="openAnswer"
+        @openRuleEditor="openRuleEditor"
+        @openNewRule="openNewRule"
+        @markEmailAsRead="markEmailAsRead"
+        @markEmailReplyLater="markEmailReplyLater"
+        @transferEmail="transferEmail"
+    />
     <li class="group flex justify-between items-center py-2 email-item" @click="toggleShowShortSummary()">
         <div class="flex flex-col justify-center">
             <span class="font-semibold text-sm leading-6">
@@ -87,7 +99,7 @@
         <span class="isolate inline-flex items-center rounded-2xl">
             <div class="relative group">
                 <button
-                    @click.stop="openMail(email.id)"
+                    @click.stop="openSeeMailModal()"
                     class="border border-black text-black rounded-full px-2 py-1 hover:bg-gray-200 focus:outline-none focus:border-gray-500 flex items-center gap-x-2 justify-center"
                 >
                     <EyeIcon class="w-5 h-5" />
@@ -99,31 +111,106 @@
 </template>
 
 <script setup lang="ts">
-import { postData } from "@/global/fetchData";
+import { getData, postData } from "@/global/fetchData";
 import { inject, ref } from "vue";
 import { EyeIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
+import SeeMailModal from "@/global/components/SeeMailModal.vue";
+import router from "@/router/router";
+import { i18n } from "@/global/preferences";
 
-defineProps<{
+const props = defineProps<{
     email: Email;
 }>();
 
 const showShortSummary = ref(false);
+const isSeeMailOpen = ref(false);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 function toggleShowShortSummary() {
     showShortSummary.value = !showShortSummary.value;
 }
 
-async function openMail(emailId: number) {
-    const result = await postData("user/get_email_content/", {
-        id: emailId,
-    });
+function closeSeeMailModal() {
+    isSeeMailOpen.value = false;
+}
+
+async function openSeeMailModal() {
+    const result = await postData("user/get_email_content/", { id: props.email.id });
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch email content", result.error as string);
+    }
+    props.email.htmlContent = result.data.content;
+    isSeeMailOpen.value = true;
+}
+
+function openRuleEditor(ruleId: number) {
+    router.push({ name: "rules", query: { idRule: ruleId, editRule: "true" } });
+}
+
+function openNewRule(ruleName: string, ruleEmail: string) {
+    router.push({ name: "rules", query: { ruleName: ruleName, ruleEmail: ruleEmail, editRule: "false" } });
+}
+
+async function markEmailAsRead(emailId: number) {
+    const result = await postData(`user/emails/${emailId}/mark_read/`, {});
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to open the email", result.error as string);
+        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+    }
+    props.email.read = true;
+}
+
+async function markEmailReplyLater(emailId: number) {
+    const result = await postData(`user/emails/${emailId}/mark_reply_later/`, {});
+
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
+    }
+    props.email.answerLater = true;
+}
+
+async function openAnswer(email: Email) {
+    const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
+
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("constants.popUpConstants.openReplyPageFailure"), result.error as string);
+        return;
     }
 
-    // todo: open the modal
+    sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
+    sessionStorage.setItem("cc", result.data.email.cc);
+    sessionStorage.setItem("bcc", result.data.email.bcc);
+    sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
+    sessionStorage.setItem("email", JSON.stringify(email.sender.email));
+    sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
+    sessionStorage.setItem("shortSummary", JSON.stringify(email.shortSummary));
+    // sessionStorage.setItem("emailReceiver", data.email.email_receiver);
+
+    router.push({
+        name: "answer",
+    });
+}
+
+async function transferEmail(email: Email) {
+    const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
+
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.transferEmailFailure"), result.error as string);
+        return;
+    }
+
+    sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
+    sessionStorage.setItem("cc", result.data.email.cc);
+    sessionStorage.setItem("bcc", result.data.email.bcc);
+    sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
+    sessionStorage.setItem("date", JSON.stringify(result.data.email.date));
+    sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
+    sessionStorage.setItem("email", JSON.stringify(email.sender.email));
+    // sessionStorage.setItem("emailReceiver", result.data.email.email_receiver);
+
+    router.push({
+        name: "transfer",
+    });
 }
 </script>

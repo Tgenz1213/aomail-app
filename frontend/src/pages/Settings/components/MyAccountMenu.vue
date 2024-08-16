@@ -561,7 +561,7 @@ async function linkEmail(authorizationCode: string) {
     const result = await postData("user/social_api/link/", {
         code: authorizationCode,
         typeApi: sessionStorage.getItem("typeApi"),
-        user_description: sessionStorage.getItem("userDescription"),
+        userDescription: sessionStorage.getItem("userDescription"),
     });
 
     if (!result.success) {

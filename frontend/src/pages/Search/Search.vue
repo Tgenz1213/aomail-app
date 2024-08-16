@@ -6,19 +6,6 @@
         :backgroundColor="backgroundColor"
         @dismissPopup="dismissPopup"
     />
-    <SeeMailModal
-        :isOpen="isModalSeeOpen"
-        :email="selectedEmail"
-        :category="category"
-        :htmlContent="htmlContent"
-        @closeSeeModal="closeSeeModal"
-        @openAnswer="openAnswer"
-        @openRuleEditor="openRuleEditor"
-        @openNewRule="openNewRule"
-        @markEmailAsRead="markEmailAsRead"
-        @markEmailReplyLater="markEmailReplyLater"
-        @transferEmail="transferEmail"
-    />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div class="w-[90px] bg-white ring-1 shadow-sm ring-black ring-opacity-5 2xl:w-[100px]">
@@ -126,10 +113,8 @@
 
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, provide } from "vue";
-import SeeMailModal from "@/global/components/SeeMailModal.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import router from "@/router/router";
 import { AttachmentType, Contact, Email, Recipient } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { getData, postData } from "@/global/fetchData";
@@ -154,7 +139,6 @@ const scrollableDiv = ref<HTMLDivElement | null>(null);
 let isAIWriting = ref(false);
 let isEmailhere = ref(false);
 const textareaValue = ref("");
-let lockEmailsAccess = ref(false);
 
 const startDate = ref("");
 const selectedInterval = ref("");
@@ -166,9 +150,6 @@ const attachmentsSelected = ref<AttachmentType[]>([]);
 
 let emailsLinked = ref("");
 
-let isModalSeeOpen = ref(false);
-let selectedEmail = ref<Email>();
-
 const contacts: Contact[] = [];
 const queryGetContacts = ref("");
 const emailIds = ref<number[]>([]);
@@ -179,7 +160,6 @@ const aiIcon =
 
 onMounted(() => {
     checkLoginStatus();
-    document.addEventListener("click", closeDropdown);
 });
 
 onMounted(async () => {
@@ -243,90 +223,6 @@ function dismissPopup() {
         clearTimeout(timerId.value);
     }
 }
-
-function closeSeeModal() {
-    isModalSeeOpen.value = false;
-}
-
-async function openAnswer(email: Email) {
-    const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
-
-    if (!result.success) {
-        displayPopup("error", i18n.global.t("constants.popUpConstants.openReplyPageFailure"), result.error as string);
-        return;
-    }
-
-    sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
-    sessionStorage.setItem("cc", result.data.email.cc);
-    sessionStorage.setItem("bcc", result.data.email.bcc);
-    sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
-    sessionStorage.setItem("email", JSON.stringify(email.sender.email));
-    sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
-    sessionStorage.setItem("shortSummary", JSON.stringify(email.shortSummary));
-    // sessionStorage.setItem("emailReceiver", data.email.email_receiver);
-
-    router.push({
-        name: "answer",
-    });
-}
-
-function openRuleEditor(ruleId: number) {
-    router.push({ name: "rules", query: { idRule: ruleId, editRule: "true" } });
-}
-
-function openNewRule(ruleName: string, ruleEmail: string) {
-    router.push({ name: "rules", query: { ruleName: ruleName, ruleEmail: ruleEmail, editRule: "false" } });
-}
-
-async function markEmailAsRead(emailId: number) {
-    lockEmailsAccess.value = true;
-    const result = await postData(`user/emails/${emailId}/mark_read/`, {});
-
-    if (!result.success) {
-        displayPopup("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
-    }
-}
-
-async function markEmailReplyLater(emailId: number) {
-    lockEmailsAccess.value = true;
-
-    const result = await postData(`user/emails/${emailId}/mark_reply_later/`, {});
-
-    if (!result.success) {
-        displayPopup("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
-    }
-}
-
-async function transferEmail(email: Email) {
-    const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
-
-    if (!result.success) {
-        displayPopup("error", i18n.global.t("homepage.transferEmailFailure"), result.error as string);
-        return;
-    }
-
-    sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
-    sessionStorage.setItem("cc", result.data.email.cc);
-    sessionStorage.setItem("bcc", result.data.email.bcc);
-    sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
-    // sessionStorage.setItem("emailReceiver", result.data.email.email_receiver);
-    sessionStorage.setItem("date", JSON.stringify(result.data.email.date));
-    sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
-    sessionStorage.setItem("email", JSON.stringify(email.sender.email));
-
-    router.push({
-        name: "transfer",
-    });
-}
-
-const isOpen = ref(false);
-
-const closeDropdown = (event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (isOpen.value && !target.closest(".dropdown-container")) {
-        isOpen.value = false;
-    }
-};
 
 const checkLoginStatus = () => {
     const emailList = document.getElementById("emailList");

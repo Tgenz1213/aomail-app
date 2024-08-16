@@ -88,8 +88,11 @@ function linkNewEmail() {
     saveVariables();
 
     const currentTypeApi = sessionStorage.getItem("typeApi");
+
     if (currentTypeApi === "google") {
-        caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+        if ("caches" in window) {
+            caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
+        }
         window.location.replace(`${API_BASE_URL}google/auth_url_link_email/`);
     } else if (currentTypeApi === "microsoft") {
         window.location.replace(`${API_BASE_URL}microsoft/auth_url_link_email/`);

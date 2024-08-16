@@ -59,7 +59,7 @@ def get_emails_data(request: HttpRequest) -> Response:
             )
 
         formatted_data = defaultdict(lambda: defaultdict(list))
-        queryset = Email.objects.filter(id__in=email_ids)
+        queryset = Email.objects.filter(id__in=email_ids, user=user)
         rule_id_subquery = Rule.objects.filter(
             sender=OuterRef("sender"), user=user
         ).values("id")[:1]

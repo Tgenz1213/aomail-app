@@ -272,12 +272,13 @@ async function handleAIClick() {
     loading();
     scrollToBottom();
 
-    textareaValue.value = "";
-
+    if (!textareaValue.value) return;
+    
     const result = await postData(`api/search_tree_knowledge/`, {
         question: textareaValue.value,
     });
 
+    textareaValue.value = "";
     let message = "";
     if (!result.success) {
         displayPopup(

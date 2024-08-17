@@ -21,7 +21,7 @@
                         @open-update-category-modal="openUpdateCategoryModal"
                     />
                     <!--<SearchBar @input="updateSearchQuery" />-->
-                    <div v-if="categoryTotals[selectedCategory] === 0" class="flex-1">
+                    <div v-if="!hasEmails" class="flex-1">
                         <div class="flex flex-col w-full h-full rounded-xl">
                             <div
                                 class="flex flex-col justify-center items-center h-full m-5 rounded-lg border-2 border-dashed border-gray-400 p-12 text-center hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -50,7 +50,7 @@
                         <ImportantEmail :emails="importantEmails" />
                         <InformativeEmail :emails="informativeEmails" />
                         <UselessEmail :emails="uselessEmails" />
-                        <RedEmail :emails="redEmails" />
+                        <ReadEmail :emails="readEmails" />
                     </div>
                 </div>
             </div>
@@ -77,7 +77,7 @@ import UpdateCategoryModal from "./components/UpdateCategoryModal.vue";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
-import RedEmail from "./components/RedEmails.vue";
+import ReadEmail from "./components/ReadEmails.vue";
 import AssistantChat from "./components/AssistantChat.vue";
 import Categories from "./components/Categories.vue";
 
@@ -97,14 +97,9 @@ const categories = ref<Category[]>([]);
 const categoryTotals = ref<{ [key: string]: number }>({});
 
 const fetchEmailsData = async (categoryName: string) => {
-    try {
-        const response = await postData("user/emails_ids/", { subject: "", category: categoryName });
-        const emails_details = await postData("user/get_emails_data/", { ids: response.data.ids });
-        emails.value = emails_details.data.data;
-        console.log("CHECK EMAILS", emails.value);
-    } catch (error) {
-        console.error("Error fetching emails:", error);
-    }
+    const response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+    const emails_details = await postData("user/get_emails_data/", { ids: response.data.ids });
+    emails.value = emails_details.data.data;
 };
 
 async function fetchCategoriesAndTotals() {
@@ -126,7 +121,6 @@ async function fetchCategoriesAndTotals() {
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
-provide("emails", emails);
 provide("categories", categories);
 provide("selectedCategory", selectedCategory);
 
@@ -140,33 +134,39 @@ const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
 const importantEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.important || [];
-    const unreadEmails = categoryEmails.filter((email) => !email.read);
-    return addCategoryToEmails(unreadEmails, selectedCategory.value);
+    return addCategoryToEmails(categoryEmails, selectedCategory.value);
 });
 
 const informativeEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.informative || [];
-    const unreadEmails = categoryEmails.filter((email) => !email.read);
-    return addCategoryToEmails(unreadEmails, selectedCategory.value);
+    return addCategoryToEmails(categoryEmails, selectedCategory.value);
 });
 
 const uselessEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.useless || [];
-    const unreadEmails = categoryEmails.filter((email) => !email.read);
-    return addCategoryToEmails(unreadEmails, selectedCategory.value);
+    return addCategoryToEmails(categoryEmails, selectedCategory.value);
 });
 
-const redEmails = computed(() => {
+const readEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
-    const categoryEmails = [
+    const allEmails = [
         ...(emails.value[selectedCategory.value]?.important || []),
         ...(emails.value[selectedCategory.value]?.informative || []),
-        ...(emails.value[selectedCategory.value]?.useless || []),
+        ...(emails.value[selectedCategory.value]?.useless || [])
     ];
-    const filteredEmails = categoryEmails.filter((email) => email.flags.scam || email.flags.spam);
-    return addCategoryToEmails(filteredEmails, selectedCategory.value);
+    return addCategoryToEmails(allEmails, selectedCategory.value);
+});
+
+const hasEmails = computed(() => {
+    if (!emails.value || !selectedCategory.value) return false;
+    const categoryEmails = emails.value[selectedCategory.value];
+    return categoryEmails && (
+        (categoryEmails.important && categoryEmails.important.length > 0) ||
+        (categoryEmails.informative && categoryEmails.informative.length > 0) ||
+        (categoryEmails.useless && categoryEmails.useless.length > 0)
+    );
 });
 
 const toggleVisibility = () => {
@@ -221,6 +221,7 @@ onMounted(() => {
     } else {
         selectedCategory.value = "Others";
     }
+    console.log("DEBUG 0", emails.value);
     fetchEmailsData(selectedCategory.value);
 });
 </script>

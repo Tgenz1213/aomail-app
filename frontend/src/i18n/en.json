@@ -28,7 +28,8 @@
       "important": "Important",
       "informative": "Informative",
       "useless": "Useless",
-      "blockTheEmails": "Block the emails"
+      "blockTheEmails": "Block the emails",
+      "read": "Read"
     },
     "categoryModalConstants": {
       "modifyTheCategory": "Modify the category",

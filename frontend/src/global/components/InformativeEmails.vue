@@ -1,5 +1,5 @@
 <template>
-    <div v-if="emails.length > 0" class="px-6 py-6">
+    <div v-if="hasEmails" class="px-6 py-6">
       <div class="bg-blue-100 bg-opacity-90 rounded-md">
         <div class="flex px-2 py-2">
           <p class="flex-1 text-sm font-semibold leading-6 text-blue-600">
@@ -74,6 +74,10 @@
       }
     });
     return grouped;
+  });
+
+  const hasEmails = computed(() => {
+    return Object.keys(groupedEmails.value).length > 0;
   });
 
   </script>

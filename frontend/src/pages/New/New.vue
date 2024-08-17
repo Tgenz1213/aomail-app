@@ -22,6 +22,7 @@
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
             >
                 <ManualEmail />
+                <SendEmailButtons />
             </div>
         </div>
     </div>
@@ -29,26 +30,15 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, nextTick, provide, Ref } from "vue";
-import { watch } from "vue";
-import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import Quill from "quill";
-import {
-    Combobox,
-    ComboboxButton,
-    ComboboxInput,
-    ComboboxOption,
-    Listbox,
-    ListboxButton,
-    ListboxOptions,
-    ListboxOption,
-    // ChevronUpDownIcon,
-    ComboboxOptions,
-} from "@headlessui/vue";
+import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "./components/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { EmailLinked, Recipient } from "@/global/types";
+import { Contact, EmailLinked, Recipient } from "@/global/types";
+import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import SendEmailButtons from "./components/SendEmailButtons.vue"
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -63,12 +53,13 @@ const emailSelected = ref(localStorage.getItem("email") || "");
 const selectedPeople = ref<Recipient[]>([]);
 const selectedCC = ref<Recipient[]>([]);
 const selectedCCI = ref<Recipient[]>([]);
-const activeType = ref("");
 const quill: Ref<Quill | null> = ref(null);
 let stepContainer = ref(0);
+const contacts = ref<Contact[]>([]);
 
 onMounted(async () => {
     fetchEmailLinked();
+    fetchContacts();
     if (!emailSelected.value) {
         const result = await getData("user/get_first_email/");
 
@@ -84,6 +75,21 @@ onMounted(async () => {
         localStorage.setItem("email", result.data.email);
     }
 });
+
+async function fetchContacts() {
+    const result = await getData(`user/contacts/`);
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.contactFetchError"),
+            result.error as string
+        );
+        return;
+    }
+
+    contacts.value.push(...(result.data as Contact[]));
+}
 
 async function fetchEmailLinked() {
     const result = await getData(`user/emails_linked/`);
@@ -124,37 +130,13 @@ function dismissPopup() {
     }
 }
 
-// // lists of different types of recipients
-// const people = [];
-
-// const requestOptions = {
-//     method: "GET",
-//     headers: {
-//         "Content-Type": "application/json",
-//     },
-// };
-
-// // request to update the list of contacts (people array)
-// fetchWithToken(`${API_BASE_URL}user/contacts/`, requestOptions)
-//     .then((response) => {
-//         people.push(...response);
-//     })
-//     .catch((error) => {
-//         console.error("Error fetching contacts:", error);
-//         // Show the pop-up
-//         backgroundColor = "bg-red-200/[.89] border border-red-400";
-//         notificationTitle.value = t("constants.popUpConstants.errorMessages.contactFetchError");
-//         notificationMessage.value = error;
-//         displayPopup();
-//     });
-
 // const query = ref("");
-// const getFilteredPeople = (query, people) => {
+// const getFilteredPeople = (query, contacts) => {
 //     return computed(() => {
 //         if (query.value === "") {
-//             return people;
+//             return contacts;
 //         } else {
-//             return people.filter((person) => {
+//             return contacts.filter((person) => {
 //                 if (!person.username) {
 //                     if (person.email) {
 //                         person.username = person.email
@@ -176,7 +158,7 @@ function dismissPopup() {
 //     });
 // };
 
-// const filteredPeople = getFilteredPeople(query, people);
+// const filteredPeople = getFilteredPeople(query, contacts);
 // const emit = defineEmits(["update:selectedPerson"]);
 // const selectedPerson = ref("");
 
@@ -189,43 +171,10 @@ function dismissPopup() {
 //     emit("update:selectedPerson", newValue);
 // });
 
-// const inputValue = ref("");
 // const isFirstTimeDestinary = ref(true); // to detect first letter object input
 // const isFirstTimeEmail = ref(true); // to detect first letter email content input
-// const isFocused = ref(false);
-// const isFocused2 = ref(false);
 // const hasValueEverBeenEntered = ref(false);
 
-// // User pressed the object input
-// function handleFocusObject() {
-//     isFocused.value = true;
-// }
-// function handleBlur() {
-//     isFocused.value = false;
-// }
-// function handleFocusDestinary() {
-//     isFocused2.value = true;
-// }
-// function handleBlur2(event) {
-//     // Checks for a valid input email and adds it to the recipients list
-//     isFocused2.value = false;
-//     const inputValue = event.target.value.trim().toLowerCase();
-//     const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-//     if (inputValue && emailFormat.test(inputValue)) {
-//         if (!people.find((person) => person.email === inputValue)) {
-//             const newPerson = { username: "", email: inputValue };
-//             people.push(newPerson);
-//             selectedPeople.value.push(newPerson);
-//         }
-//     } else if (!filteredPeople.value.length && inputValue) {
-//         // Show the pop-up
-//         backgroundColor = "bg-red-200/[.89] border border-red-400";
-//         notificationTitle.value = t("constants.popUpConstants.errorMessages.invalidEmail");
-//         notificationMessage.value = t("constants.popUpConstants.errorMessages.emailFormatIncorrect");
-//         displayPopup();
-//     }
-// }
 
 // const objectInput = ref(null);
 // const mailInput = ref(null);
@@ -250,18 +199,6 @@ function dismissPopup() {
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // // function linked to ENTER key listeners
-// function handleEnterKey(event) {
-//     // Allow pressing Enter with Shift to create a line break
-//     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
-//         event.preventDefault();
-//         handleAIClick();
-//     } else if (isFocused2.value) {
-//         event.preventDefault();
-//         handleBlur2(event);
-//         // the user is still on the input
-//         handleFocusDestinary();
-//     }
-// }
 
 // function displayMessage_old(message, ai_icon) {
 //     // Function to display a message from the AI Assistant
@@ -354,57 +291,6 @@ function dismissPopup() {
 //     { deep: true }
 // );
 
-// function personSelected(person) {
-//     if (!person) return;
-
-//     switch (activeType.value) {
-//         case "CC":
-//             if (!selectedCC.value.includes(person)) {
-//                 selectedCC.value.push(person);
-//             }
-//             break;
-//         case "CCI":
-//             if (!selectedCCI.value.includes(person)) {
-//                 selectedCCI.value.push(person);
-//             }
-//             break;
-//         default:
-//             if (!selectedPeople.value.includes(person)) {
-//                 selectedPeople.value.push(person);
-//                 // console.log("DEBUG People -->", selectedPeople.value);
-//             }
-//     }
-
-//     if (isFirstTimeDestinary.value) {
-//         // askContent(); OLD
-//         stepContainer = 1;
-//         askContent(); // NEW (move the 2 buttons len + formality)
-//         isFirstTimeDestinary.value = false;
-//     }
-
-//     selectedPerson.value = null;
-
-// }
-
-// function toggleCC() {
-//     activeType.value = activeType.value === "CC" ? null : "CC";
-// }
-
-// function toggleCCI() {
-//     activeType.value = activeType.value === "CCI" ? null : "CCI";
-// }
-
-// function removePersonFromMain(personToRemove) {
-//     selectedPeople.value = selectedPeople.value.filter((person) => person !== personToRemove);
-// }
-
-// function removePersonFromCC(personToRemove) {
-//     selectedCC.value = selectedCC.value.filter((person) => person !== personToRemove);
-// }
-
-// function removePersonFromCCI(personToRemove) {
-//     selectedCCI.value = selectedCCI.value.filter((person) => person !== personToRemove);
-// }
 
 // function handleInputUpdateObject() {
 //     /* OLD OPTIONAL =>
@@ -789,21 +675,7 @@ export default {
         // Bars3BottomLeftIcon
     },
     methods: {
-        adjustHeight(event) {
-            const textarea = event.target;
-            const maxHeight = 250; // Set your desired max height in pixels. TO SET DEPENDING OF THE SIZE OF THE VIEWPORT
-
-            // Reset height to auto to correctly calculate the new scrollHeight
-            textarea.style.height = "auto";
-
-            if (textarea.scrollHeight > maxHeight) {
-                textarea.style.height = maxHeight + "px";
-                textarea.style.overflowY = "auto"; // Enable scrolling when content exceeds maxHeight.
-            } else {
-                textarea.style.height = textarea.scrollHeight + "px";
-                textarea.style.overflowY = "hidden"; // Hide the scrollbar when content is below maxHeight.
-            }
-        },
+        
     },
 };
 </script> -->

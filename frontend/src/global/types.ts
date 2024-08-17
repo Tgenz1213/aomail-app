@@ -99,3 +99,13 @@ export interface AttachmentType {
     extension: string;
     name: string;
 }
+
+export interface EmailLinked {
+    email: string;
+    typeApi: string;
+}
+
+export interface UploadedFile {
+    name: string;
+    size: number;
+}

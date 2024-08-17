@@ -157,15 +157,15 @@ import MyAccountMenu from "@/pages/Settings/components/MyAccountMenu.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
-import { EmailLinked } from "./utils/types";
+import { EmailLinked } from "@/global/types";
 
-const activeSection = ref("account");
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
+const activeSection = ref("account");
 const isAddUserDescriptionModalOpen = ref(false);
 const isAccountDeletionModalOpen = ref(false);
 const isUnlinkEmailModalOpen = ref(false);
@@ -201,7 +201,7 @@ function closeUnlinkEmailModal() {
 }
 
 function closeUpdateUserDescriptionModal() {
-    console.log("got an emit @closeModal")
+    console.log("got an emit @closeModal");
     isUpdateUserDescriptionModalOpen.value = false;
 }
 

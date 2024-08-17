@@ -397,7 +397,7 @@ import AddUserDescriptionModal from "./AddUserDescriptionModal.vue";
 import AccountDeletionModal from "./AccountDeletionModal.vue";
 import UserEmailLinked from "./UserEmailLinked.vue";
 import { i18n } from "@/global/preferences";
-import { EmailLinked } from "../utils/types";
+import { EmailLinked } from "@/global/types";
 
 const username = ref("");
 const usernameInput = ref("");

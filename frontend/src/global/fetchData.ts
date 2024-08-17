@@ -2,11 +2,12 @@ import { API_BASE_URL } from "./const";
 import { fetchWithToken } from "./security";
 import { FetchDataResult } from "./types";
 
-export async function getData(path: string): Promise<FetchDataResult> {
+export async function getData(path: string, headers?: Record<string, string>): Promise<FetchDataResult> {
     const requestOptions = {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
+            ...headers,
         },
     };
 

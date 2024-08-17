@@ -309,7 +309,7 @@ def get_profile_image(request: HttpRequest) -> Response:
             if photos:
                 photo_url = photos[0]["url"]
                 return Response(
-                    {"profile_image_url": photo_url}, status=status.HTTP_200_OK
+                    {"profileImageUrl": photo_url}, status=status.HTTP_200_OK
                 )
 
         return Response(

@@ -12,21 +12,6 @@ Endpoints:
 - ✅ check_email_copywriting: Check and provide feedback on the email copywriting.
 - ✅ generate_email_response_keywords: Generate response keywords based on the email.
 - ✅ generate_email_answer: Generate an answer to an email.
-
-
-TODO:
-REMAINING functions to opti and clean:
-- def find_user_view_ai(request: HttpRequest) -> Response:
-    - Log important messages/errors with user id, clear error name when possible
-    - Clean the code by adding data types.
-    - Remove unrelevant comments
-    - Use ONLY: status=status.HTTP_200_OK NOT 200
-    - Ensure Pylance can recognize variable types and methods.
-        EXAMPLE:
-        def view_function(request: HttpRequest):
-            user = request.user
-            # USE THIS instead of 'data'
-            parameters: dict = json.loads(request.body)
 """
 
 import json
@@ -427,99 +412,85 @@ def search_tree_knowledge(request: HttpRequest) -> Response:
         )
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @subscription([FREE_PLAN])
 def find_user_view_ai(request: HttpRequest) -> Response:
-    """Searches for emails in the user's mailbox based on the provided search query in both the subject and body."""
-    search_query = request.GET.get("query")
+    """
+    Searches for emails in the user's mailbox based on the provided search query in both the subject and body.
 
-    if search_query:
-        recipients_dict = claude.extract_contacts_recipients(search_query)
-        update_tokens_stats(request.user, recipients_dict)
+    Args:
+        request (HttpRequest): HTTP request object containing the search parameters in the request body.
+            Expects JSON body with:
+                query (str): The search query to find email recipients.
 
-        main_list = recipients_dict["main_recipients"]
-        cc_list = recipients_dict["cc_recipients"]
-        bcc_list = recipients_dict["bcc_recipients"]
+    Returns:
+        Response: A JSON response with the matched email recipients, including main, CC, and BCC recipients,
+                  or {"error": "Details of the specific error."} if there's an issue with the search process.
+    """
+    parameters: dict = json.loads(request.body)
+    search_query = parameters.get("query")
 
-        if not main_list:
-            return Response(
-                {"error": "Invalid input or query not about email recipients"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            user_contacts = Contact.objects.filter(user=request.user)
-        except Contact.DoesNotExist:
-            return Response(
-                {"error": "No contacts found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        contacts_serializer = ContactSerializer(user_contacts, many=True)
-
-        # TODO: check for performance (should be fast)
-        def transform_list_of_dicts(list_of_dicts):
-            new_dict = {}
-
-            for item in list_of_dicts:
-                new_dict[item["username"]] = item["email"]
-
-            return new_dict
-
-        contacts_dict = transform_list_of_dicts(contacts_serializer.data)
-
-        def find_emails(input_str, contacts_dict):
-            # Split input_str into substrings if it contains spaces
-            input_substrings = input_str.split() if " " in input_str else [input_str]
-
-            # Convert input substrings to lowercase for case-insensitive matching
-            input_substrings_lower = [sub_str.lower() for sub_str in input_substrings]
-
-            # List comprehension to find matching emails
-            matching_emails = [
-                email
-                for name, email in contacts_dict.items()
-                if all(sub_str in name.lower() for sub_str in input_substrings_lower)
-            ]
-
-            # Return the list of matching emails
-            return matching_emails
-
-        def find_emails_for_recipients(recipient_list, contacts_dict) -> dict:
-            """Find matching emails for a list of recipients."""
-            recipients_with_emails = []
-
-            # Iterate through recipient_list to find matches
-            for recipient_name in recipient_list:
-                matching_emails = find_emails(recipient_name, contacts_dict)
-
-                # Append the result as a dictionary
-                if len(matching_emails) > 0:
-                    recipients_with_emails.append(
-                        {"username": recipient_name, "email": matching_emails}
-                    )
-
-            return recipients_with_emails
-
-        # Find matching emails for each list of recipients
-        main_recipients_with_emails = find_emails_for_recipients(
-            main_list, contacts_dict
-        )
-        cc_recipients_with_emails = find_emails_for_recipients(cc_list, contacts_dict)
-        bcc_recipients_with_emails = find_emails_for_recipients(bcc_list, contacts_dict)
-
-        return Response(
-            {
-                "main_recipients": main_recipients_with_emails,
-                "cc_recipients": cc_recipients_with_emails,
-                "bcc_recipients": bcc_recipients_with_emails,
-            },
-            status=status.HTTP_200_OK,
-        )
-    else:
+    if not search_query:
         return Response(
             {"error": "Failed to authenticate or no search query provided"},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+    recipients_dict = claude.extract_contacts_recipients(search_query)
+    update_tokens_stats(request.user, recipients_dict)
+
+    main_list = recipients_dict.get("main_recipients", [])
+    cc_list = recipients_dict.get("cc_recipients", [])
+    bcc_list = recipients_dict.get("bcc_recipients", [])
+
+    if not main_list:
+        return Response(
+            {"error": "Invalid input or query not about email recipients"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        user_contacts = Contact.objects.filter(user=request.user)
+    except Contact.DoesNotExist:
+        return Response(
+            {"error": "No contacts found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    contacts_dict = {
+        contact["username"]: contact["email"]
+        for contact in ContactSerializer(user_contacts, many=True).data
+    }
+
+    def find_emails(input_str: str, contacts_dict: dict) -> list:
+        input_substrings = input_str.lower().split()
+        return [
+            email
+            for name, email in contacts_dict.items()
+            if all(sub_str in name.lower() for sub_str in input_substrings)
+        ]
+
+    def find_emails_for_recipients(recipient_list: list, contacts_dict: dict) -> list:
+        return [
+            {
+                "username": recipient_name,
+                "email": find_emails(recipient_name, contacts_dict),
+            }
+            for recipient_name in recipient_list
+            if find_emails(recipient_name, contacts_dict)
+        ]
+
+    main_recipients_with_emails = find_emails_for_recipients(main_list, contacts_dict)
+    cc_recipients_with_emails = find_emails_for_recipients(cc_list, contacts_dict)
+    bcc_recipients_with_emails = find_emails_for_recipients(bcc_list, contacts_dict)
+
+    return Response(
+        {
+            "mainRecipients": main_recipients_with_emails,
+            "ccRecipients": cc_recipients_with_emails,
+            "bccRecipients": bcc_recipients_with_emails,
+        },
+        status=status.HTTP_200_OK,
+    )
 
 
 @api_view(["POST"])
@@ -540,7 +511,7 @@ def new_email_ai(request: HttpRequest) -> Response:
     user = request.user
 
     if serializer.is_valid():
-        input_data = serializer.validated_data["input_data"]
+        input_data = serializer.validated_data["inputData"]
         length = serializer.validated_data["length"]
         formality = serializer.validated_data["formality"]
         language = Preference.objects.get(user=user).language

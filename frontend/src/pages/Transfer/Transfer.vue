@@ -471,7 +471,7 @@ function personSelected(person) {
     }
 
     if (isFirstTimeDestinary.value) {
-        stepcontainer = 1;
+        stepContainer = 1;
         isFirstTimeDestinary.value = false;
     }
 
@@ -713,7 +713,7 @@ async function scheduleSend(): Promise<void> {
             selectedPeople.value = [];
             selectedCC.value = [];
             selectedCCI.value = [];
-            stepcontainer = 0;
+            stepContainer = 0;
             if (AIContainer.value) AIContainer.value.innerHTML = "";
             AIContainer.value = document.getElementById("AIContainer");
 

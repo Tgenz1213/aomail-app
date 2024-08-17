@@ -55,16 +55,13 @@
 import { ref, computed, onMounted, provide } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { AttachmentType, Contact, Email, Recipient } from "@/global/types";
+import { AttachmentType, Contact, Email, EmailLinked, Recipient } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { getData } from "@/global/fetchData";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import AiSearchMenu from "./components/AiSearchMenu.vue";
 import EmailList from "./components/EmailList.vue";
-
-const people = ref<Recipient[]>([]);
-const selectedPeople = ref<Recipient[]>([]);
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
@@ -73,7 +70,6 @@ const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
 
 let isEmailhere = ref(false);
-
 const startDate = ref("");
 const selectedInterval = ref("");
 const selectedSearchIn = ref(null);
@@ -81,15 +77,15 @@ const selectedPerson = ref<Recipient[]>([]);
 const fromSelectedPerson = ref<Recipient[]>([]);
 const selectedRecipients = ref<Recipient[]>([]);
 const attachmentsSelected = ref<AttachmentType[]>([]);
-
-let emailsLinked = ref("");
-
+const people = ref<Recipient[]>([]);
+const selectedPeople = ref<Recipient[]>([]);
+const emailsLinked = ref<EmailLinked[]>([]);
 const contacts: Contact[] = [];
 const queryGetContacts = ref("");
 const emailIds = ref<number[]>([]);
 const emailList = ref<Email[]>([]);
 
-onMounted(async () => {
+onMounted(() => {
     checkLoginStatus();
     fetchEmailLinked();
     fetchContacts();

@@ -205,7 +205,7 @@ def get_profile_image(request: HttpRequest) -> Response:
                 photo_data_base64 = base64.b64encode(photo_data).decode("utf-8")
                 photo_url = f"data:image/png;base64,{photo_data_base64}"
                 return Response(
-                    {"profile_image_url": photo_url}, status=status.HTTP_200_OK
+                    {"profileImageUrl": photo_url}, status=status.HTTP_200_OK
                 )
             else:
                 return Response(

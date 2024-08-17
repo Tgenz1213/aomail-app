@@ -96,9 +96,9 @@
 
 <script setup lang="ts">
 import { inject, Ref, ref } from "vue";
-import { EmailLinked } from "../utils/types";
 import UnlinkEmailModal from "./UnlinkEmailModal.vue";
 import UpdateUserDescriptionModal from "./UpdateUserDescriptionModal.vue";
+import { EmailLinked } from "@/global/types";
 
 const isUnlinkEmailModalOpen = inject<Ref<boolean>>("isUnlinkEmailModalOpen", ref(false));
 const isUpdateUserDescriptionModalOpen = inject<Ref<boolean>>("isUpdateUserDescriptionModalOpen", ref(false));

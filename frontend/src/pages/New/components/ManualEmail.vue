@@ -395,7 +395,7 @@ function toggleCCI() {
     activeType.value = activeType.value === "CCI" ? "" : "CCI";
 }
 
-const getFilteredPeople = (query: Ref<string, string>, contacts: any) => {
+const getFilteredPeople = (query: Ref<string>, contacts: any) => {
     return computed(() => {
         if (query.value === "") {
             return contacts;
@@ -751,4 +751,4 @@ const removeFile = (index: number) => {
 const saveFileMetadataToLocalStorage = () => {
     localStorage.setItem("uploadedFiles", JSON.stringify(uploadedFiles.value));
 };
-</script>: any: { name: any; }(: any): Ref<string, string>: any(: any)
+</script>

@@ -71,7 +71,7 @@
               <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
                 {{ $t('homePage.read') }}
               </div>
-              <button @click="emitMarkAsRead" type="button"
+              <button @click="markEmailAsRead(email.id)" type="button"
                 :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
                 <check-icon :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
               </button>
@@ -153,7 +153,7 @@
                     </div>
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
-                        <a @click.prevent="emitMarkAsReplyLater"
+                        <a @click.prevent="markEmailReplyLater(email.id)"
                           :class="[active ? `bg-gray-100 text-gray-900` : `text-gray-700`, 'block px-4 py-1 text-sm']">
                           <span class="flex gap-x-2 items-center">
                             <svg class="w-4 h-4" viewBox="0 0 28 28" version="1.1" stroke="currentColor"
@@ -205,20 +205,19 @@
     :email="updatedEmail" 
     @closeModal="closeSeeMailModal"
     @openAnswer="handleOpenAnswer"
-    @markEmailAsRead="handleMarkEmailAsRead"
     @openRuleEditor="handleOpenRuleEditor"
     @openNewRule="handleOpenNewRule"
-    @markEmailReplyLater="handleMarkEmailReplyLater"
     @transferEmail="handleTransferEmail"
   />
   </template>
   
   <script setup lang="ts">
-  import { ref } from 'vue';
+  import { Ref, ref, inject } from 'vue';
   import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
   import { EyeIcon, CheckIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, DocumentIcon, CameraIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import { postData } from '@/global/fetchData';
+  import { i18n } from "@/global/preferences";
   import SeeMailModal from './SeeMailModal.vue';
   import router from '../../router/router';
     
@@ -228,20 +227,13 @@
   }>(), {
     color: 'gray'
   });
-    
+
+  const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+  const fetchCategoriesAndTotals = inject('fetchCategoriesAndTotals') as () => Promise<void>;  
+
   const emit = defineEmits<{
     (e: 'emailUpdated', email: Email): void;
-    (e: 'markRead', email: Email): void;
-    (e: 'markReplyLater', email: Email): void;
   }>();
-
-  const emitMarkAsRead = () => {
-    emit('markRead', props.email);
-  };
-
-  const emitMarkAsReplyLater = () => {
-    emit('markReplyLater', props.email);
-  };
   
   const isHovered = ref(false);
   const isMenuOpen = ref(false);
@@ -254,18 +246,14 @@
   };
 
   const openEmail = async () => {
-    try {
-      const result = await postData(`user/get_email_content/`, { id: props.email.id });
-      
-      if (result.success && result.data.content) {
-        updatedEmail.value = { ...props.email, read: true, htmlContent: result.data.content };
-        emit('emailUpdated', updatedEmail.value);
-        isSeeMailModalVisible.value = true;
-      } else {
-        console.error("No HTML content received");
-      }
-    } catch (error) {
-      console.error("Error retrieving the html content of the mail", error);
+    const result = await postData(`user/get_email_content/`, { id: props.email.id });
+    
+    if (result.success && result.data.content) {
+      updatedEmail.value = { ...props.email, htmlContent: result.data.content };
+      isSeeMailModalVisible.value = true;
+      emit('emailUpdated', updatedEmail.value);
+    } else {
+      console.error("No HTML content received");
     }
   };
 
@@ -280,6 +268,29 @@
         router.push({ name: 'rules', query: { ruleName: ruleName, ruleEmail: ruleEmail, editRule: 'false' } });
     }
   }
+
+  async function markEmailAsRead(emailId: number) {
+
+    const result = await postData(`user/emails/${emailId}/mark_read/`, {});
+
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+    }
+    fetchCategoriesAndTotals();
+    props.email.read = true;
+  }
+
+  async function markEmailReplyLater(emailId: number) {
+    const result = await postData(`user/emails/${emailId}/mark_reply_later/`, {});
+
+    if (!result.success) {
+      displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
+    }
+    fetchCategoriesAndTotals();
+    props.email.read = true;
+    props.email.answerLater = true;
+  }
+
 
   const closeSeeMailModal = () => {
     isSeeMailModalVisible.value = false;

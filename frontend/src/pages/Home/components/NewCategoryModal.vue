@@ -69,10 +69,9 @@
     (e: 'categoryCreated'): void;
   }>();
 
+  const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
   const categories = inject('categories') as Ref<Category[]>;
 
-  const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-  
   const categoryName = ref('');
   const categoryDescription = ref('');
   const errorMessage = ref('');
@@ -104,16 +103,15 @@
       return;
     }
 
-    try {
-      const result = await postData(`api/create_category/`, { name: categoryName.value, description: categoryDescription.value });
+    const result = await postData(`api/create_category/`, { name: categoryName.value, description: categoryDescription.value });
+    if (result.success) {
       categories.value.push({
         name: categoryName.value,
         description: categoryDescription.value
       });
       closeModal();
       displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.categoryAddedSuccess'));
-    } catch (error) {
-      console.error("Error trying to post the new category", error);
+    } else {
       closeModal();
       displayPopup?.("error", i18n.global.t('constants.popUpConstants.addCategoryError'), i18n.global.t('constants.popUpConstants.errorMessages.addCategoryError'));
     }

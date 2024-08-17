@@ -47,16 +47,8 @@
                         </div>
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
-                        <ImportantEmail
-                            :emails="importantEmails"
-                            @markRead="markEmailAsRead"
-                            @markReplyLater="markEmailReplyLater"
-                        />
-                        <InformativeEmail
-                            :emails="informativeEmails"
-                            @markRead="markEmailAsRead"
-                            @markReplyLater="markEmailReplyLater"
-                        />
+                        <ImportantEmail :emails="importantEmails" />
+                        <InformativeEmail :emails="informativeEmails" />
                         <UselessEmail :emails="uselessEmails" />
                         <RedEmail :emails="redEmails" />
                     </div>
@@ -134,6 +126,7 @@ async function fetchCategoriesAndTotals() {
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
+provide("emails", emails);
 provide("categories", categories);
 provide("selectedCategory", selectedCategory);
 
@@ -175,50 +168,6 @@ const redEmails = computed(() => {
     const filteredEmails = categoryEmails.filter((email) => email.flags.scam || email.flags.spam);
     return addCategoryToEmails(filteredEmails, selectedCategory.value);
 });
-
-const markEmailAsRead = async (email: Email) => {
-    try {
-        await postData(`user/emails/${email.id}/mark_read/`, {});
-
-        const categoryEmails = emails.value[selectedCategory.value];
-        if (categoryEmails) {
-            ["important", "informative", "useless"].forEach((type) => {
-                if (categoryEmails[type]) {
-                    const emailIndex = categoryEmails[type].findIndex((e) => e.id === email.id);
-                    if (emailIndex !== -1) {
-                        categoryEmails[type][emailIndex].read = true;
-                        categoryTotals.value[selectedCategory.value] -= 1;
-                    }
-                }
-            });
-        }
-    } catch (error) {
-        console.error("Error marking email as read:", error);
-    }
-};
-
-const markEmailReplyLater = async (email: Email) => {
-    try {
-        await postData(`user/emails/${email.id}/mark_read/`, {});
-        await postData(`user/emails/${email.id}/mark_reply_later`, {});
-
-        const categoryEmails = emails.value[selectedCategory.value];
-        if (categoryEmails) {
-            ["important", "informative", "useless"].forEach((type) => {
-                if (categoryEmails[type]) {
-                    const emailIndex = categoryEmails[type].findIndex((e) => e.id === email.id);
-                    if (emailIndex !== -1) {
-                        categoryEmails[type][emailIndex].read = true;
-                        categoryEmails[type][emailIndex].answerLater = true;
-                        categoryTotals.value[selectedCategory.value] -= 1;
-                    }
-                }
-            });
-        }
-    } catch (error) {
-        console.error("Error marking email for reply later:", error);
-    }
-};
 
 const toggleVisibility = () => {
     isHidden.value = !isHidden.value;

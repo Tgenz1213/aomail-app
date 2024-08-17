@@ -36,9 +36,6 @@
                     <EmailItem 
                         :email="email" 
                         color="orange"
-                        @emailUpdated="updateEmail"
-                        @markRead="markRead"
-                        @markReplyLater="markReplyLater"
                     />
                 </li>
               </ul>
@@ -50,7 +47,7 @@
   </template>
   
   <script setup lang="ts">
-  import { computed, watch } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import EmailItem from '@/global/components/EmailItem.vue';
@@ -59,29 +56,15 @@
     emails: Email[];
   }>();
 
-  const emit = defineEmits<{
-    (e: 'markRead', email: Email): void;
-    (e: 'markReplyLater', email: Email): void;
-  }>();
+  const localEmails = ref<Email[]>([]);
 
-  const markRead = (email: Email) => {
-    emit('markRead', email);
-  };
+  watch(() => props.emails, (newEmails) => {
+    localEmails.value = [...newEmails];
+  }, { immediate: true, deep: true });
 
-  const markReplyLater = (email: Email) => {
-    emit('markReplyLater', email);
-  };
-
-  const updateEmail = (updatedEmail: Email) => {
-    const index = props.emails.findIndex(e => e.id === updatedEmail.id);
-    if (index !== -1) {
-        props.emails[index] = updatedEmail;
-    }
-  };
-    
   const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
-    props.emails.forEach(email => {
+    localEmails.value.forEach(email => {
       if (!email.read) {
         const sentDate = email.sentDate || 'Unknown Date';
         if (!grouped[sentDate]) {
@@ -92,10 +75,6 @@
     });
     return grouped;
   });
-
-  watch(() => props.emails, () => {
-  }, { deep: true });
-
   
   </script>
   

@@ -22,7 +22,8 @@ export const theme = {
 export const plugins = [require("@tailwindcss/forms")];
 export const safelist = [
     {
-        pattern: /^text-(orange|blue|gray|red|green|yellow|stone)(-\d+)?$/,
-        variants: ['hover', 'focus'],
+        pattern: /(bg|text|ring|hover:bg|focus:bg|group-hover:text|group-active:text|group-focus:text)-(orange|blue|gray|red|green|yellow|stone)(-\d+)?$/,
+        variants: ['hover', 'focus', 'active'],
     },
 ];
+

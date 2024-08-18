@@ -18,10 +18,11 @@
                     <Combobox as="div" v-model="selectedPerson" @update:model-value="personSelected">
                         <ComboboxInput
                             id="recipients"
-                            v-model="query"
+                            :value="query"
+                            @input="query = $event.target.value"
                             class="w-full h-10 2xl:h-11 rounded-md border-0 bg-white py-2 pl-3 pr-12 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 2xl:py-3 2xl:pl-4 2xl:pr-14 2xl:text-base"
                             :display-value="(person: any) => person?.name || ''"
-                            @focus="handleFocusDestinary"
+                            @focus="handleFocus"
                             @blur="handleBlur"
                             @keydown.enter="handleEnterKey"
                         />
@@ -107,20 +108,52 @@
 <script setup lang="ts">
 import { i18n } from "@/global/preferences";
 import { Recipient } from "@/global/types";
-import { computed, inject, Ref, ref } from "vue";
+import { inject, Ref, ref, watch } from "vue";
 import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
 import { ChevronUpDownIcon } from "@heroicons/vue/24/outline";
 
-const activeType = ref("");
 const isFocus = ref(false);
+const activeType = ref("");
 const selectedPerson = ref("");
 const query = ref("");
+const isFirstTimeDestinary = ref<boolean>(true);
 const contacts = inject<Ref<Recipient[]>>("contacts", ref([]));
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
+const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
 
+const askContent = inject<() => void>("askContent");
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+
+const getFilteredPeople = (query: Ref<string>, contacts: Recipient[]) => {
+    if (query.value === "") {
+        return contacts;
+    } else {
+        return contacts.filter((person: Recipient) => {
+            if (!person.username) {
+                if (person.email) {
+                    person.username = person.email
+                        .split("@")[0]
+                        .split(/\.|-/)
+                        .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+                        .join(" ");
+                } else {
+                    person.username = "";
+                }
+            }
+            const usernameLower = person.username ? person.username.toLowerCase() : "";
+            const emailLower = person.email ? person.email.toLowerCase() : "";
+            return usernameLower.includes(query.value.toLowerCase()) || emailLower.includes(query.value.toLowerCase());
+        });
+    }
+};
+
+let filteredPeople = getFilteredPeople(query, contacts.value);
+
+watch(query, (newQuery) => {
+    filteredPeople = getFilteredPeople(query, contacts.value);
+});
 
 function toggleCC() {
     activeType.value = activeType.value === "CC" ? "" : "CC";
@@ -130,52 +163,20 @@ function toggleCCI() {
     activeType.value = activeType.value === "CCI" ? "" : "CCI";
 }
 
-function handleFocusDestinary() {
+function handleFocus() {
     isFocus.value = true;
 }
 
-const getFilteredPeople = (query: Ref<string>, contacts: Recipient[]) => {
-    return computed(() => {
-        if (query.value === "") {
-            return contacts;
-        } else {
-            return contacts.filter((person: Recipient) => {
-                if (!person.username) {
-                    if (person.email) {
-                        person.username = person.email
-                            .split("@")[0]
-                            .split(/\.|-/)
-                            .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-                            .join(" ");
-                    } else {
-                        person.username = "";
-                    }
-                }
-                const usernameLower = person.username ? person.username.toLowerCase() : "";
-                const emailLower = person.email ? person.email.toLowerCase() : "";
-                return (
-                    usernameLower.includes(query.value.toLowerCase()) || emailLower.includes(query.value.toLowerCase())
-                );
-            });
-        }
-    });
-};
-
 function handleEnterKey(event: any) {
-    // // Allow pressing Enter with Shift to create a line break
-    // if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
-    //     event.preventDefault();
-    //     handleAIClick();
-    // } else
     if (isFocus.value) {
         event.preventDefault();
         handleBlur(event);
-        handleFocusDestinary();
     }
 }
 
 function handleBlur(event: { target: { value: string } }) {
     isFocus.value = false;
+    query.value = "";
     const inputValue = event.target.value.trim().toLowerCase();
     const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (inputValue && emailFormat.test(inputValue)) {
@@ -184,7 +185,7 @@ function handleBlur(event: { target: { value: string } }) {
             contacts.value.push(newPerson);
             selectedPeople.value.push(newPerson);
         }
-    } else if (!filteredPeople.value.length && inputValue) {
+    } else if (!filteredPeople.length && inputValue) {
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.invalidEmail"),
@@ -193,10 +194,10 @@ function handleBlur(event: { target: { value: string } }) {
     }
 }
 
-const filteredPeople = getFilteredPeople(query, contacts.value);
-
 function personSelected(person: Recipient) {
     if (!person) return;
+
+    query.value = "";
 
     switch (activeType.value) {
         case "CC":
@@ -214,11 +215,11 @@ function personSelected(person: Recipient) {
                 selectedPeople.value.push(person);
             }
     }
-    // if (isFirstTimeDestinary.value) {
-    //     // stepContainer = 1;
-    //     // askContent(); //
-    //     // isFirstTimeDestinary.value = false;
-    // }
+    if (isFirstTimeDestinary.value) {
+        stepContainer.value = 1;
+        askContent?.();
+        isFirstTimeDestinary.value = false;
+    }
     selectedPerson.value = "";
 }
 </script>

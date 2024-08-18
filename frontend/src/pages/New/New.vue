@@ -207,10 +207,10 @@ provide("stepContainer", stepContainer);
 provide("AIContainer", AIContainer);
 provide("counterDisplay", counterDisplay);
 provide("isAIWriting", isAIWriting);
-provide("displayMessage", displayMessage);
 provide("uploadedFiles", uploadedFiles);
 provide("inputSubject", inputSubject);
 provide("contacts", contacts);
+provide("displayMessage", displayMessage);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

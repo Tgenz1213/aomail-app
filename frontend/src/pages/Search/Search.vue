@@ -55,7 +55,7 @@
 import { ref, computed, onMounted, provide } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { AttachmentType, Contact, Email, EmailLinked, Recipient } from "@/global/types";
+import { AttachmentType, Recipient, Email, EmailLinked } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { getData } from "@/global/fetchData";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
@@ -80,24 +80,24 @@ const attachmentsSelected = ref<AttachmentType[]>([]);
 const people = ref<Recipient[]>([]);
 const selectedPeople = ref<Recipient[]>([]);
 const emailsLinked = ref<EmailLinked[]>([]);
-const contacts: Contact[] = [];
-const queryGetContacts = ref("");
+const contacts: Recipient[] = [];
+const queryGetRecipients = ref("");
 const emailIds = ref<number[]>([]);
 const emailList = ref<Email[]>([]);
 
 onMounted(() => {
     checkLoginStatus();
     fetchEmailLinked();
-    fetchContacts();
+    fetchRecipients();
 });
 
 const filteredPeople = computed(() => {
-    if (!contacts || queryGetContacts.value === "") {
+    if (!contacts || queryGetRecipients.value === "") {
         return contacts || [];
     }
     return contacts.filter((person) => {
         const username = person?.username || "";
-        return username.toLowerCase().includes(queryGetContacts.value.toLowerCase());
+        return username.toLowerCase().includes(queryGetRecipients.value.toLowerCase());
     });
 });
 
@@ -140,7 +140,7 @@ const checkLoginStatus = () => {
     isEmailhere.value = hasEmails;
 };
 
-async function fetchContacts() {
+async function fetchRecipients() {
     const result = await getData(`user/contacts/`);
 
     if (!result.success) {

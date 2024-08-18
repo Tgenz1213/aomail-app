@@ -111,7 +111,7 @@
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Contact, Email, EmailDetails, KeyValuePair, Recipient } from "@/global/types";
+import { Recipient, Email, EmailDetails, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
 import { ComputedRef, inject, ref, Ref } from "vue";
@@ -120,7 +120,7 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 const loading = inject<() => void>("loading");
 const scrollToBottom = inject<() => void>("scrollToBottom");
 const hideLoading = inject<() => void>("hideLoading");
-const filteredPeople = inject<ComputedRef<Contact[]>>("filteredPeople");
+const filteredPeople = inject<ComputedRef<Recipient[]>>("filteredPeople");
 
 const people = inject<Ref<Recipient[]>>("people") || ref([]);
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);

@@ -10,7 +10,7 @@
                             />
                             <ComboboxInput
                                 class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                                @input="queryGetContacts = $event.target.value"
+                                @input="queryGetRecipients = $event.target.value"
                                 :display-value="(person) => person?.username"
                                 :placeholder="$t('searchPage.toAddressesSelectedPlaceholder')"
                                 style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden"
@@ -136,7 +136,7 @@
                             />
                             <ComboboxInput
                                 class="w-full rounded-md border-0 bg-white py-3 pl-10 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm sm:leading-6 truncate"
-                                @input="queryGetContacts = $event.target.value"
+                                @input="queryGetRecipients = $event.target.value"
                                 :display-value="(person) => person?.username"
                                 :placeholder="$t('searchPage.fromAddressesSelectedPlaceholder')"
                                 style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden"

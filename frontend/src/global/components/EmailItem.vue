@@ -223,10 +223,12 @@
     :isOpen="isSeeMailModalVisible" 
     :email="updatedEmail" 
     @closeModal="closeSeeMailModal"
-    @openAnswer="handleOpenAnswer"
-    @openRuleEditor="handleOpenRuleEditor"
-    @openNewRule="handleOpenNewRule"
-    @transferEmail="handleTransferEmail"
+    @openAnswer="openAnswer"
+    @markEmailAsRead="markEmailAsRead"
+    @markEmailReplyLater="markEmailReplyLater"
+    @openRuleEditor="openRuleEditor"
+    @openNewRule="openNewRule"
+    @transferEmail="transferEmail"
   />
   </template>
   
@@ -334,6 +336,7 @@
 
   async function markEmailReplyLater(emailId: number) {
     const result = await postData(`user/emails/${emailId}/mark_reply_later/`, {});
+    const result_read = await postData(`user/emails/${emailId}/mark_read/`, {});
 
     if (!result.success) {
       displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
@@ -348,49 +351,10 @@
   const closeSeeMailModal = () => {
     isSeeMailModalVisible.value = false;
   };
-
-  const handleOpenAnswer = (email: Email) => {
-    // TODO
-    console.log('Ouverture de la réponse pour l\'email:', email);
-  };
-
-  const handleMarkEmailAsRead = (emailId: number) => {
-    // TODO
-    console.log('Marquer l\'email comme lu:', emailId);
-  };
-
-  const handleOpenRuleEditor = (ruleId: number) => {
-    // TODO
-    console.log('Ouverture de l\'éditeur de règles pour la règle:', ruleId);
-  };
-
-  const handleOpenNewRule = (senderName: string, senderEmail: string) => {
-    // TODO
-    console.log('Ouverture d\'une nouvelle règle pour l\'expéditeur:', senderName, senderEmail);
-  };
-
-  const handleMarkEmailReplyLater = (email: Email) => {
-    // TODO
-    console.log('Marquer l\'email pour répondre plus tard:', email);
-  };
-
-  const handleTransferEmail = (email: Email) => {
-    // TODO
-    console.log('Transfert de l\'email:', email);
-  };
   
   const openAnswer = () => {
     console.log('Opening answer for email:', props.email);
     emit('emailUpdated', { ...props.email, read: true });
-  };
-  
-  const markReplyLater = async () => {
-    try {
-      await postData(`user/emails/${props.email.id}/mark_reply_later`, {});
-      emit('emailUpdated', { ...props.email, answer: true });
-    } catch (error) {
-      console.error('Error marking email for reply later:', error);
-    }
   };
   
   const transferEmail = () => {

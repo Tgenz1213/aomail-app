@@ -109,7 +109,7 @@
                                                         {{ $t("homePage.answer") }}
                                                     </div>
                                                     <button
-                                                        @click="openAnswer(email as Email)"
+                                                        @click="openAnswer"
                                                         type="button"
                                                         class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 border-r border-t border-b border-gray-600 hover:bg-gray-600 focus:z-10"
                                                     >
@@ -170,7 +170,7 @@
                                                                 <div class="py-1">
                                                                     <MenuItem v-slot="{ active }">
                                                                         <a
-                                                                            @click.prevent="markEmailReplyLater()"
+                                                                            @click.prevent="markEmailReplyLater(email?.id as number)"
                                                                             :class="[
                                                                                 active
                                                                                     ? 'bg-gray-100 text-gray-600'
@@ -337,8 +337,8 @@ function toggleTooltip() {
     isMenuOpen.value = true;
 }
 
-const openAnswer = (email: Email) => {
-    emits("openAnswer", email);
+const openAnswer = () => {
+    emits("openAnswer");
 };
 
 const markEmailAsRead = (emailId: number) => {
@@ -351,8 +351,8 @@ const transferEmail = () => {
     closeModal();
 };
 
-const markEmailReplyLater = () => {
-    emits("markEmailReplyLater", props.email);
+const markEmailReplyLater = (emailId: number) => {
+    emits("markEmailReplyLater", emailId);
     closeModal();
 };
 

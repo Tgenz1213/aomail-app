@@ -352,7 +352,7 @@ import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Contact, EmailLinked, Recipient, UploadedFile } from "@/global/types";
 import Quill from "quill";
-import { computed, inject, ref, Ref } from "vue";
+import { computed, inject, ref, Ref, onMounted } from "vue";
 import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 import {
     Combobox,
@@ -498,7 +498,8 @@ const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
-const quill = inject<Ref<Quill | null>>("quill");
+//const quill = inject<Ref<Quill | null>>("quill");
+const quill = ref<Quill | null>(null);
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
 const fileInput = ref(null);
 const uploadedFiles = ref<UploadedFile[]>([]);
@@ -506,7 +507,24 @@ let fileObjects = ref<File[]>([]);
 const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB, Gmail's limit
 const activeType = ref("");
 
-
+onMounted(() => {
+    var toolbarOptions = [
+        [{ 'font': [] }],
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['blockquote', 'code-block']
+    ];
+    
+    quill.value = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: toolbarOptions
+        }
+    });
+});
 
 const filteredPeople = getFilteredPeople(query, contacts);
 

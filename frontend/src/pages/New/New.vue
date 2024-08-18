@@ -209,6 +209,7 @@ provide("counterDisplay", counterDisplay);
 provide("isAIWriting", isAIWriting);
 provide("uploadedFiles", uploadedFiles);
 provide("inputSubject", inputSubject);
+provide("emailsLinked", emailsLinked);
 provide("contacts", contacts);
 provide("displayMessage", displayMessage);
 

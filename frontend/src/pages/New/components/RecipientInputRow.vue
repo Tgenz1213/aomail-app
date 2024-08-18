@@ -151,7 +151,7 @@ const getFilteredPeople = (query: Ref<string>, contacts: Recipient[]) => {
 
 let filteredPeople = getFilteredPeople(query, contacts.value);
 
-watch(query, (newQuery) => {
+watch(query, () => {
     filteredPeople = getFilteredPeople(query, contacts.value);
 });
 

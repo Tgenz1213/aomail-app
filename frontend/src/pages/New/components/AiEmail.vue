@@ -97,13 +97,13 @@ interface EmailMapping {
 }
 
 let imageURL = ref<string>(require("@/assets/user.png"));
-let counterDisplay = 0;
+const counterDisplay = inject<Ref<number>>("counterDisplay") || ref(0);
 const isLoading = ref(false);
-const scrollableDiv = ref<HTMLDivElement | null>(null);
 const selectedLength = ref("short");
 const selectedFormality = ref("formal");
-const isAIWriting = ref(false);
-const AIContainer = ref<HTMLElement | null>(null);
+const isAIWriting = inject<Ref<boolean>>("isAIWriting") || ref(false);
+const AIContainer =
+    inject<Ref<HTMLElement | null>>("AIContainer") || ref<HTMLElement | null>(document.getElementById("AIContainer"));
 const textareaValue = ref("");
 const textareaValueSave = ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
@@ -111,6 +111,7 @@ const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
 const quill = inject<Ref<Quill | null>>("quill");
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
+const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 
 const emailLengthOptions: KeyValuePair[] = [
     { key: "very short", value: i18n.global.t("newPage.veryBrief") },
@@ -157,7 +158,6 @@ watch(emailSelected, () => {
 });
 
 onMounted(() => {
-    AIContainer.value = document.getElementById("AIContainer");
     getProfileImage();
 });
 
@@ -167,57 +167,6 @@ async function getProfileImage() {
     if (!result.success) return;
 
     imageURL = result.data.profileImageUrl;
-}
-
-function animateText(text: string, target: Element | null) {
-    let characters = text.split("");
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-        if (currentIndex < characters.length) {
-            if (!target) return;
-            target.textContent += characters[currentIndex];
-            currentIndex++;
-        } else {
-            clearInterval(interval);
-            isAIWriting.value = false;
-        }
-    }, 30);
-}
-
-const scrollToBottom = async () => {
-    await nextTick();
-    const element = scrollableDiv.value;
-    if (!element) return;
-    element.scrollTop = element.scrollHeight;
-};
-
-function displayMessage(message: string, aiIcon: string) {
-    if (!AIContainer.value) return;
-
-    const messageHTML = `
-      <div class="flex pb-12">
-        <div class="mr-4 flex">
-            <!--
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-              <img src="${aiIcon}" alt="aiIcon" class="max-w-full max-h-full rounded-full">
-            </span>-->
-            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                ${aiIcon}
-                </svg>
-            </span>
-        </div>
-        <div>
-          <p ref="animatedText${counterDisplay}"></p>
-        </div>
-      </div>
-    `;
-
-    AIContainer.value.innerHTML += messageHTML;
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
-    counterDisplay += 1;
-    animateText(message, animatedParagraph);
-    scrollToBottom();
 }
 
 function loading() {
@@ -346,35 +295,7 @@ function askContent() {
     if (!AIContainer.value) return;
     const message = i18n.global.t("constants.sendEmailConstants.draftEmailRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    const messageHTML = `
-      <div class="pb-12">
-        <div class="flex">
-            <div class="mr-4">
-                <!--
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-                    <img src="${aiIcon}" alt="aiIcon" class="max-w-full max-h-full rounded-full">
-                </span>-->
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                  </svg>
-                </span>
-            </div>
-            <div>
-                <div class="flex flex-col">
-                  <p ref="animatedText${counterDisplay}"></p>
-                  </div>
-                </div>
-            </div>
-        </div>
-      </div>
-    `;
-
-    AIContainer.value.innerHTML += messageHTML;
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
-    counterDisplay += 1;
-    animateText(message, animatedParagraph);
-    scrollToBottom();
+    displayMessage?.(message, aiIcon);
 }
 
 function nextStepRecipier() {

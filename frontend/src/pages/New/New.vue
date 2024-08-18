@@ -22,7 +22,6 @@
                 class="flex-grow bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[720px]"
             >
                 <ManualEmail />
-                <SendEmailButtons />
             </div>
         </div>
     </div>
@@ -38,13 +37,15 @@ import { getData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Contact, EmailLinked, Recipient } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
-import SendEmailButtons from "./components/SendEmailButtons.vue"
 
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
+const AIContainer = ref<HTMLElement | null>(document.getElementById("AIContainer"));
+const counterDisplay = ref(0);
+const scrollableDiv = ref<HTMLDivElement | null>(null);
 
 // let history = ref({});
 
@@ -54,8 +55,9 @@ const selectedPeople = ref<Recipient[]>([]);
 const selectedCC = ref<Recipient[]>([]);
 const selectedCCI = ref<Recipient[]>([]);
 const quill: Ref<Quill | null> = ref(null);
-let stepContainer = ref(0);
+const stepContainer = ref(0);
 const contacts = ref<Contact[]>([]);
+const isAIWriting = ref(false);
 
 onMounted(async () => {
     fetchEmailLinked();
@@ -75,6 +77,57 @@ onMounted(async () => {
         localStorage.setItem("email", result.data.email);
     }
 });
+
+function animateText(text: string, target: Element | null) {
+    let characters = text.split("");
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+        if (currentIndex < characters.length) {
+            if (!target) return;
+            target.textContent += characters[currentIndex];
+            currentIndex++;
+        } else {
+            clearInterval(interval);
+            isAIWriting.value = false;
+        }
+    }, 30);
+}
+
+const scrollToBottom = async () => {
+    await nextTick();
+    const element = scrollableDiv.value;
+    if (!element) return;
+    element.scrollTop = element.scrollHeight;
+};
+
+function displayMessage(message: string, aiIcon: string) {
+    if (!AIContainer.value) return;
+
+    const messageHTML = `
+      <div class="flex pb-12">
+        <div class="mr-4 flex">
+            <!--
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
+              <img src="${aiIcon}" alt="aiIcon" class="max-w-full max-h-full rounded-full">
+            </span>-->
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                ${aiIcon}
+                </svg>
+            </span>
+        </div>
+        <div>
+          <p ref="animatedText${counterDisplay}"></p>
+        </div>
+      </div>
+    `;
+
+    AIContainer.value.innerHTML += messageHTML;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
+    counterDisplay.value += 1;
+    animateText(message, animatedParagraph);
+    scrollToBottom();
+}
 
 async function fetchContacts() {
     const result = await getData(`user/contacts/`);
@@ -113,6 +166,10 @@ provide("selectedCC", selectedCC);
 provide("selectedCCI", selectedCCI);
 provide("quill", quill);
 provide("stepContainer", stepContainer);
+provide("AIContainer", AIContainer);
+provide("counterDisplay", counterDisplay);
+provide("isAIWriting", isAIWriting);
+provide("displayMessage", displayMessage);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
@@ -174,7 +231,6 @@ function dismissPopup() {
 // const isFirstTimeDestinary = ref(true); // to detect first letter object input
 // const isFirstTimeEmail = ref(true); // to detect first letter email content input
 // const hasValueEverBeenEntered = ref(false);
-
 
 // const objectInput = ref(null);
 // const mailInput = ref(null);
@@ -251,8 +307,7 @@ function dismissPopup() {
 //         },
 //     });
 
-//     // DOM-related code
-//     AIContainer.value = document.getElementById("AIContainer");
+//     // DOM-related code 
 
 //     const message = t("constants.sendEmailConstants.emailRecipientRequest");
 //     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
@@ -290,7 +345,6 @@ function dismissPopup() {
 //     },
 //     { deep: true }
 // );
-
 
 // function handleInputUpdateObject() {
 //     /* OLD OPTIONAL =>

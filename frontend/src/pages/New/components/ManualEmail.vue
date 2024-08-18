@@ -129,7 +129,8 @@ const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
-const quill = inject<Ref<Quill | null>>("quill");
+//const quill = inject<Ref<Quill | null>>("quill");
+const quill = ref<Quill | null>(null);
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
 const fileObjects = ref<File[]>([]);
 

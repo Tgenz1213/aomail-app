@@ -71,9 +71,14 @@
               <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
                 {{ $t('homePage.read') }}
               </div>
-              <button @click="markEmailAsRead(email.id)" type="button"
+              <button @click="email.read ? markEmailAsUnread(email.id) : markEmailAsRead(email.id)" type="button"
                 :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
-                <check-icon :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
+                <check-icon v-if="!email.read" :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
+                <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+                    :class="`w-5 h-5 stroke-${color}-400 group-hover:stroke-white`">
+                  <path d="M5 9l5 5 9-9"></path>
+                  <path d="M5 16l5 5 9-9"></path>
+                </svg>
               </button>
             </div>
           </div>
@@ -224,12 +229,16 @@
   const props = withDefaults(defineProps<{
     email: Email;
     color?: string;
+    mode?: string;
   }>(), {
-    color: 'gray'
+    color: 'gray',
+    mode: ''
   });
 
   const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+  const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
   const fetchCategoriesAndTotals = inject('fetchCategoriesAndTotals') as () => Promise<void>;  
+  const selectedCategory = inject('selectedCategory') as Ref<string>;
 
   const emit = defineEmits<{
     (e: 'emailUpdated', email: Email): void;
@@ -276,8 +285,21 @@
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
     }
+    fetchEmailsData(selectedCategory.value);
     fetchCategoriesAndTotals();
     props.email.read = true;
+  }
+
+  async function markEmailAsUnread(emailId: number) {
+
+  const result = await postData(`user/emails/${emailId}/mark_unread/`, {});
+
+  if (!result.success) {
+      displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+  }
+  fetchEmailsData(selectedCategory.value);
+  fetchCategoriesAndTotals();
+  props.email.read = false;
   }
 
   async function markEmailReplyLater(emailId: number) {
@@ -286,6 +308,7 @@
     if (!result.success) {
       displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
     }
+    fetchEmailsData(selectedCategory.value);
     fetchCategoriesAndTotals();
     props.email.read = true;
     props.email.answerLater = true;

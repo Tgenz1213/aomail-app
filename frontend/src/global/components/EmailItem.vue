@@ -66,6 +66,20 @@
               </button>
             </div>
           </div>
+          <div v-if="block" v-show="isHovered" class="group action-buttons">
+            <div class="relative group">
+              <div
+                  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-6">
+                  {{ $t('homePage.block') }}
+              </div>
+              <button type="button"
+                  :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`">
+                  <HandRaisedIcon
+                      @click.stop="setRuleBlockForSender(email.id)"
+                      :class="`w-5 h-5 text-${color}-400 group-hover:text-white`" />
+              </button>
+            </div>
+          </div>
           <div v-show="isHovered" class="group action-buttons">
             <div class="relative group">
               <div class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2">
@@ -219,7 +233,7 @@
   <script setup lang="ts">
   import { Ref, ref, inject } from 'vue';
   import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
-  import { EyeIcon, CheckIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, DocumentIcon, CameraIcon } from '@heroicons/vue/24/outline';
+  import { EyeIcon, CheckIcon, ArrowUturnLeftIcon, EllipsisHorizontalIcon, DocumentIcon, CameraIcon, HandRaisedIcon } from '@heroicons/vue/24/outline';
   import { Email } from '@/global/types';
   import { postData } from '@/global/fetchData';
   import { i18n } from "@/global/preferences";
@@ -229,10 +243,10 @@
   const props = withDefaults(defineProps<{
     email: Email;
     color?: string;
-    mode?: string;
+    block?: boolean;
   }>(), {
     color: 'gray',
-    mode: ''
+    block: false
   });
 
   const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
@@ -260,10 +274,26 @@
     if (result.success && result.data.content) {
       updatedEmail.value = { ...props.email, htmlContent: result.data.content };
       isSeeMailModalVisible.value = true;
-      emit('emailUpdated', updatedEmail.value);
     } else {
       console.error("No HTML content received");
     }
+  };
+  
+  async function setRuleBlockForSender (emailId: number) {
+    const result_block = await postData(`user/emails/${emailId}/block_sender/`, {});
+    const result_read = await postData(`user/emails/${emailId}/mark_read/`, {});
+    
+    if (!result_block.success) {
+      // TO UPDATE
+      displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result_block.error as string);
+    }
+    if (!result_read.success) {
+      // TO UPDATE
+      displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result_read.error as string);
+    }
+    fetchEmailsData(selectedCategory.value);
+    fetchCategoriesAndTotals();
+    props.email.read = true;
   };
 
   function openRuleEditor(ruleId: number) {

@@ -100,6 +100,7 @@ const fetchEmailsData = async (categoryName: string) => {
     const response = await postData("user/emails_ids/", { subject: "", category: categoryName });
     const emails_details = await postData("user/get_emails_data/", { ids: response.data.ids });
     emails.value = emails_details.data.data;
+    console.log(emails.value);
 };
 
 async function fetchCategoriesAndTotals() {

@@ -28,14 +28,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, nextTick, provide, Ref } from "vue";
+import { computed, ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "./components/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Contact, EmailLinked, Recipient } from "@/global/types";
+import { Contact, EmailLinked, Recipient, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 
 const showNotification = ref(false);
@@ -58,10 +58,13 @@ const quill: Ref<Quill | null> = ref(null);
 const stepContainer = ref(0);
 const contacts = ref<Contact[]>([]);
 const isAIWriting = ref(false);
+const uploadedFiles = ref<UploadedFile[]>([]);
+const inputSubject = ref("");
 
 onMounted(async () => {
     fetchEmailLinked();
     fetchContacts();
+
     if (!emailSelected.value) {
         const result = await getData("user/get_first_email/");
 
@@ -76,7 +79,42 @@ onMounted(async () => {
         emailSelected.value = result.data.email;
         localStorage.setItem("email", result.data.email);
     }
+
+    var toolbarOptions = [
+        [{ font: [] }],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        ["bold", "italic", "underline"],
+        [{ color: [] }, { background: [] }],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ align: [] }],
+        ["blockquote", "code-block"],
+    ];
+
+    quill.value = new Quill("#editor", {
+        theme: "snow",
+        modules: {
+            toolbar: toolbarOptions,
+        },
+    });
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 });
+
+onUnmounted(() => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (
+        uploadedFiles.value.length ||
+        selectedPeople.value.length ||
+        selectedCC.value.length ||
+        selectedCCI.value.length ||
+        inputSubject.value !== ""
+    ) {
+        event.preventDefault();
+    }
+};
 
 function animateText(text: string, target: Element | null) {
     let characters = text.split("");
@@ -170,6 +208,8 @@ provide("AIContainer", AIContainer);
 provide("counterDisplay", counterDisplay);
 provide("isAIWriting", isAIWriting);
 provide("displayMessage", displayMessage);
+provide("uploadedFiles", uploadedFiles);
+provide("inputSubject", inputSubject);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
@@ -289,25 +329,7 @@ function dismissPopup() {
 
 //     window.addEventListener("resize", scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
-//     var toolbarOptions = [
-//         [{ font: [] }],
-//         [{ header: [1, 2, 3, 4, 5, 6, false] }],
-//         ["bold", "italic", "underline"],
-//         [{ color: [] }, { background: [] }],
-//         [{ list: "ordered" }, { list: "bullet" }],
-//         [{ align: [] }],
-//         ["blockquote", "code-block"],
-//     ];
-
-//     // Initialize Quill editor
-//     quill.value = new Quill("#editor", {
-//         theme: "snow",
-//         modules: {
-//             toolbar: toolbarOptions,
-//         },
-//     });
-
-//     // DOM-related code 
+//
 
 //     const message = t("constants.sendEmailConstants.emailRecipientRequest");
 //     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;

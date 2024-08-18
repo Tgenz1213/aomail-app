@@ -16,7 +16,7 @@
               class="cursor-pointer"> {{ $t('homePage.youReceived') }}
               <span
                   class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                  {{ emails.length }}
+                  {{ nbrEmailsUseless }}
               </span>
               <span>
                   {{ $t('homePage.uselessEmails') }}
@@ -119,6 +119,11 @@
   const hasEmails = computed(() => {
     return Object.keys(groupedEmails.value).length > 0;
   });
+
+  const nbrEmailsUseless = computed(() => {
+    return Object.keys(groupedEmails.value).length;
+  });
+
   function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
     /*

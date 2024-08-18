@@ -16,7 +16,7 @@
               class="cursor-pointer"> {{ $t('homePage.youReceived') }}
               <span
                   class="font-semibold text-gray-900 dark:text-white hover:text-gray-700 w-full">
-                  {{ emails.length }}
+                  {{ nbrEmailsUseless }}
               </span>
               <span>
                   {{ $t('homePage.uselessEmails') }}
@@ -73,7 +73,8 @@
               <ul role="list" class="divide-y divide-gray-200">
                 <li v-for="email in emailsByDate" :key="email.id" class="px-6 md:py-5 2xl:py-6">
                     <EmailItem 
-                        :email="email" 
+                      :email="email"
+                      :block=true
                     />
                 </li>
               </ul>
@@ -118,6 +119,11 @@
   const hasEmails = computed(() => {
     return Object.keys(groupedEmails.value).length > 0;
   });
+
+  const nbrEmailsUseless = computed(() => {
+    return Object.keys(groupedEmails.value).length;
+  });
+
   function toggleEmailVisibility() {
     showEmailDescriptions.value = !showEmailDescriptions.value;
     /*

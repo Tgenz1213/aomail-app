@@ -52,13 +52,6 @@ export interface FetchDataResult {
     error?: string;
 }
 
-export interface Contact {
-    id: number;
-    email: string;
-    username: string;
-    provider_id: string;
-}
-
 export interface Recipient {
     username?: string;
     email: string;

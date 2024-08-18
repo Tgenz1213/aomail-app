@@ -35,7 +35,7 @@ import ManualEmail from "./components/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Contact, EmailLinked, Recipient, UploadedFile } from "@/global/types";
+import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 
 const showNotification = ref(false);
@@ -56,14 +56,14 @@ const selectedCC = ref<Recipient[]>([]);
 const selectedCCI = ref<Recipient[]>([]);
 const quill: Ref<Quill | null> = ref(null);
 const stepContainer = ref(0);
-const contacts = ref<Contact[]>([]);
+const contacts = ref<Recipient[]>([]);
 const isAIWriting = ref(false);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const inputSubject = ref("");
 
 onMounted(async () => {
     fetchEmailLinked();
-    fetchContacts();
+    fetchRecipients();
 
     if (!emailSelected.value) {
         const result = await getData("user/get_first_email/");
@@ -167,7 +167,7 @@ function displayMessage(message: string, aiIcon: string) {
     scrollToBottom();
 }
 
-async function fetchContacts() {
+async function fetchRecipients() {
     const result = await getData(`user/contacts/`);
 
     if (!result.success) {
@@ -179,7 +179,7 @@ async function fetchContacts() {
         return;
     }
 
-    contacts.value.push(...(result.data as Contact[]));
+    contacts.value.push(...(result.data as Recipient[]));
 }
 
 async function fetchEmailLinked() {
@@ -210,6 +210,7 @@ provide("isAIWriting", isAIWriting);
 provide("displayMessage", displayMessage);
 provide("uploadedFiles", uploadedFiles);
 provide("inputSubject", inputSubject);
+provide("contacts", contacts);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

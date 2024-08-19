@@ -208,7 +208,7 @@ def improve_draft(request: HttpRequest) -> Response:
             return Response(
                 {
                     "subject": result["new_subject"],
-                    "email_body": result["new_body"],
+                    "emailBody": result["new_body"],
                     "history": gen_email_conv.history.dict(),
                 },
                 status=status.HTTP_200_OK,

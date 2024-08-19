@@ -366,7 +366,8 @@ def archive_email(request: HttpRequest, email_id: int) -> Response:
     try:
         user = request.user
         email = Email.objects.get(user=user, id=email_id)
-        email.delete()
+        email.archive = True
+        email.save()
         return Response(
             {"message": "Email archived successfully"}, status=status.HTTP_200_OK
         )

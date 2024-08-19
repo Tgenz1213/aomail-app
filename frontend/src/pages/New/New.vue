@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "./components/ManualEmail.vue";
@@ -227,6 +227,7 @@ provide("subjectInput", subjectInput);
 provide("emailsLinked", emailsLinked);
 provide("contacts", contacts);
 provide("displayMessage", displayMessage);
+provide("scrollToBottom", scrollToBottom);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {
@@ -248,25 +249,11 @@ function dismissPopup() {
 // const hasValueEverBeenEntered = ref(false);
 
 // const mailInput = ref(null);
-// //const new_idea_icon = ref(require('@/assets/new_idea.png'));
-// const prompt_error_icon = ref(require("@/assets/prompt_error.png"));
-// const happy_icon = ref(require("@/assets/happy.png"));
-// const neutral_icon = ref(require("@/assets/neutral.png"));
-
-// // To keep the navbar always at the bottom when new content is added
-
-// // AI instruction textarea input
-
-// // AI instruction button parameters
 
 // // AI instruction to do revision on the mail
 // const subject = ref("");
 // const mail = ref("");
 // const MailCreatedByAI = ref(false); // to check if the AI create the Mail or not
-
-// // Loading animation
-
-// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // const objectInput = ref(null); // todo: fix type
 // onMounted(() => {
@@ -319,10 +306,7 @@ function dismissPopup() {
 // }
 
 // function askContentAdvice() {
-//     // TODO: check if subject has been entered => if no => answer please enter it
-//     // Your previous code to display the message when the component is mounted
-//     const message = t("constants.sendEmailConstants.emailCompositionAssistance"); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
-
+//     const message = t("constants.sendEmailConstants.emailCompositionAssistance");
 //     const aiIcon = happy_icon;
 //     const messageHTML = `
 //       <div class="pb-12">
@@ -604,7 +588,6 @@ async function handleKeyDown(event: KeyboardEvent) {
 
         const editor = document.getElementById("editor");
         const recipients = document.getElementById("recipients");
-        const objectInput = document.getElementById("objectInput");
         const dynamicTextarea = document.getElementById("dynamicTextarea");
         const subjectInput = document.getElementById("subjectInput") as HTMLInputElement | null;
 
@@ -623,8 +606,7 @@ async function handleKeyDown(event: KeyboardEvent) {
             subjectInput.focus();
         } else {
             if (document.activeElement?.id === "recipients") {
-                console.log("objectSelected");
-                objectInput?.focus();
+                subjectInput?.focus();
             } else if (document.activeElement?.id === "dynamicTextarea") {
                 recipients?.focus();
             } else {
@@ -633,7 +615,7 @@ async function handleKeyDown(event: KeyboardEvent) {
         }
     } else if (event.ctrlKey) {
         const recipients = document.getElementById("recipients");
-        const objectInput = document.getElementById("objectInput");
+        const subjectInput = document.getElementById("subjectInput") as HTMLInputElement | null;
         const dynamicTextarea = document.getElementById("dynamicTextarea");
 
         switch (event.key) {
@@ -646,7 +628,7 @@ async function handleKeyDown(event: KeyboardEvent) {
                 event.preventDefault();
                 break;
             case "o":
-                objectInput?.focus();
+                subjectInput?.focus();
                 event.preventDefault();
                 break;
         }

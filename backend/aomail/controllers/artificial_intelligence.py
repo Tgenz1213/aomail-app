@@ -466,7 +466,7 @@ def find_user_view_ai(request: HttpRequest) -> Response:
         return [
             email
             for name, email in contacts_dict.items()
-            if all(sub_str in name.lower() for sub_str in input_substrings)
+            if name and all(sub_str in name.lower() for sub_str in input_substrings)
         ]
 
     def find_emails_for_recipients(recipient_list: list, contacts_dict: dict) -> list:

@@ -376,9 +376,7 @@ onMounted(() => {
 
 async function getProfileImage() {
     const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
-
     if (!result.success) return;
-
     imageURL = result.data.profileImageUrl;
 }
 

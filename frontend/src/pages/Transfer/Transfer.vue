@@ -59,7 +59,7 @@ const selectedCci = ref([]);
 const activeType = ref(null);
 const query = ref("");
 const selectedPerson = ref("");
-const inputValue = ref("");
+const subjectInput = ref("");
 const isFirstTimeDestinary = ref(true);
 const isFocused = ref(false);
 const isFocused2 = ref(false);
@@ -210,16 +210,16 @@ function askChoiceRecipient(list: Array<Record<string, string>>, type: "main" | 
 
 function handleBlur2(event: Event) {
     isFocused2.value = false;
-    const inputValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    const subjectInput = (event.target as HTMLInputElement).value.trim().toLowerCase();
     const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (inputValue && emailFormat.test(inputValue)) {
-        if (!people.value.find((person) => person.email === inputValue)) {
-            const newPerson = { username: "", email: inputValue };
+    if (subjectInput && emailFormat.test(subjectInput)) {
+        if (!people.value.find((person) => person.email === subjectInput)) {
+            const newPerson = { username: "", email: subjectInput };
             people.value.push(newPerson);
             selectedPeople.value.push(newPerson);
         }
-    } else if (!getFilteredPeople.value.length && inputValue) {
+    } else if (!getFilteredPeople.value.length && subjectInput) {
         displayPopup(
             "error",
             i18n.global.t("constants.sendEmailConstants.popUpConstants.invalidEmail"),
@@ -362,7 +362,7 @@ onMounted(() => {
     const date = JSON.parse(sessionStorage.getItem("date"));
 
     // Prepare the forwarded email
-    inputValue.value = "Tr : " + subject;
+    subjectInput.value = "Tr : " + subject;
     const formattedDateVar = new Date(date);
     const options = {
         weekday: "short",
@@ -645,7 +645,7 @@ function hideLoading(): void {
 }
 
 async function scheduleSend(): Promise<void> {
-    const emailSubject = inputValue.value;
+    const emailSubject = subjectInput.value;
     const emailBody = quill.value.root.innerHTML;
 
     const selectedEmail = emailsLinked.value.find((tuple) => tuple.email === emailSelected.value);
@@ -708,7 +708,7 @@ async function scheduleSend(): Promise<void> {
             displayPopup("success", "Email scheduled successfully!", "Your email will be sent on time");
 
             // Reset form and state
-            inputValue.value = "";
+            subjectInput.value = "";
             quill.value.root.innerHTML = "";
             selectedPeople.value = [];
             selectedCC.value = [];
@@ -734,7 +734,7 @@ async function scheduleSend(): Promise<void> {
 }
 
 async function sendEmail(): Promise<void> {
-    const emailSubject = inputValue.value;
+    const emailSubject = subjectInput.value;
     const emailBody = quill.value.root.innerHTML;
 
     if (!emailSubject.trim()) {

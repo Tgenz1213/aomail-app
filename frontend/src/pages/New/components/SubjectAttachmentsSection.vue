@@ -31,7 +31,7 @@
             >
                 <div class="relative w-full">
                     <div
-                        v-if="!isFocused && !inputSubject"
+                        v-if="!isFocused && !subjectInput"
                         class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 2xl:ml-3 z-10"
                     >
                         <Bars2Icon class="w-4 h-4 pointer-events-none 2xl:w-5 2xl:h-5" />
@@ -43,8 +43,8 @@
                         </label>
                     </div>
                     <input
-                        id="inputSubject"
-                        v-model="inputSubject"
+                        id="subjectInput"
+                        v-model="subjectInput"
                         type="text"
                         class="block h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:pl-4 2xl:text-base"
                         @focus="handleFocusObject"
@@ -84,7 +84,7 @@ import { i18n } from "@/global/preferences";
 import { UploadedFile } from "@/global/types";
 import { inject, onMounted, ref, Ref } from "vue";
 
-const inputSubject = inject<Ref<string>>("inputSubject", ref(""));
+const subjectInput = inject<Ref<string>>("subjectInput", ref(""));
 const uploadedFiles = inject<Ref<UploadedFile[]>>("uploadedFiles", ref([]));
 const fileObjects = inject<Ref<File[]>>("fileObjects", ref([]));
 const isFocused = ref(false);

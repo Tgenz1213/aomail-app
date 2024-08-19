@@ -9,6 +9,8 @@
         </button>
         <Menu as="div" class="relative -ml-px block items-stretch">
             <MenuButton
+                @click.self="isMenuOpen = false"
+                @click="toggleMenu"
                 class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3"
             >
                 <span class="sr-only">{{ $t("newPage.openOptions") }}</span>
@@ -23,6 +25,7 @@
                 leave-to-class="transform opacity-0 -translate-y-2"
             >
                 <MenuItems
+                    v-if="isMenuOpen"
                     class="absolute right-0 z-10 -mr-1 bottom-full mb-2 w-56 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                 >
                     <div class="py-1">
@@ -45,11 +48,13 @@ import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { EmailLinked, Recipient, UploadedFile } from "@/global/types";
 import Quill from "quill";
-import { inject, Ref, ref } from "vue";
+import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+import { inject, onMounted, onUnmounted, Ref, ref } from "vue";
 
+const isMenuOpen = ref(false);
 const active = ref(false);
 const quill = inject<Ref<Quill | null>>("quill");
-const inputValue = inject<Ref<string>>("inputValue") || ref("");
+const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const fileObjects = inject<Ref<File[]>>("fileObjects") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
@@ -63,10 +68,36 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
 
+const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as Element;
+    if (!target.closest(".relative")) {
+        isMenuOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener("click", handleClickOutside);
+});
+
+const toggleMenu = () => {
+    isMenuOpen.value = !isMenuOpen.value;
+};
+
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === "Enter") {
+        sendEmail();
+    }
+}
+
 async function sendEmail() {
     if (!AIContainer.value || !quill?.value) return;
 
-    const emailSubject = inputValue.value;
+    const emailSubject = subjectInput.value;
     const emailBody = quill.value.root.innerHTML;
 
     if (!emailSubject.trim()) {
@@ -128,7 +159,7 @@ async function sendEmail() {
         i18n.global.t("constants.popUpConstants.successMessages.emailSuccessfullySent")
     );
 
-    inputValue.value = "";
+    subjectInput.value = "";
     quill.value.root.innerHTML = "";
     selectedPeople.value = [];
     selectedCC.value = [];
@@ -146,7 +177,7 @@ async function sendEmail() {
 
 async function scheduleSend() {
     if (!AIContainer.value || !quill?.value) return;
-    const emailSubject = inputValue.value;
+    const emailSubject = subjectInput.value;
     const emailBody = quill.value.root.innerHTML;
 
     for (const tupleEmail of emailsLinked.value) {
@@ -214,7 +245,7 @@ async function scheduleSend() {
 
     displayPopup?.("success", "Email scheduled successfully!", "Your email will be send on time");
 
-    inputValue.value = "";
+    subjectInput.value = "";
     quill.value.root.innerHTML = "";
     selectedPeople.value = [];
     selectedCC.value = [];

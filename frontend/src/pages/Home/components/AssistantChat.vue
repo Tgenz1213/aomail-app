@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col relative w-[325px] 2xl:w-[525px]">
+  <div class="z-30 bg-gray-50 ring-1 shadow-sm ring-black ring-opacity-5 h-full flex flex-col relative w-[325px] 2xl:w-[525px]">
     <div class="flex flex-col h-full">
       <div class="flex-grow">
         <div class="flex p-5">

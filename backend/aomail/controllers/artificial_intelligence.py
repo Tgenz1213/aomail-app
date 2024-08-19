@@ -208,7 +208,7 @@ def improve_draft(request: HttpRequest) -> Response:
             return Response(
                 {
                     "subject": result["new_subject"],
-                    "email_body": result["new_body"],
+                    "emailBody": result["new_body"],
                     "history": gen_email_conv.history.dict(),
                 },
                 status=status.HTTP_200_OK,
@@ -466,7 +466,7 @@ def find_user_view_ai(request: HttpRequest) -> Response:
         return [
             email
             for name, email in contacts_dict.items()
-            if all(sub_str in name.lower() for sub_str in input_substrings)
+            if name and all(sub_str in name.lower() for sub_str in input_substrings)
         ]
 
     def find_emails_for_recipients(recipient_list: list, contacts_dict: dict) -> list:
@@ -549,10 +549,10 @@ def correct_email_language(request: HttpRequest) -> Response:
     serializer = EmailCorrectionSerializer(data=data)
 
     if serializer.is_valid():
-        email_subject = serializer.validated_data["email_subject"]
-        email_body = serializer.validated_data["email_body"]
+        subject = serializer.validated_data["subject"]
+        body = serializer.validated_data["body"]
 
-        result = claude.correct_mail_language_mistakes(email_body, email_subject)
+        result = claude.correct_mail_language_mistakes(body, subject)
         result = update_tokens_stats(request.user, result)
 
         return Response(result, status=status.HTTP_200_OK)
@@ -583,14 +583,14 @@ def check_email_copywriting(request: HttpRequest) -> Response:
     serializer = EmailCopyWritingSerializer(data=data)
 
     if serializer.is_valid():
-        email_subject = serializer.validated_data["email_subject"]
-        email_body = serializer.validated_data["email_body"]
+        subject = serializer.validated_data["subject"]
+        body = serializer.validated_data["body"]
 
-        result = claude.improve_email_copywriting(email_body, email_subject)
+        result = claude.improve_email_copywriting(body, subject)
         update_tokens_stats(request.user, result)
 
         return Response(
-            {"feedback_copywriting": result["feedback_ai"]}, status=status.HTTP_200_OK
+            {"feedbackCopywriting": result["feedback_ai"]}, status=status.HTTP_200_OK
         )
     else:
         return Response(

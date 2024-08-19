@@ -51,8 +51,9 @@ import { KeyValuePair } from "@/global/types";
 import { inject, Ref, ref } from "vue";
 
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
-const selectedLength = ref("short");
-const selectedFormality = ref("formal");
+const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
+const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
+
 const handleAIClick = inject<() => void>("handleAIClick");
 
 const emailLengthOptions: KeyValuePair[] = [

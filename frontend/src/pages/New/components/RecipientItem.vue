@@ -3,7 +3,8 @@
         <div
             v-for="person in people"
             :key="person.email"
-            class="flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2"
+            class="relative flex items-center bg-gray-200 rounded px-2 py-1 mr-1 2xl:px-3 2xl:py-2 2xl:mr-2"
+            v-tooltip="person.username ? person.email : ''"
         >
             <span v-if="type === 'cc'" class="font-semibold mr-1 2xl:mr-2">
                 {{ $t("constants.sendEmailConstants.carbonCopyInitialsTwoDots") }}
@@ -12,6 +13,7 @@
                 {{ $t("constants.sendEmailConstants.blindCarbonCopyInitialsTwoDots") }}
             </span>
             {{ person.username || person.email }}
+
             <button
                 @click="removePerson(person)"
                 class="ml-2 text-gray-500 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-full p-1 transition-colors duration-300"
@@ -33,5 +35,33 @@
 </template>
 
 <script setup>
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
+
 defineProps(["people", "type", "removePerson"]);
+
+const vTooltip = {
+    mounted(el, binding) {
+        if (binding.value) {
+            tippy(el, {
+                content: binding.value,
+                placement: "top",
+                arrow: true,
+                theme: "light",
+            });
+        }
+    },
+    updated(el, binding) {
+        if (binding.value) {
+            el._tippy.setContent(binding.value);
+        }
+    },
+    unmounted(el) {
+        if (el._tippy) {
+            el._tippy.destroy();
+        }
+    },
+};
+
+defineExpose({ directives: { tooltip: vTooltip } });
 </script>

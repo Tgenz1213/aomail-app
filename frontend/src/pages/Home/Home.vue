@@ -20,7 +20,6 @@
                         @open-new-category-modal="openNewCategoryModal"
                         @open-update-category-modal="openUpdateCategoryModal"
                     />
-                    <!--<SearchBar @input="updateSearchQuery" />-->
                     <div v-if="!hasEmails" class="flex-1">
                         <div class="flex flex-col w-full h-full rounded-xl">
                             <div
@@ -47,6 +46,7 @@
                         </div>
                     </div>
                     <div v-else class="flex-1 overflow-y-auto custom-scrollbar">
+                        <SearchBar />
                         <ImportantEmail :emails="importantEmails" />
                         <InformativeEmail :emails="informativeEmails" />
                         <UselessEmail :emails="uselessEmails" />
@@ -80,6 +80,7 @@ import UselessEmail from "@/global/components/UselessEmails.vue";
 import ReadEmail from "./components/ReadEmails.vue";
 import AssistantChat from "./components/AssistantChat.vue";
 import Categories from "./components/Categories.vue";
+import SearchBar from "./components/SearchBar.vue";
 
 const showNotification = ref(false);
 const notificationTitle = ref("");

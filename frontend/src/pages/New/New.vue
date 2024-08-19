@@ -43,7 +43,7 @@ const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
-const AIContainer = ref<HTMLElement | null>(document.getElementById("AIContainer"));
+const AIContainer = ref<HTMLElement | null>(null);
 const counterDisplay = ref(0);
 const scrollableDiv = ref<HTMLDivElement | null>(null);
 
@@ -59,9 +59,20 @@ const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const isAIWriting = ref(false);
 const uploadedFiles = ref<UploadedFile[]>([]);
-const inputSubject = ref("");
+const subjectInput = ref("");
 
 onMounted(async () => {
+    AIContainer.value = document.getElementById("AIContainer");
+
+    document.addEventListener("keydown", handleKeyDown);
+    localStorage.removeItem("uploadedFiles");
+    window.addEventListener("resize", scrollToBottom);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+
+    displayMessage(message, aiIcon);
     fetchEmailLinked();
     fetchRecipients();
 
@@ -80,7 +91,15 @@ onMounted(async () => {
         localStorage.setItem("email", result.data.email);
     }
 
-    var toolbarOptions = [
+    await initializeQuill();
+});
+
+onUnmounted(() => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+
+async function initializeQuill() {
+    const toolbarOptions = [
         [{ font: [] }],
         [{ header: [1, 2, 3, 4, 5, 6, false] }],
         ["bold", "italic", "underline"],
@@ -90,19 +109,15 @@ onMounted(async () => {
         ["blockquote", "code-block"],
     ];
 
-    quill.value = new Quill("#editor", {
-        theme: "snow",
-        modules: {
-            toolbar: toolbarOptions,
-        },
-    });
+    const editorElement = document.getElementById("editor");
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
-});
-
-onUnmounted(() => {
-    window.removeEventListener("beforeunload", handleBeforeUnload);
-});
+    if (editorElement) {
+        quill.value = new Quill(editorElement, {
+            theme: "snow",
+            modules: { toolbar: toolbarOptions },
+        });
+    }
+}
 
 const handleBeforeUnload = (event: BeforeUnloadEvent) => {
     if (
@@ -110,7 +125,7 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
         selectedPeople.value.length ||
         selectedCC.value.length ||
         selectedCCI.value.length ||
-        inputSubject.value !== ""
+        subjectInput.value !== ""
     ) {
         event.preventDefault();
     }
@@ -208,7 +223,7 @@ provide("AIContainer", AIContainer);
 provide("counterDisplay", counterDisplay);
 provide("isAIWriting", isAIWriting);
 provide("uploadedFiles", uploadedFiles);
-provide("inputSubject", inputSubject);
+provide("subjectInput", subjectInput);
 provide("emailsLinked", emailsLinked);
 provide("contacts", contacts);
 provide("displayMessage", displayMessage);
@@ -229,52 +244,9 @@ function dismissPopup() {
     }
 }
 
-// const query = ref("");
-// const getFilteredPeople = (query, contacts) => {
-//     return computed(() => {
-//         if (query.value === "") {
-//             return contacts;
-//         } else {
-//             return contacts.filter((person) => {
-//                 if (!person.username) {
-//                     if (person.email) {
-//                         person.username = person.email
-//                             .split("@")[0]
-//                             .split(/\.|-/)
-//                             .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-//                             .join(" ");
-//                     } else {
-//                         person.username = "";
-//                     }
-//                 }
-//                 const usernameLower = person.username ? person.username.toLowerCase() : "";
-//                 const emailLower = person.email ? person.email.toLowerCase() : "";
-//                 return (
-//                     usernameLower.includes(query.value.toLowerCase()) || emailLower.includes(query.value.toLowerCase())
-//                 );
-//             });
-//         }
-//     });
-// };
-
-// const filteredPeople = getFilteredPeople(query, contacts);
-// const emit = defineEmits(["update:selectedPerson"]);
-// const selectedPerson = ref("");
-
-// watch(selectedPerson, (newValue) => {
-//     // console.log(selectedPerson.value);
-//     hasValueEverBeenEntered.value = true; // to make the icon disappear
-//     /*if (selectedPerson.value && selectedPerson.value.username) {
-//         //handleInputUpdate(selectedPerson.value.username);
-//     }  */
-//     emit("update:selectedPerson", newValue);
-// });
-
-// const isFirstTimeDestinary = ref(true); // to detect first letter object input
 // const isFirstTimeEmail = ref(true); // to detect first letter email content input
 // const hasValueEverBeenEntered = ref(false);
 
-// const objectInput = ref(null);
 // const mailInput = ref(null);
 // //const new_idea_icon = ref(require('@/assets/new_idea.png'));
 // const prompt_error_icon = ref(require("@/assets/prompt_error.png"));
@@ -296,63 +268,36 @@ function dismissPopup() {
 
 // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// // function linked to ENTER key listeners
-
-// function displayMessage_old(message, ai_icon) {
-//     // Function to display a message from the AI Assistant
-
-//     const messageHTML = `
-//       <div class="flex pb-12">
-//         <div class="mr-4 flex">
-//           <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-//             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-//               ${ai_icon}
-//             </svg>
-//           </span>
-//         </div>
-//         <div>
-//           <p ref="animatedText${counter_display}"></p>
-//         </div>
-//       </div>
-//     `;
-//     AIContainer.value.innerHTML += messageHTML;
-//     const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-//     counter_display += 1;
-//     animateText(message, animatedParagraph);
-//     scrollToBottom();
-// }
-
+// const objectInput = ref(null); // todo: fix type
 // onMounted(() => {
 //     document.addEventListener("keydown", handleKeyDown);
-//     localStorage.removeItem("uploadedFiles");
-
-//     //fetchEmailSenders();
-//     loadFileMetadataFromLocalStorage(); // For uploaded file
 
 //     window.addEventListener("resize", scrollToBottom); // To keep the scroll in the scrollbar at the bottom even when viewport change
 
-//
+//     const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
+//     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
 
-//     const message = t("constants.sendEmailConstants.emailRecipientRequest");
-//     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-//     //const ai_icon = happy_icon;
-//     displayMessage(message, ai_icon);
-//     objectInput.value = document.getElementById("objectInput");
+//     displayMessage(message, aiIcon);
+//     if (objectInput.value) {
+// //         Type 'HTMLElement | null' is not assignable to type 'null'.
+// //   Type 'HTMLElement' is not assignable to type 'null'.ts-plugin(2322)
+//         objectInput.value = document.getElementById("objectInput");
+//     }
 
-//     quill.value.on("text-change", function () {
-//         mailInput.value = quill.value.root.innerHTML;
-//         // console.log("MAIL", MailCreatedByAI.value);
-//         // console.log("First", isFirstTimeEmail.value);
-//         if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
-//             const quillContent = quill.value.root.innerHTML;
-//             if (quillContent.trim() !== "<p><br></p>") {
-//                 mail.value = quillContent;
-//                 handleInputUpdateMailContent(quillContent);
-//                 isFirstTimeEmail.value = false;
+//     if (quill.value) {
+//         quill.value.on("text-change", function () {
+//             mailInput.value = quill.value.root.innerHTML;
+//             if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
+//                 const quillContent = quill.value.root.innerHTML;
+//                 if (quillContent.trim() !== "<p><br></p>") {
+//                     mail.value = quillContent;
+//                     handleInputUpdateMailContent(quillContent);
+//                     isFirstTimeEmail.value = false;
+//                 }
 //             }
-//         }
-//         MailCreatedByAI.value = false;
-//     });
+//             MailCreatedByAI.value = false;
+//         });
+//     }
 
 //     const form = objectInput.value.closest("form");
 //     if (form) {
@@ -361,25 +306,6 @@ function dismissPopup() {
 //         });
 //     }
 // });
-
-// watch(
-//     uploadedFiles,
-//     () => {
-//         saveFileMetadataToLocalStorage();
-//     },
-//     { deep: true }
-// );
-
-// function handleInputUpdateObject() {
-//     /* OLD OPTIONAL =>
-//     if ((selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0)) {
-//       if (isFirstTimeObject.value && stepContainer == 0) {
-//         askContent();
-//         stepContainer = 1;
-//         isFirstTimeObject.value = false;
-//       }
-//     } */
-// }
 
 // function handleInputUpdateMailContent(newMessage) {
 //     if (newMessage !== "") {
@@ -397,14 +323,14 @@ function dismissPopup() {
 //     // Your previous code to display the message when the component is mounted
 //     const message = t("constants.sendEmailConstants.emailCompositionAssistance"); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
 
-//     const ai_icon = happy_icon;
+//     const aiIcon = happy_icon;
 //     const messageHTML = `
 //       <div class="pb-12">
 //         <div class="flex">
 //             <div class="mr-4">
 //                 <!--
 //                 <span class="inline-flex h-14 w-14 items-center justify-center rounded-full overflow-hidden">
-//                     <img src="${ai_icon._value}" alt="ai_icon" class="max-w-full max-h-full rounded-full">
+//                     <img src="${aiIcon._value}" alt="aiIcon" class="max-w-full max-h-full rounded-full">
 //                 </span>-->
 //                 <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
 //                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -479,7 +405,7 @@ function dismissPopup() {
 //                 "Content-Type": "application/json",
 //             },
 //             body: JSON.stringify({
-//                 email_subject: inputValue.value,
+//                 email_subject: subjectInput.value,
 //                 email_body: mailInput.value,
 //             }),
 //         };
@@ -508,30 +434,30 @@ function dismissPopup() {
 //               </div>
 //           `;
 //             AIContainer.value.innerHTML += messageHTML;
-//             inputValue.value = result.corrected_subject;
+//             subjectInput.value = result.corrected_subject;
 //             const quillEditorContainer = quill.value.root;
 //             quillEditorContainer.innerHTML = result.corrected_body;
 
 //             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
 //             const message = t("constants.sendEmailConstants.spellingCorrectionRequest");
-//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-//             //const ai_icon = happy_icon;
-//             displayMessage(message, ai_icon);
+//             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+//             //const aiIcon = happy_icon;
+//             displayMessage(message, aiIcon);
 //         } else {
 //             hideLoading();
 //             const message = t("constants.sendEmailConstants.processingErrorApology");
-//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-//             //const ai_icon = prompt_error_icon;
-//             displayMessage(message, ai_icon);
+//             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+//             //const aiIcon = prompt_error_icon;
+//             displayMessage(message, aiIcon);
 //             console.log("Subject or Email is missing in the response");
 //         }
 //     } catch (error) {
 //         console.error("Error:", error);
 //         hideLoading();
 //         const message = t("constants.sendEmailConstants.processingErrorApology");
-//         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-//         //const ai_icon = prompt_error_icon;
-//         displayMessage(message, ai_icon);
+//         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+//         //const aiIcon = prompt_error_icon;
+//         displayMessage(message, aiIcon);
 //     }
 // }
 
@@ -546,7 +472,7 @@ function dismissPopup() {
 //                 "Content-Type": "application/json",
 //             },
 //             body: JSON.stringify({
-//                 email_subject: inputValue.value,
+//                 email_subject: subjectInput.value,
 //                 email_body: mailInput.value,
 //             }),
 //         };
@@ -578,24 +504,24 @@ function dismissPopup() {
 
 //             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
 //             const message = t("constants.sendEmailConstants.copywritingCheckRequest");
-//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-//             //const ai_icon = happy_icon;
-//             displayMessage(message, ai_icon);
+//             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+//             //const aiIcon = happy_icon;
+//             displayMessage(message, aiIcon);
 //         } else {
 //             hideLoading();
 //             const message = t("constants.sendEmailConstants.processingErrorApology");
-//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-//             //const ai_icon = prompt_error_icon;
-//             displayMessage(message, ai_icon);
+//             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+//             //const aiIcon = prompt_error_icon;
+//             displayMessage(message, aiIcon);
 //             console.log("Subject or Email is missing in the response");
 //         }
 //     } catch (error) {
 //         console.error("Error:", error);
 //         hideLoading();
 //         const message = t("constants.sendEmailConstants.processingErrorApology");
-//         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-//         //const ai_icon = prompt_error_icon;
-//         displayMessage(message, ai_icon);
+//         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+//         //const aiIcon = prompt_error_icon;
+//         displayMessage(message, aiIcon);
 //     }
 // }
 
@@ -612,7 +538,7 @@ function dismissPopup() {
 //                 userInput: textareaValueSave.value,
 //                 length: lengthValue.value,
 //                 formality: formalityValue.value,
-//                 subject: inputValue.value,
+//                 subject: subjectInput.value,
 //                 body: mail.value,
 //                 history: history.value,
 //             }),
@@ -643,21 +569,21 @@ function dismissPopup() {
 //             </div>
 //         `;
 //             AIContainer.value.innerHTML += messageHTML;
-//             inputValue.value = result.subject;
+//             subjectInput.value = result.subject;
 //             const quillEditorContainer = quill.value.root;
 //             quillEditorContainer.innerHTML = result.email_body;
 
 //             // TO FINISH => create button with new options to reformat quickly the email written (more short, more formal, more strict)
 //             const message = t("constants.sendEmailConstants.betterEmailFeedbackRequest");
-//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-//             //const ai_icon = happy_icon;
-//             displayMessage(message, ai_icon);
+//             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+//             //const aiIcon = happy_icon;
+//             displayMessage(message, aiIcon);
 //         } else {
 //             hideLoading();
 //             const message = t("constants.sendEmailConstants.processingErrorTryAgain");
-//             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-//             //const ai_icon = prompt_error_icon;
-//             displayMessage(message, ai_icon);
+//             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+//             //const aiIcon = prompt_error_icon;
+//             displayMessage(message, aiIcon);
 //             console.log("Subject or Email is missing in the response");
 //         }
 //     } catch (error) {
@@ -665,95 +591,65 @@ function dismissPopup() {
 //         hideLoading();
 //         // Handling error => TO PUT IN A FUNCTION
 //         const message = t("constants.sendEmailConstants.processingErrorTryAgain");
-//         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-//         //const ai_icon = prompt_error_icon;
-//         displayMessage(message, ai_icon);
+//         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+//         //const aiIcon = prompt_error_icon;
+//         displayMessage(message, aiIcon);
 //         console.error("There was a problem with the fetch operation: ", error);
 //     }
 // }
 
-// function handleKeyDown(event) {
-//     if (event.key == "Tab") {
-//         event.preventDefault();
+async function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === "Tab") {
+        event.preventDefault();
 
-//         if (document.getElementById("editor").contains(document.activeElement)) {
-//             return;
-//         } else if (
-//             selectedCCI.value.length == 0 &&
-//             selectedCC.value.length == 0 &&
-//             selectedPeople.value.length == 0 &&
-//             document.activeElement.id != "recipients"
-//         ) {
-//             activeType.value = null;
-//             document.getElementById("recipients").focus();
-//         } else if (inputValue.value == "" && isFocused.value == false) {
-//             document.getElementById("objectInput").focus();
-//         } else if (quill.value.root.innerHTML == "<p><br></p>") {
-//             quill.value.focus();
-//         } else {
-//             // Logic to rotate
-//             if (document.activeElement.id === "recipients") {
-//                 document.getElementById("objectInput").focus();
-//             } else if (document.activeElement.id === "dynamicTextarea") {
-//                 document.getElementById("recipients").focus();
-//             } else {
-//                 document.getElementById("dynamicTextarea").focus();
-//             }
-//         }
-//     } else if (event.ctrlKey) {
-//         switch (event.key) {
-//             case "b":
-//                 quill.value.focus();
-//                 event.preventDefault();
-//                 break;
-//             case "d":
-//                 document.getElementById("recipients").focus();
-//                 event.preventDefault();
-//                 break;
-//             case "k":
-//                 document.getElementById("dynamicTextarea").focus();
-//                 event.preventDefault();
-//                 break;
-//             case "o":
-//                 document.getElementById("objectInput").focus();
-//                 event.preventDefault();
-//                 break;
-//             case "Enter":
-//                 sendEmail();
-//                 break;
-//         }
-//     }
-// }
+        const editor = document.getElementById("editor");
+        const recipients = document.getElementById("recipients");
+        const objectInput = document.getElementById("objectInput");
+        const dynamicTextarea = document.getElementById("dynamicTextarea");
+        const subjectInput = document.getElementById("subjectInput") as HTMLInputElement | null;
+
+        if (editor && editor.contains(document.activeElement)) {
+            return;
+        }
+
+        if (
+            selectedCCI.value.length === 0 &&
+            selectedCC.value.length === 0 &&
+            selectedPeople.value.length === 0 &&
+            document.activeElement?.id !== "recipients"
+        ) {
+            recipients?.focus();
+        } else if (subjectInput && subjectInput.value === "") {
+            subjectInput.focus();
+        } else {
+            if (document.activeElement?.id === "recipients") {
+                console.log("objectSelected");
+                objectInput?.focus();
+            } else if (document.activeElement?.id === "dynamicTextarea") {
+                recipients?.focus();
+            } else {
+                dynamicTextarea?.focus();
+            }
+        }
+    } else if (event.ctrlKey) {
+        const recipients = document.getElementById("recipients");
+        const objectInput = document.getElementById("objectInput");
+        const dynamicTextarea = document.getElementById("dynamicTextarea");
+
+        switch (event.key) {
+            case "d":
+                recipients?.focus();
+                event.preventDefault();
+                break;
+            case "k":
+                dynamicTextarea?.focus();
+                event.preventDefault();
+                break;
+            case "o":
+                objectInput?.focus();
+                event.preventDefault();
+                break;
+        }
+    }
+}
 </script>
-
-<!-- <script>
-import Navbar from "../components/AppNavbar7.vue";
-import Navbar2 from "../components/AppNavbar8.vue";
-import {
-    UserGroupIcon,
-    Bars2Icon,
-    //Bars3BottomLeftIcon,
-    //ChatBubbleOvalLeftEllipsisIcon,
-    ChevronDownIcon,
-} from "@heroicons/vue/24/outline";
-
-import { PaperAirplaneIcon } from "@heroicons/vue/24/solid";
-import NavBarSmall from "@/global/components/NavBarSmall.vue";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-
-export default {
-    components: {
-        Navbar,
-        Navbar2,
-        UserGroupIcon,
-        Bars2Icon,
-        ChevronDownIcon,
-        PaperAirplaneIcon,
-        // ChatBubbleOvalLeftEllipsisIcon,
-        // Bars3BottomLeftIcon
-    },
-    methods: {
-        
-    },
-};
-</script> -->

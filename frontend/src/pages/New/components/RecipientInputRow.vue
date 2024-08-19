@@ -177,15 +177,15 @@ function handleEnterKey(event: any) {
 function handleBlur(event: { target: { value: string } }) {
     isFocus.value = false;
     query.value = "";
-    const inputValue = event.target.value.trim().toLowerCase();
+    const subjectInput = event.target.value.trim().toLowerCase();
     const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (inputValue && emailFormat.test(inputValue)) {
-        if (!contacts.value.find((person) => person.email === inputValue)) {
-            const newPerson = { email: inputValue, username: "", id: 0 };
+    if (subjectInput && emailFormat.test(subjectInput)) {
+        if (!contacts.value.find((person) => person.email === subjectInput)) {
+            const newPerson = { email: subjectInput, username: "", id: 0 };
             contacts.value.push(newPerson);
             selectedPeople.value.push(newPerson);
         }
-    } else if (!filteredPeople.length && inputValue) {
+    } else if (!filteredPeople.length && subjectInput) {
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.invalidEmail"),

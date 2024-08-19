@@ -52,9 +52,6 @@ import SubjectAttachmentsSection from "./SubjectAttachmentsSection.vue";
 import RecipientsSection from "./RecipientsSection.vue";
 import SelectedEmailChoiceButton from "./SelectedEmailChoiceButton.vue";
 
-const inputValue = ref("");
 const fileObjects = ref<File[]>([]);
-
-provide("inputValue", inputValue);
 provide("fileObjects", fileObjects);
 </script>

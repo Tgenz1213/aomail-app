@@ -54,7 +54,7 @@ import { inject, onMounted, onUnmounted, Ref, ref } from "vue";
 const isMenuOpen = ref(false);
 const active = ref(false);
 const quill = inject<Ref<Quill | null>>("quill");
-const inputValue = inject<Ref<string>>("inputValue") || ref("");
+const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const fileObjects = inject<Ref<File[]>>("fileObjects") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
@@ -76,6 +76,7 @@ const handleClickOutside = (event: MouseEvent) => {
 };
 
 onMounted(() => {
+    document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("click", handleClickOutside);
 });
 
@@ -87,10 +88,16 @@ const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
 };
 
+function handleKeyDown(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === "Enter") {
+        sendEmail();
+    }
+}
+
 async function sendEmail() {
     if (!AIContainer.value || !quill?.value) return;
 
-    const emailSubject = inputValue.value;
+    const emailSubject = subjectInput.value;
     const emailBody = quill.value.root.innerHTML;
 
     if (!emailSubject.trim()) {
@@ -152,7 +159,7 @@ async function sendEmail() {
         i18n.global.t("constants.popUpConstants.successMessages.emailSuccessfullySent")
     );
 
-    inputValue.value = "";
+    subjectInput.value = "";
     quill.value.root.innerHTML = "";
     selectedPeople.value = [];
     selectedCC.value = [];
@@ -170,7 +177,7 @@ async function sendEmail() {
 
 async function scheduleSend() {
     if (!AIContainer.value || !quill?.value) return;
-    const emailSubject = inputValue.value;
+    const emailSubject = subjectInput.value;
     const emailBody = quill.value.root.innerHTML;
 
     for (const tupleEmail of emailsLinked.value) {
@@ -238,7 +245,7 @@ async function scheduleSend() {
 
     displayPopup?.("success", "Email scheduled successfully!", "Your email will be send on time");
 
-    inputValue.value = "";
+    subjectInput.value = "";
     quill.value.root.innerHTML = "";
     selectedPeople.value = [];
     selectedCC.value = [];

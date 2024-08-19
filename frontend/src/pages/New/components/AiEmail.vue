@@ -276,7 +276,7 @@ async function handleAIClick() {
     //                   </div>
     //               `;
     //             AIContainer.value.innerHTML += messageHTML;
-    //             inputValue.value = result.data.subject;
+    //             subjectInput.value = result.data.subject;
     //             MailCreatedByAI.value = true;
     //             const quillEditorContainer = quill.value.root;
     //             quillEditorContainer.innerHTML = result.data.mail.replace(/<\/p>/g, "</p><p></p>");
@@ -302,7 +302,7 @@ async function handleAIClick() {
     //                         userInput: textareaValueSave.value,
     //                         length: lengthValue.value,
     //                         formality: formalityValue.value,
-    //                         subject: inputValue.value,
+    //                         subject: subjectInput.value,
     //                         body: mail.value,
     //                         history: history.value,
     //                     }),
@@ -331,7 +331,7 @@ async function handleAIClick() {
     //                   </div>
     //               `;
     //                     AIContainer.value.innerHTML += messageHTML;
-    //                     inputValue.value = result.subject;
+    //                     subjectInput.value = result.subject;
     //                     const quillEditorContainer = quill.value.root;
     //                     quillEditorContainer.innerHTML = result.email_body;
     //                     quillEditorContainer.style.cssText = "p { margin-bottom: 20px; }";

@@ -180,7 +180,7 @@
                             >
                                 <div class="relative w-full">
                                     <div
-                                        v-if="!isFocused && !inputValue"
+                                        v-if="!isFocused && !subjectInput"
                                         class="absolute top-0 left-0 flex space-x-1 items-center pointer-events-none opacity-50 transition-opacity duration-200 h-full ml-2 z-10"
                                     >
                                         <Bars2Icon class="w-4 h-4 pointer-events-none" />
@@ -193,7 +193,7 @@
                                     </div>
                                     <input
                                         id="objectInput"
-                                        v-model="inputValue"
+                                        v-model="subjectInput"
                                         type="text"
                                         class="block h-10 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 w-full z-20 relative"
                                         @focus="handleFocusObject"
@@ -305,7 +305,7 @@ onMounted(() => {
     const details = JSON.parse(sessionStorage.getItem("details") || "");
     const date = JSON.parse(sessionStorage.getItem("date") || "");
 
-    inputValue.value = "Tr : " + subject;
+    subjectInput.value = "Tr : " + subject;
     const formattedDateVar = new Date(date);
     const options: Intl.DateTimeFormatOptions = {
         weekday: "short",
@@ -377,7 +377,7 @@ function handleKeyDown(event: KeyboardEvent): void {
         ) {
             activeType.value = null;
             recipients?.focus();
-        } else if (inputValue.value === "" && !isFocused.value) {
+        } else if (subjectInput.value === "" && !isFocused.value) {
             objectInput?.focus();
         } else if (quill.value.root.innerHTML === "<p><br></p>") {
             quill.value.focus();

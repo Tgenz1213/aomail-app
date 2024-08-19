@@ -249,9 +249,9 @@ def correct_mail_language_mistakes(body: str, subject: str) -> dict:
     )
 
     return {
-        "corrected_subject": corrected_subject,
-        "corrected_body": corrected_body,
-        "num_corrections": num_corrections,
+        "correctedSubject": corrected_subject,
+        "correctedBody": corrected_body,
+        "numCorrections": num_corrections,
         "tokens_input": response.usage.input_tokens + result["tokens_input"],
         "tokens_output": response.usage.output_tokens + result["tokens_output"],
     }

@@ -45,33 +45,37 @@
 <script setup lang="ts">
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { KeyValuePair, Recipient } from "@/global/types";
+import { Recipient } from "@/global/types";
 import Quill from "quill";
-import { inject, nextTick, onMounted, provide, Ref, ref, watch } from "vue";
+import { inject, onMounted, provide, Ref, ref, watch } from "vue";
 import SendAiInstructionButton from "./SendAiInstructionButton.vue";
 
 interface EmailMapping {
     [username: string]: string;
 }
 
-let imageURL = ref<string>(require("@/assets/user.png"));
+const imageURL = ref<string>(require("@/assets/user.png"));
 const counterDisplay = inject<Ref<number>>("counterDisplay") || ref(0);
-const isLoading = ref(false);
 const isAIWriting = inject<Ref<boolean>>("isAIWriting") || ref(false);
 const AIContainer =
     inject<Ref<HTMLElement | null>>("AIContainer") || ref<HTMLElement | null>(document.getElementById("AIContainer"));
+const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const textareaValue = ref("");
-const textareaValueSave = ref("");
+const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
 const quill = inject<Ref<Quill | null>>("quill");
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
-const selectedLength = ref("short");
-const selectedFormality = ref("formal");
+const history = inject<Ref<{}>>("history") || ref({});
+const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
+const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
+const AiEmailBody = inject<Ref<string>>("AiEmailBody") || ref("");
 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const scrollToBottom = inject<() => void>("scrollToBottom");
+const loading = inject<() => void>("loading");
+const hideLoading = inject<() => void>("hideLoading");
 
 provide("handleAIClick", handleAIClick);
 provide("askContent", askContent);
@@ -100,7 +104,7 @@ async function handleAIClick() {
       <div class="flex pb-12">
         <div class="mr-4 flex">
           <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-            <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
+            <img src="${imageURL.value}" alt="Profile Image" class="h-14 w-14 rounded-full">
           </span>
         </div>
         <div>
@@ -121,15 +125,16 @@ async function handleAIClick() {
                 const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
                 displayMessage?.(message, aiIcon);
             } else {
-                loading();
+                loading?.();
                 scrollToBottom?.();
                 const result = await postData("api/find_user_ai/", { query: textareaValueSave.value });
                 if (!result.success) {
                     const message = i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain");
                     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
                     displayMessage?.(message, aiIcon);
+                    return;
                 }
-                hideLoading();
+                hideLoading?.();
                 let noUsersAdded = true;
                 let waitforUserChoice = false;
                 const mainRecipients = result.data.mainRecipients;
@@ -254,21 +259,22 @@ async function handleAIClick() {
                 const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
                 displayMessage?.(message, aiIcon);
             } else {
-                loading();
+                loading?.();
                 scrollToBottom?.();
                 const result = await postData("api/new_email_ai/", {
                     inputData: textareaValueSave.value,
                     length: selectedLength.value,
                     formality: selectedFormality.value,
                 });
-                hideLoading();
+                hideLoading?.();
                 if (!result.success) {
                     const message = i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain");
                     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
                     displayMessage?.(message, aiIcon);
+                    return;
                 }
-                subject.value = result.data.subject;
-                mail.value = result.data.mail;
+                subjectInput.value = result.data.subject;
+                AiEmailBody.value = result.data.mail;
                 stepContainer.value = 2;
                 const formattedMail = result.data.mail.replace(/\n/g, "<br>");
                 const messageHTML = `
@@ -302,25 +308,26 @@ async function handleAIClick() {
             } else {
                 if (!AIContainer.value || !quill?.value) return;
 
-                loading();
+                loading?.();
                 scrollToBottom?.();
                 const result = await postData("api/improve_draft/", {
                     userInput: textareaValueSave.value,
                     length: selectedLength.value,
                     formality: selectedFormality.value,
                     subject: subjectInput.value,
-                    body: mail.value,
+                    body: AiEmailBody.value,
                     history: history.value,
                 });
-                hideLoading();
+                hideLoading?.();
 
                 if (!result.success) {
                     const message = i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain");
                     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
                     displayMessage?.(message, aiIcon);
+                    return;
                 }
                 subjectInput.value = result.data.subject;
-                mail.value = result.data.emailBody;
+                AiEmailBody.value = result.data.emailBody;
                 history.value = result.data.history;
                 const formattedMail = result.data.emailBody.replace(/\n/g, "<br>");
                 const messageHTML = `
@@ -352,17 +359,17 @@ async function handleAIClick() {
 }
 
 function adjustHeight(event: any) {
-    // const textarea = event.target;
-    // const maxHeight = 250; // Set your desired max height in pixels. TO SET DEPENDING OF THE SIZE OF THE VIEWPORT
-    // // Reset height to auto to correctly calculate the new scrollHeight
-    // textarea.style.height = "auto";
-    // if (textarea.scrollHeight > maxHeight) {
-    //     textarea.style.height = maxHeight + "px";
-    //     textarea.style.overflowY = "auto"; // Enable scrolling when content exceeds maxHeight.
-    // } else {
-    //     textarea.style.height = textarea.scrollHeight + "px";
-    //     textarea.style.overflowY = "hidden"; // Hide the scrollbar when content is below maxHeight.
-    // }
+    const textarea = event.target;
+    const maxHeight = 250;
+
+    textarea.style.height = "auto";
+    if (textarea.scrollHeight > maxHeight) {
+        textarea.style.height = maxHeight + "px";
+        textarea.style.overflowY = "auto";
+    } else {
+        textarea.style.height = textarea.scrollHeight + "px";
+        textarea.style.overflowY = "hidden";
+    }
 }
 
 const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
@@ -377,39 +384,7 @@ onMounted(() => {
 async function getProfileImage() {
     const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
     if (!result.success) return;
-    imageURL = result.data.profileImageUrl;
-}
-
-function loading() {
-    isLoading.value = true;
-    if (!AIContainer.value) return;
-
-    const messageHTML = `
-      <div id="dynamicLoadingIndicator" class="pb-12">
-        <div class="flex">
-            <div class="mr-4">
-                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-                    <span class="text-lg font-medium leading-none text-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-                      </svg>
-                    </span>
-                </span>
-            </div>
-            <div>
-              <div class="loading-spinner"></div>
-            </div>
-        </div>
-      </div>
-    `;
-    AIContainer.value.innerHTML += messageHTML;
-}
-
-function hideLoading() {
-    const loadingElement = document.getElementById("dynamicLoadingIndicator");
-    if (loadingElement) {
-        loadingElement.remove();
-    }
+    imageURL.value = result.data.profileImageUrl;
 }
 
 function askChoiceRecipier(list: any[], type: string) {

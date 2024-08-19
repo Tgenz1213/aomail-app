@@ -253,7 +253,6 @@ function dismissPopup() {
 // // AI instruction to do revision on the mail
 // const subject = ref("");
 // const mail = ref("");
-// const MailCreatedByAI = ref(false); // to check if the AI create the Mail or not
 
 // const objectInput = ref(null); // todo: fix type
 // onMounted(() => {
@@ -274,7 +273,7 @@ function dismissPopup() {
 //     if (quill.value) {
 //         quill.value.on("text-change", function () {
 //             mailInput.value = quill.value.root.innerHTML;
-//             if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
+//             if (isFirstTimeEmail.value ) {
 //                 const quillContent = quill.value.root.innerHTML;
 //                 if (quillContent.trim() !== "<p><br></p>") {
 //                     mail.value = quillContent;
@@ -282,7 +281,6 @@ function dismissPopup() {
 //                     isFirstTimeEmail.value = false;
 //                 }
 //             }
-//             MailCreatedByAI.value = false;
 //         });
 //     }
 

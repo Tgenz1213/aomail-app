@@ -1,8 +1,8 @@
 <template>
-    <div class="flex flex-wrap">
+    <div class="overflow-y-auto max-h-32 flex flex-wrap">
         <div
             v-for="(file, index) in uploadedFiles"
-            :key="index"
+            :key="file.name"
             class="flex items-center mb-1 mr-1 bg-gray-200 rounded px-2 py-1 2xl:px-3 2xl:py-2 2xl:mr-2"
         >
             {{ file.name }}

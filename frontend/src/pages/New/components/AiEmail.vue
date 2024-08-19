@@ -360,16 +360,8 @@ async function handleAIClick() {
 
 function adjustHeight(event: any) {
     const textarea = event.target;
-    const maxHeight = 250;
-
     textarea.style.height = "auto";
-    if (textarea.scrollHeight > maxHeight) {
-        textarea.style.height = maxHeight + "px";
-        textarea.style.overflowY = "auto";
-    } else {
-        textarea.style.height = textarea.scrollHeight + "px";
-        textarea.style.overflowY = "hidden";
-    }
+    textarea.style.overflowY = "auto";
 }
 
 const emailSelected = inject<Ref<string>>("emailSelected") || ref("");

@@ -39,9 +39,18 @@ import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 
 const showNotification = ref(false);
+const isAIWriting = ref(false);
+const isLoading = ref(false);
+const isFirstTimeEmail = ref(true);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
+const subjectInput = ref("");
+const textareaValueSave = ref("");
+const AiEmailBody = ref("");
+const subject = ref("");
+const selectedLength = ref("short");
+const selectedFormality = ref("formal");
 const timerId = ref<number | null>(null);
 const AIContainer = ref<HTMLElement | null>(null);
 const counterDisplay = ref(0);
@@ -55,19 +64,7 @@ const selectedCCI = ref<Recipient[]>([]);
 const quill: Ref<Quill | null> = ref(null);
 const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
-const isAIWriting = ref(false);
 const uploadedFiles = ref<UploadedFile[]>([]);
-const subjectInput = ref("");
-
-const selectedLength = ref("short");
-const selectedFormality = ref("formal");
-const textareaValueSave = ref("");
-const isLoading = ref(false);
-const AiEmailBody = ref("");
-const isFirstTimeEmail = ref(true); // to detect first letter email content input
-const hasValueEverBeenEntered = ref(false);
-const subject = ref("");
-const mail = ref("");
 
 onMounted(async () => {
     AIContainer.value = document.getElementById("AIContainer");
@@ -83,21 +80,7 @@ onMounted(async () => {
     displayMessage(message, aiIcon);
     fetchEmailLinked();
     fetchRecipients();
-
-    if (!emailSelected.value) {
-        const result = await getData("user/get_first_email/");
-
-        if (!result.success) {
-            displayPopup(
-                "error",
-                i18n.global.t("constants.popUpConstants.errorMessages.primaryEmailFetchError"),
-                result.error as string
-            );
-        } else {
-            emailSelected.value = result.data.email;
-            localStorage.setItem("email", result.data.email);
-        }
-    }
+    fetchPrimaryEmail();
 
     await initializeQuill();
 });
@@ -211,6 +194,23 @@ function displayMessage(message: string, aiIcon: string) {
     counterDisplay.value += 1;
     animateText(message, animatedParagraph);
     scrollToBottom();
+}
+
+async function fetchPrimaryEmail() {
+    if (!emailSelected.value) {
+        const result = await getData("user/get_first_email/");
+
+        if (!result.success) {
+            displayPopup(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.primaryEmailFetchError"),
+                result.error as string
+            );
+        } else {
+            emailSelected.value = result.data.email;
+            localStorage.setItem("email", result.data.email);
+        }
+    }
 }
 
 async function fetchRecipients() {
@@ -336,6 +336,12 @@ async function handleKeyDown(event: KeyboardEvent) {
     }
 }
 
+function displayErrorProcessingMessage() {
+    const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    displayMessage(message, aiIcon);
+}
+
 function loading() {
     isLoading.value = true;
     if (!AIContainer.value) return;
@@ -455,10 +461,7 @@ async function checkSpelling() {
 
     hideLoading();
     if (!result.success) {
-        const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-
-        displayMessage(message, aiIcon);
+        displayErrorProcessingMessage();
         return;
     }
 
@@ -501,14 +504,11 @@ async function checkCopyWriting() {
     hideLoading();
 
     if (!result.success) {
-        const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage(message, aiIcon);
+        displayErrorProcessingMessage();
         return;
     }
 
     const formattedCopWritingOutput = result.data.feedbackCopywriting.replace(/\n/g, "<br>");
-
     const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
@@ -527,7 +527,6 @@ async function checkCopyWriting() {
 
     const message = i18n.global.t("constants.sendEmailConstants.copywritingCheckRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-
     displayMessage(message, aiIcon);
 }
 
@@ -545,9 +544,7 @@ async function writeBetter() {
     });
 
     if (!result.success) {
-        const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage(message, aiIcon);
+        displayErrorProcessingMessage();
         return;
     }
 
@@ -578,7 +575,6 @@ async function writeBetter() {
 
     const message = i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-
     displayMessage(message, aiIcon);
 }
 </script>

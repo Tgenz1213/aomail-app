@@ -1,5 +1,5 @@
 <template>
-    <div class="flex items-stretch h-12 2xl:h-14 space-x-2 pr-4">
+    <div class="flex items-stretch border-l h-12 2xl:h-14 space-x-2 px-4">
         <button 
         v-for="(tab, index) in visibleTabs" 
         :key="index"
@@ -25,7 +25,7 @@
         <div 
             v-if="showAllTabsModal" 
             ref="moreFiltersModal"
-            class="absolute top-full right-0 mt-1 z-50 w-64 rounded-sm bg-white shadow-sm ring-1 ring-black ring-opacity-10"
+            class="absolute top-full right-0 mt-1 z-50 w-64 rounded bg-white shadow-sm ring-1 ring-black ring-opacity-10"
         >
             <div class="p-2">
             <h2 class="text-sm font-bold mb-2">All tabs</h2>

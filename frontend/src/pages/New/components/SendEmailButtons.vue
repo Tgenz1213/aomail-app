@@ -13,7 +13,6 @@
                 @click="toggleMenu"
                 class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3"
             >
-                <span class="sr-only">{{ $t("newPage.openOptions") }}</span>
                 <ChevronDownIcon class="h-8 w-5 2xl:h-9 2xl:w-6" aria-hidden="true" />
             </MenuButton>
             <transition
@@ -72,10 +71,13 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const emailsLinked = inject<Ref<EmailLinked[]>>("emailsLinked", ref([]));
 
-const handleClickOutside = (event: MouseEvent) => {
-    const target = event.target as Element;
-    if (!target.closest(".relative")) {
-        isMenuOpen.value = false;
+const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+        if (isScheduleSendModalOpen.value) {
+            closeScheduleSendModal();
+        }
+    } else if (event.ctrlKey && event.key === "Enter") {
+        sendEmail();
     }
 };
 
@@ -86,6 +88,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     document.removeEventListener("click", handleClickOutside);
+    document.removeEventListener("keydown", handleKeyDown);
 });
 
 const toggleMenu = () => {
@@ -96,11 +99,12 @@ const closeScheduleSendModal = () => {
     isScheduleSendModalOpen.value = false;
 };
 
-function handleKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key === "Enter") {
-        sendEmail();
+const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as Element;
+    if (!target.closest(".relative")) {
+        isMenuOpen.value = false;
     }
-}
+};
 
 async function sendEmail() {
     if (!AIContainer.value || !quill?.value) return;

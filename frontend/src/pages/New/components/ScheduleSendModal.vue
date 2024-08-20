@@ -84,9 +84,7 @@ const selectedDate = ref<Date | undefined>(undefined);
 const errorMessage = ref<string | null>(null);
 
 const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape" && props.isOpen) {
-        closeModal();
-    } else if (event.key === "Enter" && props.isOpen) {
+    if (event.key === "Enter" && props.isOpen) {
         scheduleSend();
     }
 };

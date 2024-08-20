@@ -134,7 +134,7 @@
           </div>
 
 
-          <!-- Relevance and Answer -->
+          <!-- Relevance and Answer 
           <div>
             <h3 class="text-sm font-medium leading-6 text-gray-900 mb-2">{{ $t('homePage.modals.filterModal.additionalSettings') }}</h3>
             <div class="grid grid-cols-2 gap-4">
@@ -153,7 +153,7 @@
                 </select>
               </div>
             </div>
-          </div>
+          </div>-->
 
           <div class="mt-2 sm:mt-2 sm:flex sm:flex-row-reverse">
             <button type="button" class="inline-flex w-full rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black sm:w-auto" @click="addFilter">
@@ -166,8 +166,9 @@
   </transition>
 </template>
 <script setup lang="ts">
-import { ref, inject } from 'vue';
-import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon, EnvelopeOpenIcon } from '@heroicons/vue/20/solid';
+import { Ref, ref, inject } from 'vue';
+import { i18n } from "@/global/preferences";
+import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from '@heroicons/vue/20/solid'; // To add checkicon instead of using an svg
 import { postData } from '@/global/fetchData';
 import { Filter } from '../utils/types';
 
@@ -177,11 +178,10 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void;
-  (e: 'filterCreated', filter: Filter): void;
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
-const filters = ref<Filter[]>;
+const filters = inject("filters") as Ref<Filter[]>;
 
 const newFilter = ref<Filter>({
   name: '',
@@ -194,8 +194,8 @@ const newFilter = ref<Filter>({
   spam: true,
   scams: true,
   meeting: true,
-  relevance: 'medium',
-  answer: 'might_want_to_answer'
+  relevance: '',
+  answer: ''
 });
 
 const errorMessage = ref('');
@@ -205,21 +205,14 @@ const closeModal = () => {
 };
 
 const addFilter = async () => {
-  /*try {
-    const response = await postData('/api/create_filter/', newFilter.value);
-    if (response.ok) {
-      const createdFilter = await response.json();
-      filters.value.push(createdFilter);
-      emit('filterCreated', createdFilter);
-      displayPopup("success", "Succès", "Le filtre a été créé avec succès.");
-      closeModal();
-    } else {
-      const error = await response.json();
-      errorMessage.value = error.message || "Une erreur est survenue lors de la création du filtre.";
-    }
-  } catch (error) {
-    console.error('Error creating filter:', error);
-    errorMessage.value = "Une erreur est survenue lors de la création du filtre.";
-  }*/
+  const response = await postData('/api/create_filter/', newFilter.value);
+  if (response.success) {
+    filters.value.push(newFilter.value);
+    closeModal();
+    displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.filterAddedSuccess'));
+  } else {
+    closeModal();
+    displayPopup?.("error", i18n.global.t('constants.popUpConstants.addFilterError'), i18n.global.t('constants.popUpConstants.errorMessages.addFilterError'));
+  }
 };
 </script>

@@ -2,7 +2,7 @@
     <SeeMailModal
         v-if="isSeeMailOpen"
         :isOpen="isSeeMailOpen"
-        :email="email"
+        :email="localEmail"
         @closeModal="closeSeeMailModal"
         @openAnswer="openAnswer"
         @openRuleEditor="openRuleEditor"
@@ -14,25 +14,25 @@
     <li class="group flex justify-between items-center py-2 email-item" @click="toggleShowShortSummary()">
         <div class="flex flex-col justify-center">
             <span class="font-semibold text-sm leading-6">
-                {{ email.sender.name }}
-                - {{ email.sender.email }}
+                {{ localEmail.sender.name }}
+                - {{ localEmail.sender.email }}
                 <span class="font-normal ml-2 text-gray-600 text-xs">
-                    {{ email.sentDate }}
+                    {{ localEmail.sentDate }}
                 </span>
             </span>
-            <span class="text-sm gray-600">{{ email.subject }} - {{ email.oneLineSummary }}</span>
+            <span class="text-sm gray-600">{{ localEmail.subject }} - {{ localEmail.oneLineSummary }}</span>
             <div v-if="showShortSummary" class="py-1">
-                <p class="text-xs">{{ email.shortSummary }}</p>
+                <p class="text-xs">{{ localEmail.shortSummary }}</p>
             </div>
             <div class="mt-1 flex space-x-2">
                 <span
-                    v-if="email.priority === 'important'"
+                    v-if="localEmail.priority === 'important'"
                     class="inline-flex items-center rounded-md bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/10"
                 >
                     {{ $t("constants.ruleModalConstants.important") }}
                 </span>
                 <span
-                    v-else-if="email.priority === 'informative'"
+                    v-else-if="localEmail.priority === 'informative'"
                     class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
                 >
                     {{ $t("constants.ruleModalConstants.informative") }}
@@ -46,10 +46,10 @@
                 <span
                     class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10"
                 >
-                    {{ email.category }}
+                    {{ localEmail.category }}
                 </span>
                 <span
-                    v-if="email.read"
+                    v-if="localEmail.read"
                     class="inline-flex items-center rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-600 ring-1 ring-inset ring-stone-500/10"
                 >
                     <svg
@@ -67,9 +67,9 @@
                 <span
                     v-bind:class="{
                         'hidden group-hover:block px-1.5 text-white shadow rounded-xl inline-flex': true,
-                        'bg-orange-300': email.priority === 'important',
-                        'bg-blue-300': email.priority === 'informative',
-                        'bg-gray-300': email.priority !== 'important' && email.priority !== 'informative',
+                        'bg-orange-300': localEmail.priority === 'important',
+                        'bg-blue-300': localEmail.priority === 'informative',
+                        'bg-gray-300': localEmail.priority !== 'important' && localEmail.priority !== 'informative',
                     }"
                 >
                     <div class="flex gap-x-1 items-center justify-center h-full">
@@ -110,7 +110,7 @@
 
 <script setup lang="ts">
 import { getData, postData } from "@/global/fetchData";
-import { inject, ref } from "vue";
+import { inject, ref, watch } from "vue";
 import { EyeIcon } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
 import SeeMailModal from "@/global/components/SeeMailModal.vue";
@@ -125,6 +125,18 @@ const showShortSummary = ref(false);
 const isSeeMailOpen = ref(false);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
+// Create a local reactive copy of the email prop
+const localEmail = ref({ ...props.email });
+
+// Watch for changes in the prop and update the local copy
+watch(
+    () => props.email,
+    (newEmail) => {
+        localEmail.value = { ...newEmail };
+    },
+    { deep: true }
+);
+
 function toggleShowShortSummary() {
     showShortSummary.value = !showShortSummary.value;
 }
@@ -137,8 +149,9 @@ async function openSeeMailModal() {
     const result = await postData("user/get_email_content/", { id: props.email.id });
     if (!result.success) {
         displayPopup?.("error", "Failed to fetch email content", result.error as string);
+        return;
     }
-    props.email.htmlContent = result.data.content;
+    localEmail.value.htmlContent = result.data.content;
     isSeeMailOpen.value = true;
 }
 
@@ -152,25 +165,24 @@ function openNewRule(ruleName: string, ruleEmail: string) {
 
 async function markEmailAsRead(emailId: number) {
     const result = await postData(`user/emails/${emailId}/mark_read/`, {});
-
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+        return;
     }
-    props.email.read = true;
+    localEmail.value.read = true;
 }
 
 async function markEmailReplyLater(emailId: number) {
     const result = await postData(`user/emails/${emailId}/mark_reply_later/`, {});
-
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
+        return;
     }
-    props.email.answerLater = true;
+    localEmail.value.answerLater = true;
 }
 
 async function openAnswer(email: Email) {
     const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
-
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("constants.popUpConstants.openReplyPageFailure"), result.error as string);
         return;
@@ -183,16 +195,12 @@ async function openAnswer(email: Email) {
     sessionStorage.setItem("email", JSON.stringify(email.sender.email));
     sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
     sessionStorage.setItem("shortSummary", JSON.stringify(email.shortSummary));
-    // sessionStorage.setItem("emailReceiver", data.email.email_receiver);
 
-    router.push({
-        name: "answer",
-    });
+    router.push({ name: "answer" });
 }
 
 async function transferEmail(email: Email) {
     const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
-
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.transferEmailFailure"), result.error as string);
         return;
@@ -205,10 +213,7 @@ async function transferEmail(email: Email) {
     sessionStorage.setItem("date", JSON.stringify(result.data.email.date));
     sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
     sessionStorage.setItem("email", JSON.stringify(email.sender.email));
-    // sessionStorage.setItem("emailReceiver", result.data.email.email_receiver);
 
-    router.push({
-        name: "transfer",
-    });
+    router.push({ name: "transfer" });
 }
 </script>

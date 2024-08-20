@@ -228,7 +228,7 @@ def get_emails_linked(request: HttpRequest) -> Response:
         emails_linked = []
         for social_api in social_apis:
             emails_linked.append(
-                {"email": social_api.email, "typApi": social_api.type_api}
+                {"email": social_api.email, "typeApi": social_api.type_api}
             )
         return Response(emails_linked, status=status.HTTP_200_OK)
     except Exception as e:

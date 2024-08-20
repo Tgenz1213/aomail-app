@@ -1,4 +1,5 @@
 <template>
+    <ScheduleSendModal :isOpen="isScheduleSendModalOpen" @closeModal="closeScheduleSendModal" />
     <div class="inline-flex rounded-lg shadow-lg items-stretch">
         <button
             @click="sendEmail"
@@ -9,7 +10,6 @@
         </button>
         <Menu as="div" class="relative -ml-px block items-stretch">
             <MenuButton
-                @click.self="isMenuOpen = false"
                 @click="toggleMenu"
                 class="relative inline-flex items-center rounded-r-lg px-2 py-2 text-white border-l border-gray-300 bg-gray-700 hover:bg-gray-900 focus:z-10 2xl:px-3 2xl:py-3"
             >
@@ -30,8 +30,9 @@
                 >
                     <div class="py-1">
                         <button
+                            type="button"
                             :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm']"
-                            @click="scheduleSend"
+                            @click="openScheduleSendModal"
                         >
                             Schedule send
                         </button>
@@ -48,11 +49,14 @@ import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { EmailLinked, Recipient, UploadedFile } from "@/global/types";
 import Quill from "quill";
-import { ChevronDownIcon } from "@heroicons/vue/24/outline";
+import { ChevronDownIcon, PaperAirplaneIcon } from "@heroicons/vue/24/outline";
 import { inject, onMounted, onUnmounted, Ref, ref } from "vue";
+import ScheduleSendModal from "./ScheduleSendModal.vue";
+import { Menu, MenuButton, MenuItems } from "@headlessui/vue";
 
 const isMenuOpen = ref(false);
 const active = ref(false);
+const isScheduleSendModalOpen = ref(false);
 const quill = inject<Ref<Quill | null>>("quill");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
@@ -86,6 +90,10 @@ onUnmounted(() => {
 
 const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
+};
+
+const closeScheduleSendModal = () => {
+    isScheduleSendModalOpen.value = false;
 };
 
 function handleKeyDown(event: KeyboardEvent) {
@@ -170,94 +178,54 @@ async function sendEmail() {
     uploadedFiles.value = [];
     fileObjects.value = [];
 
-    const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage?.(message, ai_icon);
+    displayMessage?.(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), ai_icon);
 }
 
-async function scheduleSend() {
-    if (!AIContainer.value || !quill?.value) return;
-    const emailSubject = subjectInput.value;
-    const emailBody = quill.value.root.innerHTML;
+function validateScheduledSend(): boolean {
+    if (!quill?.value) return false;
 
     for (const tupleEmail of emailsLinked.value) {
+        console.log("tupleEmail.typeApi !== MICROSOFT", tupleEmail, tupleEmail.email, tupleEmail.typeApi);
         if (emailSelected.value === tupleEmail.email && tupleEmail.typeApi !== MICROSOFT) {
             displayPopup?.(
                 "error",
                 "Email service provider not supported",
                 "Scheduled send is only available for Outlook accounts"
             );
-            return;
+            return false;
         }
     }
-
-    if (!emailSubject.trim()) {
+    if (!subjectInput.value.trim()) {
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoSubject")
         );
-        return;
-    } else if (emailBody == "<p><br></p>") {
+        return false;
+    } else if (quill.value.root.innerHTML == "<p><br></p>") {
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoObject")
         );
-        return;
-    } else if (selectedPeople.value.length == 0) {
+        return false;
+    } else if (selectedPeople.value.length === 0) {
         displayPopup?.(
             "error",
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendErrorNoRecipient")
         );
-        return;
+        return false;
     }
+    return true;
+}
 
-    const formData = new FormData();
+async function openScheduleSendModal() {
+    console.log("Attempting to open the schedule send modal.");
+    if (!validateScheduledSend()) return;
 
-    formData.append("subject", emailSubject);
-    formData.append("message", emailBody);
-    fileObjects.value.forEach((file) => formData.append("attachments", file));
-
-    selectedPeople.value.forEach((person) => formData.append("to", person.email));
-    if (selectedCC.value.length > 0) {
-        selectedCC.value.forEach((person) => formData.append("cc", person.email));
-    }
-    if (selectedCCI.value.length > 0) {
-        selectedCCI.value.forEach((person) => formData.append("cci", person.email));
-    }
-    formData.append("email", emailSelected.value);
-    // TODO: add a modal - for now its HARD coded values! DO NOT PUSH THAT IN PRODUCTION
-    formData.append("datetime", "2024-07-02T10:00:00Z");
-
-    const result = await postData(`user/social_api/send_schedule_email/`, {
-        body: formData,
-    });
-
-    if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
-            result.error as string
-        );
-    }
-
-    displayPopup?.("success", "Email scheduled successfully!", "Your email will be send on time");
-
-    subjectInput.value = "";
-    quill.value.root.innerHTML = "";
-    selectedPeople.value = [];
-    selectedCC.value = [];
-    selectedCCI.value = [];
-    stepContainer.value = 0;
-    AIContainer.value.innerHTML = "";
-    localStorage.removeItem("uploadedFiles");
-    uploadedFiles.value = [];
-    fileObjects.value = [];
-
-    const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
-    const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage?.(message, ai_icon);
+    console.log("Attempting to open the schedule send modal.");
+    isScheduleSendModalOpen.value = true;
 }
 </script>

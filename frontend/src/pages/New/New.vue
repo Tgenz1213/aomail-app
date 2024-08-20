@@ -208,13 +208,13 @@ function displayMessage(message: string, aiIcon: string) {
             </span>
         </div>
         <div>
-          <p ref="animatedText${counterDisplay}"></p>
+          <p ref="animatedText${counterDisplay.value}"></p>
         </div>
       </div>
     `;
 
     AIContainer.value.innerHTML += messageHTML;
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
     counterDisplay.value += 1;
     animateText(message, animatedParagraph);
     scrollToBottom();
@@ -397,7 +397,7 @@ function askContentAdvice() {
             </div>
             <div>
                 <div class="flex flex-col">
-                  <p ref="animatedText${counterDisplay}"></p>
+                  <p ref="animatedText${counterDisplay.value}"></p>
                   <div class="flex mt-4">
                     <div class="mr-4">
                       <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
@@ -445,7 +445,7 @@ function askContentAdvice() {
         }
     }, 0);
 
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
     counterDisplay.value += 1;
     animateText(message, animatedParagraph);
 }

@@ -49,6 +49,7 @@ import { Recipient } from "@/global/types";
 import Quill from "quill";
 import { inject, onMounted, provide, Ref, ref, watch } from "vue";
 import SendAiInstructionButton from "./SendAiInstructionButton.vue";
+import userImage from "@/assets/user.png";
 
 interface EmailMapping {
     [username: string]: string;
@@ -62,14 +63,14 @@ interface AiRecipient {
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const quill = inject<Ref<Quill | null>>("quill");
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
-const history = inject<Ref<{}>>("history") || ref({});
+const history = inject<Ref<Record<string, any>>>("history") || ref({});
 const AIContainer =
     inject<Ref<HTMLElement | null>>("AIContainer") || ref<HTMLElement | null>(document.getElementById("AIContainer"));
 const textareaValue = ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
-const imageURL = ref<string>(require("@/assets/user.png"));
+const imageURL = ref<string>(userImage);
 const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");

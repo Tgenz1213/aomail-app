@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { inject, Ref, defineProps } from "vue";
+import { inject, Ref } from "vue";
 
 const emailSelected = inject<Ref<string>>("emailSelected");
 const fetchEmailLinked = inject<() => void>("fetchEmailLinked");

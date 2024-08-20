@@ -59,23 +59,21 @@
     </div>
 </template>
 
-
 <script setup lang="ts">
 // todo: setup properties and imports
-import { defineProps, defineEmits } from 'vue';
 import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { RuleData } from "../utils/types";
 
 const props = defineProps<{
-  rule: RuleData;
+    rule: RuleData;
 }>();
 
 const emit = defineEmits<{
-  (e: 'edit', rule: RuleData): void;
+    (e: "edit", rule: RuleData): void;
 }>();
 
 function editRule() {
-  emit('edit', props.rule);
+    emit("edit", props.rule);
 }
 </script>

@@ -242,6 +242,30 @@
         "emailResume": "Email summary",
         "fullEmail": "Full email"
       },
+      "filterModal": {
+        "addFilter": "Add filter",
+        "filterName": "Filter name",
+        "filterNamePlaceholder": "Enter filter name",
+        "priority": "Priority",
+        "important": "Important",
+        "informative": "Informative",
+        "useless": "Useless",
+        "readStatus": "Read status",
+        "read": "Read",
+        "flags": "Flags",
+        "notification": "Notification",
+        "newsletter": "Newsletter",
+        "spam": "Spam",
+        "scams": "Scams",
+        "meeting": "Meeting",
+        "additionalSettings": "Additional settings",
+        "relevance": "Relevance",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low",
+        "answer": "Answer",
+        "mightWantToAnswer": "Might need a response"
+      },
       "warningRulesLinkedModal": {
         "deleteCategory": "Delete category: "
       }

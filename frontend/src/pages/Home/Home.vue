@@ -62,6 +62,7 @@
             :category="categoryToUpdate"
             @close="closeUpdateCategoryModal"
         />
+        <NewFilterModal :isOpen="isModalNewFilterOpen" @close="closeNewFilterModal" />
     </div>
 </template>
 
@@ -74,6 +75,7 @@ import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewCategoryModal from "./components/NewCategoryModal.vue";
 import UpdateCategoryModal from "./components/UpdateCategoryModal.vue";
+import NewFilterModal from "./components/NewFilterModal.vue";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
@@ -93,6 +95,7 @@ const selectedCategory = ref<string>("");
 const categoryToUpdate = ref<Category | null>(null);
 const isModalNewCategoryOpen = ref(false);
 const isModalUpdateCategoryOpen = ref(false);
+const isModalNewFilterOpen = ref(false);
 const isHidden = ref(false);
 const categories = ref<Category[]>([]);
 const categoryTotals = ref<{ [key: string]: number }>({});
@@ -120,9 +123,14 @@ async function fetchCategoriesAndTotals() {
     });
 }
 
+const openNewFilterModal = () => {
+    isModalNewFilterOpen.value = true;
+}
+
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
+provide("openNewFilterModal", openNewFilterModal);
 provide("categories", categories);
 provide("selectedCategory", selectedCategory);
 
@@ -187,6 +195,10 @@ const openNewCategoryModal = () => {
 
 const closeNewCategoryModal = () => {
     isModalNewCategoryOpen.value = false;
+};
+
+const closeNewFilterModal = () => {
+    isModalNewFilterOpen.value = false;
 };
 
 const openUpdateCategoryModal = (category: Category) => {

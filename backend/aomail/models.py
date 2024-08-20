@@ -177,7 +177,7 @@ class Filter(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     social_api = models.ForeignKey(
-        SocialAPI, on_delete=models.CASCADE, related_name="social_api_emails", null=True
+        SocialAPI, on_delete=models.CASCADE, null=True
     )
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     name = models.CharField(max_length=25)

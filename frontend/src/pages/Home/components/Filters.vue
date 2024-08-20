@@ -42,12 +42,14 @@
             </div>
         </div>
         </div>
-        <button @click="showAddFilterPopup" class="px-2 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none">+</button>
+        <button @click="openNewFilterModal" class="px-2 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none">+</button>
     </div>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, inject } from 'vue';
 import { Tab } from "../utils/types";
+
+const openNewFilterModal = inject('openNewFilterModal') as () => void;
 
 const allTabs = ref<Tab[]>([
   { id: 'tab1', name: 'Tab 1' },

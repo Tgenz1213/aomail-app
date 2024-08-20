@@ -23,11 +23,11 @@ from aomail.models import (
 class EmailDataSerializer(serializers.Serializer):
     """Serializer for sending emails (POST request)."""
 
-    to = serializers.ListField(required=True)
+    to = serializers.ListField(child=serializers.EmailField(), required=True)
     subject = serializers.CharField(required=True)
     message = serializers.CharField(required=False, allow_blank=True)
-    cc = serializers.ListField(required=False)
-    cci = serializers.ListField(required=False)
+    cc = serializers.ListField(child=serializers.EmailField(), required=False)
+    cci = serializers.ListField(child=serializers.EmailField(), required=False)
     attachments = serializers.ListField(child=serializers.FileField(), required=False)
 
 

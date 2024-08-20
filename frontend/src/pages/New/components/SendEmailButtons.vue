@@ -133,23 +133,14 @@ async function sendEmail() {
         return;
     }
 
-    const formData = new FormData();
-
-    formData.append("subject", emailSubject);
-    formData.append("message", emailBody);
-    fileObjects.value.forEach((file) => formData.append("attachments", file));
-
-    selectedPeople.value.forEach((person) => formData.append("to", person.email));
-    if (selectedCC.value.length > 0) {
-        selectedCC.value.forEach((person) => formData.append("cc", person.email));
-    }
-    if (selectedCCI.value.length > 0) {
-        selectedCCI.value.forEach((person) => formData.append("cci", person.email));
-    }
-    formData.append("email", emailSelected.value);
-
     const result = await postData(`user/social_api/send_email/`, {
-        body: formData,
+        subject: subjectInput.value,
+        message: quill.value.root.innerHTML,
+        attachments: fileObjects.value,
+        to: selectedPeople.value.map((person) => person.email),
+        cc: selectedCC.value.map((person) => person.email),
+        cci: selectedCCI.value.map((person) => person.email),
+        email: emailSelected.value,
     });
 
     if (!result.success) {

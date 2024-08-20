@@ -103,7 +103,9 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
                       entry is not found for the user and email.
     """
     user = request.user
-    email = request.POST.get("email") or request.headers.get("email")
+    parameters: dict = json.loads(request.body)
+    email = parameters.get("email") or request.headers.get("email")
+
     if not email:
         return Response(
             {"error": "Email is neither in body nor in headers of the request"},

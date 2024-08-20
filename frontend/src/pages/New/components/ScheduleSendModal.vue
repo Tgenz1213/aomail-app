@@ -108,19 +108,15 @@ async function scheduleSend() {
     }
     errorMessage.value = null;
 
-    const formData = new FormData();
-
-    formData.append("subject", subjectInput.value);
-    formData.append("message", quill.value.root.innerHTML);
-    fileObjects.value.forEach((file) => formData.append("attachments", file));
-    selectedPeople.value.forEach((person) => formData.append("to", person.email));
-    selectedCC.value.forEach((person) => formData.append("cc", person.email));
-    selectedCCI.value.forEach((person) => formData.append("cci", person.email));
-    formData.append("email", emailSelected.value);
-    formData.append("datetime", selectedDate.value.toISOString());
-
     const result = await postData(`user/social_api/send_schedule_email/`, {
-        body: formData,
+        subject: subjectInput.value,
+        message: quill.value.root.innerHTML,
+        attachments: fileObjects.value,
+        to: selectedPeople.value.map((person) => person.email),
+        cc: selectedCC.value.map((person) => person.email),
+        cci: selectedCCI.value.map((person) => person.email),
+        email: emailSelected.value,
+        datetime: selectedDate.value.toISOString(),
     });
 
     if (!result.success) {
@@ -129,7 +125,6 @@ async function scheduleSend() {
             i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
             result.error as string
         );
-        return;
     } else {
         displayPopup?.("success", "Email scheduled successfully!", "Your email will be sent on time");
 

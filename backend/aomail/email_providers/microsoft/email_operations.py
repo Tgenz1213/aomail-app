@@ -12,6 +12,7 @@ TODO:
 
 import base64
 import datetime
+import json
 import logging
 import threading
 import requests
@@ -118,7 +119,8 @@ def send_schedule_email(request: HttpRequest) -> Response:
         Response: Response indicating success or error.
     """
     user = request.user
-    email = request.POST.get("email")
+    parameters: dict = json.loads(request.body)
+    email = parameters.get("email")
     social_api = get_social_api(user, email)
 
     if not social_api:
@@ -128,7 +130,7 @@ def send_schedule_email(request: HttpRequest) -> Response:
         )
 
     access_token = refresh_access_token(social_api)
-    serializer = EmailScheduleDataSerializer(data=request.POST)
+    serializer = EmailScheduleDataSerializer(data=parameters)
 
     if serializer.is_valid():
         data = serializer.validated_data
@@ -231,7 +233,8 @@ def send_email(request: HttpRequest) -> Response:
         Response: Response indicating success or error.
     """
     user = request.user
-    email = request.POST.get("email")
+    parameters: dict = json.loads(request.body)
+    email = parameters.get("email")
     social_api = get_social_api(user, email)
 
     if not social_api:
@@ -241,7 +244,7 @@ def send_email(request: HttpRequest) -> Response:
         )
 
     access_token = refresh_access_token(social_api)
-    serializer = EmailDataSerializer(data=request.POST)
+    serializer = EmailDataSerializer(data=parameters)
 
     if serializer.is_valid():
         data = serializer.validated_data

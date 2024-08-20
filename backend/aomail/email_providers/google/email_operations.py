@@ -10,6 +10,7 @@ TODO:
 """
 
 import base64
+import json
 import logging
 import re
 import string
@@ -60,9 +61,10 @@ def send_email(request: HttpRequest) -> Response:
     """
     try:
         user = request.user
-        email = request.POST.get("email")
+        parameters: dict = json.loads(request.body)
+        email = parameters.get("email")
         service = authenticate_service(user, email)["gmail"]
-        serializer = EmailDataSerializer(data=request.POST)
+        serializer = EmailDataSerializer(data=parameters)
 
         if serializer.is_valid():
             data = serializer.validated_data

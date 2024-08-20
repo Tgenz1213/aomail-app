@@ -39,7 +39,7 @@ import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 
 const showNotification = ref(false);
-const isAIWriting = ref(false);
+const isWriting = ref(false);
 const isLoading = ref(false);
 const isFirstTimeEmail = ref(true);
 const notificationTitle = ref("");
@@ -49,22 +49,53 @@ const subjectInput = ref("");
 const textareaValueSave = ref("");
 const AiEmailBody = ref("");
 const subject = ref("");
+const emailSelected = ref(localStorage.getItem("email") || "");
 const selectedLength = ref("short");
 const selectedFormality = ref("formal");
 const timerId = ref<number | null>(null);
 const AIContainer = ref<HTMLElement | null>(null);
-const counterDisplay = ref(0);
 const scrollableDiv = ref<HTMLDivElement | null>(null);
+const quill: Ref<Quill | null> = ref(null);
+const counterDisplay = ref(0);
 const history = ref({});
 const emailsLinked = ref<EmailLinked[]>([]);
-const emailSelected = ref(localStorage.getItem("email") || "");
 const selectedPeople = ref<Recipient[]>([]);
 const selectedCC = ref<Recipient[]>([]);
 const selectedCCI = ref<Recipient[]>([]);
-const quill: Ref<Quill | null> = ref(null);
 const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
+
+const scrollToBottom = async () => {
+    await nextTick();
+    const element = scrollableDiv.value;
+    if (!element) return;
+    element.scrollTop = element.scrollHeight;
+};
+
+provide("emailSelected", emailSelected);
+provide("selectedPeople", selectedPeople);
+provide("selectedCC", selectedCC);
+provide("selectedCCI", selectedCCI);
+provide("quill", quill);
+provide("stepContainer", stepContainer);
+provide("AIContainer", AIContainer);
+provide("counterDisplay", counterDisplay);
+provide("isWriting", isWriting);
+provide("uploadedFiles", uploadedFiles);
+provide("subjectInput", subjectInput);
+provide("emailsLinked", emailsLinked);
+provide("contacts", contacts);
+provide("history", history);
+provide("AiEmailBody", AiEmailBody);
+provide("textareaValueSave", textareaValueSave);
+provide("selectedLength", selectedLength);
+provide("selectedFormality", selectedFormality);
+provide("displayPopup", displayPopup);
+provide("displayMessage", displayMessage);
+provide("scrollToBottom", scrollToBottom);
+provide("loading", loading);
+provide("hideLoading", hideLoading);
 
 onMounted(async () => {
     AIContainer.value = document.getElementById("AIContainer");
@@ -155,17 +186,10 @@ function animateText(text: string, target: Element | null) {
             currentIndex++;
         } else {
             clearInterval(interval);
-            isAIWriting.value = false;
+            isWriting.value = false;
         }
     }, 30);
 }
-
-const scrollToBottom = async () => {
-    await nextTick();
-    const element = scrollableDiv.value;
-    if (!element) return;
-    element.scrollTop = element.scrollHeight;
-};
 
 function displayMessage(message: string, aiIcon: string) {
     if (!AIContainer.value) return;
@@ -242,30 +266,6 @@ async function fetchEmailLinked() {
 
     emailsLinked.value = result.data;
 }
-
-provide("displayPopup", displayPopup);
-provide("emailSelected", emailSelected);
-provide("selectedPeople", selectedPeople);
-provide("selectedCC", selectedCC);
-provide("selectedCCI", selectedCCI);
-provide("quill", quill);
-provide("stepContainer", stepContainer);
-provide("AIContainer", AIContainer);
-provide("counterDisplay", counterDisplay);
-provide("isAIWriting", isAIWriting);
-provide("uploadedFiles", uploadedFiles);
-provide("subjectInput", subjectInput);
-provide("emailsLinked", emailsLinked);
-provide("contacts", contacts);
-provide("history", history);
-provide("AiEmailBody", AiEmailBody);
-provide("textareaValueSave", textareaValueSave);
-provide("selectedLength", selectedLength);
-provide("selectedFormality", selectedFormality);
-provide("displayMessage", displayMessage);
-provide("scrollToBottom", scrollToBottom);
-provide("loading", loading);
-provide("hideLoading", hideLoading);
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

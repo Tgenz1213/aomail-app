@@ -58,7 +58,7 @@ import { Email, EmailDetails } from "@/global/types";
 import { inject, nextTick, onMounted, Ref, ref } from "vue";
 
 const textareaValue = ref("");
-const isAIWriting = ref(false);
+const isWriting = ref(false);
 const isFocus = ref(false);
 const AIContainer = ref<HTMLElement | null>(null);
 const scrollableDiv = ref<HTMLDivElement | null>(null);
@@ -78,7 +78,7 @@ onMounted(async () => {
         if (event.key === "Enter") {
             if (!event.shiftKey) {
                 event.preventDefault();
-                if (isFocus.value && textareaValue.value.trim() && !isAIWriting.value) {
+                if (isFocus.value && textareaValue.value.trim() && !isWriting.value) {
                     handleAIClick();
                 }
             }
@@ -97,10 +97,10 @@ const handleBlur = () => {
 };
 
 async function handleAIClick() {
-    if (isAIWriting.value) {
+    if (isWriting.value) {
         return;
     }
-    isAIWriting.value = true;
+    isWriting.value = true;
 
     if (!textareaValue.value.trim()) return;
 
@@ -222,7 +222,7 @@ function hideLoading() {
 async function displayMessage(message: string, aiIcon: string) {
     if (!AIContainer.value) return;
 
-    isAIWriting.value = true;
+    isWriting.value = true;
     const messageHTML = `
         <div class="flex pb-12">
           <div class="mr-4 flex">
@@ -246,7 +246,7 @@ async function displayMessage(message: string, aiIcon: string) {
 }
 
 async function waitForAIWriting() {
-    while (isAIWriting.value) {
+    while (isWriting.value) {
         await new Promise((resolve) => setTimeout(resolve, 500));
     }
 }
@@ -261,7 +261,7 @@ async function animateText(text: string, target: Element | null) {
             currentIndex++;
         } else {
             clearInterval(interval);
-            isAIWriting.value = false;
+            isWriting.value = false;
         }
     }, 30);
 }

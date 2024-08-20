@@ -19,7 +19,7 @@ from aomail.constants import FREE_PLAN
 from aomail.models import Filter, SocialAPI, Category
 from aomail.utils.serializers import (
     FilterListSerializer,
-    FilterCreateSerializer,
+    FilterSerializer,
     FilterUpdateSerializer,
 )
 
@@ -73,14 +73,40 @@ def create_filter(request: HttpRequest) -> Response:
         Response: JSON response with the created filter data on success,
                   or error messages on failure.
     """
-    data = json.loads(request.body)
+    data: dict = json.loads(request.body)
     data["user"] = request.user.id
+    filter_name = data.get("name")
+    category_name = data.get("category")
 
-    serializer = FilterCreateSerializer(data=data, context={"request": request})
+
+    if not filter_name:
+        LOGGER.warning("ERROR 0")
+
+        return Response(
+            {"error": "No filter name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    if not category_name:
+        LOGGER.warning("ERROR 1")
+        return Response(
+            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    try:
+        category = Category.objects.get(name=category_name, user=request.user)
+        data["category"] = category.id  
+    except Category.DoesNotExist:
+        LOGGER.warning("ERROR 3")
+        return Response(
+            {"error": "Category does not exist or does not belong to the user"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    serializer = FilterSerializer(data=data)
     if serializer.is_valid():
-        serializer.save(user=request.user)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
+        LOGGER.warning("Serializer errors: %s", serializer.errors)
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )

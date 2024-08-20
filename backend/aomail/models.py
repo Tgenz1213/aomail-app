@@ -190,7 +190,8 @@ class Filter(models.Model):
     newsletter = models.BooleanField(default=False)
     notification = models.BooleanField(default=False)
     meeting = models.BooleanField(default=False)
-    relevance = models.CharField(max_length=50)
+    relevance = models.CharField(max_length=50, null=True)
+    answer = models.CharField(max_length=50, null=True)
     
 
 class Attachment(models.Model):

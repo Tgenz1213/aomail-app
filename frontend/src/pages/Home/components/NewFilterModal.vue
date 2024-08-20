@@ -182,20 +182,20 @@ const emit = defineEmits<{
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const filters = inject("filters") as Ref<Filter[]>;
+const selectedCategory = inject('selectedCategory') as Ref<string>;
 
 const newFilter = ref<Filter>({
   name: '',
   important: true,
   informative: true,
+  category: '',
   useless: true,
   read: true,
   notification: true,
   newsletter: true,
   spam: true,
   scams: true,
-  meeting: true,
-  relevance: '',
-  answer: ''
+  meeting: true
 });
 
 const errorMessage = ref('');
@@ -205,7 +205,9 @@ const closeModal = () => {
 };
 
 const addFilter = async () => {
-  const response = await postData('/api/create_filter/', newFilter.value);
+  newFilter.value['category'] = selectedCategory.value;
+  console.log("DEBUG", newFilter.value);
+  const response = await postData('api/create_filter/', newFilter.value);
   if (response.success) {
     filters.value.push(newFilter.value);
     closeModal();

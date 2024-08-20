@@ -70,6 +70,7 @@
 import { ref, computed, provide, onMounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import { Email, Category } from "@/global/types";
+import { Filter } from './utils/types';
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
@@ -98,6 +99,7 @@ const isModalUpdateCategoryOpen = ref(false);
 const isModalNewFilterOpen = ref(false);
 const isHidden = ref(false);
 const categories = ref<Category[]>([]);
+const filters = ref<Filter[]>([]);
 const categoryTotals = ref<{ [key: string]: number }>({});
 
 const fetchEmailsData = async (categoryName: string) => {
@@ -132,6 +134,7 @@ provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
 provide("categories", categories);
+provide("filters", filters);
 provide("selectedCategory", selectedCategory);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {

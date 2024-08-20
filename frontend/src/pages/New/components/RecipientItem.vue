@@ -34,16 +34,38 @@
     </div>
 </template>
 
-<script setup>
-import tippy from "tippy.js";
+<script setup lang="ts">
+import { defineProps, defineExpose, ref, watch } from "vue";
+import tippy, { Instance } from "tippy.js";
 import "tippy.js/dist/tippy.css";
+import { Recipient } from "@/global/types";
 
-defineProps(["people", "type", "removePerson"]);
+interface Props {
+    people: Recipient[];
+    type: string;
+    removePerson: (person: Recipient) => void;
+}
+
+const props = defineProps<Props>();
+
+interface TippyElement extends HTMLElement {
+    _tippy?: Instance;
+}
+
+const localPeople = ref<Recipient[]>([...props.people]);
+
+watch(
+    () => props.people,
+    (newPeople) => {
+        localPeople.value = [...newPeople];
+    },
+    { deep: true }
+);
 
 const vTooltip = {
-    mounted(el, binding) {
+    mounted(el: TippyElement, binding: { value: string }) {
         if (binding.value) {
-            tippy(el, {
+            el._tippy = tippy(el, {
                 content: binding.value,
                 placement: "top",
                 arrow: true,
@@ -51,12 +73,12 @@ const vTooltip = {
             });
         }
     },
-    updated(el, binding) {
-        if (binding.value) {
+    updated(el: TippyElement, binding: { value: string }) {
+        if (el._tippy) {
             el._tippy.setContent(binding.value);
         }
     },
-    unmounted(el) {
+    unmounted(el: TippyElement) {
         if (el._tippy) {
             el._tippy.destroy();
         }
@@ -64,4 +86,9 @@ const vTooltip = {
 };
 
 defineExpose({ directives: { tooltip: vTooltip } });
+
+function removePerson(person: Recipient) {
+    localPeople.value = localPeople.value.filter((p) => p.email !== person.email);
+    props.removePerson(person);
+}
 </script>

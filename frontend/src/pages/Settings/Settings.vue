@@ -201,7 +201,6 @@ function closeUnlinkEmailModal() {
 }
 
 function closeUpdateUserDescriptionModal() {
-    console.log("got an emit @closeModal");
     isUpdateUserDescriptionModalOpen.value = false;
 }
 

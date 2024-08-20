@@ -49,28 +49,34 @@ import { Recipient } from "@/global/types";
 import Quill from "quill";
 import { inject, onMounted, provide, Ref, ref, watch } from "vue";
 import SendAiInstructionButton from "./SendAiInstructionButton.vue";
+import userImage from "@/assets/user.png";
 
 interface EmailMapping {
     [username: string]: string;
 }
 
-const imageURL = ref<string>(require("@/assets/user.png"));
-const counterDisplay = inject<Ref<number>>("counterDisplay") || ref(0);
-const isAIWriting = inject<Ref<boolean>>("isAIWriting") || ref(false);
+interface AiRecipient {
+    username: string;
+    email: string[];
+}
+
+const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
+const quill = inject<Ref<Quill | null>>("quill");
+const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
+const history = inject<Ref<Record<string, any>>>("history") || ref({});
 const AIContainer =
     inject<Ref<HTMLElement | null>>("AIContainer") || ref<HTMLElement | null>(document.getElementById("AIContainer"));
-const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const textareaValue = ref("");
-const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
-const quill = inject<Ref<Quill | null>>("quill");
-const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
-const history = inject<Ref<{}>>("history") || ref({});
+const imageURL = ref<string>(userImage);
+const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
+const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
 const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
 const AiEmailBody = inject<Ref<string>>("AiEmailBody") || ref("");
+const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const scrollToBottom = inject<() => void>("scrollToBottom");
@@ -82,6 +88,10 @@ provide("askContent", askContent);
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);
 
+watch(emailSelected, () => {
+    getProfileImage();
+});
+
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
@@ -89,273 +99,258 @@ function handleEnterKey(event: any) {
     }
 }
 
-const setAiWriting = () => {
-    isAIWriting.value = true;
+const setWriting = () => {
+    isWriting.value = true;
 };
 
-async function handleAIClick() {
-    if (isAIWriting.value) {
-        return;
-    }
-    setAiWriting();
-    let messageHTML = "";
-    let userInput = textareaValue.value;
-    messageHTML = `
-      <div class="flex pb-12">
-        <div class="mr-4 flex">
-          <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-            <img src="${imageURL.value}" alt="Profile Image" class="h-14 w-14 rounded-full">
-          </span>
-        </div>
-        <div>
-          <p class="font-serif">${userInput}</p>
-        </div>
-      </div>
-    `;
+function displayUserMessage() {
     if (!AIContainer.value) return;
 
+    const messageHTML = `
+        <div class="flex pb-12">
+            <div class="mr-4 flex">
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                <img src="${imageURL.value}" alt="Profile Image" class="h-14 w-14 rounded-full">
+            </span>
+            </div>
+            <div>
+            <p class="font-serif">${textareaValue.value}</p>
+            </div>
+        </div>
+    `;
     AIContainer.value.innerHTML += messageHTML;
     textareaValueSave.value = textareaValue.value;
     textareaValue.value = "";
     scrollToBottom?.();
-    setTimeout(async () => {
-        if (stepContainer.value === 0) {
-            if (textareaValueSave.value == "") {
-                const message = i18n.global.t("constants.sendEmailConstants.noRecipientsEntered");
-                const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
-                displayMessage?.(message, aiIcon);
-            } else {
-                loading?.();
-                scrollToBottom?.();
-                const result = await postData("api/find_user_ai/", { query: textareaValueSave.value });
-                if (!result.success) {
-                    const message = i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain");
-                    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-                    displayMessage?.(message, aiIcon);
-                    return;
-                }
-                hideLoading?.();
-                let noUsersAdded = true;
-                let waitforUserChoice = false;
-                const mainRecipients = result.data.mainRecipients;
-                const ccRecipients = result.data.ccRecipients;
-                const bccRecipients = result.data.bccRecipients;
-                for (let i = 0; i < mainRecipients.length; i++) {
-                    const user = mainRecipients[i];
-                    const emails = user.email;
-                    if (emails.length == 1) {
-                        const person = { username: user.username, email: emails[0] };
-                        selectedPeople.value.push(person);
-                        mainRecipients.splice(i, 1);
-                        noUsersAdded = false;
-                        i--;
-                    }
-                }
-                for (let i = 0; i < ccRecipients.length; i++) {
-                    const user = ccRecipients[i];
-                    const emails = user.email;
-                    if (emails.length == 1) {
-                        const person = { username: user.username, email: emails[0] };
-                        selectedCC.value.push(person);
-                        delete ccRecipients[i];
-                        ccRecipients.splice(i, 1);
-                        noUsersAdded = false;
-                        i--;
-                    }
-                }
-                for (let i = 0; i < bccRecipients.length; i++) {
-                    const user = bccRecipients[i];
-                    const emails = user.email;
-                    if (emails.length == 1) {
-                        const person = { username: user.username, email: emails[0] };
-                        selectedCCI.value.push(person);
-                        bccRecipients.splice(i, 1);
-                        noUsersAdded = false;
-                        i--;
-                    }
-                }
-                if (!AIContainer.value) return;
-                if (mainRecipients.length > 0 || ccRecipients.length > 0 || bccRecipients.length > 0) {
-                    const messageHTML = `
-                                <div class="flex pb-2">
-                                    <div class="mr-4 flex">
-                                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                                            </svg>
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <p>${i18n.global.t(
-                                            "constants.sendEmailConstants.multipleEmailsFoundForSomeRecipients"
-                                        )}</p>
-                                    </div>
-                                </div>
-                            `;
-                    AIContainer.value.innerHTML += messageHTML;
-                    if (mainRecipients.length > 0) {
-                        waitforUserChoice = true;
-                        const emailList: EmailMapping[] = [];
-                        for (const user of mainRecipients) {
-                            for (const email of user.email) {
-                                if (email !== "") {
-                                    const emailMapping: EmailMapping = {};
-                                    emailMapping[user.username] = email;
-                                    emailList.push(emailMapping);
-                                    noUsersAdded = false;
-                                }
-                            }
-                        }
-                        askChoiceRecipier(emailList, "main");
-                    }
-                    if (ccRecipients.length > 0) {
-                        waitforUserChoice = true;
-                        const emailList: EmailMapping[] = [];
-                        for (const user of ccRecipients) {
-                            for (const email of user.email) {
-                                if (email !== "") {
-                                    const emailMapping: EmailMapping = {};
-                                    emailMapping[user.username] = email;
-                                    emailList.push(emailMapping);
-                                    noUsersAdded = false;
-                                }
-                            }
-                        }
-                        askChoiceRecipier(emailList, "cc");
-                    }
-                    if (bccRecipients.length > 0) {
-                        waitforUserChoice = true;
-                        const emailList: EmailMapping[] = [];
-                        for (const user of bccRecipients) {
-                            for (const email of user.email) {
-                                if (email !== "") {
-                                    const emailMapping: EmailMapping = {};
-                                    emailMapping[user.username] = email;
-                                    emailList.push(emailMapping);
-                                    noUsersAdded = false;
-                                }
-                            }
-                        }
-                        askChoiceRecipier(emailList, "bcc");
-                    }
-                    nextStepRecipier();
-                    scrollToBottom?.();
-                }
-                if (noUsersAdded) {
-                    const message = i18n.global.t(
-                        "constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually"
-                    );
-                    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-                    displayMessage?.(message, aiIcon);
-                } else if (!waitforUserChoice) {
-                    stepContainer.value = 1;
-                    askContent();
-                }
-            }
-        } else if (stepContainer.value == 1) {
-            if (!AIContainer.value || !quill?.value) return;
-            if (textareaValueSave.value == "") {
-                const message = i18n.global.t("constants.sendEmailConstants.noDraftsEnteredPleaseTryAgain");
-                const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
-                displayMessage?.(message, aiIcon);
-            } else {
-                loading?.();
-                scrollToBottom?.();
-                const result = await postData("api/new_email_ai/", {
-                    inputData: textareaValueSave.value,
-                    length: selectedLength.value,
-                    formality: selectedFormality.value,
-                });
-                hideLoading?.();
-                if (!result.success) {
-                    const message = i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain");
-                    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-                    displayMessage?.(message, aiIcon);
-                    return;
-                }
-                subjectInput.value = result.data.subject;
-                AiEmailBody.value = result.data.mail;
-                stepContainer.value = 2;
-                const formattedMail = result.data.mail.replace(/\n/g, "<br>");
-                const messageHTML = `
-                      <div class="flex pb-12">
-                          <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                                </svg>
-                              </span>
-                          </div>
-                          <div>
-                              <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
-                              <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedMail}</p>
-                          </div>
-                      </div>
-                  `;
-                AIContainer.value.innerHTML += messageHTML;
-                subjectInput.value = result.data.subject;
-                const quillEditorContainer = quill.value.root;
-                quillEditorContainer.innerHTML = result.data.mail.replace(/<\/p>/g, "</p><p></p>");
-                const message = i18n.global.t("constants.sendEmailConstants.emailFeedbackRequest");
-                const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-                displayMessage?.(message, aiIcon);
-            }
-        } else if (stepContainer.value == 2) {
-            if (textareaValueSave.value == "") {
-                const message = i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain");
-                const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
-                displayMessage?.(message, aiIcon);
-            } else {
-                if (!AIContainer.value || !quill?.value) return;
+}
 
-                loading?.();
-                scrollToBottom?.();
-                const result = await postData("api/improve_draft/", {
-                    userInput: textareaValueSave.value,
-                    length: selectedLength.value,
-                    formality: selectedFormality.value,
-                    subject: subjectInput.value,
-                    body: AiEmailBody.value,
-                    history: history.value,
-                });
-                hideLoading?.();
+async function findUserAi() {
+    if (textareaValueSave.value === "") {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noRecipientsEntered"), aiIcon);
+    } else {
+        loading?.();
+        scrollToBottom?.();
 
-                if (!result.success) {
-                    const message = i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain");
-                    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-                    displayMessage?.(message, aiIcon);
-                    return;
-                }
-                subjectInput.value = result.data.subject;
-                AiEmailBody.value = result.data.emailBody;
-                history.value = result.data.history;
-                const formattedMail = result.data.emailBody.replace(/\n/g, "<br>");
-                const messageHTML = `
-                      <div class="flex pb-12">
-                          <div class="mr-4 flex">
-                              <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                                </svg>
-                              </span>
-                          </div>
-                          <div>
-                              <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
-                              <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedMail}</p>
-                          </div>
-                      </div>
-                  `;
-                AIContainer.value.innerHTML += messageHTML;
-                const quillEditorContainer = quill.value.root;
-                quillEditorContainer.innerHTML = result.data.emailBody;
-                quillEditorContainer.style.cssText = "p { margin-bottom: 20px; }";
+        const result = await postData("api/find_user_ai/", { query: textareaValueSave.value });
+        if (!result.success) {
+            const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+            displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+            return;
+        }
+        hideLoading?.();
 
-                const message = i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest");
-                const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-                displayMessage?.(message, aiIcon);
+        const mainRecipients = result.data.mainRecipients;
+        const ccRecipients = result.data.ccRecipients;
+        const bccRecipients = result.data.bccRecipients;
+
+        processRecipients(mainRecipients, ccRecipients, bccRecipients);
+    }
+}
+
+function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipient[], bccRecipients: AiRecipient[]) {
+    let noUsersAdded = true;
+    let waitforUserChoice = false;
+
+    noUsersAdded = processSingleEmailRecipients(mainRecipients, selectedPeople.value) && noUsersAdded;
+    noUsersAdded = processSingleEmailRecipients(ccRecipients, selectedCC.value) && noUsersAdded;
+    noUsersAdded = processSingleEmailRecipients(bccRecipients, selectedCCI.value) && noUsersAdded;
+
+    if (!AIContainer.value) return;
+
+    if (mainRecipients.length > 0 || ccRecipients.length > 0 || bccRecipients.length > 0) {
+        displayMultipleEmailsMessage();
+
+        waitforUserChoice = processMultipleEmailRecipients(mainRecipients, "main") || waitforUserChoice;
+        waitforUserChoice = processMultipleEmailRecipients(ccRecipients, "cc") || waitforUserChoice;
+        waitforUserChoice = processMultipleEmailRecipients(bccRecipients, "bcc") || waitforUserChoice;
+
+        nextStepRecipier();
+        scrollToBottom?.();
+    }
+
+    if (noUsersAdded) {
+        displayNoRecipientsFoundMessage();
+    } else if (!waitforUserChoice) {
+        stepContainer.value = 1;
+        askContent();
+    }
+}
+
+function processSingleEmailRecipients(recipients: AiRecipient[], selectedGroup: Recipient[]) {
+    let noUsersAdded = true;
+    for (let i = 0; i < recipients.length; i++) {
+        const user = recipients[i];
+        const emails = user.email;
+        if (emails.length === 1) {
+            selectedGroup.push({ username: user.username, email: emails[0] });
+            recipients.splice(i, 1);
+            noUsersAdded = false;
+            i--;
+        }
+    }
+    return noUsersAdded;
+}
+
+function displayMultipleEmailsMessage() {
+    if (!AIContainer.value) return;
+    const messageHTML = `
+        <div class="flex pb-2">
+            <div class="mr-4 flex">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                </span>
+            </div>
+            <div>
+                <p>${i18n.global.t("constants.sendEmailConstants.multipleEmailsFoundForSomeRecipients")}</p>
+            </div>
+        </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+}
+
+function processMultipleEmailRecipients(recipients: AiRecipient[], type: string) {
+    if (recipients.length === 0) return false;
+
+    const emailList = [];
+    for (const user of recipients) {
+        for (const email of user.email) {
+            if (email !== "") {
+                const emailMapping: EmailMapping = {};
+                emailMapping[user.username] = email;
+                emailList.push(emailMapping);
             }
         }
-    }, 0);
+    }
+    askChoiceRecipier(emailList, type);
+    return true;
+}
+
+function displayNoRecipientsFoundMessage() {
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    displayMessage?.(
+        i18n.global.t("constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually"),
+        aiIcon
+    );
+}
+
+async function newEmailAi() {
+    if (!AIContainer.value || !quill?.value) return;
+    if (textareaValueSave.value == "") {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noDraftsEnteredPleaseTryAgain"), aiIcon);
+    } else {
+        loading?.();
+        scrollToBottom?.();
+        const result = await postData("api/new_email_ai/", {
+            inputData: textareaValueSave.value,
+            length: selectedLength.value,
+            formality: selectedFormality.value,
+        });
+        hideLoading?.();
+        if (!result.success) {
+            const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+            displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+            return;
+        }
+        subjectInput.value = result.data.subject;
+        AiEmailBody.value = result.data.mail;
+        stepContainer.value = 2;
+        const formattedMail = result.data.mail.replace(/\n/g, "<br>");
+        const messageHTML = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    </span>
+                </div>
+                <div>
+                    <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
+                    <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedMail}</p>
+                </div>
+            </div>
+        `;
+        AIContainer.value.innerHTML += messageHTML;
+        subjectInput.value = result.data.subject;
+        const quillEditorContainer = quill.value.root;
+        quillEditorContainer.innerHTML = result.data.mail.replace(/<\/p>/g, "</p><p></p>");
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.emailFeedbackRequest"), aiIcon);
+    }
+}
+
+async function improveDraft() {
+    if (textareaValueSave.value == "") {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain"), aiIcon);
+    } else {
+        if (!AIContainer.value || !quill?.value) return;
+
+        loading?.();
+        scrollToBottom?.();
+        const result = await postData("api/improve_draft/", {
+            userInput: textareaValueSave.value,
+            length: selectedLength.value,
+            formality: selectedFormality.value,
+            subject: subjectInput.value,
+            body: AiEmailBody.value,
+            history: history.value,
+        });
+        hideLoading?.();
+
+        if (!result.success) {
+            const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+            displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+            return;
+        }
+        subjectInput.value = result.data.subject;
+        AiEmailBody.value = result.data.emailBody;
+        history.value = result.data.history;
+        const formattedMail = result.data.emailBody.replace(/\n/g, "<br>");
+        const messageHTML = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    </span>
+                </div>
+                <div>
+                    <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
+                    <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedMail}</p>
+                </div>
+            </div>
+        `;
+        AIContainer.value.innerHTML += messageHTML;
+        const quillEditorContainer = quill.value.root;
+        quillEditorContainer.innerHTML = result.data.emailBody;
+        quillEditorContainer.style.cssText = "p { margin-bottom: 20px; }";
+
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
+    }
+}
+
+async function handleAIClick() {
+    if (!AIContainer.value) return;
+    if (isWriting.value) {
+        return;
+    }
+    setWriting();
+    displayUserMessage();
+
+    if (stepContainer.value === 0) {
+        findUserAi();
+    } else if (stepContainer.value == 1) {
+        newEmailAi();
+    } else if (stepContainer.value == 2) {
+        improveDraft();
+    }
 }
 
 function adjustHeight(event: any) {
@@ -363,11 +358,6 @@ function adjustHeight(event: any) {
     textarea.style.height = "auto";
     textarea.style.overflowY = "auto";
 }
-
-const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
-watch(emailSelected, () => {
-    getProfileImage();
-});
 
 onMounted(() => {
     getProfileImage();
@@ -398,7 +388,6 @@ function askChoiceRecipier(list: any[], type: string) {
         const buttonLabel = type === "main" ? "main" : type === "cc" ? "cc" : "bcc";
         const buttonId = `button-${buttonLabel}-${index}`;
 
-        // if index is a even number
         if (index % 2 === 0) {
             buttonsHTML += '<div class="mr-4">';
         }
@@ -411,7 +400,6 @@ function askChoiceRecipier(list: any[], type: string) {
             </div>
         `;
 
-        // if index is an odd number or its the last element
         if (index % 2 == 1 || index === list.length - 1) {
             buttonsHTML += "</div>";
         }
@@ -438,7 +426,6 @@ function askChoiceRecipier(list: any[], type: string) {
 
         setTimeout(() => {
             const button = document.getElementById(buttonId);
-
             if (!button) return;
 
             button.addEventListener("click", () => {
@@ -471,13 +458,13 @@ function askChoiceRecipier(list: any[], type: string) {
 
 function askContent() {
     if (!AIContainer.value) return;
-    const message = i18n.global.t("constants.sendEmailConstants.draftEmailRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    displayMessage?.(message, aiIcon);
+    displayMessage?.(i18n.global.t("constants.sendEmailConstants.draftEmailRequest"), aiIcon);
 }
 
 function nextStepRecipier() {
     if (!AIContainer.value) return;
+
     const messageHTML = `
       <div class="flex pb-12 pl-[72px]">
         <div class="flex flex-col">
@@ -493,7 +480,6 @@ function nextStepRecipier() {
         </div>
       </div>
     `;
-
     AIContainer.value.innerHTML += messageHTML;
 
     setTimeout(() => {

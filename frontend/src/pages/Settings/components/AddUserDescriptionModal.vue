@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { API_BASE_URL } from "@/global/const";
-import { inject, Ref, ref, defineEmits, onMounted } from "vue";
+import { inject, Ref, ref, onMounted } from "vue";
 
 const typeApi = inject<Ref<string>>("typeApi", ref(""));
 const userDescription = ref("");

@@ -38,7 +38,6 @@ const fetchUserPreference = async (
         const data: UserPreferenceResponse = await response.json();
 
         if (data.error) {
-            console.error("Error in response:", data.error);
             return null;
         } else if (data[key] !== undefined) {
             const value = data[key];
@@ -50,9 +49,6 @@ const fetchUserPreference = async (
 
         return null;
     } catch (error) {
-        if (error instanceof Error) {
-            console.error("An error occurred:", error.message);
-        }
         return null;
     }
 };

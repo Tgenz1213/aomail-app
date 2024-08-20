@@ -74,9 +74,6 @@ export async function fetchWithToken(url: string, options: RequestInit = {}): Pr
 
         return response;
     } catch (error) {
-        if (error instanceof Error) {
-            console.error("An error occurred when fetching data from the API:", error.message);
-        }
         return;
     }
 }

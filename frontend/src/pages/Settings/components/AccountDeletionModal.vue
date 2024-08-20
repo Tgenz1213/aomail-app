@@ -70,7 +70,7 @@ import { API_BASE_URL } from "@/global/const";
 import { fetchWithToken } from "@/global/security";
 import { i18n } from "@/global/preferences";
 import router from "@/router/router";
-import { defineProps, defineEmits, inject } from "vue";
+import { inject } from "vue";
 
 defineProps<{
     isOpen: boolean;

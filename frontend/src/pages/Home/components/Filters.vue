@@ -16,7 +16,7 @@
         <button 
             v-if="hiddenTabsCount > 0"
             @click="toggleMoreFilters" 
-            class="px-2 py-1 text-gray-600 hover:bg-gray-100 focus:outline-none"
+            class="px-2 py-1 text-gray-600 rounded hover:bg-gray-100 focus:outline-none"
             data-more-filters
         >
             {{ hiddenTabsCount }} more...

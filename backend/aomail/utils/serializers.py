@@ -14,6 +14,8 @@ from aomail.models import (
     Preference,
     Sender,
     Contact,
+    Filter,
+    SocialAPI,
 )
 
 
@@ -222,3 +224,63 @@ class UserEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Email
         fields = ("email_short_summary", "content", "subject", "priority")
+
+
+# ----------------------- FILTER SERIALIZER -----------------------#
+from rest_framework import serializers
+from aomail.models import Filter, Category
+
+
+class FilterSerializer(serializers.ModelSerializer):
+    """Base serializer for Filter model."""
+
+    class Meta:
+        model = Filter
+        fields = (
+            "id",
+            "name",
+            "category",
+            "social_api",
+            "important",
+            "informative",
+            "useless",
+            "read",
+            "spam",
+            "scam",
+            "newsletter",
+            "notification",
+            "meeting",
+            "relevance",
+        )
+        read_only_fields = ("id",)
+
+
+class FilterCreateSerializer(FilterSerializer):
+    """Serializer for creating a new Filter (POST request)."""
+
+    def validate_category(self, value):
+        if not Category.objects.filter(
+            id=value.id, user=self.context["request"].user
+        ).exists():
+            raise serializers.ValidationError("Invalid category for this user.")
+        return value
+
+
+class FilterUpdateSerializer(FilterSerializer):
+    """Serializer for updating an existing Filter (PUT request)."""
+
+    def validate_category(self, value):
+        if not Category.objects.filter(
+            id=value.id, user=self.context["request"].user
+        ).exists():
+            raise serializers.ValidationError("Invalid category for this user.")
+        return value
+
+
+class FilterListSerializer(FilterSerializer):
+    """Serializer for listing Filters (GET request)."""
+
+    category_name = serializers.CharField(source="category.name", read_only=True)
+
+    class Meta(FilterSerializer.Meta):
+        fields = FilterSerializer.Meta.fields + ("category_name",)

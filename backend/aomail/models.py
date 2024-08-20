@@ -170,6 +170,27 @@ class Email(models.Model):
     newsletter = models.BooleanField(default=False)
     notification = models.BooleanField(default=False)
     meeting = models.BooleanField(default=False)
+
+
+class Filter(models.Model):
+    """Model for storing filter information"""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    social_api = models.ForeignKey(
+        SocialAPI, on_delete=models.CASCADE, related_name="social_api_emails", null=True
+    )
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=25)
+    important = models.BooleanField(default=False)
+    informative = models.BooleanField(default=False)
+    useless = models.BooleanField(default=False)
+    read = models.BooleanField(default=False)
+    spam = models.BooleanField(default=False)
+    scam = models.BooleanField(default=False)
+    newsletter = models.BooleanField(default=False)
+    notification = models.BooleanField(default=False)
+    meeting = models.BooleanField(default=False)
+    relevance = models.CharField(max_length=50)
     
 
 class Attachment(models.Model):

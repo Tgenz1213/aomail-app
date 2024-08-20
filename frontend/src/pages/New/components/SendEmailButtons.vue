@@ -186,7 +186,6 @@ function validateScheduledSend(): boolean {
     if (!quill?.value) return false;
 
     for (const tupleEmail of emailsLinked.value) {
-        console.log("tupleEmail.typeApi !== MICROSOFT", tupleEmail, tupleEmail.email, tupleEmail.typeApi);
         if (emailSelected.value === tupleEmail.email && tupleEmail.typeApi !== MICROSOFT) {
             displayPopup?.(
                 "error",
@@ -222,10 +221,8 @@ function validateScheduledSend(): boolean {
 }
 
 async function openScheduleSendModal() {
-    console.log("Attempting to open the schedule send modal.");
     if (!validateScheduledSend()) return;
 
-    console.log("Attempting to open the schedule send modal.");
     isScheduleSendModalOpen.value = true;
 }
 </script>

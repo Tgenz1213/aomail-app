@@ -71,7 +71,6 @@ const emit = defineEmits<{
 
 const closeModal = () => {
     emit("closeModal");
-    console.log("CLOSING THE update userdesc modal");
 };
 
 onMounted(() => {

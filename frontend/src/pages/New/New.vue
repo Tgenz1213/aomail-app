@@ -37,6 +37,7 @@ import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
 
 const showNotification = ref(false);
 const isWriting = ref(false);

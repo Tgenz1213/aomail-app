@@ -9,10 +9,6 @@ const app = createApp(App);
 app.use(router);
 app.use(i18n);
 
-initializePreferences(i18n as I18n)
-    .then(() => {
-        app.mount("#app");
-    })
-    .catch((error) => {
-        console.error("Failed to initialize preferences:", error);
-    });
+initializePreferences(i18n as I18n).then(() => {
+    app.mount("#app");
+});

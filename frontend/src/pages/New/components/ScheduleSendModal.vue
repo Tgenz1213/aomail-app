@@ -21,6 +21,9 @@
                     </div>
                 </div>
                 <div class="flex flex-col gap-4 px-8 py-6">
+                    <div v-if="errorMessage" class="text-red-600 text-sm mb-4">
+                        {{ errorMessage }}
+                    </div>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <div class="w-full">
                             <Datepicker v-model="selectedDate" />
@@ -78,6 +81,7 @@ const closeModal = () => {
 };
 
 const selectedDate = ref<Date | undefined>(undefined);
+const errorMessage = ref<string | null>(null);
 
 const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape" && props.isOpen) {
@@ -99,13 +103,10 @@ async function scheduleSend() {
     if (!AIContainer.value || !quill?.value) return;
 
     if (!selectedDate.value) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.emailSendError"),
-            "Select a time and date please"
-        );
+        errorMessage.value = "Select a time and date please";
         return;
     }
+    errorMessage.value = null;
 
     const formData = new FormData();
 
@@ -129,23 +130,24 @@ async function scheduleSend() {
             result.error as string
         );
         return;
+    } else {
+        displayPopup?.("success", "Email scheduled successfully!", "Your email will be sent on time");
+
+        subjectInput.value = "";
+        quill.value.root.innerHTML = "";
+        selectedPeople.value = [];
+        selectedCC.value = [];
+        selectedCCI.value = [];
+        stepContainer.value = 0;
+        AIContainer.value.innerHTML = "";
+        localStorage.removeItem("uploadedFiles");
+        uploadedFiles.value = [];
+        fileObjects.value = [];
+
+        const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+        displayMessage?.(message, aiIcon);
     }
-
-    displayPopup?.("success", "Email scheduled successfully!", "Your email will be sent on time");
-
-    subjectInput.value = "";
-    quill.value.root.innerHTML = "";
-    selectedPeople.value = [];
-    selectedCC.value = [];
-    selectedCCI.value = [];
-    stepContainer.value = 0;
-    AIContainer.value.innerHTML = "";
-    localStorage.removeItem("uploadedFiles");
-    uploadedFiles.value = [];
-    fileObjects.value = [];
-
-    const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage?.(message, aiIcon);
+    closeModal();
 }
 </script>

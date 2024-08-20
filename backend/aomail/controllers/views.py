@@ -103,8 +103,16 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
                       entry is not found for the user and email.
     """
     user = request.user
-    parameters: dict = json.loads(request.body)
-    email = parameters.get("email") or request.headers.get("email")
+    if request.method == "POST":
+        parameters: dict = json.loads(request.body)
+        email = parameters.get("email") or request.headers.get("email")
+    elif request.method == "GET":
+        email = request.headers.get("email")
+    else:
+        return Response(
+            {"error": "Method not allowed"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     if not email:
         return Response(

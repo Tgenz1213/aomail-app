@@ -31,7 +31,7 @@
 import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
-import ManualEmail from "./components/ManualEmail.vue";
+import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";

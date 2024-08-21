@@ -125,6 +125,12 @@ async function fetchCategoriesAndTotals() {
     });
 }
 
+const fetchFiltersData = async (categoryName: string) => {
+    const response = await postData("user/filters/", { category: categoryName });
+    filters.value = response.data;
+    console.log("FILTERS", filters.value);
+};
+
 const openNewFilterModal = () => {
     isModalNewFilterOpen.value = true;
 }
@@ -189,6 +195,7 @@ const toggleVisibility = () => {
 const selectCategory = (category: Category) => {
     selectedCategory.value = category.name;
     fetchEmailsData(selectedCategory.value);
+    fetchFiltersData(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
 };
 
@@ -238,7 +245,7 @@ onMounted(() => {
     } else {
         selectedCategory.value = "Others";
     }
-    console.log("DEBUG 0", emails.value);
     fetchEmailsData(selectedCategory.value);
+    fetchFiltersData(selectedCategory.value);
 });
 </script>

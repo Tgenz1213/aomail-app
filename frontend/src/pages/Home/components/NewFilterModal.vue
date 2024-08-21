@@ -168,7 +168,7 @@
 <script setup lang="ts">
 import { Ref, ref, inject } from 'vue';
 import { i18n } from "@/global/preferences";
-import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from '@heroicons/vue/20/solid'; // To add checkicon instead of using an svg
+import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from '@heroicons/vue/20/solid';
 import { postData } from '@/global/fetchData';
 import { Filter } from '../utils/types';
 
@@ -202,19 +202,47 @@ const errorMessage = ref('');
 
 const closeModal = () => {
   emit('close');
+  resetForm();
+};
+
+const resetForm = () => {
+  newFilter.value = {
+    name: '',
+    important: true,
+    informative: true,
+    category: '',
+    useless: true,
+    read: true,
+    notification: true,
+    newsletter: true,
+    spam: true,
+    scams: true,
+    meeting: true
+  };
+  errorMessage.value = '';
 };
 
 const addFilter = async () => {
-  newFilter.value['category'] = selectedCategory.value;
-  console.log("DEBUG", newFilter.value);
+  if (!newFilter.value.name.trim()) {
+    errorMessage.value = i18n.global.t('homePage.modals.pleaseFillAllFields');
+    return;
+  }
+
+  newFilter.value.category = selectedCategory.value;
+  const filterExists = filters.value.some(filter => filter.name === newFilter.value.name);
+  
+  if (filterExists) {
+    errorMessage.value = i18n.global.t('homePage.modals.filterModal.filterAlreadyExists');
+    return;
+  }
+
   const response = await postData('api/create_filter/', newFilter.value);
   if (response.success) {
     filters.value.push(newFilter.value);
     closeModal();
     displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.filterAddedSuccess'));
   } else {
-    closeModal();
-    displayPopup?.("error", i18n.global.t('constants.popUpConstants.addFilterError'), i18n.global.t('constants.popUpConstants.errorMessages.addFilterError'));
+    errorMessage.value = i18n.global.t('constants.popUpConstants.errorMessages.addFilterError');
   }
 };
 </script>

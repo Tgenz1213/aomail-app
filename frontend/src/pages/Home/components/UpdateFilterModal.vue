@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, inject } from 'vue';
+import { Ref, ref, watch, inject } from 'vue';
 import { i18n } from "@/global/preferences";
 import { XMarkIcon, ExclamationCircleIcon, InformationCircleIcon, TrashIcon } from '@heroicons/vue/20/solid';
 import { putData, deleteData } from '@/global/fetchData';
@@ -171,6 +171,7 @@ const emit = defineEmits<{
 }>();
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+const filters = inject('filters') as Ref<Filter[]>;
 
 const errorMessage = ref('');
 const filterData = ref<Filter>({
@@ -203,23 +204,25 @@ const updateFilter = async () => {
     return;
   }
 
-  const response = await putData(`api/update_filter/${props.filter?.id}`, filterData.value);
+  const response = await putData(`api/update_filter/`, filterData.value);
   if (response.success) {
     emit('update', filterData.value);
     closeModal();
-    displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.filterUpdatedSuccess'));
+    displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.updateFilterSuccess'));
   } else {
     displayPopup?.("error", i18n.global.t('constants.popUpConstants.updateFilterError'), i18n.global.t('constants.popUpConstants.errorMessages.updateFilterError'));
   }
 };
 
 const deleteFilter = async () => {
-  if (!props.filter?.id) return;
-
-  const response = await deleteData(`api/delete_filter/${props.filter.id}`);
+  const response = await deleteData(`api/delete_filter/`, { filterName: props.filter?.name});
   if (response.success) {
+    const index = filters.value.findIndex(f => f.name === props.filter?.name);
+    if (index !== -1) {
+      filters.value.splice(index, 1);
+    }
     closeModal();
-    displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.filterDeletedSuccess'));
+    displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.deleteFilterSuccess'));
   } else {
     closeModal();
     displayPopup?.("error", i18n.global.t('constants.popUpConstants.deleteFilterError'), i18n.global.t('constants.popUpConstants.errorMessages.deleteFilterError'));

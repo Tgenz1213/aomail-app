@@ -270,7 +270,8 @@
         "medium": "Medium",
         "low": "Low",
         "answer": "Answer",
-        "mightWantToAnswer": "Might need a response"
+        "mightWantToAnswer": "Might need a response",
+        "filterAlreadyExists": "A filter with the same name already exist"
       },
       "warningRulesLinkedModal": {
         "deleteCategory": "Delete category: "

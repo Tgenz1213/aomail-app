@@ -159,20 +159,22 @@ def delete_filter(request: HttpRequest) -> Response:
     Returns:
         Response: JSON response indicating success or failure of deleting the filter.
     """
-    data = json.loads(request.body)
-    filter_id = data.get("filter_id")
+    data: dict = json.loads(request.body)
+    current_name = data.get("filterName")
 
-    if not filter_id:
+    if not current_name:
         return Response(
-            {"error": "No filter ID provided"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "No filter name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
-        filter_obj = Filter.objects.get(id=filter_id, user=request.user)
+        filter = Filter.objects.get(name=current_name, user=request.user)
     except Filter.DoesNotExist:
-        return Response({"error": "Filter not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Filter not found"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-    filter_obj.delete()
+    filter.delete()
     return Response(
         {"message": "Filter deleted successfully"}, status=status.HTTP_200_OK
     )

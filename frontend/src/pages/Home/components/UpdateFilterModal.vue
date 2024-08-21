@@ -204,9 +204,12 @@ const updateFilter = async () => {
     return;
   }
 
-  const response = await putData(`api/update_filter/`, filterData.value);
+  const response = await putData(`api/update_filter/`, { ...filterData.value, filterName: props.filter?.name});
   if (response.success) {
-    emit('update', filterData.value);
+    const index = filters.value.findIndex(f => f.name === props.filter?.name);
+    if (index !== -1) {
+      filters.value[index] = { ...filterData.value };
+    }
     closeModal();
     displayPopup?.("success", i18n.global.t('constants.popUpConstants.successMessages.success'), i18n.global.t('constants.popUpConstants.successMessages.updateFilterSuccess'));
   } else {

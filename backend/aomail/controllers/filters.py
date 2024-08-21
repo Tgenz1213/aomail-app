@@ -19,7 +19,6 @@ from aomail.constants import FREE_PLAN
 from aomail.models import Filter, SocialAPI, Category
 from aomail.utils.serializers import (
     FilterSerializer,
-    FilterUpdateSerializer,
 )
 
 ######################## LOGGING CONFIGURATION ########################
@@ -47,14 +46,14 @@ def get_user_filter(request: HttpRequest) -> Response:
         return Response(
             {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         category = Category.objects.get(name=category_name, user=request.user)
-        data["category"] = category.id  
+        data["category"] = category.id
     except Category.DoesNotExist:
         return Response(
             {"error": "Category does not exist or does not belong to the user"},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     filters = Filter.objects.filter(user=user, category=category)
@@ -80,7 +79,6 @@ def create_filter(request: HttpRequest) -> Response:
     filter_name = data.get("name")
     category_name = data.get("category")
 
-
     if not filter_name:
         return Response(
             {"error": "No filter name provided"}, status=status.HTTP_400_BAD_REQUEST
@@ -89,14 +87,14 @@ def create_filter(request: HttpRequest) -> Response:
         return Response(
             {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     try:
         category = Category.objects.get(name=category_name, user=request.user)
-        data["category"] = category.id  
+        data["category"] = category.id
     except Category.DoesNotExist:
         return Response(
             {"error": "Category does not exist or does not belong to the user"},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     serializer = FilterSerializer(data=data)
@@ -121,22 +119,20 @@ def update_filter(request: HttpRequest) -> Response:
     Returns:
         Response: JSON response containing the updated filter data or error messages.
     """
-    data = json.loads(request.body)
-    filter_id = data.get("id")
+    data: dict = json.loads(request.body)
+    current_name = data.get("filterName")
 
-    if not filter_id:
+    if not current_name:
         return Response(
-            {"error": "No filter ID provided"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "No filter name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
-        filter_obj = Filter.objects.get(id=filter_id, user=request.user)
+        filter = Filter.objects.get(name=current_name, user=request.user)
     except Filter.DoesNotExist:
         return Response({"error": "Filter not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    serializer = FilterUpdateSerializer(
-        filter_obj, data=data, partial=True, context={"request": request}
-    )
+    serializer = FilterSerializer(filter, data=data, partial=True)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)

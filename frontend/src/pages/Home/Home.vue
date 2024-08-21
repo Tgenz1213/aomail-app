@@ -139,6 +139,7 @@ provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
+provide("fetchFildersData", fetchFiltersData);
 provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);

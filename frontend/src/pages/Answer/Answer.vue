@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, provide, Ref } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -254,110 +254,56 @@ async function fetchRecipients() {
 
     contacts.value.push(...(result.data as Recipient[]));
 }
- 
- 
 
-function handleKeyDown(event) {
+function handleKeyDown(event: KeyboardEvent) {
     if (event.ctrlKey) {
+        const recipients = document.getElementById("recipients");
+        const subjectInput = document.getElementById("subjectInput") as HTMLInputElement | null;
+        const dynamicTextarea = document.getElementById("dynamicTextarea");
+
         switch (event.key) {
-            case "b":
-                quill.value.focus();
-                event.preventDefault();
-                break;
             case "d":
-                document.getElementById("recipients").focus();
+                recipients?.focus();
                 event.preventDefault();
                 break;
             case "k":
-                document.getElementById("dynamicTextarea").focus();
+                dynamicTextarea?.focus();
                 event.preventDefault();
                 break;
             case "o":
-                document.getElementById("objectInput").focus();
+                subjectInput?.focus();
                 event.preventDefault();
-                break;
-            case "Enter":
-                sendEmail();
                 break;
         }
     }
 }
 
-function parseEmails(emailData) {
-    if (!emailData) {
-        return [];
-    }
-    if (typeof emailData === "string") {
-        // Handle the case where emailData is just an email string
-        return [{ email: emailData, username: emailData.split("@")[0] }];
-    } else if (Array.isArray(emailData)) {
-        // Handle the case where emailData is an array of emails
-        return emailData.map((data) => {
-            if (typeof data === "string") {
-                return {
-                    email: data,
-                    username: data.split("@")[0],
-                };
-            } else if (Array.isArray(data)) {
-                // Handle the case where emailData is an array of tuples
-                const [name, email] = data;
-                return {
-                    email: email || "",
-                    username: name || email.split("@")[0] || "",
-                };
-            }
-        });
-    } else if (typeof emailData === "object") {
-        // Handle the case where emailData is an object with email and name properties
-        const { email, name } = emailData;
-        return [
-            {
-                email: email || "",
-                username: name || email.split("@")[0],
-            },
-        ];
-    }
-
-    return [];
-}
-
-function handleFocusObject() {
-    isFocused.value = true;
-}
-
-function handleBlur() {
-    isFocused.value = false;
-}
-
-function handleFocusDestinary() {
-    isFocused2.value = true;
-}
-
 let counter_display = 0;
 
-// To handle animations
 function loading() {
-    // Use `nbr` in the template literal to set the reference dynamically
-    const messageHTML = `
-        <div id="dynamicLoadingIndicator" class="pb-12">
-          <div class="flex">
-              <div class="mr-4">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
-                      <span class="text-lg font-medium leading-none text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-                        </svg>
-                      </span>
-                  </span>
-              </div>
-              <div>
-                <div class="loading-spinner"></div>
-              </div>
-          </div>
-        </div>
-      `;
+    isLoading.value = true;
+    if (!AIContainer.value) return;
 
+    const messageHTML = `
+      <div id="dynamicLoadingIndicator" class="pb-12">
+        <div class="flex">
+            <div class="mr-4">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900">
+                    <span class="text-lg font-medium leading-none text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
+                      </svg>
+                    </span>
+                </span>
+            </div>
+            <div>
+              <div class="loading-spinner"></div>
+            </div>
+        </div>
+      </div>
+    `;
     AIContainer.value.innerHTML += messageHTML;
+    scrollToBottom();
 }
 
 function hideLoading() {
@@ -537,30 +483,16 @@ async function handleAIClick() {
     // }, 400);
 }
 
-////////////////////////////////////////////////////// To handle mail answer proposal ///////////////////////////////////////////////////////
-
-// To display the propositions => buttons
 function askContentAdvice() {
-    if (isAIWriting.value) {
+    if (!AIContainer.value || isAIWriting.value) {
         return;
     }
 
     isAIWriting.value = true;
 
-    const message = t("answerPage.chatKeyWordIntroduction");
+    const message = i18n.global.t("answerPage.chatKeyWordIntroduction");
 
     let buttonsHTML = "";
-    /*
-    for (let i = 0; i < responseKeywords.value.length; i++) {
-        buttonsHTML += `
-            <div class="mr-4">
-                <button type="button" id="responseKeywordButton${i}" data-value="${responseKeywords.value[i]}" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                    ${responseKeywords.value[i]}
-                </button>
-            </div>
-        `;
-    }*/
-
     responseKeywords.value.forEach((keyword, index) => {
         // Start a new row for every two buttons
         if (index % 2 === 0) {
@@ -622,57 +554,54 @@ function askContentAdvice() {
     animateText(message, animatedParagraph);
 }
 
-async function handleButtonClick(keyword) {
-    if (isAIWriting.value) {
-        return;
-    }
-
-    isAIWriting.value = true;
-
-    try {
-        MailCreatedByAI.value = true;
-        loading();
-        scrollToBottom();
-        const result = await fetchWithToken(`${API_BASE_URL}api/generate_email_answer/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email_subject: inputValue.value,
-                email_content: emailContent.value,
-                response_type: keyword,
-            }),
-        });
-        hideLoading();
-        const formattedMail = result.email_answer.replace(/\n/g, "<br>");
-        const messageHTML = `
-          <div class="flex pb-12">
-              <div class="mr-4 flex">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                    </svg>
-                  </span>   
-              </div>
-              <div>
-                  <p><strong>${t("answerPage.emailTwoDots")}</strong>${formattedMail}</p>
-              </div>
-          </div>
-      `;
-        AIContainer.value.innerHTML += messageHTML;
-        const quillEditorContainer = quill.value.root;
-        quillEditorContainer.innerHTML = result.email_answer;
-
-        const message = "TODO Est-ce que cette réponse vous convient ?";
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-        displayMessage(message, ai_icon);
-    } catch (error) {
-        hideLoading();
-        const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?";
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage(message, ai_icon);
-    }
+async function handleButtonClick(keyword: string | null) {
+    // if (isAIWriting.value) {
+    //     return;
+    // }
+    // isAIWriting.value = true;
+    // try {
+    //     MailCreatedByAI.value = true;
+    //     loading();
+    //     scrollToBottom();
+    //     const result = await fetchWithToken(`${API_BASE_URL}api/generate_email_answer/`, {
+    //         method: "POST",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify({
+    //             email_subject: inputValue.value,
+    //             email_content: emailContent.value,
+    //             response_type: keyword,
+    //         }),
+    //     });
+    //     hideLoading();
+    //     const formattedMail = result.email_answer.replace(/\n/g, "<br>");
+    //     const messageHTML = `
+    //       <div class="flex pb-12">
+    //           <div class="mr-4 flex">
+    //               <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+    //                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+    //                   <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+    //                 </svg>
+    //               </span>
+    //           </div>
+    //           <div>
+    //               <p><strong>${t("answerPage.emailTwoDots")}</strong>${formattedMail}</p>
+    //           </div>
+    //       </div>
+    //   `;
+    //     AIContainer.value.innerHTML += messageHTML;
+    //     const quillEditorContainer = quill.value.root;
+    //     quillEditorContainer.innerHTML = result.email_answer;
+    //     const message = "TODO Est-ce que cette réponse vous convient ?";
+    //     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+    //     displayMessage(message, ai_icon);
+    // } catch (error) {
+    //     hideLoading();
+    //     const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?";
+    //     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    //     displayMessage(message, ai_icon);
+    // }
 }
 
 async function fetchResponseKeywords() {
@@ -697,273 +626,207 @@ async function fetchResponseKeywords() {
     } catch (error) {}
 }
 
-////////////////////////////////////////////////////// To handle the user writing his own answer  ///////////////////////////////////////////////////////
-
-const MailCreatedByAI = ref(false);
-
-function handleInputUpdateMailContent(newMessage) {
+function handleInputUpdateMailContent(newMessage: string) {
     if (newMessage !== "") {
-        if (isFirstTimeEmail.value && !MailCreatedByAI.value) {
-            askContentAdviceUser();
-            isFirstTimeEmail.value = false;
-            stepcontainer = 1;
+        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0) {
+            askContentAdvice();
+            stepContainer.value = 2;
             scrollToBottom();
         }
     }
-    MailCreatedByAI.value = false;
 }
 
 function askContentAdviceUser() {
     // Your previous code to display the message when the component is mounted
-    const message = t("constants.sendEmailConstants.emailCompositionAssistance"); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
-
-    const messageHTML = `
-        <div class="pb-12">
-          <div class="flex">
-              <div class="mr-4">
-                  <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                    </svg>
-                  </span>
-              </div>
-              <div>
-                  <div class="flex flex-col">
-                    <p ref="animatedText${counter_display}"></p>
-                    <div class="flex mt-4">
-                      <div class="mr-4">
-                        <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                          ${t("newPage.correctSpelling")}
-                        </button>
-                      </div>
-                      <div>
-                        <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                          ${t("newPage.checkCopywriting")}
-                        </button>
-                      </div>
-                    </div>
-                    <div class="flex mt-4">
-                      <div class="mr-4">
-                        <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
-                          ${t("newPage.improveWriting")}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-          </div>
-        </div>
-      `;
-
-    AIContainer.value.innerHTML += messageHTML;
-
-    // To check the ortgraph of the subject and the mail
-    setTimeout(() => {
-        const spellCheckButton = document.getElementById("spellCheckButton");
-        if (spellCheckButton) {
-            spellCheckButton.addEventListener("click", checkSpelling);
-        }
-    }, 0);
-
-    setTimeout(() => {
-        const CopyWritingCheckButton = document.getElementById("CopyWritingCheckButton");
-        if (CopyWritingCheckButton) {
-            CopyWritingCheckButton.addEventListener("click", checkCopyWriting);
-        }
-    }, 0);
-
-    setTimeout(() => {
-        const WriteBetterButton = document.getElementById("WriteBetterButton");
-        if (WriteBetterButton) {
-            WriteBetterButton.addEventListener("click", WriteBetter);
-        }
-    }, 0);
-
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-    counter_display += 1;
-    animateText(message, animatedParagraph);
+    // const message = t("constants.sendEmailConstants.emailCompositionAssistance"); // Older : const message = "Pouvez-vous fournir un brouillon de l'email que vous souhaitez rédiger ?";
+    // const messageHTML = `
+    //     <div class="pb-12">
+    //       <div class="flex">
+    //           <div class="mr-4">
+    //               <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+    //                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+    //                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+    //                 </svg>
+    //               </span>
+    //           </div>
+    //           <div>
+    //               <div class="flex flex-col">
+    //                 <p ref="animatedText${counter_display}"></p>
+    //                 <div class="flex mt-4">
+    //                   <div class="mr-4">
+    //                     <button type="button" id="spellCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+    //                       ${t("newPage.correctSpelling")}
+    //                     </button>
+    //                   </div>
+    //                   <div>
+    //                     <button type="button" id="CopyWritingCheckButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+    //                       ${t("newPage.checkCopywriting")}
+    //                     </button>
+    //                   </div>
+    //                 </div>
+    //                 <div class="flex mt-4">
+    //                   <div class="mr-4">
+    //                     <button type="button" id="WriteBetterButton" class="px-4 py-2 rounded-xl bg-transparent text-gray-900 hover:bg-gray-900 hover:text-white border border-gray-900 focus:ring-1 focus:ring-gray-900 focus:ring-inset focus:border-gray-900">
+    //                       ${t("newPage.improveWriting")}
+    //                     </button>
+    //                   </div>
+    //                 </div>
+    //               </div>
+    //           </div>
+    //       </div>
+    //     </div>
+    //   `;
+    // AIContainer.value.innerHTML += messageHTML;
+    // // To check the ortgraph of the subject and the mail
+    // setTimeout(() => {
+    //     const spellCheckButton = document.getElementById("spellCheckButton");
+    //     if (spellCheckButton) {
+    //         spellCheckButton.addEventListener("click", checkSpelling);
+    //     }
+    // }, 0);
+    // setTimeout(() => {
+    //     const CopyWritingCheckButton = document.getElementById("CopyWritingCheckButton");
+    //     if (CopyWritingCheckButton) {
+    //         CopyWritingCheckButton.addEventListener("click", checkCopyWriting);
+    //     }
+    // }, 0);
+    // setTimeout(() => {
+    //     const WriteBetterButton = document.getElementById("WriteBetterButton");
+    //     if (WriteBetterButton) {
+    //         WriteBetterButton.addEventListener("click", WriteBetter);
+    //     }
+    // }, 0);
+    // const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
+    // counter_display += 1;
+    // animateText(message, animatedParagraph);
 }
 
 async function checkSpelling() {
-    try {
-        loading();
-        scrollToBottom();
-        const result = await fetchWithToken(`${API_BASE_URL}api/correct_email_language/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email_subject: inputValue.value,
-                email_body: quill.value.root.innerHTML,
-            }),
-        });
-        hideLoading();
-        if (result.corrected_subject && result.corrected_body) {
-            const formattedMail = result.corrected_body.replace(/\n/g, "<br>");
-            const messageHTML = `
-                <div class="flex pb-12">
-                    <div class="mr-4 flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                          </svg>
-                        </span>   
-                    </div>
-                    <div>
-                        <p><strong>${t("newPage.subject")}</strong>${result.corrected_subject}</p>
-                        <p><strong>${t("newPage.emailContent")}</strong>${formattedMail}</p>
-                    </div>
-                </div>
-            `;
-            AIContainer.value.innerHTML += messageHTML;
-            inputValue.value = result.corrected_subject;
-            const quillEditorContainer = quill.value.root;
-            quillEditorContainer.innerHTML = result.corrected_body;
+    if (!AIContainer.value || !quill.value) return;
+    loading();
 
-            const message = "TODO J'ai corrigé l'orthographe, est-ce que souhaitez autre chose ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-            displayMessage(message, ai_icon);
-        } else {
-            hideLoading();
-            const message = "TODO Je m'excuse, j'ai fait une erreur de traitement.";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-            displayMessage(message, ai_icon);
-        }
-    } catch (error) {
-        hideLoading();
-        const message = "TODO Je m'excuse, j'ai fait une erreur de traitement.";
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage(message, ai_icon);
+    const result = await postData("api/correct_email_language/", {
+        subject: subjectInput.value,
+        body: AiEmailBody.value,
+    });
+
+    hideLoading();
+    if (!result.success) {
+        displayErrorProcessingMessage();
+        return;
     }
-}
 
-async function checkCopyWriting() {
-    try {
-        loading();
-        scrollToBottom();
-        const result = await fetchWithToken(`${API_BASE_URL}api/check_email_copywriting/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email_subject: inputValue.value,
-                email_body: quill.value.root.innerHTML,
-            }),
-        });
-        hideLoading();
-        if (result.feedback_copywriting) {
-            const formattedCopWritingOutput = result.feedback_copywriting.replace(/\n/g, "<br>");
-
-            const messageHTML = `
-                <div class="flex pb-12">
-                    <div class="mr-4 flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                          </svg>
-                        </span>   
-                    </div>
-                    <div>
-                        <p>${formattedCopWritingOutput}</p>
-                    </div>
-                </div>
-            `;
-            AIContainer.value.innerHTML += messageHTML;
-
-            const message = "TODO J'ai vérifié le copywriting, est-ce que souhaitez autre chose ?";
-            const messageHTML2 = `
-                <div class="flex pb-12">
-                    <div class="mr-4 flex">
-                        <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
-                          </svg>
-                        </span>   
-                    </div>
-                    <div>
-                      <p ref="animatedText${counter_display}"></p>
-                    </div>
-                </div>
-            `;
-            AIContainer.value.innerHTML += messageHTML2;
-            const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-            counter_display += 1;
-            animateText(message, animatedParagraph);
-
-            scrollToBottom();
-        } else {
-            hideLoading();
-            const message = "TODO Je m'excuse, j'ai fait une erreur de traitement.";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-            displayMessage(message, ai_icon);
-        }
-    } catch (error) {
-        hideLoading();
-        const message = "TODO Je m'excuse, j'ai fait une erreur de traitement.";
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage(message, ai_icon);
-    }
-}
-
-async function WriteBetter() {
-    // THIS FUNCTION IS NOT WORKING: must implement api/improve_draft/
-    // check NewV4.vue (must implement a system of memory)
-    try {
-        loading();
-        scrollToBottom();
-        const result = await fetchWithToken(`${API_BASE_URL}api/new_email_recommendations/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                mail_content: quill.value.root.innerHTML,
-                user_recommendation: t("constants.sendEmailConstants.improveEmailWriting"),
-                email_subject: inputValue.value,
-            }),
-        });
-        hideLoading();
-        subject.value = result.subject;
-        mail.value = result.email_body;
-        if (result.subject && result.email_body) {
-            const formattedMail = result.email_body.replace(/\n/g, "<br>");
-            const messageHTML = `
+    const formattedBody = result.data.correctedBody.replace(/\n/g, "<br>");
+    const messageHTML = `
               <div class="flex pb-12">
                   <div class="mr-4 flex">
                       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                         </svg>
-                      </span>   
+                      </span>
                   </div>
                   <div>
-                    <p><strong>${t("newPage.subject")}</strong>${result.subject}</p>
-                    <p><strong>${t("newPage.emailContent")}</strong>${formattedMail}</p>
+                      <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.correctedSubject}</p>
+                      <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedBody}</p>
                   </div>
               </div>
           `;
-            AIContainer.value.innerHTML += messageHTML;
-            inputValue.value = result.subject;
-            const quillEditorContainer = quill.value.root;
-            quillEditorContainer.innerHTML = result.email_body;
+    AIContainer.value.innerHTML += messageHTML;
+    subjectInput.value = result.data.correctedSubject;
+    const quillEditorContainer = quill.value.root;
+    quillEditorContainer.innerHTML = result.data.correctedBody;
 
-            const message = "TODO Est-ce que ce mail vous convient mieux ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-            displayMessage(message, ai_icon);
-        } else {
-            hideLoading();
-            const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?";
-            const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-            displayMessage(message, ai_icon);
-        }
-    } catch (error) {
-        hideLoading();
-        const message = "TODO Je m'excuse, j'ai fait une erreur de traitement. Est-ce que vous pouvez réessayer ?";
-        const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage(message, ai_icon);
+    const message = i18n.global.t("constants.sendEmailConstants.spellingCorrectionRequest");
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+
+    displayMessage(message, aiIcon);
+}
+
+async function checkCopyWriting() {
+    if (!AIContainer.value) return;
+    loading();
+
+    const result = await postData("api/check_email_copywriting/", {
+        email_subject: subjectInput.value,
+        email_body: AiEmailBody.value,
+    });
+
+    hideLoading();
+
+    if (!result.success) {
+        displayErrorProcessingMessage();
+        return;
     }
+
+    const formattedCopWritingOutput = result.data.feedbackCopywriting.replace(/\n/g, "<br>");
+    const messageHTML = `
+              <div class="flex pb-12">
+                  <div class="mr-4 flex">
+                      <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                        </svg>
+                      </span>
+                  </div>
+                  <div>
+                      <p>${formattedCopWritingOutput}</p>
+                  </div>
+              </div>
+          `;
+    AIContainer.value.innerHTML += messageHTML;
+
+    const message = i18n.global.t("constants.sendEmailConstants.copywritingCheckRequest");
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+    displayMessage(message, aiIcon);
+}
+
+async function writeBetter() {
+    if (!AIContainer.value || !quill.value) return;
+    loading();
+
+    const result = await postData("api/improve_draft/", {
+        userInput: textareaValueSave.value,
+        length: selectedLength.value,
+        formality: selectedFormality.value,
+        subject: subjectInput.value,
+        body: AiEmailBody.value,
+        history: history.value,
+    });
+
+    if (!result.success) {
+        displayErrorProcessingMessage();
+        return;
+    }
+
+    hideLoading();
+    subject.value = result.data.subject;
+    AiEmailBody.value = result.data.emailBody;
+    history.value = result.data.history;
+
+    const messageHTML = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                      </svg>
+                    </span>
+                </div>
+                <div>
+                    <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
+                    <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${result.data.emailBody}</p>
+                </div>
+            </div>
+        `;
+    AIContainer.value.innerHTML += messageHTML;
+    subjectInput.value = result.data.subject;
+    const quillEditorContainer = quill.value.root;
+    quillEditorContainer.innerHTML = result.data.emailBody;
+
+    const message = i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest");
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+    displayMessage(message, aiIcon);
 }
 
 function animateText(text: string, target: Element | null) {
@@ -1008,5 +871,11 @@ function displayMessage(message: string, aiIcon: string) {
     counterDisplay.value += 1;
     animateText(message, animatedParagraph);
     scrollToBottom();
+}
+
+function displayErrorProcessingMessage() {
+    const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    displayMessage(message, aiIcon);
 }
 </script>

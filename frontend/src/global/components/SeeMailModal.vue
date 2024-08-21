@@ -91,7 +91,7 @@
                                                         {{ $t("homePage.modals.seeEmailModal.read") }}
                                                     </div>
                                                     <button
-                                                        @click="markEmailAsRead(email?.id as number)"
+                                                        @click="markEmailAsRead"
                                                         type="button"
                                                         class="relative inline-flex items-center rounded-l-md px-1.5 py-1 text-sm font-semibold text-gray-400 border border-gray-600 hover:bg-gray-600 focus:z-10"
                                                     >
@@ -127,7 +127,7 @@
                                                         {{ $t("homePage.modals.seeEmailModal.manageRules") }}
                                                     </div>
                                                     <button
-                                                        @click="openRuleEditor"
+                                                        @click="openRule"
                                                         type="button"
                                                         class="relative inline-flex items-center px-1.5 py-1 text-sm font-semibold text-gray-400 border-t border-b border-gray-600 hover:bg-gray-600 focus:z-10"
                                                     >
@@ -170,7 +170,7 @@
                                                                 <div class="py-1">
                                                                     <MenuItem v-slot="{ active }">
                                                                         <a
-                                                                            @click.prevent="markEmailReplyLater(email?.id as number)"
+                                                                            @click.prevent="markEmailReplyLater"
                                                                             :class="[
                                                                                 active
                                                                                     ? 'bg-gray-100 text-gray-600'
@@ -226,7 +226,7 @@
                                                                 <div class="py-1">
                                                                     <MenuItem v-slot="{ active }">
                                                                         <a
-                                                                            @click.prevent="transferEmail()"
+                                                                            @click.prevent="transferEmail"
                                                                             :class="[
                                                                                 active
                                                                                     ? 'bg-gray-100 text-gray-600'
@@ -314,18 +314,17 @@ import { Email } from "../types";
 
 const isMenuOpen = ref(false);
 
-const props = defineProps<{
+defineProps<{
     isOpen: boolean;
     email: Email | undefined;
 }>();
 
 const emits = defineEmits([
     "closeModal",
-    "openAnswer",
     "markEmailAsRead",
-    "openRuleEditor",
-    "openNewRule",
+    "openRule",
     "markEmailReplyLater",
+    "openAnswer",
     "transferEmail",
 ]);
 
@@ -341,27 +340,23 @@ const openAnswer = () => {
     emits("openAnswer");
 };
 
-const markEmailAsRead = (emailId: number) => {
-    emits("markEmailAsRead", emailId);
+const markEmailAsRead = () => {
+    emits("markEmailAsRead");
     closeModal();
 };
 
 const transferEmail = () => {
-    emits("transferEmail", props.email);
+    emits("transferEmail");
     closeModal();
 };
 
-const markEmailReplyLater = (emailId: number) => {
-    emits("markEmailReplyLater", emailId);
+const markEmailReplyLater = () => {
+    emits("markEmailReplyLater");
     closeModal();
 };
 
-const openRuleEditor = () => {
-    if (props.email?.rule.hasRule) {
-        emits("openRuleEditor", props.email?.rule.ruleId);
-    } else {
-        emits("openNewRule", props.email?.sender.name, props.email?.sender.email);
-    }
+const openRule = () => {
+    emits("openRule");
 };
 
 onMounted(() => {

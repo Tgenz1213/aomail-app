@@ -4,11 +4,10 @@
         :isOpen="isSeeMailOpen"
         :email="localEmail"
         @closeModal="closeSeeMailModal"
-        @openAnswer="openAnswer"
-        @openRuleEditor="openRuleEditor"
-        @openNewRule="openNewRule"
+        @openRule="openRule"
         @markEmailAsRead="markEmailAsRead"
         @markEmailReplyLater="markEmailReplyLater"
+        @openAnswer="openAnswer"
         @transferEmail="transferEmail"
     />
     <li class="group flex justify-between items-center py-2 email-item" @click="toggleShowShortSummary()">
@@ -123,12 +122,9 @@ const props = defineProps<{
 
 const showShortSummary = ref(false);
 const isSeeMailOpen = ref(false);
+const localEmail = ref({ ...props.email });
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
-// Create a local reactive copy of the email prop
-const localEmail = ref({ ...props.email });
-
-// Watch for changes in the prop and update the local copy
 watch(
     () => props.email,
     (newEmail) => {
@@ -155,16 +151,27 @@ async function openSeeMailModal() {
     isSeeMailOpen.value = true;
 }
 
-function openRuleEditor(ruleId: number) {
-    router.push({ name: "rules", query: { idRule: ruleId, editRule: "true" } });
+function openRule() {
+    if (localEmail.value.rule.hasRule) {
+        openRuleEditor();
+    } else {
+        openNewRule();
+    }
 }
 
-function openNewRule(ruleName: string, ruleEmail: string) {
-    router.push({ name: "rules", query: { ruleName: ruleName, ruleEmail: ruleEmail, editRule: "false" } });
+function openRuleEditor() {
+    router.push({ name: "rules", query: { idRule: localEmail.value.rule.ruleId, editRule: "true" } });
 }
 
-async function markEmailAsRead(emailId: number) {
-    const result = await postData(`user/emails/${emailId}/mark_read/`, {});
+function openNewRule() {
+    router.push({
+        name: "rules",
+        query: { ruleName: localEmail.value.sender.name, ruleEmail: localEmail.value.sender.email, editRule: "false" },
+    });
+}
+
+async function markEmailAsRead() {
+    const result = await postData(`user/emails/${localEmail.value.id}/mark_read/`, {});
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
         return;
@@ -172,8 +179,8 @@ async function markEmailAsRead(emailId: number) {
     localEmail.value.read = true;
 }
 
-async function markEmailReplyLater(emailId: number) {
-    const result = await postData(`user/emails/${emailId}/mark_reply_later/`, {});
+async function markEmailReplyLater() {
+    const result = await postData(`user/emails/${localEmail.value.id}/mark_reply_later/`, {});
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
         return;
@@ -181,8 +188,8 @@ async function markEmailReplyLater(emailId: number) {
     localEmail.value.answerLater = true;
 }
 
-async function openAnswer(email: Email) {
-    const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
+async function openAnswer() {
+    const result = await getData(`api/get_mail_by_id?email_id=${localEmail.value.providerId}`);
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("constants.popUpConstants.openReplyPageFailure"), result.error as string);
         return;
@@ -192,15 +199,15 @@ async function openAnswer(email: Email) {
     sessionStorage.setItem("cc", result.data.email.cc);
     sessionStorage.setItem("bcc", result.data.email.bcc);
     sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
-    sessionStorage.setItem("email", JSON.stringify(email.sender.email));
-    sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
-    sessionStorage.setItem("shortSummary", JSON.stringify(email.shortSummary));
+    sessionStorage.setItem("email", JSON.stringify(localEmail.value.sender.email));
+    sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
+    sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));
 
     router.push({ name: "answer" });
 }
 
-async function transferEmail(email: Email) {
-    const result = await getData(`api/get_mail_by_id?email_id=${email.providerId}`);
+async function transferEmail() {
+    const result = await getData(`api/get_mail_by_id?email_id=${localEmail.value.providerId}`);
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.transferEmailFailure"), result.error as string);
         return;
@@ -211,8 +218,8 @@ async function transferEmail(email: Email) {
     sessionStorage.setItem("bcc", result.data.email.bcc);
     sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
     sessionStorage.setItem("date", JSON.stringify(result.data.email.date));
-    sessionStorage.setItem("providerId", JSON.stringify(email.providerId));
-    sessionStorage.setItem("email", JSON.stringify(email.sender.email));
+    sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
+    sessionStorage.setItem("email", JSON.stringify(localEmail.value.sender.email));
 
     router.push({ name: "transfer" });
 }

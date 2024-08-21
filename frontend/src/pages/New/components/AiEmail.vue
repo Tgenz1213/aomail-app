@@ -48,7 +48,7 @@ import { i18n } from "@/global/preferences";
 import { Recipient } from "@/global/types";
 import Quill from "quill";
 import { inject, onMounted, provide, Ref, ref, watch } from "vue";
-import SendAiInstructionButton from "./SendAiInstructionButton.vue";
+import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
 import userImage from "@/assets/user.png";
 
 interface EmailMapping {

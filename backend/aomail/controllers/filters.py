@@ -18,7 +18,6 @@ from aomail.utils.security import subscription
 from aomail.constants import FREE_PLAN
 from aomail.models import Filter, SocialAPI, Category
 from aomail.utils.serializers import (
-    FilterListSerializer,
     FilterSerializer,
     FilterUpdateSerializer,
 )
@@ -27,7 +26,7 @@ from aomail.utils.serializers import (
 LOGGER = logging.getLogger(__name__)
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 @subscription([FREE_PLAN])
 def get_user_filter(request: HttpRequest) -> Response:
     """
@@ -35,28 +34,31 @@ def get_user_filter(request: HttpRequest) -> Response:
 
     Args:
         request (HttpRequest): The HTTP request object containing the following query parameter:
-            category_id (int): The ID of the Category to retrieve filters for.
+            category (string): The name of the Category to retrieve filters for.
 
     Returns:
         Response: JSON response containing user's filters or an error message.
     """
     user = request.user
-    category_id = request.GET.get("category_id")
+    data: dict = json.loads(request.body)
+    category_name = data.get("category")
 
-    if not category_id:
+    if not category_name:
         return Response(
-            {"error": "category_id is required"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
-
+    
     try:
-        category = Category.objects.get(id=category_id, user=user)
+        category = Category.objects.get(name=category_name, user=request.user)
+        data["category"] = category.id  
     except Category.DoesNotExist:
         return Response(
-            {"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+            {"error": "Category does not exist or does not belong to the user"},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
     filters = Filter.objects.filter(user=user, category=category)
-    serializer = FilterListSerializer(filters, many=True)
+    serializer = FilterSerializer(filters, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -80,13 +82,10 @@ def create_filter(request: HttpRequest) -> Response:
 
 
     if not filter_name:
-        LOGGER.warning("ERROR 0")
-
         return Response(
             {"error": "No filter name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
     if not category_name:
-        LOGGER.warning("ERROR 1")
         return Response(
             {"error": "No category name provided"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -95,7 +94,6 @@ def create_filter(request: HttpRequest) -> Response:
         category = Category.objects.get(name=category_name, user=request.user)
         data["category"] = category.id  
     except Category.DoesNotExist:
-        LOGGER.warning("ERROR 3")
         return Response(
             {"error": "Category does not exist or does not belong to the user"},
             status=status.HTTP_400_BAD_REQUEST
@@ -106,7 +104,6 @@ def create_filter(request: HttpRequest) -> Response:
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-        LOGGER.warning("Serializer errors: %s", serializer.errors)
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )

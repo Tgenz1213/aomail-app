@@ -263,12 +263,3 @@ class FilterUpdateSerializer(FilterSerializer):
         ).exists():
             raise serializers.ValidationError("Invalid category for this user.")
         return value
-
-
-class FilterListSerializer(FilterSerializer):
-    """Serializer for listing Filters (GET request)."""
-
-    category_name = serializers.CharField(source="category.name", read_only=True)
-
-    class Meta(FilterSerializer.Meta):
-        fields = FilterSerializer.Meta.fields + ("category_name",)

@@ -63,6 +63,7 @@
             @close="closeUpdateCategoryModal"
         />
         <NewFilterModal :isOpen="isModalNewFilterOpen" @close="closeNewFilterModal" />
+        <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
     </div>
 </template>
 
@@ -77,6 +78,7 @@ import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewCategoryModal from "./components/NewCategoryModal.vue";
 import UpdateCategoryModal from "./components/UpdateCategoryModal.vue";
 import NewFilterModal from "./components/NewFilterModal.vue";
+import UpdateFilterModal from "./components/UpdateFilterModal.vue";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
@@ -94,9 +96,11 @@ const timerId = ref<number | null>(null);
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
 const categoryToUpdate = ref<Category | null>(null);
+const filterToUpdate = ref<Filter | null>(null);
 const isModalNewCategoryOpen = ref(false);
 const isModalUpdateCategoryOpen = ref(false);
 const isModalNewFilterOpen = ref(false);
+const isModalUpdateFilterOpen = ref(false);
 const isHidden = ref(false);
 const categories = ref<Category[]>([]);
 const filters = ref<Filter[]>([]);
@@ -135,10 +139,16 @@ const openNewFilterModal = () => {
     isModalNewFilterOpen.value = true;
 }
 
+const openUpdateFilterModal = (filter: Filter) => {
+    filterToUpdate.value = filter;
+    isModalUpdateFilterOpen.value = true;
+}
+
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
+provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
 provide("categories", categories);
 provide("filters", filters);
@@ -210,6 +220,10 @@ const closeNewCategoryModal = () => {
 
 const closeNewFilterModal = () => {
     isModalNewFilterOpen.value = false;
+};
+
+const closeUpdateFilterModal = () => {
+    isModalUpdateFilterOpen.value = false;
 };
 
 const openUpdateCategoryModal = (category: Category) => {

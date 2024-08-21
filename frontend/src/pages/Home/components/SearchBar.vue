@@ -31,7 +31,7 @@
             </button>
         </div>
         <div v-show="showFilters">
-            <Filters />
+            <Filters  />
         </div>
     </div>
     <!--

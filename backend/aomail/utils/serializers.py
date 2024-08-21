@@ -15,7 +15,6 @@ from aomail.models import (
     Sender,
     Contact,
     Filter,
-    SocialAPI,
 )
 
 
@@ -227,17 +226,17 @@ class UserEmailSerializer(serializers.ModelSerializer):
 
 
 # ----------------------- FILTER SERIALIZER -----------------------#
-from rest_framework import serializers
-from aomail.models import Filter, Category
-
-
 class FilterSerializer(serializers.ModelSerializer):
     """Base serializer for Filter model."""
+
+    social_api = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    relevance = serializers.CharField(required=False, allow_null=True, allow_blank=True)
+    answer = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = Filter
         fields = (
-            "id",
+            "user",
             "name",
             "category",
             "social_api",
@@ -251,19 +250,8 @@ class FilterSerializer(serializers.ModelSerializer):
             "notification",
             "meeting",
             "relevance",
+            "answer",
         )
-        read_only_fields = ("id",)
-
-
-class FilterCreateSerializer(FilterSerializer):
-    """Serializer for creating a new Filter (POST request)."""
-
-    def validate_category(self, value):
-        if not Category.objects.filter(
-            id=value.id, user=self.context["request"].user
-        ).exists():
-            raise serializers.ValidationError("Invalid category for this user.")
-        return value
 
 
 class FilterUpdateSerializer(FilterSerializer):

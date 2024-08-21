@@ -79,6 +79,9 @@
         "deleteEmailFailure": "Échec de suppression d'email",
         "addCategoryError": "Erreur lors de l'ajout de la catégorie",
         "updateCategoryError": "Erreur lors de la mise à jour de la catégorie",
+        "addFilterError": "Erreur lors de l'ajout du filtre",
+        "updateFilterError": "Erreur lors de la mise à jour du filtre",
+        "deleteFilterError": "Erreur lors de la supression du filtre",
         "emptyCategoryNameError": "Le nom de la catégorie ne peut pas être vide",
         "deleteCategoryError": "Erreur lors de la suppression de la catégorie",
         "retrieveAssociatedRulesError": "Erreur récupération des règles associées",
@@ -101,7 +104,10 @@
         "emailSuccessfullySent": "Votre email a été envoyé avec succès.",
         "updateCategorySuccess": "La catégorie a été mise à jour",
         "categoryAddedSuccess": "La catégorie a été ajoutée",
-        "deleteCategorySuccess": "Votre catégorie a été supprimée"
+        "deleteCategorySuccess": "Votre catégorie a été supprimée",
+        "updateFilterSuccess": "Le filtre a été mis à jour",
+        "filterAddedSuccess": "Le filtre a été ajoutée",
+        "deleteFilterSuccess": "Le filtre a été supprimée"
       }
     },
     "redirectionInProgress": "Redirection en cours...",

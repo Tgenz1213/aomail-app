@@ -79,6 +79,9 @@
         "deleteEmailFailure": "Failed to delete email",
         "addCategoryError": "Error adding category",
         "updateCategoryError": "Error updating category",
+        "addFilterError": "Error adding filter",
+        "updateFilterError": "Error updating filter",
+        "deleteFilterError": "Error deleting filter",
         "emptyCategoryNameError": "Category name cannot be empty",
         "deleteCategoryError": "Error deleting category",
         "retrieveAssociatedRulesError": "Error retrieving associated rules",
@@ -101,7 +104,10 @@
         "emailSuccessfullySent": "Your email has been successfully sent.",
         "updateCategorySuccess": "Category has been updated",
         "categoryAddedSuccess": "Category has been added",
-        "deleteCategorySuccess": "Your category has been deleted"
+        "deleteCategorySuccess": "Your category has been deleted",
+        "updateFilterSuccess": "Filter has been updated",
+        "filterAddedSuccess": "Filter has been added",
+        "deleteFilterSuccess": "Your filter has been deleted"
       }
     },
     "redirectionInProgress": "Redirection in progress...",

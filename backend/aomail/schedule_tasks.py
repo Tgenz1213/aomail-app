@@ -7,7 +7,7 @@ import time
 from django.utils import timezone
 from datetime import timedelta
 from aomail.models import GoogleListener
-from backend.aomail.email_providers.google import webhook as google_webhook
+from aomail.email_providers.google import webhook as google_webhook
 
 
 ######################## LOGGING CONFIGURATION ########################

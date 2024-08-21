@@ -619,14 +619,14 @@ def generate_email_response_keywords(request: HttpRequest) -> Response:
     serializer = EmailProposalAnswerSerializer(data=data)
 
     if serializer.is_valid():
-        email_subject = serializer.validated_data["email_subject"]
-        email_content = serializer.validated_data["email_content"]
+        subject = serializer.validated_data["subject"]
+        body = serializer.validated_data["body"]
 
-        result = claude.generate_response_keywords(email_subject, email_content)
+        result = claude.generate_response_keywords(subject, body)
         update_tokens_stats(request.user, result)
 
         return Response(
-            {"response_keywords": result["keywords_list"]},
+            {"responseKeywords": result["keywords_list"]},
             status=status.HTTP_200_OK,
         )
     else:

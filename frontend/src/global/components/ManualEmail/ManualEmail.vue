@@ -46,12 +46,8 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref } from "vue";
 import SendEmailButtons from "./SendEmailButtons.vue";
 import SubjectAttachmentsSection from "./SubjectAttachmentsSection.vue";
 import RecipientsSection from "./RecipientsSection.vue";
 import SelectedEmailChoiceButton from "./SelectedEmailChoiceButton.vue";
-
-const fileObjects = ref<File[]>([]);
-provide("fileObjects", fileObjects);
 </script>

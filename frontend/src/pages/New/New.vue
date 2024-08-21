@@ -66,6 +66,7 @@ const selectedCCI = ref<Recipient[]>([]);
 const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
+const fileObjects = ref<File[]>([]);
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -84,6 +85,7 @@ provide("AIContainer", AIContainer);
 provide("counterDisplay", counterDisplay);
 provide("isWriting", isWriting);
 provide("uploadedFiles", uploadedFiles);
+provide("fileObjects", fileObjects);
 provide("subjectInput", subjectInput);
 provide("emailsLinked", emailsLinked);
 provide("contacts", contacts);

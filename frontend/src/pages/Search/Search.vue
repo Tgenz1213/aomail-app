@@ -21,31 +21,31 @@
                 id="secondMainColumn"
                 class="flex flex-col bg-white lg:ring-1 lg:ring-black lg:ring-opacity-5 h-full xl:w-[43vw] 2xl:w-[700px] overflow-y-auto"
             >
-                <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
-                    <div class="flex gap-x-3 items-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1"
-                            stroke="currentColor"
-                            class="w-6 h-6 2xl:w-7 2xl:h-7"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59"
-                            />
-                        </svg>
-                        <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500">
-                            {{ $t("constants.manualSearch") }}
-                        </h1>
+                <div class="sticky top-0 bg-white z-10">
+                    <div class="flex items-center h-[65px] justify-center lg:py-5 2xl:h-[80px] min-h-6">
+                        <div class="flex gap-x-3 items-center">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1"
+                                stroke="currentColor"
+                                class="w-6 h-6 2xl:w-7 2xl:h-7"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59"
+                                />
+                            </svg>
+                            <h1 style="font-family: 'Poppins', sans-serif; font-weight: 500">
+                                {{ $t("constants.manualSearch") }}
+                            </h1>
+                        </div>
                     </div>
+                    <SearchMenu class="w-full px-6 pt-2 mb-4" />
                 </div>
-                <div class="flex-1 flex flex-col w-full px-6 pt-2 mb-4">
-                    <SearchMenu />
-                    <EmailList />
-                </div>
+                <EmailList class="flex-1 flex flex-col w-full px-6 pt-2 mb-4" />
             </div>
         </div>
     </div>

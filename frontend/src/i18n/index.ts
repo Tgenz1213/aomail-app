@@ -1,9 +1,14 @@
-import en from "./en.json"
-import fr from "./fr.json"
+import en from "./en.json";
+import fr from "./fr.json";
 
 const messages = {
     french: fr,
-    english: en,
-}
+    american: en,
+    german: en,
+    russian: en,
+    spanish: en,
+    chinese: en,
+    indian: en,
+};
 
-export default messages
+export default messages;

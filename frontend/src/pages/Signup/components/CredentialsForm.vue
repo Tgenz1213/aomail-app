@@ -218,7 +218,7 @@
         <div>
             <div class="pt-2">
                 <button
-                    @click.prevent="goStepPreferences"
+                    @click.prevent="goStepPreferencesForm"
                     class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500"
                 >
                     {{ $t("signUpPart1Page.continue") }}
@@ -239,7 +239,7 @@ const credentialError = inject<Ref<string>>("credentialError") || ref("");
 const showPassword = ref<boolean>(false);
 const showConfirmPassword = ref<boolean>(false);
 
-const goStepPreferences = inject<() => void>("goStepPreferences");
+const goStepPreferencesForm = inject<() => void>("goStepPreferencesForm");
 const clearError = inject<() => void>("clearError");
 
 function togglePasswordVisibility() {

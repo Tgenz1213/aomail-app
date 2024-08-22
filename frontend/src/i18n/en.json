@@ -87,7 +87,6 @@
         "retrieveAssociatedRulesError": "Error retrieving associated rules",
         "openReplyPageFailure": "Failed to open reply page",
         "openTransferPageFailure": "Failed to open transfer page",
-        "emailAlreadyUsed": "Email address already in use",
         "errorMessageVerificationIdentifier": "Error verifying identifier",
         "pleaseEnterPassword": "Please enter a password",
         "pleaseConfirmPassword": "Please confirm your password",
@@ -167,7 +166,7 @@
     "addAnotherCategory": "Add another category",
     "youHaveAnAccount": "Do you have an account?"
   },
-  "signUpPart2Page": {
+  "signuUpLinkPage": {
     "authorizationError": "Authorization error",
     "authorizationCodeNotFound": "Authorization code not found in URL",
     "accountCreationInProgress": "Account creation in progress...",
@@ -375,7 +374,7 @@
     "priorityField": "Priority",
     "blockedEmail": "Blocked email",
     "createRule": "Click to create a rule",
-    "priorityRule":{
+    "priorityRule": {
       "important": "Important",
       "informative": "Informative",
       "useless": "Useless"
@@ -418,9 +417,9 @@
     "emailTransferred": "Email transferred!"
   },
   "searchPage": {
-    "choiceAomail":"aomail",
-    "choiceOldMail":"old mail",
-    "choiceOldMailDisplay":"old",
+    "choiceAomail": "aomail",
+    "choiceOldMail": "old mail",
+    "choiceOldMailDisplay": "old",
     "oldChoiceSelected": "Ok, I'm going to search for the information in all of your emails, including the old ones",
     "aomailChoiceSelected": "Ok, I'm going to search for the information in Aomail's emails",
     "anErrorOccuredDuringSmartSearch": "An error occurred while searching the response. Please try again",
@@ -496,7 +495,7 @@
   "answerPage": {
     "responseSentTitle": "Response sent!",
     "chatSummarize": "Summary of the email :",
-    "chatKeyWordIntroduction" : "Here are suggested answer, how would you like to respond?",
+    "chatKeyWordIntroduction": "Here are suggested answer, how would you like to respond?",
     "seeMail": "See email"
   },
   "errorWebPagesTemplates": {

@@ -124,7 +124,7 @@
     <div>
         <div class="pt-4">
             <button
-                @click.prevent="submitSignupData"
+                @click.prevent="goStepLinkEmail"
                 class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
             >
                 {{ $t("signUpPart1Page.continue") }}
@@ -152,7 +152,7 @@ const isModalNewCategoryOpen = ref<boolean>(false);
 const isModalUpdateCategoryOpen = ref<boolean>(false);
 const categories = inject<Ref<Category[]>>("categories") || ref([]);
 
-const submitSignupData = inject<() => void>("submitSignupData");
+const goStepLinkEmail = inject<() => void>("goStepLinkEmail");
 
 provide("categoryName", categoryName);
 provide("categoryDescription", categoryDescription);

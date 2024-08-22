@@ -19,7 +19,7 @@
                     <div class="flex flex-col rounded-lg">
                         <div>
                             <div class="flex items-center justify-center h-[65px]">
-                                <StepsTracker :signUpPage="'signUpPage'" />
+                                <StepsTracker :signUpPage="''" />
                             </div>
                             <div class="bg-white px-6 py-4">
                                 <CredentialsForm v-if="step === 0" />
@@ -75,10 +75,10 @@ provide("confirmPassword", confirmPassword);
 provide("credentialError", credentialError);
 provide("categories", categories);
 provide("displayPopup", displayPopup);
-provide("goStepPreferences", goStepPreferences);
 provide("clearError", clearError);
-provide("goStepCategories", goStepCategories);
-provide("submitSignupData", submitSignupData);
+provide("goStepPreferencesForm", goStepPreferencesForm);
+provide("goStepCategoriesForm", goStepCategoriesForm);
+provide("goStepLinkEmail", goStepLinkEmail);
 
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -101,27 +101,27 @@ function handleKeyDown(event: KeyboardEvent) {
     } else if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         if (step.value === 0) {
-            goStepPreferences();
+            goStepPreferencesForm();
         } else if (step.value === 1) {
-            goStepCategories();
+            goStepCategoriesForm();
         } else if (step.value === 2) {
-            submitSignupData();
+            goStepLinkEmail();
         }
     }
 }
 
-async function goStepPreferences() {
+async function goStepPreferencesForm() {
     if (!login.value) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseEnterAnIdentifier");
-        return false;
+        return;
     }
     if (login.value.includes(" ")) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.identifierMustNotContainSpaces");
-        return false;
+        return;
     }
     if (login.value.length > 150) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.maxUsernameLength150Characters");
-        return false;
+        return;
     }
 
     const result = await getData(`check_username/`, { username: login.value });
@@ -132,28 +132,28 @@ async function goStepPreferences() {
             i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationIdentifier"),
             result.error as string
         );
-        return false;
+        return;
     } else if (result.data.available === false) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.identifierIsAlreadyInUse");
-        return false;
+        return;
     }
     const minLength = 8;
     const maxLength = 32;
 
     if (!password.value.trim()) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseEnterPassword");
-        return false;
+        return;
     } else if (!confirmPassword.value.trim()) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.pleaseConfirmPassword");
-        return false;
+        return;
     } else if (password.value.length < minLength || password.value.length > maxLength) {
         credentialError.value = i18n.global.t(
             "constants.popUpConstants.errorMessages.passwordLengthShouldBeBetween8And32Characters"
         );
-        return false;
+        return;
     } else if (password.value !== confirmPassword.value) {
         credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.passwordsDoNotMatch");
-        return false;
+        return;
     }
 
     sessionStorage.setItem("login", login.value);
@@ -164,31 +164,15 @@ async function goStepPreferences() {
     step.value++;
 }
 
-function goStepCategories() {
+function goStepCategoriesForm() {
     step.value++;
-}
-
-function goStep0() {
-    step.value = 0;
-}
-
-function goStep1() {
-    step.value = 1;
-}
-
-async function goStep2() {
-    const valid = await goStepPreferences();
-    if (valid === false) {
-        return;
-    }
-    goStepCategories();
 }
 
 function clearError() {
     credentialError.value = "";
 }
 
-async function submitSignupData() {
+async function goStepLinkEmail() {
     try {
         localStorage.setItem("categories", JSON.stringify(categories.value));
         router.push({ name: "signupLink" });

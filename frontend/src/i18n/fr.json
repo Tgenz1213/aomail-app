@@ -87,7 +87,6 @@
         "retrieveAssociatedRulesError": "Erreur récupération des règles associées",
         "openReplyPageFailure": "Échec d'ouverture de la page de réponse",
         "openTransferPageFailure": "Échec d'ouverture de la page de transfert",
-        "emailAlreadyUsed": "Adresse e-mail déjà utilisée",
         "errorMessageVerificationIdentifier": "Erreur vérification identifiant",
         "pleaseEnterPassword": "Veuillez saisir un mot de passe",
         "pleaseConfirmPassword": "Veuillez confirmer votre mot de passe",
@@ -167,7 +166,7 @@
     "addAnotherCategory": "Ajouter une autre catégorie",
     "youHaveAnAccount": "Vous avez un compte ?"
   },
-  "signUpPart2Page": {
+  "signuUpLinkPage": {
     "authorizationError": "Erreur d'autorisation",
     "authorizationCodeNotFound": "Code d'autorisation introuvable dans l'URL",
     "accountCreationInProgress": "Création de compte en cours...",
@@ -375,7 +374,7 @@
     "priorityField": "Priorité",
     "blockedEmail": "E-mail bloqué",
     "createRule": "Cliquez pour créer une règle",
-    "priorityRule":{
+    "priorityRule": {
       "important": "Important",
       "informative": "Informatif",
       "useless": "Inutile"
@@ -418,11 +417,11 @@
     "emailTransferred": "Email transféré !"
   },
   "searchPage": {
-    "choiceAomail":"aomail",
-    "choiceOldMail":"anciens mails",
-    "choiceOldMailDisplay":"anciens",
-    "oldChoiceSelected":"Ok je vais rechercher l'information dans tous vos mails y compris les anciens",
-    "aomailChoiceSelected":"Ok je vais rechercher l'information dans les mails d'aomail",
+    "choiceAomail": "aomail",
+    "choiceOldMail": "anciens mails",
+    "choiceOldMailDisplay": "anciens",
+    "oldChoiceSelected": "Ok je vais rechercher l'information dans tous vos mails y compris les anciens",
+    "aomailChoiceSelected": "Ok je vais rechercher l'information dans les mails d'aomail",
     "anErrorOccuredDuringSmartSearch": "Une erreur s'est produite lors de la recherche de la réponse. Veuillez réessayer",
     "noResults": "Aucun résultat",
     "toAddressesSelectedPlaceholder": "À",
@@ -496,7 +495,7 @@
   "answerPage": {
     "responseSentTitle": "Réponse envoyée !",
     "chatSummarize": "Résumé du mail :",
-    "chatKeyWordIntroduction" : "Voici des suggestions de réponses, comment souhaitez vous répondre ?",
+    "chatKeyWordIntroduction": "Voici des suggestions de réponses, comment souhaitez vous répondre ?",
     "seeMail": "Voir le mail"
   },
   "errorWebPagesTemplates": {

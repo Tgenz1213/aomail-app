@@ -19,7 +19,7 @@
                     <div class="flex flex-col">
                         <div class="">
                             <div class="flex items-center justify-center h-[65px]">
-                                <StepsTracker />
+                                <StepsTracker :signUpPage="'linkEmail'" />
                             </div>
                             <div class="bg-white px-6 py-4 sm:px-12">
                                 <form class="space-y-6">
@@ -31,7 +31,7 @@
                                                 </div>
                                                 <div class="relative flex justify-center">
                                                     <span class="bg-white px-2 text-sm text-gray-500">
-                                                        {{ $t("signUpPart2Page.linkAGmailAccount") }}
+                                                        {{ $t("signuUpLinkPage.linkAGmailAccount") }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -72,7 +72,7 @@
                                                                 fill="#EB4335"
                                                             ></path>
                                                         </svg>
-                                                        {{ $t("signUpPart2Page.linkYourGmailAccount") }}
+                                                        {{ $t("signuUpLinkPage.linkYourGmailAccount") }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -82,7 +82,7 @@
                                                 </div>
                                                 <div class="relative flex justify-center">
                                                     <span class="bg-white px-2 text-sm text-gray-500">
-                                                        {{ $t("signUpPart2Page.linkAnOutlookAccount") }}
+                                                        {{ $t("signuUpLinkPage.linkAnOutlookAccount") }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -107,14 +107,14 @@
                                                             <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
                                                             <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
                                                         </svg>
-                                                        {{ $t("signUpPart2Page.linkYourOutlookAccount") }}
+                                                        {{ $t("signuUpLinkPage.linkYourOutlookAccount") }}
                                                     </button>
                                                 </div>
                                             </div>
                                             <div>
                                                 <div class="pt-10">
                                                     <button
-                                                        @click="nextStep3"
+                                                        @click="goStepSignUpSummary"
                                                         class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                                                     >
                                                         {{ $t("signUpPart1Page.continue") }}
@@ -131,7 +131,7 @@
                                                 </div>
                                                 <div class="relative flex justify-center">
                                                     <span class="bg-white px-2 text-sm text-gray-500">
-                                                        {{ $t("signUpPart2Page.toolsPresentation") }}
+                                                        {{ $t("signuUpLinkPage.toolsPresentation") }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -147,7 +147,7 @@
                                                 </div>
                                                 <div class="relative flex justify-center">
                                                     <span class="bg-white px-2 text-sm text-gray-500">
-                                                        {{ $t("signUpPart2Page.informationOnDataConfidentiality") }}
+                                                        {{ $t("signuUpLinkPage.informationOnDataConfidentiality") }}
                                                     </span>
                                                 </div>
                                             </div>
@@ -164,7 +164,7 @@
                                                         @click="submitSignupData"
                                                         class="flex w-full justify-center rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-800"
                                                     >
-                                                        {{ $t("signUpPart2Page.finalizeRegistration") }}
+                                                        {{ $t("signuUpLinkPage.finalizeRegistration") }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -181,13 +181,13 @@
                                                     </div>
                                                     <div class="ml-3 text-sm leading-6 w-full">
                                                         <label for="comments" class="text-gray-500 font-normal">
-                                                            {{ $t("signUpPart2Page.iAcceptThe") }}
+                                                            {{ $t("signuUpLinkPage.iAcceptThe") }}
                                                             <a
                                                                 href="URL_DES_CONDITIONS"
                                                                 class="font-medium text-black hover:underline"
                                                                 target="_blank"
                                                             >
-                                                                {{ $t("signUpPart2Page.conditionsAndPrivacyPolicyOf") }}
+                                                                {{ $t("signuUpLinkPage.conditionsAndPrivacyPolicyOf") }}
                                                             </a>
                                                             Aomail
                                                         </label>
@@ -213,13 +213,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, provide } from "vue";
 import { useRouter } from "vue-router";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/global/preferences";
 import logo from "@/assets/logo-aomail.png";
+import StepsTracker from "./components/StepsTracker.vue";
+import { postData } from "@/global/fetchData";
 
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");
@@ -229,6 +231,10 @@ const timerId = ref<number | null>(null);
 const step = ref(3);
 const router = useRouter();
 
+provide("step", step);
+provide("submitSignupData", submitSignupData);
+provide("goStepSignUpSummary", goStepSignUpSummary);
+
 onMounted(() => {
     document.addEventListener("keydown", handleKeyDown);
 });
@@ -237,7 +243,7 @@ function handleKeyDown(event: KeyboardEvent) {
     if (event.key === "Enter") {
         event.preventDefault();
         if (step.value === 3) {
-            nextStep3(event);
+            goStepSignUpSummary(event);
         }
     }
 }
@@ -254,7 +260,7 @@ function authorizeMicrosoft(event: Event) {
     window.location.replace(`${API_BASE_URL}microsoft/auth_url/`);
 }
 
-async function nextStep3(event: Event) {
+async function goStepSignUpSummary(event: Event) {
     event.preventDefault();
     const urlParams = new URLSearchParams(window.location.search);
     const authorizationCode = urlParams.get("code");
@@ -265,8 +271,8 @@ async function nextStep3(event: Event) {
     } else {
         displayPopup(
             "error",
-            i18n.global.t("signUpPart2Page.authorizationError"),
-            i18n.global.t("signUpPart2Page.authorizationCodeNotFound")
+            i18n.global.t("signuUpLinkPage.authorizationError"),
+            i18n.global.t("signuUpLinkPage.authorizationCodeNotFound")
         );
     }
 }
@@ -285,8 +291,8 @@ async function submitSignupData(event: Event) {
 
         displayPopup(
             "error",
-            i18n.global.t("signUpPart2Page.acceptTerms"),
-            i18n.global.t("signUpPart2Page.termsNotAccepted")
+            i18n.global.t("signuUpLinkPage.acceptTerms"),
+            i18n.global.t("signuUpLinkPage.termsNotAccepted")
         );
         return;
     } else {
@@ -298,48 +304,25 @@ async function submitSignupData(event: Event) {
 
     displayPopup("success", "Account creation in progress...", "Waiting for database response");
 
-    try {
-        const requestOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                login: sessionStorage.getItem("login"),
-                password: sessionStorage.getItem("password"),
-                timezone: localStorage.getItem("timezone"),
-                language: localStorage.getItem("language"),
-                theme: localStorage.getItem("theme"),
-                categories: localStorage.getItem("categories"),
-                code: sessionStorage.getItem("code"),
-                typeApi: sessionStorage.getItem("typeApi"),
-                userDescription: sessionStorage.getItem("userDescription"),
-            }),
-        };
+    const result = await postData(`signup/`, {
+        login: sessionStorage.getItem("login"),
+        password: sessionStorage.getItem("password"),
+        timezone: localStorage.getItem("timezone"),
+        language: localStorage.getItem("language"),
+        theme: localStorage.getItem("theme"),
+        categories: localStorage.getItem("categories"),
+        code: sessionStorage.getItem("code"),
+        typeApi: sessionStorage.getItem("typeApi"),
+        userDescription: sessionStorage.getItem("userDescription"),
+    });
 
-        const response = await fetch(`${API_BASE_URL}signup/`, requestOptions);
-        const data = await response.json();
-
-        if (response.status === 201) {
-            localStorage.setItem("accessToken", data.accessToken);
-            sessionStorage.clear();
-            localStorage.removeItem("categories");
-            router.push({ name: "home" });
-        } else if (data.error === "Email address already used") {
-            displayPopup(
-                "error",
-                i18n.global.t("signUpPart2Page.accountCreationError"),
-                i18n.global.t("constants.popUpConstants.errorMessages.emailAlreadyUsed")
-            );
-        } else {
-            displayPopup("error", i18n.global.t("signUpPart2Page.accountCreationError"), data.error);
-        }
-    } catch (error) {
-        displayPopup(
-            "error",
-            i18n.global.t("signUpPart2Page.accountCreationError"),
-            error instanceof Error ? error.message : String(error)
-        );
+    if (!result.success) {
+        displayPopup("error", i18n.global.t("signuUpLinkPage.accountCreationError"), result.error as string);
+    } else {
+        localStorage.setItem("accessToken", result.data.accessToken);
+        sessionStorage.clear();
+        localStorage.removeItem("categories");
+        router.push({ name: "home" });
     }
 }
 
@@ -359,7 +342,3 @@ function dismissPopup() {
     }
 }
 </script>
-
-<!-- TODO:
-- use arrays to build the HTML instead of hardcoding (there are a lot of duplicates)
-- rename the function (nextStep0, etc) to a relevant name like nextPasswordForm, nextLinkEmailForm, nextSomething -->

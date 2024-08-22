@@ -271,7 +271,8 @@
         "low": "Low",
         "answer": "Answer",
         "mightWantToAnswer": "Might need a response",
-        "filterAlreadyExists": "A filter with the same name already exist"
+        "filterAlreadyExists": "A filter with the same name already exist",
+        "updateFilter": "Update the filter"
       },
       "warningRulesLinkedModal": {
         "deleteCategory": "Delete category: "

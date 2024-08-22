@@ -17,9 +17,9 @@
                 </div>
                 <div class="2xl:mt-6 sm:mt-4 sm:mx-auto sm:w-full sm:max-w-[545px]">
                     <div class="flex flex-col rounded-lg">
-                        <div class="">
+                        <div>
                             <div class="flex items-center justify-center h-[65px]">
-                                <StepsTracker />
+                                <StepsTracker :signUpPage="'signUpPage'" />
                             </div>
                             <div class="bg-white px-6 py-4">
                                 <CredentialsForm v-if="step === 0" />
@@ -52,6 +52,7 @@ import router from "@/router/router";
 import CredentialsForm from "./components/CredentialsForm.vue";
 import PreferencesForm from "./components/PreferencesForm.vue";
 import CategoriesForm from "./components/CategoriesForm.vue";
+import StepsTracker from "./components/StepsTracker.vue";
 
 const showNotification = ref<boolean>(false);
 const step = ref<number>(0);
@@ -66,6 +67,7 @@ const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
 const categories = ref<Category[]>([]);
 
+provide("step", step);
 provide("userDescription", userDescription);
 provide("login", login);
 provide("password", password);

@@ -63,20 +63,22 @@
             @close="closeUpdateCategoryModal"
         />
         <NewFilterModal :isOpen="isModalNewFilterOpen" @close="closeNewFilterModal" />
+        <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, provide, onMounted } from "vue";
+import { ref, computed, provide, onMounted, onUnmounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
-import { Email, Category } from "@/global/types";
-import { Filter } from './utils/types';
+import { Email, Category, FetchDataResult } from "@/global/types";
+import { Filter } from "./utils/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewCategoryModal from "./components/NewCategoryModal.vue";
 import UpdateCategoryModal from "./components/UpdateCategoryModal.vue";
 import NewFilterModal from "./components/NewFilterModal.vue";
+import UpdateFilterModal from "./components/UpdateFilterModal.vue";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";
 import InformativeEmail from "@/global/components/InformativeEmails.vue";
 import UselessEmail from "@/global/components/UselessEmails.vue";
@@ -93,20 +95,112 @@ const timerId = ref<number | null>(null);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
+const selectedFilter = ref<Filter | null>(null);
 const categoryToUpdate = ref<Category | null>(null);
+const filterToUpdate = ref<Filter | null>(null);
 const isModalNewCategoryOpen = ref(false);
 const isModalUpdateCategoryOpen = ref(false);
 const isModalNewFilterOpen = ref(false);
+const isModalUpdateFilterOpen = ref(false);
 const isHidden = ref(false);
 const categories = ref<Category[]>([]);
 const filters = ref<Filter[]>([]);
 const categoryTotals = ref<{ [key: string]: number }>({});
+const emailsPerPage = 10;
+const currentPage = ref(1);
+const isLoading = ref(false);
+const allEmailIds = ref<string[]>([]);
 
 const fetchEmailsData = async (categoryName: string) => {
-    const response = await postData("user/emails_ids/", { subject: "", category: categoryName });
-    const emails_details = await postData("user/get_emails_data/", { ids: response.data.ids });
-    emails.value = emails_details.data.data;
-    console.log(emails.value);
+    currentPage.value = 1;
+    emails.value = {};
+    allEmailIds.value = [];
+    let response : FetchDataResult;
+
+    if (selectedFilter) {
+        console.log("SELECTED FILTER", selectedFilter)
+        const priorities = [];
+        if (selectedFilter.value?.important) {
+            priorities.push("important");
+        }
+        if (selectedFilter.value?.informative) {
+            priorities.push("informative");
+        }
+        if (selectedFilter.value?.useless) {
+            priorities.push("useless");
+        }
+        console.log("PRIORITIES", priorities)
+        response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: selectedFilter.value?.read,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scams, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter });
+    } else {     
+        response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+    }
+
+    allEmailIds.value = response.data.ids;
+
+    await loadMoreEmails();
+};
+
+const loadMoreEmails = async () => {
+    if (isLoading.value) return;
+    isLoading.value = true;
+
+    const startIndex = (currentPage.value - 1) * emailsPerPage;
+    const endIndex = startIndex + emailsPerPage;
+    const idsToFetch = allEmailIds.value.slice(startIndex, endIndex);
+
+    if (idsToFetch.length > 0) {
+        const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
+        const newEmails = emails_details.data.data;
+
+        // Merge new emails with existing ones
+        for (const category in newEmails) {
+            if (!emails.value[category]) {
+                emails.value[category] = {};
+            }
+            for (const type in newEmails[category]) {
+                if (!emails.value[category][type]) {
+                    emails.value[category][type] = [];
+                }
+                emails.value[category][type].push(...newEmails[category][type]);
+            }
+        }
+
+        currentPage.value++;
+    }
+
+    isLoading.value = false;
+};
+
+const handleScroll = () => {
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        const { scrollTop, scrollHeight, clientHeight } = container;
+        if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading.value) {
+            loadMoreEmails();
+        }
+    }
+};
+
+const fetchEmailsDataFiltered = async (categoryName: string, filter: Filter) => {
+    currentPage.value = 1;
+    emails.value = {};
+    allEmailIds.value = [];
+    const priorities = [];
+
+    if (filter.important) {
+        priorities.push("important");
+    }
+    if (filter.informative) {
+        priorities.push("informative");
+    }
+    if (filter.useless) {
+        priorities.push("useless");
+    }
+
+    const response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: filter.read,  priority: priorities, spam: filter.spam, scam: filter.scams, meeting: filter.meeting, notification: filter.notification, newsletter: filter.newsletter });
+    allEmailIds.value = response.data.ids;
+
+    await loadMoreEmails();
 };
 
 async function fetchCategoriesAndTotals() {
@@ -133,16 +227,24 @@ const fetchFiltersData = async (categoryName: string) => {
 
 const openNewFilterModal = () => {
     isModalNewFilterOpen.value = true;
-}
+};
+
+const openUpdateFilterModal = (filter: Filter) => {
+    filterToUpdate.value = filter;
+    isModalUpdateFilterOpen.value = true;
+};
 
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
+provide("fetchEmailsDataFiltered", fetchEmailsDataFiltered);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
+provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
 provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);
+provide("selectedFilter", selectedFilter);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({
@@ -174,7 +276,7 @@ const readEmails = computed(() => {
     const allEmails = [
         ...(emails.value[selectedCategory.value]?.important || []),
         ...(emails.value[selectedCategory.value]?.informative || []),
-        ...(emails.value[selectedCategory.value]?.useless || [])
+        ...(emails.value[selectedCategory.value]?.useless || []),
     ];
     return addCategoryToEmails(allEmails, selectedCategory.value);
 });
@@ -182,10 +284,11 @@ const readEmails = computed(() => {
 const hasEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return false;
     const categoryEmails = emails.value[selectedCategory.value];
-    return categoryEmails && (
-        (categoryEmails.important && categoryEmails.important.length > 0) ||
-        (categoryEmails.informative && categoryEmails.informative.length > 0) ||
-        (categoryEmails.useless && categoryEmails.useless.length > 0)
+    return (
+        categoryEmails &&
+        ((categoryEmails.important && categoryEmails.important.length > 0) ||
+            (categoryEmails.informative && categoryEmails.informative.length > 0) ||
+            (categoryEmails.useless && categoryEmails.useless.length > 0))
     );
 });
 
@@ -193,11 +296,20 @@ const toggleVisibility = () => {
     isHidden.value = !isHidden.value;
 };
 
-const selectCategory = (category: Category) => {
+const selectCategory = async (category: Category) => {
     selectedCategory.value = category.name;
-    fetchEmailsData(selectedCategory.value);
-    fetchFiltersData(selectedCategory.value);
+    currentPage.value = 1; 
+    emails.value = {}; 
+    allEmailIds.value = [];
+    
+    await fetchEmailsData(selectedCategory.value);
+    await fetchFiltersData(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
+
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        container.addEventListener("scroll", handleScroll);
+    }
 };
 
 const openNewCategoryModal = () => {
@@ -210,6 +322,10 @@ const closeNewCategoryModal = () => {
 
 const closeNewFilterModal = () => {
     isModalNewFilterOpen.value = false;
+};
+
+const closeUpdateFilterModal = () => {
+    isModalUpdateFilterOpen.value = false;
 };
 
 const openUpdateCategoryModal = (category: Category) => {
@@ -238,15 +354,29 @@ function dismissPopup() {
     }
 }
 
-onMounted(() => {
-    fetchCategoriesAndTotals();
+onMounted(async () => {
+    await fetchCategoriesAndTotals();
+
     const storedTopic = localStorage.getItem("selectedCategory");
     if (storedTopic) {
         selectedCategory.value = storedTopic;
     } else {
         selectedCategory.value = "Others";
     }
-    fetchEmailsData(selectedCategory.value);
-    fetchFiltersData(selectedCategory.value);
+
+    await fetchEmailsData(selectedCategory.value);
+    await fetchFiltersData(selectedCategory.value);
+
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        container.addEventListener("scroll", handleScroll);
+    }
+});
+
+onUnmounted(() => {
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        container.removeEventListener("scroll", handleScroll);
+    }
 });
 </script>

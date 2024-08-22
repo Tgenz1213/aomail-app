@@ -11,7 +11,8 @@ import json
 import logging
 from collections import defaultdict
 from datetime import timedelta
-from django.db.models import Exists, OuterRef, Q, Subquery
+from django.db.models import Exists, OuterRef, F, Q, Subquery
+from django.db.models.functions import Coalesce
 from django.db.models.manager import BaseManager
 from django.http import HttpRequest
 from django.utils import timezone
@@ -299,7 +300,7 @@ def get_sorted_queryset(
         query = Q()
         for key, value in filters.items():
             if key != "user":
-                query |= Q(**{key: value})
+                query |= Q(** {key: value})
 
         if "category" in filters:
             queryset = Email.objects.filter(
@@ -314,10 +315,20 @@ def get_sorted_queryset(
     queryset = queryset.annotate(
         has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
     )
+
+    # Apply the sorting
     if sort == "asc":
-        queryset = queryset.order_by("-date")
+        queryset = queryset.order_by(
+            F('priority').asc(nulls_last=True),
+            F('read').asc(),
+            '-date'
+        )
     else:
-        queryset = queryset.order_by("date")
+        queryset = queryset.order_by(
+            F('priority').asc(nulls_last=True),
+            F('read').asc(),
+            'date'
+        )
 
     return queryset
 

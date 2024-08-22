@@ -114,12 +114,10 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
-import { useRouter } from "vue-router";
-import { API_BASE_URL } from "@/global/const";
 import logo from "@/assets/logo-aomail.png";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-
-const router = useRouter();
+import { postData } from "@/global/fetchData";
+import router from "@/router/router";
 
 const username = ref<string>("");
 const password = ref<string>("");
@@ -175,27 +173,16 @@ async function login() {
         return;
     }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}api/login/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username: username.value,
-                password: password.value,
-            }),
-        });
+    const result = await postData("api/login/", {
+        username: username.value,
+        password: password.value,
+    });
 
-        if (response.ok) {
-            const { accessToken } = await response.json();
-            localStorage.setItem("accessToken", accessToken);
-            router.push({ name: "home" });
-        } else {
-            displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
-        }
-    } catch {
+    if (!result.success) {
         displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
+        return;
     }
+    localStorage.setItem("accessToken", result.data.accessToken);
+    router.push({ name: "home" });
 }
 </script>

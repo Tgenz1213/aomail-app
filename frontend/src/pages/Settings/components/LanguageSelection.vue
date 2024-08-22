@@ -9,7 +9,6 @@
                     <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
             </ListboxButton>
-
             <transition
                 leave-active-class="transition ease-in duration-100"
                 leave-from-class="opacity-100"
@@ -59,6 +58,7 @@ import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import { KeyValuePair } from "@/global/types";
 import { i18n } from "@/global/preferences";
 import { postData } from "@/global/fetchData";
+import { AllowedLanguageType } from "@/global/const";
 
 const languages: KeyValuePair[] = [
     { key: "french", value: i18n.global.t("constants.languagesList.french") },
@@ -77,12 +77,13 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 
 const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
     selectedLanguage.value = newLanguage;
-    const newLanguageKey = newLanguage.key;
+    const newLanguageKey = newLanguage.key as AllowedLanguageType;
     const currentLanguage = localStorage.getItem("language");
 
     if (newLanguageKey === currentLanguage) return;
 
     localStorage.setItem("language", newLanguageKey);
+    i18n.global.locale = newLanguageKey;
 
     const result = await postData(`user/preferences/set_language/`, { language: newLanguageKey });
 

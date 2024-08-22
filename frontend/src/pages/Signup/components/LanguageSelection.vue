@@ -9,7 +9,6 @@
                     <ChevronUpDownIcon class="h-5 w-5 text-gray-400" aria-hidden="true" />
                 </span>
             </ListboxButton>
-
             <transition
                 leave-active-class="transition ease-in duration-100"
                 leave-from-class="opacity-100"
@@ -58,6 +57,7 @@ import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
 import { i18n } from "@/global/preferences";
 import { KeyValuePair } from "@/global/types";
+import { AllowedLanguageType } from "@/global/const";
 
 const languages = ref<KeyValuePair[]>([
     { key: "french", value: i18n.global.t("constants.languagesList.french") },
@@ -73,13 +73,14 @@ const storedLanguageKey = localStorage.getItem("language") || "american";
 const initialLanguage = languages.value.find((lang) => lang.key === storedLanguageKey) || languages.value[1];
 const selectedLanguage = ref<KeyValuePair>(initialLanguage);
 
-const updateLanguageSelection = async (newLanguage: KeyValuePair) => {
+const updateLanguageSelection = (newLanguage: KeyValuePair) => {
     selectedLanguage.value = newLanguage;
-    const newLanguageKey = newLanguage.key;
-    const currentLanguage = localStorage.getItem("language");
+    const newLanguageKey = newLanguage.key as AllowedLanguageType;
+    const currentLanguageKey = localStorage.getItem("language");
 
-    if (newLanguageKey !== currentLanguage) {
+    if (newLanguageKey !== currentLanguageKey) {
         localStorage.setItem("language", newLanguageKey);
+        i18n.global.locale = newLanguageKey;
     }
 };
 

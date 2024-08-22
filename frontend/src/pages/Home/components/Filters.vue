@@ -98,6 +98,25 @@ const selectedCategory = inject('selectedCategory') as Ref<string>;
 const activeFilter = ref('');
 const showAllFiltersModal = ref(false);
 
+/*
+const allFilters = computed((): Filter[] => [
+  {
+    id: -1, 
+    name: 'No filter',
+    important: true,
+    informative: true,
+    useless: true,
+    read: true,
+    notification: true,
+    newsletter: true,
+    spam: true,
+    scams: true,
+    meeting: true,
+    category:
+  },
+  ...filters.value
+]);*/
+
 const hiddenFiltersCount = computed(() => {
   return Math.max(0, filters.value.length - visibleFilters.value.length);
 });

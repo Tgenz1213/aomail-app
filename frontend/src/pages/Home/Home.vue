@@ -118,6 +118,7 @@ const fetchEmailsData = async (categoryName: string) => {
     let response : FetchDataResult;
 
     if (selectedFilter) {
+        console.log("SELECTED FILTER", selectedFilter)
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");
@@ -128,6 +129,7 @@ const fetchEmailsData = async (categoryName: string) => {
         if (selectedFilter.value?.useless) {
             priorities.push("useless");
         }
+        console.log("PRIORITIES", priorities)
         response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: selectedFilter.value?.read,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scams, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter });
     } else {     
         response = await postData("user/emails_ids/", { subject: "", category: categoryName });

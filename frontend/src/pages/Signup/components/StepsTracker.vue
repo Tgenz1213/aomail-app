@@ -58,9 +58,9 @@ const goBackStepLinkEmail = () => {
     step.value = 3;
 };
 
-const goStepSignUpSummary = inject<() => void>("goStepSignUpSummary") || (() => {});
-const submitSignupData = inject<() => void>("submitSignupData") || (() => {});
-const goStepCategoriesForm = inject<() => void>("goStepCategoriesForm") || (() => {});
-const goStepPreferencesForm = inject<() => void>("goStepPreferencesForm") || (() => {});
-const goStepLinkEmail = inject<() => void>("goStepLinkEmail") || (() => {});
+const goStepSignUpSummary = inject<() => void>("goStepSignUpSummary");
+const submitSignupData = inject<() => void>("submitSignupData");
+const goStepCategoriesForm = inject<() => void>("goStepCategoriesForm");
+const goStepPreferencesForm = inject<() => void>("goStepPreferencesForm");
+const goStepLinkEmail = inject<() => void>("goStepLinkEmail");
 </script>

@@ -32,13 +32,13 @@ const props = defineProps({
     onClick: Function,
 });
 
-const emits = defineEmits(["click"]);
+const emits = defineEmits(["onClick"]);
 
 const handleClick = (event: Event) => {
     if (props.onClick) {
         props.onClick(event);
     }
-    emits("click", event);
+    emits("onClick", event);
 };
 
 const ariaCurrent = computed(() => {

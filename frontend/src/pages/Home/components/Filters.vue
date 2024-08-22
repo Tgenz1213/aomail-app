@@ -87,10 +87,13 @@
 <script setup lang="ts">
 import { Ref, computed, ref, inject, watch } from 'vue';
 import { Filter } from "../utils/types";
+import { Category } from '@/global/types';
 
 const openNewFilterModal = inject('openNewFilterModal') as () => void;
 const openUpdateFilterModal = inject('openUpdateFilterModal') as (filter: Filter) => void;
+const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
 const filters = inject('filters') as Ref<Filter[]>;
+const selectedCategory = inject('selectedCategory') as Ref<string>;
 
 const activeFilter = ref('');
 const showAllFiltersModal = ref(false);
@@ -110,6 +113,7 @@ const toggleMoreFilters = () => {
 const setActiveFilter = (filterName: string) => {
   activeFilter.value = filterName;
   showAllFiltersModal.value = false;
+  fetchEmailsData(selectedCategory.value);
 };
 
 </script>

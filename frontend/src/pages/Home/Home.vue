@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref, computed, provide, onMounted, onUnmounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
-import { Email, Category } from "@/global/types";
+import { Email, Category, FetchDataResult } from "@/global/types";
 import { Filter } from "./utils/types";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
@@ -95,6 +95,7 @@ const timerId = ref<number | null>(null);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
+const selectedFilter = ref<Filter | null>(null);
 const categoryToUpdate = ref<Category | null>(null);
 const filterToUpdate = ref<Filter | null>(null);
 const isModalNewCategoryOpen = ref(false);
@@ -114,8 +115,24 @@ const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
+    let response : FetchDataResult;
 
-    const response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+    if (selectedFilter) {
+        const priorities = [];
+        if (selectedFilter.value?.important) {
+            priorities.push("important");
+        }
+        if (selectedFilter.value?.informative) {
+            priorities.push("informative");
+        }
+        if (selectedFilter.value?.useless) {
+            priorities.push("useless");
+        }
+        response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: selectedFilter.value?.read,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scams, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter });
+    } else {     
+        response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+    }
+
     allEmailIds.value = response.data.ids;
 
     await loadMoreEmails();
@@ -162,6 +179,28 @@ const handleScroll = () => {
     }
 };
 
+const fetchEmailsDataFiltered = async (categoryName: string, filter: Filter) => {
+    currentPage.value = 1;
+    emails.value = {};
+    allEmailIds.value = [];
+    const priorities = [];
+
+    if (filter.important) {
+        priorities.push("important");
+    }
+    if (filter.informative) {
+        priorities.push("informative");
+    }
+    if (filter.useless) {
+        priorities.push("useless");
+    }
+
+    const response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: filter.read,  priority: priorities, spam: filter.spam, scam: filter.scams, meeting: filter.meeting, notification: filter.notification, newsletter: filter.newsletter });
+    allEmailIds.value = response.data.ids;
+
+    await loadMoreEmails();
+};
+
 async function fetchCategoriesAndTotals() {
     const categoriesResponse = await getData("user/categories");
     categories.value = categoriesResponse.data;
@@ -195,6 +234,7 @@ const openUpdateFilterModal = (filter: Filter) => {
 
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
+provide("fetchEmailsDataFiltered", fetchEmailsDataFiltered);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
 provide("openUpdateFilterModal", openUpdateFilterModal);
@@ -202,6 +242,7 @@ provide("fetchFildersData", fetchFiltersData);
 provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);
+provide("selectedFilter", selectedFilter);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({

@@ -4,10 +4,7 @@ Provides email search and operation functions using Microsoft Graph API.
 Endpoints:
 - ✅ send_schedule_email: Schedule the sending of an email.
 - ✅ send_email: Sends an email using the Microsoft Graph API.
-
-
-TODO:
-- merge get_mail_to_db inside get_mail + return a dict instead of a tuple
+- ✅ get_mail: Retrieves email details by index or message ID.
 """
 
 import base64
@@ -641,18 +638,34 @@ def get_mail_to_db(social_api: SocialAPI, email_id: str) -> dict:
     }
 
 
-###########################################################################
-######################## TO DELETE IN THE FUTURE ? ########################
-###########################################################################
-# TO DELETE IN THE FUTURE ? => no, but we must merge get_mail_to_db inside this function because its the same function litterally
-# TODO: return a dict instead of a tuple because microsoft and google do not return exactly the same data and its hard after
-def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
-    """Retrieve email information for processing."""
+def get_mail(access_token: str, int_mail: int = None, id_mail: str = None) -> tuple:
+    """
+    Retrieve email information for processing.
 
+    Args:
+        access_token (str): The access token for authenticating with the Microsoft Graph API.
+        int_mail (int, optional): The zero-based index to retrieve the nth email from the inbox.
+                                  If provided, this takes precedence over the `id_mail` parameter.
+        id_mail (str, optional): The unique identifier of a specific email message to retrieve.
+                                 Used if `int_mail` is not provided.
+
+    Returns:
+        tuple: A tuple containing the following information about the email:
+            - subject (str): The subject line of the email.
+            - from_info (tuple[str, str]): A tuple containing the sender's name and email address in the format (name, email).
+            - decoded_data (str): The processed content of the email body, after parsing and any necessary preprocessing.
+            - cc_info (list[tuple[str, str]]): A list of tuples with names and email addresses of CC (carbon copy) recipients.
+            - bcc_info (list[tuple[str, str]]): A list of tuples with names and email addresses of BCC (blind carbon copy) recipients.
+            - email_id (str): The unique ID of the email message.
+            - sent_date (datetime.datetime): The sent date and time of the email, converted to an aware datetime object.
+
+    Returns:
+        None: If neither `int_mail` nor `id_mail` is specified, if no email is found with the provided index or ID, or if a request error occurs.
+    """
     url = f"{GRAPH_URL}me/mailFolders/inbox/messages"
     headers = get_headers(access_token)
 
-    if int_mail is not None:
+    if int_mail:
         response = requests.get(url, headers=headers)
         response_data: dict = response.json()
         messages = response_data.get("value", [])
@@ -661,10 +674,8 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
             return None
 
         email_id = messages[int_mail]["id"]
-    elif id_mail is not None:
+    elif id_mail:
         email_id = id_mail
-    else:
-        return None
 
     message_url = f"{url}/{email_id}"
     response = requests.get(message_url, headers=headers)
@@ -677,6 +688,7 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
     bcc_info = parse_recipients(message_data.get("bccRecipients"))
     sent_date_str = message_data.get("sentDateTime")
     sent_date = None
+
     if sent_date_str:
         sent_date = datetime.datetime.strptime(sent_date_str, "%Y-%m-%dT%H:%M:%SZ")
         sent_date = make_aware(sent_date)
@@ -699,54 +711,3 @@ def get_mail(access_token: str, int_mail: int = None, id_mail: str = None):
         email_id,
         sent_date,
     )
-
-
-'''
-def search_emails(access_token: str, search_query: str, max_results=2) -> dict:
-    """
-    Searches for emails in the user's mailbox based on the provided search query in both the subject and body.
-
-    Args:
-        access_token (str): Access token for authenticating with Microsoft Graph API.
-        search_query (str): The search query string to search for in email subjects and bodies.
-        max_results (int, optional): Maximum number of email results to retrieve. Defaults to 2.
-
-    Returns:
-        dict: A dictionary mapping found email addresses (keys) to corresponding sender names (values).
-              Each key-value pair represents an email address and its associated sender name found in the search results.
-    """
-    graph_endpoint = f"{GRAPH_URL}me/messages"
-
-    try:
-        headers = get_headers(access_token)
-        filter_expression = f"startswith(subject, '{search_query}') or startswith(body/content, '{search_query}')"
-        params = {"$filter": filter_expression, "$top": max_results}
-
-        response = requests.get(graph_endpoint, headers=headers, params=params)
-        data: dict = response.json()
-        messages: list[dict[str, dict[str, dict]]] = data.get("value", [])
-
-        found_emails = {}
-
-        for message in messages:
-            sender: str = (
-                message.get("from", {}).get("emailAddress", {}).get("address", "")
-            )
-
-            if sender:
-                email = sender.lower()
-                name = sender.split("@")[0].lower()
-
-                # Additional filtering: Check if the sender email/name matches the search query
-                if search_query.lower() in email or search_query.lower() in name:
-                    if email and not email_processing.is_no_reply_email(email):
-                        found_emails[email] = name
-
-        return found_emails
-
-    except Exception as e:
-        LOGGER.error(
-            f"Failed to search emails from Microsoft Graph API. Query: {search_query}. Error: {str(e)}"
-        )
-        return {}
-'''

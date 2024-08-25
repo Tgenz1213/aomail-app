@@ -27,7 +27,7 @@
                     <button
                         type="button"
                         class="group w-full h-full bg-gray-100 rounded-r-md p-2 text-white shadow-sm hover:bg-gray-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 flex items-center justify-center 2xl:px-3 2xl:py-3 ring-1 ring-inset ring-gray-300 hover:ring-transparent shadow-sm"
-                        @click="toggleFilters()"
+                        @click="toggleFilters"
                     >
                         <svg
                             class="w-6 h-5 text-gray-400 group-hover:text-white"

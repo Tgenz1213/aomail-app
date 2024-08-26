@@ -43,7 +43,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, provide } from "vue";
-import { useRouter } from "vue-router";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/global/preferences";
@@ -52,6 +51,7 @@ import StepsTracker from "./components/StepsTracker.vue";
 import { postData } from "@/global/fetchData";
 import EmailLinkForm from "./components/EmailLinkForm.vue";
 import Summary from "./components/Summary.vue";
+import router from "@/router/router";
 
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");
@@ -59,7 +59,6 @@ const notificationMessage = ref<string>("");
 const backgroundColor = ref<string>("");
 const timerId = ref<number | null>(null);
 const step = ref(3);
-const router = useRouter();
 
 provide("step", step);
 provide("submitSignupData", submitSignupData);

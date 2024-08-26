@@ -41,17 +41,16 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
+import router from "@/router/router";
 
 const isModalOpen = ref(true);
 const password = ref<string>("");
 const confirmPassword = ref<string>("");
 const uidb64 = ref<string>("");
 const token = ref<string>("");
-const router = useRouter();
 
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");

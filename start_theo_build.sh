@@ -15,6 +15,10 @@ if [ ! -d "backend/media" ]; then
     mkdir -p backend/media/pictures
 fi
 
+if [ ! -d "backend/media/labels" ]; then
+    mkdir -p backend/media/labels
+fi
+
 # docker compose -p augustin_project up --build
 # use this to force install reqs or delete backend instance
 #docker compose -p augustin_project build --no-cache && docker compose -p augustin_project up

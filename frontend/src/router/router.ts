@@ -7,7 +7,7 @@ const router = createRouter({
     routes: routes,
 });
 
-router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+router.beforeEach(async (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
     try {
         const requiresAuth = (to.meta as { requiresAuth?: boolean }).requiresAuth;
         if (requiresAuth) {

@@ -29,21 +29,18 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { API_BASE_URL } from "@/global/const";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
+import router from "@/router/router";
 
 const isModalOpen = ref(true);
 const email = ref("");
-
 const showNotification = ref(false);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
-
-const router = useRouter();
 
 function dismissPopup() {
     showNotification.value = false;

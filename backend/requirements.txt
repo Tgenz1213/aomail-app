@@ -1,3 +1,6 @@
+chardet
+PyPDF2
+reportlab
 pillow
 groq
 stripe

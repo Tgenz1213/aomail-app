@@ -103,16 +103,6 @@ class EmailGenerateAnswer(serializers.Serializer):
     response_type = serializers.CharField()
 
 
-# ----------------------- USER  SERIALIZER -----------------------#
-# TODO: remove when deleting attribute bg_color from models.py
-class PreferencesSerializer(serializers.ModelSerializer):
-    """Serializer for handling 'Preferences' model data in API interactions."""
-
-    class Meta:
-        model = Preference
-        fields = ["bg_color"]
-
-
 class UserLoginSerializer(serializers.ModelSerializer):
     """Serializer for retrieving user login data through a GET request."""
 

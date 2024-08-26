@@ -11,6 +11,10 @@ type UserPreferenceResponse = {
     error?: string;
 };
 
+const languageSelected = ref("american");
+const themeSelected = ref("light");
+const timezoneSelected = ref("UTC");
+
 const fetchUserPreference = async (
     endpoint: string,
     key: keyof UserPreferenceResponse,
@@ -59,7 +63,9 @@ export const initializePreferences = async (i18n: I18n) => {
     if (
         currentUrl !== `${BASE_URL}` &&
         currentUrl !== `${BASE_URL}/signup` &&
-        currentUrl !== `${BASE_URL}/signup_part2`
+        currentUrl !== `${BASE_URL}/signup_part2` &&
+        currentUrl !== `${BASE_URL}/password-reset-link` &&
+        currentUrl !== `${BASE_URL}/reset-password-form`
     ) {
         const language = await fetchUserPreference("user/preferences/language/", "language", [...ALLOWED_LANGUAGES]);
         if (language) {
@@ -77,7 +83,4 @@ export const initializePreferences = async (i18n: I18n) => {
     }
 };
 
-export const languageSelected = ref("american");
-export const themeSelected = ref("light");
-export const timezoneSelected = ref("UTC");
 export const i18n = createI18n({ legacy: true, locale: languageSelected.value, fallbackLocale: "american", messages });

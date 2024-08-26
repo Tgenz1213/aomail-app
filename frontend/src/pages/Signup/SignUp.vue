@@ -47,7 +47,6 @@ import { i18n } from "@/global/preferences";
 import logo from "@/assets/logo-aomail.png";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { Category } from "@/global/types";
-import { getData } from "@/global/fetchData";
 import router from "@/router/router";
 import CredentialsForm from "./components/CredentialsForm.vue";
 import PreferencesForm from "./components/PreferencesForm.vue";
@@ -124,19 +123,39 @@ async function goStepPreferencesForm() {
         return;
     }
 
-    const result = await getData(`check_username/`, { username: login.value });
+    try {
+        const requestOptions = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                username: login.value,
+            },
+        };
 
-    if (!result.success) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationIdentifier"),
-            result.error as string
-        );
-        return;
-    } else if (result.data.available === false) {
-        credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.identifierIsAlreadyInUse");
+        const result = await fetch(`check_username/`, requestOptions);
+        const data = await result.json();
+
+        if (data.available === false) {
+            credentialError.value = i18n.global.t("constants.popUpConstants.errorMessages.identifierIsAlreadyInUse");
+            return;
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationIdentifier"),
+                error.message
+            );
+        } else {
+            displayPopup?.(
+                "error",
+                i18n.global.t("constants.popUpConstants.errorMessages.errorMessageVerificationIdentifier"),
+                "An unknown error occurred"
+            );
+        }
         return;
     }
+
     const minLength = 8;
     const maxLength = 32;
 

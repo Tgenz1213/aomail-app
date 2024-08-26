@@ -81,7 +81,7 @@ class Category(models.Model):
     """Model for storing category information."""
 
     name = models.CharField(max_length=50)
-    description = models.TextField(max_length=300)  # PLEASE DO NOT CHANGE
+    description = models.TextField(max_length=300)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
@@ -90,8 +90,7 @@ class Preference(models.Model):
 
     timezone = models.CharField(max_length=50, default="UTC")
     theme = models.CharField(max_length=50, default="light")
-    language = models.CharField(max_length=50, default="en")
-    bg_color = models.CharField(max_length=200)  # TODO: remove
+    language = models.CharField(max_length=50, default="american")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
@@ -176,9 +175,7 @@ class Filter(models.Model):
     """Model for storing filter information"""
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    social_api = models.ForeignKey(
-        SocialAPI, on_delete=models.CASCADE, null=True
-    )
+    social_api = models.ForeignKey(SocialAPI, on_delete=models.CASCADE, null=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     name = models.CharField(max_length=25)
     important = models.BooleanField(default=False)
@@ -192,10 +189,23 @@ class Filter(models.Model):
     meeting = models.BooleanField(default=False)
     relevance = models.CharField(max_length=50, null=True)
     answer = models.CharField(max_length=50, null=True)
-    
+
+
+class Label(models.Model):
+    """Model for storing shipping label information."""
+
+    email = models.ForeignKey(Email, on_delete=models.CASCADE)
+    item_name = models.CharField(max_length=50)
+    plateform = models.CharField(max_length=50)
+    carrier = models.CharField(max_length=50)
+    label_name = models.CharField(max_length=100)
+    postage_deadline = models.DateTimeField()
+
 
 class Attachment(models.Model):
-    mail_id = models.ForeignKey(
+    """Model for storing email attachment information."""
+
+    email = models.ForeignKey(
         Email, on_delete=models.CASCADE, related_name="attachments"
     )
     name = models.CharField(max_length=200)
@@ -205,7 +215,7 @@ class Attachment(models.Model):
 class CC_sender(models.Model):
     """Model for storing CC sender information."""
 
-    mail_id = models.ForeignKey(
+    email_object = models.ForeignKey(
         Email, on_delete=models.CASCADE, related_name="cc_senders"
     )
     email = models.CharField(max_length=200)
@@ -215,7 +225,7 @@ class CC_sender(models.Model):
 class BCC_sender(models.Model):
     """Model for storing BCC sender information."""
 
-    mail_id = models.ForeignKey(
+    email_object = models.ForeignKey(
         Email, on_delete=models.CASCADE, related_name="bcc_senders"
     )
     email = models.CharField(max_length=200)
@@ -225,10 +235,10 @@ class BCC_sender(models.Model):
 class Picture(models.Model):
     """Model for storing pictures sender of a mail"""
 
-    mail_id = models.ForeignKey(
+    email = models.ForeignKey(
         Email, on_delete=models.CASCADE, related_name="picture_mail"
     )
-    picture = models.TextField()
+    path = models.TextField()
 
 
 class KeyPoint(models.Model):

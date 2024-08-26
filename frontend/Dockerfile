@@ -10,7 +10,3 @@ COPY .eslintrc.js ./
 
 # Install the project dependencies
 RUN npm install
-
-# Install TypeScript globally (if needed)
-RUN npm install -g typescript
-

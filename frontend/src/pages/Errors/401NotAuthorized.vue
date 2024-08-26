@@ -17,10 +17,9 @@
 </template>
 
 <script setup lang="ts">
+import router from "@/router/router";
 import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
 const countdown = ref<number>(5);
 let timer: ReturnType<typeof setInterval>;
 

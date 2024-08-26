@@ -5,8 +5,15 @@ Features:
 - ✅ email_to_db: Save email notifications from various email service APIs to the database.
 """
 
-from concurrent.futures import ThreadPoolExecutor
+import datetime
 import logging
+import os
+import re
+from PyPDF2 import PdfWriter, PdfReader
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, landscape
+from io import BytesIO
+from concurrent.futures import ThreadPoolExecutor
 from django.db import transaction
 from django.contrib.auth.models import User
 from aomail.ai_providers import claude
@@ -17,6 +24,7 @@ from aomail.constants import (
     HIGHLY_RELEVANT,
     IMPORTANT,
     INFORMATIVE,
+    MEDIA_ROOT,
     MICROSOFT,
     MIGHT_REQUIRE_ANSWER,
     NO_ANSWER_REQUIRED,
@@ -29,6 +37,7 @@ from aomail.utils import email_processing
 from aomail.models import (
     Contact,
     KeyPoint,
+    Label,
     Preference,
     Rule,
     SocialAPI,
@@ -50,8 +59,27 @@ from aomail.email_providers.google import (
 from aomail.ai_providers.utils import update_tokens_stats
 
 
-######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
+REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
+DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
+CARRIER_PATTERNS = [
+    re.compile(
+        r"3\. Drop the parcel off</strong> in the\s*(.*?)\s*drop-off point of your choice\.</p>",
+        re.IGNORECASE,
+    )
+]
+DEADLINE_PATTERNS = [
+    re.compile(
+        r"<strong>Postage\s*deadline:</strong></td>\s*<td[^>]*>(.*?)</td>",
+        re.IGNORECASE,
+    )
+]
+ITEM_NAME_PATTERNS = [
+    re.compile(r"<strong>Item:</strong></td>\s*<td[^>]*>(.*?)<br>", re.IGNORECASE)
+]
+REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
+DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
+ECOMMERCE_PLATFORMS = ["vinted"]
 
 
 def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
@@ -81,7 +109,13 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
             return True
 
         processed_email = process_email(email_data, user, social_api)
-        save_email_to_db(processed_email, user, social_api)
+        email_entry = save_email_to_db(processed_email, user, social_api)
+
+        if is_shipping_label(email_data["subject"]):
+            label_data = extract_label_data(
+                email_data["from_info"][1], email_data["preprocessed_data"]
+            )
+            create_shipping_label(email_entry, label_data)
 
         LOGGER.info(
             f"Email ID: {email_data['email_id']} saved successfully for user ID: {user.id}"
@@ -91,6 +125,247 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
     except Exception as e:
         LOGGER.error(f"Error saving email for user ID: {user.id}: {str(e)}")
         return False
+
+
+def extract_label_data(email_address: str, body: str) -> dict:
+    """
+    Extracts shipping label information such as carrier name, item name, and postage deadline from the email body.
+
+    Args:
+        email_address (str): The email address of the sender.
+        body (str): The HTML content of the email body.
+
+    Returns:
+        dict: A dictionary containing the carrier name, postage deadline, and item name.
+    """
+    data = {"carrier": None, "deadline": None, "item_name": None, "platform": None}
+
+    for pattern in CARRIER_PATTERNS:
+        carrier_match = pattern.search(body)
+        if carrier_match:
+            data["carrier"] = carrier_match.group(1).strip()
+            break
+
+    for pattern in DEADLINE_PATTERNS:
+        deadline_match = pattern.search(body)
+        if deadline_match:
+            deadline_str = deadline_match.group(1).strip()
+            try:
+                data["deadline"] = datetime.datetime.strptime(
+                    deadline_str, "%d/%m/%Y %I:%M %p"
+                ).isoformat()
+            except ValueError:
+                data["deadline"] = None
+            break
+
+    if not data["carrier"]:
+        carrier_names = {
+            "mondialrelay": "mondial_relay",
+            "mondial relay": "mondial_relay",
+            "Mondial Relay": "mondial_relay",
+            "ups": "ups",
+            "UPS": "ups",
+            "la poste": "la_poste",
+            "laposte": "la_poste",
+            "chronopost": "chronopost",
+            "Chronopost": "chronopost",
+            "relais colis": "relais_colis",
+            "relaiscolis": "relais_colis",
+        }
+
+        carrier_pattern_list = "|".join(
+            re.escape(name) for name in carrier_names.keys()
+        )
+        carrier_fallback_pattern = re.compile(
+            rf"\b({carrier_pattern_list})\b", re.IGNORECASE
+        )
+
+        fallback_match = carrier_fallback_pattern.search(body)
+        if fallback_match:
+            carrier_key = fallback_match.group(0).lower()
+            data["carrier"] = carrier_names.get(carrier_key, carrier_key.capitalize())
+
+    for pattern in ITEM_NAME_PATTERNS:
+        item_match = pattern.search(body)
+        if item_match:
+            data["item_name"] = item_match.group(1).strip()
+            break
+
+    for platform in ECOMMERCE_PLATFORMS:
+        if platform in email_address:
+            data["platform"] = platform
+            break
+
+    return data
+
+
+def create_shipping_label(email: Email, label_data: dict):
+    """
+    Create the shipping label by merging the official shipping label with a custom message.
+
+    Args:
+        email (Email): The email object that contains information about the email message.
+        label_data (dict): A dictionary containing the label information such as:
+            carrier: The carrier name.
+            item_name: The name of the item.
+            plateform: The platform information.
+            postage_deadline: The postage deadline.
+    """
+    attachment_name = Attachment.objects.get(email=email).name
+
+    if email.social_api.type_api == GOOGLE:
+        attachment_data = email_operations_google.get_attachment_data(
+            email.user, email.social_api.email, email.provider_id, attachment_name
+        )
+    elif email.social_api.type_api == MICROSOFT:
+        ...
+
+    pdf_reader = PdfReader(BytesIO(attachment_data))
+    pdf_writer = PdfWriter()
+
+    for page_num in range(len(pdf_reader.pages)):
+        page = pdf_reader.pages[page_num]
+        packet = BytesIO()
+
+        if label_data["carrier"] in [
+            "mondial_relay",
+            "ups",
+            "la_poste",
+            "chronopost",
+            "relais_colis",
+        ]:
+            orientation = landscape(letter)
+        else:
+            orientation = landscape(letter)
+
+        canvas_object = canvas.Canvas(packet, pagesize=orientation)
+        canvas_object.setFont("Helvetica", 10)
+
+        if label_data["carrier"] in ["mondial_relay", "ups"]:
+            if label_data["carrier"] == "mondial_relay":
+                y = (
+                    pdf_reader.pages[0].mediabox.height / 2
+                    - 0.11 * pdf_reader.pages[0].mediabox.height
+                )
+            else:
+                y = (
+                    pdf_reader.pages[0].mediabox.height
+                    - 0.11 * pdf_reader.pages[0].mediabox.height
+                )
+
+            x = pdf_reader.pages[0].mediabox.width / (
+                4 if label_data["carrier"] == "mondial_relay" else (3 / 2)
+            )
+            x -= canvas_object.stringWidth(label_data["item_name"]) / 2
+            canvas_object.drawString(x, y, label_data["item_name"])
+            y -= 0.018 * pdf_reader.pages[0].mediabox.height
+
+        else:
+            if label_data["carrier"] == "la_poste":
+                x, y = (
+                    1 / 10 * pdf_reader.pages[0].mediabox.width,
+                    1 / 5 * pdf_reader.pages[0].mediabox.height
+                    - 0.07 * pdf_reader.pages[0].mediabox.height,
+                )
+            elif label_data["carrier"] == "chronopost":
+                x, y = (
+                    0.035 * pdf_reader.pages[0].mediabox.width,
+                    0.034 * pdf_reader.pages[0].mediabox.height,
+                )
+            elif label_data["carrier"] == "relais_colis":
+                x, y = (
+                    3 / 4 * pdf_reader.pages[0].mediabox.width
+                    - canvas_object.stringWidth(label_data["item_name"]) / 2,
+                    2 / 3 * pdf_reader.pages[0].mediabox.height
+                    - 0.034 * pdf_reader.pages[0].mediabox.height,
+                )
+            canvas_object.drawString(x, y, label_data["item_name"])
+
+        canvas_object.save()
+        packet.seek(0)
+        new_pdf = PdfReader(packet)
+        page.merge_page(new_pdf.pages[0])
+        pdf_writer.add_page(page)
+
+    label_name = save_custom_label(
+        pdf_writer, label_data["carrier"], label_data["item_name"]
+    )
+    if label_name:
+        save_label_to_db(email, label_data, label_name)
+
+
+def save_label_to_db(email: Email, label_data: dict, label_name: str):
+    """
+    Saves the shipping label details to the database.
+
+    Args:
+        email (Email): An instance of the Email model representing the email associated with the shipping label.
+        label_data (dict): A dictionary containing details about the label.
+        label_name (str): The name of the PDF file containing the shipping label.
+    """
+    Label.objects.create(
+        email=email,
+        item_name=label_data["item_name"],
+        plateform=label_data["plateform"],
+        carrier=label_data["carrier"],
+        label_name=label_name,
+        postage_deadline=label_data["postage_deadline"],
+    )
+
+
+def save_custom_label(
+    pdf_writer: PdfWriter, carrier: str, item_name: str
+) -> str | None:
+    """
+    Saves the shipping label PDF to the specified directory, ensuring the filename is unique.
+
+    Args:
+        pdf_writer (PdfWriter): The PdfWriter object containing the modified PDF content.
+        carrier (str): The name of the carrier.
+        item_name (str): The name of the item.
+    """
+    try:
+        directory = os.path.join(MEDIA_ROOT, "labels")
+        label_name = f"{carrier}_{item_name}.pdf"
+        n = 1
+
+        while os.path.exists(os.path.join(directory, label_name)):
+            label_name = f"{carrier}_{item_name}({n}).pdf"
+            n += 1
+
+        with open(os.path.join(directory, label_name), "wb") as f:
+            pdf_writer.write(f)
+
+        return label_name
+
+    except FileNotFoundError as e:
+        LOGGER.error(f"Directory not found while saving the label: {str(e)}")
+        return None
+    except IOError as e:
+        LOGGER.error(f"IO error occurred while saving the label: {str(e)}")
+        return None
+    except Exception as e:
+        LOGGER.error(f"An unexpected error occurred while saving the label: {str(e)}")
+        return None
+
+
+def is_shipping_label(subject: str) -> bool:
+    """
+    Determines if the email contains a shipping label based on specific keywords and date patterns.
+
+    Args:
+        subject (str): The subject of the email.
+
+    Returns:
+        bool: True if the email contains a shipping label, False otherwise.
+    """
+    for keywords in REQUIRED_SUBJECT_KEYWORDS:
+        if all(keyword in subject for keyword in keywords):
+            for date_pattern in DATE_PATTERNS:
+                if re.search(date_pattern, subject):
+                    return True
+
+    return False
 
 
 def get_email_data(social_api: SocialAPI, email_id: str = None) -> dict:
@@ -197,7 +472,7 @@ def process_email(email_data: dict, user: User, social_api: SocialAPI) -> dict:
 
 
 @transaction.atomic
-def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
+def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI) -> Email:
     """
     Save the processed email to the database.
 
@@ -205,6 +480,9 @@ def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
         processed_email (dict): A dictionary containing the processed email data.
         user (User): The user object associated with the email.
         social_api (SocialAPI): An object representing the social API being used.
+
+    Returns:
+        email_entry (Email): The saved Email model instance representing the stored email.
     """
     email_data = processed_email["email_data"]
     email_ai = processed_email["email_processed"]
@@ -224,6 +502,8 @@ def save_email_to_db(processed_email: dict, user: User, social_api: SocialAPI):
     if social_api.type_api == GOOGLE:
         create_cc_bcc_senders(email_data, email_entry)
         create_pictures_and_attachments(email_data, email_entry)
+
+    return email_entry
 
 
 def save_stats(email_ai: dict, user: User):
@@ -390,11 +670,11 @@ def create_cc_bcc_senders(processed_email: dict, email_entry: Email):
 
     if cc_info:
         for email, name in cc_info:
-            CC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+            CC_sender.objects.create(email_object=email_entry, email=email, name=name)
 
     if bcc_info:
         for email, name in bcc_info:
-            BCC_sender.objects.create(mail_id=email_entry, email=email, name=name)
+            BCC_sender.objects.create(email_object=email_entry, email=email, name=name)
 
 
 def create_pictures_and_attachments(processed_email: dict, email_entry: Email):
@@ -406,11 +686,11 @@ def create_pictures_and_attachments(processed_email: dict, email_entry: Email):
         email_entry (Email): The Email object to associate the pictures and attachments with.
     """
     for image_path in processed_email.get("image_files", []):
-        Picture.objects.create(mail_id=email_entry, picture=image_path)
+        Picture.objects.create(email=email_entry, path=image_path)
 
     for attachment in processed_email.get("attachments", []):
         Attachment.objects.create(
-            mail_id=email_entry,
+            email=email_entry,
             name=attachment["attachmentName"],
             id_api=attachment["attachmentId"],
         )

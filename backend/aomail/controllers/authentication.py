@@ -107,7 +107,6 @@ def signup(request: HttpRequest) -> Response:
     timezone: str = parameters.get("timezone", "")
     language: str = parameters.get("language", "")
     theme: str = parameters.get("theme", "")
-    color: str = parameters.get("color", "")
     categories: list = parameters.get("categories", [])
     user_description: str = parameters.get("userDescription", "")
 
@@ -170,7 +169,6 @@ def signup(request: HttpRequest) -> Response:
         access_token,
         refresh_token,
         theme,
-        color,
         categories,
         language,
         timezone,
@@ -486,7 +484,6 @@ def save_user_data(
     access_token: str,
     refresh_token: str,
     theme: str,
-    color: str,
     categories: dict,
     language: str,
     timezone: str,
@@ -502,7 +499,6 @@ def save_user_data(
         access_token (str): Access token for API authentication.
         refresh_token (str): Refresh token for API authentication.
         theme (str): Preferred theme for the user interface.
-        color (str): Background color preference.
         categories (dict): Dictionary containing categories data.
                            Expected format: {'name': str, 'description': str}
         language (str): Preferred language setting.
@@ -525,7 +521,7 @@ def save_user_data(
             refresh_token=refresh_token_encrypted,
         )
         Preference.objects.create(
-            theme=theme, bg_color=color, language=language, timezone=timezone, user=user
+            theme=theme, language=language, timezone=timezone, user=user
         )
 
         if categories:

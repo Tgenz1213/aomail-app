@@ -29,7 +29,7 @@ export async function isUserAuthenticated(): Promise<boolean> {
         }
 
         const data: AuthResponse = await response.json();
-        return data.isAuthenticated === true;
+        return data.isAuthenticated;
     } catch (error) {
         return false;
     }

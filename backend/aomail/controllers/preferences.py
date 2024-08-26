@@ -29,9 +29,6 @@ from aomail.constants import (
 from aomail.models import (
     Preference,
 )
-from aomail.utils.serializers import (
-    PreferencesSerializer,
-)
 
 
 ######################## LOGGING CONFIGURATION ########################
@@ -297,37 +294,3 @@ def set_user_timezone(request: HttpRequest) -> Response:
 def get_user_details(request: HttpRequest) -> Response:
     """Returns the username of authenticated user."""
     return Response({"username": request.user.username})
-
-
-###########################################################
-######################## TO DELETE ########################
-###########################################################
-@api_view(["GET"])
-@subscription([FREE_PLAN])
-def get_user_bg_color(request):
-    try:
-        preferences = Preference.objects.get(user=request.user)
-        serializer = PreferencesSerializer(preferences)
-        return Response(serializer.data)
-
-    except Preference.DoesNotExist:
-        return Response(
-            {"error": "Preferences not found for the user."},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-
-
-@api_view(["POST"])
-@subscription([FREE_PLAN])
-def set_user_bg_color(request):
-    try:
-        preferences = Preference.objects.get(user=request.user)
-    except Preference.DoesNotExist:
-        preferences = Preference(user=request.user)
-
-    serializer = PreferencesSerializer(preferences, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

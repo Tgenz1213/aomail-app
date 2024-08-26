@@ -82,7 +82,7 @@ ITEM_NAME_PATTERNS = [
 ]
 REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
 DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
-ECOMMERCE_PLATFORMS = ["vinted", "augustin", "augu"]
+ECOMMERCE_PLATFORMS = ["vinted", "labrotique"]
 CARRIER_NAMES = {
     "mondialrelay": "mondial_relay",
     "mondial relay": "mondial_relay",

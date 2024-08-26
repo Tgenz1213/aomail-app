@@ -15,6 +15,10 @@
             <strong>Carrier:</strong>
             {{ carrierNames[label.carrier] || label.carrier }}
         </div>
+        <div class="text-gray-700 mb-2">
+            <strong>Platform:</strong>
+            {{ label.platform }}
+        </div>
     </li>
 </template>
 

@@ -113,6 +113,7 @@ def get_labels_data(request: HttpRequest) -> Response:
                 "id": label.id,
                 "itemName": label.item_name,
                 "carrier": label.carrier,
+                "platform": label.platform,
                 "postageDeadlineDate": label.postage_deadline.date(),
                 "postageDeadlineTime": label.postage_deadline.strftime("%H:%M"),
             }

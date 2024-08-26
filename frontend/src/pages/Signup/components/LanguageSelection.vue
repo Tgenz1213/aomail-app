@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
@@ -69,7 +69,7 @@ const languages = ref<KeyValuePair[]>([
     { key: "indian", value: i18n.global.t("constants.languagesList.indian") },
 ]);
 
-const storedLanguageKey = localStorage.getItem("language") || "american";
+const storedLanguageKey = localStorage.getItem("language");
 const initialLanguage = languages.value.find((lang) => lang.key === storedLanguageKey) || languages.value[1];
 const selectedLanguage = ref<KeyValuePair>(initialLanguage);
 
@@ -85,4 +85,10 @@ const updateLanguageSelection = (newLanguage: KeyValuePair) => {
 };
 
 watch(selectedLanguage, updateLanguageSelection);
+
+onMounted(() => {
+    if (!localStorage.getItem("language")) {
+        localStorage.setItem("language", "american");
+    }
+});
 </script>

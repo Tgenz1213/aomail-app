@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
@@ -78,4 +78,10 @@ const updateTimeZoneSelection = (newTimeZone: string) => {
 };
 
 watch(selectedTimeZone, updateTimeZoneSelection);
+
+onMounted(() => {
+    if (!localStorage.getItem("timezone")) {
+        localStorage.setItem("timezone", "UTC");
+    }
+});
 </script>

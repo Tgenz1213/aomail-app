@@ -52,6 +52,7 @@ import { postData } from "@/global/fetchData";
 import EmailLinkForm from "./components/EmailLinkForm.vue";
 import Summary from "./components/Summary.vue";
 import router from "@/router/router";
+import { API_BASE_URL } from "@/global/const";
 
 const showNotification = ref<boolean>(false);
 const notificationTitle = ref<string>("");
@@ -121,25 +122,39 @@ async function submitSignupData(event: Event) {
 
     displayPopup("success", "Account creation in progress...", "Waiting for database response");
 
-    const result = await postData(`signup/`, {
-        login: sessionStorage.getItem("login"),
-        password: sessionStorage.getItem("password"),
-        timezone: localStorage.getItem("timezone"),
-        language: localStorage.getItem("language"),
-        theme: localStorage.getItem("theme"),
-        categories: localStorage.getItem("categories"),
-        code: sessionStorage.getItem("code"),
-        typeApi: sessionStorage.getItem("typeApi"),
-        userDescription: sessionStorage.getItem("userDescription"),
-    });
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            login: sessionStorage.getItem("login"),
+            password: sessionStorage.getItem("password"),
+            timezone: localStorage.getItem("timezone"),
+            language: localStorage.getItem("language"),
+            theme: localStorage.getItem("theme"),
+            categories: localStorage.getItem("categories"),
+            code: sessionStorage.getItem("code"),
+            typeApi: sessionStorage.getItem("typeApi"),
+            userDescription: sessionStorage.getItem("userDescription"),
+        }),
+    };
 
-    if (!result.success) {
-        displayPopup("error", i18n.global.t("signuUpLinkPage.accountCreationError"), result.error as string);
-    } else {
-        localStorage.setItem("accessToken", result.data.accessToken);
-        sessionStorage.clear();
-        localStorage.removeItem("categories");
-        router.push({ name: "home" });
+    try {
+        const response = await fetch(`${API_BASE_URL}signup/`, requestOptions);
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("accessToken", data.accessToken);
+            sessionStorage.clear();
+            localStorage.removeItem("categories");
+            router.push({ name: "home" });
+        } else {
+            const data = await response.json();
+            displayPopup("error", i18n.global.t("signuUpLinkPage.accountCreationError"), data.error);
+        }
+    } catch (error) {
+        displayPopup("error", i18n.global.t("signuUpLinkPage.accountCreationError"), (error as Error).message);
     }
 }
 

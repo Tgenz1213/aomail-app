@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import ChevronUpDownIcon from "@heroicons/vue/24/outline/ChevronUpDownIcon";
 import CheckIcon from "@heroicons/vue/24/outline/CheckIcon";
@@ -50,7 +50,7 @@ const themes = ref<KeyValuePair[]>([
     { key: "dark", value: i18n.global.t("constants.themeList.darkTheme") },
 ]);
 
-const storedThemeKey = localStorage.getItem("theme") || "light";
+const storedThemeKey = localStorage.getItem("theme");
 const initialTheme = themes.value.find((theme) => theme.key === storedThemeKey) || themes.value[0];
 const selectedTheme = ref<KeyValuePair>(initialTheme);
 
@@ -59,4 +59,10 @@ const updateThemeSelection = (newTheme: KeyValuePair) => {
 };
 
 watch(selectedTheme, updateThemeSelection);
+
+onMounted(() => {
+    if (!localStorage.getItem("theme")) {
+        localStorage.setItem("theme", "light");
+    }
+});
 </script>

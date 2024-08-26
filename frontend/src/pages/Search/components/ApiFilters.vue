@@ -436,7 +436,6 @@ const toggleDropdown = () => {
 };
 
 const isSelected = (type: AttachmentType): boolean => {
-    console.log("attachmentsSelected", attachmentsSelected.value);
     return attachmentsSelected.value.some((item: AttachmentType) => item.extension === type.extension);
 };
 

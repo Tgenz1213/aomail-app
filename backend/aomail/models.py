@@ -72,7 +72,7 @@ class Contact(models.Model):
     """Stores contacts of an email account"""
 
     email = models.CharField(max_length=320, null=True)
-    username = models.CharField(max_length=50, null=True)
+    username = models.CharField(max_length=100, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     provider_id = models.CharField(max_length=320, null=True)
 

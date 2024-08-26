@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineExpose, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import tippy, { Instance } from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import { Recipient } from "@/global/types";

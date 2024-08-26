@@ -12,3 +12,10 @@ export const POP_UP_SUCCESS_COLOR = "bg-green-200/[.89] border border-green-400"
 export const ALLOWED_THEMES = ["light", "dark"];
 export const ALLOWED_LANGUAGES = ["french", "american", "german", "russian", "spanish", "chinese", "indian"] as const;
 export type AllowedLanguageType = (typeof ALLOWED_LANGUAGES)[number];
+export const UNAUTHENTICATED_URLS = [
+    `${BASE_URL}`,
+    `${BASE_URL}signup`,
+    `${BASE_URL}signup_part2`,
+    `${BASE_URL}password-reset-link`,
+    `${BASE_URL}reset-password-form`,
+];

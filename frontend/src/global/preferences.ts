@@ -1,4 +1,4 @@
-import { ALLOWED_LANGUAGES, ALLOWED_THEMES, API_BASE_URL, BASE_URL } from "./const";
+import { ALLOWED_LANGUAGES, ALLOWED_THEMES, API_BASE_URL, BASE_URL, UNAUTHENTICATED_URLS } from "./const";
 import { fetchWithToken } from "./security";
 import { ref } from "vue";
 import { createI18n, I18n } from "vue-i18n";
@@ -57,16 +57,15 @@ const fetchUserPreference = async (
     }
 };
 
+const isUnAuthenticatedUrl = (url: string) => {
+    return UNAUTHENTICATED_URLS.some((baseUrl) => url.startsWith(baseUrl));
+};
+
 export const initializePreferences = async (i18n: I18n) => {
     const currentUrl = window.location.href;
+    console.log("currentUrl", currentUrl);
 
-    if (
-        currentUrl !== `${BASE_URL}` &&
-        currentUrl !== `${BASE_URL}/signup` &&
-        currentUrl !== `${BASE_URL}/signup_part2` &&
-        currentUrl !== `${BASE_URL}/password-reset-link` &&
-        currentUrl !== `${BASE_URL}/reset-password-form`
-    ) {
+    if (!isUnAuthenticatedUrl(currentUrl)) {
         const language = await fetchUserPreference("user/preferences/language/", "language", [...ALLOWED_LANGUAGES]);
         if (language) {
             languageSelected.value = language;

@@ -52,6 +52,7 @@ import CredentialsForm from "./components/CredentialsForm.vue";
 import PreferencesForm from "./components/PreferencesForm.vue";
 import CategoriesForm from "./components/CategoriesForm.vue";
 import StepsTracker from "./components/StepsTracker.vue";
+import { API_BASE_URL } from "@/global/const";
 
 const showNotification = ref<boolean>(false);
 const step = ref<number>(0);
@@ -132,7 +133,7 @@ async function goStepPreferencesForm() {
             },
         };
 
-        const result = await fetch(`check_username/`, requestOptions);
+        const result = await fetch(`${API_BASE_URL}check_username/`, requestOptions);
         const data = await result.json();
 
         if (data.available === false) {

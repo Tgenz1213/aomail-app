@@ -118,6 +118,7 @@ import logo from "@/assets/logo-aomail.png";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { postData } from "@/global/fetchData";
 import router from "@/router/router";
+import { API_BASE_URL } from "@/global/const";
 
 const username = ref<string>("");
 const password = ref<string>("");
@@ -173,16 +174,29 @@ async function login() {
         return;
     }
 
-    const result = await postData("api/login/", {
-        username: username.value,
-        password: password.value,
-    });
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            username: username.value,
+            password: password.value,
+        }),
+    };
 
-    if (!result.success) {
+    try {
+        const response = await fetch(`${API_BASE_URL}api/login/`, requestOptions);
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("accessToken", data.accessToken);
+            router.push({ name: "home" });
+        } else {
+            displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
+        }
+    } catch (error) {
         displayPopup("error", "userLoginPage.loginError", "userLoginPage.invalidCredentials");
-        return;
     }
-    localStorage.setItem("accessToken", result.data.accessToken);
-    router.push({ name: "home" });
 }
 </script>

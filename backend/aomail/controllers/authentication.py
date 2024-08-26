@@ -221,7 +221,7 @@ def signup(request: HttpRequest) -> Response:
     if subscribed:
         LOGGER.info(f"User {username} subscribed to listeners successfully")
         return Response(
-            {"access_token": django_access_token},
+            {"accessToken": django_access_token},
             status=status.HTTP_201_CREATED,
         )
     else:

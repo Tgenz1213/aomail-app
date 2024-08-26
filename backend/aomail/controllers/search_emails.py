@@ -2,7 +2,7 @@
 Handles searching emails among Aomail database, filtering, sorting, and retrieving email content.
 
 Endpoints:
-- ✅ get_user_emails: Retrieves filtered and formatted user emails grouped by category and priority.
+- ✅ get_user_emails_ids: Retrieves filtered and formatted user emails ids grouped by category and priority.
 - ✅ get_email_content: Retrieves HTML content of a specific email for display.
 - ✅ get_emails_data: Retrieves formatted email data to be displayed.
 """

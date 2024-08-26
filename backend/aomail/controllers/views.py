@@ -38,7 +38,6 @@ from aomail.email_providers.google import (
 )
 from aomail.email_providers.google import authentication as auth_google
 from aomail.email_providers.microsoft import authentication as auth_microsoft
-
 from aomail.constants import (
     FREE_PLAN,
     GOOGLE,

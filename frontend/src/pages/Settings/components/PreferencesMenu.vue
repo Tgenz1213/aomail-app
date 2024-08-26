@@ -48,7 +48,7 @@
                         </div>
                     </div>
                     <div class="pt-10 pb-10">
-                        <TimeZoneSelection></TimeZoneSelection>
+                        <TimeZoneSelection />
                     </div>
                 </div>
             </div>

@@ -118,7 +118,6 @@ const fetchEmailsData = async (categoryName: string) => {
     let response : FetchDataResult;
 
     if (selectedFilter.value) {
-        console.log("SELECTED FILTER", selectedFilter)
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");

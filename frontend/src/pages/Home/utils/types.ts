@@ -18,4 +18,5 @@ export interface Filter {
   relevance?: string | undefined;
   answer?: string | undefined; 
   category?: string;
+  isOpen?: boolean;
 }

@@ -34,27 +34,43 @@
             <Filters  />
         </div>
     </div>
-    <!--
-    <NewFilterModal
-        height="3rem"
-    />-->
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { Email } from '@/global/types';
+import { Ref, ref, inject, onMounted } from 'vue';
 import Filters from './Filters.vue';
-import NewFilterModal from './NewFilterModal.vue';
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid';
 
 const showFilters = ref(false);
 const searchQuery = ref('');
 const emits = defineEmits(['updateSearchQuery']);
+const openFilters = ref<Record<string, boolean>>({});
+
+const selectedCategory = inject('selectedCategory') as Ref<string>;
 
 const toggleFilterSection = () => {
   showFilters.value = !showFilters.value;
+  
+  openFilters.value[selectedCategory.value] = showFilters.value;
+
+  localStorage.setItem("showFilters", JSON.stringify(openFilters.value));
 };
 
 const clearSearch = () => {
     searchQuery.value = '';
 };
+
+onMounted(() => {
+    const storedFilters = localStorage.getItem("showFilters");
+  if (storedFilters) {
+    try {
+      openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
+    } catch (e) {
+      console.error("Error parsing stored filters:", e);
+    }
+  }
+
+  if (selectedCategory.value in openFilters.value && openFilters.value[selectedCategory.value]) {
+    showFilters.value = true;
+  }
+});
 </script>

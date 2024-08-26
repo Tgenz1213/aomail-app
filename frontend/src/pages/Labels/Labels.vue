@@ -18,8 +18,11 @@
         <button @click="searchLabels" class="ml-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
             Search
         </button>
-        <button @click="printAll" class="mt-4 w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-            Print All Labels
+        <button
+            @click="printLabels"
+            class="mt-4 w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+        >
+            Print
         </button>
         <div v-if="loading" class="text-center mt-4">Loading...</div>
         <div v-if="labelsData.length > 0" class="mt-4">
@@ -108,12 +111,14 @@ const searchLabels = async () => {
     labelsData.value = result.data.labelsData;
 };
 
-const printAll = async () => {
+const printLabels = async () => {
+    const labelsToPrint = selectedLabelIds.value.length > 0 ? selectedLabelIds.value : ids.value;
+
     try {
         const pdfDoc = await PDFDocument.create();
         let totalPages = 0;
 
-        for (const labelId of ids.value) {
+        for (const labelId of labelsToPrint) {
             const pdfBlob = await getLabelPdf(labelId);
             if (pdfBlob) {
                 const existingPdf = await PDFDocument.load(await pdfBlob.arrayBuffer());

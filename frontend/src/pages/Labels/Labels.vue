@@ -31,11 +31,12 @@
             </ul>
         </div>
         <div v-if="!loading && labelsData.length === 0" class="text-center mt-4">No labels found.</div>
+        <div ref="loadingIndicator" class="text-center mt-4" v-if="loadingMore">Loading more labels...</div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, provide } from "vue";
+import { ref, onMounted, provide, watch } from "vue";
 import { postData } from "@/global/fetchData";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
@@ -53,13 +54,16 @@ const timerId = ref<number | null>(null);
 const searchQuery = ref("");
 const labelsData = ref<LabelData[]>([]);
 const loading = ref<boolean>(false);
+const loadingMore = ref<boolean>(false);
 const ids = ref<number[]>([]);
 const selectedLabelIds = ref<number[]>([]);
+const page = ref<number>(1);
 
 provide("selectedLabelIds", selectedLabelIds);
 
 onMounted(() => {
     searchLabels();
+    setupInfiniteScroll();
 });
 
 function dismissPopup() {
@@ -80,6 +84,50 @@ function displayPopup(type: "success" | "error", title: string, message: string)
 
 const isFirefox = () => {
     return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+};
+
+watch(searchQuery, () => {
+    page.value = 1;
+    labelsData.value = [];
+    searchLabels();
+});
+
+const setupInfiniteScroll = () => {
+    const observer = new IntersectionObserver(
+        (entries) => {
+            if (entries[0].isIntersecting && !loading.value && !loadingMore.value) {
+                fetchMoreLabels();
+            }
+        },
+        {
+            rootMargin: "100px",
+        }
+    );
+
+    if (typeof window !== "undefined") {
+        const loadingIndicator = document.querySelector(".text-center.mt-4");
+        if (loadingIndicator) {
+            observer.observe(loadingIndicator);
+        }
+    }
+};
+
+const fetchMoreLabels = async () => {
+    loadingMore.value = true;
+
+    const result = await postData("user/labels_data", {
+        ids: ids.value.slice((page.value - 1) * 25, page.value * 25),
+    });
+
+    loadingMore.value = false;
+
+    if (!result.success) {
+        displayPopup("error", "Failed to fetch label data", result.error as string);
+        return;
+    }
+
+    labelsData.value.push(...result.data.labelsData);
+    page.value += 1;
 };
 
 const searchLabels = async () => {

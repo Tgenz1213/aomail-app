@@ -203,117 +203,103 @@ def validate_and_parse_parameters(request: HttpRequest) -> dict:
     }
 
 
-def construct_filters(user: User, parameters: dict) -> dict:
+def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
     """
-    Constructs a dictionary of filters based on provided user, parameters, and category.
+    Constructs a dictionary of filters and a Q object for OR conditions based on provided user and parameters.
 
     Args:
         user (User): The user ID for whom the filters are being constructed.
         parameters (dict): A dictionary containing various filter parameters.
 
     Returns:
-        dict: A dictionary containing the constructed filters.
+        tuple: A tuple containing:
+            - dict: A dictionary containing the AND filters.
+            - Q: A Q object containing the OR filters.
     """
-    filters = {"user": user}
+    and_filters = {"user": user}
+    or_filters = Q()
 
     if parameters.get("advanced"):
-        flags = [
-            "scam",
-            "spam",
-            "newsletter",
-            "notification",
-            "meeting",
-            "read",
-        ]
+        if "priority" in parameters:
+            priorities = parameters["priority"]
+            and_filters["priority__in"] = priorities
+
+        if "read" in parameters:
+            if not parameters["read"]:
+                and_filters["read"] = False
+
+        flag_filter = Q()
+        flags = ["scam", "spam", "newsletter", "notification", "meeting"]
         for flag in flags:
-            if flag in parameters:
-                filters[flag] = parameters[flag]
+            if parameters.get(flag):
+                flag_filter |= Q(**{flag: True})
+        if flag_filter:
+            or_filters |= flag_filter
 
         if "category" in parameters:
             category_obj = Category.objects.get(name=parameters["category"])
-            filters["category"] = category_obj
+            and_filters["category"] = category_obj
         if "archive" in parameters:
-            filters["archive"] = parameters["archive"]
+            and_filters["archive"] = parameters["archive"]
         if "hasAttachments" in parameters:
-            filters["has_attachments"] = parameters["hasAttachments"]
+            and_filters["has_attachments"] = parameters["hasAttachments"]
         if "replyLater" in parameters:
-            filters["answer_later"] = parameters["replyLater"]
-        if "priority" in parameters:
-            filters["priority__in"] = parameters["priority"]
+            and_filters["answer_later"] = parameters["replyLater"]
         if "emailProvider" in parameters:
-            filters["email_provider__in"] = parameters["emailProvider"]
+            and_filters["email_provider__in"] = parameters["emailProvider"]
         if "subject" in parameters:
-            filters["subject__icontains"] = parameters["subject"]
+            and_filters["subject__icontains"] = parameters["subject"]
         if "senderEmail" in parameters:
-            filters["sender__email__icontains"] = parameters["senderEmail"]
+            and_filters["sender__email__icontains"] = parameters["senderEmail"]
         if "senderName" in parameters:
-            filters["sender__name__icontains"] = parameters["senderName"]
+            and_filters["sender__name__icontains"] = parameters["senderName"]
         if "sentDate" in parameters:
-            filters["date__gte"] = parameters["sentDate"]
+            and_filters["date__gte"] = parameters["sentDate"]
         if "readDate" in parameters:
-            filters["read_date__gte"] = parameters["readDate"]
+            and_filters["read_date__gte"] = parameters["readDate"]
         if "answer" in parameters:
-            filters["answer__in"] = parameters["answer"]
+            and_filters["answer__in"] = parameters["answer"]
         if "relevance" in parameters:
-            filters["relevance__in"] = parameters["relevance"]
+            and_filters["relevance__in"] = parameters["relevance"]
         if "emailAddresses" in parameters:
             social_apis = SocialAPI.objects.filter(
                 email__in=parameters["emailAddresses"], user=user
             )
-            filters["social_api__in"] = social_apis
+            and_filters["social_api__in"] = social_apis
         if "CCEmails" in parameters:
-            filters["cc_senders__email__in"] = parameters["CCEmails"]
+            and_filters["cc_senders__email__in"] = parameters["CCEmails"]
         if "CCNames" in parameters:
-            filters["cc_senders__name__in"] = parameters["CCNames"]
+            and_filters["cc_senders__name__in"] = parameters["CCNames"]
 
     else:
         if "category" in parameters:
             category_obj = Category.objects.get(name=parameters["category"])
-            filters["category"] = category_obj
+            and_filters["category"] = category_obj
         subject = parameters.get("subject")
-        filters["subject__icontains"] = subject
-        filters["sender__email__icontains"] = subject
-        filters["sender__name__icontains"] = subject
-        filters["cc_senders__email__icontains"] = subject
-        filters["cc_senders__name__icontains"] = subject
+        or_filters |= Q(subject__icontains=subject) | \
+                      Q(sender__email__icontains=subject) | \
+                      Q(sender__name__icontains=subject) | \
+                      Q(cc_senders__email__icontains=subject) | \
+                      Q(cc_senders__name__icontains=subject)
 
-    return filters
+    return and_filters, or_filters
 
 
 def get_sorted_queryset(
-    filters: dict, sort: str, advanced: bool | None
+    and_filters: dict, or_filters: Q, sort: str, advanced: bool | None
 ) -> BaseManager[Email]:
-    """
-    Retrieves and sorts the queryset based on provided filters and sort order.
-
-    Args:
-        filters (dict): A dictionary containing the filter parameters for the queryset.
-        sort (str): Sorting order ("asc" for ascending, "desc" for descending).
-        advanced (bool): True for a AND query, default OR query.
-
-    Returns:
-        BaseManager[QuerySet]: A Django BaseManager for the Email model's QuerySet.
-    """
-    if advanced:
-        queryset = Email.objects.filter(**filters)
-    else:
-        query = Q()
-        for key, value in filters.items():
-            if key != "user":
-                query |= Q(** {key: value})
-
-        if "category" in filters:
-            queryset = Email.objects.filter(
-                query, category=filters["category"], user=filters["user"]
-            )
-        else:
-            queryset = Email.objects.filter(query, user=filters["user"])
+    queryset = Email.objects.filter(** and_filters)
+    
+    if or_filters:
+        queryset = queryset.filter(or_filters)
 
     rule_id_subquery = Rule.objects.filter(
-        sender=OuterRef("sender"), user=filters["user"]
+        sender=OuterRef("sender"), user=and_filters["user"]
     ).values("id")[:1]
+    
     queryset = queryset.annotate(
-        has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
+        has_rule=Exists(rule_id_subquery),
+        rule_id=Subquery(rule_id_subquery)
     )
 
     # Apply the sorting
@@ -331,6 +317,7 @@ def get_sorted_queryset(
         )
 
     return queryset
+
 
 
 def format_email_data(queryset: BaseManager[Email]) -> tuple:
@@ -400,8 +387,8 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         parameters: dict = valid_data["parameters"]
         sort = valid_data["sort"]
 
-        filters = construct_filters(user, parameters)
-        queryset = get_sorted_queryset(filters, sort, parameters.get("advanced"))
+        and_filters, or_filters = construct_filters(user, parameters)
+        queryset = get_sorted_queryset(and_filters, or_filters, sort, parameters.get("advanced"))
         email_count, email_ids = format_email_data(queryset)
 
         return Response(

@@ -94,6 +94,7 @@ const openUpdateFilterModal = inject('openUpdateFilterModal') as (filter: Filter
 const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
 const filters = inject('filters') as Ref<Filter[]>;
 const selectedCategory = inject('selectedCategory') as Ref<string>;
+const selectedFilter = inject('selectedFilter') as Ref<Filter | undefined>;
 
 const activeFilter = ref('');
 const showAllFiltersModal = ref(false);
@@ -132,6 +133,8 @@ const toggleMoreFilters = () => {
 const setActiveFilter = (filterName: string) => {
   activeFilter.value = filterName;
   showAllFiltersModal.value = false;
+  const filter = filters.value.find((filter) => filter.name === filterName);
+  selectedFilter.value = filter;
   fetchEmailsData(selectedCategory.value);
 };
 

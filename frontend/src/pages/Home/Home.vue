@@ -117,7 +117,7 @@ const fetchEmailsData = async (categoryName: string) => {
     allEmailIds.value = [];
     let response : FetchDataResult;
 
-    if (selectedFilter) {
+    if (selectedFilter.value) {
         console.log("SELECTED FILTER", selectedFilter)
         const priorities = [];
         if (selectedFilter.value?.important) {
@@ -129,8 +129,7 @@ const fetchEmailsData = async (categoryName: string) => {
         if (selectedFilter.value?.useless) {
             priorities.push("useless");
         }
-        console.log("PRIORITIES", priorities)
-        response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: selectedFilter.value?.read,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scams, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter });
+        response = await postData("user/emails_ids/", { advanced: true, subject: "", category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
     } else {     
         response = await postData("user/emails_ids/", { subject: "", category: categoryName });
     }
@@ -152,7 +151,6 @@ const loadMoreEmails = async () => {
         const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
         const newEmails = emails_details.data.data;
 
-        // Merge new emails with existing ones
         for (const category in newEmails) {
             if (!emails.value[category]) {
                 emails.value[category] = {};
@@ -196,8 +194,8 @@ const fetchEmailsDataFiltered = async (categoryName: string, filter: Filter) => 
     if (filter.useless) {
         priorities.push("useless");
     }
-
-    const response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: filter.read,  priority: priorities, spam: filter.spam, scam: filter.scams, meeting: filter.meeting, notification: filter.notification, newsletter: filter.newsletter });
+    
+    const response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: filter.read,  priority: priorities, spam: filter.spam, scam: filter.scam, meeting: filter.meeting, notification: filter.notification, newsletter: filter.newsletter });
     allEmailIds.value = response.data.ids;
 
     await loadMoreEmails();

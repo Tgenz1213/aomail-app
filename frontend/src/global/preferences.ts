@@ -63,7 +63,6 @@ const isUnAuthenticatedUrl = (url: string) => {
 
 export const initializePreferences = async (i18n: I18n) => {
     const currentUrl = window.location.href;
-    console.log("currentUrl", currentUrl);
 
     if (!isUnAuthenticatedUrl(currentUrl)) {
         const language = await fetchUserPreference("user/preferences/language/", "language", [...ALLOWED_LANGUAGES]);

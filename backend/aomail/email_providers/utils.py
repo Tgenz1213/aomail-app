@@ -82,7 +82,7 @@ ITEM_NAME_PATTERNS = [
 ]
 REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
 DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
-ECOMMERCE_PLATFORMS = ["vinted", "augustin"]
+ECOMMERCE_PLATFORMS = ["vinted", "augustin", "augu"]
 CARRIER_NAMES = {
     "mondialrelay": "mondial_relay",
     "mondial relay": "mondial_relay",
@@ -154,7 +154,12 @@ def extract_label_data(email_address: str, body: str) -> dict:
     Returns:
         dict: A dictionary containing the carrier name, postage deadline, and item name.
     """
-    data = {"carrier": None, "deadline": None, "item_name": None, "platform": None}
+    data = {
+        "carrier": None,
+        "postage_deadline": None,
+        "item_name": None,
+        "platform": None,
+    }
 
     # Normalize the body to remove unwanted characters
     normalized_body = re.sub(r"[\r\n]+", " ", body)  # Replace newlines with spaces
@@ -175,16 +180,16 @@ def extract_label_data(email_address: str, body: str) -> dict:
         if deadline_match:
             deadline_str = deadline_match.group(1).strip()
             try:
-                data["deadline"] = datetime.datetime.strptime(
+                data["postage_deadline"] = datetime.datetime.strptime(
                     deadline_str, "%d/%m/%Y %I:%M %p"
                 ).isoformat()
             except ValueError:
                 try:
-                    data["deadline"] = datetime.datetime.strptime(
+                    data["postage_deadline"] = datetime.datetime.strptime(
                         deadline_str, "%d/%m/%Y"
                     ).isoformat()
                 except ValueError:
-                    data["deadline"] = None
+                    data["postage_deadline"] = None
             break
 
     if not data["carrier"]:
@@ -319,6 +324,7 @@ def save_label_to_db(email: Email, label_data: dict, label_name: str):
         label_name (str): The name of the PDF file containing the shipping label.
     """
     Label.objects.create(
+        user=email.user,
         email=email,
         item_name=label_data["item_name"],
         platform=label_data["platform"],
@@ -709,3 +715,18 @@ def create_pictures_and_attachments(processed_email: dict, email_entry: Email):
             name=attachment["attachmentName"],
             id_api=attachment["attachmentId"],
         )
+
+
+def camel_to_snake(name: str) -> str:
+    """
+    Converts a camelCase string to snake_case.
+
+    Args:
+        name (str): The camelCase string to be converted.
+
+    Returns:
+        str: The converted snake_case string.
+    """
+    # Replace capital letters with underscore + lowercase letter
+    snake = re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+    return snake

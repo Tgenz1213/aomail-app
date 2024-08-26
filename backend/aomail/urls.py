@@ -12,6 +12,7 @@ from aomail.controllers import authentication as auth
 from aomail.controllers import preferences as prefs
 from aomail.controllers import categories, filters, rules, emails, search_emails
 from aomail.controllers import statistics
+from aomail.controllers import search_labels
 from .controllers import views
 
 app_name = 'MailAssistant'
@@ -108,6 +109,10 @@ urlpatterns = [
     path('google/auth_url/', auth_google.generate_auth_url, name='google_auth_url'), # ok
     path('google/auth_url_link_email/', auth_google.auth_url_link_email, name='google_auth_url_link_email'), # ok
     path('google/receive_mail_notifications/', webhook_google.receive_mail_notifications, name='google_receive_mail_notifications'), # ok
+    #----------------------- SHIPPING LABELS -----------------------#
+    path('user/label_ids', search_labels.get_user_label_ids, name='get_user_label_ids'),
+    path('user/labels_data', search_labels.get_labels_data, name='get_labels_data'),
+    path('user/label_pdf', search_labels.get_label_pdf, name='get_label_pdf'),
     #----------------------- PAYMENT PROVIDER API -----------------------#
     # path('stripe/receive_payment_notifications/', views.receive_payment_notifications, name='stripe_receive_payment_notifications'), # dev
 ]

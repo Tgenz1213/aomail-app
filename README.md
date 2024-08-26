@@ -26,7 +26,7 @@
 
 # DEBUGGING DATABASE MIGRATIONS ERROR
 ```bash
-sudo rm -fr backend/MailAssistant/migrations
+sudo rm -fr backend/aomail/migrations
 docker exec -it augustin_project-backend-1 python manage.py makemigrations --empty aomail
 ./start_{theo}_build.sh
 ./start_{theo}_build.sh

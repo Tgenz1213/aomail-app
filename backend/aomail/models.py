@@ -194,6 +194,7 @@ class Filter(models.Model):
 class Label(models.Model):
     """Model for storing shipping label information."""
 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_labels")
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
     item_name = models.CharField(max_length=50)
     platform = models.CharField(max_length=50)

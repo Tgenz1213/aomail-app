@@ -116,7 +116,6 @@ import { ref, onMounted } from "vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import logo from "@/assets/logo-aomail.png";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { postData } from "@/global/fetchData";
 import router from "@/router/router";
 import { API_BASE_URL } from "@/global/const";
 

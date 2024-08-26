@@ -16,6 +16,7 @@ import NotAuthorized from "@/pages/Errors/401NotAuthorized.vue";
 import PasswordResetLink from "@/pages/ResetPassword/PasswordResetLink.vue";
 import ResetPasswordForm from "@/pages/ResetPassword/ResetPasswordForm.vue";
 import { Component } from "vue";
+import Labels from "@/pages/Labels/Labels.vue";
 
 export interface RouteConfig {
     path: string;
@@ -126,6 +127,13 @@ const resetPasswordForm: RouteConfig = {
     component: ResetPasswordForm,
 };
 
+const labels: RouteConfig = {
+    path: "/labels",
+    name: "labels",
+    meta: { requiresAuth: true },
+    component: Labels,
+};
+
 const notAuthorized: RouteConfig = {
     path: "/not-authorized",
     name: "not-authorized",
@@ -154,6 +162,7 @@ const routes: RouteConfig[] = [
     stripePaymentSuccess,
     passwordResetLink,
     resetPasswordForm,
+    labels,
     notAuthorized,
     notFound,
 ];

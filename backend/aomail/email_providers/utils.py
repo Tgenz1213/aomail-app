@@ -64,22 +64,38 @@ REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
 DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
 CARRIER_PATTERNS = [
     re.compile(
-        r"3\. Drop the parcel off</strong> in the\s*(.*?)\s*drop-off point of your choice\.</p>",
-        re.IGNORECASE,
+        r"3\.\s*Drop the parcel off\s*</strong>\s*in the\s*(.*?)\s*drop-off point of your choice\.\s*</p>",
+        re.IGNORECASE | re.DOTALL,
     )
 ]
 DEADLINE_PATTERNS = [
     re.compile(
-        r"<strong>Postage\s*deadline:</strong></td>\s*<td[^>]*>(.*?)</td>",
-        re.IGNORECASE,
+        r"<strong>\s*Postage\s*deadline:\s*</strong>\s*</td>\s*<td[^>]*>\s*(.*?)\s*</td>",
+        re.IGNORECASE | re.DOTALL,
     )
 ]
 ITEM_NAME_PATTERNS = [
-    re.compile(r"<strong>Item:</strong></td>\s*<td[^>]*>(.*?)<br>", re.IGNORECASE)
+    re.compile(
+        r"<strong>\s*Item:\s*</strong>\s*</td>\s*<td[^>]*>\s*(.*?)\s*<br\s*/?>",
+        re.IGNORECASE | re.DOTALL,
+    )
 ]
 REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
 DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
-ECOMMERCE_PLATFORMS = ["vinted"]
+ECOMMERCE_PLATFORMS = ["vinted", "augustin"]
+CARRIER_NAMES = {
+    "mondialrelay": "mondial_relay",
+    "mondial relay": "mondial_relay",
+    "Mondial Relay": "mondial_relay",
+    "ups": "ups",
+    "UPS": "ups",
+    "la poste": "la_poste",
+    "laposte": "la_poste",
+    "chronopost": "chronopost",
+    "Chronopost": "chronopost",
+    "relais colis": "relais_colis",
+    "relaiscolis": "relais_colis",
+}
 
 
 def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
@@ -113,7 +129,7 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
 
         if is_shipping_label(email_data["subject"]):
             label_data = extract_label_data(
-                email_data["from_info"][1], email_data["preprocessed_data"]
+                email_data["from_info"][1], email_entry.html_content
             )
             create_shipping_label(email_entry, label_data)
 
@@ -140,14 +156,22 @@ def extract_label_data(email_address: str, body: str) -> dict:
     """
     data = {"carrier": None, "deadline": None, "item_name": None, "platform": None}
 
+    # Normalize the body to remove unwanted characters
+    normalized_body = re.sub(r"[\r\n]+", " ", body)  # Replace newlines with spaces
+    normalized_body = re.sub(
+        r"\s+", " ", normalized_body
+    )  # Replace multiple spaces with a single space
+
     for pattern in CARRIER_PATTERNS:
-        carrier_match = pattern.search(body)
+        carrier_match = pattern.search(normalized_body)
         if carrier_match:
-            data["carrier"] = carrier_match.group(1).strip()
+            carrier_name = carrier_match.group(1).strip()
+            carrier_name = carrier_name.lower()
+            data["carrier"] = CARRIER_NAMES.get(carrier_name, carrier_name)
             break
 
     for pattern in DEADLINE_PATTERNS:
-        deadline_match = pattern.search(body)
+        deadline_match = pattern.search(normalized_body)
         if deadline_match:
             deadline_str = deadline_match.group(1).strip()
             try:
@@ -155,38 +179,29 @@ def extract_label_data(email_address: str, body: str) -> dict:
                     deadline_str, "%d/%m/%Y %I:%M %p"
                 ).isoformat()
             except ValueError:
-                data["deadline"] = None
+                try:
+                    data["deadline"] = datetime.datetime.strptime(
+                        deadline_str, "%d/%m/%Y"
+                    ).isoformat()
+                except ValueError:
+                    data["deadline"] = None
             break
 
     if not data["carrier"]:
-        carrier_names = {
-            "mondialrelay": "mondial_relay",
-            "mondial relay": "mondial_relay",
-            "Mondial Relay": "mondial_relay",
-            "ups": "ups",
-            "UPS": "ups",
-            "la poste": "la_poste",
-            "laposte": "la_poste",
-            "chronopost": "chronopost",
-            "Chronopost": "chronopost",
-            "relais colis": "relais_colis",
-            "relaiscolis": "relais_colis",
-        }
-
         carrier_pattern_list = "|".join(
-            re.escape(name) for name in carrier_names.keys()
+            re.escape(name) for name in CARRIER_NAMES.keys()
         )
         carrier_fallback_pattern = re.compile(
             rf"\b({carrier_pattern_list})\b", re.IGNORECASE
         )
 
-        fallback_match = carrier_fallback_pattern.search(body)
+        fallback_match = carrier_fallback_pattern.search(normalized_body)
         if fallback_match:
             carrier_key = fallback_match.group(0).lower()
-            data["carrier"] = carrier_names.get(carrier_key, carrier_key.capitalize())
+            data["carrier"] = CARRIER_NAMES.get(carrier_key, carrier_key.capitalize())
 
     for pattern in ITEM_NAME_PATTERNS:
-        item_match = pattern.search(body)
+        item_match = pattern.search(normalized_body)
         if item_match:
             data["item_name"] = item_match.group(1).strip()
             break
@@ -208,19 +223,19 @@ def create_shipping_label(email: Email, label_data: dict):
         label_data (dict): A dictionary containing the label information such as:
             carrier: The carrier name.
             item_name: The name of the item.
-            plateform: The platform information.
+            platform: The platform information.
             postage_deadline: The postage deadline.
     """
     attachment_name = Attachment.objects.get(email=email).name
 
     if email.social_api.type_api == GOOGLE:
-        attachment_data = email_operations_google.get_attachment_data(
+        attachment = email_operations_google.get_attachment_data(
             email.user, email.social_api.email, email.provider_id, attachment_name
         )
     elif email.social_api.type_api == MICROSOFT:
         ...
 
-    pdf_reader = PdfReader(BytesIO(attachment_data))
+    pdf_reader = PdfReader(BytesIO(attachment["data"]))
     pdf_writer = PdfWriter()
 
     for page_num in range(len(pdf_reader.pages)):
@@ -306,7 +321,7 @@ def save_label_to_db(email: Email, label_data: dict, label_name: str):
     Label.objects.create(
         email=email,
         item_name=label_data["item_name"],
-        plateform=label_data["plateform"],
+        platform=label_data["platform"],
         carrier=label_data["carrier"],
         label_name=label_name,
         postage_deadline=label_data["postage_deadline"],

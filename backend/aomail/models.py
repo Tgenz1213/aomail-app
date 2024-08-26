@@ -196,7 +196,7 @@ class Label(models.Model):
 
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
     item_name = models.CharField(max_length=50)
-    plateform = models.CharField(max_length=50)
+    platform = models.CharField(max_length=50)
     carrier = models.CharField(max_length=50)
     label_name = models.CharField(max_length=100)
     postage_deadline = models.DateTimeField()

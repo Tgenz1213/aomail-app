@@ -60,7 +60,7 @@ const clearSearch = () => {
 };
 
 onMounted(() => {
-    const storedFilters = localStorage.getItem("showFilters");
+  const storedFilters = localStorage.getItem("showFilters");
   if (storedFilters) {
     try {
       openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;

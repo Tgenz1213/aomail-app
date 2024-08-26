@@ -110,14 +110,20 @@ const emailsPerPage = 10;
 const currentPage = ref(1);
 const isLoading = ref(false);
 const allEmailIds = ref<string[]>([]);
+const openFilters = ref<Record<string, boolean>>({});
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
     let response : FetchDataResult;
+    const storedFilters = localStorage.getItem("showFilters");
 
-    if (selectedFilter.value) {
+    if (storedFilters) {
+        openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
+    }
+
+    if (selectedFilter.value && selectedCategory.value in openFilters.value && openFilters.value[selectedCategory.value]) {
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");

@@ -15,8 +15,7 @@ export interface Filter {
   spam: boolean;
   scam: boolean;
   meeting: boolean;
-  relevance?: string | undefined;
-  answer?: string | undefined; 
+  relevance?: string;
+  answer?: string; 
   category?: string;
-  isOpen?: boolean;
 }

@@ -32,9 +32,11 @@ import { deleteData } from "@/global/fetchData";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
 import { PDFDocument } from "pdf-lib";
+import { LabelData } from "../utils/types";
 
 const selectedLabelIds = inject<Ref<number[]>>("selectedLabelIds") || ref([]);
 const ids = inject<Ref<number[]>>("ids") || ref([]);
+const labelsData = inject<Ref<LabelData[]>>("labelsData") || ref<LabelData[]>([]);
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
@@ -149,6 +151,14 @@ const deleteLabels = async () => {
         displayPopup?.("error", "No label selected", "Please select at least one label");
         return;
     }
+
+    selectedLabelIds.value.forEach((id) => {
+        const index = labelsData.value.findIndex((label) => label.id === id);
+
+        if (index !== -1) {
+            labelsData.value.splice(index, 1);
+        }
+    });
 
     const result = await deleteData("user/delete_labels", { ids: [selectedLabelIds.value] });
 

@@ -110,6 +110,7 @@ provide("platform", platform);
 provide("itemName", itemName);
 provide("carrier", carrier);
 provide("postageDeadline", postageDeadline);
+provide("labelsData", labelsData);
 provide("displayPopup", displayPopup);
 provide("searchLabels", searchLabels);
 

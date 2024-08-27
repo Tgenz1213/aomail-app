@@ -46,7 +46,7 @@ import { LabelData } from "../utils/types";
 import { deleteData } from "@/global/fetchData";
 
 const selectedLabelIds = inject<Ref<number[]>>("selectedLabelIds") || ref([]);
-
+const labelsData = inject<Ref<LabelData[]>>("labelsData") || ref<LabelData[]>([]);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const carrierNames: Record<string, string> = {
@@ -72,6 +72,12 @@ const toggleSelection = () => {
 };
 
 const deleteLabel = async () => {
+    const index = labelsData.value.findIndex((label) => label.id === props.label.id);
+
+    if (index !== -1) {
+        labelsData.value.splice(index, 1);
+    }
+
     const result = await deleteData("user/delete_labels", { ids: [props.label.id] });
 
     if (!result.success) {

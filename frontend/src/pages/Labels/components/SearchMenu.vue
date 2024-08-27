@@ -1,5 +1,4 @@
 <template>
-    <Filters :isOpen="arefiltersOpen" />
     <div class="flex space-x-1 2xl:space-x-2 items-stretch w-full mb-4">
         <div class="relative w-full">
             <div class="flex w-full">
@@ -68,6 +67,7 @@
             <option value="desc">Descending</option>
         </select>
     </div>
+    <Filters :isOpen="arefiltersOpen" />
 </template>
 
 <script setup lang="ts">

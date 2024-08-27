@@ -1,7 +1,10 @@
 <template>
     <div class="flex mt-4 space-x-2">
-        <button @click="printLabels" class="w-4/5 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
+        <button @click="printLabels" class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
             Print
+        </button>
+        <button @click="toggleSelectAll" class="w-2/5 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            {{ selectAllText }}
         </button>
         <button
             type="button"
@@ -27,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, Ref, ref } from "vue";
+import { inject, Ref, ref, computed } from "vue";
 import { deleteData } from "@/global/fetchData";
 import { fetchWithToken } from "@/global/security";
 import { API_BASE_URL } from "@/global/const";
@@ -39,6 +42,18 @@ const ids = inject<Ref<number[]>>("ids") || ref([]);
 const labelsData = inject<Ref<LabelData[]>>("labelsData") || ref<LabelData[]>([]);
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
+
+const selectAllText = computed(() =>
+    selectedLabelIds.value.length !== labelsData.value.length ? "Select All" : "Unselect All"
+);
+
+const toggleSelectAll = () => {
+    if (selectedLabelIds.value.length !== labelsData.value.length) {
+        selectedLabelIds.value = labelsData.value.map((label) => label.id);
+    } else {
+        selectedLabelIds.value = [];
+    }
+};
 
 const isFirefox = () => {
     return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
@@ -160,10 +175,13 @@ const deleteLabels = async () => {
         }
     });
 
-    const result = await deleteData("user/delete_labels", { ids: [selectedLabelIds.value] });
+    const result = await deleteData("user/delete_labels", { ids: selectedLabelIds.value });
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to delete label", result.error as string);
+        displayPopup?.("error", "Failed to delete labels", result.error as string);
+    } else {
+        selectedLabelIds.value = [];
+        displayPopup?.("success", "Labels Deleted", "Selected labels have been successfully deleted.");
     }
 };
 </script>

@@ -1,4 +1,4 @@
-import { ALLOWED_LANGUAGES, ALLOWED_THEMES, API_BASE_URL, BASE_URL, UNAUTHENTICATED_URLS } from "./const";
+import { ALLOWED_LANGUAGES, ALLOWED_THEMES, API_BASE_URL, UNAUTHENTICATED_URLS } from "./const";
 import { fetchWithToken } from "./security";
 import { ref } from "vue";
 import { createI18n, I18n } from "vue-i18n";

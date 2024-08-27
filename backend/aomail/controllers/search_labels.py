@@ -106,9 +106,9 @@ def get_labels_data(request: HttpRequest) -> Response:
             )
 
         formatted_data = []
-        queryset = Label.objects.filter(id__in=ids, user=user)
 
-        for label in queryset:
+        for id in ids:
+            label = Label.objects.get(id=id, user=user)
             label_data = {
                 "id": label.id,
                 "itemName": label.item_name,
@@ -280,8 +280,6 @@ def get_sorted_queryset(
         for key, value in filters.items():
             if key != "user":
                 query |= Q(**{key: value})
-
-        LOGGER.error(f"query: {query}")
 
         queryset = Label.objects.filter(query, user=filters["user"])
 

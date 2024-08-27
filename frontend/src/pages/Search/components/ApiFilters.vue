@@ -370,7 +370,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref } from "vue";
+import { ref, inject, Ref, ComputedRef } from "vue";
 import { Combobox, ComboboxButton, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/vue";
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
 import {
@@ -385,7 +385,12 @@ import {
     HandRaisedIcon,
 } from "@heroicons/vue/24/outline";
 import { AttachmentType, KeyValuePair, Recipient } from "@/global/types";
+import { i18n } from "@/global/preferences";
 
+const isFocused = ref(false);
+const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
+const filteredPeople = inject<ComputedRef<Recipient[]>>("filteredPeople");
+const people = inject<Ref<Recipient[]>>("people") || ref([]);
 const attachmentsSelected = inject<Ref<AttachmentType[]>>("attachmentsSelected") || ref([]);
 const startDate = inject<Ref<string>>("startDate") || ref("");
 const selectedInterval = inject<Ref<string>>("selectedInterval") || ref("");
@@ -394,6 +399,8 @@ const fromSelectedPerson = inject<Ref<Recipient[]>>("fromSelectedPerson") || ref
 const selectedPerson = inject<Ref<Recipient[]>>("selectedPerson") || ref([]);
 const selectedSearchIn = inject<Ref<KeyValuePair>>("selectedSearchIn") || ref({});
 const isAttachmentDropdownOpen = ref(false);
+
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const updateDate = (event: { target: { value: string } }) => {
     startDate.value = event.target.value;
@@ -447,6 +454,28 @@ const toggleSelection = (person: Recipient) => {
         selectedRecipients.value.splice(index, 1);
     }
 };
+
+function handleBlur(event: FocusEvent) {
+    isFocused.value = false;
+
+    const target = event.target as HTMLInputElement;
+    const inputValue = target.value.trim().toLowerCase();
+    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (inputValue && emailFormat.test(inputValue)) {
+        if (!people.value.find((person: Recipient) => person.email === inputValue)) {
+            const newPerson: Recipient = { email: inputValue };
+            people.value.push(newPerson);
+            selectedPeople.value.push(newPerson);
+        }
+    } else if (!filteredPeople?.value.length && inputValue) {
+        displayPopup?.(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.invalidEmail"),
+            i18n.global.t("constants.popUpConstants.errorMessages.emailFormatIncorrect")
+        );
+    }
+}
 </script>
 
 <style scoped>

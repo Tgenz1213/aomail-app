@@ -20,7 +20,6 @@
                         type="text"
                         class="block rounded-l-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-gray-500 h-10 2xl:h-11 flex-1 border-0 bg-transparent py-2 pl-3 text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 w-full z-20 relative 2xl:py-3 2xl:pl-4 2xl:text-base"
                         @focus="handleFocusSearch"
-                        @blur="handleBlur"
                     />
                 </div>
                 <div class="relative">
@@ -110,20 +109,16 @@
 
 <script setup lang="ts">
 import { postData } from "@/global/fetchData";
-import { i18n } from "@/global/preferences";
-import { Recipient, Email, EmailDetails, KeyValuePair } from "@/global/types";
+import { Email, EmailDetails, KeyValuePair } from "@/global/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/vue";
 import { MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
-import { ComputedRef, inject, ref, Ref } from "vue";
+import { inject, ref, Ref } from "vue";
 
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const loading = inject<() => void>("loading");
 const scrollToBottom = inject<() => void>("scrollToBottom");
 const hideLoading = inject<() => void>("hideLoading");
-const filteredPeople = inject<ComputedRef<Recipient[]>>("filteredPeople");
 
-const people = inject<Ref<Recipient[]>>("people") || ref([]);
-const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const emailIds = inject<Ref<number[]>>("emailIds") || ref([]);
 const emailList = inject<Ref<Email[]>>("emailList") || ref([]);
 const inputValue = ref("");
@@ -145,28 +140,6 @@ async function toggleFilters() {
 
 function handleFocusSearch() {
     isFocused.value = true;
-}
-
-function handleBlur(event: FocusEvent) {
-    isFocused.value = false;
-
-    const target = event.target as HTMLInputElement;
-    const inputValue = target.value.trim().toLowerCase();
-    const emailFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (inputValue && emailFormat.test(inputValue)) {
-        if (!people.value.find((person: Recipient) => person.email === inputValue)) {
-            const newPerson: Recipient = { email: inputValue };
-            people.value.push(newPerson);
-            selectedPeople.value.push(newPerson);
-        }
-    } else if (!filteredPeople?.value.length && inputValue) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("constants.popUpConstants.errorMessages.invalidEmail"),
-            i18n.global.t("constants.popUpConstants.errorMessages.emailFormatIncorrect")
-        );
-    }
 }
 
 async function searchEmails() {

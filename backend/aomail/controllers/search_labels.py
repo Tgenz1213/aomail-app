@@ -149,7 +149,7 @@ def get_labels_data(request: HttpRequest) -> Response:
 @subscription([FREE_PLAN])
 def get_user_label_ids(request: HttpRequest) -> Response:
     """
-    Retrieves filtered user label IDs based on provided criteria and formats them grouped by category and priority.
+    Retrieve filtered user label IDs based on provided criteria and format them grouped by category and priority.
 
     Args:
         request (HttpRequest): The HTTP request object containing JSON data with filtering parameters.
@@ -157,18 +157,20 @@ def get_user_label_ids(request: HttpRequest) -> Response:
     JSON Body:
         Optional filters:
             advanced (bool): True if specific filters have been used.
-            sort (str): Sorting method (platform, itemName, carrier (default), postageDeadline)
+            search (str): Search query for a general search without filters.
+            sort (str): Sorting method (e.g., platform, itemName, carrier (default), postageDeadline).
             order (str): Sorting order ("asc" for ascending, "desc" for descending). Default is "asc".
-            platform (str): search query in platform field.
-            itemName (str): search query in item name field.
-            carrier (str): search query in carrier field.
-            postageDeadline (datetime): search query in postage deadline field.
+            platform (str): Search query for the platform field.
+            itemName (str): Search query for the item name field.
+            carrier (str): Search query for the carrier field.
+            postageDeadline (datetime): Search query for the postage deadline field.
 
     Returns:
         Response: JSON response with the following structure:
             {
                 "count": int,  # Total number of labels matching the filters.
-                "ids": list[int]  # List of label IDs matching the filters.
+                "ids": list[int],  # List of label IDs matching the filters.
+                "total": int  # Total number of labels associated with the user.
             }
     """
     try:
@@ -241,17 +243,17 @@ def construct_filters(user: User, parameters: dict) -> dict:
         if "postageDeadline" in parameters:
             filters["postage_deadline__lte"] = parameters["postageDeadline"]
         if "platform" in parameters:
-            filters["platform__in"] = parameters["platform"]
+            filters["platform__icontains"] = parameters["platform"]
         if "itemName" in parameters:
-            filters["item_name__in"] = parameters["itemName"]
+            filters["item_name__icontains"] = parameters["itemName"]
         if "carrier" in parameters:
-            filters["carrier__in"] = parameters["carrier"]
+            filters["carrier__icontains"] = parameters["carrier"]
     else:
         search = parameters.get("search")
         if search:
-            filters["platform__in"] = search
-            filters["item_name__in"] = search
-            filters["carrier__in"] = search
+            filters["platform__icontains"] = search
+            filters["item_name__icontains"] = search
+            filters["carrier__icontains"] = search
 
     return filters
 
@@ -279,7 +281,8 @@ def get_sorted_queryset(
             if key != "user":
                 query |= Q(**{key: value})
 
-        LOGGER.error(f"zoidjhnaqzoidjzqoidjhqzd {Label.objects.count()}")
+        LOGGER.error(f"query: {query}")
+
         queryset = Label.objects.filter(query, user=filters["user"])
 
     if order == "asc":

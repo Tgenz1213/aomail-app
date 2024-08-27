@@ -184,27 +184,12 @@ const handleScroll = () => {
     }
 };
 
-const fetchEmailsDataFiltered = async (categoryName: string, filter: Filter) => {
-    currentPage.value = 1;
-    emails.value = {};
-    allEmailIds.value = [];
-    const priorities = [];
-
-    if (filter.important) {
-        priorities.push("important");
+const Scroll = () => {
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        container.addEventListener("scroll", handleScroll);
     }
-    if (filter.informative) {
-        priorities.push("informative");
-    }
-    if (filter.useless) {
-        priorities.push("useless");
-    }
-    
-    const response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: filter.read,  priority: priorities, spam: filter.spam, scam: filter.scam, meeting: filter.meeting, notification: filter.notification, newsletter: filter.newsletter });
-    allEmailIds.value = response.data.ids;
-
-    await loadMoreEmails();
-};
+}
 
 async function fetchCategoriesAndTotals() {
     const categoriesResponse = await getData("user/categories");
@@ -239,11 +224,12 @@ const openUpdateFilterModal = (filter: Filter) => {
 
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
-provide("fetchEmailsDataFiltered", fetchEmailsDataFiltered);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
 provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
+provide("Scroll", Scroll);
+provide("handleScroll", handleScroll);
 provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);
@@ -309,10 +295,7 @@ const selectCategory = async (category: Category) => {
     await fetchFiltersData(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
 
-    const container = document.querySelector(".custom-scrollbar");
-    if (container) {
-        container.addEventListener("scroll", handleScroll);
-    }
+    Scroll();
 };
 
 const openNewCategoryModal = () => {
@@ -370,10 +353,7 @@ onMounted(async () => {
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
 
-    const container = document.querySelector(".custom-scrollbar");
-    if (container) {
-        container.addEventListener("scroll", handleScroll);
-    }
+    Scroll();
 });
 
 onUnmounted(() => {

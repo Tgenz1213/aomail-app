@@ -89,6 +89,8 @@ import { Filter } from "../utils/types";
 import { Category } from '@/global/types';
 
 const openNewFilterModal = inject('openNewFilterModal') as () => void;
+const Scroll = inject('Scroll') as () => void;
+const handleScroll =  inject('handleScroll') as () => void;
 const openUpdateFilterModal = inject('openUpdateFilterModal') as (filter: Filter) => void;
 const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
 const filters = inject('filters') as Ref<Filter[]>;
@@ -129,13 +131,22 @@ const toggleMoreFilters = () => {
   showAllFiltersModal.value = !showAllFiltersModal.value;
 };
 
-const setActiveFilter = (filterName: string) => {
+const setActiveFilter = async (filterName: string) => {
   activeFilter.value = filterName;
   console.log("Active filter", activeFilter.value);
   showAllFiltersModal.value = false;
   const filter = filters.value.find((filter) => filter.name === filterName);
   selectedFilter.value = filter;
-  fetchEmailsData(selectedCategory.value);
+  await fetchEmailsData(selectedCategory.value);
+
+  const container = document.querySelector(".custom-scrollbar");
+  if (container) {
+    container.scrollTop = 0;
+  }
+  
+  Scroll();
+  
+  handleScroll();
 };
 
 </script>

@@ -30,3 +30,4 @@ media/
 trees/
 LogoAugmentAI_export4.png
 package-lock.json
+.py_env/

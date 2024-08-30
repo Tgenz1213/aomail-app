@@ -92,6 +92,7 @@ const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
+const toSearch = ref(false);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
@@ -111,6 +112,7 @@ const currentPage = ref(1);
 const isLoading = ref(false);
 const allEmailIds = ref<string[]>([]);
 const openFilters = ref<Record<string, boolean>>({});
+const searchQuery = ref('');
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
@@ -134,9 +136,18 @@ const fetchEmailsData = async (categoryName: string) => {
         if (selectedFilter.value?.useless) {
             priorities.push("useless");
         }
-        response = await postData("user/emails_ids/", { advanced: true, subject: "", category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
-    } else {     
-        response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+
+        if (toSearch.value){
+            response = await postData("user/emails_ids/", { advanced: true, subject: searchQuery.value, senderEmail: searchQuery.value, senderName: searchQuery.value, category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
+        } else {
+            response = await postData("user/emails_ids/", { advanced: true, subject: "", category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
+        }
+    } else {   
+        if (toSearch.value){ 
+            response = await postData("user/emails_ids/", { subject: searchQuery.value, senderEmail: searchQuery.value, senderName: searchQuery.value, category: categoryName });
+        } else {
+            response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+        } 
     }
 
     allEmailIds.value = response.data.ids;
@@ -178,7 +189,8 @@ const handleScroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
         const { scrollTop, scrollHeight, clientHeight } = container;
-        if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading.value) {
+        const threshold = 250;
+        if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
             loadMoreEmails();
         }
     }
@@ -234,6 +246,8 @@ provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);
 provide("selectedFilter", selectedFilter);
+provide("toSearch", toSearch);
+provide("searchQuery", searchQuery);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({

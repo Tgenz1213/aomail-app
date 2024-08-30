@@ -13,9 +13,9 @@ export interface Filter {
   notification: boolean;
   newsletter: boolean;
   spam: boolean;
-  scams: boolean;
+  scam: boolean;
   meeting: boolean;
-  relevance?: string | undefined;
-  answer?: string | undefined; 
+  relevance?: string;
+  answer?: string; 
   category?: string;
 }

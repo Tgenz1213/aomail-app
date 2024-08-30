@@ -5,9 +5,8 @@
         <button 
           @click="setActiveFilter(filter.name)"
           class="h-full px-3 focus:outline-none flex items-center justify-center relative"
-          :class="activeFilter === filter.name ? 'text-black' : 'text-gray-600'"
         >
-          <span class="relative z-10">{{ filter.name }}</span>
+          <span class="relative z-10" :class="selectedFilter?.name === filter.name ? 'text-black font-medium' : 'text-black font-normal'">{{ filter.name }}</span>
         </button>
         <div class="w-0 group-hover:w-6 overflow-hidden transition-all duration-200 flex items-center h-full">
           <svg
@@ -28,7 +27,7 @@
         </div>
         <div 
           class="absolute bottom-0 left-0 w-full h-0.5 bg-black opacity-0 group-hover:opacity-100 transition-all duration-200"
-          :class="{ 'opacity-100': activeFilter === filter.name }"
+          :class="{ 'opacity-100': selectedFilter?.name === filter.name }"
         ></div>
       </div>
     </div>
@@ -90,12 +89,15 @@ import { Filter } from "../utils/types";
 import { Category } from '@/global/types';
 
 const openNewFilterModal = inject('openNewFilterModal') as () => void;
+const Scroll = inject('Scroll') as () => void;
+const handleScroll =  inject('handleScroll') as () => void;
 const openUpdateFilterModal = inject('openUpdateFilterModal') as (filter: Filter) => void;
 const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
 const filters = inject('filters') as Ref<Filter[]>;
 const selectedCategory = inject('selectedCategory') as Ref<string>;
+const selectedFilter = inject('selectedFilter') as Ref<Filter | undefined>;
 
-const activeFilter = ref('');
+const activeFilter = ref<string>('');
 const showAllFiltersModal = ref(false);
 
 /*
@@ -129,10 +131,22 @@ const toggleMoreFilters = () => {
   showAllFiltersModal.value = !showAllFiltersModal.value;
 };
 
-const setActiveFilter = (filterName: string) => {
+const setActiveFilter = async (filterName: string) => {
   activeFilter.value = filterName;
+  console.log("Active filter", activeFilter.value);
   showAllFiltersModal.value = false;
-  fetchEmailsData(selectedCategory.value);
+  const filter = filters.value.find((filter) => filter.name === filterName);
+  selectedFilter.value = filter;
+  await fetchEmailsData(selectedCategory.value);
+
+  const container = document.querySelector(".custom-scrollbar");
+  if (container) {
+    container.scrollTop = 0;
+  }
+  
+  Scroll();
+  
+  handleScroll();
 };
 
 </script>

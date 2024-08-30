@@ -126,7 +126,7 @@
                 </label>
               </div>
               <div class="flex items-center space-x-2">
-                <input type="checkbox" id="scams" v-model="filterData.scams" class="rounded text-gray-600 focus:ring-gray-500">
+                <input type="checkbox" id="scams" v-model="filterData.scam" class="rounded text-gray-600 focus:ring-gray-500">
                 <label for="scams" class="flex items-center">
                   <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
                     {{ $t('homePage.modals.filterModal.scams') }}
@@ -184,7 +184,7 @@ const filterData = ref<Filter>({
   notification: false,
   newsletter: false,
   spam: false,
-  scams: false,
+  scam: false,
   meeting: false
 });
 

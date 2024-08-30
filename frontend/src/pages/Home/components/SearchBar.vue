@@ -34,27 +34,77 @@
             <Filters  />
         </div>
     </div>
-    <!--
-    <NewFilterModal
-        height="3rem"
-    />-->
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { Email } from '@/global/types';
+import { Ref, ref, inject, onMounted, watch } from 'vue';
 import Filters from './Filters.vue';
-import NewFilterModal from './NewFilterModal.vue';
 import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid';
 
 const showFilters = ref(false);
-const searchQuery = ref('');
 const emits = defineEmits(['updateSearchQuery']);
+const openFilters = ref<Record<string, boolean>>({});
+const searchTimeout = ref<number | null>(null);
+
+const selectedCategory = inject('selectedCategory') as Ref<string>;
+const toSearch = inject('toSearch') as Ref<boolean>;
+const searchQuery = inject('searchQuery') as Ref<string>;
+const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
 
 const toggleFilterSection = () => {
   showFilters.value = !showFilters.value;
+  
+  openFilters.value[selectedCategory.value] = showFilters.value;
+
+  localStorage.setItem("showFilters", JSON.stringify(openFilters.value));
 };
 
 const clearSearch = () => {
     searchQuery.value = '';
+    if (searchTimeout.value) {
+      clearTimeout(searchTimeout.value);
+    }
 };
+
+function debounce(func: Function, delay: number) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+const performSearch = async () => {
+  console.log("DEBUG search", searchQuery.value.trim())
+  if (searchQuery.value.trim() === '') return;
+  toSearch.value = true
+  await fetchEmailsData(selectedCategory.value);
+  console.log("ToSearch", toSearch.value)
+};
+
+const debouncedSearch = debounce(performSearch, 500);
+
+watch(searchQuery, () => {
+  if (searchQuery.value.trim() !== '') {
+    debouncedSearch();
+  } else {
+    if (searchTimeout.value) {
+      clearTimeout(searchTimeout.value);
+    }
+  }
+});
+
+onMounted(() => {
+  const storedFilters = localStorage.getItem("showFilters");
+  if (storedFilters) {
+    try {
+      openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
+    } catch (e) {
+      console.error("Error parsing stored filters:", e);
+    }
+  }
+
+  if (selectedCategory.value in openFilters.value && openFilters.value[selectedCategory.value]) {
+    showFilters.value = true;
+  }
+});
 </script>

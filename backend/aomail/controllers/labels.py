@@ -12,6 +12,7 @@ import os
 import re
 from io import BytesIO
 from django.http import HttpRequest
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -29,7 +30,7 @@ REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
 DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
 CARRIER_PATTERNS = [
     re.compile(
-        r"3\.\s*Drop the parcel off\s*</strong>.*?in\s*(.*?)\s*drop-off point of your choice\.\s*</p>",
+        r"3\.\s*Drop the parcel off\s*</strong>.*?in the\s*(.*?)\s*drop-off point of your choice\.\s*</p>",
         re.IGNORECASE | re.DOTALL,
     ),
     re.compile(
@@ -120,19 +121,27 @@ def extract_label_data(email_address: str, body: str) -> dict:
         if deadline_match:
             deadline_str = deadline_match.group(1).strip()
             try:
-                data["postage_deadline"] = datetime.datetime.strptime(
-                    deadline_str, "%Y-%m-%d %H:%M"
-                ).isoformat()
+                naive_dt = datetime.datetime.strptime(deadline_str, "%Y-%m-%d %H:%M")
+                aware_dt = timezone.make_aware(
+                    naive_dt, timezone.get_current_timezone()
+                )
+                data["postage_deadline"] = aware_dt.isoformat()
             except ValueError:
                 try:
-                    data["postage_deadline"] = datetime.datetime.strptime(
+                    naive_dt = datetime.datetime.strptime(
                         deadline_str, "%d/%m/%Y %I:%M %p"
-                    ).isoformat()
+                    )
+                    aware_dt = timezone.make_aware(
+                        naive_dt, timezone.get_current_timezone()
+                    )
+                    data["postage_deadline"] = aware_dt.isoformat()
                 except ValueError:
                     try:
-                        data["postage_deadline"] = datetime.datetime.strptime(
-                            deadline_str, "%d/%m/%Y"
-                        ).isoformat()
+                        naive_dt = datetime.datetime.strptime(deadline_str, "%d/%m/%Y")
+                        aware_dt = timezone.make_aware(
+                            naive_dt, timezone.get_current_timezone()
+                        )
+                        data["postage_deadline"] = aware_dt.isoformat()
                     except ValueError:
                         data["postage_deadline"] = None
             break

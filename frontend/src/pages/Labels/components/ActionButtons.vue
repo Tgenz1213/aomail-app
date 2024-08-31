@@ -55,10 +55,6 @@ const toggleSelectAll = () => {
     }
 };
 
-const isFirefox = () => {
-    return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-};
-
 const printLabels = async () => {
     const labelsToPrint = selectedLabelIds.value.length > 0 ? selectedLabelIds.value : ids.value;
 
@@ -84,38 +80,14 @@ const printLabels = async () => {
         const pdfBytes = await pdfDoc.save();
         const pdfUrl = URL.createObjectURL(new Blob([pdfBytes], { type: "application/pdf" }));
 
-        if (isFirefox()) {
-            const iframe = document.createElement("iframe");
-            iframe.style.display = "none";
-            document.body.appendChild(iframe);
-
-            iframe.onload = () => {
-                try {
-                    iframe.contentWindow?.print();
-                } catch (error) {
-                    displayPopup?.(
-                        "error",
-                        "Print error",
-                        "Unable to automatically trigger printing. Please check your browser settings."
-                    );
-                }
-                setTimeout(() => {
-                    URL.revokeObjectURL(pdfUrl);
-                    document.body.removeChild(iframe);
-                }, 1000);
+        const printWindow = window.open(pdfUrl, "_blank");
+        if (printWindow) {
+            printWindow.onload = () => {
+                printWindow.print();
+                URL.revokeObjectURL(pdfUrl);
             };
-
-            iframe.src = pdfUrl;
         } else {
-            const printWindow = window.open(pdfUrl, "_blank");
-            if (printWindow) {
-                printWindow.onload = () => {
-                    printWindow.print();
-                    URL.revokeObjectURL(pdfUrl);
-                };
-            } else {
-                displayPopup?.("error", "Print error", "Unable to open print window. Please check your popup blocker.");
-            }
+            displayPopup?.("error", "Print error", "Unable to open print window. Please check your popup blocker.");
         }
     } catch (error) {
         displayPopup?.("error", "Print error", "An error occurred while preparing the labels for printing.");

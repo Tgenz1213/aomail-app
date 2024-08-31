@@ -92,6 +92,7 @@ const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const timerId = ref<number | null>(null);
+const toSearch = ref(false);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
@@ -110,15 +111,21 @@ const emailsPerPage = 10;
 const currentPage = ref(1);
 const isLoading = ref(false);
 const allEmailIds = ref<string[]>([]);
+const openFilters = ref<Record<string, boolean>>({});
+const searchQuery = ref('');
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
     let response : FetchDataResult;
+    const storedFilters = localStorage.getItem("showFilters");
 
-    if (selectedFilter) {
-        console.log("SELECTED FILTER", selectedFilter)
+    if (storedFilters) {
+        openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
+    }
+
+    if (selectedFilter.value && selectedCategory.value in openFilters.value && openFilters.value[selectedCategory.value]) {
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");
@@ -129,10 +136,18 @@ const fetchEmailsData = async (categoryName: string) => {
         if (selectedFilter.value?.useless) {
             priorities.push("useless");
         }
-        console.log("PRIORITIES", priorities)
-        response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: selectedFilter.value?.read,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scams, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter });
-    } else {     
-        response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+
+        if (toSearch.value){
+            response = await postData("user/emails_ids/", { advanced: true, subject: searchQuery.value, senderEmail: searchQuery.value, senderName: searchQuery.value, category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
+        } else {
+            response = await postData("user/emails_ids/", { advanced: true, subject: "", category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
+        }
+    } else {   
+        if (toSearch.value){ 
+            response = await postData("user/emails_ids/", { subject: searchQuery.value, senderEmail: searchQuery.value, senderName: searchQuery.value, category: categoryName });
+        } else {
+            response = await postData("user/emails_ids/", { subject: "", category: categoryName });
+        } 
     }
 
     allEmailIds.value = response.data.ids;
@@ -152,7 +167,6 @@ const loadMoreEmails = async () => {
         const emails_details = await postData("user/get_emails_data/", { ids: idsToFetch });
         const newEmails = emails_details.data.data;
 
-        // Merge new emails with existing ones
         for (const category in newEmails) {
             if (!emails.value[category]) {
                 emails.value[category] = {};
@@ -175,33 +189,19 @@ const handleScroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
         const { scrollTop, scrollHeight, clientHeight } = container;
-        if (scrollTop + clientHeight >= scrollHeight - 100 && !isLoading.value) {
+        const threshold = 250;
+        if (scrollTop + clientHeight >= scrollHeight - threshold && !isLoading.value) {
             loadMoreEmails();
         }
     }
 };
 
-const fetchEmailsDataFiltered = async (categoryName: string, filter: Filter) => {
-    currentPage.value = 1;
-    emails.value = {};
-    allEmailIds.value = [];
-    const priorities = [];
-
-    if (filter.important) {
-        priorities.push("important");
+const Scroll = () => {
+    const container = document.querySelector(".custom-scrollbar");
+    if (container) {
+        container.addEventListener("scroll", handleScroll);
     }
-    if (filter.informative) {
-        priorities.push("informative");
-    }
-    if (filter.useless) {
-        priorities.push("useless");
-    }
-
-    const response = await postData("user/emails_ids/", { subject: "", category: categoryName, read: filter.read,  priority: priorities, spam: filter.spam, scam: filter.scams, meeting: filter.meeting, notification: filter.notification, newsletter: filter.newsletter });
-    allEmailIds.value = response.data.ids;
-
-    await loadMoreEmails();
-};
+}
 
 async function fetchCategoriesAndTotals() {
     const categoriesResponse = await getData("user/categories");
@@ -236,15 +236,18 @@ const openUpdateFilterModal = (filter: Filter) => {
 
 provide("displayPopup", displayPopup);
 provide("fetchEmailsData", fetchEmailsData);
-provide("fetchEmailsDataFiltered", fetchEmailsDataFiltered);
 provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
 provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
+provide("Scroll", Scroll);
+provide("handleScroll", handleScroll);
 provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);
 provide("selectedFilter", selectedFilter);
+provide("toSearch", toSearch);
+provide("searchQuery", searchQuery);
 
 const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
     return emailList.map((email) => ({
@@ -306,10 +309,7 @@ const selectCategory = async (category: Category) => {
     await fetchFiltersData(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
 
-    const container = document.querySelector(".custom-scrollbar");
-    if (container) {
-        container.addEventListener("scroll", handleScroll);
-    }
+    Scroll();
 };
 
 const openNewCategoryModal = () => {
@@ -367,10 +367,7 @@ onMounted(async () => {
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
 
-    const container = document.querySelector(".custom-scrollbar");
-    if (container) {
-        container.addEventListener("scroll", handleScroll);
-    }
+    Scroll();
 });
 
 onUnmounted(() => {

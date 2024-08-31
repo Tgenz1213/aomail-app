@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, inject, Ref, ref, computed } from "vue";
+import { inject, Ref, ref, computed } from "vue";
 import { LabelData } from "../utils/types";
 import { deleteData } from "@/global/fetchData";
 

@@ -56,7 +56,7 @@ import { API_BASE_URL } from "@/global/const";
 
 const showNotification = ref<boolean>(false);
 const step = ref<number>(0);
-const login = ref(<string>"");
+const login = ref<string>("");
 const userDescription = ref<string>("");
 const password = ref<string>("");
 const confirmPassword = ref<string>("");

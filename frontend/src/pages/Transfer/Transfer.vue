@@ -127,7 +127,7 @@ onMounted(async () => {
     // const date = JSON.parse(sessionStorage.getItem("date"));
 
     // Prepare the forwarded email
-    inputValue.value = "Tr : " + subject;
+    inputValue.value = "Tr : " + subject.value;
     // const formattedDateVar = new Date(date);
     const options = {
         weekday: "short",
@@ -152,7 +152,7 @@ onMounted(async () => {
     forwardedMessage += "---------- Message transféré ---------\n";
     // forwardedMessage += `De: ${email}\n`;
     // forwardedMessage += `Date: ${formattedDate}\n`;
-    forwardedMessage += `Sujet: ${subject}\n`;
+    forwardedMessage += `Sujet: ${subject.value}\n`;
 
     // if (cc.length > 0) {
     //     forwardedMessage += `CC: ${cc}\n`;

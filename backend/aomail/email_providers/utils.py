@@ -85,7 +85,9 @@ def email_to_db(social_api: SocialAPI, email_id: str = None) -> bool:
         email_entry = save_email_to_db(processed_email, user, social_api)
 
         if is_shipping_label(email_data["subject"]):
-            process_label(email_data["from_info"][1], email_entry)
+            process_label(
+                email_data["from_info"][1], email_data["subject"], email_entry
+            )
 
         LOGGER.info(
             f"Email ID: {email_data['email_id']} saved successfully for user ID: {user.id}"

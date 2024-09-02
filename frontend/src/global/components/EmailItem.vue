@@ -140,7 +140,7 @@
                                 {{ $t("homePage.read") }}
                             </div>
                             <button
-                                @click="email.read ? markEmailAsUnread : markEmailAsRead"
+                                @click="email.read ? markEmailAsUnread() : markEmailAsRead()"
                                 type="button"
                                 :class="`relative -ml-px inline-flex items-center px-2 py-1.5 text-sm font-semibold text-${color}-900 ring-1 ring-inset ring-${color}-300 hover:bg-${color}-300 focus:z-10`"
                             >
@@ -400,6 +400,7 @@ const updatedEmail = ref<Email | undefined>(undefined);
 const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
 const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Promise<void>;
+const emails = inject("emails") as Ref<{ [key: string]: { [key: string]: Email[] } }>;
 const emit = defineEmits<{
     (e: "emailUpdated", email: Email): void;
 }>();
@@ -442,9 +443,19 @@ async function markEmailAsUnread() {
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
     }
-    fetchEmailsData(selectedCategory.value);
-    fetchCategoriesAndTotals();
+    /*fetchEmailsData(selectedCategory.value);
+      fetchCategoriesAndTotals();*/
     props.email.read = false;
+
+    for (const category in emails.value) {
+        for (const subCategory in emails.value[category]) {
+            const index = emails.value[category][subCategory].findIndex(email => email.id === localEmail.value.id);
+            if (index !== -1) {
+                emails.value[category][subCategory][index].read = false;
+                break;
+            }
+        }
+    }
 }
 
 const closeSeeMailModal = () => {
@@ -477,6 +488,21 @@ async function markEmailAsRead() {
         return;
     }
     localEmail.value.read = true;
+
+    //To UPGRADE;
+
+    for (const category in emails.value) {
+        for (const subCategory in emails.value[category]) {
+            const index = emails.value[category][subCategory].findIndex(email => email.id === localEmail.value.id);
+            if (index !== -1) {
+                emails.value[category][subCategory][index].read = true;
+                break;
+            }
+        }
+    }
+
+    /*fetchEmailsData(selectedCategory.value);
+    fetchCategoriesAndTotals();*/
 }
 
 async function markEmailReplyLater() {

@@ -149,7 +149,7 @@ const fetchEmailsData = async (categoryName: string) => {
             response = await postData("user/emails_ids/", { subject: "", category: categoryName });
         } 
     }
-
+    
     allEmailIds.value = response.data.ids;
 
     await loadMoreEmails();
@@ -242,6 +242,7 @@ provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
 provide("Scroll", Scroll);
 provide("handleScroll", handleScroll);
+provide("emails", emails);
 provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);
@@ -259,19 +260,22 @@ const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
 const importantEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.important || [];
-    return addCategoryToEmails(categoryEmails, selectedCategory.value);
+    const unreadEmails = categoryEmails.filter(email => !email.read);
+    return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const informativeEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.informative || [];
-    return addCategoryToEmails(categoryEmails, selectedCategory.value);
+    const unreadEmails = categoryEmails.filter(email => !email.read);
+    return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const uselessEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.useless || [];
-    return addCategoryToEmails(categoryEmails, selectedCategory.value);
+    const unreadEmails = categoryEmails.filter(email => !email.read);
+    return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const readEmails = computed(() => {

@@ -68,7 +68,6 @@ MAX_RETRIES = 3
 ######################## GOOGLE API ########################
 GOOGLE_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
 GOOGLE_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
-GOOGLE_CALENDAR_READONLY_SCOPE = "https://www.googleapis.com/auth/calendar.readonly"
 GOOGLE_CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readonly"
 GOOGLE_PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile"
 GOOGLE_EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email"
@@ -80,7 +79,6 @@ GOOGLE_OTHER_CONTACT_READONLY_SCOPE = (
 GOOGLE_SCOPES = [
     GOOGLE_READONLY_SCOPE,
     GOOGLE_SEND_SCOPE,
-    GOOGLE_CALENDAR_READONLY_SCOPE,
     GOOGLE_CONTACT_READONLY_SCOPE,
     GOOGLE_PROFILE_SCOPE,
     GOOGLE_EMAIL_SCOPE,

@@ -237,7 +237,7 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
             or_filters |= flag_filter
 
         if "category" in parameters:
-            category_obj = Category.objects.get(name=parameters["category"])
+            category_obj = Category.objects.get(name=parameters["category"], user=user)
             and_filters["category"] = category_obj
         if "archive" in parameters:
             and_filters["archive"] = parameters["archive"]
@@ -273,14 +273,16 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
 
     else:
         if "category" in parameters:
-            category_obj = Category.objects.get(name=parameters["category"])
+            category_obj = Category.objects.get(name=parameters["category"], user=user)
             and_filters["category"] = category_obj
         subject = parameters.get("subject")
-        or_filters |= Q(subject__icontains=subject) | \
-                      Q(sender__email__icontains=subject) | \
-                      Q(sender__name__icontains=subject) | \
-                      Q(cc_senders__email__icontains=subject) | \
-                      Q(cc_senders__name__icontains=subject)
+        or_filters |= (
+            Q(subject__icontains=subject)
+            | Q(sender__email__icontains=subject)
+            | Q(sender__name__icontains=subject)
+            | Q(cc_senders__email__icontains=subject)
+            | Q(cc_senders__name__icontains=subject)
+        )
 
     return and_filters, or_filters
 
@@ -288,36 +290,30 @@ def construct_filters(user: User, parameters: dict) -> tuple[dict, Q]:
 def get_sorted_queryset(
     and_filters: dict, or_filters: Q, sort: str, advanced: bool | None
 ) -> BaseManager[Email]:
-    queryset = Email.objects.filter(** and_filters)
-    
+    queryset = Email.objects.filter(**and_filters)
+
     if or_filters:
         queryset = queryset.filter(or_filters)
 
     rule_id_subquery = Rule.objects.filter(
         sender=OuterRef("sender"), user=and_filters["user"]
     ).values("id")[:1]
-    
+
     queryset = queryset.annotate(
-        has_rule=Exists(rule_id_subquery),
-        rule_id=Subquery(rule_id_subquery)
+        has_rule=Exists(rule_id_subquery), rule_id=Subquery(rule_id_subquery)
     )
 
     # Apply the sorting
     if sort == "asc":
         queryset = queryset.order_by(
-            F('priority').asc(nulls_last=True),
-            F('read').asc(),
-            '-date'
+            F("priority").asc(nulls_last=True), F("read").asc(), "-date"
         )
     else:
         queryset = queryset.order_by(
-            F('priority').asc(nulls_last=True),
-            F('read').asc(),
-            'date'
+            F("priority").asc(nulls_last=True), F("read").asc(), "date"
         )
 
     return queryset
-
 
 
 def format_email_data(queryset: BaseManager[Email]) -> tuple:
@@ -388,7 +384,9 @@ def get_user_emails_ids(request: HttpRequest) -> Response:
         sort = valid_data["sort"]
 
         and_filters, or_filters = construct_filters(user, parameters)
-        queryset = get_sorted_queryset(and_filters, or_filters, sort, parameters.get("advanced"))
+        queryset = get_sorted_queryset(
+            and_filters, or_filters, sort, parameters.get("advanced")
+        )
         email_count, email_ids = format_email_data(queryset)
 
         return Response(

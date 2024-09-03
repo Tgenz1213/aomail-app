@@ -96,7 +96,8 @@ const toSearch = ref(false);
 
 const emails = ref<{ [key: string]: { [key: string]: Email[] } }>({});
 const selectedCategory = ref<string>("");
-const selectedFilter = ref<Filter | null>(null);
+const activeFilters = ref<{ [category: string]: Filter | undefined }>({});
+const selectedFilter = computed(() => activeFilters.value[selectedCategory.value]);
 const categoryToUpdate = ref<Category | null>(null);
 const filterToUpdate = ref<Filter | null>(null);
 const isModalNewCategoryOpen = ref(false);
@@ -105,7 +106,7 @@ const isModalNewFilterOpen = ref(false);
 const isModalUpdateFilterOpen = ref(false);
 const isHidden = ref(false);
 const categories = ref<Category[]>([]);
-const filters = ref<Filter[]>([]);
+const filters = ref<{ [categoryName: string]: Filter[] }>({});
 const categoryTotals = ref<{ [key: string]: number }>({});
 const emailsPerPage = 10;
 const currentPage = ref(1);
@@ -113,6 +114,7 @@ const isLoading = ref(false);
 const allEmailIds = ref<string[]>([]);
 const openFilters = ref<Record<string, boolean>>({});
 const searchQuery = ref('');
+
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
@@ -221,7 +223,7 @@ async function fetchCategoriesAndTotals() {
 
 const fetchFiltersData = async (categoryName: string) => {
     const response = await postData("user/filters/", { category: categoryName });
-    filters.value = response.data;
+    filters.value[categoryName] = response.data;
     console.log("FILTERS", filters.value);
 };
 
@@ -247,6 +249,7 @@ provide("categories", categories);
 provide("filters", filters);
 provide("selectedCategory", selectedCategory);
 provide("selectedFilter", selectedFilter);
+provide("activeFilters", activeFilters);
 provide("toSearch", toSearch);
 provide("searchQuery", searchQuery);
 
@@ -358,7 +361,26 @@ function dismissPopup() {
     }
 }
 
+const loadActiveFilters = async () => {
+  const storedFilters = localStorage.getItem('activeFilters');
+  if (storedFilters) {
+    const parsedFilters = JSON.parse(storedFilters);
+    for (const category in parsedFilters) {
+      await fetchFiltersData(category);
+      const filterArray = filters.value[category];
+      if (filterArray && parsedFilters[category]) {
+        const filter = filterArray.find(f => f.name === parsedFilters[category].name);
+        if (filter) {
+          activeFilters.value[category] = filter;
+        }
+      }
+    }
+  }
+};
+
+
 onMounted(async () => {
+    loadActiveFilters();
     await fetchCategoriesAndTotals();
 
     const storedTopic = localStorage.getItem("selectedCategory");
@@ -367,6 +389,8 @@ onMounted(async () => {
     } else {
         selectedCategory.value = "Others";
     }
+
+    await loadActiveFilters();
 
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);

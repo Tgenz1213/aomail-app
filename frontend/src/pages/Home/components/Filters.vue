@@ -50,7 +50,7 @@
           <h2 class="text-sm font-bold mb-2">All filters</h2>
           <div class="space-y-1 h-full overflow-y-auto">
             <div 
-              v-for="filter in filters" 
+              v-for="filter in allFilters" 
               :key="filter.name"
               class="flex items-center hover:bg-gray-100 rounded"
             >
@@ -93,60 +93,73 @@ const Scroll = inject('Scroll') as () => void;
 const handleScroll =  inject('handleScroll') as () => void;
 const openUpdateFilterModal = inject('openUpdateFilterModal') as (filter: Filter) => void;
 const fetchEmailsData = inject('fetchEmailsData') as (categoryName: string) => Promise<void>;
-const filters = inject('filters') as Ref<Filter[]>;
+const fetchFiltersData = inject('fetchFiltersData') as (categoryName: string) => Promise<void>;
+const filters = inject('filters') as Ref<{ [categoryName: string]: Filter[] }>;
 const selectedCategory = inject('selectedCategory') as Ref<string>;
 const selectedFilter = inject('selectedFilter') as Ref<Filter | undefined>;
+const activeFilters = inject('activeFilters') as Ref<{ [category: string]: Filter | undefined }>;
 
-const activeFilter = ref<string>('');
 const showAllFiltersModal = ref(false);
 
-/*
-const allFilters = computed((): Filter[] => [
-  {
-    id: -1, 
-    name: 'No filter',
-    important: true,
-    informative: true,
-    useless: true,
-    read: true,
-    notification: true,
-    newsletter: true,
-    spam: true,
-    scams: true,
-    meeting: true,
-    category:
-  },
-  ...filters.value
-]);*/
-
-const hiddenFiltersCount = computed(() => {
-  return Math.max(0, filters.value.length - visibleFilters.value.length);
+const allFilters = computed((): Filter[] => {
+  console.log("ALL FILTERS", filters.value[selectedCategory.value]);
+  return filters.value[selectedCategory.value] || [];
 });
 
-const visibleFilters = computed(() => {
-  return filters.value.slice(0, 4);
+const visibleFilters = computed((): Filter[] => {
+  return allFilters.value.slice(0, 4);
 });
+
+const hiddenFiltersCount = computed((): number => {
+  return Math.max(0, allFilters.value.length - visibleFilters.value.length);
+});
+
 
 const toggleMoreFilters = () => {
   showAllFiltersModal.value = !showAllFiltersModal.value;
 };
 
 const setActiveFilter = async (filterName: string) => {
-  activeFilter.value = filterName;
-  console.log("Active filter", activeFilter.value);
   showAllFiltersModal.value = false;
-  const filter = filters.value.find((filter) => filter.name === filterName);
-  selectedFilter.value = filter;
-  await fetchEmailsData(selectedCategory.value);
+  
+  const filterArray = filters.value[selectedCategory.value];
+  if (filterArray) {
+    const filter = filterArray.find(f => f.name === filterName);
+    
+    if (filter) {
+      activeFilters.value[selectedCategory.value] = filter;
+      await fetchEmailsData(selectedCategory.value);
 
-  const container = document.querySelector(".custom-scrollbar");
-  if (container) {
-    container.scrollTop = 0;
+      const container = document.querySelector(".custom-scrollbar");
+      if (container) {
+        container.scrollTop = 0;
+      }
+
+      Scroll();
+      handleScroll();
+
+      localStorage.setItem('activeFilters', JSON.stringify(activeFilters.value));
+    } else {
+      console.error(`Filter with name "${filterName}" not found in category "${selectedCategory.value}".`);
+      activeFilters.value[selectedCategory.value] = undefined;
+    }
+  } else {
+    console.error(`No filters found for category "${selectedCategory.value}".`);
+    activeFilters.value[selectedCategory.value] = undefined;
   }
-  
-  Scroll();
-  
-  handleScroll();
 };
+
+watch(selectedCategory, async (newCategory, oldCategory) => {
+  if (!activeFilters.value[newCategory]) {
+    activeFilters.value[newCategory] = undefined;
+  }
+
+  await fetchEmailsData(newCategory);
+  await fetchFiltersData(newCategory);
+
+  showAllFiltersModal.value = false;
+});
+
+
 
 </script>

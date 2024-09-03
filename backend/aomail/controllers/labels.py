@@ -26,8 +26,17 @@ from aomail.utils.security import subscription
 
 
 LOGGER = logging.getLogger(__name__)
-REQUIRED_SUBJECT_KEYWORDS = [["shipping label", "use by"]]
-DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b"]
+REQUIRED_SUBJECT_KEYWORDS = [
+    ["shipping label", "use by"],
+    ["Bordereau d'envoi", "à utiliser avant le"],
+    ["verzendlabel", "Uiterste verzenddatum:"],
+    ["Etiqueta de envío", "Utilizar antes del"],
+]
+DATE_PATTERNS = [
+    r"\b\d{2}/\d{2}/\d{4} \d{2}:\d{2}\s*[APM]{2}\b",
+    r"\b\d{4}-\d{2}-\d{2} \d{2}:\d{2}\b",
+    r"\b\d{2}/\d{2}/\d{4} \d{2}:\d{2}\b",
+]
 CARRIER_PATTERNS = [
     re.compile(
         r"3\.\s*Drop the parcel off\s*</strong>.*?in the\s*(.*?)\s*drop-off point of your choice\.\s*</p>",
@@ -37,32 +46,33 @@ CARRIER_PATTERNS = [
         r"3\.\s*D\xe9pose le colis.*?dans n'importe\s*quel\s*point\s*(.*?)\s*\.\s*</p>",
         re.IGNORECASE | re.DOTALL,
     ),
-]
-DEADLINE_PATTERNS = [
     re.compile(
-        r"<strong>\s*Postage\s*deadline:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
+        r"3\.\s*Geef het pakket af bij een\s*</strong>.*?\s*(.*?)\s*afgiftepunt naar keuze\.\s*</p>",
         re.IGNORECASE | re.DOTALL,
     ),
     re.compile(
-        r"<strong>\s*À envoyer\s*avant le\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
+        r"3\.\s*Entrega el paquete en el punto de entrega\s*</strong>.*?\s*(.*?)\s*(?:de tu elección|más cercano)\.\s*</p>",
         re.IGNORECASE | re.DOTALL,
     ),
 ]
 ITEM_NAME_PATTERNS = [
     re.compile(
-        r"<strong>\s*Item:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*<br\s*/?>",
+        r"<strong>\s*Article\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
         re.IGNORECASE | re.DOTALL,
     ),
     re.compile(
-        r"<strong>\s*Article\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*<br\s*/?>",
+        r"<strong>\s*Bestelling\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
+        re.IGNORECASE | re.DOTALL,
+    ),
+    re.compile(
+        r"<strong>\s*Item\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
+        re.IGNORECASE | re.DOTALL,
+    ),
+    re.compile(
+        r"<strong>\s*Pedido\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
         re.IGNORECASE | re.DOTALL,
     ),
 ]
-REQUIRED_SUBJECT_KEYWORDS = [
-    ["shipping label", "use by"],
-    ["Bordereau d'envoi", "à utiliser avant le"],
-]
-DATE_PATTERNS = [r"\b\d{2}/\d{2}/\d{4}\b", r"\b\d{4}-\d{2}-\d{2}\b"]
 ECOMMERCE_PLATFORMS = ["vinted", "labrotique", "augu"]
 CARRIER_NAMES = {
     "mondialrelay": "mondial_relay",
@@ -79,17 +89,26 @@ CARRIER_NAMES = {
 }
 
 
-def process_label(email_address: str, email_entry: Email):
-    label_data = extract_label_data(email_address, email_entry.html_content)
-    create_shipping_label(email_entry, label_data)
-
-
-def extract_label_data(email_address: str, body: str) -> dict:
+def process_label(email_address: str, subject: str, email_entry: Email):
     """
-    Extracts shipping label information such as carrier name, item name, and postage deadline from the email body.
+    Processes the email label data and creates a shipping label.
 
     Args:
         email_address (str): The email address of the sender.
+        subject (str): The subject of the email.
+        email_entry (Email): An instance of the Email class containing email details.
+    """
+    label_data = extract_label_data(email_address, subject, email_entry.html_content)
+    create_shipping_label(email_entry, label_data)
+
+
+def extract_label_data(email_address: str, subject: str, body: str) -> dict:
+    """
+    Extracts shipping label information such as carrier name, item name, and postage deadline from the email body and subject.
+
+    Args:
+        email_address (str): The email address of the sender.
+        subject (str): The subject of the email.
         body (str): The HTML content of the email body.
 
     Returns:
@@ -116,37 +135,34 @@ def extract_label_data(email_address: str, body: str) -> dict:
             data["carrier"] = CARRIER_NAMES.get(carrier_name, carrier_name)
             break
 
-    for pattern in DEADLINE_PATTERNS:
-        deadline_match = pattern.search(normalized_body)
-        if deadline_match:
-            deadline_str = deadline_match.group(1).strip()
+    for date_pattern in DATE_PATTERNS:
+        date_match = re.search(date_pattern, subject)
+        if date_match:
+            date_str = date_match.group()
             try:
-                naive_dt = datetime.datetime.strptime(deadline_str, "%Y-%m-%d %H:%M")
+                if "AM" in date_str or "PM" in date_str:
+                    naive_dt = datetime.datetime.strptime(date_str, "%d/%m/%Y %I:%M %p")
+                elif len(date_str) > 10 and ":" in date_str:
+                    if "-" in date_str:
+                        naive_dt = datetime.datetime.strptime(
+                            date_str, "%Y-%m-%d %H:%M"
+                        )
+                    else:
+                        naive_dt = datetime.datetime.strptime(
+                            date_str, "%d/%m/%Y %H:%M"
+                        )
+                else:
+                    naive_dt = datetime.datetime.strptime(date_str, "%d/%m/%Y")
+
                 aware_dt = timezone.make_aware(
                     naive_dt, timezone.get_current_timezone()
                 )
                 data["postage_deadline"] = aware_dt.isoformat()
+                break
             except ValueError:
-                try:
-                    naive_dt = datetime.datetime.strptime(
-                        deadline_str, "%d/%m/%Y %I:%M %p"
-                    )
-                    aware_dt = timezone.make_aware(
-                        naive_dt, timezone.get_current_timezone()
-                    )
-                    data["postage_deadline"] = aware_dt.isoformat()
-                except ValueError:
-                    try:
-                        naive_dt = datetime.datetime.strptime(deadline_str, "%d/%m/%Y")
-                        aware_dt = timezone.make_aware(
-                            naive_dt, timezone.get_current_timezone()
-                        )
-                        data["postage_deadline"] = aware_dt.isoformat()
-                    except ValueError:
-                        data["postage_deadline"] = None
-            break
+                LOGGER.error(f"Date format error: {date_str}")
 
-    if not data["carrier"]:
+    if not data["carrier"] or data["carrier"] not in CARRIER_NAMES:
         carrier_pattern_list = "|".join(
             re.escape(name) for name in CARRIER_NAMES.keys()
         )
@@ -162,7 +178,10 @@ def extract_label_data(email_address: str, body: str) -> dict:
     for pattern in ITEM_NAME_PATTERNS:
         item_match = pattern.search(normalized_body)
         if item_match:
-            data["item_name"] = item_match.group(1).strip()
+            item_name = re.sub(
+                r"<br\s*/?>\s*$", "", item_match.group(1).strip()
+            ).strip()
+            data["item_name"] = item_name
             break
 
     for platform in ECOMMERCE_PLATFORMS:
@@ -173,7 +192,7 @@ def extract_label_data(email_address: str, body: str) -> dict:
     return data
 
 
-def create_shipping_label(email: Email, label_data: dict):
+def create_shipping_label(email: Email, label_data: dict[str, str]):
     """
     Create the shipping label by merging the official shipping label with a custom message.
 
@@ -185,6 +204,8 @@ def create_shipping_label(email: Email, label_data: dict):
             platform: The platform information.
             postage_deadline: The postage deadline.
     """
+    item_lines = re.split(r"<br\s*/?>", label_data["item_name"].strip())
+
     attachment_name = Attachment.objects.get(email=email).name
 
     if email.social_api.type_api == GOOGLE:
@@ -227,13 +248,16 @@ def create_shipping_label(email: Email, label_data: dict):
                     - 0.11 * pdf_reader.pages[0].mediabox.height
                 )
 
-            x = pdf_reader.pages[0].mediabox.width / (
-                4 if label_data["carrier"] == "mondial_relay" else (3 / 2)
-            )
-            x -= canvas_object.stringWidth(label_data["item_name"]) / 2
-            canvas_object.drawString(x, y, label_data["item_name"])
-            y -= 0.018 * pdf_reader.pages[0].mediabox.height
-
+            for line in item_lines:
+                line = line.strip()
+                x = (
+                    pdf_reader.pages[0].mediabox.width
+                    / (4 if label_data["carrier"] == "mondial_relay" else (3 / 2))
+                    - canvas_object.stringWidth(line) / 2
+                )
+                if line:
+                    canvas_object.drawString(x, y, line)
+                    y -= 0.018 * pdf_reader.pages[0].mediabox.height
         else:
             if label_data["carrier"] == "la_poste":
                 x, y = (
@@ -249,11 +273,15 @@ def create_shipping_label(email: Email, label_data: dict):
             elif label_data["carrier"] == "relais_colis":
                 x, y = (
                     3 / 4 * pdf_reader.pages[0].mediabox.width
-                    - canvas_object.stringWidth(label_data["item_name"]) / 2,
+                    - canvas_object.stringWidth(item_lines[0]) / 2,
                     2 / 3 * pdf_reader.pages[0].mediabox.height
                     - 0.034 * pdf_reader.pages[0].mediabox.height,
                 )
-            canvas_object.drawString(x, y, label_data["item_name"])
+            for line in item_lines:
+                line = line.strip()
+                if line:
+                    canvas_object.drawString(x, y, line)
+                    y -= 0.018 * pdf_reader.pages[0].mediabox.height
 
         canvas_object.save()
         packet.seek(0)
@@ -261,6 +289,7 @@ def create_shipping_label(email: Email, label_data: dict):
         page.merge_page(new_pdf.pages[0])
         pdf_writer.add_page(page)
 
+    label_data["item_name"] = label_data["item_name"].replace("<br/>", " + ")
     label_name = save_custom_label(
         pdf_writer, label_data["carrier"], label_data["item_name"]
     )
@@ -360,25 +389,32 @@ def delete_labels(request: HttpRequest) -> Response:
     try:
         user = request.user
         parameters: dict = json.loads(request.body)
-        ids = parameters.get("ids")
+        ids = parameters.get("ids", [])
 
         if not ids:
             return Response(
                 {"error": "No label IDs provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        for id in ids:
-            label = Label.objects.get(id=id, user=user)
+        labels = Label.objects.filter(id__in=ids, user=user)
+        if labels.count() != len(ids):
+            return Response(
+                {
+                    "error": "One or more labels not found or not associated with this user"
+                },
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        for label in labels:
+            label_path = os.path.join(MEDIA_ROOT, "labels", label.label_name)
+            if os.path.exists(label_path):
+                os.remove(label_path)
             label.delete()
 
         return Response(
             {"message": "Labels deleted successfully"}, status=status.HTTP_200_OK
         )
 
-    except Label.DoesNotExist:
-        return Response(
-            {"error": "One or more labels not found"}, status=status.HTTP_404_NOT_FOUND
-        )
     except json.JSONDecodeError:
         return Response(
             {"error": "Invalid JSON in request body"},
@@ -387,6 +423,6 @@ def delete_labels(request: HttpRequest) -> Response:
     except Exception as e:
         LOGGER.error(f"Error when deleting labels: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error": "An unexpected error occurred"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

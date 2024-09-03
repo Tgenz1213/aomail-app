@@ -196,7 +196,7 @@ class Label(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_labels")
     email = models.ForeignKey(Email, on_delete=models.CASCADE)
-    item_name = models.CharField(max_length=50)
+    item_name = models.CharField(max_length=300)
     platform = models.CharField(max_length=50)
     carrier = models.CharField(max_length=50)
     label_name = models.CharField(max_length=100)

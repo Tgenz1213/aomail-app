@@ -57,24 +57,21 @@ CARRIER_PATTERNS = [
 ]
 ITEM_NAME_PATTERNS = [
     re.compile(
-        r"<strong>\s*Item:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*<br\s*/?>",
+        r"<strong>\s*Article\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
         re.IGNORECASE | re.DOTALL,
     ),
     re.compile(
-        r"<strong>\s*Article\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*<br\s*/?>",
+        r"<strong>\s*Bestelling\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
         re.IGNORECASE | re.DOTALL,
     ),
     re.compile(
-        r"<strong>\s*Bestelling\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*<br\s*/?>",
+        r"<strong>\s*Item\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
         re.IGNORECASE | re.DOTALL,
     ),
-]
-BUNDLE_KEYWORDS = ["Pedido"]
-BUNDLE_ITEM_NAMES_PATTERNS = [
     re.compile(
         r"<strong>\s*Pedido\s*:\s*</strong>.*?<td[^>]*>\s*(.*?)\s*</td>",
         re.IGNORECASE | re.DOTALL,
-    )
+    ),
 ]
 ECOMMERCE_PLATFORMS = ["vinted", "labrotique", "augu"]
 CARRIER_NAMES = {
@@ -178,21 +175,14 @@ def extract_label_data(email_address: str, subject: str, body: str) -> dict:
             carrier_key = fallback_match.group(0).lower()
             data["carrier"] = CARRIER_NAMES.get(carrier_key, carrier_key.capitalize())
 
-    if any(keyword in normalized_body for keyword in BUNDLE_KEYWORDS):
-        for pattern in BUNDLE_ITEM_NAMES_PATTERNS:
-            item_match = pattern.search(normalized_body)
-            if item_match:
-                item_name = re.sub(
-                    r"<br\s*/?>\s*$", "", item_match.group(1).strip()
-                ).strip()
-                data["item_name"] = item_name
-                break
-    else:
-        for pattern in ITEM_NAME_PATTERNS:
-            item_match = pattern.search(normalized_body)
-            if item_match:
-                data["item_name"] = item_match.group(1).strip()
-                break
+    for pattern in ITEM_NAME_PATTERNS:
+        item_match = pattern.search(normalized_body)
+        if item_match:
+            item_name = re.sub(
+                r"<br\s*/?>\s*$", "", item_match.group(1).strip()
+            ).strip()
+            data["item_name"] = item_name
+            break
 
     for platform in ECOMMERCE_PLATFORMS:
         if platform in email_address:
@@ -202,7 +192,7 @@ def extract_label_data(email_address: str, subject: str, body: str) -> dict:
     return data
 
 
-def create_shipping_label(email: Email, label_data: dict):
+def create_shipping_label(email: Email, label_data: dict[str, str]):
     """
     Create the shipping label by merging the official shipping label with a custom message.
 
@@ -299,6 +289,7 @@ def create_shipping_label(email: Email, label_data: dict):
         page.merge_page(new_pdf.pages[0])
         pdf_writer.add_page(page)
 
+    label_data["item_name"] = label_data["item_name"].replace("<br/>", " + ")
     label_name = save_custom_label(
         pdf_writer, label_data["carrier"], label_data["item_name"]
     )
@@ -339,7 +330,6 @@ def save_custom_label(
     """
     try:
         directory = os.path.join(MEDIA_ROOT, "labels")
-        item_name = item_name.replace("<br/>", " ")
         label_name = f"{carrier}_{item_name}.pdf"
         n = 1
 

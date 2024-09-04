@@ -317,9 +317,7 @@ def save_label_to_db(email: Email, label_data: dict, label_name: str):
     )
 
 
-def save_custom_label(
-    pdf_writer: PdfWriter, carrier: str, item_name: str
-) -> str | None:
+def save_custom_label(pdf_writer: PdfWriter, carrier: str, item_name: str) -> str:
     """
     Saves the shipping label PDF to the specified directory, ensuring the filename is unique.
 
@@ -327,15 +325,23 @@ def save_custom_label(
         pdf_writer (PdfWriter): The PdfWriter object containing the modified PDF content.
         carrier (str): The name of the carrier.
         item_name (str): The name of the item.
+
+    Returns:
+        str: The name of the saved label file, or None if an error occurred.
     """
     try:
         directory = os.path.join(MEDIA_ROOT, "labels")
+        os.makedirs(directory, exist_ok=True)
+
         label_name = f"{carrier}_{item_name}.pdf"
         n = 1
 
         while os.path.exists(os.path.join(directory, label_name)):
             label_name = f"{carrier}_{item_name}({n}).pdf"
             n += 1
+
+        if len(label_name) > 246:
+            label_name = label_name[:246] + ".pdf"
 
         with open(os.path.join(directory, label_name), "wb") as f:
             pdf_writer.write(f)

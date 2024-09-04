@@ -153,7 +153,6 @@ const deleteLabels = async () => {
         displayPopup?.("error", "Failed to delete labels", result.error as string);
     } else {
         selectedLabelIds.value = [];
-        displayPopup?.("success", "Labels Deleted", "Selected labels have been successfully deleted.");
     }
 };
 </script>

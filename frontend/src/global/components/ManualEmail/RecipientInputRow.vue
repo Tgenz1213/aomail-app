@@ -119,7 +119,7 @@ const query = ref("");
 const isFirstTimeDestinary = ref<boolean>(true);
 const contacts = inject<Ref<Recipient[]>>("contacts", ref([]));
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
-const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
+const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
 
@@ -206,8 +206,8 @@ function personSelected(person: Recipient) {
             }
             break;
         case "CCI":
-            if (!selectedCCI.value.includes(person)) {
-                selectedCCI.value.push(person);
+            if (!selectedBCC.value.includes(person)) {
+                selectedBCC.value.push(person);
             }
             break;
         default:

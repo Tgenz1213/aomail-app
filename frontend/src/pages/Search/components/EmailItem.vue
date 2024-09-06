@@ -195,13 +195,15 @@ async function openAnswer() {
         return;
     }
 
-    sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
-    sessionStorage.setItem("cc", result.data.email.cc);
-    sessionStorage.setItem("bcc", result.data.email.bcc);
-    sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
-    sessionStorage.setItem("email", JSON.stringify(localEmail.value.sender.email));
+    sessionStorage.setItem("subject", JSON.stringify(result.data.subject));
+    sessionStorage.setItem("cc", result.data.cc);
+    sessionStorage.setItem("bcc", result.data.bcc);
+    sessionStorage.setItem("decodedData", JSON.stringify(result.data.decodedData));
+    sessionStorage.setItem("emailUser", JSON.stringify(result.data.emailUser));
+    sessionStorage.setItem("senderEmail", JSON.stringify(localEmail.value.sender.email));
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
     sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));
+    sessionStorage.setItem("importance", JSON.stringify(localEmail.value.priority));
 
     router.push({ name: "answer" });
 }
@@ -216,7 +218,7 @@ async function transferEmail() {
     sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
     sessionStorage.setItem("cc", result.data.email.cc);
     sessionStorage.setItem("bcc", result.data.email.bcc);
-    sessionStorage.setItem("decoded_data", JSON.stringify(result.data.email.decoded_data));
+    sessionStorage.setItem("decodedData", JSON.stringify(result.data.email.decodedData));
     sessionStorage.setItem("date", JSON.stringify(result.data.email.date));
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
     sessionStorage.setItem("email", JSON.stringify(localEmail.value.sender.email));

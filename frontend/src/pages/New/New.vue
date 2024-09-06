@@ -62,7 +62,7 @@ const history = ref({});
 const emailsLinked = ref<EmailLinked[]>([]);
 const selectedPeople = ref<Recipient[]>([]);
 const selectedCC = ref<Recipient[]>([]);
-const selectedCCI = ref<Recipient[]>([]);
+const selectedBCC = ref<Recipient[]>([]);
 const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
@@ -78,7 +78,7 @@ const scrollToBottom = async () => {
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
 provide("selectedCC", selectedCC);
-provide("selectedCCI", selectedCCI);
+provide("selectedBCC", selectedBCC);
 provide("quill", quill);
 provide("stepContainer", stepContainer);
 provide("AIContainer", AIContainer);
@@ -108,10 +108,8 @@ onMounted(async () => {
     window.addEventListener("resize", scrollToBottom);
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-
-    displayMessage(message, aiIcon);
+    displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
     fetchEmailLinked();
     fetchRecipients();
     fetchPrimaryEmail();
@@ -159,7 +157,7 @@ async function initializeQuill() {
 
 function handleInputUpdateMailContent(newMessage: string) {
     if (newMessage !== "") {
-        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0) {
+        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedBCC.value.length > 0) {
             askContentAdvice();
             stepContainer.value = 2;
             scrollToBottom();
@@ -172,7 +170,7 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
         uploadedFiles.value.length ||
         selectedPeople.value.length ||
         selectedCC.value.length ||
-        selectedCCI.value.length ||
+        selectedBCC.value.length ||
         subjectInput.value !== ""
     ) {
         event.preventDefault();
@@ -300,7 +298,7 @@ async function handleKeyDown(event: KeyboardEvent) {
         }
 
         if (
-            selectedCCI.value.length === 0 &&
+            selectedBCC.value.length === 0 &&
             selectedCC.value.length === 0 &&
             selectedPeople.value.length === 0 &&
             document.activeElement?.id !== "recipients"
@@ -500,8 +498,8 @@ async function checkCopyWriting() {
     loading();
 
     const result = await postData("api/check_email_copywriting/", {
-        email_subject: subjectInput.value,
-        email_body: AiEmailBody.value,
+        subject: subjectInput.value,
+        body: AiEmailBody.value,
     });
 
     hideLoading();
@@ -576,8 +574,7 @@ async function writeBetter() {
     const quillEditorContainer = quill.value.root;
     quillEditorContainer.innerHTML = result.data.emailBody;
 
-    const message = i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage(message, aiIcon);
+    displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
 }
 </script>

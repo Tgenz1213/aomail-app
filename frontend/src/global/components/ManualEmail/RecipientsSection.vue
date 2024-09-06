@@ -2,7 +2,7 @@
     <div class="recipients-container overflow-y-auto max-h-32 flex flex-wrap">
         <RecipientItem :people="selectedPeople" :type="'main'" :removePerson="removePersonFromMain" />
         <RecipientItem :people="selectedCC" :type="'cc'" :removePerson="removePersonFromCC" />
-        <RecipientItem :people="selectedCCI" :type="'cci'" :removePerson="removePersonFromCCI" />
+        <RecipientItem :people="selectedBCC" :type="'cci'" :removePerson="removePersonFromCCI" />
     </div>
     <RecipientInputRow />
 </template>
@@ -15,7 +15,7 @@ import { Recipient } from "@/global/types";
 
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
-const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
+const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
 
 function removePersonFromMain(personToRemove: Recipient) {
     selectedPeople.value = selectedPeople.value.filter((person) => person !== personToRemove);
@@ -26,6 +26,6 @@ function removePersonFromCC(personToRemove: Recipient) {
 }
 
 function removePersonFromCCI(personToRemove: Recipient) {
-    selectedCCI.value = selectedCCI.value.filter((person) => person !== personToRemove);
+    selectedBCC.value = selectedBCC.value.filter((person) => person !== personToRemove);
 }
 </script>

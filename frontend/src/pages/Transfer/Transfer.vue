@@ -62,7 +62,7 @@ const history = ref({});
 const emailsLinked = ref<EmailLinked[]>([]);
 const selectedPeople = ref<Recipient[]>([]);
 const selectedCC = ref<Recipient[]>([]);
-const selectedCCI = ref<Recipient[]>([]);
+const selectedBCC = ref<Recipient[]>([]);
 const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
@@ -78,7 +78,7 @@ const scrollToBottom = async () => {
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
 provide("selectedCC", selectedCC);
-provide("selectedCCI", selectedCCI);
+provide("selectedBCC", selectedBCC);
 provide("quill", quill);
 provide("stepContainer", stepContainer);
 provide("AIContainer", AIContainer);
@@ -358,7 +358,7 @@ async function handleAIClick() {
     //                         const emails = user.email;
     //                         if (emails.length == 1) {
     //                             const person = { username: user.username, email: emails[0] };
-    //                             selectedCCI.value.push(person);
+    //                             selectedBCC.value.push(person);
     //                             bcc_recipients.splice(i, 1);
     //                             noUsersAdded = false;
     //                             i--;
@@ -497,7 +497,7 @@ function askContentAdvice() {}
 
 function handleInputUpdateMailContent(newMessage: string) {
     if (newMessage !== "") {
-        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedCCI.value.length > 0) {
+        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedBCC.value.length > 0) {
             askContentAdvice();
             stepContainer.value = 2;
             scrollToBottom();

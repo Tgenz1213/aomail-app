@@ -3,13 +3,6 @@ Handles user statistics computation and retrieval.
 
 Endpoints:
 - ✅ get_statistics: Returns required statistics of the user based on specified parameters.
-
-
-TODO:
-- Implement endpoint for admins to get the cost of a user:
-    - Calculate based on nbTokensInput, nbTokensOutput
-- Add more granular time period options (e.g., custom date ranges)
-- Implement data visualization helpers for frontend integration
 """
 
 import json

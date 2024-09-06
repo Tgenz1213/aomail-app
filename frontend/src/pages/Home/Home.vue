@@ -187,7 +187,7 @@ const loadMoreEmails = async () => {
     isLoading.value = false;
 };
 
-const handleScroll = () => {
+const handlescroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
         const { scrollTop, scrollHeight, clientHeight } = container;
@@ -198,10 +198,10 @@ const handleScroll = () => {
     }
 };
 
-const Scroll = () => {
+const scroll = () => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
-        container.addEventListener("scroll", handleScroll);
+        container.addEventListener("scroll", handlescroll);
     }
 }
 
@@ -242,8 +242,8 @@ provide("fetchCategoriesAndTotals", fetchCategoriesAndTotals);
 provide("openNewFilterModal", openNewFilterModal);
 provide("openUpdateFilterModal", openUpdateFilterModal);
 provide("fetchFildersData", fetchFiltersData);
-provide("Scroll", Scroll);
-provide("handleScroll", handleScroll);
+provide("scroll", scroll);
+provide("handlescroll", handlescroll);
 provide("emails", emails);
 provide("categories", categories);
 provide("filters", filters);
@@ -316,7 +316,7 @@ const selectCategory = async (category: Category) => {
     await fetchFiltersData(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
 
-    Scroll();
+    scroll();
 };
 
 const openNewCategoryModal = () => {
@@ -395,13 +395,13 @@ onMounted(async () => {
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
 
-    Scroll();
+    scroll();
 });
 
 onUnmounted(() => {
     const container = document.querySelector(".custom-scrollbar");
     if (container) {
-        container.removeEventListener("scroll", handleScroll);
+        container.removeEventListener("scroll", handlescroll);
     }
 });
 </script>

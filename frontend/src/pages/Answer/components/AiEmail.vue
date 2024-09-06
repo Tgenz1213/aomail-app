@@ -43,14 +43,41 @@
 </template>
 
 <script setup lang="ts">
-import { inject, provide, Ref, ref } from "vue";
+import { inject, onMounted, provide, Ref, ref } from "vue";
+import { getData, postData } from "@/global/fetchData";
+import userImage from "@/assets/user.png";
+import { i18n } from "@/global/preferences";
+import Quill from "quill";
 
 const textareaValue = ref("");
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const AIContainer =
     inject<Ref<HTMLElement | null>>("AIContainer") || ref<HTMLElement | null>(document.getElementById("AIContainer"));
+const imageURL = ref<string>(userImage);
+const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
+const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
+const quill = inject<Ref<Quill | null>>("quill");
+const history = inject<Ref<Record<string, any>>>("history") || ref({});
+const AiEmailBody = inject<Ref<string>>("AiEmailBody") || ref("");
+const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
+const importance = inject<Ref<string>>("importance") || ref("");
+
+const scrollToBottom = inject<() => void>("scrollToBottom");
+const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
+const hideLoading = inject<() => void>("hideLoading");
+const loading = inject<() => void>("loading");
 
 provide("handleAIClick", handleAIClick);
+
+onMounted(() => {
+    getProfileImage();
+});
+
+async function getProfileImage() {
+    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+    if (!result.success) return;
+    imageURL.value = result.data.profileImageUrl;
+}
 
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
@@ -59,13 +86,92 @@ function handleEnterKey(event: any) {
     }
 }
 
-async function handleAIClick() {
+function displayUserMessage() {
     if (!AIContainer.value) return;
+
+    const messageHTML = `
+        <div class="flex pb-12">
+            <div class="mr-4 flex">
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                <img src="${imageURL.value}" alt="Profile Image" class="h-14 w-14 rounded-full">
+            </span>
+            </div>
+            <div>
+            <p class="font-serif">${textareaValue.value}</p>
+            </div>
+        </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+    textareaValueSave.value = textareaValue.value;
+    textareaValue.value = "";
+    scrollToBottom?.();
+}
+
+function handleAIClick() {
     if (isWriting.value) {
         return;
     }
     setWriting();
+    displayUserMessage();
+
+    if (textareaValueSave.value == "") {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noSuggestionsEnteredPleaseTryAgain"), aiIcon);
+        return;
+    }
+
+    generateNewEmailResponse();
 }
+
+const generateNewEmailResponse = async () => {
+    if (!AIContainer.value || !quill?.value) return;
+
+    loading?.();
+    scrollToBottom?.();
+
+    const result = await postData("api/get_new_email_response/", {
+        body: quill?.value.root.innerHTML,
+        userInput: textareaValueSave.value,
+        subject: subjectInput.value,
+        importance: importance.value,
+        history: history.value,
+    });
+
+    hideLoading?.();
+
+    if (!result.success) {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+        return;
+    }
+
+    AiEmailBody.value = result.data.emailBody;
+    history.value = result.data.history;
+    const formattedMail = result.data.emailBody.replace(/\n/g, "<br>");
+    const messageHTML = `
+            <div class="flex pb-12">
+                <div class="mr-4 flex">
+                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                      </svg>
+                    </span>
+                </div>
+                <div>
+                    <p><strong>${i18n.global.t("answerPage.emailTwoDots")}</strong>${formattedMail}</p>
+                </div>
+            </div>
+        `;
+    AIContainer.value.innerHTML += messageHTML;
+    const quillEditorContainer = quill.value.root;
+    quillEditorContainer.innerHTML = result.data.emailBody.replace(
+        /(<ul>|<ol>|<\/li>)(?:[\s]+)(<li>|<\/ul>|<\/ol>)/g,
+        "$1$2"
+    );
+
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+    displayMessage?.(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), aiIcon);
+};
 
 const setWriting = () => {
     isWriting.value = true;

@@ -98,9 +98,9 @@ class EmailProposalAnswerSerializer(serializers.Serializer):
 class EmailGenerateAnswer(serializers.Serializer):
     """Serializer for handling generated email answer data."""
 
-    email_subject = serializers.CharField()
-    email_content = serializers.CharField()
-    response_type = serializers.CharField()
+    subject = serializers.CharField()
+    body = serializers.CharField()
+    keyword = serializers.CharField()
 
 
 class UserLoginSerializer(serializers.ModelSerializer):

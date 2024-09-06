@@ -69,7 +69,7 @@ const AIContainer =
 const textareaValue = ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
-const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
+const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
 const imageURL = ref<string>(userImage);
 const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
@@ -154,7 +154,7 @@ function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipi
 
     noUsersAdded = processSingleEmailRecipients(mainRecipients, selectedPeople.value) && noUsersAdded;
     noUsersAdded = processSingleEmailRecipients(ccRecipients, selectedCC.value) && noUsersAdded;
-    noUsersAdded = processSingleEmailRecipients(bccRecipients, selectedCCI.value) && noUsersAdded;
+    noUsersAdded = processSingleEmailRecipients(bccRecipients, selectedBCC.value) && noUsersAdded;
 
     if (!AIContainer.value) return;
 
@@ -446,9 +446,9 @@ function askChoiceRecipier(list: any[], type: string) {
                     }
                 } else {
                     const person = { username: username, email: email };
-                    const isPersonAlreadySelected = selectedCCI.value.some((p) => p.email === person.email);
+                    const isPersonAlreadySelected = selectedBCC.value.some((p) => p.email === person.email);
                     if (!isPersonAlreadySelected) {
-                        selectedCCI.value.push(person);
+                        selectedBCC.value.push(person);
                     }
                 }
             });

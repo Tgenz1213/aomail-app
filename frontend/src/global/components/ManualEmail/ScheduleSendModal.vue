@@ -59,7 +59,7 @@ const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const fileObjects = inject<Ref<File[]>>("fileObjects") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
-const selectedCCI = inject<Ref<Recipient[]>>("selectedCCI") || ref([]);
+const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
 const stepContainer = inject<Ref<number>>("stepContainer") || ref(0);
 const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 const AIContainer =
@@ -112,7 +112,7 @@ async function scheduleSend() {
         attachments: fileObjects.value,
         to: selectedPeople.value.map((person) => person.email),
         cc: selectedCC.value.map((person) => person.email),
-        cci: selectedCCI.value.map((person) => person.email),
+        cci: selectedBCC.value.map((person) => person.email),
         email: emailSelected.value,
         datetime: selectedDate.value.toISOString(),
     });
@@ -130,7 +130,7 @@ async function scheduleSend() {
         quill.value.root.innerHTML = "";
         selectedPeople.value = [];
         selectedCC.value = [];
-        selectedCCI.value = [];
+        selectedBCC.value = [];
         stepContainer.value = 0;
         AIContainer.value.innerHTML = "";
         localStorage.removeItem("uploadedFiles");

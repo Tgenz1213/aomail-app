@@ -403,7 +403,7 @@ def search_emails_ai(
     Args:
         access_token (str): The access token for authenticating with Microsoft Graph API.
         max_results (int): The maximum number of email results to retrieve. Default is 100.
-        filenames (list): A list of filenames to search for in the attachments. (TODO: Implement this)
+        filenames (list): A list of filenames to search for in the attachments.
         from_addresses (list): A list of sender email addresses to filter emails.
         to_addresses (list): A list of recipient email addresses to filter emails.
         subject (str): A subject string to filter emails.
@@ -498,7 +498,7 @@ def search_emails_manually(
         access_token (str): The access token for authenticating with Microsoft Graph API.
         search_query (str): The search query string to search for in emails.
         max_results (int): The maximum number of email results to retrieve.
-        file_extensions (list): A list of file extensions to filter attachments by. (TODO: Implement this)
+        file_extensions (list): A list of file extensions to filter attachments by.
         advanced (bool, optional): Flag indicating whether to use advanced search options. Defaults to False.
         search_in (dict, optional): A dictionary specifying the folders to search in. Possible keys are:
             spams: Search in spam/junk folder.

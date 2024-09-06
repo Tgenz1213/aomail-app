@@ -21,18 +21,13 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from aomail.utils.security import subscription
-from aomail.constants import (
-    FREE_PLAN,
-    LANGUAGES,
-    THEMES,
-)
-from aomail.models import (
-    Preference,
-)
+from aomail.constants import FREE_PLAN
+from aomail.models import Preference
 
 
-######################## LOGGING CONFIGURATION ########################
 LOGGER = logging.getLogger(__name__)
+LANGUAGES = ["french", "american", "german", "russian", "spanish", "chinese", "indian"]
+THEMES = ["dark", "light"]
 
 
 @api_view(["POST"])

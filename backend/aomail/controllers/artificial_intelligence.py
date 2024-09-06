@@ -134,7 +134,7 @@ def get_new_email_response(request: HttpRequest) -> Response:
             update_tokens_stats(user, result)
             return Response(
                 {
-                    "email_body": result["body"],
+                    "emailBody": result["body"],
                     "history": email_reply_conv.history.dict(),
                 },
                 status=status.HTTP_200_OK,
@@ -657,16 +657,16 @@ def generate_email_answer(request: HttpRequest) -> Response:
     serializer = EmailGenerateAnswer(data=data)
 
     if serializer.is_valid():
-        email_subject = serializer.validated_data["email_subject"]
-        email_content = serializer.validated_data["email_content"]
-        user_instruction = serializer.validated_data["response_type"]
+        subject = serializer.validated_data["subject"]
+        body = serializer.validated_data["body"]
+        user_instruction = serializer.validated_data["keyword"]
 
         result = claude.generate_email_response(
-            email_subject, email_content, user_instruction
+            subject, body, user_instruction
         )
         update_tokens_stats(request.user, result)
 
-        return Response({"email_answer": result["body"]}, status=status.HTTP_200_OK)
+        return Response({"emailAnswer": result["body"]}, status=status.HTTP_200_OK)
     else:
         return Response(
             {"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST

@@ -73,8 +73,8 @@ def get_mail_by_id(request: HttpRequest) -> Response:
 
     Returns:
         Response:
-            {"message": "Authentication successful", "email": {...}} if the email is retrieved successfully.
-            {"error": "No email ID provided"} if no email_id parameter is provided in the request.
+            - Success (HTTP 200 OK): JSON object with email details (subject, decodedData, cc, bcc, date, emailUser).
+            - Failure (HTTP 400 BAD REQUEST): Error message if "email_id" is missing.
     """
     user = request.user
     mail_id = request.GET.get("email_id")
@@ -87,14 +87,14 @@ def get_mail_by_id(request: HttpRequest) -> Response:
     if mail_id:
         if type_api == GOOGLE:
             services = auth_google.authenticate_service(user, email_user)
-            subject, from_name, decoded_data, cc, bcc, email_id, date = (
+            subject, _, decoded_data, cc, bcc, _, date = (
                 email_operations_google.get_mail(services, None, mail_id)
             )
         elif type_api == MICROSOFT:
             access_token = auth_microsoft.refresh_access_token(
                 auth_microsoft.get_social_api(user, email_user)
             )
-            subject, from_name, decoded_data, cc, bcc, email_id, date, _ = (
+            subject, _, decoded_data, cc, bcc, _, date, _ = (
                 email_operations_microsoft.get_mail(access_token, None, mail_id)
             )
 
@@ -105,17 +105,12 @@ def get_mail_by_id(request: HttpRequest) -> Response:
 
         return Response(
             {
-                "message": "Authentication successful",
-                "email": {
-                    "subject": subject,
-                    "from_name": from_name,
-                    "decoded_data": decoded_data,
-                    "cc": cc,
-                    "bcc": bcc,
-                    "email_id": email_id,
-                    "date": date,
-                    "email_receiver": email_user,
-                },
+                "subject": subject,
+                "decodedData": decoded_data,
+                "cc": cc,
+                "bcc": bcc,
+                "date": date,
+                "emailUser": email_user,
             },
             status=status.HTTP_200_OK,
         )

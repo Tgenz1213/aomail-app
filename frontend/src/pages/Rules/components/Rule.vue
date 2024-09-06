@@ -60,7 +60,6 @@
 </template>
 
 <script setup lang="ts">
-// todo: setup properties and imports
 import { ArchiveBoxIcon, ExclamationCircleIcon, ShieldCheckIcon, PencilSquareIcon } from "@heroicons/vue/24/outline";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { RuleData } from "../utils/types";

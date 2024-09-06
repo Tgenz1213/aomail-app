@@ -66,11 +66,10 @@
 </template>
 
 <script lang="ts" setup>
-import { API_BASE_URL } from "@/global/const";
-import { fetchWithToken } from "@/global/security";
 import { i18n } from "@/global/preferences";
 import router from "@/router/router";
 import { inject } from "vue";
+import { deleteData } from "@/global/fetchData";
 
 defineProps<{
     isOpen: boolean;
@@ -87,48 +86,23 @@ const closeModal = () => {
 };
 
 async function deleteAccount() {
-    try {
-        // todo: replace with deleteData
-        const url = `${API_BASE_URL}api/delete_account/`;
-        const requestOptions = {
-            method: "DELETE",
-        };
+    const result = await deleteData("api/delete_account/");
+    closeModal();
 
-        const response = await fetchWithToken(url, requestOptions);
-
-        if (!response) {
-            displayPopup?.("error", "No response from server", "Verify your internet connection");
-            return;
-        }
-
-        if (!response.ok) {
-            displayPopup?.("error", "Error in response", `HTTP error! status: ${response.status}`);
-            return;
-        }
-
-        const data = await response.json();
-
-        if (response.status === 200) {
-            localStorage.clear();
-            closeModal();
-            displayPopup?.(
-                "success",
-                i18n.global.t("settingsPage.accountPage.redirectionInProgress"),
-                i18n.global.t("settingsPage.accountPage.accountDeletedSuccess")
-            );
-
-            setTimeout(() => {
-                router.push({ name: "login" });
-            }, 4000);
-        } else {
-            displayPopup?.("error", i18n.global.t("settingsPage.accountPage.errorDeletingAccount"), data.error);
-        }
-    } catch (error) {
-        displayPopup?.(
-            "error",
-            i18n.global.t("settingsPage.accountPage.errorDeletingAccount"),
-            (error as Error).message
-        );
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("settingsPage.accountPage.errorDeletingAccount"), result.error as string);
     }
+
+    localStorage.clear();
+    closeModal();
+    displayPopup?.(
+        "success",
+        i18n.global.t("settingsPage.accountPage.redirectionInProgress"),
+        i18n.global.t("settingsPage.accountPage.accountDeletedSuccess")
+    );
+
+    setTimeout(() => {
+        router.push({ name: "login" });
+    }, 4000);
 }
 </script>

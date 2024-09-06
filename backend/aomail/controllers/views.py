@@ -150,7 +150,20 @@ def forward_request(request: HttpRequest, api_module: str, api_method: str) -> R
 
 
 ######################## PICTURES ########################
-def serve_image(request, image_name):
+def serve_image(request: HttpRequest, image_name: str) -> Response:
+    """
+    Serve an image file from the server's media directory.
+
+    Args:
+        request (HttpRequest): The HTTP request object that represents the client request.
+        image_name (str): The name of the image file to be served.
+
+    Returns:
+        FileResponse: A file response containing the image if found and valid.
+
+    Raises:
+        Http404: If the image is not found or the image format is unsupported.
+    """
     image_path = os.path.join(MEDIA_ROOT, "pictures", image_name)
     if os.path.exists(image_path):
         _, ext = os.path.splitext(image_path)
@@ -213,7 +226,7 @@ def check_sender_for_user(request: HttpRequest) -> Response:
     try:
         sender = Sender.objects.get(email=email)
         return Response(
-            {"exists": True, "sender_id": sender.id}, status=status.HTTP_200_OK
+            {"exists": True, "senderId": sender.id}, status=status.HTTP_200_OK
         )
     except ObjectDoesNotExist:
         return Response({"exists": False}, status=status.HTTP_200_OK)

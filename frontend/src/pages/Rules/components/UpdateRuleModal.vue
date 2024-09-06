@@ -1,11 +1,4 @@
 <template>
-    <NotificationTimer
-        :showNotification="showNotification"
-        :notificationTitle="notificationTitle"
-        :notificationMessage="notificationMessage"
-        :backgroundColor="backgroundColor"
-        @dismissPopup="dismissPopup"
-    />
     <transition name="modal-fade">
         <div
             @click.self="closeModal"
@@ -174,10 +167,19 @@
                             class="inline-flex w-full justify-center items-center gap-x-1 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:w-auto"
                             @click="deleteRule"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                class="w-6 h-6"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                />
                             </svg>
                             {{ $t("constants.userActions.delete") }}
                         </button>
@@ -189,12 +191,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, inject } from "vue";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/vue/20/solid";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
 import { postData, putData, deleteData } from "@/global/fetchData";
-import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import {
     Combobox,
     ComboboxButton,
@@ -204,35 +205,34 @@ import {
     ComboboxOptions,
 } from "@headlessui/vue";
 import { XMarkIcon, UserIcon, ArchiveBoxIcon, ShieldCheckIcon, ExclamationCircleIcon } from "@heroicons/vue/24/outline";
-import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 import { i18n } from "@/global/preferences";
 import { EmailSender, Category } from "@/global/types";
 import { RuleData } from "../utils/types";
 
 interface FormData {
-  id?: string;
-  category: string;
-  priority: string;
-  block: boolean;
-  infoAI: string;
-  errorMessage: string;
+    id?: string;
+    category: string;
+    priority: string;
+    block: boolean;
+    infoAI: string;
+    errorMessage: string;
 }
 
 interface Props {
-  isOpen: boolean;
-  rule: RuleData | null;
-  categories: Category[];
-  emailSenders: EmailSender[];
+    isOpen: boolean;
+    rule: RuleData | null;
+    categories: Category[];
+    emailSenders: EmailSender[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  emailSenders: () => [],
-  rule: null,
+    emailSenders: () => [],
+    rule: null,
 });
 
 const emit = defineEmits<{
-  (e: "update:isOpen", value: boolean): void;
-  (e: "fetch-rules"): void;
+    (e: "update:isOpen", value: boolean): void;
+    (e: "fetch-rules"): void;
 }>();
 
 const query = ref("");
@@ -240,12 +240,14 @@ const errorMessage = ref("");
 const currentSelectedPersonUsername = ref("");
 const selectedPerson = ref<EmailSender | null>(null);
 const formData = ref<FormData>({
-  category: "",
-  priority: "",
-  block: false,
-  infoAI: "",
-  errorMessage: "",
+    category: "",
+    priority: "",
+    block: false,
+    infoAI: "",
+    errorMessage: "",
 });
+
+const displayPopup = inject<(type: "success" | "error", title: string, message: string) => void>("displayPopup");
 
 const filteredPeople = computed(() => {
     const sendersArray = props.emailSenders.map((sender) => ({
@@ -253,13 +255,13 @@ const filteredPeople = computed(() => {
         username: sender.username,
     }));
 
-    return query.value === "" 
-        ? sendersArray 
+    return query.value === ""
+        ? sendersArray
         : sendersArray.filter(
-            (person) =>
-                person.username.toLowerCase().includes(query.value.toLowerCase()) ||
-                person.email.toLowerCase().includes(query.value.toLowerCase())
-        );
+              (person) =>
+                  person.username.toLowerCase().includes(query.value.toLowerCase()) ||
+                  person.email.toLowerCase().includes(query.value.toLowerCase())
+          );
 });
 
 onMounted(() => {
@@ -289,11 +291,7 @@ watch(
 
 function displayEmailSender(item: unknown): string {
     const person = item as EmailSender | null;
-    return person
-        ? person.username 
-            ? `${person.username} <${person.email || ""}>`
-            : `<${person.email || ""}>`
-        : "";
+    return person ? (person.username ? `${person.username} <${person.email || ""}>` : `<${person.email || ""}>`) : "";
 }
 
 function handleKeyDown(event: KeyboardEvent) {
@@ -346,7 +344,7 @@ function handleBlur(event: FocusEvent) {
 
 async function deleteRule() {
     if (!formData.value.id) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
             "Rule ID is required for deletion."
@@ -357,7 +355,7 @@ async function deleteRule() {
     const result = await deleteData(`user/delete_rules/${formData.value.id}/`);
 
     if (!result.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleDeletionError"),
             result.error as string
@@ -366,7 +364,7 @@ async function deleteRule() {
     }
 
     selectedPerson.value = null;
-    displayPopup(
+    displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
         i18n.global.t("rulesPage.popUpConstants.successMessages.ruleDeletedSuccessfully")
@@ -389,7 +387,7 @@ async function postSender(): Promise<number | null> {
     const result = await postData(`api/create_sender`, senderData);
 
     if (!result.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.senderCreationError"),
             result.error as string
@@ -412,7 +410,7 @@ async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number
     const result = await postData(`api/check_sender`, senderData);
 
     if (!result.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.senderExistenceCheckError"),
             result.error as string
@@ -425,7 +423,7 @@ async function checkSenderExists(): Promise<{ exists: boolean; senderId?: number
 
 async function updateUserRule() {
     if (!formData.value.id) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleIdRequiredForUpdate")
@@ -438,7 +436,7 @@ async function updateUserRule() {
     if (!exists) {
         const newSenderId = await postSender();
         if (newSenderId === null) {
-            displayPopup(
+            displayPopup?.(
                 "error",
                 i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
                 "Failed to create new sender"
@@ -449,7 +447,7 @@ async function updateUserRule() {
     }
 
     if (senderId === undefined) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
             "Failed to obtain sender ID"
@@ -463,7 +461,7 @@ async function updateUserRule() {
         const categoryResult = await postData(`api/get_category_id/`, { categoryName: formData.value.category });
 
         if (!categoryResult.success) {
-            displayPopup(
+            displayPopup?.(
                 "error",
                 i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
                 "Failed to fetch category ID"
@@ -477,18 +475,18 @@ async function updateUserRule() {
     const ruleResult = await putData(`user/update_rule/`, ruleData);
 
     if (!ruleResult.success) {
-        displayPopup(
+        displayPopup?.(
             "error",
             i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleUpdateError"),
             ruleResult.error === "A rule already exists for that sender"
                 ? i18n.global.t("rulesPage.popUpConstants.errorMessages.ruleAlreadyExistsForSender")
-                : ruleResult.error as string
+                : (ruleResult.error as string)
         );
         return;
     }
 
     selectedPerson.value = null;
-    displayPopup(
+    displayPopup?.(
         "success",
         i18n.global.t("constants.popUpConstants.successMessages.success"),
         i18n.global.t("rulesPage.popUpConstants.successMessages.ruleUpdatedSuccessfully")
@@ -500,27 +498,5 @@ async function updateUserRule() {
 function closeModal() {
     formData.value.errorMessage = "";
     emit("update:isOpen", false);
-}
-
-const showNotification = ref(false);
-const notificationTitle = ref("");
-const notificationMessage = ref("");
-const backgroundColor = ref("");
-const timerId = ref<number | null>(null);
-
-function displayPopup(type: "success" | "error", title: string, message: string) {
-    if (type === "error") {
-        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    } else {
-        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
-    }
-    timerId.value = setTimeout(dismissPopup, 4000);
-}
-
-function dismissPopup() {
-    showNotification.value = false;
-    if (timerId.value !== null) {
-        clearTimeout(timerId.value);
-    }
 }
 </script>

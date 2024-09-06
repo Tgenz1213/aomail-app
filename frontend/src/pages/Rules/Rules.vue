@@ -1,4 +1,11 @@
 <template>
+    <NotificationTimer
+        :showNotification="showNotification"
+        :notificationTitle="notificationTitle"
+        :notificationMessage="notificationMessage"
+        :backgroundColor="backgroundColor"
+        @dismissPopup="dismissPopup"
+    />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
@@ -111,19 +118,16 @@
 </template>
 
 <script lang="ts" setup>
-/* eslint-disable */
-
-// todo: replace all "GET" and "POST" backend call with getData & postData from @/global/fetchData file
-
-import { ref, onMounted, computed } from "vue";
+import { getData } from "@/global/fetchData";
+import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import { ref, onMounted, computed, provide } from "vue";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NewRuleModal from "./components/NewRuleModal.vue";
 import UpdateRuleModal from "./components/UpdateRuleModal.vue";
 import Rule from "./components/Rule.vue";
 import SearchBar from "./components/SearchBar.vue";
-import { API_BASE_URL, IMPORTANT, INFORMATIVE, USELESS } from "@/global/const";
-import { fetchWithToken } from "@/global/security";
 import { EmailSender } from "@/global/types";
+import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
 
 const showModal = ref(false);
 const showUpdateModal = ref(false);
@@ -133,6 +137,29 @@ const emailSenders = ref<any[]>([]);
 const senderSelected = ref<EmailSender | null>(null);
 const ruleSelected = ref<any>(null);
 const searchQuery = ref("");
+const showNotification = ref(false);
+const notificationTitle = ref("");
+const notificationMessage = ref("");
+const backgroundColor = ref("");
+const timerId = ref<number | null>(null);
+
+provide("displayPopup", displayPopup);
+
+function displayPopup(type: "success" | "error", title: string, message: string) {
+    if (type === "error") {
+        displayErrorPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    } else {
+        displaySuccessPopup(showNotification, notificationTitle, notificationMessage, backgroundColor, title, message);
+    }
+    timerId.value = setTimeout(dismissPopup, 4000);
+}
+
+function dismissPopup() {
+    showNotification.value = false;
+    if (timerId.value !== null) {
+        clearTimeout(timerId.value);
+    }
+}
 
 const filteredRules = computed(() => {
     if (!searchQuery.value) return rules.value;
@@ -164,100 +191,65 @@ function updateModalUpdateStatus(status: boolean) {
 }
 
 function handleEditRule(rule: any) {
-  ruleSelected.value = rule;
-  showUpdateModal.value = true;
+    ruleSelected.value = rule;
+    showUpdateModal.value = true;
 }
 
 async function fetchRules() {
-    try {
-        const url = `${API_BASE_URL}user/rules/`;
-        const response = await fetchWithToken(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+    const result = await getData("user/rules/");
 
-        if (response) {
-            const rulesData = await response.json();
-            rules.value = rulesData.map((rule: any) => ({
-                id: rule.id,
-                name: rule.sender_name,
-                email: rule.sender_email,
-                category: rule.category_name,
-                priority: rule.priority,
-                mailStop: rule.block,
-            }));
-        }
-    } catch (error) {
-        console.error("Error fetching rules:", error);
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch rules", result.error as string);
+        return;
     }
+
+    rules.value = result.data.map((rule: any) => ({
+        id: rule.id,
+        name: rule.senderName,
+        email: rule.senderEmail,
+        category: rule.categoryName,
+        priority: rule.priority,
+        mailStop: rule.block,
+    }));
 }
 
 async function fetchRuleById(idRule: string) {
-    try {
-        const url = `${API_BASE_URL}user/rules/${idRule}/`;
-        const response = await fetchWithToken(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+    const result = await getData(`user/rules/${idRule}/`);
 
-        console.log("DEBUG", response);
-
-        if (response) {
-            const ruleData = await response.json();
-            ruleSelected.value = {
-                id: ruleData.id,
-                name: ruleData.sender_name,
-                email: ruleData.sender_email,
-                category: ruleData.category_name,
-                priority: ruleData.priority,
-                mailStop: ruleData.block,
-            };
-        }
-    } catch (error) {
-        console.error("Error fetching rule:", error);
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch rule by id", result.error as string);
+        return;
     }
+
+    ruleSelected.value = {
+        id: result.data.id,
+        name: result.data.senderName,
+        email: result.data.senderEmail,
+        category: result.data.categoryName,
+        priority: result.data.priority,
+        mailStop: result.data.block,
+    };
 }
 
 async function fetchCategories() {
-    try {
-        const url = `${API_BASE_URL}user/categories/`;
-        const response = await fetchWithToken(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-
-        if (response) {
-            const data = await response.json();
-            categories.value = data;
-        }
-    } catch (error) {
-        console.error("Error fetching categories:", error);
+    const result = await getData("user/categories/");
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch categories", result.error as string);
+        return;
     }
+
+    categories.value = result.data;
 }
 
 async function fetchEmailSenders() {
-    try {
-        const url = `${API_BASE_URL}user/contacts/`;
-        const response = await fetchWithToken(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
+    const result = await getData("user/contacts/");
 
-        if (response) {
-            const data = await response.json();
-            emailSenders.value = data;
-        }
-    } catch (error) {
-        console.error("Error fetching email senders:", error);
+    if (!result.success) {
+        displayPopup?.("error", "Failed to fetch contacts", result.error as string);
+        return;
     }
+
+    emailSenders.value = result.data;
 }
 
 onMounted(() => {
@@ -273,23 +265,16 @@ onMounted(() => {
     const nameSender = urlParams.get("ruleName");
     const emailSender = urlParams.get("ruleEmail");
 
-    console.log("EDIT RULE", editRule);
-    console.log("ID RULE", ruleId);
-
     if (editRule === "true" && ruleId) {
-        fetchRuleById(ruleId)
-            .then(() => {
-                updateModalUpdateStatus(true);
-                const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
-                window.history.replaceState({}, document.title, newUrl);
-            })
-            .catch((error) => {
-                console.error("Error in fetching rule by ID:", error);
-            });
-    } else if (editRule === 'false' && nameSender && emailSender) {
-        console.log("ENTERED HERE !");
+        fetchRuleById(ruleId);
+
+        if (ruleSelected.value) {
+            updateModalUpdateStatus(true);
+            const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    } else if (editRule === "false" && nameSender && emailSender) {
         senderSelected.value = { username: nameSender as string, email: emailSender as string };
-        console.log("SENDER", senderSelected.value);
         updateModalStatus(true);
         const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
         window.history.replaceState({}, document.title, newUrl);

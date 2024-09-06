@@ -275,13 +275,14 @@ const createEmailSenderRule = async () => {
     return;
   }
 
-  try {
-    // Check if sender exists
+
+//THIS IS TRASH => remove try catch useless
+
+  try { 
     const senderCheckResult = await postData('api/check_sender', {
       email: selectedPerson.value.email,
     });
-
-    console.log("FIRST CHECK ", senderCheckResult);
+ 
 
     let senderId: number;
     if (!senderCheckResult.data.exists) {

@@ -85,9 +85,9 @@ def get_user_rules(request: HttpRequest) -> Response:
         sender_name = rule.sender.name if rule.sender else None
         sender_email = rule.sender.email if rule.sender else None
 
-        rule_data["category_name"] = category_name
-        rule_data["sender_name"] = sender_name
-        rule_data["sender_email"] = sender_email
+        rule_data["categoryName"] = category_name
+        rule_data["senderName"] = sender_name
+        rule_data["senderEmail"] = sender_email
 
         rules_data.append(rule_data)
 
@@ -120,9 +120,9 @@ def get_user_rule_by_id(request: HttpRequest, id_rule: int) -> Response:
     sender_name = user_rule.sender.name if user_rule.sender else None
     sender_email = user_rule.sender.email if user_rule.sender else None
 
-    rule_data["category_name"] = category_name
-    rule_data["sender_name"] = sender_name
-    rule_data["sender_email"] = sender_email
+    rule_data["categoryName"] = category_name
+    rule_data["senderName"] = sender_name
+    rule_data["senderEmail"] = sender_email
 
     return Response(rule_data)
 

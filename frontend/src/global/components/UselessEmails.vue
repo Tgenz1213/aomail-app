@@ -104,15 +104,22 @@
 
   const groupedEmails = computed(() => {
     const grouped: Record<string, Email[]> = {};
-    localEmails.value.forEach(email => {
-      if (!email.read) {
+
+    localEmails.value
+      .filter(email => !email.read)
+      .sort((a, b) => {
+        const dateA = a.sentDate ? new Date(`${a.sentDate} ${a.sentTime}`).getTime() : 0;
+        const dateB = b.sentDate ? new Date(`${b.sentDate} ${b.sentTime}`).getTime() : 0;
+        return dateB - dateA;
+      })
+      .forEach(email => {
         const sentDate = email.sentDate || 'Unknown Date';
         if (!grouped[sentDate]) {
           grouped[sentDate] = [];
         }
         grouped[sentDate].push(email);
-      }
-    });
+      });
+
     return grouped;
   });
 

@@ -54,7 +54,8 @@
                     </div>
                 </div>
             </div>
-            <AssistantChat v-if="!isHidden" @toggle-visibility="toggleVisibility" />
+            <!-- NOT FOR v1 
+            <AssistantChat v-if="!isHidden" @toggle-visibility="toggleVisibility" />-->
         </div>
         <NewCategoryModal :isOpen="isModalNewCategoryOpen" @close="closeNewCategoryModal" />
         <UpdateCategoryModal

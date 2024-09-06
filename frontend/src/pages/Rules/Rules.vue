@@ -199,7 +199,7 @@ async function fetchRules() {
     const result = await getData("user/rules/");
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch rules", result.error as string);
+        displayPopup("error", "Failed to fetch rules", result.error as string);
         return;
     }
 
@@ -217,7 +217,7 @@ async function fetchRuleById(idRule: string) {
     const result = await getData(`user/rules/${idRule}/`);
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch rule by id", result.error as string);
+        displayPopup("error", "Failed to fetch rule by id", result.error as string);
         return;
     }
 
@@ -234,7 +234,7 @@ async function fetchRuleById(idRule: string) {
 async function fetchCategories() {
     const result = await getData("user/categories/");
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch categories", result.error as string);
+        displayPopup("error", "Failed to fetch categories", result.error as string);
         return;
     }
 
@@ -245,7 +245,7 @@ async function fetchEmailSenders() {
     const result = await getData("user/contacts/");
 
     if (!result.success) {
-        displayPopup?.("error", "Failed to fetch contacts", result.error as string);
+        displayPopup("error", "Failed to fetch contacts", result.error as string);
         return;
     }
 

@@ -268,7 +268,7 @@
                                                 </MenuItem>
                                             </div>
                                         </div>
-                                        <div class="py-1">
+                                        <div class="py-1" v-if="!email.answerLater">
                                             <MenuItem v-slot="{ active }">
                                                 <a
                                                     @click.prevent="markEmailReplyLater()"

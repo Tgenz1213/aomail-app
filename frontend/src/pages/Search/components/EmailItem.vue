@@ -215,13 +215,13 @@ async function transferEmail() {
         return;
     }
 
-    sessionStorage.setItem("subject", JSON.stringify(result.data.email.subject));
-    sessionStorage.setItem("cc", result.data.email.cc);
-    sessionStorage.setItem("bcc", result.data.email.bcc);
-    sessionStorage.setItem("decodedData", JSON.stringify(result.data.email.decodedData));
-    sessionStorage.setItem("date", JSON.stringify(result.data.email.date));
+    sessionStorage.setItem("subject", JSON.stringify(result.data.subject));
+    sessionStorage.setItem("cc", result.data.cc);
+    sessionStorage.setItem("decodedData", JSON.stringify(result.data.decodedData));
+    sessionStorage.setItem("emailUser", JSON.stringify(result.data.emailUser));
+    sessionStorage.setItem("senderEmail", JSON.stringify(localEmail.value.sender.email));
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
-    sessionStorage.setItem("email", JSON.stringify(localEmail.value.sender.email));
+    sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));
 
     router.push({ name: "transfer" });
 }

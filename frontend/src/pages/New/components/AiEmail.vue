@@ -45,20 +45,11 @@
 <script setup lang="ts">
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Recipient } from "@/global/types";
+import { AiRecipient, EmailMapping, Recipient } from "@/global/types";
 import Quill from "quill";
 import { inject, onMounted, provide, Ref, ref, watch } from "vue";
 import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
 import userImage from "@/assets/user.png";
-
-interface EmailMapping {
-    [username: string]: string;
-}
-
-interface AiRecipient {
-    username: string;
-    email: string[];
-}
 
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const quill = inject<Ref<Quill | null>>("quill");
@@ -83,7 +74,6 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const loading = inject<() => void>("loading");
 const hideLoading = inject<() => void>("hideLoading");
 
-provide("handleAIClick", handleAIClick);
 provide("askContent", askContent);
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);

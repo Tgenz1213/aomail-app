@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onMounted, provide, Ref, ref } from "vue";
+import { inject, onMounted, Ref, ref } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import userImage from "@/assets/user.png";
 import { i18n } from "@/global/preferences";
@@ -65,8 +65,6 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
 const hideLoading = inject<() => void>("hideLoading");
 const loading = inject<() => void>("loading");
-
-provide("handleAIClick", handleAIClick);
 
 onMounted(() => {
     getProfileImage();

@@ -101,20 +101,19 @@ provide("loading", loading);
 provide("hideLoading", hideLoading);
 
 onMounted(async () => {
-    AIContainer.value = document.getElementById("AIContainer");
+    await initializeQuill();
 
+    AIContainer.value = document.getElementById("AIContainer");
     document.addEventListener("keydown", handleKeyDown);
     localStorage.removeItem("uploadedFiles");
     window.addEventListener("resize", scrollToBottom);
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
+    await displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
     fetchEmailLinked();
     fetchRecipients();
     fetchPrimaryEmail();
-
-    await initializeQuill();
 });
 
 onUnmounted(() => {
@@ -177,22 +176,26 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
     }
 };
 
-function animateText(text: string, target: Element | null) {
-    let characters = text.split("");
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-        if (currentIndex < characters.length) {
-            if (!target) return;
-            target.textContent += characters[currentIndex];
-            currentIndex++;
-        } else {
-            clearInterval(interval);
-            isWriting.value = false;
-        }
-    }, 30);
+async function animateText(text: string, target: Element | null) {
+    return new Promise<void>((resolve) => {
+        let characters = text.split("");
+        let currentIndex = 0;
+
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                if (!target) return;
+                target.textContent += characters[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+                isWriting.value = false;
+                resolve();
+            }
+        }, 30);
+    });
 }
 
-function displayMessage(message: string, aiIcon: string) {
+async function displayMessage(message: string, aiIcon: string) {
     if (!AIContainer.value) return;
 
     const messageHTML = `
@@ -217,7 +220,7 @@ function displayMessage(message: string, aiIcon: string) {
     AIContainer.value.innerHTML += messageHTML;
     const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
     counterDisplay.value += 1;
-    animateText(message, animatedParagraph);
+    await animateText(message, animatedParagraph);
     scrollToBottom();
 }
 
@@ -337,10 +340,10 @@ async function handleKeyDown(event: KeyboardEvent) {
     }
 }
 
-function displayErrorProcessingMessage() {
+async function displayErrorProcessingMessage() {
     const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    displayMessage(message, aiIcon);
+    await displayMessage(message, aiIcon);
 }
 
 function loading() {
@@ -490,7 +493,7 @@ async function checkSpelling() {
     const message = i18n.global.t("constants.sendEmailConstants.spellingCorrectionRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
 
-    displayMessage(message, aiIcon);
+    await displayMessage(message, aiIcon);
 }
 
 async function checkCopyWriting() {
@@ -528,7 +531,7 @@ async function checkCopyWriting() {
 
     const message = i18n.global.t("constants.sendEmailConstants.copywritingCheckRequest");
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage(message, aiIcon);
+    await displayMessage(message, aiIcon);
 }
 
 async function writeBetter() {
@@ -575,6 +578,6 @@ async function writeBetter() {
     quillEditorContainer.innerHTML = result.data.emailBody;
 
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
+    await displayMessage(i18n.global.t("constants.sendEmailConstants.betterEmailFeedbackRequest"), aiIcon);
 }
 </script>

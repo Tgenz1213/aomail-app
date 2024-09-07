@@ -42,7 +42,6 @@ import NotificationTimer from "@/global/components/NotificationTimer.vue";
 const showNotification = ref(false);
 const isWriting = ref(false);
 const isLoading = ref(false);
-const isFirstTimeEmail = ref(true);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
@@ -66,7 +65,6 @@ const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
-const emailContent = ref("");
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -99,14 +97,35 @@ provide("scrollToBottom", scrollToBottom);
 provide("loading", loading);
 provide("hideLoading", hideLoading);
 
+async function fetchSelectedEmailData() {
+    const result = await getData(`user/emails_linked/`);
+
+    if (!result.success) {
+        displayPopup(
+            "error",
+            i18n.global.t("constants.popUpConstants.errorMessages.emailLinkedFetchError"),
+            result.error as string
+        );
+        return;
+    }
+
+    emailsLinked.value = result.data;
+    const selectedEmail = emailsLinked.value.find((tupleEmail) => emailSelected.value === tupleEmail.email);
+
+    if (selectedEmail) {
+        emailsLinked.value = [selectedEmail];
+    }
+}
+
 onMounted(async () => {
+    await initializeQuill();
     AIContainer.value = document.getElementById("AIContainer");
     document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", scrollToBottom);
     localStorage.removeItem("uploadedFiles");
 
     fetchRecipients();
-    await initializeQuill();
+    await fetchSelectedEmailData();
 
     subject.value = JSON.parse(sessionStorage.getItem("subject") || "");
     const senderEmail = JSON.parse(sessionStorage.getItem("senderEmail") || "");
@@ -114,21 +133,24 @@ onMounted(async () => {
     emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
     const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");
     const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
+    const date = JSON.parse(sessionStorage.getItem("date") || new Date().toISOString());
 
-    const date = JSON.parse(sessionStorage.getItem("date") || new Date().toDateString());
     const formattedDateVar = new Date(date);
-    const formattedDate = formattedDateVar.toLocaleDateString("en-US", {
+    const formattedDate = formattedDateVar.toLocaleString("en-US", {
         timeZone: timezoneSelected.value,
         year: "numeric",
-        month: "long",
+        month: "short",
         day: "numeric",
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZoneName: "short",
     });
 
     subjectInput.value = "Tr : " + subject.value;
     let forwardedMessage = "";
 
-    forwardedMessage += `${i18n.global.t("transferPage.emailSummary")}\n`;
-    forwardedMessage += shortSummary;
     forwardedMessage += "\n\n";
     forwardedMessage += `${i18n.global.t("transferPage.messageDivider")}\n`;
     forwardedMessage += `${i18n.global.t("transferPage.from")} ${senderEmail}\n`;
@@ -148,17 +170,19 @@ onMounted(async () => {
         });
         forwardedMessage += "\n";
     }
+
     forwardedMessage += "\n\n";
     forwardedMessage += decodedData;
 
-    emailContent.value = forwardedMessage;
     if (quill.value) {
         const quillEditorContainer = quill.value.root;
         quillEditorContainer.innerHTML = forwardedMessage;
     }
 
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
+    await displayMessage(`${i18n.global.t("transferPage.emailSummary")}\n\n${shortSummary}`, aiIcon);
+
+    await displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
 });
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
@@ -177,9 +201,6 @@ function dismissPopup() {
     }
 }
 
-let isAIWriting = ref(false);
-const userSearchResult = ref(null);
-
 async function fetchRecipients() {
     const result = await getData(`user/contacts/`);
 
@@ -195,17 +216,7 @@ async function fetchRecipients() {
     contacts.value.push(...(result.data as Recipient[]));
 }
 
-const emailReceiver = sessionStorage.getItem("emailReceiver");
-const activeType = ref(null);
-const emit = defineEmits(["update:selectedPerson"]);
-const selectedPerson = ref("");
-const inputValue = ref("");
-const isFirstTimeDestinary = ref(true);
-const isFocused = ref(false);
-let stepcontainer = 0;
-const objectInput = ref(null);
-
-function displayMessage(message: string, aiIcon: string) {
+async function displayMessage(message: string, aiIcon: string) {
     if (!AIContainer.value) return;
 
     const messageHTML = `
@@ -230,215 +241,8 @@ function displayMessage(message: string, aiIcon: string) {
     AIContainer.value.innerHTML += messageHTML;
     const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
     counterDisplay.value += 1;
-    animateText(message, animatedParagraph);
+    await animateText(message, animatedParagraph);
     scrollToBottom();
-}
-
-function displayErrorProcessingMessage() {
-    const message = i18n.global.t("constants.sendEmailConstants.processingErrorApology");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    displayMessage(message, aiIcon);
-}
-
-async function findUser(searchQuery: string) {
-    const result = await getData("api/find_user_ai/?query=" + encodeURIComponent(searchQuery));
-
-    if (!result.success) {
-        displayErrorProcessingMessage();
-        return;
-    }
-
-    userSearchResult.value = result.data;
-    return result.data;
-}
-
-async function handleAIClick() {
-    // if (isAIWriting.value) {
-    //     return;
-    // }
-    // isAIWriting.value = true;
-    // // Declare variables outside the fetch scope
-    // let messageHTML = "";
-    // let userInput = textareaValue.value;
-    // // Fetches the profile image URL from the server
-    // const requestOptions = {
-    //     method: "GET",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //         email: emailReceiver,
-    //     },
-    // };
-    // const data = await fetchWithToken(`${API_BASE_URL}user/social_api/get_profile_image/`, requestOptions);
-    // let imageURL = data.profile_image_url || require("@/assets/user.png");
-    // const profileImageHTML = `
-    //   <img src="${imageURL}" alt="Profile Image" class="h-14 w-14 rounded-full">
-    // `;
-    // // Create the complete message HTML with the profile image and text
-    // messageHTML = `
-    //   <div class="flex pb-12">
-    //     <div class="mr-4 flex">
-    //       <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-    //         ${profileImageHTML}
-    //       </span>
-    //     </div>
-    //     <div>
-    //       <p class="font-serif">${userInput}</p>
-    //     </div>
-    //   </div>
-    // `;
-    // AIContainer.value.innerHTML += messageHTML;
-    // textareaValueSave.value = textareaValue.value;
-    // textareaValue.value = "";
-    // scrollToBottom();
-    // setTimeout(async () => {
-    //     if (stepcontainer == 0) {
-    //         if (textareaValueSave.value == "") {
-    //             const message = t("constants.sendEmailConstants.noRecipientsEntered");
-    //             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
-    //             displayMessage(message, aiIcon);
-    //         } else {
-    //             try {
-    //                 isLoading.value = true;
-    //                 loading();
-    //                 scrollToBottom();
-    //                 const result = await findUser(textareaValueSave.value);
-    //                 hideLoading();
-    //                 //textareaValue.value = ''; // TO REINIT => CREATE A WASTE OF TIME => DO NOT USE BUT KEEP IF NEEDED
-    //                 let noUsersAdded = true;
-    //                 let WaitforUserChoice = false;
-    //                 if (result.error != "Invalid input or query not about email recipients") {
-    //                     // To update to handle the main error
-    //                     const main_recipients = userSearchResult.value.main_recipients;
-    //                     const cc_recipients = userSearchResult.value.cc_recipients;
-    //                     const bcc_recipients = userSearchResult.value.bcc_recipients;
-    //                     console.log("debug", main_recipients, cc_recipients, bcc_recipients);
-    //                     for (let i = 0; i < main_recipients.length; i++) {
-    //                         const user = main_recipients[i];
-    //                         const emails = user.email;
-    //                         if (emails.length == 1) {
-    //                             const person = { username: user.username, email: emails[0] };
-    //                             selectedPeople.value.push(person);
-    //                             main_recipients.splice(i, 1);
-    //                             noUsersAdded = false;
-    //                             i--;
-    //                         }
-    //                     }
-    //                     for (let i = 0; i < cc_recipients.length; i++) {
-    //                         const user = cc_recipients[i];
-    //                         const emails = user.email;
-    //                         if (emails.length == 1) {
-    //                             const person = { username: user.username, email: emails[0] };
-    //                             selectedCC.value.push(person);
-    //                             delete cc_recipients[i];
-    //                             cc_recipients.splice(i, 1);
-    //                             noUsersAdded = false;
-    //                             i--;
-    //                         }
-    //                     }
-    //                     for (let i = 0; i < bcc_recipients.length; i++) {
-    //                         const user = bcc_recipients[i];
-    //                         const emails = user.email;
-    //                         if (emails.length == 1) {
-    //                             const person = { username: user.username, email: emails[0] };
-    //                             selectedBCC.value.push(person);
-    //                             bcc_recipients.splice(i, 1);
-    //                             noUsersAdded = false;
-    //                             i--;
-    //                         }
-    //                     }
-    //                     // This condition is used to display the diffrent mail possibilities
-    //                     if (main_recipients.length > 0 || cc_recipients.length > 0 || bcc_recipients.length > 0) {
-    //                         const messageHTML = `
-    //                             <div class="flex pb-2">
-    //                                 <div class="mr-4 flex">
-    //                                     <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-    //                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-    //                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-    //                                         </svg>
-    //                                     </span>
-    //                                 </div>
-    //                                 <div>
-    //                                     <p>${t("constants.sendEmailConstants.multipleEmailsFoundForSomeRecipients")}</p>
-    //                                 </div>
-    //                             </div>
-    //                         `;
-    //                         AIContainer.value.innerHTML += messageHTML;
-    //                         if (main_recipients.length > 0) {
-    //                             WaitforUserChoice = true;
-    //                             const emailList = [];
-    //                             for (const user of main_recipients) {
-    //                                 for (const email of user.email) {
-    //                                     if (user.email !== "") {
-    //                                         // Creating an object for each email and pushing it to the emailList array
-    //                                         const emailMapping = {};
-    //                                         emailMapping[user.username] = email;
-    //                                         emailList.push(emailMapping);
-    //                                         noUsersAdded = false;
-    //                                     }
-    //                                 }
-    //                             }
-    //                             askChoiceRecipier(emailList, "main");
-    //                         }
-    //                         if (cc_recipients.length > 0) {
-    //                             WaitforUserChoice = true;
-    //                             const emailList = [];
-    //                             for (const user of cc_recipients) {
-    //                                 for (const email of user.email) {
-    //                                     if (user.email !== "") {
-    //                                         // Creating an object for each email and pushing it to the emailList array
-    //                                         const emailMapping = {};
-    //                                         emailMapping[user.username] = email;
-    //                                         emailList.push(emailMapping);
-    //                                         noUsersAdded = false;
-    //                                     }
-    //                                 }
-    //                             }
-    //                             askChoiceRecipier(emailList, "cc");
-    //                         }
-    //                         if (bcc_recipients.length > 0) {
-    //                             WaitforUserChoice = true;
-    //                             const emailList = [];
-    //                             for (const user of bcc_recipients) {
-    //                                 for (const email of user.email) {
-    //                                     if (user.email !== "") {
-    //                                         // Creating an object for each email and pushing it to the emailList array
-    //                                         const emailMapping = {};
-    //                                         emailMapping[user.username] = email;
-    //                                         emailList.push(emailMapping);
-    //                                         noUsersAdded = false;
-    //                                     }
-    //                                 }
-    //                             }
-    //                             askChoiceRecipier(emailList, "bcc");
-    //                         }
-    //                         scrollToBottom();
-    //                     }
-    //                     if (noUsersAdded) {
-    //                         console.log("DEBUG");
-    //                         const message = t(
-    //                             "constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually"
-    //                         );
-    //                         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    //                         displayMessage(message, aiIcon);
-    //                     } else if (!WaitforUserChoice) {
-    //                         stepcontainer = 1;
-    //                     }
-    //                 } else {
-    //                     const message = t(
-    //                         "constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually"
-    //                     );
-    //                     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    //                     displayMessage(message, aiIcon);
-    //                 }
-    //             } catch (error) {
-    //                 const message = t("constants.sendEmailConstants.processingErrorApology");
-    //                 const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    //                 displayMessage(message, aiIcon);
-    //                 console.error("Error finding user", error);
-    //             }
-    //         }
-    //     }
-    // }, 0);
 }
 
 async function initializeQuill() {
@@ -461,31 +265,23 @@ async function initializeQuill() {
     }
 }
 
-function askContentAdvice() {}
+async function animateText(text: string, target: Element | null) {
+    return new Promise<void>((resolve) => {
+        let characters = text.split("");
+        let currentIndex = 0;
 
-function handleInputUpdateMailContent(newMessage: string) {
-    if (newMessage !== "") {
-        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedBCC.value.length > 0) {
-            askContentAdvice();
-            stepContainer.value = 2;
-            scrollToBottom();
-        }
-    }
-}
-
-function animateText(text: string, target: Element | null) {
-    let characters = text.split("");
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-        if (currentIndex < characters.length) {
-            if (!target) return;
-            target.textContent += characters[currentIndex];
-            currentIndex++;
-        } else {
-            clearInterval(interval);
-            isWriting.value = false;
-        }
-    }, 30);
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                if (!target) return;
+                target.textContent += characters[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+                isWriting.value = false;
+                resolve();
+            }
+        }, 30);
+    });
 }
 
 function loading() {

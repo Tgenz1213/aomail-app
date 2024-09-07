@@ -44,9 +44,11 @@
 
 <script setup lang="ts">
 import { i18n } from "@/global/preferences";
-import { Recipient } from "@/global/types";
-import { inject, provide, Ref, ref } from "vue";
+import { AiRecipient, EmailMapping, Recipient } from "@/global/types";
+import { inject, onMounted, Ref, ref } from "vue";
 import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
+import userImage from "@/assets/user.png";
+import { getData, postData } from "@/global/fetchData";
 
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const AIContainer =
@@ -55,12 +57,24 @@ const textareaValue = ref("");
 const selectedPeople = inject<Ref<Recipient[]>>("selectedPeople") || ref([]);
 const selectedCC = inject<Ref<Recipient[]>>("selectedCC") || ref([]);
 const selectedBCC = inject<Ref<Recipient[]>>("selectedBCC") || ref([]);
-const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
-const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
+const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
+const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
+const imageURL = ref<string>(userImage);
 
-provide("handleAIClick", handleAIClick);
-provide("selectedFormality", selectedFormality);
-provide("selectedLength", selectedLength);
+const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
+const scrollToBottom = inject<() => void>("scrollToBottom");
+const loading = inject<() => void>("loading");
+const hideLoading = inject<() => void>("hideLoading");
+
+onMounted(() => {
+    getProfileImage();
+});
+
+async function getProfileImage() {
+    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+    if (!result.success) return;
+    imageURL.value = result.data.profileImageUrl;
+}
 
 function handleEnterKey(event: any) {
     if (event.target.id === "dynamicTextarea" && event.key === "Enter" && !event.shiftKey) {
@@ -69,17 +83,148 @@ function handleEnterKey(event: any) {
     }
 }
 
+function displayUserMessage() {
+    if (!AIContainer.value) return;
+
+    const messageHTML = `
+        <div class="flex pb-12">
+            <div class="mr-4 flex">
+            <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                <img src="${imageURL.value}" alt="Profile Image" class="h-14 w-14 rounded-full">
+            </span>
+            </div>
+            <div>
+            <p class="font-serif">${textareaValue.value}</p>
+            </div>
+        </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+    textareaValueSave.value = textareaValue.value;
+    textareaValue.value = "";
+    scrollToBottom?.();
+}
+
 async function handleAIClick() {
     if (!AIContainer.value) return;
     if (isWriting.value) {
         return;
     }
     setWriting();
+    displayUserMessage?.();
+    findUserAi();
 }
 
 const setWriting = () => {
     isWriting.value = true;
 };
+
+async function findUserAi() {
+    if (textareaValueSave.value === "") {
+        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
+        displayMessage?.(i18n.global.t("constants.sendEmailConstants.noRecipientsEntered"), aiIcon);
+    } else {
+        loading?.();
+        scrollToBottom?.();
+
+        const result = await postData("api/find_user_ai/", { query: textareaValueSave.value });
+        if (!result.success) {
+            const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+            displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+            return;
+        }
+        hideLoading?.();
+
+        const mainRecipients = result.data.mainRecipients;
+        const ccRecipients = result.data.ccRecipients;
+        const bccRecipients = result.data.bccRecipients;
+
+        processRecipients(mainRecipients, ccRecipients, bccRecipients);
+    }
+}
+
+function processRecipients(mainRecipients: AiRecipient[], ccRecipients: AiRecipient[], bccRecipients: AiRecipient[]) {
+    let noUsersAdded = true;
+    let waitforUserChoice = false;
+
+    noUsersAdded = processSingleEmailRecipients(mainRecipients, selectedPeople.value) && noUsersAdded;
+    noUsersAdded = processSingleEmailRecipients(ccRecipients, selectedCC.value) && noUsersAdded;
+    noUsersAdded = processSingleEmailRecipients(bccRecipients, selectedBCC.value) && noUsersAdded;
+
+    if (!AIContainer.value) return;
+
+    if (mainRecipients.length > 0 || ccRecipients.length > 0 || bccRecipients.length > 0) {
+        displayMultipleEmailsMessage();
+
+        waitforUserChoice = processMultipleEmailRecipients(mainRecipients, "main") || waitforUserChoice;
+        waitforUserChoice = processMultipleEmailRecipients(ccRecipients, "cc") || waitforUserChoice;
+        waitforUserChoice = processMultipleEmailRecipients(bccRecipients, "bcc") || waitforUserChoice;
+
+        scrollToBottom?.();
+    }
+
+    if (noUsersAdded) {
+        displayNoRecipientsFoundMessage();
+    }
+}
+
+function processSingleEmailRecipients(recipients: AiRecipient[], selectedGroup: Recipient[]) {
+    let noUsersAdded = true;
+    for (let i = 0; i < recipients.length; i++) {
+        const user = recipients[i];
+        const emails = user.email;
+        if (emails.length === 1) {
+            selectedGroup.push({ username: user.username, email: emails[0] });
+            recipients.splice(i, 1);
+            noUsersAdded = false;
+            i--;
+        }
+    }
+    return noUsersAdded;
+}
+
+function displayMultipleEmailsMessage() {
+    if (!AIContainer.value) return;
+    const messageHTML = `
+        <div class="flex pb-2">
+            <div class="mr-4 flex">
+                <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                    </svg>
+                </span>
+            </div>
+            <div>
+                <p>${i18n.global.t("constants.sendEmailConstants.multipleEmailsFoundForSomeRecipients")}</p>
+            </div>
+        </div>
+    `;
+    AIContainer.value.innerHTML += messageHTML;
+}
+
+function processMultipleEmailRecipients(recipients: AiRecipient[], type: string) {
+    if (recipients.length === 0) return false;
+
+    const emailList = [];
+    for (const user of recipients) {
+        for (const email of user.email) {
+            if (email !== "") {
+                const emailMapping: EmailMapping = {};
+                emailMapping[user.username] = email;
+                emailList.push(emailMapping);
+            }
+        }
+    }
+    askChoiceRecipier(emailList, type);
+    return true;
+}
+
+function displayNoRecipientsFoundMessage() {
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    displayMessage?.(
+        i18n.global.t("constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually"),
+        aiIcon
+    );
+}
 
 function askChoiceRecipier(list: any[], type: string) {
     let buttonsHTML = "";

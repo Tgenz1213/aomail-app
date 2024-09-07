@@ -139,6 +139,8 @@ function dismissPopup() {
 }
 
 onMounted(async () => {
+    await initializeQuill();
+
     AIContainer.value = document.getElementById("AIContainer");
     document.addEventListener("keydown", handleKeyDown);
     localStorage.removeItem("uploadedFiles");
@@ -156,7 +158,6 @@ onMounted(async () => {
     const htmlContent = sessionStorage.getItem("htmlContent" || "");
     const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
 
-    await initializeQuill();
     await fetchSelectedEmailData();
 
     const messageHTML = `
@@ -328,7 +329,7 @@ function askContentAdvice() {
             </span>
           </div>
           <div class="flex flex-col">
-            <p ref="animatedText${counterDisplay}" class="mt-0"></p>
+            <p ref="animatedText${counterDisplay.value}" class="mt-0"></p>
             <div class="flex flex-col mt-2">
               ${buttonsHTML}
             </div>
@@ -349,7 +350,7 @@ function askContentAdvice() {
         }, 0);
     });
 
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
     counterDisplay.value += 1;
     animateText(message, animatedParagraph);
 }
@@ -380,7 +381,7 @@ async function handleButtonClick(keyword: string | null) {
     const quillEditorContainer = quill.value.root;
     quillEditorContainer.innerHTML = result.data.emailAnswer;
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    displayMessage(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), aiIcon);
+    await displayMessage(i18n.global.t("constants.sendEmailConstants.doesThisResponseSuitYou"), aiIcon);
 }
 
 async function fetchResponseKeywords() {
@@ -403,32 +404,26 @@ async function fetchResponseKeywords() {
     askContentAdvice();
 }
 
-function handleInputUpdateMailContent(newMessage: string) {
-    if (newMessage !== "") {
-        if (selectedPeople.value.length > 0 || selectedCC.value.length > 0 || selectedBCC.value.length > 0) {
-            askContentAdvice();
-            stepContainer.value = 2;
-            scrollToBottom();
-        }
-    }
+async function animateText(text: string, target: Element | null) {
+    return new Promise<void>((resolve) => {
+        let characters = text.split("");
+        let currentIndex = 0;
+
+        const interval = setInterval(() => {
+            if (currentIndex < characters.length) {
+                if (!target) return;
+                target.textContent += characters[currentIndex];
+                currentIndex++;
+            } else {
+                clearInterval(interval);
+                isWriting.value = false;
+                resolve();
+            }
+        }, 30);
+    });
 }
 
-function animateText(text: string, target: Element | null) {
-    let characters = text.split("");
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-        if (currentIndex < characters.length) {
-            if (!target) return;
-            target.textContent += characters[currentIndex];
-            currentIndex++;
-        } else {
-            clearInterval(interval);
-            isWriting.value = false;
-        }
-    }, 30);
-}
-
-function displayMessage(message: string, aiIcon: string) {
+async function displayMessage(message: string, aiIcon: string) {
     if (!AIContainer.value) return;
 
     const messageHTML = `
@@ -453,7 +448,7 @@ function displayMessage(message: string, aiIcon: string) {
     AIContainer.value.innerHTML += messageHTML;
     const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay.value}"]`);
     counterDisplay.value += 1;
-    animateText(message, animatedParagraph);
+    await animateText(message, animatedParagraph);
     scrollToBottom();
 }
 </script>

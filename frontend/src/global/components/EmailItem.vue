@@ -372,7 +372,7 @@ import {
     HandRaisedIcon,
 } from "@heroicons/vue/24/outline";
 import { Email } from "@/global/types";
-import { getData, postData } from "@/global/fetchData";
+import { getData, getDataRawResponse, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
 import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
@@ -565,7 +565,24 @@ const getIconComponent = (fileName: string) => {
     }
 };
 
-const downloadAttachment = (emailId: number, attachmentName: string) => {
+const downloadAttachment = async (emailId: number, attachmentName: string) => {
     console.log(`Downloading attachment ${attachmentName} from email ${emailId}`);
-};
+    const response = await getDataRawResponse(`user/emails/${emailId}/attachments/${attachmentName}/`, {
+        'Content-Type': 'application/json',
+    });
+
+    if (response instanceof Response) {
+        const attachmentData = await response.blob(); 
+        const url = window.URL.createObjectURL(attachmentData);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', attachmentName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        console.error("Failed to fetch attachment:", response.error);
+    }
+}
+
 </script>

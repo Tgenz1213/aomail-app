@@ -42,6 +42,42 @@ export async function getData(path: string, headers?: Record<string, string>): P
     }
 }
 
+export async function getDataRawResponse(path: string, headers?: Record<string, string>): Promise<Response | FetchDataResult> {
+    const requestOptions = {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            ...headers,
+        },
+    };
+
+    try {
+        const response = await fetchWithToken(`${API_BASE_URL}${path}`, requestOptions);
+
+        if (!response) {
+            return {
+                success: false,
+                error: "No server response",
+            };
+        }
+
+        if (200 <= response.status && response.status <= 299) {
+            return response; // Return the raw response object
+        } else {
+            const data = await response.json(); // Parse error response as JSON
+            return {
+                success: false,
+                error: data.error ? data.error : "Unknown error",
+            };
+        }
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+        };
+    }
+}
+
 export async function postData(path: string, body: Record<string, any>): Promise<FetchDataResult> {
     const requestOptions = {
         method: "POST",

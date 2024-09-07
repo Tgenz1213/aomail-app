@@ -401,9 +401,6 @@ const displayPopup = inject<(type: "success" | "error", title: string, message: 
 const fetchEmailsData = inject("fetchEmailsData") as (categoryName: string) => Promise<void>;
 const fetchCategoriesAndTotals = inject("fetchCategoriesAndTotals") as () => Promise<void>;
 const emails = inject("emails") as Ref<{ [key: string]: { [key: string]: Email[] } }>;
-const emit = defineEmits<{
-    (e: "emailUpdated", email: Email): void;
-}>();
 
 const toggleShortSummary = () => {
     isShortSummaryVisible.value = !isShortSummaryVisible.value;
@@ -437,27 +434,6 @@ async function setRuleBlockForSender() {
     props.email.read = true;
 }
 
-async function markEmailAsUnread() {
-    const result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {});
-
-    if (!result.success) {
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
-    }
-    /*fetchEmailsData(selectedCategory.value);
-      fetchCategoriesAndTotals();*/
-    props.email.read = false;
-
-    for (const category in emails.value) {
-        for (const subCategory in emails.value[category]) {
-            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
-            if (index !== -1) {
-                emails.value[category][subCategory][index].read = false;
-                break;
-            }
-        }
-    }
-}
-
 const closeSeeMailModal = () => {
     isSeeMailModalVisible.value = false;
 };
@@ -482,15 +458,6 @@ function openNewRule() {
 }
 
 async function markEmailAsRead() {
-    const result = await postData(`user/emails/${localEmail.value.id}/mark_read/`, {});
-    if (!result.success) {
-        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
-        return;
-    }
-    localEmail.value.read = true;
-
-    //To UPGRADE;
-
     for (const category in emails.value) {
         for (const subCategory in emails.value[category]) {
             const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
@@ -500,18 +467,44 @@ async function markEmailAsRead() {
             }
         }
     }
+    const result = await postData(`user/emails/${localEmail.value.id}/mark_read/`, {});
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+        return;
+    }
+}
 
-    /*fetchEmailsData(selectedCategory.value);
-    fetchCategoriesAndTotals();*/
+async function markEmailAsUnread() {
+    for (const category in emails.value) {
+        for (const subCategory in emails.value[category]) {
+            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
+            if (index !== -1) {
+                emails.value[category][subCategory][index].read = false;
+                break;
+            }
+        }
+    }
+    const result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {});
+    if (!result.success) {
+        displayPopup?.("error", i18n.global.t("homepage.markEmailReadFailure"), result.error as string);
+    }
 }
 
 async function markEmailReplyLater() {
+    for (const category in emails.value) {
+        for (const subCategory in emails.value[category]) {
+            const index = emails.value[category][subCategory].findIndex((email) => email.id === localEmail.value.id);
+            if (index !== -1) {
+                emails.value[category][subCategory][index].answerLater = true;
+                break;
+            }
+        }
+    }
     const result = await postData(`user/emails/${localEmail.value.id}/mark_reply_later/`, {});
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
         return;
     }
-    localEmail.value.answerLater = true;
 }
 
 async function openAnswer() {

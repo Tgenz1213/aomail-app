@@ -34,7 +34,7 @@
               <ul role="list" class="divide-y divide-gray-200">
                 <li v-for="email in emailsByDate" :key="email.id"  class="px-6 md:py-5 2xl:py-6">
                     <EmailItem 
-                        :email="email" 
+                        :email="email"
                         color="orange"
                     />
                 </li>
@@ -82,7 +82,6 @@
 
     return grouped;
   });
-
 
   const hasEmails = computed(() => {
     return Object.keys(groupedEmails.value).length > 0;

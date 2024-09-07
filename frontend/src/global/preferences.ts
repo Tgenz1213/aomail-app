@@ -12,8 +12,8 @@ type UserPreferenceResponse = {
 };
 
 const languageSelected = ref("american");
-const themeSelected = ref("light");
-const timezoneSelected = ref("UTC");
+export const themeSelected = ref("light");
+export const timezoneSelected = ref("UTC");
 
 const fetchUserPreference = async (
     endpoint: string,

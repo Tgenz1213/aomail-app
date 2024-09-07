@@ -411,10 +411,10 @@
   "transferPage": {
     "emailSummary": "Résumé de l'email:",
     "messageDivider": "---------- Message transféré ---------",
-    "from": "De: ",
-    "date": "Date: ",
-    "subject": "Sujet: ",
-    "cc": "CC: ",
+    "from": "De:",
+    "date": "Date:",
+    "subject": "Sujet:",
+    "cc": "CC:",
     "transferPrompt": "Bonjour, à qui souhaitez-vous transférer cet e-mail ?",
     "emailTransferred": "Email transféré !"
   },

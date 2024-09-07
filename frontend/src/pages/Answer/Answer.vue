@@ -143,19 +143,11 @@ function dismissPopup() {
 
 onMounted(async () => {
     AIContainer.value = document.getElementById("AIContainer");
-
     document.addEventListener("keydown", handleKeyDown);
     localStorage.removeItem("uploadedFiles");
     window.addEventListener("resize", scrollToBottom);
 
-    const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-
-    displayMessage(message, aiIcon);
     fetchRecipients();
-
-    localStorage.removeItem("uploadedFiles");
-    document.addEventListener("keydown", handleKeyDown);
 
     subject.value = JSON.parse(sessionStorage.getItem("subject") || "");
     selectedPeople.value = [{ email: JSON.parse(sessionStorage.getItem("senderEmail") || "[]") }];
@@ -168,9 +160,9 @@ onMounted(async () => {
     const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
 
     await initializeQuill();
-    fetchSelectedEmailData();
+    await fetchSelectedEmailData();
 
-    const messageHTML = () => `
+    const messageHTML = `
     <div class="flex pb-12">
       <div class="mr-4 flex flex-shrink-0">
         <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
@@ -200,12 +192,11 @@ onMounted(async () => {
         }
     });
 
-    if (AIContainer.value) AIContainer.value.innerHTML += messageHTML();
-
+    if (AIContainer.value) AIContainer.value.innerHTML += messageHTML;
     emailContent.value = decodedData;
-    fetchResponseKeywords();
-
     subjectInput.value = "Re : " + subject.value;
+
+    fetchResponseKeywords();
 });
 
 async function initializeQuill() {
@@ -279,8 +270,6 @@ function handleKeyDown(event: KeyboardEvent) {
         }
     }
 }
-
-let counter_display = 0;
 
 function loading() {
     isLoading.value = true;
@@ -356,7 +345,7 @@ function askContentAdvice() {
             </span>
           </div>
           <div class="flex flex-col">
-            <p ref="animatedText${counter_display}" class="mt-0"></p>
+            <p ref="animatedText${counterDisplay}" class="mt-0"></p>
             <div class="flex flex-col mt-2">
               ${buttonsHTML}
             </div>
@@ -377,8 +366,8 @@ function askContentAdvice() {
         }, 0);
     });
 
-    const animatedParagraph = document.querySelector(`p[ref="animatedText${counter_display}"]`);
-    counter_display += 1;
+    const animatedParagraph = document.querySelector(`p[ref="animatedText${counterDisplay}"]`);
+    counterDisplay.value += 1;
     animateText(message, animatedParagraph);
 }
 
@@ -405,7 +394,6 @@ async function handleButtonClick(keyword: string | null) {
         return;
     }
 
-    const formattedMail = result.data.emailAnswer.replace(/\n/g, "<br>");
     const quillEditorContainer = quill.value.root;
     quillEditorContainer.innerHTML = result.data.emailAnswer;
     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;

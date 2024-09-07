@@ -543,12 +543,11 @@ async function transferEmail() {
 
     sessionStorage.setItem("subject", JSON.stringify(result.data.subject));
     sessionStorage.setItem("cc", result.data.cc);
-    sessionStorage.setItem("bcc", result.data.bcc);
     sessionStorage.setItem("decodedData", JSON.stringify(result.data.decodedData));
     sessionStorage.setItem("emailUser", JSON.stringify(result.data.emailUser));
-    sessionStorage.setItem("date", JSON.stringify(result.data.date));
+    sessionStorage.setItem("senderEmail", JSON.stringify(localEmail.value.sender.email));
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
-    sessionStorage.setItem("email", JSON.stringify(localEmail.value.sender.email));
+    sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));
 
     router.push({ name: "transfer" });
 }

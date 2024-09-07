@@ -33,8 +33,8 @@ import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
 import { displayErrorPopup, displaySuccessPopup } from "@/global/popUp";
-import { getData, postData } from "@/global/fetchData";
-import { i18n } from "@/global/preferences";
+import { getData } from "@/global/fetchData";
+import { i18n, timezoneSelected } from "@/global/preferences";
 import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
@@ -67,6 +67,7 @@ const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
+const emailContent = ref("");
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -102,81 +103,61 @@ provide("hideLoading", hideLoading);
 
 onMounted(async () => {
     AIContainer.value = document.getElementById("AIContainer");
-
     document.addEventListener("keydown", handleKeyDown);
-    localStorage.removeItem("uploadedFiles");
     window.addEventListener("resize", scrollToBottom);
+    localStorage.removeItem("uploadedFiles");
 
-    const message = i18n.global.t("constants.sendEmailConstants.emailRecipientRequest");
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-
-    displayMessage(message, aiIcon);
     fetchRecipients();
 
-    localStorage.removeItem("uploadedFiles");
+    subject.value = JSON.parse(sessionStorage.getItem("subject") || "");
+    const senderEmail = JSON.parse(sessionStorage.getItem("senderEmail") || "");
+    selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
+    emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
+    const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");
+    const shortSummary = JSON.parse(sessionStorage.getItem("shortSummary") || "");
 
-    document.addEventListener("keydown", handleKeyDown);
-
-    // const subject = JSON.parse(sessionStorage.getItem("subject"));
-    const cc = sessionStorage.getItem("cc");
-    const bcc = sessionStorage.getItem("bcc");
-    // const decoded_data = JSON.parse(sessionStorage.getItem("decoded_data"));
-    // const email = JSON.parse(sessionStorage.getItem("email"));
-    //const id_provider = JSON.parse(sessionStorage.getItem("id_provider"));
-    // const details = JSON.parse(sessionStorage.getItem("details"));
-    // const date = JSON.parse(sessionStorage.getItem("date"));
-
-    // Prepare the forwarded email
-    inputValue.value = "Tr : " + subject.value;
-    // const formattedDateVar = new Date(date);
-    const options = {
-        weekday: "short",
-        month: "short",
+    const date = JSON.parse(sessionStorage.getItem("date") || new Date().toDateString());
+    const formattedDateVar = new Date(date);
+    const formattedDate = formattedDateVar.toLocaleDateString("en-US", {
+        timeZone: timezoneSelected.value,
+        year: "numeric",
+        month: "long",
         day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    };
+    });
 
-    // TODO: use the selected timezone of the user
-    // const formattedDate = formattedDateVar.toLocaleDateString("fr-FR", options);
-
+    subjectInput.value = "Tr : " + subject.value;
     let forwardedMessage = "";
 
-    // TODO: use the var from JSON it's ready
-    forwardedMessage += "Résumé de l'email:\n";
-    // details.forEach((detail) => {
-    //     forwardedMessage += `- ${detail.text}\n`;
-    // });
+    forwardedMessage += `${i18n.global.t("transferPage.emailSummary")}\n`;
+    forwardedMessage += shortSummary;
     forwardedMessage += "\n\n";
-    forwardedMessage += "---------- Message transféré ---------\n";
-    // forwardedMessage += `De: ${email}\n`;
-    // forwardedMessage += `Date: ${formattedDate}\n`;
-    forwardedMessage += `Sujet: ${subject.value}\n`;
+    forwardedMessage += `${i18n.global.t("transferPage.messageDivider")}\n`;
+    forwardedMessage += `${i18n.global.t("transferPage.from")} ${senderEmail}\n`;
+    forwardedMessage += `${i18n.global.t("transferPage.date")} ${formattedDate}\n`;
+    forwardedMessage += `${i18n.global.t("transferPage.subject")} ${subject.value}\n`;
 
-    // if (cc.length > 0) {
-    //     forwardedMessage += `CC: ${cc}\n`;
-    // }
-
-    forwardedMessage += "\n\n";
-    // forwardedMessage += decoded_data;
-    if (quill.value) {
-        quill.value.setText(forwardedMessage);
+    if (selectedCC.value.length > 0) {
+        forwardedMessage += `${i18n.global.t("transferPage.cc")}: `;
+        selectedCC.value.forEach((recipient: Recipient, index: number) => {
+            forwardedMessage += `${recipient.email}`;
+            if (recipient.username) {
+                forwardedMessage += ` (${recipient.username})`;
+            }
+            if (index < selectedCC.value.length - 1) {
+                forwardedMessage += ", ";
+            }
+        });
+        forwardedMessage += "\n";
     }
+    forwardedMessage += "\n\n";
+    forwardedMessage += decodedData;
+
+    emailContent.value = forwardedMessage;
 
     await initializeQuill();
 
-    // const message = t("constants.sendEmailConstants.emailRecipientRequest");
-    // const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-    // displayMessage(message, ai_icon);
-    // objectInput.value = document.getElementById("objectInput");
-
-    // const form = objectInput.value.closest("form");
-    // if (form) {
-    //     form.addEventListener("submit", function (e) {
-    //         e.preventDefault();
-    //     });
-    // }
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
+    displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
 });
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
@@ -312,8 +293,8 @@ async function handleAIClick() {
     //     if (stepcontainer == 0) {
     //         if (textareaValueSave.value == "") {
     //             const message = t("constants.sendEmailConstants.noRecipientsEntered");
-    //             const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
-    //             displayMessage(message, ai_icon);
+    //             const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />`;
+    //             displayMessage(message, aiIcon);
     //         } else {
     //             try {
     //                 isLoading.value = true;
@@ -436,8 +417,8 @@ async function handleAIClick() {
     //                         const message = t(
     //                             "constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually"
     //                         );
-    //                         const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    //                         displayMessage(message, ai_icon);
+    //                         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    //                         displayMessage(message, aiIcon);
     //                     } else if (!WaitforUserChoice) {
     //                         stepcontainer = 1;
     //                     }
@@ -445,13 +426,13 @@ async function handleAIClick() {
     //                     const message = t(
     //                         "constants.sendEmailConstants.noRecipientsFoundPleaseTryAgainOrEnterManually"
     //                     );
-    //                     const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    //                     displayMessage(message, ai_icon);
+    //                     const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    //                     displayMessage(message, aiIcon);
     //                 }
     //             } catch (error) {
     //                 const message = t("constants.sendEmailConstants.processingErrorApology");
-    //                 const ai_icon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-    //                 displayMessage(message, ai_icon);
+    //                 const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    //                 displayMessage(message, aiIcon);
     //                 console.error("Error finding user", error);
     //             }
     //         }

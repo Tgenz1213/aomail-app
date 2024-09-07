@@ -68,6 +68,7 @@ GOOGLE_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
 GOOGLE_CONTACT_READONLY_SCOPE = "https://www.googleapis.com/auth/contacts.readonly"
 GOOGLE_PROFILE_SCOPE = "https://www.googleapis.com/auth/userinfo.profile"
 GOOGLE_EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email"
+GOOGLE_EMAIL_MODIFY = "https://www.googleapis.com/auth/gmail.modify"
 GOOGLE_OPENID_SCOPE = "openid"
 GOOGLE_OTHER_CONTACT_READONLY_SCOPE = (
     "https://www.googleapis.com/auth/contacts.other.readonly"
@@ -80,6 +81,7 @@ GOOGLE_SCOPES = [
     GOOGLE_EMAIL_SCOPE,
     GOOGLE_OPENID_SCOPE,
     GOOGLE_OTHER_CONTACT_READONLY_SCOPE,
+    GOOGLE_EMAIL_MODIFY,
 ]
 GOOGLE_CREDS = f"{CREDS_PATH}google_creds.json"
 GOOGLE_CONFIG = json.load(open(GOOGLE_CREDS))["web"]

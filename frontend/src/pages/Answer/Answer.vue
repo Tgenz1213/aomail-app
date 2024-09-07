@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -145,6 +145,7 @@ onMounted(async () => {
     document.addEventListener("keydown", handleKeyDown);
     localStorage.removeItem("uploadedFiles");
     window.addEventListener("resize", scrollToBottom);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     fetchRecipients();
 
@@ -196,6 +197,22 @@ onMounted(async () => {
 
     fetchResponseKeywords();
 });
+
+onUnmounted(() => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (
+        uploadedFiles.value.length ||
+        selectedPeople.value.length ||
+        selectedCC.value.length ||
+        selectedBCC.value.length ||
+        subjectInput.value !== ""
+    ) {
+        event.preventDefault();
+    }
+};
 
 async function initializeQuill() {
     const toolbarOptions = [
@@ -374,7 +391,7 @@ async function handleButtonClick(keyword: string | null) {
 
     if (!result.success) {
         const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
+        await displayMessage?.(i18n.global.t("constants.sendEmailConstants.processingErrorTryAgain"), aiIcon);
         return;
     }
 

@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -119,9 +119,11 @@ async function fetchSelectedEmailData() {
 
 onMounted(async () => {
     await initializeQuill();
+
     AIContainer.value = document.getElementById("AIContainer");
     document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", scrollToBottom);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     localStorage.removeItem("uploadedFiles");
 
     fetchRecipients();
@@ -184,6 +186,22 @@ onMounted(async () => {
 
     await displayMessage(i18n.global.t("constants.sendEmailConstants.emailRecipientRequest"), aiIcon);
 });
+
+onUnmounted(() => {
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+});
+
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    if (
+        uploadedFiles.value.length ||
+        selectedPeople.value.length ||
+        selectedCC.value.length ||
+        selectedBCC.value.length ||
+        subjectInput.value !== ""
+    ) {
+        event.preventDefault();
+    }
+};
 
 function displayPopup(type: "success" | "error", title: string, message: string) {
     if (type === "error") {

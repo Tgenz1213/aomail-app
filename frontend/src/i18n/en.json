@@ -411,10 +411,10 @@
   "transferPage": {
     "emailSummary": "Email Summary:",
     "messageDivider": "---------- Forwarded Message ---------",
-    "from": "From: ",
-    "date": "Date: ",
-    "subject": "Subject: ",
-    "cc": "CC: ",
+    "from": "From:",
+    "date": "Date:",
+    "subject": "Subject:",
+    "cc": "CC:",
     "transferPrompt": "Hello, to whom do you want to forward this email?",
     "emailTransferred": "Email transferred!"
   },
@@ -497,7 +497,7 @@
   "answerPage": {
     "responseSentTitle": "Response sent!",
     "chatSummarize": "Summary of the email :",
-    "chatKeyWordIntroduction": "Here are suggested answer, how would you like to respond?",
+    "chatKeyWordIntroduction": "Here are suggested answers, how would you like to respond?",
     "seeMail": "See email"
   },
   "errorWebPagesTemplates": {

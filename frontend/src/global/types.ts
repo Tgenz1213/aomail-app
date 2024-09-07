@@ -103,3 +103,12 @@ export interface UploadedFile {
     name: string;
     size: number;
 }
+
+export interface EmailMapping {
+    [username: string]: string;
+}
+
+export interface AiRecipient {
+    username: string;
+    email: string[];
+}

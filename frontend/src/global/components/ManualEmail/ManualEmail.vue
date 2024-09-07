@@ -21,7 +21,7 @@
                 </h1>
             </div>
         </div>
-        <form class="flex-1 flex flex-col w-full px-10 pt-4 2xl:px-14 2xl:pt-6 overflow-hidden">
+        <div class="flex-1 flex flex-col w-full px-10 pt-4 2xl:px-14 2xl:pt-6 overflow-hidden">
             <div class="flex flex-col space-y-5 h-full w-full">
                 <div class="">
                     <RecipientsSection />
@@ -41,7 +41,7 @@
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </template>
 

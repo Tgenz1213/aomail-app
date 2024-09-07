@@ -45,20 +45,11 @@
 <script setup lang="ts">
 import { getData, postData } from "@/global/fetchData";
 import { i18n } from "@/global/preferences";
-import { Recipient } from "@/global/types";
+import { AiRecipient, EmailMapping, Recipient } from "@/global/types";
 import Quill from "quill";
 import { inject, onMounted, provide, Ref, ref, watch } from "vue";
 import SendAiInstructionButton from "@/global/components/SendAiInstructionButton.vue";
 import userImage from "@/assets/user.png";
-
-interface EmailMapping {
-    [username: string]: string;
-}
-
-interface AiRecipient {
-    username: string;
-    email: string[];
-}
 
 const isWriting = inject<Ref<boolean>>("isWriting") || ref(false);
 const quill = inject<Ref<Quill | null>>("quill");
@@ -75,7 +66,7 @@ const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
 const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
-const AiEmailBody = inject<Ref<string>>("AiEmailBody") || ref("");
+const emailBody = inject<Ref<string>>("emailBody") || ref("");
 const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
@@ -83,7 +74,6 @@ const scrollToBottom = inject<() => void>("scrollToBottom");
 const loading = inject<() => void>("loading");
 const hideLoading = inject<() => void>("hideLoading");
 
-provide("handleAIClick", handleAIClick);
 provide("askContent", askContent);
 provide("selectedFormality", selectedFormality);
 provide("selectedLength", selectedLength);
@@ -256,30 +246,12 @@ async function newEmailAi() {
             return;
         }
         subjectInput.value = result.data.subject;
-        AiEmailBody.value = result.data.mail;
+        emailBody.value = result.data.mail;
         stepContainer.value = 2;
-        const formattedMail = result.data.mail.replace(/\n/g, "<br>");
-        const messageHTML = `
-            <div class="flex pb-12">
-                <div class="mr-4 flex">
-                    <span class="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-900 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-                    </svg>
-                    </span>
-                </div>
-                <div>
-                    <p><strong>${i18n.global.t("newPage.subject")}</strong> ${result.data.subject}</p>
-                    <p><strong>${i18n.global.t("newPage.emailContent")}</strong> ${formattedMail}</p>
-                </div>
-            </div>
-        `;
-        AIContainer.value.innerHTML += messageHTML;
+
         subjectInput.value = result.data.subject;
         const quillEditorContainer = quill.value.root;
         quillEditorContainer.innerHTML = result.data.mail.replace(/<\/p>/g, "</p><p></p>");
-        const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
-        displayMessage?.(i18n.global.t("constants.sendEmailConstants.emailFeedbackRequest"), aiIcon);
     }
 }
 
@@ -297,7 +269,7 @@ async function improveDraft() {
             length: selectedLength.value,
             formality: selectedFormality.value,
             subject: subjectInput.value,
-            body: AiEmailBody.value,
+            body: emailBody.value,
             history: history.value,
         });
         hideLoading?.();
@@ -308,7 +280,7 @@ async function improveDraft() {
             return;
         }
         subjectInput.value = result.data.subject;
-        AiEmailBody.value = result.data.emailBody;
+        emailBody.value = result.data.emailBody;
         history.value = result.data.history;
         const formattedMail = result.data.emailBody.replace(/\n/g, "<br>");
         const messageHTML = `
@@ -458,7 +430,7 @@ function askChoiceRecipier(list: any[], type: string) {
 
 function askContent() {
     if (!AIContainer.value) return;
-    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />`;
+    const aiIcon = `<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />`;
     displayMessage?.(i18n.global.t("constants.sendEmailConstants.draftEmailRequest"), aiIcon);
 }
 

@@ -56,7 +56,6 @@
 </template>
 
 <script setup lang="ts">
-/* eslint-disable */
 import { ref, computed, onMounted } from "vue";
 import { getData, postData } from "@/global/fetchData";
 import ImportantEmail from "@/global/components/ImportantEmails.vue";

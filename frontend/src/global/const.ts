@@ -15,7 +15,7 @@ export type AllowedLanguageType = (typeof ALLOWED_LANGUAGES)[number];
 export const UNAUTHENTICATED_URLS = [
     `${BASE_URL}`,
     `${BASE_URL}signup`,
-    `${BASE_URL}signup_part2`,
+    `${BASE_URL}signup-link`,
     `${BASE_URL}password-reset-link`,
     `${BASE_URL}reset-password-form`,
 ];

@@ -536,12 +536,12 @@ async function transferEmail() {
 
     sessionStorage.setItem("subject", JSON.stringify(result.data.subject));
     sessionStorage.setItem("cc", result.data.cc);
-    sessionStorage.setItem("bcc", result.data.bcc);
     sessionStorage.setItem("decodedData", JSON.stringify(result.data.decodedData));
     sessionStorage.setItem("emailUser", JSON.stringify(result.data.emailUser));
-    sessionStorage.setItem("date", JSON.stringify(result.data.date));
+    sessionStorage.setItem("senderEmail", JSON.stringify(localEmail.value.sender.email));
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
-    sessionStorage.setItem("email", JSON.stringify(localEmail.value.sender.email));
+    sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));
+    sessionStorage.setItem("date", JSON.stringify(result.data.date));
 
     router.push({ name: "transfer" });
 }
@@ -562,21 +562,20 @@ const getIconComponent = (fileName: string) => {
 const downloadAttachment = async (emailId: number, attachmentName: string) => {
     console.log(`Downloading attachment ${attachmentName} from email ${emailId}`);
     const response = await getDataRawResponse(`user/emails/${emailId}/attachments/${attachmentName}/`, {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
     });
 
     if (response instanceof Response) {
-        const attachmentData = await response.blob(); 
+        const attachmentData = await response.blob();
         const url = window.URL.createObjectURL(attachmentData);
-        const link = document.createElement('a');
+        const link = document.createElement("a");
         link.href = url;
-        link.setAttribute('download', attachmentName);
+        link.setAttribute("download", attachmentName);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     } else {
         console.error("Failed to fetch attachment:", response.error);
     }
-}
-
+};
 </script>

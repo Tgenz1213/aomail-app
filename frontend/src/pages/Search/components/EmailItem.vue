@@ -222,6 +222,7 @@ async function transferEmail() {
     sessionStorage.setItem("senderEmail", JSON.stringify(localEmail.value.sender.email));
     sessionStorage.setItem("providerId", JSON.stringify(localEmail.value.providerId));
     sessionStorage.setItem("shortSummary", JSON.stringify(localEmail.value.shortSummary));
+    sessionStorage.setItem("date", JSON.stringify(result.data.date));
 
     router.push({ name: "transfer" });
 }

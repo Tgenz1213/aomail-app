@@ -40,7 +40,7 @@ const signUp: RouteConfig = {
 };
 
 const signUpLink: RouteConfig = {
-    path: "/signup_part2", // TODO: (only Augustin & Théo): rename as signup-link (but not now because we also need to change in Google Project & Azure)
+    path: "/signup-link",
     name: "signupLink",
     component: SignupLink,
 };

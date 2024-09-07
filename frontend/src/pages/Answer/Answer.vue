@@ -43,13 +43,11 @@ import { INFORMATIVE } from "@/global/const";
 const showNotification = ref(false);
 const isWriting = ref(false);
 const isLoading = ref(false);
-const isFirstTimeEmail = ref(true);
 const notificationTitle = ref("");
 const notificationMessage = ref("");
 const backgroundColor = ref("");
 const subjectInput = ref("");
 const textareaValueSave = ref("");
-const AiEmailBody = ref("");
 const subject = ref("");
 const importance = ref(INFORMATIVE);
 const emailSelected = ref("");
@@ -95,7 +93,6 @@ provide("subjectInput", subjectInput);
 provide("emailsLinked", emailsLinked);
 provide("contacts", contacts);
 provide("history", history);
-provide("AiEmailBody", AiEmailBody);
 provide("textareaValueSave", textareaValueSave);
 provide("selectedLength", selectedLength);
 provide("selectedFormality", selectedFormality);
@@ -215,20 +212,6 @@ async function initializeQuill() {
         quill.value = new Quill(editorElement, {
             theme: "snow",
             modules: { toolbar: toolbarOptions },
-        });
-    }
-
-    if (quill.value) {
-        quill.value.on("text-change", function () {
-            AiEmailBody.value = quill.value?.root.innerHTML ?? "";
-            if (isFirstTimeEmail.value) {
-                const quillContent = quill.value?.root.innerHTML ?? "";
-                if (quillContent.trim() !== "<p><br></p>") {
-                    AiEmailBody.value = quillContent;
-                    handleInputUpdateMailContent(quillContent);
-                    isFirstTimeEmail.value = false;
-                }
-            }
         });
     }
 }

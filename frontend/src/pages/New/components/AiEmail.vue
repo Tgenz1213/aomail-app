@@ -75,7 +75,7 @@ const textareaValueSave = inject<Ref<string>>("textareaValueSave") || ref("");
 const subjectInput = inject<Ref<string>>("subjectInput") || ref("");
 const selectedFormality = inject<Ref<string>>("selectedFormality") || ref("");
 const selectedLength = inject<Ref<string>>("selectedLength") || ref("");
-const AiEmailBody = inject<Ref<string>>("AiEmailBody") || ref("");
+const emailBody = inject<Ref<string>>("emailBody") || ref("");
 const emailSelected = inject<Ref<string>>("emailSelected") || ref("");
 
 const displayMessage = inject<(message: string, aiIcon: string) => void>("displayMessage");
@@ -256,7 +256,7 @@ async function newEmailAi() {
             return;
         }
         subjectInput.value = result.data.subject;
-        AiEmailBody.value = result.data.mail;
+        emailBody.value = result.data.mail;
         stepContainer.value = 2;
         const formattedMail = result.data.mail.replace(/\n/g, "<br>");
         const messageHTML = `
@@ -297,7 +297,7 @@ async function improveDraft() {
             length: selectedLength.value,
             formality: selectedFormality.value,
             subject: subjectInput.value,
-            body: AiEmailBody.value,
+            body: emailBody.value,
             history: history.value,
         });
         hideLoading?.();
@@ -308,7 +308,7 @@ async function improveDraft() {
             return;
         }
         subjectInput.value = result.data.subject;
-        AiEmailBody.value = result.data.emailBody;
+        emailBody.value = result.data.emailBody;
         history.value = result.data.history;
         const formattedMail = result.data.emailBody.replace(/\n/g, "<br>");
         const messageHTML = `

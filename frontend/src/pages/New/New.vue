@@ -48,7 +48,7 @@ const notificationMessage = ref("");
 const backgroundColor = ref("");
 const subjectInput = ref("");
 const textareaValueSave = ref("");
-const AiEmailBody = ref("");
+const emailBody = ref("");
 const subject = ref("");
 const emailSelected = ref(localStorage.getItem("email") || "");
 const selectedLength = ref("short");
@@ -90,7 +90,7 @@ provide("subjectInput", subjectInput);
 provide("emailsLinked", emailsLinked);
 provide("contacts", contacts);
 provide("history", history);
-provide("AiEmailBody", AiEmailBody);
+provide("emailBody", emailBody);
 provide("textareaValueSave", textareaValueSave);
 provide("selectedLength", selectedLength);
 provide("selectedFormality", selectedFormality);
@@ -142,11 +142,11 @@ async function initializeQuill() {
 
     if (quill.value) {
         quill.value.on("text-change", function () {
-            AiEmailBody.value = quill.value?.root.innerHTML ?? "";
+            emailBody.value = quill.value?.root.innerHTML ?? "";
             if (isFirstTimeEmail.value) {
                 const quillContent = quill.value?.root.innerHTML ?? "";
                 if (quillContent.trim() !== "<p><br></p>") {
-                    AiEmailBody.value = quillContent;
+                    emailBody.value = quillContent;
                     handleInputUpdateMailContent(quillContent);
                     isFirstTimeEmail.value = false;
                 }
@@ -457,7 +457,7 @@ async function checkSpelling() {
 
     const result = await postData("api/correct_email_language/", {
         subject: subjectInput.value,
-        body: AiEmailBody.value,
+        body: emailBody.value,
     });
 
     hideLoading();
@@ -499,7 +499,7 @@ async function checkCopyWriting() {
 
     const result = await postData("api/check_email_copywriting/", {
         subject: subjectInput.value,
-        body: AiEmailBody.value,
+        body: emailBody.value,
     });
 
     hideLoading();
@@ -540,7 +540,7 @@ async function writeBetter() {
         length: selectedLength.value,
         formality: selectedFormality.value,
         subject: subjectInput.value,
-        body: AiEmailBody.value,
+        body: emailBody.value,
         history: history.value,
     });
 
@@ -551,7 +551,7 @@ async function writeBetter() {
 
     hideLoading();
     subject.value = result.data.subject;
-    AiEmailBody.value = result.data.emailBody;
+    emailBody.value = result.data.emailBody;
     history.value = result.data.history;
 
     const messageHTML = `

@@ -39,6 +39,7 @@ import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { INFORMATIVE } from "@/global/const";
+import userImage from "@/assets/user.png";
 
 const showNotification = ref(false);
 const isWriting = ref(false);
@@ -69,6 +70,7 @@ const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
 const emailContent = ref("");
 const responseKeywords = ref([]);
+const imageURL = ref<string>(userImage);
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -77,6 +79,7 @@ const scrollToBottom = async () => {
     element.scrollTop = element.scrollHeight;
 };
 
+provide("imageURL", imageURL);
 provide("importance", importance);
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
@@ -154,6 +157,8 @@ onMounted(async () => {
     selectedCC.value = JSON.parse(sessionStorage.getItem("cc") || "[]");
     selectedBCC.value = JSON.parse(sessionStorage.getItem("bcc") || "[]");
     emailSelected.value = JSON.parse(sessionStorage.getItem("emailUser") || "");
+    getProfileImage();
+
     importance.value = JSON.parse(sessionStorage.getItem("importance") || "");
     const decodedData = JSON.parse(sessionStorage.getItem("decodedData") || "");
     const htmlContent = sessionStorage.getItem("htmlContent" || "");
@@ -201,6 +206,12 @@ onMounted(async () => {
 onUnmounted(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
 });
+
+async function getProfileImage() {
+    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+    if (!result.success) return;
+    imageURL.value = result.data.profileImageUrl;
+}
 
 const handleBeforeUnload = (event: BeforeUnloadEvent) => {
     if (

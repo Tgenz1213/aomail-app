@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide, Ref, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, provide, Ref, onUnmounted, watch } from "vue";
 import Quill from "quill";
 import AiEmail from "./components/AiEmail.vue";
 import ManualEmail from "@/global/components/ManualEmail/ManualEmail.vue";
@@ -38,6 +38,7 @@ import { i18n } from "@/global/preferences";
 import { Recipient, EmailLinked, UploadedFile } from "@/global/types";
 import NavBarSmall from "@/global/components/NavBarSmall.vue";
 import NotificationTimer from "@/global/components/NotificationTimer.vue";
+import userImage from "@/assets/user.png";
 
 const showNotification = ref(false);
 const isWriting = ref(false);
@@ -67,6 +68,7 @@ const stepContainer = ref(0);
 const contacts = ref<Recipient[]>([]);
 const uploadedFiles = ref<UploadedFile[]>([]);
 const fileObjects = ref<File[]>([]);
+const imageURL = ref<string>(userImage);
 
 const scrollToBottom = async () => {
     await nextTick();
@@ -75,6 +77,7 @@ const scrollToBottom = async () => {
     element.scrollTop = element.scrollHeight;
 };
 
+provide("imageURL", imageURL);
 provide("emailSelected", emailSelected);
 provide("selectedPeople", selectedPeople);
 provide("selectedCC", selectedCC);
@@ -99,8 +102,10 @@ provide("displayMessage", displayMessage);
 provide("scrollToBottom", scrollToBottom);
 provide("loading", loading);
 provide("hideLoading", hideLoading);
+provide("getProfileImage", getProfileImage);
 
 onMounted(async () => {
+    getProfileImage();
     await initializeQuill();
 
     AIContainer.value = document.getElementById("AIContainer");
@@ -119,6 +124,16 @@ onMounted(async () => {
 onUnmounted(() => {
     window.removeEventListener("beforeunload", handleBeforeUnload);
 });
+
+watch(emailSelected, () => {
+    getProfileImage();
+});
+
+async function getProfileImage() {
+    const result = await getData(`user/social_api/get_profile_image/`, { email: emailSelected.value });
+    if (!result.success) return;
+    imageURL.value = result.data.profileImageUrl;
+}
 
 async function initializeQuill() {
     const toolbarOptions = [

@@ -74,6 +74,7 @@ export interface Email {
     sentDate: string | null;
     sentTime: string | null;
     answer: boolean;
+    archive: boolean;
     relevance: string;
     priority: string;
     flags: EmailFlags;

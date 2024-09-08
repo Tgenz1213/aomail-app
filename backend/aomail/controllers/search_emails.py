@@ -10,12 +10,9 @@ Endpoints:
 import json
 import logging
 from collections import defaultdict
-from datetime import timedelta
 from django.db.models import Exists, OuterRef, F, Q, Subquery
-from django.db.models.functions import Coalesce
 from django.db.models.manager import BaseManager
 from django.http import HttpRequest
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -113,6 +110,7 @@ def get_emails_data(request: HttpRequest) -> Response:
                     "notification": email.notification,
                     "meeting": email.meeting,
                 },
+                "archive": email.archive,
             }
             formatted_data[email.category.name][email.priority].append(email_data)
 

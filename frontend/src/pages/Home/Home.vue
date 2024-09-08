@@ -264,21 +264,21 @@ const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
 const importantEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.important || [];
-    const unreadEmails = categoryEmails.filter(email => !email.read);
+    const unreadEmails = categoryEmails.filter(email => !email.read && !email.answerLater);
     return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const informativeEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.informative || [];
-    const unreadEmails = categoryEmails.filter(email => !email.read);
+    const unreadEmails = categoryEmails.filter(email => !email.read && !email.answerLater);
     return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const uselessEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.useless || [];
-    const unreadEmails = categoryEmails.filter(email => !email.read);
+    const unreadEmails = categoryEmails.filter(email => !email.read && !email.answerLater);
     return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
@@ -289,7 +289,8 @@ const readEmails = computed(() => {
         ...(emails.value[selectedCategory.value]?.informative || []),
         ...(emails.value[selectedCategory.value]?.useless || []),
     ];
-    return addCategoryToEmails(allEmails, selectedCategory.value);
+    const filteredEmails = allEmails.filter(email => !email.answerLater);
+    return addCategoryToEmails(filteredEmails, selectedCategory.value);
 });
 
 const hasEmails = computed(() => {

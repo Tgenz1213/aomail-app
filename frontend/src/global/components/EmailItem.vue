@@ -136,10 +136,13 @@
                     </div>
                     <div v-show="isHovered" class="group action-buttons">
                         <div class="relative group">
-                            <div
-                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-2"
+                            <div v-if="!email.read"
+                                class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-4"
                             >
                                 {{ $t("homePage.read") }}
+                            </div>
+                            <div v-else  class="absolute hidden group-hover:block px-4 py-2 bg-black text-white text-sm rounded shadow-lg mt-[-45px] -ml-5">
+                                {{ $t("homePage.unread") }}
                             </div>
                             <button
                                 @click="email.read ? markEmailAsUnread() : markEmailAsRead()"

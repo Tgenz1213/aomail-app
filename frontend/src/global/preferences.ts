@@ -44,7 +44,7 @@ const fetchUserPreference = async (
 };
 
 const isUnAuthenticatedUrl = (url: string) => {
-    return UNAUTHENTICATED_URLS.some((baseUrl) => url === baseUrl);
+    return UNAUTHENTICATED_URLS.some((baseUrl) => url.split("?")[0] === baseUrl);
 };
 
 export const initializePreferences = async (i18n: I18n) => {

@@ -48,7 +48,6 @@ import NotificationTimer from "@/global/components/NotificationTimer.vue";
 import { i18n } from "@/global/preferences";
 import logo from "@/assets/logo-aomail.png";
 import StepsTracker from "./components/StepsTracker.vue";
-import { postData } from "@/global/fetchData";
 import EmailLinkForm from "./components/EmailLinkForm.vue";
 import Summary from "./components/Summary.vue";
 import router from "@/router/router";

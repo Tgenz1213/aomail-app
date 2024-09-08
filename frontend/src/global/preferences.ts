@@ -15,6 +15,32 @@ const languageSelected = ref("american");
 export const themeSelected = ref("light");
 export const timezoneSelected = ref("UTC");
 
+export const formatSentDate = (date: string) => {
+    const dateObject = new Date(`${date}T00:00:00Z`);
+    const formattedSentDate = dateObject.toLocaleDateString(i18n.global.locale, {
+        timeZone: timezoneSelected.value,
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long",
+    });
+
+    return formattedSentDate;
+};
+
+export const formatSentTime = (date: string, time: string) => {
+    const dateTimeString = `${date}T${time}:00Z`;
+    const dateTimeObject = new Date(dateTimeString);
+
+    const formattedSentTime = dateTimeObject.toLocaleTimeString(i18n.global.locale, {
+        timeZone: timezoneSelected.value,
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+
+    return formattedSentTime;
+};
+
 const fetchUserPreference = async (
     endpoint: string,
     key: keyof UserPreferenceResponse,

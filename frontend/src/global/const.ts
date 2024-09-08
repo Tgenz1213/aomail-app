@@ -18,4 +18,5 @@ export const UNAUTHENTICATED_URLS = [
     `${BASE_URL}signup-link`,
     `${BASE_URL}password-reset-link`,
     `${BASE_URL}reset-password-form`,
+    `${BASE_URL}not-authorized`,
 ];

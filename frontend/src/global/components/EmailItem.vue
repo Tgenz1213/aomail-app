@@ -500,11 +500,12 @@ async function markEmailReplyLater() {
             }
         }
     }
-    const result = await postData(`user/emails/${localEmail.value.id}/mark_reply_later/`, {});
+    let result = await postData(`user/emails/${localEmail.value.id}/mark_reply_later/`, {});
     if (!result.success) {
         displayPopup?.("error", i18n.global.t("homepage.markEmailReplyLaterFailure"), result.error as string);
         return;
     }
+    result = await postData(`user/emails/${localEmail.value.id}/mark_unread/`, {}); // We mark unread if the user click to replyLater to an email that is read=true (so it appears in replyLater correctly)
 }
 
 async function openAnswer() {

@@ -296,21 +296,21 @@ const addCategoryToEmails = (emailList: Email[], category: string): Email[] => {
 const importantEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.important || [];
-    const unreadEmails = categoryEmails.filter((email) => !email.read && !email.answerLater);
+    const unreadEmails = categoryEmails.filter(email => !email.read && !email.answerLater && !email.archive);
     return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const informativeEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.informative || [];
-    const unreadEmails = categoryEmails.filter((email) => !email.read && !email.answerLater);
+    const unreadEmails = categoryEmails.filter(email => !email.read && !email.answerLater && !email.archive);
     return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
 const uselessEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return [];
     const categoryEmails = emails.value[selectedCategory.value]?.useless || [];
-    const unreadEmails = categoryEmails.filter((email) => !email.read && !email.answerLater);
+    const unreadEmails = categoryEmails.filter(email => !email.read && !email.answerLater && !email.archive);
     return addCategoryToEmails(unreadEmails, selectedCategory.value);
 });
 
@@ -321,24 +321,26 @@ const readEmails = computed(() => {
         ...(emails.value[selectedCategory.value]?.informative || []),
         ...(emails.value[selectedCategory.value]?.useless || []),
     ];
-    const filteredEmails = allEmails.filter((email) => !email.answerLater);
+    const filteredEmails = allEmails.filter(email => !email.answerLater && !email.archive);
     return addCategoryToEmails(filteredEmails, selectedCategory.value);
 });
 
 const hasEmails = computed(() => {
     if (!emails.value || !selectedCategory.value) return false;
+
     const categoryEmails = emails.value[selectedCategory.value];
+    if (!categoryEmails) return false;
+
+    const importantEmails = categoryEmails.important?.filter(email => !email.answerLater && !email.archive) || [];
+    const informativeEmails = categoryEmails.informative?.filter(email => !email.answerLater && !email.archive) || [];
+    const uselessEmails = categoryEmails.useless?.filter(email => !email.answerLater && !email.archive) || [];
+
     return (
-        categoryEmails &&
-        ((categoryEmails.important && categoryEmails.important.length > 0) ||
-            (categoryEmails.informative && categoryEmails.informative.length > 0) ||
-            (categoryEmails.useless && categoryEmails.useless.length > 0))
+        importantEmails.length > 0 ||
+        informativeEmails.length > 0 ||
+        uselessEmails.length > 0
     );
 });
-
-const toggleVisibility = () => {
-    isHidden.value = !isHidden.value;
-};
 
 const selectCategory = async (category: Category) => {
     selectedCategory.value = category.name;

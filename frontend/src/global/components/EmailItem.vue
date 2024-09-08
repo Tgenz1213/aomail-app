@@ -18,7 +18,9 @@
                             <p :class="`text-sm font-semibold leading-6 text-${color}-900 mr-2`">
                                 {{ email.sender.name }}
                             </p>
-                            <p :class="`text-sm leading-6 text-${color}-700 mr-2`">{{ email.sentTime }}</p>
+                            <p :class="`text-sm leading-6 text-${color}-700 mr-2`">
+                                {{ formatSentTime(email.sentDate, email.sentTime) }}
+                            </p>
                         </div>
                         <div
                             :class="`hidden group-hover:block px-2 py-0.5 bg-${color}-300 text-white text-sm shadow rounded-xl`"
@@ -415,6 +417,7 @@ import { getData, getDataRawResponse, postData, deleteData } from "@/global/fetc
 import { i18n } from "@/global/preferences";
 import SeeMailModal from "./SeeMailModal.vue";
 import router from "../../router/router";
+import { formatSentTime } from "@/global/preferences";
 
 const props = withDefaults(
     defineProps<{

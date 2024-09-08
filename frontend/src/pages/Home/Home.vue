@@ -6,6 +6,14 @@
         :backgroundColor="backgroundColor"
         @dismissPopup="dismissPopup"
     />
+    <NewCategoryModal :isOpen="isModalNewCategoryOpen" @close="closeNewCategoryModal" />
+    <UpdateCategoryModal
+        :isOpen="isModalUpdateCategoryOpen"
+        :category="categoryToUpdate"
+        @close="closeUpdateCategoryModal"
+    />
+    <NewFilterModal :isOpen="isModalNewFilterOpen" @close="closeNewFilterModal" />
+    <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
     <div class="flex flex-col justify-center items-center h-screen">
         <div class="flex h-full w-full">
             <div class="w-[90px] 2xl:w-[100px] bg-white ring-1 shadow-sm ring-black ring-opacity-5">
@@ -57,14 +65,6 @@
             <!-- NOT FOR v1 
             <AssistantChat v-if="!isHidden" @toggle-visibility="toggleVisibility" />-->
         </div>
-        <NewCategoryModal :isOpen="isModalNewCategoryOpen" @close="closeNewCategoryModal" />
-        <UpdateCategoryModal
-            :isOpen="isModalUpdateCategoryOpen"
-            :category="categoryToUpdate"
-            @close="closeUpdateCategoryModal"
-        />
-        <NewFilterModal :isOpen="isModalNewFilterOpen" @close="closeNewFilterModal" />
-        <UpdateFilterModal :isOpen="isModalUpdateFilterOpen" :filter="filterToUpdate" @close="closeUpdateFilterModal" />
     </div>
 </template>
 
@@ -114,21 +114,24 @@ const currentPage = ref(1);
 const isLoading = ref(false);
 const allEmailIds = ref<string[]>([]);
 const openFilters = ref<Record<string, boolean>>({});
-const searchQuery = ref('');
-
+const searchQuery = ref("");
 
 const fetchEmailsData = async (categoryName: string) => {
     currentPage.value = 1;
     emails.value = {};
     allEmailIds.value = [];
-    let response : FetchDataResult;
+    let response: FetchDataResult;
     const storedFilters = localStorage.getItem("showFilters");
 
     if (storedFilters) {
         openFilters.value = JSON.parse(storedFilters) as Record<string, boolean>;
     }
 
-    if (selectedFilter.value && selectedCategory.value in openFilters.value && openFilters.value[selectedCategory.value]) {
+    if (
+        selectedFilter.value &&
+        selectedCategory.value in openFilters.value &&
+        openFilters.value[selectedCategory.value]
+    ) {
         const priorities = [];
         if (selectedFilter.value?.important) {
             priorities.push("important");
@@ -140,19 +143,48 @@ const fetchEmailsData = async (categoryName: string) => {
             priorities.push("useless");
         }
 
-        if (toSearch.value){
-            response = await postData("user/emails_ids/", { advanced: true, subject: searchQuery.value, senderEmail: searchQuery.value, senderName: searchQuery.value, category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
+        if (toSearch.value) {
+            response = await postData("user/emails_ids/", {
+                advanced: true,
+                subject: searchQuery.value,
+                senderEmail: searchQuery.value,
+                senderName: searchQuery.value,
+                category: categoryName,
+                priority: priorities,
+                spam: selectedFilter.value?.spam,
+                scam: selectedFilter.value?.scam,
+                meeting: selectedFilter.value?.meeting,
+                notification: selectedFilter.value?.notification,
+                newsletter: selectedFilter.value?.newsletter,
+                read: selectedFilter.value?.read,
+            });
         } else {
-            response = await postData("user/emails_ids/", { advanced: true, subject: "", category: categoryName,  priority: priorities, spam: selectedFilter.value?.spam, scam: selectedFilter.value?.scam, meeting: selectedFilter.value?.meeting, notification: selectedFilter.value?.notification, newsletter: selectedFilter.value?.newsletter, read: selectedFilter.value?.read });
+            response = await postData("user/emails_ids/", {
+                advanced: true,
+                subject: "",
+                category: categoryName,
+                priority: priorities,
+                spam: selectedFilter.value?.spam,
+                scam: selectedFilter.value?.scam,
+                meeting: selectedFilter.value?.meeting,
+                notification: selectedFilter.value?.notification,
+                newsletter: selectedFilter.value?.newsletter,
+                read: selectedFilter.value?.read,
+            });
         }
-    } else {   
-        if (toSearch.value){ 
-            response = await postData("user/emails_ids/", { subject: searchQuery.value, senderEmail: searchQuery.value, senderName: searchQuery.value, category: categoryName });
+    } else {
+        if (toSearch.value) {
+            response = await postData("user/emails_ids/", {
+                subject: searchQuery.value,
+                senderEmail: searchQuery.value,
+                senderName: searchQuery.value,
+                category: categoryName,
+            });
         } else {
             response = await postData("user/emails_ids/", { subject: "", category: categoryName });
-        } 
+        }
     }
-    
+
     allEmailIds.value = response.data.ids;
 
     await loadMoreEmails();
@@ -204,7 +236,7 @@ const scroll = () => {
     if (container) {
         container.addEventListener("scroll", handlescroll);
     }
-}
+};
 
 async function fetchCategoriesAndTotals() {
     const categoriesResponse = await getData("user/categories");
@@ -312,10 +344,10 @@ const hasEmails = computed(() => {
 
 const selectCategory = async (category: Category) => {
     selectedCategory.value = category.name;
-    currentPage.value = 1; 
-    emails.value = {}; 
+    currentPage.value = 1;
+    emails.value = {};
     allEmailIds.value = [];
-    
+
     await fetchEmailsData(selectedCategory.value);
     await fetchFiltersData(selectedCategory.value);
     localStorage.setItem("selectedCategory", category.name);
@@ -366,22 +398,21 @@ function dismissPopup() {
 }
 
 const loadActiveFilters = async () => {
-  const storedFilters = localStorage.getItem('activeFilters');
-  if (storedFilters) {
-    const parsedFilters = JSON.parse(storedFilters);
-    for (const category in parsedFilters) {
-      await fetchFiltersData(category);
-      const filterArray = filters.value[category];
-      if (filterArray && parsedFilters[category]) {
-        const filter = filterArray.find(f => f.name === parsedFilters[category].name);
-        if (filter) {
-          activeFilters.value[category] = filter;
+    const storedFilters = localStorage.getItem("activeFilters");
+    if (storedFilters) {
+        const parsedFilters = JSON.parse(storedFilters);
+        for (const category in parsedFilters) {
+            await fetchFiltersData(category);
+            const filterArray = filters.value[category];
+            if (filterArray && parsedFilters[category]) {
+                const filter = filterArray.find((f) => f.name === parsedFilters[category].name);
+                if (filter) {
+                    activeFilters.value[category] = filter;
+                }
+            }
         }
-      }
     }
-  }
 };
-
 
 onMounted(async () => {
     loadActiveFilters();

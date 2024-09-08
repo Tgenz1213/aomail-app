@@ -71,8 +71,8 @@ export interface Email {
     rule: EmailRule;
     hasAttachments: boolean;
     attachments: EmailAttachment[];
-    sentDate: string | null;
-    sentTime: string | null;
+    sentDate: string;
+    sentTime: string;
     answer: boolean;
     archive: boolean;
     relevance: string;

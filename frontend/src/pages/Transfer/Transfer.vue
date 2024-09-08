@@ -138,7 +138,7 @@ onMounted(async () => {
     const date = JSON.parse(sessionStorage.getItem("date") || new Date().toISOString());
 
     const formattedDateVar = new Date(date);
-    const formattedDate = formattedDateVar.toLocaleString("en-US", {
+    const formattedDate = formattedDateVar.toLocaleString(i18n.global.locale, {
         timeZone: timezoneSelected.value,
         year: "numeric",
         month: "short",

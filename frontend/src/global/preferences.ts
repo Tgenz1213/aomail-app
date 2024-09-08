@@ -1,8 +1,8 @@
-import { ALLOWED_LANGUAGES, ALLOWED_THEMES, API_BASE_URL, UNAUTHENTICATED_URLS } from "./const";
-import { fetchWithToken } from "./security";
+import { ALLOWED_LANGUAGES, ALLOWED_THEMES, UNAUTHENTICATED_URLS } from "./const";
 import { ref } from "vue";
 import { createI18n, I18n } from "vue-i18n";
 import messages from "@/i18n";
+import { getData } from "./fetchData";
 
 type UserPreferenceResponse = {
     language?: string;
@@ -26,39 +26,25 @@ const fetchUserPreference = async (
         return storedValue;
     }
 
-    const requestOptions: RequestInit = {
-        headers: { "Content-Type": "application/json" },
-        method: "GET",
-    };
+    const result = await getData(`${endpoint}`);
 
-    try {
-        const url = `${API_BASE_URL}${endpoint}`;
-        const response = await fetchWithToken(url, requestOptions);
-
-        if (!response || !(response instanceof Response)) {
-            return null;
-        }
-
-        const data: UserPreferenceResponse = await response.json();
-
-        if (data.error) {
-            return null;
-        } else if (data[key] !== undefined) {
-            const value = data[key];
-            if (typeof value === "string") {
-                localStorage.setItem(key, value);
-                return value;
-            }
-        }
-
-        return null;
-    } catch (error) {
+    if (!result.success) {
         return null;
     }
+
+    if (result.data[key] !== undefined) {
+        const value = result.data[key];
+        if (typeof value === "string") {
+            localStorage.setItem(key, value);
+            return value;
+        }
+    }
+
+    return null;
 };
 
 const isUnAuthenticatedUrl = (url: string) => {
-    return UNAUTHENTICATED_URLS.some((baseUrl) => url.startsWith(baseUrl));
+    return UNAUTHENTICATED_URLS.some((baseUrl) => url === baseUrl);
 };
 
 export const initializePreferences = async (i18n: I18n) => {
